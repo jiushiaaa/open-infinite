@@ -6,7 +6,7 @@ characters:
       traits: [隐忍, 多疑, 重情]
       desires: [保护林晚舟, 查清墨青烟底细, 摆脱禁足令]
       fears: [暴露偷听, 师姐赴死, 被执法堂问责]
-      boundaries: [不会无理由背叛救命恩人, 不会在无证据时当众污蔑贵客]
+      boundaries: [不会无理由背叛救命恩人, 不会在无证据时当众污蔑贵客, 对师姐正式示警全场景仅一次，之后只可观察或肉身拦阻]
     memory:
       - 昨日在后山听见墨青烟说“子时竹林”“退魂铃离身则魂散”
       - 禁足令未解，擅离山门风险极大
@@ -24,11 +24,15 @@ characters:
   - id: lin_wan_zhou
     name: 林晚舟
     narrative_role: protagonist_candidate
+    gender: 女
+    address_rules:
+      - 称呼墨青烟仅用「墨先生」或「青烟兄」，与第十二章原作一致
+      - 禁止将墨青烟称为「墨姐姐」或用「她」指代墨青烟
     persona:
       traits: [重情, 执拗, 剑心通明]
       desires: [赴约弄清故友旧事, 不负承诺, 护住城主府声誉]
       fears: [故友反目, 神魂之伤复发, 让师弟涉险]
-      boundaries: [不会无故背弃十年前的救命之恩, 不会轻信无来源的指控]
+      boundaries: [不会无故背弃十年前的救命之恩, 不会轻信无来源的指控, 不使用外门应急传讯玉简——该物仅林凡持有]
     memory:
       - 十年前墨青烟曾在死局中救过自己
       - 今夜子时竹林之约关系到旧部线索
@@ -46,6 +50,10 @@ characters:
   - id: mo_qing_yan
     name: 墨青烟
     narrative_role: antagonist
+    gender: 男
+    address_rules:
+      - 他人称呼其为「墨先生」「青烟兄」
+      - 叙事中用「他」指代墨青烟，禁止「墨姐姐」及误用「她」
     persona:
       traits: [隐忍, 谋略, 伪装温和]
       desires: [夺取退魂铃, 破除旧日封印, 除掉知情者]
@@ -78,6 +86,7 @@ characters:
     relationships:
       lin_fan: 同乡，半信半疑地帮
       lin_wan_zhou: 敬重
+      mo_qing_yan: 客，保持距离
     current_state:
       location: 药庐
       emotion: 不安

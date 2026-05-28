@@ -39,6 +39,19 @@ class BranchSpec:
     description: str
 
 
+def build_continuation_spec(parent_branch_seed: str, parent_branch_id: str) -> BranchSpec:
+    """续章单线推进：无新干预，沿父世界线自主演化一章。"""
+    return BranchSpec(
+        branch_id="linear",
+        theme=f"续章·延续{parent_branch_id}",
+        branch_seed="linear",
+        forced_stance="",
+        description=(
+            f"沿 {parent_branch_id}（{parent_branch_seed}）世界线自主推进一章，无新干预"
+        ),
+    )
+
+
 def build_branch_specs(intervention: Intervention, count: int = 3) -> list[BranchSpec]:
     """固定三条世界线：相信 / 半信半疑 / 拒绝反弹。"""
     n = max(2, min(3, count))

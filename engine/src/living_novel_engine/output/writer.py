@@ -5,13 +5,25 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from living_novel_engine.models import Intervention
 from living_novel_engine.models.events import SimulationResult
 
+if TYPE_CHECKING:
+    from living_novel_engine.resume.loader import ParentSnapshot
+
 
 def _outputs_dir() -> Path:
     return Path(__file__).resolve().parents[3] / "outputs"
+
+
+def _infer_chapter_from_result(result: SimulationResult) -> int:
+    for evt in result.accepted_events:
+        if getattr(evt, "chapter", None):
+            return int(evt.chapter)
+    snap = result.state_snapshot or {}
+    return int(snap.get("chapter") or 13)
 
 
 @dataclass
@@ -36,47 +48,36 @@ def write_run_output(
     intervention_payload = intervention.model_dump(mode="json")
     if intervention.contract_audit:
         intervention_payload["contract_audit"] = intervention.contract_audit.model_dump()
+    if not intervention_payload.get("sample_slug"):
+        intervention_payload["sample_slug"] = "tianhuang-night"
 
     with open(run_dir / "intervention.json", "w", encoding="utf-8") as f:
         json.dump(intervention_payload, f, ensure_ascii=False, indent=2, default=str)
 
     for result in results:
-        branch_dir = run_dir / result.worldline_id
-        branch_dir.mkdir(exist_ok=True)
+        _write_branch_outputs(
+            run_dir / result.worldline_id,
+            result,
+            chapter_number=_infer_chapter_from_result(result),
+        )
 
-        snapshot = result.state_snapshot or result.final_scene_state
-
-        with open(branch_dir / "events.json", "w", encoding="utf-8") as f:
-            json.dump(
-                {
-                    "worldline_id": result.worldline_id,
-                    "theme": result.theme,
-                    "branch_seed": result.branch_seed,
-                    "termination_reason": result.termination_reason,
-                    "accepted_events": [e.model_dump() for e in result.accepted_events],
-                    "state_deltas": [d.model_dump() for d in result.state_deltas],
-                    "final_scene_state": result.final_scene_state,
-                },
-                f,
-                ensure_ascii=False,
-                indent=2,
-                default=str,
-            )
-
-        (branch_dir / "summary.md").write_text(result.summary_text, encoding="utf-8")
-        (branch_dir / "chapter.md").write_text(result.chapter_text, encoding="utf-8")
-
-        with open(branch_dir / "state_snapshot.json", "w", encoding="utf-8") as f:
-            json.dump(snapshot, f, ensure_ascii=False, indent=2, default=str)
-
-    compare_md = _build_compare_md(results)
+    compare_md = _build_compare_md(results, intervention=intervention)
     (run_dir / "compare.md").write_text(compare_md, encoding="utf-8")
 
     return RunOutput(run_id=run_id, run_dir=run_dir, intervention=intervention, results=results)
 
 
-def _build_compare_md(results: list[SimulationResult]) -> str:
+def _build_compare_md(
+    results: list[SimulationResult],
+    intervention: Intervention | None = None,
+) -> str:
+    from living_novel_engine.orchestrator.narrative_constraints import summary_from_snapshot
+
     lines = ["# 世界线对比\n", f"生成时间: {datetime.now().isoformat()}\n"]
+    if intervention:
+        target = intervention.target
+        content = (intervention.content or "")[:120]
+        lines.append(f"**本次干预**（对 `{target}`）：{content}\n")
     lines.append("| 世界线 | 主题 | 种子 | 终止原因 | 下一章钩子 |")
     lines.append("| --- | --- | --- | --- | --- |")
     for r in results:
@@ -85,15 +86,197 @@ def _build_compare_md(results: list[SimulationResult]) -> str:
         lines.append(
             f"| {r.worldline_id} | {r.theme} | {r.branch_seed} | {r.termination_reason} | {hook} |"
         )
-    lines.append("\n## 分歧要点\n")
-    lines.append("- 固定三分支：相信干预 / 半信半疑调查 / 拒绝干预·反弹\n")
+    lines.append("\n## 分歧要点（由 state_snapshot 生成）\n")
     for r in results:
         lines.append(f"### {r.worldline_id}: {r.theme}\n")
-        lines.append(r.summary_text + "\n")
+        summary = summary_from_snapshot(r.theme, r)
+        lines.append(summary + "\n")
         snap = r.state_snapshot or {}
-        if snap.get("next_chapter_hook"):
-            lines.append(f"**钩子**: {snap['next_chapter_hook']}\n")
+        flags = snap.get("scene_flags") or {}
+        loc = (snap.get("characters") or {}).get("lin_wan_zhou", {}).get("location", "")
+        if loc:
+            lines.append(f"- 林晚舟位置：`{loc}`\n")
+        if flags.get("bamboo_grove_triggered"):
+            lines.append("- 场景标志：城外竹林已触发\n")
+        elif flags.get("investigating"):
+            lines.append("- 场景标志：留城调查/拖延\n")
+        hook = snap.get("next_chapter_hook")
+        if hook:
+            lines.append(f"**下一章钩子**: {hook}\n")
     return "\n".join(lines)
+
+
+@dataclass
+class ResumeRunOutput:
+    run_id: str
+    run_dir: Path
+    parent: ParentSnapshot
+    result: SimulationResult
+
+
+@dataclass
+class ResumeInterveneOutput:
+    run_id: str
+    run_dir: Path
+    parent: ParentSnapshot
+    intervention: Intervention
+    results: list[SimulationResult] = field(default_factory=list)
+
+
+def _build_resume_meta(parent: "ParentSnapshot", kind: str) -> dict[str, object]:
+    current_chapter = parent.chapter_number + 1
+    lineage_entry = f"{parent.run_id}:{parent.branch_id}"
+    parent_meta_path = _outputs_dir() / parent.run_id / "meta.json"
+    lineage: list[str] = [lineage_entry]
+    branch_seed_lineage: list[str] = []
+    if parent.branch_seed:
+        branch_seed_lineage.append(parent.branch_seed)
+    if parent_meta_path.exists():
+        prev_meta = json.loads(parent_meta_path.read_text(encoding="utf-8"))
+        lineage = list(prev_meta.get("lineage", [])) + [lineage_entry]
+        branch_seed_lineage = list(prev_meta.get("branch_seed_lineage", []))
+        if parent.branch_seed and parent.branch_seed not in branch_seed_lineage:
+            branch_seed_lineage.append(parent.branch_seed)
+    return {
+        "kind": kind,
+        "parent_run_id": parent.run_id,
+        "parent_branch": parent.branch_id,
+        "parent_chapter": parent.chapter_number,
+        "current_chapter": current_chapter,
+        "sample_slug": parent.sample_slug,
+        "branch_seed_lineage": branch_seed_lineage,
+        "lineage": lineage,
+    }
+
+
+def _write_parent_artifacts(run_dir: Path, parent: "ParentSnapshot") -> None:
+    (run_dir / "parent_snapshot.json").write_text(
+        json.dumps(parent.snapshot, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    (run_dir / "parent_chapter.md").write_text(parent.chapter_text, encoding="utf-8")
+
+
+def _write_branch_outputs(
+    branch_dir: Path,
+    result: SimulationResult,
+    *,
+    chapter_number: int | None = None,
+) -> None:
+    branch_dir.mkdir(parents=True, exist_ok=True)
+    snapshot = result.state_snapshot or result.final_scene_state
+
+    events_payload: dict = {
+        "worldline_id": result.worldline_id,
+        "theme": result.theme,
+        "branch_seed": result.branch_seed,
+        "termination_reason": result.termination_reason,
+        "accepted_events": [e.model_dump() for e in result.accepted_events],
+        "state_deltas": [d.model_dump() for d in result.state_deltas],
+        "final_scene_state": result.final_scene_state,
+    }
+    if chapter_number is not None:
+        events_payload["chapter"] = chapter_number
+
+    with open(branch_dir / "events.json", "w", encoding="utf-8") as f:
+        json.dump(events_payload, f, ensure_ascii=False, indent=2, default=str)
+
+    from living_novel_engine.orchestrator.narrative_constraints import (
+        chapter_from_snapshot_and_events,
+        is_structured_chapter_fallback,
+        summary_from_snapshot,
+    )
+
+    summary_text = summary_from_snapshot(result.theme, result)
+
+    chapter_text = (result.chapter_text or "").strip()
+    ch_num = chapter_number or _infer_chapter_from_result(result)
+    if not chapter_text:
+        chapter_text = chapter_from_snapshot_and_events(
+            result, snapshot, chapter_number=ch_num, include_dev_notice=False
+        )
+    elif is_structured_chapter_fallback(chapter_text):
+        chapter_text = chapter_from_snapshot_and_events(
+            result, snapshot, chapter_number=ch_num, include_dev_notice=False
+        )
+
+    (branch_dir / "summary.md").write_text(summary_text, encoding="utf-8")
+    (branch_dir / "chapter.md").write_text(chapter_text, encoding="utf-8")
+
+    with open(branch_dir / "state_snapshot.json", "w", encoding="utf-8") as f:
+        json.dump(snapshot, f, ensure_ascii=False, indent=2, default=str)
+
+
+def write_resume_output(
+    parent: "ParentSnapshot",
+    result: SimulationResult,
+    *,
+    kind: str = "resume_continue",
+) -> ResumeRunOutput:
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_id = f"run_{ts}_{uuid.uuid4().hex[:6]}_continue_{parent.branch_id}"
+    run_dir = _outputs_dir() / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    meta = _build_resume_meta(parent, kind)
+    current_chapter = int(meta["current_chapter"])
+    with open(run_dir / "meta.json", "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False, indent=2)
+
+    _write_parent_artifacts(run_dir, parent)
+    _write_branch_outputs(
+        run_dir / result.worldline_id, result, chapter_number=current_chapter
+    )
+
+    return ResumeRunOutput(
+        run_id=run_id, run_dir=run_dir, parent=parent, result=result
+    )
+
+
+def write_resume_intervene_output(
+    parent: "ParentSnapshot",
+    intervention: Intervention,
+    results: list[SimulationResult],
+) -> ResumeInterveneOutput:
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_id = f"run_{ts}_{uuid.uuid4().hex[:6]}_resume_intervene_{parent.branch_id}"
+    run_dir = _outputs_dir() / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    meta = _build_resume_meta(parent, "resume_intervene")
+    current_chapter = int(meta["current_chapter"])
+    with open(run_dir / "meta.json", "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False, indent=2)
+
+    _write_parent_artifacts(run_dir, parent)
+
+    intervention_payload = intervention.model_dump(mode="json")
+    if intervention.contract_audit:
+        intervention_payload["contract_audit"] = intervention.contract_audit.model_dump()
+    intervention_payload["sample_slug"] = parent.sample_slug
+    intervention_payload["resume_parent_run_id"] = parent.run_id
+    intervention_payload["resume_parent_branch"] = parent.branch_id
+    intervention_payload["resume_parent_chapter"] = parent.chapter_number
+    with open(run_dir / "intervention.json", "w", encoding="utf-8") as f:
+        json.dump(intervention_payload, f, ensure_ascii=False, indent=2, default=str)
+
+    for result in results:
+        _write_branch_outputs(
+            run_dir / result.worldline_id,
+            result,
+            chapter_number=current_chapter,
+        )
+
+    compare_md = _build_compare_md(results, intervention=intervention)
+    (run_dir / "compare.md").write_text(compare_md, encoding="utf-8")
+
+    return ResumeInterveneOutput(
+        run_id=run_id,
+        run_dir=run_dir,
+        parent=parent,
+        intervention=intervention,
+        results=results,
+    )
 
 
 def load_run_for_compare(run_path: str | Path) -> str:

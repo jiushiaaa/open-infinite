@@ -28,6 +28,11 @@ def test_load_sample_bundle():
     assert len(bundle.characters) >= 5
     assert bundle.canon_chapter
     assert "林晚舟" in bundle.canon_chapter
+    assert bundle.prologue
+    assert "前情提要" in bundle.prologue
+    assert bundle.canon_opening
+    assert "第一章" in bundle.canon_opening
+    assert "前情提要" in bundle.canon_context_for_narrator()
 
 
 def test_intervention_audit_structured():
@@ -78,19 +83,24 @@ def test_mock_scene_run_state_snapshot(tmp_path, monkeypatch):
         spec,
         llm,
         max_rounds=2,
-        canon_excerpt=bundle.canon_chapter,
+        canon_excerpt=bundle.canon_context_for_narrator(),
+        prologue=bundle.prologue,
+        canon_opening=bundle.canon_opening,
+        canon_chapter=bundle.canon_chapter,
     )
     assert result.accepted_events
     assert result.summary_text
     assert result.chapter_text
+    assert "前情提要" in result.chapter_text
+    assert "第一章" in result.chapter_text
     snap = result.state_snapshot
     assert "characters" in snap
     assert "relationship_changes" in snap
     assert "open_threads" in snap
     assert "next_chapter_hook" in snap and snap["next_chapter_hook"]
     assert "lin_wan_zhou" in snap["characters"] or len(snap["characters"]) >= 1
-  # mock 不验证 1500 字
-    assert len(result.chapter_text) < 2000
+  # mock 含前情+开篇+干预章节选，不验证 1500 字
+    assert len(result.chapter_text) < 12000
 
     import living_novel_engine.output.writer as writer_mod
 
@@ -99,6 +109,8 @@ def test_mock_scene_run_state_snapshot(tmp_path, monkeypatch):
     out = write_run_output(intervention, [result], run_id="test_run")
     assert (out.run_dir / "intervention.json").exists()
     assert (out.run_dir / "branch_a" / "state_snapshot.json").exists()
+    chapter = (out.run_dir / "branch_a" / "chapter.md").read_text(encoding="utf-8")
+    assert chapter.strip()
 
     snapshot = json.loads(
         (out.run_dir / "branch_a" / "state_snapshot.json").read_text(encoding="utf-8")
@@ -129,7 +141,10 @@ def test_three_branches_different_hooks():
             spec,
             llm,
             max_rounds=2,
-            canon_excerpt=bundle.canon_chapter,
+            canon_excerpt=bundle.canon_context_for_narrator(),
+            prologue=bundle.prologue,
+            canon_opening=bundle.canon_opening,
+            canon_chapter=bundle.canon_chapter,
         )
         hooks.append(r.state_snapshot.get("next_chapter_hook", ""))
     assert len(set(hooks)) >= 2

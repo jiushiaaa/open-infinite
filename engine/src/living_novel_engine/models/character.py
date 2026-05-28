@@ -29,6 +29,8 @@ class CharacterAgent(BaseModel):
     current_state: CharacterState = Field(default_factory=CharacterState)
     fourth_wall_awareness: float = 0.0
     present_in_scene: bool = True
+    gender: str = ""
+    address_rules: list[str] = Field(default_factory=list)
 
     def persona_summary(self) -> str:
         p = self.persona
@@ -38,4 +40,8 @@ class CharacterAgent(BaseModel):
             f"恐惧: {', '.join(p.fears) or '未设定'}",
             f"边界: {', '.join(p.boundaries) or '未设定'}",
         ]
+        if self.gender:
+            parts.append(f"性别: {self.gender}")
+        if self.address_rules:
+            parts.append(f"称谓: {'; '.join(self.address_rules)}")
         return "\n".join(parts)

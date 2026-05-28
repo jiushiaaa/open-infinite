@@ -2,6 +2,7 @@ id: world_tianhuang_canon
 slug: tianhuang-night
 display_name: 天荒城残夜
 title: 天荒城残夜
+canonical_place_name: 天荒城
 source_type: builtin_sample
 worldline_policy: branch_on_major_intervention
 divergence_point: chapter_12_before_departure
@@ -15,6 +16,9 @@ rules:
   - 退魂铃一旦离身超过一炷香，持铃者神魂将逐渐涣散
   - 传讯玉简只能单向发送一次，使用后碎裂
   - 角色不能无理由 OOC：重情者不会瞬间冷血，多疑者不会毫无理由全盘相信陌生低语
+  - 禁止新增样例未声明设定：重生、穿越、系统、前世记忆、金手指等
+  - 退魂铃为十年前墨青烟于乱葬岗所赠，护神魂；不得改写为青云宗至宝或宗门长辈所赐
+  - 角色名精确：墨青烟（禁止莫青烟等错字）
 locations:
   - id: tingyu_pavilion
     name: 听雨轩

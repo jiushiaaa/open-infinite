@@ -21,6 +21,9 @@ venv/
 # Living Novel Engine generated runs.
 engine/outputs/
 
+# User-imported story projects (local only).
+engine/projects/
+
 # Editor/OS noise.
 .DS_Store
 Thumbs.db

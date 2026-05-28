@@ -23,6 +23,7 @@ class StoryWorld(BaseModel):
     id: str
     title: str
     display_name: str = ""
+    canonical_place_name: str = ""
     source_type: str = "builtin_sample"
     rules: list[str] = Field(default_factory=list)
     locations: list[Location] = Field(default_factory=list)

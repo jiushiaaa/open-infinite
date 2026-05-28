@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from living_novel_engine.llm.client import LLMClient
 from living_novel_engine.models import CharacterAgent, Intervention, StoryWorld
 from living_novel_engine.models.events import CharacterAction
+from living_novel_engine.orchestrator.worldline_brancher import BranchSpec
 
 
 class ActionDecision(BaseModel):
@@ -26,6 +27,7 @@ def decide_character_action(
     llm: LLMClient,
     *,
     forced_stance: str | None = None,
+    branch_spec: BranchSpec | None = None,
 ) -> CharacterAction:
     perceived = _perceive_intervention(character, intervention)
 
@@ -54,24 +56,87 @@ def decide_character_action(
         f"回合: {round_num}",
         f"世界线种子: {branch_seed}",
     ]
-    if perceived:
-        user_parts.append(f"【感知到的干预】类型={intervention.type if intervention else ''}, 内容={perceived}")
+    if intervention is None:
+        user_parts.append(
+            "【续章模式】无新高维干预；按人设、记忆、open_threads 与当前 scene_flags 自主推进剧情。"
+        )
+    elif perceived:
+        user_parts.append(f"【感知到的干预】类型={intervention.type}, 内容={perceived}")
     else:
         user_parts.append("【干预】未感知到高维信息")
-    if forced_stance:
+    if forced_stance and intervention is not None:
         user_parts.append(f"【分支提示】本世界线倾向立场: {forced_stance}，但仍需符合人设，可折中。")
+    if branch_spec and intervention is not None:
+        user_parts.append(f"【分支剧情约束】{branch_spec.description}")
+        if branch_spec.branch_seed == "believe":
+            user_parts.append("相信线：暂缓赴竹林，留在听雨轩或城内求证，不得动身赴约。")
+        elif branch_spec.branch_seed == "doubt":
+            user_parts.append("怀疑线：拖延赴约，在城内调查求证，不得前往城外竹林。")
+        elif branch_spec.branch_seed == "reject":
+            user_parts.append("拒绝线：可坚持赴约；勿因低语改道。")
+    elif branch_spec and branch_spec.branch_seed == "linear":
+        user_parts.append(f"【续章约束】{branch_spec.description}")
+    if character.id == "lin_fan" and scene_state.get("jade_slip_used"):
+        user_parts.append(
+            "【资源锁】传讯玉简已碎裂用尽，禁止 use_item/message 再次使用玉简；"
+            "只能用口语、手势、肉身拦阻。"
+        )
+    if character.id == "lin_fan" and scene_state.get("fan_warning_delivered"):
+        user_parts.append(
+            "【示警锁】已向师姐正式示警过一次，禁止 communicate/message_transmission/"
+            "subtle_interference 等再次警告；本轮只可 observe（观察）或 follow（跟随拦阻）。"
+        )
+    if character.id == "lin_wan_zhou":
+        if scene_state.get("jade_slip_used"):
+            user_parts.append(
+                "【资源】林凡传讯玉简已碎，你只闻耳畔传讯神念余韵；"
+                "禁止写你手持/放下/握着传讯玉简、应急竹简、墨色竹简或任何「竹简」示警物。"
+            )
+        else:
+            user_parts.append(
+                "【资源】你不持有传讯玉简（仅林凡有）；"
+                "向墨青烟致歉可用墨色竹简留书或口信，禁止写你捏碎传讯玉简。"
+            )
+    user_parts.append(
+        "【正史锁】禁止重生/穿越/系统/前世等未声明设定；"
+        "退魂铃仅可为墨青烟十年前乱葬岗所赠，禁止写成青云宗至宝或宗门长辈所赐；"
+        "角色名墨青烟不得写成莫青烟。"
+    )
 
     user = "\n".join(user_parts)
 
     if llm.mock:
-        decision = ActionDecision(
-            stance=forced_stance or "doubt",
-            action_type="speak",
-            target="lin_wan_zhou" if character.id == "lin_fan" else "lin_fan",
-            content=f"{character.name}低声说出半句警告",
-            internal_thought="蹊跷，但不能眼见师姐赴险",
-            intervention_response=forced_stance or "doubt",
-        )
+        if intervention is None:
+            decision = ActionDecision(
+                stance="doubt",
+                action_type="observe" if character.id == "lin_fan" else "investigate",
+                target="lin_wan_zhou" if character.id == "lin_fan" else "听雨轩周边",
+                content=f"{character.name}按当前局势谨慎行动，推进既有矛盾",
+                internal_thought="续章自主推进",
+                intervention_response="unaware",
+            )
+        elif (
+            character.id == "lin_fan"
+            and round_num == 1
+            and not scene_state.get("jade_slip_used")
+        ):
+            decision = ActionDecision(
+                stance=forced_stance or "believe",
+                action_type="use_item",
+                target="lin_wan_zhou",
+                content="捏碎传讯玉简，将警告送入林晚舟耳畔",
+                internal_thought="只能赌这一枚玉简",
+                intervention_response=forced_stance or "believe",
+            )
+        else:
+            decision = ActionDecision(
+                stance=forced_stance or "doubt",
+                action_type="speak",
+                target="lin_wan_zhou" if character.id == "lin_fan" else "lin_fan",
+                content=f"{character.name}低声说出半句警告",
+                internal_thought="蹊跷，但不能眼见师姐赴险",
+                intervention_response=forced_stance or "doubt",
+            )
     else:
         decision = llm.chat_json(system, user, ActionDecision, temperature=0.6)
 

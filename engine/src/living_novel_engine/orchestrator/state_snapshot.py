@@ -23,11 +23,16 @@ def build_state_snapshot(
 
     for cid, char in char_map_after.items():
         prev = before_map.get(cid)
+        resources = list(char.current_state.resources)
+        if cid == "lin_fan" and scene_state.get("jade_slip_used"):
+            if not any("已碎" in r for r in resources):
+                resources = [r for r in resources if "传讯玉简" not in r]
+                resources.append("传讯玉简（已碎）")
         character_snapshots[cid] = {
             "name": char.name,
             "location": char.current_state.location or scene_state.get("location", ""),
             "emotion": char.current_state.emotion,
-            "resources": list(char.current_state.resources),
+            "resources": resources,
             "narrative_role": char.narrative_role,
         }
         if prev:
@@ -116,14 +121,45 @@ def _next_chapter_hook(
     scene_state: dict[str, Any],
     result: SimulationResult,
 ) -> str:
-    if spec.branch_seed == "believe":
-        if scene_state.get("jade_slip_used"):
-            return "传讯已至，林晚舟会否改道？墨青烟在竹林等候的空寂里，谁先到一步？"
-        return "她选择相信那道低语，却在廊下停步——竹林里的铃音，究竟在召唤谁？"
-    if spec.branch_seed == "doubt":
-        if scene_state.get("investigating"):
-            return "她未赴约，却提灯入暗巷查探；林凡的呼吸与墨青烟的死士，谁会被先发现？"
-        return "半信半疑的她折返听雨轩，窗纸后的影子，比雨夜更冷。"
+    """由 scene_flags 优先生成钩子，避免与快照矛盾的 Phase 0 固定文案。"""
+    seed = spec.branch_seed
+
+    if scene_state.get("bamboo_grove_triggered"):
+        if seed == "reject":
+            return "石亭阵纹亮如骨烛——她终究还是赴了约，墨青烟在雨幕尽头等她。"
+        if seed == "doubt":
+            return "竹林深处，调查得来的线索与阵纹同亮，下一招是杀局还是局中局？"
+        return "城外竹林铃音与阵纹同鸣，墨青烟的身影已在石亭显现。"
+
+    if scene_state.get("investigating"):
+        if seed == "believe":
+            return "她暂缓赴约，先查退魂铃与城主府异动——那只乱葬岗伸来的手，会先于墨青烟现身吗？"
+        if seed == "doubt":
+            return "暗巷灯影摇曳，她与林凡步步逼近某个不该被揭开的答案。"
+        return "城内调查未歇，雨夜里还有谁在看她的一举一动？"
+
     if scene_state.get("lin_wan_zhou_departed"):
-        return "她仍踏入雨幕，退魂铃在远处震鸣——这一去，是生路还是魂散？"
-    return "她拒绝无名低语，反手扣住林凡手腕：今夜，你必须说清楚。"
+        if seed == "reject":
+            return "她仍踏入雨幕赴约，退魂铃在远处震鸣——这一去，是生路还是魂散？"
+        return "她提灯出城，赴约之路步步逼近城外竹林。"
+
+    if seed == "reject":
+        return "她拒听低语，却仍将赴约——林凡能否在最后一步拦住她？"
+    if seed == "linear":
+        hook = _hook_from_events(result)
+        if hook:
+            return hook
+        return "雨夜未歇，下一章的杀机藏在谁袖中？"
+
+    return _hook_from_events(result) or "更漏声里，真相与杀局只隔一扇窗。"
+
+
+def _hook_from_events(result: SimulationResult) -> str:
+    """从最后一两条推演事件摘一句悬念（无则空）。"""
+    events = getattr(result, "accepted_events", None) or []
+    for evt in reversed(events[-4:]):
+        payload = getattr(evt, "payload", None) or {}
+        content = str(payload.get("content", "")).strip()
+        if len(content) >= 12:
+            return content[:72] + ("……" if len(content) > 72 else "")
+    return ""

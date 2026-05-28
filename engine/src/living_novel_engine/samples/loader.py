@@ -23,6 +23,8 @@ class SampleBundle:
     world: StoryWorld
     characters: list[CharacterAgent]
     canon_chapter: str
+    prologue: str = ""
+    canon_opening: str = ""
 
     @property
     def display_name(self) -> str:
@@ -30,6 +32,20 @@ class SampleBundle:
 
     def character_map(self) -> dict[str, CharacterAgent]:
         return {c.id: c for c in self.characters}
+
+    def canon_context_for_narrator(self, *, max_chars: int = 3500) -> str:
+        """合并前情、开篇与干预章，供叙事与 mock 承接。"""
+        parts: list[str] = []
+        if self.prologue:
+            parts.append(f"【前情提要】\n{self.prologue.strip()}")
+        if self.canon_opening:
+            parts.append(f"【第一章节选】\n{self.canon_opening.strip()}")
+        if self.canon_chapter:
+            parts.append(f"【干预节点章节】\n{self.canon_chapter.strip()}")
+        text = "\n\n".join(parts)
+        if len(text) > max_chars:
+            return text[-max_chars:]
+        return text
 
 
 def list_samples() -> list[str]:
@@ -63,6 +79,10 @@ def load_sample(slug: str) -> SampleBundle:
 
     canon_path = sample_dir / "canon_chapter.md"
     canon_chapter = canon_path.read_text(encoding="utf-8") if canon_path.exists() else ""
+    prologue_path = sample_dir / "prologue.md"
+    prologue = prologue_path.read_text(encoding="utf-8") if prologue_path.exists() else ""
+    opening_path = sample_dir / "canon_opening.md"
+    canon_opening = opening_path.read_text(encoding="utf-8") if opening_path.exists() else ""
 
     locations = [Location(**loc) for loc in world_data.get("locations", [])]
     open_threads = [
@@ -75,6 +95,7 @@ def load_sample(slug: str) -> SampleBundle:
         id=world_data.get("id", slug),
         title=world_data.get("title", display_name),
         display_name=display_name,
+        canonical_place_name=world_data.get("canonical_place_name", "天荒城"),
         source_type=world_data.get("source_type", "builtin_sample"),
         rules=world_data.get("rules", []),
         locations=locations,
@@ -88,4 +109,11 @@ def load_sample(slug: str) -> SampleBundle:
     )
 
     characters = [CharacterAgent(**c) for c in chars_data.get("characters", [])]
-    return SampleBundle(slug=slug, world=world, characters=characters, canon_chapter=canon_chapter)
+    return SampleBundle(
+        slug=slug,
+        world=world,
+        characters=characters,
+        canon_chapter=canon_chapter,
+        prologue=prologue,
+        canon_opening=canon_opening,
+    )
