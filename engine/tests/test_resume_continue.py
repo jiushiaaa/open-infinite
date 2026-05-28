@@ -35,6 +35,8 @@ def _parent_from_intervene(tmp_path, monkeypatch, branch_id: str = "branch_a"):
         bundle.world,
         bundle.character_map(),
     )
+    intervention.story_slug = "tianhuang-night"
+    intervention.source_kind = "builtin"
     from living_novel_engine.orchestrator.worldline_brancher import build_branch_specs
 
     spec = next(s for s in build_branch_specs(intervention, 3) if s.branch_id == branch_id)

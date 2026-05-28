@@ -1,8 +1,8 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-28（v0.1.3 收口 + v0.2 设计启动）  
-> 范围：对齐 PRD v0.1-v0.5、仓库根目录 Roadmap、`engine/` Phase 0 实况，并吸收 WenShape / MiroFish / webnovel-writer 三个开源项目的可借鉴能力。  
-> 核心原则：`MiroFish/`、`webnovel-writer/`、`WenShape/` 只读研究和能力参考，不把它们的源码并入最终仓库；Living Novel Engine 的新能力集中在 `engine/` 编排层和后续自研 UI/API 层。
+> 版本：2026-05-28（v0.2.2 精华固化收口）  
+> 范围：对齐 PRD v0.1-v0.5、仓库根目录 Roadmap、`engine/` 全版本实况。  
+> 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 
 ## 1. 产品北极星
 
@@ -30,11 +30,17 @@ v0.1.2   resume continue    已收口
     ↓
 v0.1.3   resume intervene   已收口
     ↓
-v0.2     文本导入与世界锚定  当前 · 见 docs/v0.2-import-novel-mvp.md
+v0.2     文本导入与世界锚定  已收口 · 见 docs/v0.2-import-novel-mvp.md
     ↓
-v0.3     深度多 Agent 推演   接入或借鉴 MiroFish OASIS
+v0.2.1   resume imported    已收口
     ↓
-v0.4     世界线浏览器        Web UI 展示、阅读、对比、选择
+v0.2.2   精华固化           已收口 · 见 docs/research/open-source-essence-absorption.md
+    ↓
+v0.4     世界线浏览器        已收口 · 见 docs/v0.4-worldline-browser-release.md
+    ↓
+v0.4.1   边界加固           已收口
+    ↓
+v0.3     深度 Agent / 长篇检索增强  ← 下一步
     ↓
 v0.5     第四面墙机制        干预记忆、角色觉察、反抗命运
     ↓
@@ -43,9 +49,7 @@ Phase 5  社区与分享          远期
 
 当前最重要的判断：
 
-> v0.1.x 已证明「干预 → 选线续章 → 再干预三分叉」可闭环。下一步要证明引擎能脱离内置样例，吃进用户自己的文本。
-
-因此，短期优先级是 **v0.2 import-novel 最小闭环**，而不是立刻接 MiroFish 或做大而全 Web UI。
+> v0.4/v0.4.1 只读世界线浏览器已收口（145 passed）。下一步是 v0.3 深度 Agent / 长篇检索增强。
 
 ## 3. 已完成能力
 
@@ -56,6 +60,11 @@ Phase 5  社区与分享          远期
 | v0.1.1 polish | 快照 `location` 同步、天荒城/玉简措辞、正史锁、重生禁用、退魂铃来源、墨青烟错字修正 | 已完成 |
 | v0.1.2 resume continue | `lne resume continue <run_id> --branch branch_a`，父链 `meta.json`，`linear/` 续章 | 已完成 |
 | v0.1.3 resume intervene | `lne resume intervene <continue_run_id> --branch linear`，续章上再干预三分叉 | 已完成 |
+| v0.2 import-novel | `import-novel` / `validate-project` / `load_story` / imported `intervene` / LLM 抽取 | 已完成 |
+| v0.2.1 resume imported | `resume continue` / `resume intervene` 支持 imported projects | 已完成 |
+| v0.2.2 精华固化 | genre_templates / facts.jsonl / summaries / story_contract.yaml / absorption report | 已完成 |
+| v0.4 世界线浏览器 | `lne browse` 只读 Web UI / HTTP API / 世界线树 / 章节阅读 / 角色状态 / 分支对比 | 已完成 |
+| v0.4.1 边界加固 | 路径校验 validators.py / 树排序稳定 / 前端不白屏 / 37 参数化安全测试 | 已完成 |
 
 **版本收口参考 run（验收用）**
 
@@ -64,27 +73,31 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **46 passed**（截至 2026-05-28）。
+**测试基线**：`cd engine && python -m pytest -q` → **145 passed**（截至 2026-05-28）。
 
 当前用户可演示的闭环：
 
 ```text
-lne intervene <sample>
-  -> branch_a / branch_b / branch_c
+# 内置样例
+lne intervene tianhuang-night -> branch_a/b/c -> resume continue -> resume intervene
 
-lne resume continue <run_id> --branch branch_a
-  -> linear/
+# 导入项目（v0.2 完整链路）
+lne import-novel tests/fixtures/mini_novel/ --name my-story --genre xianxia --mock
+lne validate-project my-story
+lne intervene my-story --target zhao_xuan --content "..." --mock
+lne resume continue <run_id> --branch branch_a --mock
+lne resume intervene <continue_run_id> --branch linear --target shen_bing_yue --content "..." --mock
 
-lne resume intervene <continue_run_id> --branch linear
-  -> branch_a / branch_b / branch_c
+# 题材模板
+lne list-genres
 ```
 
 当前刻意未完成的能力：
 
-- 上传自己的小说（v0.2 目标）。
 - Web 阅读器和世界线树（v0.4）。
 - 多场景长程仿真 / MiroFish OASIS（v0.3）。
 - 第四面墙数值真正驱动角色行为（v0.5）。
+- BM25 事实检索（v0.3 再做）。
 
 ## 4. 三个参考项目的定位
 
@@ -229,13 +242,13 @@ lne resume intervene <run_id> \
 - 真正形成“选线 -> 再干预 -> 再分叉”的 Living Novel 心智。
 - 为 v0.4 世界线浏览器准备数据结构。
 
-### v0.2：Import Novel 与世界锚定（进行中）
+### v0.2：Import Novel 与世界锚定（已收口 · 2026-05-28）
 
 目标：让用户上传自己的文本，不再依赖内置样例。
 
 **最小闭环设计文档**：[v0.2-import-novel-mvp.md](./v0.2-import-novel-mvp.md)
 
-这是 WenShape 最值得借鉴的阶段；v0.2.0 MVP 只实现「能导入 → 能编辑 → 能 intervene」，不复制 WenShape 全量工作台。
+这是 WenShape 最值得借鉴的阶段。v0.2 分 PR 交付：**PR-A** 导入+校验；**PR-B** `intervene`（须隔离天荒城硬编码规则）。不复制 WenShape 全量工作台。
 
 命令设计：
 
@@ -498,8 +511,9 @@ v0.1.2 resume continue
 | --- | --- | --- | --- |
 | P0 | v0.1.2 resume continue | 沿分支续写下一章 | 已收口 |
 | P1 | v0.1.3 resume intervene | 在已选分支上再次干预 | 已收口 |
-| **P2** | **v0.2 import-novel** | **支持用户自己的文本** | **当前** |
-| P3 | v0.4 只读 UI | 世界线可视化 | 待做 |
+| P2 | v0.2 import-novel | 支持用户自己的文本 | 已收口 |
+| P2.5 | v0.2.1 resume on projects | 导入项目可续章/再干预 | 已收口 |
+| **P3** | **v0.4 只读 UI** | **世界线可视化** | **建议下一刀** |
 | P4 | v0.3 MiroFish adapter | 深度多 Agent 推演 | 待做 |
 | P5 | v0.5 第四面墙 | 角色觉察与反抗 | 待做 |
 
@@ -519,22 +533,40 @@ v0.1.2 resume continue
 - [x] pytest 46 passed
 - 验收 run：`run_20260528_171207_94a6b9_resume_intervene_linear`
 
-### 8.3 v0.2 实施任务（当前）
+### 8.3 v0.2 实施任务（已收口）
 
 设计文档：[v0.2-import-novel-mvp.md](./v0.2-import-novel-mvp.md)
 
-**v0.2.0 MVP（先做）**
+**PR-A（已完成）**
 
-- [ ] `lne import-novel <path> --name <slug>`：拆分 3–10 章 → LLM 抽取 → 写入 `projects/<slug>/`
-- [ ] 输出与 `samples/tianhuang-night/` 同构的 `world.yaml` / `characters.yaml` / `canon_chapter.md` + `anchor_proposal.yaml`
-- [ ] `lne list-projects` / `load_project`：与现有 `intervene` / `resume` 共用
-- [ ] `lne validate-project <slug>`：YAML/schema 校验
-- [ ] mock 抽取路径 + 单测；真实 LLM 为可选验收
+- [x] `import_novel` 包：`splitter` / `mock_extractor` / `writer` / `validator`
+- [x] `lne import-novel tests/fixtures/mini_novel/ --name test-story --mock` → `projects/test-story/`
+- [x] 产物：`source/`、`world.yaml`、`characters.yaml`、`canon_chapter.md`、`anchor_proposal.yaml`、`import_meta.json`
+- [x] `lne list-projects` / `show-project` / `validate-project`
+- [x] 覆盖保护 `--force`
+- [x] 单测 26 项
 
-**v0.2.1（可后置）**
+**PR-B（已完成）**
 
-- [ ] `facts.jsonl`、章节 `summaries/`、文风卡
-- [ ] 从 `projects/` 目录 `resume continue` / `resume intervene`
+- [x] `story_loader.py`：`load_story(slug)` 统一 `projects/` 与 `samples/`
+- [x] `intervention.json` / `meta.json` 写入 `story_slug`、`source_kind`（不再默认 `tianhuang-night`）
+- [x] 天荒城硬编码规则按 `source_type` 隔离（`scene_runner`、`character_agent`）
+- [x] `lne intervene cli-test --target zhao_xuan ... --mock` → 三分叉，无天荒城污染
+- [x] 单测 6 项；全量 79 passed
+
+**PR-C（已完成）**
+
+- [x] `llm_extractor.py`：world pass + character pass
+- [x] `lne import-novel <path> --name <slug>`（无 `--mock`）调 LLM
+- [x] JSON 解析容错、字段补全、`validate_and_repair`
+- [x] 单测 11 项；全量 **90 passed**
+
+**v0.2.1（已完成）**
+
+- [x] `resume/loader` 改用 `load_story`，`ParentSnapshot` 含 `story_slug` / `source_kind`
+- [x] `meta.json` / `intervention.json` 稳定写入 story 元数据
+- [x] `resume continue` / `resume intervene` 传 `source_type`，imported 不走天荒城规则
+- [x] `test_resume_imported_project.py`；全量 **94 passed**
 
 **预研（并行、不阻塞 MVP）**
 
@@ -634,7 +666,7 @@ projects/
 v0.1.x 已收口；下一步最稳的路线是：
 
 ```text
-v0.2 import-novel 最小闭环（用户自己的书能 intervene）
+v0.2.1 resume on imported projects
   -> v0.4 轻 UI 世界线浏览器
   -> v0.3 MiroFish 深度推演
   -> v0.5 第四面墙

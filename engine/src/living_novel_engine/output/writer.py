@@ -48,8 +48,20 @@ def write_run_output(
     intervention_payload = intervention.model_dump(mode="json")
     if intervention.contract_audit:
         intervention_payload["contract_audit"] = intervention.contract_audit.model_dump()
-    if not intervention_payload.get("sample_slug"):
-        intervention_payload["sample_slug"] = "tianhuang-night"
+    slug = (
+        intervention.story_slug
+        or intervention_payload.get("story_slug")
+        or intervention_payload.get("sample_slug")
+        or "tianhuang-night"
+    )
+    intervention_payload["story_slug"] = slug
+    intervention_payload["sample_slug"] = slug
+    if intervention.source_kind:
+        intervention_payload["source_kind"] = intervention.source_kind
+    elif slug == "tianhuang-night":
+        intervention_payload["source_kind"] = "builtin"
+    elif not intervention_payload.get("source_kind"):
+        intervention_payload["source_kind"] = "imported"
 
     with open(run_dir / "intervention.json", "w", encoding="utf-8") as f:
         json.dump(intervention_payload, f, ensure_ascii=False, indent=2, default=str)
@@ -143,7 +155,9 @@ def _build_resume_meta(parent: "ParentSnapshot", kind: str) -> dict[str, object]
         "parent_branch": parent.branch_id,
         "parent_chapter": parent.chapter_number,
         "current_chapter": current_chapter,
-        "sample_slug": parent.sample_slug,
+        "story_slug": parent.story_slug,
+        "source_kind": parent.source_kind,
+        "sample_slug": parent.story_slug,
         "branch_seed_lineage": branch_seed_lineage,
         "lineage": lineage,
     }
@@ -253,7 +267,9 @@ def write_resume_intervene_output(
     intervention_payload = intervention.model_dump(mode="json")
     if intervention.contract_audit:
         intervention_payload["contract_audit"] = intervention.contract_audit.model_dump()
-    intervention_payload["sample_slug"] = parent.sample_slug
+    intervention_payload["story_slug"] = parent.story_slug
+    intervention_payload["source_kind"] = parent.source_kind
+    intervention_payload["sample_slug"] = parent.story_slug
     intervention_payload["resume_parent_run_id"] = parent.run_id
     intervention_payload["resume_parent_branch"] = parent.branch_id
     intervention_payload["resume_parent_chapter"] = parent.chapter_number

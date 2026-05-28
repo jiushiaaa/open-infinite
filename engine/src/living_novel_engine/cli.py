@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import click
 from rich.console import Console
@@ -27,6 +28,16 @@ from living_novel_engine.resume import (
     project_characters_from_parent,
 )
 from living_novel_engine.samples import list_samples, load_sample
+
+from living_novel_engine.import_novel.splitter import split_chapters
+from living_novel_engine.import_novel.mock_extractor import mock_extract
+from living_novel_engine.import_novel.writer import write_project, _default_projects_dir
+from living_novel_engine.import_novel.validator import validate_project
+from living_novel_engine.story_loader import load_story, list_stories
+from living_novel_engine.resources.genre_loader import (
+    get_genre_display_name,
+    list_genres,
+)
 
 console = Console()
 
@@ -127,7 +138,7 @@ def intervene_cmd(
     mock: bool,
 ) -> None:
     """执行一次干预并生成多条世界线"""
-    bundle = load_sample(slug)
+    bundle = load_story(slug)
     char_map = bundle.character_map()
     if target not in char_map:
         raise click.ClickException(f"未知角色: {target}，可选: {', '.join(char_map.keys())}")
@@ -168,9 +179,12 @@ def intervene_cmd(
             prologue=bundle.prologue,
             canon_opening=bundle.canon_opening,
             canon_chapter=bundle.canon_chapter,
+            source_type=bundle.world.source_type,
         )
         results.append(result)
 
+    intervention.story_slug = slug
+    intervention.source_kind = bundle.source_kind
     output = write_run_output(intervention, results)
     console.print(f"\n[bold green]完成[/bold green] 输出目录: {output.run_dir}")
     console.print(f"对比表: {output.run_dir / 'compare.md'}")
@@ -182,6 +196,212 @@ def compare_cmd(run_path: str) -> None:
     """查看一次运行的世界线对比"""
     text = load_run_for_compare(run_path)
     console.print(text)
+
+
+# ─── v0.2 Import Novel 命令 ────────────────────────────────────────
+
+
+@main.command("import-novel")
+@click.argument("path", type=click.Path(exists=True))
+@click.option("--name", "-n", required=True, help="项目 slug（英文小写+连字符）")
+@click.option("--anchor", default="last", help="干预锚定章：last / 章节序号")
+@click.option("--genre", default="xianxia", help="题材提示")
+@click.option("--mock", is_flag=True, help="使用 mock 抽取（不调 LLM）")
+@click.option("--max-chapters", default=10, type=int, help="最大章节数")
+@click.option("--force", is_flag=True, help="覆盖已存在的同名项目")
+def import_novel_cmd(
+    path: str,
+    name: str,
+    anchor: str,
+    genre: str,
+    mock: bool,
+    max_chapters: int,
+    force: bool,
+) -> None:
+    """导入小说文本，生成可干预的世界锚定项目"""
+    import re as _re
+
+    if not _re.match(r"^[a-z0-9][a-z0-9-]*$", name):
+        raise click.ClickException("--name 须为英文小写字母+数字+连字符，如 my-story")
+
+    projects_dir = _default_projects_dir()
+    existing = projects_dir / name
+    if existing.exists() and not force:
+        raise click.ClickException(
+            f"项目 '{name}' 已存在: {existing}\n"
+            f"如需覆盖请加 --force"
+        )
+
+    source_path = Path(path)
+    console.print(f"[cyan]拆分章节[/cyan] 来源: {source_path}")
+
+    chapters = split_chapters(source_path, max_chapters=max_chapters)
+    console.print(f"  识别到 {len(chapters)} 章")
+
+    anchor_idx: int | None = None
+    if anchor == "last":
+        anchor_idx = len(chapters) - 1
+    else:
+        try:
+            anchor_idx = int(anchor) - 1
+        except ValueError:
+            raise click.ClickException(f"--anchor 须为 last 或章节序号，不支持: {anchor}")
+        if anchor_idx < 0 or anchor_idx >= len(chapters):
+            raise click.ClickException(
+                f"--anchor {anchor} 超出范围（共 {len(chapters)} 章）"
+            )
+
+    settings = LLMSettings.from_env()
+    env_mock = os.environ.get("LNE_MOCK", "").lower() in ("1", "true", "yes")
+    use_mock_extract = mock or env_mock or not settings.llm_api_key
+
+    if not use_mock_extract:
+        llm = LLMClient(settings=settings, mock=False)
+        if not llm.available:
+            raise click.ClickException(
+                "真实 LLM 抽取需要配置 LLM_API_KEY（engine/.env）。或使用 --mock。"
+            )
+        console.print(f"[cyan]抽取世界锚定[/cyan] 模式: llm ({llm.settings.llm_model_name})")
+        from living_novel_engine.import_novel.llm_extractor import llm_extract
+
+        extraction = llm_extract(
+            chapters, llm, story_name=name, genre=genre, anchor_chapter_index=anchor_idx
+        )
+    else:
+        if not mock and not env_mock and not settings.llm_api_key:
+            console.print(
+                "[yellow]未检测到 LLM_API_KEY，已自动启用 mock 模式（端到端演示）[/yellow]"
+            )
+        console.print(f"[cyan]抽取世界锚定[/cyan] 模式: mock")
+        extraction = mock_extract(
+            chapters, story_name=name, genre=genre, anchor_chapter_index=anchor_idx
+        )
+    for w in extraction.warnings:
+        console.print(f"  [dim]! {w}[/dim]")
+
+    console.print(f"[cyan]写入项目[/cyan] slug: {name}")
+    project_dir = write_project(
+        name,
+        chapters,
+        extraction,
+        anchor_chapter_index=anchor_idx,
+        allow_overwrite=force,
+        genre=genre,
+    )
+    console.print(f"\n[bold green]导入完成[/bold green] 项目目录: {project_dir}")
+    console.print("后续步骤:")
+    console.print(_item(f"lne validate-project {name}"))
+    console.print(_item(f"手动编辑 {project_dir / 'world.yaml'} 和 characters.yaml"))
+    console.print(_item(f"lne intervene {name} --target <char_id> --content '...'"))
+
+
+@main.command("list-genres")
+def list_genres_cmd() -> None:
+    """列出所有可用的题材模板 slug"""
+    table = Table(title="可用题材模板")
+    table.add_column("slug", style="cyan")
+    table.add_column("中文名", style="green")
+    for slug in list_genres():
+        table.add_row(slug, get_genre_display_name(slug))
+    console.print(table)
+
+
+@main.command("list-projects")
+def list_projects_cmd() -> None:
+    """列出已导入的项目"""
+    projects_dir = _default_projects_dir()
+    if not projects_dir.exists():
+        console.print("[yellow]尚无导入项目（projects/ 不存在）[/yellow]")
+        return
+
+    dirs = sorted(
+        d.name for d in projects_dir.iterdir()
+        if d.is_dir() and (d / "world.yaml").exists()
+    )
+    if not dirs:
+        console.print("[yellow]projects/ 下无有效项目[/yellow]")
+        return
+
+    table = Table(title="已导入项目")
+    table.add_column("slug", style="cyan")
+    table.add_column("title", style="green")
+    table.add_column("状态")
+    for slug in dirs:
+        pdir = projects_dir / slug
+        title = slug
+        try:
+            import yaml as _yaml
+
+            with open(pdir / "world.yaml", encoding="utf-8") as f:
+                w = _yaml.safe_load(f)
+            title = w.get("display_name") or w.get("title", slug)
+        except Exception:
+            pass
+        vr = validate_project(pdir)
+        status = "[green]VALID[/green]" if vr.valid else f"[red]FAIL ({len(vr.errors)} errors)[/red]"
+        table.add_row(slug, title, status)
+    console.print(table)
+
+
+@main.command("show-project")
+@click.argument("slug")
+def show_project_cmd(slug: str) -> None:
+    """查看导入项目的摘要"""
+    projects_dir = _default_projects_dir()
+    project_dir = projects_dir / slug
+    if not project_dir.exists():
+        raise click.ClickException(f"项目不存在: {slug}（查找路径: {project_dir}）")
+
+    vr = validate_project(project_dir)
+    if vr.world:
+        w = vr.world
+        console.print(f"[bold]{w.display_name or w.title}[/bold]  slug={slug}")
+        console.print(f"  source_type: {w.source_type}")
+        console.print(f"  divergence_point: {w.divergence_point}")
+        console.print(f"  rules: {len(w.rules)} 条")
+        console.print(f"  locations: {len(w.locations)} 个")
+        console.print(f"  factions: {len(w.factions)} 个")
+    if vr.characters:
+        console.print(f"\n[bold]角色[/bold] ({len(vr.characters)} 个)")
+        for c in vr.characters:
+            present = "*" if c.present_in_scene else " "
+            console.print(f"  {present} {c.name} ({c.id}) - {c.narrative_role}")
+    if vr.errors:
+        console.print("\n[red]校验错误:[/red]")
+        for e in vr.errors:
+            console.print(f"  [red]x[/red] {e}")
+    if vr.warnings:
+        console.print("\n[yellow]warnings:[/yellow]")
+        for w_msg in vr.warnings:
+            console.print(f"  [yellow]![/yellow] {w_msg}")
+
+
+@main.command("validate-project")
+@click.argument("slug")
+def validate_project_cmd(slug: str) -> None:
+    """校验导入项目的 YAML 结构与字段完整性"""
+    projects_dir = _default_projects_dir()
+    project_dir = projects_dir / slug
+    if not project_dir.exists():
+        raise click.ClickException(f"项目不存在: {slug}（查找路径: {project_dir}）")
+
+    vr = validate_project(project_dir)
+
+    if vr.valid:
+        console.print(f"[bold green]OK[/bold green] 项目 {slug} 校验通过")
+        console.print(f"  world: {vr.world.title if vr.world else '?'}")
+        console.print(f"  characters: {len(vr.characters)} 个")
+    else:
+        console.print(f"[bold red]FAIL[/bold red] 项目 {slug} 校验失败")
+        for e in vr.errors:
+            console.print(f"  [red]x[/red] {e}")
+
+    if vr.warnings:
+        for w_msg in vr.warnings:
+            console.print(f"  [yellow]![/yellow] {w_msg}")
+
+    if not vr.valid:
+        raise SystemExit(1)
 
 
 @main.group("resume")
@@ -199,14 +419,15 @@ def resume_continue_cmd(run_id: str, branch: str, rounds: int, mock: bool) -> No
     llm = _resolve_llm(mock)
     parent = load_parent_snapshot(run_id, branch)
     characters, world = project_characters_from_parent(parent)
-    bundle = load_sample(parent.sample_slug)
+    bundle = load_story(parent.story_slug)
 
     parent_seed = parent.branch_seed or "unknown"
     spec = build_continuation_spec(parent_seed, parent.branch_id)
     next_chapter = parent.chapter_number + 1
 
     console.print(
-        f"[cyan]续章[/cyan] 父 run={parent.run_id} 分支={parent.branch_id} "
+        f"[cyan]续章[/cyan] story={parent.story_slug} ({parent.source_kind}) "
+        f"父 run={parent.run_id} 分支={parent.branch_id} "
         f"第{parent.chapter_number}章 → 第{next_chapter}章"
     )
 
@@ -231,6 +452,7 @@ def resume_continue_cmd(run_id: str, branch: str, rounds: int, mock: bool) -> No
         seed_scene_state=seed_state,
         seed_characters=characters,
         chapter_number=next_chapter,
+        source_type=parent.source_type,
     )
 
     output = write_resume_output(parent, result)
@@ -263,7 +485,7 @@ def resume_intervene_cmd(
     llm = _resolve_llm(mock)
     parent = load_parent_snapshot(run_id, branch)
     characters, world = project_characters_from_parent(parent)
-    bundle = load_sample(parent.sample_slug)
+    bundle = load_story(parent.story_slug)
     char_map = bundle.character_map()
 
     if target not in char_map:
@@ -277,6 +499,8 @@ def resume_intervene_cmd(
         intervention_type=intervention_type,  # type: ignore[arg-type]
     )
     intervention = audit_intervention(intervention, world, char_map)
+    intervention.story_slug = parent.story_slug
+    intervention.source_kind = parent.source_kind
 
     console.print(
         f"[green]干预已解析[/green] strength={intervention.strength} "
@@ -285,7 +509,8 @@ def resume_intervene_cmd(
 
     next_chapter = parent.chapter_number + 1
     console.print(
-        f"[cyan]续章干预[/cyan] 父 run={parent.run_id} 分支={parent.branch_id} "
+        f"[cyan]续章干预[/cyan] story={parent.story_slug} ({parent.source_kind}) "
+        f"父 run={parent.run_id} 分支={parent.branch_id} "
         f"第{parent.chapter_number}章 → 第{next_chapter}章（三分叉）"
     )
 
@@ -315,6 +540,7 @@ def resume_intervene_cmd(
             seed_scene_state=seed_state,
             seed_characters=characters,
             chapter_number=next_chapter,
+            source_type=parent.source_type,
         )
         results.append(result)
 
@@ -328,6 +554,38 @@ def resume_intervene_cmd(
                 f"  {spec.branch_id}/chapter.md（第{next_chapter}章，"
                 f"{len(ch.read_text(encoding='utf-8'))} 字）"
             )
+
+
+@main.command("browse")
+@click.option("--host", default="127.0.0.1", help="监听地址")
+@click.option("--port", default=8765, type=int, help="监听端口")
+@click.option("--no-open", is_flag=True, help="不自动打开浏览器")
+def browse_cmd(host: str, port: int, no_open: bool) -> None:
+    """启动只读世界线浏览器（v0.4）"""
+    from living_novel_engine.browser.paths import outputs_dir, projects_dir
+    from living_novel_engine.browser.server import (
+        BrowserServerStartError,
+        start_browser_server,
+    )
+
+    console.print("[bold cyan]世界线浏览器[/bold cyan] v0.4（只读）")
+    console.print(_item(f"projects: {projects_dir()}"))
+    console.print(_item(f"outputs:  {outputs_dir()}"))
+    url = f"http://{host}:{port}/"
+    console.print(f"\n[green]访问[/green] {url}")
+    console.print("[dim]Ctrl+C 停止服务[/dim]\n")
+
+    try:
+        httpd = start_browser_server(host, port, open_browser=not no_open)
+    except BrowserServerStartError as exc:
+        raise click.ClickException(str(exc))
+
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        console.print("\n[yellow]已停止[/yellow]")
+    finally:
+        httpd.server_close()
 
 
 if __name__ == "__main__":

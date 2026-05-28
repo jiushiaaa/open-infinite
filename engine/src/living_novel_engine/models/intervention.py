@@ -35,3 +35,5 @@ class Intervention(BaseModel):
     branch_seed: str = ""
     audit_notes: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.now)
+    story_slug: str = ""
+    source_kind: str = ""

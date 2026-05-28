@@ -44,6 +44,8 @@ def _chain_continue_parent(tmp_path, monkeypatch, branch_id: str = "branch_a"):
         bundle.world,
         bundle.character_map(),
     )
+    intervention.story_slug = "tianhuang-night"
+    intervention.source_kind = "builtin"
     spec = next(s for s in build_branch_specs(intervention, 3) if s.branch_id == branch_id)
     result = run_scene(
         bundle.world,

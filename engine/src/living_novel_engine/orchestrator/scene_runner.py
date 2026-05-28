@@ -46,10 +46,13 @@ def run_scene(
     seed_scene_state: dict[str, Any] | None = None,
     seed_characters: list[CharacterAgent] | None = None,
     chapter_number: int = 13,
+    source_type: str = "builtin_sample",
 ) -> SimulationResult:
     chars = copy.deepcopy(seed_characters if seed_characters is not None else characters)
     char_map = {c.id: c for c in chars}
     present = [c for c in chars if c.present_in_scene]
+
+    is_builtin = source_type == "builtin_sample"
 
     intervention_target = intervention.target if intervention else ""
     if seed_scene_state is not None:
@@ -58,14 +61,19 @@ def run_scene(
             scene_state["intervention_target"] = intervention_target
     else:
         scene_state = {
-            "location": "听雨轩及院外",
-            "time": "子时将至",
-            "lin_wan_zhou_departed": False,
-            "bamboo_grove_triggered": False,
-            "conflict_escalated": False,
+            "location": world.scene_description.split("\n")[0][:30] if world.scene_description else "场景",
+            "time": "当前",
             "intervention_target": intervention_target,
             "branch_seed": spec.branch_seed,
         }
+        if is_builtin:
+            scene_state.update({
+                "location": "听雨轩及院外",
+                "time": "子时将至",
+                "lin_wan_zhou_departed": False,
+                "bamboo_grove_triggered": False,
+                "conflict_escalated": False,
+            })
 
     all_events: list[AcceptedEvent] = []
     scenes: list[SceneRecord] = []
@@ -95,27 +103,28 @@ def run_scene(
                 llm,
                 forced_stance=forced,
                 branch_spec=spec,
+                source_type=source_type,
             )
-            if char.id == "lin_fan":
+            if is_builtin and char.id == "lin_fan":
                 if scene_state.get("jade_slip_used") and is_jade_slip_action(action):
                     action = substitute_jade_exhausted_action(action)
                 elif scene_state.get("fan_warning_delivered") and is_fan_warning_action(
                     action
                 ):
                     action = substitute_fan_warning_exhausted(action)
-            if char.id == "lin_wan_zhou" and lin_wan_zhou_jade_resource_drift(
+            if is_builtin and char.id == "lin_wan_zhou" and lin_wan_zhou_jade_resource_drift(
                 action, scene_state
             ):
                 action = rewrite_lwz_jade_resource_drift(action, scene_state)
-            jade_used = bool(scene_state.get("jade_slip_used"))
+            jade_used = bool(scene_state.get("jade_slip_used")) if is_builtin else False
             action = action.model_copy(
                 update={
                     "content": normalize_canon_text(
                         action.content, jade_slip_used=jade_used
-                    ),
+                    ) if is_builtin else action.content,
                     "internal_thought": normalize_canon_text(
                         action.internal_thought, jade_slip_used=jade_used
-                    ),
+                    ) if is_builtin else action.internal_thought,
                 }
             )
             round_actions.append(action)
@@ -140,7 +149,11 @@ def run_scene(
             all_events.append(evt)
 
         for act in round_actions:
-            apply_character_action_to_scene(scene_state, act, char_map, spec)
+            if is_builtin:
+                apply_character_action_to_scene(scene_state, act, char_map, spec)
+            else:
+                if char_map.get(act.character_id):
+                    char_map[act.character_id].memory.append(f"轮次行动: {act.content[:80]}")
 
         scene = SceneRecord(
             round_num=round_num,
@@ -150,7 +163,7 @@ def run_scene(
         )
         scenes.append(scene)
 
-        if _should_terminate(scene_state, round_num, max_rounds):
+        if _should_terminate(scene_state, round_num, max_rounds, is_builtin=is_builtin):
             termination_reason = _termination_reason(scene_state)
             break
 
@@ -165,19 +178,20 @@ def run_scene(
         termination_reason=termination_reason,
         final_scene_state=scene_state,
     )
-    if spec.branch_seed == "linear":
+    if is_builtin and spec.branch_seed == "linear":
         reconcile_linear_flags_from_events(scene_state, all_events, char_map)
 
-    ensure_bamboo_arrival_event(
-        scene_state,
-        all_events,
-        char_map,
-        chapter_number=chapter_number,
-    )
+    if is_builtin:
+        ensure_bamboo_arrival_event(
+            scene_state,
+            all_events,
+            char_map,
+            chapter_number=chapter_number,
+        )
 
-    from living_novel_engine.orchestrator.scene_rules import sync_locations_from_scene_flags
+        from living_novel_engine.orchestrator.scene_rules import sync_locations_from_scene_flags
 
-    sync_locations_from_scene_flags(scene_state, char_map)
+        sync_locations_from_scene_flags(scene_state, char_map)
     result.final_scene_state = scene_state
     result.accepted_events = all_events
     result.state_snapshot = build_state_snapshot(
@@ -205,9 +219,11 @@ def _round_summary(actions) -> str:
     return "；".join(f"{a.character_name}({a.stance}): {a.content[:40]}" for a in actions)
 
 
-def _should_terminate(scene_state: dict, round_num: int, max_rounds: int) -> bool:
+def _should_terminate(scene_state: dict, round_num: int, max_rounds: int, *, is_builtin: bool = True) -> bool:
     if round_num >= max_rounds:
         return True
+    if not is_builtin:
+        return False
     if scene_state.get("bamboo_grove_triggered"):
         return True
     if scene_state.get("lin_wan_zhou_departed") and scene_state.get("lin_fan_followed"):

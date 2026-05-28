@@ -28,6 +28,7 @@ def decide_character_action(
     *,
     forced_stance: str | None = None,
     branch_spec: BranchSpec | None = None,
+    source_type: str = "builtin_sample",
 ) -> CharacterAction:
     perceived = _perceive_intervention(character, intervention)
 
@@ -68,45 +69,61 @@ def decide_character_action(
         user_parts.append(f"【分支提示】本世界线倾向立场: {forced_stance}，但仍需符合人设，可折中。")
     if branch_spec and intervention is not None:
         user_parts.append(f"【分支剧情约束】{branch_spec.description}")
-        if branch_spec.branch_seed == "believe":
-            user_parts.append("相信线：暂缓赴竹林，留在听雨轩或城内求证，不得动身赴约。")
-        elif branch_spec.branch_seed == "doubt":
-            user_parts.append("怀疑线：拖延赴约，在城内调查求证，不得前往城外竹林。")
-        elif branch_spec.branch_seed == "reject":
-            user_parts.append("拒绝线：可坚持赴约；勿因低语改道。")
+        if source_type == "builtin_sample":
+            if branch_spec.branch_seed == "believe":
+                user_parts.append("相信线：暂缓赴竹林，留在听雨轩或城内求证，不得动身赴约。")
+            elif branch_spec.branch_seed == "doubt":
+                user_parts.append("怀疑线：拖延赴约，在城内调查求证，不得前往城外竹林。")
+            elif branch_spec.branch_seed == "reject":
+                user_parts.append("拒绝线：可坚持赴约；勿因低语改道。")
+        else:
+            if branch_spec.branch_seed == "believe":
+                user_parts.append("相信线：角色倾向相信干预信息，并据此行动。")
+            elif branch_spec.branch_seed == "doubt":
+                user_parts.append("怀疑线：角色半信半疑，选择调查求证。")
+            elif branch_spec.branch_seed == "reject":
+                user_parts.append("拒绝线：角色拒绝干预信息，按原计划行动。")
     elif branch_spec and branch_spec.branch_seed == "linear":
         user_parts.append(f"【续章约束】{branch_spec.description}")
-    if character.id == "lin_fan" and scene_state.get("jade_slip_used"):
-        user_parts.append(
-            "【资源锁】传讯玉简已碎裂用尽，禁止 use_item/message 再次使用玉简；"
-            "只能用口语、手势、肉身拦阻。"
-        )
-    if character.id == "lin_fan" and scene_state.get("fan_warning_delivered"):
-        user_parts.append(
-            "【示警锁】已向师姐正式示警过一次，禁止 communicate/message_transmission/"
-            "subtle_interference 等再次警告；本轮只可 observe（观察）或 follow（跟随拦阻）。"
-        )
-    if character.id == "lin_wan_zhou":
-        if scene_state.get("jade_slip_used"):
+    if source_type == "builtin_sample":
+        if character.id == "lin_fan" and scene_state.get("jade_slip_used"):
             user_parts.append(
-                "【资源】林凡传讯玉简已碎，你只闻耳畔传讯神念余韵；"
-                "禁止写你手持/放下/握着传讯玉简、应急竹简、墨色竹简或任何「竹简」示警物。"
+                "【资源锁】传讯玉简已碎裂用尽，禁止 use_item/message 再次使用玉简；"
+                "只能用口语、手势、肉身拦阻。"
             )
-        else:
+        if character.id == "lin_fan" and scene_state.get("fan_warning_delivered"):
             user_parts.append(
-                "【资源】你不持有传讯玉简（仅林凡有）；"
-                "向墨青烟致歉可用墨色竹简留书或口信，禁止写你捏碎传讯玉简。"
+                "【示警锁】已向师姐正式示警过一次，禁止 communicate/message_transmission/"
+                "subtle_interference 等再次警告；本轮只可 observe（观察）或 follow（跟随拦阻）。"
             )
-    user_parts.append(
-        "【正史锁】禁止重生/穿越/系统/前世等未声明设定；"
-        "退魂铃仅可为墨青烟十年前乱葬岗所赠，禁止写成青云宗至宝或宗门长辈所赐；"
-        "角色名墨青烟不得写成莫青烟。"
-    )
+        if character.id == "lin_wan_zhou":
+            if scene_state.get("jade_slip_used"):
+                user_parts.append(
+                    "【资源】林凡传讯玉简已碎，你只闻耳畔传讯神念余韵；"
+                    "禁止写你手持/放下/握着传讯玉简、应急竹简、墨色竹简或任何「竹简」示警物。"
+                )
+            else:
+                user_parts.append(
+                    "【资源】你不持有传讯玉简（仅林凡有）；"
+                    "向墨青烟致歉可用墨色竹简留书或口信，禁止写你捏碎传讯玉简。"
+                )
+        user_parts.append(
+            "【正史锁】禁止重生/穿越/系统/前世等未声明设定；"
+            "退魂铃仅可为墨青烟十年前乱葬岗所赠，禁止写成青云宗至宝或宗门长辈所赐；"
+            "角色名墨青烟不得写成莫青烟。"
+        )
+    else:
+        user_parts.append(
+            "【通用正史锁】禁止新增原文未声明设定：重生、穿越、系统、前世记忆、金手指等。"
+            "行为必须符合 world.yaml rules 和角色 boundaries。"
+        )
 
     user = "\n".join(user_parts)
 
     if llm.mock:
-        if intervention is None:
+        if source_type != "builtin_sample":
+            decision = _generic_mock_decision(character, intervention, forced_stance, round_num)
+        elif intervention is None:
             decision = ActionDecision(
                 stance="doubt",
                 action_type="observe" if character.id == "lin_fan" else "investigate",
@@ -169,3 +186,40 @@ def _perceive_intervention(
     if intervention.visibility == "scene" and character.present_in_scene:
         return f"（在场异象）{intervention.content}"
     return None
+
+
+def _generic_mock_decision(
+    character: CharacterAgent,
+    intervention: Intervention | None,
+    forced_stance: str | None,
+    round_num: int,
+) -> ActionDecision:
+    """imported 项目的通用 mock 决策。"""
+    if intervention is None:
+        return ActionDecision(
+            stance="doubt",
+            action_type="observe",
+            target="周围环境",
+            content=f"{character.name}在当前局势中谨慎行动，审视周遭变化",
+            internal_thought="按人设与记忆推进",
+            intervention_response="unaware",
+        )
+    stance = forced_stance or ("believe" if round_num == 1 else "doubt")
+    is_target = intervention.target == character.id
+    if is_target:
+        return ActionDecision(
+            stance=stance,
+            action_type="react",
+            target="来源",
+            content=f"{character.name}感知到异常信息，正在消化并决定下一步",
+            internal_thought="这条消息意味着什么？",
+            intervention_response=stance,
+        )
+    return ActionDecision(
+        stance=stance,
+        action_type="observe",
+        target=intervention.target,
+        content=f"{character.name}注意到场景中的异常变化",
+        internal_thought="局势有变",
+        intervention_response=stance,
+    )

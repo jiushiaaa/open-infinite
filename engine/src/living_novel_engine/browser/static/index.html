@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Living Novel Engine — 世界线浏览器</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Living Novel Engine</h1>
+      <span class="tag">v0.4 只读世界线浏览器</span>
+      <span class="tag" id="story-filter">全部</span>
+      <button id="btn-all-stories" style="margin-left: auto">全部世界线</button>
+      <button id="btn-refresh">刷新</button>
+    </header>
+    <div class="layout">
+      <aside class="panel" id="sidebar">
+        <div class="empty">加载中…</div>
+      </aside>
+      <main class="reader">
+        <div class="reader-toolbar">
+          <span id="reader-title" style="font-size: 0.85rem; color: var(--muted)">选择分支阅读</span>
+          <button data-view="chapter" class="active">章节</button>
+          <button data-view="summary">摘要</button>
+          <button data-view="compare">对比</button>
+        </div>
+        <div class="reader-body" id="reader-body">
+          <div class="empty">从左侧选择故事与世界线分支</div>
+        </div>
+        <div class="cli-hints" id="cli-hints"></div>
+      </main>
+      <aside class="panel">
+        <div id="state-panel">
+          <div class="empty">角色状态</div>
+        </div>
+        <div id="story-meta"></div>
+      </aside>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

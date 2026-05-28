@@ -1,6 +1,7 @@
-# External reference projects: keep local, never publish in this repo.
-/MiroFish/
-/webnovel-writer/
+# External reference projects (已吸收精华并删除源码).
+# /MiroFish/
+# /webnovel-writer/
+# /WenShape/
 
 # Secrets and local environment.
 .env
@@ -20,6 +21,7 @@ venv/
 
 # Living Novel Engine generated runs.
 engine/outputs/
+engine/outputs_archive/
 
 # User-imported story projects (local only).
 engine/projects/

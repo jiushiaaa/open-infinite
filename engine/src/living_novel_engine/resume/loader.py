@@ -4,10 +4,10 @@ import copy
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from living_novel_engine.models import CharacterAgent
-from living_novel_engine.samples import load_sample
+from living_novel_engine.story_loader import load_story
 
 
 def _outputs_dir() -> Path:
@@ -16,12 +16,15 @@ def _outputs_dir() -> Path:
 DEFAULT_SAMPLE_SLUG = "tianhuang-night"
 DEFAULT_PARENT_CHAPTER = 13
 
+SourceKind = Literal["builtin", "imported"]
+
 
 @dataclass
 class ParentSnapshot:
     run_id: str
     branch_id: str
-    sample_slug: str
+    story_slug: str
+    source_kind: SourceKind
     chapter_number: int
     snapshot: dict[str, Any]
     chapter_text: str
@@ -33,6 +36,16 @@ class ParentSnapshot:
     branch_seed: str = ""
     branch_theme: str = ""
 
+    @property
+    def sample_slug(self) -> str:
+        """兼容旧字段名，与 story_slug 相同。"""
+        return self.story_slug
+
+    @property
+    def source_type(self) -> str:
+        """传给 scene_runner 的 source_type。"""
+        return "builtin_sample" if self.source_kind == "builtin" else "imported"
+
 
 def _resolve_run_dir(run_id: str) -> Path:
     run_dir = Path(run_id)
@@ -43,22 +56,54 @@ def _resolve_run_dir(run_id: str) -> Path:
     return run_dir
 
 
-def _infer_sample_slug(run_dir: Path) -> str:
+def _read_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _infer_story_context(run_dir: Path) -> tuple[str, SourceKind]:
+    story_slug = DEFAULT_SAMPLE_SLUG
+    source_kind: SourceKind | None = None
+
     intervention_path = run_dir / "intervention.json"
     if intervention_path.exists():
-        data = json.loads(intervention_path.read_text(encoding="utf-8"))
-        slug = data.get("sample_slug") or data.get("world_slug")
-        if slug:
-            return str(slug)
+        data = _read_json(intervention_path)
+        story_slug = str(
+            data.get("story_slug") or data.get("sample_slug") or data.get("world_slug") or story_slug
+        )
+        if data.get("source_kind") in ("builtin", "imported"):
+            source_kind = data["source_kind"]  # type: ignore[assignment]
+
     meta_path = run_dir / "meta.json"
     if meta_path.exists():
-        meta = json.loads(meta_path.read_text(encoding="utf-8"))
-        if meta.get("sample_slug"):
-            return str(meta["sample_slug"])
-    return DEFAULT_SAMPLE_SLUG
+        meta = _read_json(meta_path)
+        story_slug = str(meta.get("story_slug") or meta.get("sample_slug") or story_slug)
+        if meta.get("source_kind") in ("builtin", "imported"):
+            source_kind = meta["source_kind"]  # type: ignore[assignment]
+
+    if story_slug in ("unknown", ""):
+        story_slug = DEFAULT_SAMPLE_SLUG
+
+    if source_kind is None:
+        try:
+            bundle = load_story(story_slug)
+            source_kind = bundle.source_kind  # type: ignore[assignment]
+        except FileNotFoundError:
+            source_kind = "builtin" if story_slug == DEFAULT_SAMPLE_SLUG else "imported"
+
+    return story_slug, source_kind
 
 
-def _chapter_number_from_run(run_dir: Path, meta: dict[str, Any] | None) -> int:
+def _chapter_number_from_run(
+    run_dir: Path,
+    meta: dict[str, Any] | None,
+    events: dict[str, Any],
+) -> int:
+    if events.get("chapter") is not None:
+        return int(events["chapter"])
+    for evt in events.get("accepted_events", []):
+        ch = evt.get("chapter")
+        if ch is not None:
+            return int(ch)
     if meta and meta.get("current_chapter"):
         return int(meta["current_chapter"])
     if meta and meta.get("parent_chapter"):
@@ -84,26 +129,25 @@ def load_parent_snapshot(run_id: str, branch_id: str) -> ParentSnapshot:
     if not snapshot_path.exists():
         raise FileNotFoundError(f"缺少 state_snapshot.json: {snapshot_path}")
 
-    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    snapshot = _read_json(snapshot_path)
     chapter_text = chapter_path.read_text(encoding="utf-8") if chapter_path.exists() else ""
     summary_text = summary_path.read_text(encoding="utf-8") if summary_path.exists() else ""
-    events = (
-        json.loads(events_path.read_text(encoding="utf-8")) if events_path.exists() else {}
-    )
+    events = _read_json(events_path) if events_path.exists() else {}
 
     meta: dict[str, Any] | None = None
     meta_path = run_dir / "meta.json"
     if meta_path.exists():
-        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta = _read_json(meta_path)
 
-    sample_slug = _infer_sample_slug(run_dir)
-    chapter_number = _chapter_number_from_run(run_dir, meta)
+    story_slug, source_kind = _infer_story_context(run_dir)
+    chapter_number = _chapter_number_from_run(run_dir, meta, events)
 
     scene_flags = dict(snapshot.get("scene_flags") or {})
     return ParentSnapshot(
         run_id=run_dir.name,
         branch_id=branch_id,
-        sample_slug=sample_slug,
+        story_slug=story_slug,
+        source_kind=source_kind,
         chapter_number=chapter_number,
         snapshot=snapshot,
         chapter_text=chapter_text,
@@ -147,7 +191,7 @@ def build_seed_scene_state_for_intervene(
 def project_characters_from_parent(
     parent: ParentSnapshot,
 ) -> tuple[list[CharacterAgent], Any]:
-    bundle = load_sample(parent.sample_slug)
+    bundle = load_story(parent.story_slug)
     chars = copy.deepcopy(bundle.characters)
     snap_chars = parent.snapshot.get("characters") or {}
 
