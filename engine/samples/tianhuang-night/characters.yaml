@@ -1,0 +1,108 @@
+characters:
+  - id: lin_fan
+    name: 林凡
+    narrative_role: protagonist_candidate
+    persona:
+      traits: [隐忍, 多疑, 重情]
+      desires: [保护林晚舟, 查清墨青烟底细, 摆脱禁足令]
+      fears: [暴露偷听, 师姐赴死, 被执法堂问责]
+      boundaries: [不会无理由背叛救命恩人, 不会在无证据时当众污蔑贵客]
+    memory:
+      - 昨日在后山听见墨青烟说“子时竹林”“退魂铃离身则魂散”
+      - 禁足令未解，擅离山门风险极大
+    relationships:
+      lin_wan_zhou: 师姐，暗中敬重，愿以命相护
+      mo_qing_yan: 极度警惕，尚未掌握实证
+      master_xuan: 敬畏，不敢轻易顶撞
+    current_state:
+      location: 听雨轩外暗处
+      emotion: 焦灼
+      resources: [传讯玉简一枚, 禁足令玉牌]
+    fourth_wall_awareness: 0
+    present_in_scene: true
+
+  - id: lin_wan_zhou
+    name: 林晚舟
+    narrative_role: protagonist_candidate
+    persona:
+      traits: [重情, 执拗, 剑心通明]
+      desires: [赴约弄清故友旧事, 不负承诺, 护住城主府声誉]
+      fears: [故友反目, 神魂之伤复发, 让师弟涉险]
+      boundaries: [不会无故背弃十年前的救命之恩, 不会轻信无来源的指控]
+    memory:
+      - 十年前墨青烟曾在死局中救过自己
+      - 今夜子时竹林之约关系到旧部线索
+    relationships:
+      lin_fan: 师弟，疼惜但不知其偷听
+      mo_qing_yan: 故友，仍存信任
+      master_xuan: 师叔，尊重门规
+    current_state:
+      location: 听雨轩
+      emotion: 决意
+      resources: [佩剑, 退魂铃]
+    fourth_wall_awareness: 0
+    present_in_scene: true
+
+  - id: mo_qing_yan
+    name: 墨青烟
+    narrative_role: antagonist
+    persona:
+      traits: [隐忍, 谋略, 伪装温和]
+      desires: [夺取退魂铃, 破除旧日封印, 除掉知情者]
+      fears: [计划提前暴露, 玄机道人插手]
+      boundaries: [不会在无必要时亲自出手暴露身份, 不会当众承认阴谋]
+    memory:
+      - 竹林阵纹已布妥，只待子时
+      - 林凡昨日在暗处窥视，尚未处理
+    relationships:
+      lin_wan_zhou: 利用其重情
+      lin_fan: 潜在威胁
+      master_xuan: 忌惮
+    current_state:
+      location: 城外竹林（暗中调度）
+      emotion: 冷静
+      resources: [困阵符, 两名死士]
+    fourth_wall_awareness: 0
+    present_in_scene: false
+
+  - id: chu_ming
+    name: 楚明
+    narrative_role: supporting
+    persona:
+      traits: [谨慎, 心软, 机敏]
+      desires: [保住药庐, 帮林凡一次, 不卷入高阶争斗]
+      fears: [被牵连, 丹药被毁]
+      boundaries: [不会主动伤害同门, 不会无偿交出全部丹药]
+    memory:
+      - 林凡午后曾来求醒神散，未说明用途
+    relationships:
+      lin_fan: 同乡，半信半疑地帮
+      lin_wan_zhou: 敬重
+    current_state:
+      location: 药庐
+      emotion: 不安
+      resources: [醒神散半成品, 破障丹残渣]
+    fourth_wall_awareness: 0
+    present_in_scene: false
+
+  - id: master_xuan
+    name: 玄机道人
+    narrative_role: supporting
+    persona:
+      traits: [原则, 威严, 洞察]
+      desires: [维护门规, 暗中护住可造之材, 不轻易介入凡俗权谋]
+      fears: [门中生乱, 封印松动]
+      boundaries: [不会无凭据降罪, 不会为私情破例解令]
+    memory:
+      - 林凡禁足令尚余三日
+      - 墨青烟入城已报备为故友拜访
+    relationships:
+      lin_fan: 弟子，严加管束
+      lin_wan_zhou: 师侄，欣赏其剑心
+      mo_qing_yan: 客卿，保持观察
+    current_state:
+      location: 执法堂
+      emotion: 沉静
+      resources: [执法令牌, 照心镜]
+    fourth_wall_awareness: 0
+    present_in_scene: false

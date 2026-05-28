@@ -1,0 +1,28 @@
+# External reference projects: keep local, never publish in this repo.
+/MiroFish/
+/webnovel-writer/
+
+# Secrets and local environment.
+.env
+.env.*
+!*.env.example
+engine/.env
+
+# Python caches/build outputs.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Living Novel Engine generated runs.
+engine/outputs/
+
+# Editor/OS noise.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

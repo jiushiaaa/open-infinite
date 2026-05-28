@@ -1,0 +1,36 @@
+id: world_tianhuang_canon
+slug: tianhuang-night
+display_name: 天荒城残夜
+title: 天荒城残夜
+source_type: builtin_sample
+worldline_policy: branch_on_major_intervention
+divergence_point: chapter_12_before_departure
+scene_description: |
+  天荒城入夜，城主府后院的听雨轩灯火未灭。
+  林晚舟已整理好行装，腰间佩剑轻鸣，脖间退魂铃在烛火下泛着幽蓝。
+  城外三十里竹林，墨青烟以故友之名邀她赴约——林凡在暗处目睹密谈，却受身份与禁足令所困，无法当众揭穿。
+rules:
+  - 境界压制不可逆：低境界者无法以蛮力击败高两境以上的修士，但可借信息差、阵法、契约或器物破局
+  - 师门禁足令生效期间，外门弟子不得擅离山门，违令将遭执法堂问责
+  - 退魂铃一旦离身超过一炷香，持铃者神魂将逐渐涣散
+  - 传讯玉简只能单向发送一次，使用后碎裂
+  - 角色不能无理由 OOC：重情者不会瞬间冷血，多疑者不会毫无理由全盘相信陌生低语
+locations:
+  - id: tingyu_pavilion
+    name: 听雨轩
+    description: 城主府后院，林晚舟居所，今夜风雨欲来
+  - id: bamboo_grove
+    name: 城外竹林
+    description: 距天荒城三十里，墨青烟设局之地，阵纹隐于竹根
+  - id: alchemy_room
+    name: 药庐
+    description: 楚明掌管，藏有醒神散与破障丹半成品
+factions:
+  - 天荒城主府
+  - 青云宗外门
+  - 墨氏旧部（暗中）
+timeline:
+  - 三日前：墨青烟以故友身份入城，拜会林晚舟
+  - 昨日：林凡在后山撞见墨青烟与不明修士密谈，提及“竹林”“退魂铃”
+  - 今日黄昏：林晚舟收到竹简，约定子时赴城外竹林
+  - 今夜：干预节点——林晚舟即将出门
