@@ -170,6 +170,7 @@ def render_chapter(
     canon_chapter: str = "",
     state_snapshot: dict[str, Any] | None = None,
     chapter_number: int = 13,
+    retrieved_context: str = "",
 ) -> str:
     events_text = "\n".join(
         f"第{e.round_num}轮 {e.subject}: {e.narrative}" for e in result.accepted_events
@@ -200,7 +201,9 @@ def render_chapter(
 """
     context = canon_excerpt if canon_excerpt else ""
     snap_summary = snapshot_summary_for_narrator(snap) if snap else ""
+    retrieved_block = f"【检索到的相关事实】\n{retrieved_context}\n\n" if retrieved_context else ""
     user = (
+        f"{retrieved_block}"
         f"【原作上下文（含前情与干预节点）】\n{context[-3500:]}\n\n"
         f"【世界规则】\n{world.rules_text()}\n\n"
         f"【本世界线】{result.theme} / 种子={result.branch_seed}\n\n"

@@ -214,11 +214,39 @@ def _write_summaries(
             "summary": first_line,
             "key_events": [],
             "character_state_changes": [],
+            "state_changes": [],
             "open_threads": [],
             "characters_present": char_names[:3],
+            "evidence_refs": [],
         }
         fname = f"chapter_{ch.index:03d}.yaml"
         _write_yaml(summaries_dir / fname, summary_data)
+
+    _write_volume_brief(summaries_dir, chapters, extraction)
+
+
+def _write_volume_brief(
+    summaries_dir: Path,
+    chapters: list[SplitChapter],
+    extraction: ExtractionResult,
+) -> None:
+    """生成 summaries/volume_001.yaml — 轻量卷摘要。"""
+    if not chapters:
+        return
+    characters = extraction.characters_yaml.get("characters", [])
+    char_names = [c.get("name", c.get("id", "")) for c in characters]
+    threads = extraction.open_threads or []
+
+    volume_data = {
+        "volume": 1,
+        "chapter_range": [chapters[0].index, chapters[-1].index],
+        "summary": f"共 {len(chapters)} 章，{chapters[0].title} 至 {chapters[-1].title}",
+        "main_conflicts": [t.get("title", "") for t in threads[:3]],
+        "key_facts": [],
+        "active_threads": [t.get("id", "") for t in threads],
+        "character_arcs": char_names[:4],
+    }
+    _write_yaml(summaries_dir / "volume_001.yaml", volume_data)
 
 
 def _write_yaml(path: Path, data: object) -> None:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Literal
 
@@ -22,13 +23,51 @@ def _projects_dir() -> Path:
 
 
 class StoryBundle(SampleBundle):
-    """扩展 SampleBundle，增加 source_kind 标记。"""
+    """扩展 SampleBundle，增加 source_kind 和 project_dir 标记。"""
 
     source_kind: Literal["builtin", "imported"] = "builtin"
+    project_dir: Path | None = None
 
-    def __init__(self, *, source_kind: Literal["builtin", "imported"] = "builtin", **kwargs):
+    def __init__(
+        self,
+        *,
+        source_kind: Literal["builtin", "imported"] = "builtin",
+        project_dir: Path | None = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         object.__setattr__(self, "source_kind", source_kind)
+        object.__setattr__(self, "project_dir", project_dir)
+
+    def intervention_chapter(self) -> int:
+        """imported 项目首次 intervene 时用于检索的当前章节号。"""
+        return intervention_chapter_from_project(self.project_dir)
+
+
+def intervention_chapter_from_project(project_dir: Path | None) -> int:
+    """从 import_meta.json 推导首次干预的检索章节号。
+
+    优先 anchor_chapter_index + 1（index 为 0-based），
+    其次 chapter_count，最后回退 1。
+    """
+    if project_dir is None:
+        return 1
+    meta_path = project_dir / "import_meta.json"
+    if not meta_path.exists():
+        return 1
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return 1
+    if not isinstance(meta, dict):
+        return 1
+    anchor_idx = meta.get("anchor_chapter_index")
+    if isinstance(anchor_idx, int) and anchor_idx >= 0:
+        return anchor_idx + 1
+    chapter_count = meta.get("chapter_count")
+    if isinstance(chapter_count, int) and chapter_count >= 1:
+        return chapter_count
+    return 1
 
 
 def load_story(slug: str) -> StoryBundle:
@@ -112,6 +151,7 @@ def _load_from_project(slug: str, path: Path) -> StoryBundle:
     characters = [CharacterAgent(**c) for c in chars_data.get("characters", [])]
     return StoryBundle(
         source_kind="imported",
+        project_dir=path,
         slug=slug,
         world=world,
         characters=characters,

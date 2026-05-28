@@ -37,7 +37,7 @@ def run_scene(
     intervention: Intervention | None,
     spec: BranchSpec,
     llm: LLMClient,
-  *,
+    *,
     max_rounds: int = 4,
     canon_excerpt: str = "",
     prologue: str = "",
@@ -47,6 +47,7 @@ def run_scene(
     seed_characters: list[CharacterAgent] | None = None,
     chapter_number: int = 13,
     source_type: str = "builtin_sample",
+    retrieved_context: str = "",
 ) -> SimulationResult:
     chars = copy.deepcopy(seed_characters if seed_characters is not None else characters)
     char_map = {c.id: c for c in chars}
@@ -104,6 +105,7 @@ def run_scene(
                 forced_stance=forced,
                 branch_spec=spec,
                 source_type=source_type,
+                retrieved_context=retrieved_context,
             )
             if is_builtin and char.id == "lin_fan":
                 if scene_state.get("jade_slip_used") and is_jade_slip_action(action):
@@ -211,6 +213,7 @@ def run_scene(
         canon_chapter=canon_chapter or canon_excerpt,
         state_snapshot=result.state_snapshot,
         chapter_number=chapter_number,
+        retrieved_context=retrieved_context,
     )
     return result
 

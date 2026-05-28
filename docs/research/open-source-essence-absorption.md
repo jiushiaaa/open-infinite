@@ -31,11 +31,11 @@
 
 | 能力 | 来源 | 原因 |
 |------|------|------|
-| BM25 事实检索 | WenShape | v0.3 再做；当前 3-10 章规模不需要检索 |
-| 章节距离衰减 | WenShape | 需配合 BM25 使用，延后 |
-| Vector projection | WenShape | 等 BM25 不够用再加 |
-| MasterSetting / VolumeBrief / ChapterBrief 工作台 | WenShape | v0.3 做轻量版，不做完整工作台 |
-| 多 provider gateway | webnovel-writer | 当前 base_url 兼容已够用 |
+| BM25 事实检索 | WenShape | v0.3.0 已吸收为 Context Retrieval Lite |
+| 章节距离衰减 | WenShape | v0.3.0 已随 BM25 lite 一起吸收 |
+| Vector projection | WenShape | 等 BM25 在 50+ 章项目上不够用再加 |
+| MasterSetting / VolumeBrief / ChapterBrief 工作台 | WenShape | v0.3.1 做 ChapterBrief / VolumeBrief 轻量版；完整工作台留到 v0.6+ |
+| 多 provider gateway | webnovel-writer | 当前 base_url 兼容已够用；商业化或私有化部署时再做 |
 | 作者 Web UI | WenShape | LNE 定位是读者干预运行时，非作者工具 |
 | 直接复制大段源码 | 两者 | 避免许可证污染和架构耦合 |
 
@@ -59,10 +59,12 @@
 
 | 版本 | 使用方式 |
 |------|---------|
-| **v0.3** | facts.jsonl + summaries 结合 BM25 做事实检索注入 narrator/character_agent |
+| **v0.3.0** | facts.jsonl + summaries + story_contract 结合 BM25 lite 注入 narrator / character_agent |
 | **v0.3.1** | 扩展 summaries 为 ChapterBrief 轻量版；加入 VolumeBrief 层 |
-| **v0.4** | UI 直接读取 story_contract / facts / summaries 展示世界观和时间线 |
+| **v0.4.2** | UI 展示 v0.3 检索命中的事实、记忆、合约约束 |
 | **v0.5** | story_contract 扩展为 override ledger，支持干预记忆持久化 |
+| **v0.6** | 评估 MiroFish / OASIS 或自研多 Agent runner |
+| **v0.6+** | 按规模化需求补向量库、embedding、reranker、多 provider gateway、完整 MasterSetting 工作台 |
 
 ---
 

@@ -19,8 +19,20 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.2.2 | 精华固化：genre_templates / facts.jsonl / summaries / story_contract | 已收口 |
 | v0.4 | 只读世界线浏览器 `lne browse` | 已收口 |
 | v0.4.1 | 边界加固：路径校验抽出、树排序稳定、前端不白屏 | 已收口 |
+| v0.3.0 | Context Retrieval Lite：BM25 + 距离衰减 + prompt 注入 | 已收口 |
+| v0.3.1 | 检索 artifact：`retrieval_context.json` + source_weight + VolumeBrief | 已收口 |
 
-**测试基线**：`pytest -q` → **145 passed**（2026-05-28）。
+**测试基线**：`pytest -q` → **183 passed**（2026-05-28）。
+
+### Run 分支产物
+
+除 `chapter.md` / `events.json` / `state_snapshot.json` / `summary.md` 外，imported 项目在检索时会额外写入：
+
+```text
+outputs/run_xxx/branch_a/retrieval_context.json
+```
+
+字段：`query`、`current_chapter`、`prompt_block`、`items[]`（含 `id`、`source`、`score`、`text`、`chapter`、`evidence`）。builtin 样例不写此文件。
 
 **验收参考 run**
 

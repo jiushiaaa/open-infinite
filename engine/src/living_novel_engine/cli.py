@@ -38,8 +38,29 @@ from living_novel_engine.resources.genre_loader import (
     get_genre_display_name,
     list_genres,
 )
+from living_novel_engine.retrieval import retrieve_context
 
 console = Console()
+
+
+def _prepare_retrieval(
+    bundle,
+    query: str,
+    source_type: str,
+    *,
+    current_chapter: int = 1,
+) -> tuple[str, dict | None]:
+    """imported 项目检索上下文；builtin 返回空且不写 artifact。"""
+    if bundle.project_dir and source_type != "builtin_sample":
+        ctx = retrieve_context(bundle.project_dir, query, current_chapter=current_chapter)
+        return ctx.as_prompt_block(), ctx.to_artifact()
+    return "", None
+
+
+def _attach_retrieval(result, record: dict | None):
+    if record is not None:
+        result.retrieval_record = record
+    return result
 
 
 def _item(text: str) -> str:
@@ -165,6 +186,19 @@ def intervene_cmd(
             console.print(f"  [dim]建议:[/dim] {s}")
 
     specs = build_branch_specs(intervention, count=max(2, min(3, branches)))
+    query = f"{content} {char_map[target].name}"
+    intervention_chapter = bundle.intervention_chapter()
+    retrieved_ctx, retrieval_record = _prepare_retrieval(
+        bundle,
+        query,
+        bundle.world.source_type,
+        current_chapter=intervention_chapter,
+    )
+    if retrieval_record and retrieval_record.get("items"):
+        console.print(
+            f"  [dim]检索到 {len(retrieval_record['items'])} 条相关上下文[/dim]"
+        )
+
     results = []
     for spec in specs:
         console.print(f"[cyan]推演 {spec.branch_id}[/cyan] — {spec.theme}")
@@ -180,8 +214,9 @@ def intervene_cmd(
             canon_opening=bundle.canon_opening,
             canon_chapter=bundle.canon_chapter,
             source_type=bundle.world.source_type,
+            retrieved_context=retrieved_ctx,
         )
-        results.append(result)
+        results.append(_attach_retrieval(result, retrieval_record))
 
     intervention.story_slug = slug
     intervention.source_kind = bundle.source_kind
@@ -438,6 +473,11 @@ def resume_continue_cmd(run_id: str, branch: str, rounds: int, mock: bool) -> No
             f"{prologue}\n\n【第{parent.chapter_number}章已发生】\n{parent.summary_text.strip()}"
         )
 
+    query = parent.summary_text[:200] if parent.summary_text else parent.branch_theme
+    retrieved_ctx, retrieval_record = _prepare_retrieval(
+        bundle, query, parent.source_type, current_chapter=next_chapter
+    )
+
     result = run_scene(
         world,
         characters,
@@ -453,7 +493,9 @@ def resume_continue_cmd(run_id: str, branch: str, rounds: int, mock: bool) -> No
         seed_characters=characters,
         chapter_number=next_chapter,
         source_type=parent.source_type,
+        retrieved_context=retrieved_ctx,
     )
+    _attach_retrieval(result, retrieval_record)
 
     output = write_resume_output(parent, result)
     ch_len = len((output.run_dir / "linear" / "chapter.md").read_text(encoding="utf-8"))
@@ -523,6 +565,11 @@ def resume_intervene_cmd(
         )
 
     specs = build_branch_specs(intervention, count=max(2, min(3, branches)))
+    query = f"{content} {char_map[target].name}"
+    retrieved_ctx, retrieval_record = _prepare_retrieval(
+        bundle, query, parent.source_type, current_chapter=next_chapter
+    )
+
     results = []
     for spec in specs:
         console.print(f"[cyan]推演 {spec.branch_id}[/cyan] — {spec.theme}")
@@ -541,8 +588,9 @@ def resume_intervene_cmd(
             seed_characters=characters,
             chapter_number=next_chapter,
             source_type=parent.source_type,
+            retrieved_context=retrieved_ctx,
         )
-        results.append(result)
+        results.append(_attach_retrieval(result, retrieval_record))
 
     output = write_resume_intervene_output(parent, intervention, results)
     console.print(f"\n[bold green]完成[/bold green] 新 run: {output.run_dir}")

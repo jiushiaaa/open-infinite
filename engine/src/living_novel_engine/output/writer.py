@@ -220,6 +220,16 @@ def _write_branch_outputs(
     with open(branch_dir / "state_snapshot.json", "w", encoding="utf-8") as f:
         json.dump(snapshot, f, ensure_ascii=False, indent=2, default=str)
 
+    if result.retrieval_record is not None:
+        with open(branch_dir / "retrieval_context.json", "w", encoding="utf-8") as f:
+            json.dump(
+                result.retrieval_record,
+                f,
+                ensure_ascii=False,
+                indent=2,
+                default=str,
+            )
+
 
 def write_resume_output(
     parent: "ParentSnapshot",

@@ -29,6 +29,7 @@ def decide_character_action(
     forced_stance: str | None = None,
     branch_spec: BranchSpec | None = None,
     source_type: str = "builtin_sample",
+    retrieved_context: str = "",
 ) -> CharacterAction:
     perceived = _perceive_intervention(character, intervention)
 
@@ -47,6 +48,10 @@ def decide_character_action(
     user_parts = [
         f"【世界】{world.title}",
         f"世界规则:\n{world.rules_text()}",
+    ]
+    if retrieved_context:
+        user_parts.append(f"【检索到的正史事实与上下文】\n{retrieved_context}")
+    user_parts += [
         f"【场景】{world.scene_description}",
         f"当前场景状态: {scene_state}",
         f"【角色】{character.name} ({character.id})",

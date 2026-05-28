@@ -60,3 +60,4 @@ class SimulationResult(BaseModel):
     termination_reason: str = ""
     final_scene_state: dict[str, Any] = Field(default_factory=dict)
     state_snapshot: dict[str, Any] = Field(default_factory=dict)
+    retrieval_record: dict[str, Any] | None = None
