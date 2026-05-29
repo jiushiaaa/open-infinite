@@ -348,6 +348,68 @@ export interface WorldAnchor {
   run_count: number;
 }
 
+// ── POST /api/interventions/guardrail （v0.7.2 护栏预检）──────
+
+export type GuardrailRisk = "low" | "medium" | "high";
+export type GuardrailCategory =
+  | "genre"
+  | "time_power"
+  | "persona"
+  | "world_rule"
+  | "visibility"
+  | "strength";
+
+export interface GuardrailCheck {
+  category: GuardrailCategory;
+  label: string;
+  passed: boolean;
+  risk: GuardrailRisk;
+  detail: string;
+  repair_suggestion: string;
+}
+
+export interface GuardrailRequest {
+  story_slug: string;
+  content: string;
+  target?: string;
+  intervention_type?: string;
+  visibility?: string;
+  strength?: string;
+}
+
+export interface GuardrailResult {
+  allowed: boolean;
+  risk: GuardrailRisk;
+  intervention_type: string;
+  categories: GuardrailCheck[];
+  violations: string[];
+  repair_suggestions: string[];
+  safer_alternative: string | null;
+  rewritten_intent: string | null;
+  explanation: string;
+}
+
+// ── GET /api/stories/<slug>/characters/<id>/probe （v0.7.2 探针）──
+
+export interface CharacterProbe {
+  character_id: string;
+  name: string;
+  narrative_role: string;
+  belief_summary: string;
+  current_emotion: string;
+  desires: string[];
+  fears: string[];
+  boundaries: string[];
+  known_information: string[];
+  unknown_information: string[];
+  fourth_wall_awareness: number;
+  fourth_wall_level: string;
+  likely_intervention_response: string;
+  obedience_risk: GuardrailRisk;
+  resistance_level: GuardrailRisk;
+  explanation: string;
+}
+
 // ── /api/runs/<id> ────────────────────────────────────────
 
 export interface RunDetail {

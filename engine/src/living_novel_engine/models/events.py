@@ -44,6 +44,17 @@ class CharacterAction(BaseModel):
     content: str
     internal_thought: str = ""
     intervention_response: str = ""
+    # v0.7.2 additive：结构化可审计动作字段（STORY2GAME / eastworld 吸收）。
+    # 全部带默认值，旧构造调用与旧 artifact 读取完全兼容；
+    # 第一版不强制接入 runner 主链路，缺省即空，UI 空态正常。
+    action_id: str | None = None
+    action_label: str = ""
+    preconditions: list[str] = Field(default_factory=list)
+    effects: list[str] = Field(default_factory=list)
+    failure_reason: str = ""
+    repair_suggestions: list[str] = Field(default_factory=list)
+    risk: str = ""
+    visibility: str = ""
 
 
 class SimulationResult(BaseModel):

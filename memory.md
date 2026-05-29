@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-29（路线整理：v0.7 Product Web App 九刀已收口；下一步进入 v0.7.2 Agent Interaction）
+> **最后更新**：2026-05-30（优化 Cursor 规则：会话开始并行读四文档 memory/迭代计划/PRD/engine README）
 
 ---
 
@@ -100,9 +100,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `410 passed`（2026-05-29，+10 异步 Job）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.7.2 Agent Interaction**：CharacterAction / CharacterProbe / InterventionGuardrail / 轻量角色配置 |
+| **测试基线** | 后端 `442 passed`（2026-05-29，+32 v0.7.2 Agent Interaction）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.7.3 Visual Asset Generation**：Seedream 5.0 Lite 角色头像/封面/场景图 |
 | **后续路线** | v0.7.3 Seedream Visual Assets → v0.7.4 Baseline & Canon Replay → v0.7.5 Worldline Judge → v0.8 Long Novel Memory |
+| **刚收口** | v0.7.2 Agent Interaction：InterventionGuardrail（`POST /api/interventions/guardrail`）+ CharacterProbe（`GET /api/stories/<slug>/characters/<id>/probe`）+ CharacterAction additive 字段 + 角色探针/预检干预/结构化动作只读 UI |
 
 ---
 
@@ -337,7 +338,9 @@ lne list-genres
 | ~~产品级 Web App 核心闭环~~ | **v0.7 九刀已解决**：React/Vite 工作台、Web 干预、Causal Diff 操作、世界锚定页、导入、创世、锚定轻编辑、运行设置、异步 Job 进度已通 | — |
 | ~~Causal Diff 数据层与取舍操作~~ | **v0.7.1-C + v0.7 第三刀已解决**：每分支写 `causal_diff.json`；Web 可确立/抹除/回滚 artifact 状态（不改正文） | — |
 | ~~固定三分支心智过窄~~ | **v0.7.1-A 已解决**：`intervention_compiler/` 把自由输入编译成 `AbstractIntervention` → Compatibility → Realization → 动态 `BranchAxis` → `lineage_type`，写 `intervention_compilation.json`；四类干预（information/forced_action/resource_injection/rule_rewrite）生成不同轴；规则改写默认 reject/translate/alternate_novel，不静默污染原世界线（mock/规则版，未接真实 LLM） | — |
-| 角色动作未结构化为可执行动作 | 目前 trace/event 仍偏叙事事件；需吸收 eastworld + STORY2GAME，补 `CharacterAction`、preconditions/effects、失败原因、降级建议 | v0.7.2 |
+| ~~角色动作未结构化为可执行动作~~ | **v0.7.2 已解决（数据结构层）**：`CharacterAction` additive 增 preconditions/effects/failure_reason/repair_suggestions/risk/visibility；未强制接入 runner 主链路，接入实际产出留后续 | v0.7.2 |
+| ~~干预无越界预检解释~~ | **v0.7.2 已解决**：`InterventionGuardrail`（六维 genre/time_power/persona/world_rule/visibility/strength）独立预检 + UI 预检按钮；不阻断主链路 | v0.7.2 |
+| ~~角色内心状态不可查询~~ | **v0.7.2 已解决**：`CharacterProbe` 只读探针 + UI 角色探针入口；deterministic、无 LLM | v0.7.2 |
 | 视觉资产未接入 | 产品 UI 需要角色头像、故事封面、场景背景、世界线节点缩略图；用户已有 Seedream API | v0.7.3 |
 | ~~创世入口未做~~ | **v0.7 第六刀已解决**：`POST /api/story-genesis` + `GenesisPage`，主题输入可生成第一章和同构项目并跳转世界锚定页 | — |
 | 无干预基线未显式化 | 需要 `Baseline Worldline` 作为“角色自然发展”对照组 | v0.7.4 |
@@ -385,7 +388,7 @@ lne list-genres
 ✅ v0.7 第七刀 世界锚定轻编辑：`GET /health` + `POST /anchor`，白名单 YAML 写回 + 备份 + 健康检查
 ✅ v0.7 第八刀 运行设置面板：API Key/base_url/model/mock/rounds/runner 进程内设置 + 连通性测试
 ✅ v0.7 第九刀 异步 Job / 进度轮询：`POST /api/jobs/*` + `GET /api/jobs/<id>`，三处生成入口改走 job
-→ v0.7.2   Agent Interaction：CharacterAction / CharacterProbe / InterventionGuardrail
+✅ v0.7.2   Agent Interaction：CharacterAction（additive）/ CharacterProbe / InterventionGuardrail + 只读 UI（442 passed）
 → v0.7.3   Visual Asset Generation：Seedream 5.0 Lite 角色头像/封面/场景图
 → v0.7.4   Baseline & Canon Replay：无干预基线 + 正史回放（创世入口已完成前置）
 → v0.7.5   Worldline Judge：世界线评分、故事弧、转折点、anti-slop、emergence_score
@@ -467,14 +470,14 @@ lne list-genres
 - [x] **v0.7 第九刀**：异步 Job / 进度轮询（长推演不阻塞）
 - [ ] **v0.7 产品收口 polish（非大机制）**：`source_type=genesis` 创世徽标、真实 LLM smoke checklist、diff action 严格布尔解析、推荐下一步文案
 
-### v0.7.2 Agent Interaction（eastworld + StoryVerse + STORY2GAME）
+### v0.7.2 Agent Interaction（eastworld + StoryVerse + STORY2GAME）✅ 已收口
 
-- [ ] `CharacterAction`：角色结构化动作，不只是自然语言事件
-- [ ] `CharacterProbe`：查询角色相信/怀疑/恐惧/第四面墙觉察等内心状态
-- [ ] `InterventionGuardrail`：干预进入 `contract_audit` 前先做题材、时代、战力、人设边界检查
-- [ ] `AbstractIntervention`：读者输入先转高层意图，再实例化为动作序列
-- [ ] `CharacterAction` 增加 `preconditions` / `effects` / `failure_reason` / `repair_suggestions`
-- [ ] UI 轻量角色配置：核心信念、欲望、恐惧、已知/未知信息、可执行动作、口癖、合约边界
+- [x] `CharacterAction`：additive 增 `action_id/action_label/preconditions/effects/failure_reason/repair_suggestions/risk/visibility`（不强制接入 runner 主链路）
+- [x] `CharacterProbe`：`service/character_probe.py` + `GET /api/stories/<slug>/characters/<id>/probe`，deterministic 解释角色相信/怀疑/拒绝/反抗
+- [x] `InterventionGuardrail`：`intervention/guardrail.py` + `service/intervention_guardrail.py` + `POST /api/interventions/guardrail`，六维预检（不阻断 `run_intervention`）
+- [x] UI：世界锚定页角色探针折叠区、干预输入区「预检干预」按钮、Agent 轨迹结构化动作只读展示
+- [ ] `AbstractIntervention -> CharacterActionSequence` 实例化（仍是 v0.7.1 编译层，留 v0.8）
+- [ ] 把 CharacterAction 接入 multi_agent_trace 实际产出（留后续）；真实 LLM 探针（留后续）
 
 ### v0.7.3 Visual Asset Generation（Seedream 5.0 Lite）
 
@@ -961,6 +964,18 @@ lne list-genres
 - **边界**：未做 SSE / WebSocket / 持久化队列 / 多用户隔离 / 云端部署 / 改输出目录结构。
 - **下一刀建议**：真实 LLM 端到端体验打磨；或 `source_type=genesis` 创世徽标、diff 写回严格布尔解析、推荐榜启用。
 
+### 2026-05-29 — v0.7.2 Agent Interaction 收口
+
+- **做了什么**：
+  - **InterventionGuardrail**：新建 `intervention/guardrail.py`（`evaluate_guardrail` + `InterventionGuardrailResult`/`GuardrailCheck`，六维 genre/time_power/persona/world_rule/visibility/strength，复用 classifier + world.rules + character.boundaries，deterministic、不调 LLM、**不改 contract_audit**）+ `service/intervention_guardrail.py`（load_story→evaluate）+ `POST /api/interventions/guardrail`。规则改写型 `allowed=False` 并提示另开 Alternate Novel；其余只解释不阻断 `run_intervention`。
+  - **CharacterProbe**：新建 `service/character_probe.py`（belief/emotion/desires/fears/boundaries/known/unknown/fourth_wall_awareness+level/likely_intervention_response/obedience_risk/resistance_level/explanation）+ `GET /api/stories/<slug>/characters/<char_id>/probe`（可选 run_id/branch_id 叠加 state_snapshot、intervention_text 预测反应）。deterministic、无 LLM；故事/角色缺失 404；快照损坏不 500；中文解释"角色不会无条件服从"。
+  - **CharacterAction 增强**：`models/events.py` additive 增 `action_id/action_label/preconditions/effects/failure_reason/repair_suggestions/risk/visibility`，全部默认空值；旧构造与旧 artifact 完全兼容；**未接入 runner 主链路**。
+  - **Web UI**：`CharacterProbePanel.tsx`+`characterProbe.css`（世界锚定页角色卡折叠探针）；`InterventionComposer` 加「预检干预」按钮 + `GuardrailNote`（解释世界为何抵抗 + 更合理方式，不阻断提交）；`AgentTracePanel` 加结构化动作只读段（缺字段空态正常）；`api/{client,types}.ts` 加 guardrail/probe 类型与方法。
+- **测试**：442 passed（+32）：`tests/test_intervention_guardrail.py`（evaluate 五类 + service 三类 + HTTP 五类）、`tests/test_character_probe.py`（service 八类含快照叠加/损坏降级/imported + HTTP 五类）、`tests/test_character_action_additive.py`（+3 旧构造/新字段/dump 往返）、`tests/test_v072_contract_unchanged.py`（+2 lightweight 契约不变 + 新字段不泄漏 events/snapshot）；既有 410 零回归；前端 `pnpm run build`（tsc -b + vite）通过。
+- **文件**：`intervention/{guardrail,__init__}.py`、`service/{__init__,intervention_guardrail,character_probe}.py`、`browser/server.py`、`models/events.py`、`engine/ui/src/api/{client,types}.ts`、`engine/ui/src/components/{CharacterProbePanel.tsx,characterProbe.css,WorldAnchorPage.tsx,InterventionComposer.tsx,composer.css,AgentTracePanel.tsx}`、`tests/test_{intervention_guardrail,character_probe,character_action_additive,v072_contract_unchanged}.py`、文档。
+- **明确未做**：runner 主链路重构、LangGraph、Seedream（v0.7.3）、Baseline/Canon Replay（v0.7.4）、Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）、`AbstractIntervention -> CharacterActionSequence` 实例化、真实 LLM 探针、CharacterAction 接入 trace 实际产出。
+- **下一刀建议**：v0.7.3 Seedream Visual Assets（角色头像/封面/场景图，未配置 API Key 时降级占位图）。
+
 ### 2026-05-29 — 路线与文档整理（v0.7 主闭环封存）
 
 - **做了什么**：
@@ -970,3 +985,11 @@ lne list-genres
   - 保留 v0.7.3 Seedream 5.0 Lite、v0.7.5 Worldline Judge、v0.8 Long Novel Memory 的正式排期。
 - **测试**：文档更新，无需跑 pytest；如后续提交前需要，可按 `cd engine && python -m pytest -q` 与 `cd engine/ui && pnpm run build` 复验。
 - **下一刀建议**：v0.7.2 Agent Interaction 第一刀，先做 `CharacterAction` / `CharacterProbe` / `InterventionGuardrail` 的数据结构与只读展示，不急着重构 runner。
+
+### 2026-05-30 — 优化 Cursor 项目记忆规则（四文档上下文）
+
+- **做了什么**：
+  - 重写 `.cursor/rules/project-memory.mdc`：标题从单一 `memory.md` 改为「LNE 四文档上下文」；明确四份文档职责表、并行读取要求、按任务类型的重点章节、事实优先级；强调任务结束只写 `memory.md`。
+  - 用户 @`memory.md` 或说「先读 memory」时仍须读完整四文档。
+- **测试**：规则/文档更新，无代码变更。
+- **文件**：`.cursor/rules/project-memory.mdc`、`memory.md`

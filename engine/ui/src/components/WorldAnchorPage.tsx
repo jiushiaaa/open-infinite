@@ -8,6 +8,7 @@ import type {
 import { ApiError, api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { navigate } from "../routing";
+import { CharacterProbePanel } from "./CharacterProbePanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
 import "./worldAnchor.css";
 
@@ -164,6 +165,7 @@ export function WorldAnchorPage({ slug }: { slug: string }) {
           data.characters.map((c) => (
             <CharacterCard
               key={c.id}
+              slug={data.slug}
               c={c}
               editing={editing}
               draft={draft?.chars[c.id]}
@@ -432,11 +434,13 @@ function CenterColumn({
 // ── 角色卡 ───────────────────────────────────────────────
 
 function CharacterCard({
+  slug,
   c,
   editing,
   draft,
   patch,
 }: {
+  slug: string;
   c: AnchorCharacter;
   editing: boolean;
   draft?: CharDraft;
@@ -504,6 +508,8 @@ function CharacterCard({
           <p className="muted tiny">未声明边界。</p>
         )}
       </div>
+
+      {!editing && <CharacterProbePanel slug={slug} charId={c.id} />}
     </div>
   );
 }

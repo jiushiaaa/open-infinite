@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-29（v0.7 Product Web App 九刀已收口；下一步进入 v0.7.2 Agent Interaction）
+> 版本：2026-05-29（v0.7 Product Web App 九刀已收口；v0.7.2 Agent Interaction 已收口；下一步进入 v0.7.3 Seedream 视觉资产）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 
@@ -68,7 +68,7 @@ v0.7.1-C Causal Diff 后端数据预留  old/new 段落级 diff artifact  已收
     ↓
 v0.7     Product Web App     React/Vite 产品级前端，面向普通用户  已收口 · 见 docs/v0.7-product-web-app-ui-spec.md
     ↓
-v0.7.2   Agent Interaction   角色动作/情绪探针/干预护栏/轻量角色配置  待排期
+v0.7.2   Agent Interaction   角色动作/情绪探针/干预护栏/轻量角色配置  已收口（CharacterAction/CharacterProbe/InterventionGuardrail）
     ↓
 v0.7.3   Visual Asset Generation  Seedream 5.0 Lite 角色头像/场景图/封面  待排期
     ↓
@@ -83,7 +83,7 @@ Phase 5  社区与分享          远期
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通：React/Vite 前端、Web 自由干预、Causal Diff 确立/抹除/回滚、世界锚定页、导入小说、主题创世、锚定轻编辑、真实 LLM/运行设置、异步 Job 进度轮询。当前测试基线为 **410 passed**。下一步不再继续堆 v0.7 基础壳，而是进入 **v0.7.2 Agent Interaction**：把角色动作、情绪/信念探针、干预护栏和轻量角色配置结构化。随后依次进入 v0.7.3 Seedream 视觉资产、v0.7.4 Baseline & Canon Replay、v0.7.5 Worldline Judge；v0.8 正式开 Long Novel Memory 主线，目标是百万字到数百万字上传、分层记忆、正史账本、混合检索和一致性审计。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通：React/Vite 前端、Web 自由干预、Causal Diff 确立/抹除/回滚、世界锚定页、导入小说、主题创世、锚定轻编辑、真实 LLM/运行设置、异步 Job 进度轮询。**v0.7.2 Agent Interaction 已收口**：`InterventionGuardrail`（干预护栏预检 + `POST /api/interventions/guardrail`）、`CharacterProbe`（角色内心探针 + `GET /api/stories/<slug>/characters/<id>/probe`）、`CharacterAction` additive 结构化字段、世界锚定页角色探针入口、干预输入区预检按钮、Agent 轨迹结构化动作展示。当前测试基线为 **442 passed**。下一步进入 v0.7.3 Seedream 视觉资产、v0.7.4 Baseline & Canon Replay、v0.7.5 Worldline Judge；v0.8 正式开 Long Novel Memory 主线，目标是百万字到数百万字上传、分层记忆、正史账本、混合检索和一致性审计。
 
 ## 3. 已完成能力
 
@@ -122,7 +122,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **410 passed**（截至 2026-05-29，v0.7 第九刀异步 Job 收口）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **442 passed**（截至 2026-05-29，v0.7.2 Agent Interaction 收口；v0.7 第九刀基线为 410）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1163,6 +1163,14 @@ fourth_wall_awareness:
 
 ### v0.7.2：Agent Interaction / 角色交互协议增强
 
+**实现状态（2026-05-29 已收口）**：
+
+- ✅ `InterventionGuardrail`：`intervention/guardrail.py`（`evaluate_guardrail` + `InterventionGuardrailResult` / `GuardrailCheck`，六维 genre/time_power/persona/world_rule/visibility/strength，deterministic、不调 LLM）+ `service/intervention_guardrail.py` + `POST /api/interventions/guardrail`。独立预检解释层，**不阻断** `run_intervention` 主行为；规则改写型干预标记 `allowed=False` 并提示另开异设世界线。
+- ✅ `CharacterProbe`：`service/character_probe.py`（belief/emotion/desires/fears/boundaries/known/unknown/fourth_wall/likely_intervention_response/obedience_risk/resistance_level/explanation）+ `GET /api/stories/<slug>/characters/<char_id>/probe`（可选 run_id/branch_id/intervention_text）。deterministic、不调 LLM；故事/角色缺失 404；快照损坏不 500。
+- ✅ `CharacterAction` additive 增强：`models/events.py` 增 `action_id/action_label/preconditions/effects/failure_reason/repair_suggestions/risk/visibility`，全部带默认空值；旧构造与旧 artifact 读取完全兼容；**未强制接入 runner 主链路**。
+- ✅ Web UI：世界锚定页角色卡「角色探针」折叠入口；干预输入区「预检干预」按钮（调用 guardrail，解释世界为何抵抗并给更合理方式）；Agent 轨迹页结构化动作（前置/效果/失败/修正）只读展示，缺字段空态正常。
+- ⛔ 明确未做（留后续版本）：`AbstractIntervention -> CharacterActionSequence` 实例化（仍是 v0.7.1 编译层）、runner 主链路重构、把 CharacterAction 接入 multi_agent_trace 产出、真实 LLM 探针、Seedream（v0.7.3）、Baseline/Canon Replay（v0.7.4）、Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）。
+
 目标：在产品级 Web App 的基础体验跑通后，吸收 `eastworld`、StoryVerse 与 STORY2GAME 的经验，让角色不仅能“生成剧情”，还能以更稳定的结构执行动作、暴露内心探针、接受干预护栏，并让自由输入通过 `InterventionCompiler` 变成本次专属分支轴。
 
 该版本只借鉴 `eastworld` 的交互协议和 Agent Studio 设计，不接入其 server、Redis 或 OpenAPI client。
@@ -1705,8 +1713,8 @@ v0.1.2 resume continue
   -> v0.6.4 multi_agent_llm 小模型推演（已完成）
   -> v0.6.5 推演工程可靠性：generation_meta/质量校验/重试/usage（已完成）
   -> v0.7 产品级 Web App（已完成九刀主闭环）
-  -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，下一步）
-  -> v0.7.3 Visual Asset Generation（Seedream 视觉资产，待排期）
+  -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，已收口）
+  -> v0.7.3 Visual Asset Generation（Seedream 视觉资产，下一步）
   -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放，待排期）
   -> v0.7.5 Worldline Judge（质量评审层，待排期）
 ```
@@ -1743,7 +1751,7 @@ v0.1.2 resume continue
 | P7.1-B | v0.7.1-B LLM Compiler | LLM 编译 + fallback + rule_rewrite 安全兜底 | 已收口 |
 | P7.1-C | v0.7.1-C Causal Diff 后端数据 | `causal_diff.json`；段落级 old/new diff；确立/抹除/回滚字段预留 | 已收口 |
 | **P7** | **v0.7 Product Web App** | **React/Vite 产品级前端，Web 内导入/创世/锚定/干预/Causal Diff/设置/异步 Job；见 `docs/v0.7-product-web-app-ui-spec.md`** | **已收口** |
-| P7.2 | v0.7.2 Agent Interaction | CharacterAction / CharacterProbe / InterventionGuardrail / 轻量角色配置 UI | 待排期 |
+| P7.2 | v0.7.2 Agent Interaction | CharacterAction / CharacterProbe / InterventionGuardrail / 轻量角色配置 UI | 已收口 |
 | P7.3 | v0.7.3 Visual Asset Generation | 接入 Seedream 5.0 Lite：角色头像、故事封面、场景背景、世界线节点缩略图 | 待排期 |
 | P7.4 | v0.7.4 Baseline & Canon Replay | 无干预基线；干预偏离对比；正史回放评估（导入/创世/样例入口已由 v0.7 完成） | 待排期 |
 | P7.5 | v0.7.5 Worldline Judge | 读者/编辑评审团、世界线评分、anti-slop 检查、质量建议 | 待排期 |
@@ -2001,8 +2009,8 @@ v0.1.x、v0.2.x、v0.3.0/v0.3.1、v0.4/v0.4.1、v0.4.2、v0.5/v0.5.1、v0.6.0–
 ```text
 v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，已完成）
   -> v0.7 Product Web App（React/Vite 产品级前端九刀主闭环，已完成）
-  -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，下一步）
-  -> v0.7.3 Visual Asset Generation（Seedream 5.0 Lite 视觉资产）
+  -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，已收口）
+  -> v0.7.3 Visual Asset Generation（Seedream 5.0 Lite 视觉资产，下一步）
   -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放；创世入口已完成）
   -> v0.7.5 Worldline Judge（世界线评审团）
   -> v0.8 Long Novel Memory（百万字上传 + 分层记忆 + 正史账本 + 一致性审计）

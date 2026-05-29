@@ -33,11 +33,20 @@ from .import_novel import (
     ProjectExistsError,
     import_novel_from_payload,
 )
+from .character_probe import (
+    CharacterProbe,
+    ProbeRequestError,
+    probe_character,
+)
 from .intervene import (
     InterventionRequestError,
     InterventionServiceResult,
     resolve_llm_quietly,
     run_intervention,
+)
+from .intervention_guardrail import (
+    GuardrailRequestError,
+    check_intervention_guardrail,
 )
 from .story_genesis import (
     GenesisProjectExistsError,
@@ -60,6 +69,11 @@ __all__ = [
     "JobStore",
     "RuntimeSettings",
     "SettingsError",
+    "CharacterProbe",
+    "ProbeRequestError",
+    "GuardrailRequestError",
+    "probe_character",
+    "check_intervention_guardrail",
     "check_project_health",
     "default_mock",
     "default_rounds",

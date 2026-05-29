@@ -92,6 +92,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(indexer.get_world_anchor(slug))
 
+            if (
+                path.startswith("/api/stories/")
+                and "/characters/" in path
+                and path.endswith("/probe")
+            ):
+                return self._handle_character_probe(path, qs)
+
             if path == "/api/settings/runtime":
                 from living_novel_engine.service import get_runtime_settings
 
@@ -161,6 +168,8 @@ class BrowserHandler(BaseHTTPRequestHandler):
         try:
             if path == "/api/interventions":
                 return self._handle_intervention()
+            if path == "/api/interventions/guardrail":
+                return self._handle_guardrail()
             if path == "/api/diffs/action":
                 return self._handle_diff_action()
             if path == "/api/import-novel":
@@ -239,6 +248,39 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 "tree": tree,
             }
         )
+
+    def _handle_guardrail(self) -> None:
+        """v0.7.2：干预护栏预检（独立解释层，不阻断主链路、不发起生成）。"""
+        from living_novel_engine.service import (
+            GuardrailRequestError,
+            check_intervention_guardrail,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        story_raw = str(body.get("story_slug") or "")
+        story_slug = safe_id(story_raw)
+        if story_slug is None:
+            return self._send_json({"error": "invalid story_slug"}, status=400)
+
+        try:
+            result = check_intervention_guardrail(
+                story_slug=story_slug,
+                content=str(body.get("content") or ""),
+                target=str(body.get("target") or ""),
+                intervention_type=body.get("intervention_type"),
+                visibility=str(body.get("visibility") or "target_only"),
+                strength=str(body.get("strength") or "soft"),
+            )
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except GuardrailRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+
+        self._send_json(result.model_dump(mode="json"))
 
     def _handle_diff_action(self) -> None:
         """v0.7 第三刀：Causal Diff 确立/抹除/回滚，写回 causal_diff.json 状态。"""
@@ -413,6 +455,46 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 "backup": result.backup_dir.name if result.backup_dir else None,
             }
         )
+
+    def _handle_character_probe(self, path: str, qs: dict[str, list[str]]) -> None:
+        """v0.7.2：角色内心探针（只读，deterministic，不调用 LLM）。
+
+        路径：/api/stories/<slug>/characters/<char_id>/probe
+        可选 query：run_id / branch_id / intervention_text
+        """
+        from living_novel_engine.service import ProbeRequestError, probe_character
+
+        rest = path[len("/api/stories/") :]
+        slug_raw, _, after = rest.partition("/characters/")
+        char_part = after[: -len("/probe")].strip("/")
+        slug = safe_id(slug_raw.strip("/"))
+        char_id = safe_id(char_part)
+        if slug is None or char_id is None:
+            return self._send_json(
+                {"error": "invalid slug or character id"}, status=400
+            )
+
+        run_id_raw = _first_qs(qs, "run_id")
+        branch_id_raw = _first_qs(qs, "branch_id")
+        run_id = safe_id(run_id_raw) if run_id_raw else None
+        branch_id = safe_id(branch_id_raw) if branch_id_raw else None
+        if (run_id_raw and run_id is None) or (branch_id_raw and branch_id is None):
+            return self._send_json({"error": "invalid run_id or branch_id"}, status=400)
+
+        try:
+            probe = probe_character(
+                story_slug=slug,
+                character_id=char_id,
+                run_id=run_id,
+                branch_id=branch_id,
+                intervention_text=_first_qs(qs, "intervention_text") or "",
+            )
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except ProbeRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+
+        self._send_json(probe.model_dump(mode="json"))
 
     def _handle_job_get(self, path: str) -> None:
         """v0.7 第九刀：轮询 job 状态。失败 job 也返回 200 + error，不抛 500。"""

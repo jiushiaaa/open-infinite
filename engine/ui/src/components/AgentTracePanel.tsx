@@ -22,6 +22,16 @@ interface Misunderstanding {
   about?: string;
   corrected?: boolean;
 }
+interface StructuredAction {
+  character_name?: string;
+  action_label?: string;
+  content?: string;
+  preconditions?: string[];
+  effects?: string[];
+  failure_reason?: string;
+  repair_suggestions?: string[];
+  risk?: string;
+}
 
 export function AgentTracePanel({
   trace,
@@ -40,6 +50,14 @@ export function AgentTracePanel({
   const turns = (trace.turn_plans as TurnPlan[]) ?? [];
   const pk = (trace.private_knowledge as PrivateKnowledge[]) ?? [];
   const mis = (trace.misunderstandings as Misunderstanding[]) ?? [];
+  // v0.7.2 CharacterAction 结构化动作（additive）：runner 暂未产出时为空，空态正常。
+  const actions = ((trace.character_actions as StructuredAction[]) ?? []).filter(
+    (a) =>
+      a &&
+      ((a.preconditions?.length ?? 0) > 0 ||
+        (a.effects?.length ?? 0) > 0 ||
+        !!a.failure_reason),
+  );
 
   // 第四面墙提示：克制，仅在存在未纠正误解或已揭示隐秘时给一条短 warning。
   const awareSignal =
@@ -96,6 +114,33 @@ export function AgentTracePanel({
                 {k.content}
                 {k.revealed && <span className="delta--down delta"> · 已揭示</span>}
               </span>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {actions.length > 0 && (
+        <section className="expl-section">
+          <h3 className="expl-section__title">结构化动作（前置 / 效果 / 失败）</h3>
+          {actions.map((a, i) => (
+            <div key={i} className="trace-turn">
+              <div className="tiny" style={{ fontWeight: 600 }}>
+                {a.character_name ?? "角色"}
+                {a.action_label ? ` · ${a.action_label}` : ""}
+              </div>
+              {a.content && <div className="muted tiny">{a.content}</div>}
+              {(a.preconditions?.length ?? 0) > 0 && (
+                <div className="muted tiny">前置：{a.preconditions!.join("、")}</div>
+              )}
+              {(a.effects?.length ?? 0) > 0 && (
+                <div className="muted tiny">效果：{a.effects!.join("、")}</div>
+              )}
+              {a.failure_reason && (
+                <div className="muted tiny">失败原因：{a.failure_reason}</div>
+              )}
+              {(a.repair_suggestions?.length ?? 0) > 0 && (
+                <div className="muted tiny">修正建议：{a.repair_suggestions!.join("、")}</div>
+              )}
             </div>
           ))}
         </section>

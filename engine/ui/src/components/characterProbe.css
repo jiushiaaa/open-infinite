@@ -1,0 +1,105 @@
+/* v0.7.2 角色内心探针：克制纸面解释，非开发者 JSON 面板。 */
+
+.probe {
+  margin-top: var(--space-2);
+  border-top: 1px dashed var(--line);
+  padding-top: var(--space-2);
+}
+
+.probe__toggle {
+  background: none;
+  border: none;
+  color: var(--jade);
+  cursor: pointer;
+  padding: 2px 0;
+  font-family: var(--font-sans);
+}
+.probe__toggle:hover {
+  text-decoration: underline;
+}
+
+.probe__body {
+  margin-top: var(--space-2);
+}
+
+.probe__err {
+  color: var(--cinnabar);
+}
+
+.probe__belief {
+  font-family: var(--font-serif);
+  color: var(--ink-soft);
+  line-height: 1.7;
+  margin: 0 0 var(--space-3);
+}
+
+.probe__metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.probe__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--paper-sunken);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+}
+.probe__metric-v {
+  font-weight: 600;
+  color: var(--ink);
+}
+.probe__metric-v.tone--high {
+  color: var(--cinnabar);
+}
+.probe__metric-v.tone--medium {
+  color: var(--gold);
+}
+.probe__metric-v.tone--low {
+  color: var(--jade);
+}
+
+.probe__list {
+  margin-bottom: var(--space-2);
+}
+.probe__list-label {
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 2px;
+}
+.probe__list ul {
+  margin: 0;
+  padding-left: 1.1em;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+.probe__list--bound ul {
+  color: var(--cinnabar);
+}
+
+.probe__predict {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 2px solid var(--gold);
+  padding-left: var(--space-2);
+  margin: var(--space-3) 0;
+}
+.probe__predict-v {
+  font-family: var(--font-serif);
+  color: var(--ink);
+}
+
+.probe__explain {
+  font-family: var(--font-serif);
+  color: var(--ink-soft);
+  line-height: 1.7;
+  background: var(--cinnabar-wash);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: 0;
+  font-size: 0.9rem;
+}

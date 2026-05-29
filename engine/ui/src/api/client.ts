@@ -2,9 +2,12 @@ import type {
   AnchorPatch,
   AnchorUpdateResponse,
   BranchDetail,
+  CharacterProbe,
   ConnectivityResult,
   DiffActionRequest,
   DiffActionResponse,
+  GuardrailRequest,
+  GuardrailResult,
   ImportNovelRequest,
   ImportNovelResponse,
   JobRecord,
@@ -108,6 +111,23 @@ export const api = {
   },
   postIntervention(req: InterventionRequest): Promise<InterventionResponse> {
     return postJson("/api/interventions", req);
+  },
+  checkGuardrail(req: GuardrailRequest): Promise<GuardrailResult> {
+    return postJson("/api/interventions/guardrail", req);
+  },
+  getCharacterProbe(
+    storySlug: string,
+    charId: string,
+    opts?: { runId?: string; branchId?: string; interventionText?: string },
+  ): Promise<CharacterProbe> {
+    const params = new URLSearchParams();
+    if (opts?.runId) params.set("run_id", opts.runId);
+    if (opts?.branchId) params.set("branch_id", opts.branchId);
+    if (opts?.interventionText) params.set("intervention_text", opts.interventionText);
+    const q = params.toString() ? `?${params.toString()}` : "";
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/characters/${encodeURIComponent(charId)}/probe${q}`,
+    );
   },
   postDiffAction(req: DiffActionRequest): Promise<DiffActionResponse> {
     return postJson("/api/diffs/action", req);

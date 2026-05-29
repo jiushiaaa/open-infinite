@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ApiError, api } from "../api/client";
 import { JobCancelled, pollJob } from "../api/jobs";
-import type { InterventionResponse } from "../api/types";
+import type { GuardrailResult, InterventionResponse } from "../api/types";
 import "./composer.css";
+
+const RISK_LABEL: Record<string, string> = { low: "低风险", medium: "中风险", high: "高风险" };
 
 export interface CharOption {
   id: string;
@@ -26,6 +28,8 @@ export function InterventionComposer({
   const [stage, setStage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [mock, setMock] = useState(true);
+  const [guardrail, setGuardrail] = useState<GuardrailResult | null>(null);
+  const [checking, setChecking] = useState(false);
   const stoppedRef = useRef(false);
 
   // 默认选第一个在场角色
@@ -54,6 +58,26 @@ export function InterventionComposer({
 
   const effectiveTarget = characters.length > 0 ? target : manualTarget.trim();
   const canSubmit = !!text.trim() && !!effectiveTarget && !busy;
+  const canCheck = !!text.trim() && !checking && !busy;
+
+  async function precheck() {
+    if (!canCheck) return;
+    setChecking(true);
+    setError(null);
+    setGuardrail(null);
+    try {
+      const result = await api.checkGuardrail({
+        story_slug: slug,
+        content: text.trim(),
+        target: effectiveTarget,
+      });
+      setGuardrail(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setChecking(false);
+    }
+  }
 
   async function submit() {
     if (!canSubmit) return;
@@ -127,11 +151,15 @@ export function InterventionComposer({
             className="composer__input"
             placeholder="例：我不希望沈砚进入书房，以免触发机关。"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              if (guardrail) setGuardrail(null);
+            }}
             rows={3}
             disabled={busy}
           />
           {error && <p className="composer__error">{error}</p>}
+          {guardrail && <GuardrailNote result={guardrail} />}
           <label className="composer__mock">
             <input
               type="checkbox"
@@ -155,11 +183,56 @@ export function InterventionComposer({
                 </>
               )}
             </span>
-            <button className="btn btn--primary" disabled={!canSubmit} onClick={submit}>
-              {busy ? "推演中…" : "施加干预"}
-            </button>
+            <div className="composer__actions">
+              <button
+                className="btn btn--ghost"
+                disabled={!canCheck}
+                onClick={precheck}
+                title="先看看世界会如何抵抗这次干预"
+              >
+                {checking ? "预检中…" : "预检干预"}
+              </button>
+              <button className="btn btn--primary" disabled={!canSubmit} onClick={submit}>
+                {busy ? "推演中…" : "施加干预"}
+              </button>
+            </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+/** 护栏预检提示：解释世界为何抵抗，并给出更合理的干预方式（不阻断提交）。 */
+function GuardrailNote({ result }: { result: GuardrailResult }) {
+  const tone = result.risk === "high" ? "high" : result.risk === "medium" ? "medium" : "low";
+  return (
+    <div className={`guardrail guardrail--${tone}`}>
+      <div className="guardrail__head">
+        <span className="guardrail__risk">{RISK_LABEL[result.risk] ?? result.risk}</span>
+        <span className="guardrail__explain">{result.explanation}</span>
+      </div>
+      {result.violations.length > 0 && (
+        <ul className="guardrail__violations">
+          {result.violations.map((v, i) => (
+            <li key={i}>{v}</li>
+          ))}
+        </ul>
+      )}
+      {result.repair_suggestions.length > 0 && (
+        <div className="guardrail__repairs">
+          <span className="tiny muted">更合理的方式</span>
+          <ul>
+            {result.repair_suggestions.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {!result.allowed && result.safer_alternative && (
+        <p className="guardrail__alt">
+          这更接近异设世界线（Alternate Novel）。{result.safer_alternative}
+        </p>
       )}
     </div>
   );

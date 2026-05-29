@@ -31,9 +31,10 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.7.1-B | LLM Compiler：真实 LLM 编译 + fallback + 规则改写安全兜底 | 已收口 |
 | v0.7.1-C | Causal Diff 后端数据：`causal_diff.json` 段落级 old/new diff | 已收口 |
 | v0.7 | Product Web App：React/Vite 普通用户入口，Web 导入/创世/锚定/干预/Causal Diff/设置/异步 Job | 已收口 |
-| v0.7.2 | Agent Interaction：CharacterAction / CharacterProbe / InterventionGuardrail | 下一步 |
+| v0.7.2 | Agent Interaction：CharacterAction / CharacterProbe / InterventionGuardrail | 已收口 |
+| v0.7.3 | Visual Asset Generation：Seedream 5.0 Lite 角色头像/封面/场景图 | 下一步 |
 
-**测试基线**：`pytest -q` → **410 passed**（2026-05-29）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **442 passed**（2026-05-29，v0.7.2 收口；v0.7 第九刀基线 410）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -260,6 +261,22 @@ lne import-novel tests/fixtures/mini_novel/ --name my-story
 - `violations` — 违反世界规则或合约项
 - `repair_suggestions` — 修改建议
 - `expected_character_resistance` — 预期角色抗拒程度
+
+### v0.7.2 Agent Interaction（角色交互解释层）
+
+吸收 eastworld / StoryVerse / STORY2GAME 的经验，给读者一个**只读、deterministic、不调用 LLM** 的解释层；不改变 `run_intervention` 主行为、不重构 runner、所有字段 additive。
+
+- **InterventionGuardrail（干预护栏预检）** `POST /api/interventions/guardrail`
+  - 入参：`story_slug`、`content`、可选 `target` / `intervention_type` / `visibility` / `strength`
+  - 出参：`allowed` / `risk` / `intervention_type` / `categories[]`（genre/time_power/persona/world_rule/visibility/strength 六维）/ `violations` / `repair_suggestions` / `safer_alternative` / `explanation`
+  - 定位：在 `contract_audit` 之前独立解释"世界为何抵抗这次干预，并给出更合理的方式"；规则改写型（AK47/系统/穿越者）`allowed=False` 并提示另开 Alternate Novel，不静默污染原世界线。
+- **CharacterProbe（角色内心探针）** `GET /api/stories/<slug>/characters/<char_id>/probe`
+  - 可选 query：`run_id` / `branch_id`（叠加 `state_snapshot.json` 的情绪与第四面墙觉察）、`intervention_text`（预测角色对该干预的反应）
+  - 出参：`belief_summary` / `current_emotion` / `desires` / `fears` / `boundaries` / `known_information` / `unknown_information` / `fourth_wall_awareness` / `fourth_wall_level` / `likely_intervention_response` / `obedience_risk` / `resistance_level` / `explanation`
+  - 用中文解释"角色为什么不会无条件服从用户"。故事/角色缺失 → 404；快照损坏不 500。
+- **CharacterAction 结构化字段**：`models/events.py` 的 `CharacterAction` additive 增 `action_id` / `action_label` / `preconditions` / `effects` / `failure_reason` / `repair_suggestions` / `risk` / `visibility`，全部默认空值；第一版未强制接入 runner 主链路，旧构造与旧产物读取完全兼容。
+- **Web UI**：世界锚定页角色卡「角色探针」折叠入口；干预输入区「预检干预」按钮；Agent 轨迹页结构化动作（前置/效果/失败/修正）只读展示，缺字段空态正常。
+- **未做**（留后续版本）：`AbstractIntervention -> CharacterActionSequence` 实例化、runner 主链路重构、真实 LLM 探针、Seedream（v0.7.3）、Baseline/Canon Replay（v0.7.4）、Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）。
 
 ## 输出结构
 
