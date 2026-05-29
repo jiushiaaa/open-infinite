@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.3.1（检索 artifact + Brief 接入已验收；下一版 v0.4.2 检索记忆展示） |
+| 当前版本 | v0.6.3（multi_agent_trace 可视化已验收；下一版 v0.6.4 multi_agent_llm） |
 | 阶段 | 概念验证 / MVP 设计 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -578,24 +578,41 @@ MVP 支持：
 ### v0.4 世界线浏览器
 
 - v0.4 / v0.4.1：只读世界线浏览器、分支对比、状态面板、边界加固
-- v0.4.2：UI polish，并展示 v0.3 检索到的事实、记忆和合约约束
+- v0.4.2（已验收）：UI polish；`lne browse` 读取各分支 `retrieval_context.json`，按合约约束 / 正史事实 / 章节摘要 / 卷摘要分组展示检索命中与分数
 
-### v0.5 第四面墙
+### v0.5 第四面墙（已验收）
 
-- 干预痕迹记忆
-- 角色异常感知
-- 角色追问与抗拒
+- 干预痕迹记忆：`fourth_wall.json` 账本随世界线 lineage 累积（intervene / resume continue / resume intervene）
+- 角色异常感知：四类触发器（不可能信息 / 反复救援 / 人设违背 / 命运修正）驱动五级觉察分数
+- 角色追问与抗拒：≥unsettled 注入决策 prompt、≥suspicious 放开第四面墙渲染约束，正文出现怀疑/追问/反抗；`state_snapshot` 含 `fourth_wall_awareness`
+- 默认开启；可经 `LNE_FOURTH_WALL=0` 完全关闭（不累积、不落盘、不注入）
 
 ### v0.6 深度仿真
 
-- MiroFish / OASIS 或自研多 Agent runner
+- v0.6.0（已收口）：Runner Adapter——可插拔 `SceneRunner` + 注册表，`run_scene` 改薄包装，默认 `lightweight` 行为不变；输出契约仅 additive 增 `runner_name`/`runner`，可经 `LNE_SCENE_RUNNER` 切换
+- v0.6.1（已收口）：Multi-Agent Runner Protocol——`orchestrator/runners/protocol.py` 定义角色计划/私下信息/误解/延迟行动/关系传播数据结构 + 设计文档；私有/误解默认不泄漏，未接入运行
+- v0.6.2（已收口）：`multi_agent_stub` runner——`projection.py` 把 `MultiAgentTrace` 投影回 `AcceptedEvent`/`StateDelta`/`state_snapshot`，强制 reveal/corrected/due_round 规则；非默认（`lightweight` 仍默认），仅 additive 增 `multi_agent_trace`
+- v0.6.3（已收口）：`multi_agent_trace` 可视化——`lne browse` 新增「Agent 轨迹」标签页展示角色计划/私下信息/误解/延迟行动/关系信号；后端 additive 增 `has_multi_agent_trace`/`multi_agent_trace_count`，缺失空态/损坏不抛
+- v0.6.4（下一步）：自研 `multi_agent_llm` runner，通过 OpenAI-compatible API 调用小模型生成 `MultiAgentTrace` JSON；不要求本地部署模型
+- v0.6.5：并发、重试、成本控制、trace 质量评估与 fallback 策略
 - 多角色计划、误解、延迟行动、关系传播
 - 小模型推演 + 大模型写正文的分层策略
+- Zep Cloud / OASIS / CAMEL 暂不作为主线依赖；仅作为 v0.8+ 可选评估项（长篇记忆崩或群体仿真需求明显增强时再接）
 
-### v0.6+ 商业化增强
+### v0.7 产品级前端
+
+- React + Vite + TypeScript 独立 Web App
+- 普通用户可在 Web 内完成导入小说、编辑世界锚定、发起干预、选择分支、续章
+- 复用现有引擎与 browser API，不重写核心推演逻辑
+- `lne browse` 保留为开发者只读 viewer；产品前端承担真正用户体验
+- 不要求用户复制 CLI 命令
+
+### v0.8+ 商业化增强
 
 - 向量数据库、embedding、reranker
 - 多 provider gateway
+- Zep / 图数据库（长篇事实与角色长期记忆需要图谱化时）
+- OASIS / CAMEL 可选 runner（群体仿真需求强于自研轻量 runner 时）
 - 完整 MasterSetting / 作者工作台能力
 
 ## 17. 开放问题

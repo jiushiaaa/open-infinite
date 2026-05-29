@@ -61,3 +61,7 @@ class SimulationResult(BaseModel):
     final_scene_state: dict[str, Any] = Field(default_factory=dict)
     state_snapshot: dict[str, Any] = Field(default_factory=dict)
     retrieval_record: dict[str, Any] | None = None
+    runner_name: str = "lightweight"
+    # v0.6.2 additive：多 Agent runner 的可解释内部轨迹（MultiAgentTrace.model_dump()）。
+    # 仅 multi_agent 系 runner 会填充；lightweight 恒为 None，不影响既有契约。
+    multi_agent_trace: dict[str, Any] | None = None

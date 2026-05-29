@@ -233,3 +233,131 @@ header .tag {
   border-radius: 3px;
   vertical-align: 1px;
 }
+
+.tag-retrieval {
+  display: inline-block;
+  padding: 0 0.3rem;
+  margin-left: 0.35rem;
+  font-size: 0.65rem;
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  border-radius: 3px;
+  vertical-align: 1px;
+}
+
+.retrieval-head {
+  margin-bottom: 1rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.9;
+}
+
+.retrieval-head .field {
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-right: 0.4rem;
+}
+
+.retrieval-group {
+  margin-bottom: 1.25rem;
+}
+
+.retrieval-group h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.3rem;
+}
+
+.retrieval-group h3 .meta {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.retrieval-item {
+  margin-bottom: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--panel);
+  border-left: 3px solid var(--accent-dim);
+  border-radius: 4px;
+}
+
+.retrieval-item .retrieval-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.retrieval-item .meta {
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.tag-trace {
+  display: inline-block;
+  padding: 0 0.3rem;
+  margin-left: 0.35rem;
+  font-size: 0.65rem;
+  color: #c08adb;
+  border: 1px solid #6c4a82;
+  border-radius: 3px;
+  vertical-align: 1px;
+}
+
+.trace-group {
+  margin-bottom: 1.25rem;
+}
+
+.trace-group h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: #c08adb;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.3rem;
+}
+
+.trace-group h3 .meta {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.trace-item {
+  margin-bottom: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--panel);
+  border-left: 3px solid #6c4a82;
+  border-radius: 4px;
+}
+
+.trace-item .trace-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.trace-item .meta {
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.trace-flag {
+  display: inline-block;
+  padding: 0 0.3rem;
+  font-size: 0.65rem;
+  border-radius: 3px;
+  vertical-align: 1px;
+}
+
+.trace-flag.on {
+  color: #7fd1a0;
+  border: 1px solid #3f7d5a;
+}
+
+.trace-flag.off {
+  color: var(--muted);
+  border: 1px solid var(--border);
+}

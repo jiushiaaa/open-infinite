@@ -10,12 +10,19 @@ from rich.table import Table
 from living_novel_engine.intervention.contract_audit import audit_intervention
 from living_novel_engine.intervention.parser import build_intervention
 from living_novel_engine.llm.client import LLMClient, LLMSettings
+from living_novel_engine.models import Intervention
 from living_novel_engine.orchestrator.scene_runner import run_scene
 from living_novel_engine.orchestrator.worldline_brancher import (
     build_branch_specs,
     build_continuation_spec,
 )
+from living_novel_engine.fourth_wall import (
+    FourthWallLedger,
+    accumulate_intervention,
+    fourth_wall_enabled,
+)
 from living_novel_engine.output.writer import (
+    load_lineage_ledger,
     load_run_for_compare,
     write_resume_intervene_output,
     write_resume_output,
@@ -61,6 +68,64 @@ def _attach_retrieval(result, record: dict | None):
     if record is not None:
         result.retrieval_record = record
     return result
+
+
+def _present_ids(bundle) -> list[str]:
+    return [c.id for c in bundle.characters if getattr(c, "present_in_scene", True)]
+
+
+def _report_awareness(ledger: FourthWallLedger | None, target: str) -> None:
+    """打印目标角色的第四面墙觉察变化。"""
+    if ledger is None or not ledger.enabled:
+        return
+    aw = ledger.awareness.get(target)
+    if aw is None or aw.score <= 0:
+        return
+    triggers = "、".join(aw.triggers) if aw.triggers else "无"
+    console.print(
+        f"  [magenta]第四面墙[/magenta] {target} 觉察={aw.score:.2f} "
+        f"等级={aw.level} 触发={triggers}"
+    )
+
+
+def _fw_prepare_intervention(
+    intervention: Intervention,
+    *,
+    chapter: int,
+    present_ids: list[str],
+) -> FourthWallLedger | None:
+    """开启时：新建账本并记入本次干预；关闭时：返回 None（不累积、不落盘）。"""
+    if not fourth_wall_enabled():
+        return None
+    ledger = FourthWallLedger(enabled=True)
+    accumulate_intervention(
+        ledger, intervention, chapter=chapter, present_ids=present_ids
+    )
+    return ledger
+
+
+def _fw_load_for_resume(parent_run_id: str) -> FourthWallLedger | None:
+    """开启时：沿 lineage 继承关闭前的账本；关闭时：返回 None。"""
+    if not fourth_wall_enabled():
+        return None
+    return load_lineage_ledger(parent_run_id)
+
+
+def _fw_resume_intervene(
+    parent_run_id: str,
+    intervention: Intervention,
+    *,
+    chapter: int,
+    present_ids: list[str],
+) -> FourthWallLedger | None:
+    """开启时：继承 lineage 并累加本次干预；关闭时：不累积。"""
+    ledger = _fw_load_for_resume(parent_run_id)
+    if ledger is None:
+        return None
+    accumulate_intervention(
+        ledger, intervention, chapter=chapter, present_ids=present_ids
+    )
+    return ledger
 
 
 def _item(text: str) -> str:
@@ -199,6 +264,13 @@ def intervene_cmd(
             f"  [dim]检索到 {len(retrieval_record['items'])} 条相关上下文[/dim]"
         )
 
+    ledger = _fw_prepare_intervention(
+        intervention,
+        chapter=intervention_chapter,
+        present_ids=_present_ids(bundle),
+    )
+    _report_awareness(ledger, target)
+
     results = []
     for spec in specs:
         console.print(f"[cyan]推演 {spec.branch_id}[/cyan] — {spec.theme}")
@@ -215,12 +287,13 @@ def intervene_cmd(
             canon_chapter=bundle.canon_chapter,
             source_type=bundle.world.source_type,
             retrieved_context=retrieved_ctx,
+            ledger=ledger,
         )
         results.append(_attach_retrieval(result, retrieval_record))
 
     intervention.story_slug = slug
     intervention.source_kind = bundle.source_kind
-    output = write_run_output(intervention, results)
+    output = write_run_output(intervention, results, ledger=ledger)
     console.print(f"\n[bold green]完成[/bold green] 输出目录: {output.run_dir}")
     console.print(f"对比表: {output.run_dir / 'compare.md'}")
 
@@ -478,6 +551,8 @@ def resume_continue_cmd(run_id: str, branch: str, rounds: int, mock: bool) -> No
         bundle, query, parent.source_type, current_chapter=next_chapter
     )
 
+    ledger = _fw_load_for_resume(parent.run_id)
+
     result = run_scene(
         world,
         characters,
@@ -494,10 +569,11 @@ def resume_continue_cmd(run_id: str, branch: str, rounds: int, mock: bool) -> No
         chapter_number=next_chapter,
         source_type=parent.source_type,
         retrieved_context=retrieved_ctx,
+        ledger=ledger,
     )
     _attach_retrieval(result, retrieval_record)
 
-    output = write_resume_output(parent, result)
+    output = write_resume_output(parent, result, ledger=ledger)
     ch_len = len((output.run_dir / "linear" / "chapter.md").read_text(encoding="utf-8"))
     console.print(f"\n[bold green]完成[/bold green] 新 run: {output.run_dir}")
     console.print(f"续章: linear/chapter.md（{ch_len} 字）")
@@ -570,6 +646,14 @@ def resume_intervene_cmd(
         bundle, query, parent.source_type, current_chapter=next_chapter
     )
 
+    ledger = _fw_resume_intervene(
+        parent.run_id,
+        intervention,
+        chapter=next_chapter,
+        present_ids=_present_ids(bundle),
+    )
+    _report_awareness(ledger, target)
+
     results = []
     for spec in specs:
         console.print(f"[cyan]推演 {spec.branch_id}[/cyan] — {spec.theme}")
@@ -589,10 +673,11 @@ def resume_intervene_cmd(
             chapter_number=next_chapter,
             source_type=parent.source_type,
             retrieved_context=retrieved_ctx,
+            ledger=ledger,
         )
         results.append(_attach_retrieval(result, retrieval_record))
 
-    output = write_resume_intervene_output(parent, intervention, results)
+    output = write_resume_intervene_output(parent, intervention, results, ledger=ledger)
     console.print(f"\n[bold green]完成[/bold green] 新 run: {output.run_dir}")
     console.print(f"对比表: {output.run_dir / 'compare.md'}")
     for spec in specs:

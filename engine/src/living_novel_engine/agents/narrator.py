@@ -171,6 +171,8 @@ def render_chapter(
     state_snapshot: dict[str, Any] | None = None,
     chapter_number: int = 13,
     retrieved_context: str = "",
+    fourth_wall_hint: str = "",
+    fourth_wall_mock_aside: str = "",
 ) -> str:
     events_text = "\n".join(
         f"第{e.round_num}轮 {e.subject}: {e.narrative}" for e in result.accepted_events
@@ -187,13 +189,20 @@ def render_chapter(
             canonical_place_name=world.canonical_place_name or "天荒城",
         )
 
+    if fourth_wall_hint:
+        fourth_wall_rule = (
+            "- 【第四面墙·已触发】" + fourth_wall_hint
+        )
+    else:
+        fourth_wall_rule = "- 不要打破第四面墙"
+
     system = f"""你是网文「状态渲染器」，将已锁定的推演状态写成小说章节正文。
 要求：
 - {length_hint}
 - **权威事实以【场景状态摘要】与【硬约束】为准**；不得为戏剧张力改写离城/赴竹林/玉简次数
 - 保持人设一致，遵守世界规则与角色称谓规则
 - 承接原作语气，但不要照抄原作
-- 不要打破第四面墙
+{fourth_wall_rule}
 - **禁止**在正文中出现 scene_flags、变量名、或 `key = True/False` 等调试句式
 
 题材风格参考：
@@ -215,7 +224,7 @@ def render_chapter(
     )
     if llm.mock:
         intervention_chapter = canon_chapter if canon_chapter else context
-        return _mock_chapter_body(
+        body = _mock_chapter_body(
             world,
             result,
             prologue,
@@ -223,6 +232,9 @@ def render_chapter(
             intervention_chapter,
             chapter_number=chapter_number,
         )
+        if fourth_wall_mock_aside:
+            body = f"{body}{fourth_wall_mock_aside}"
+        return body
 
     chapter = llm.chat(system, user, temperature=0.65, max_tokens=4096)
     first_draft = chapter

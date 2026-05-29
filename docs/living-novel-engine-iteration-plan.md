@@ -1,7 +1,7 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-28（v0.2.2 精华固化收口）  
-> 范围：对齐 PRD v0.1-v0.5、仓库根目录 Roadmap、`engine/` 全版本实况。  
+> 版本：2026-05-29（v0.6.3 multi_agent_trace 可视化）  
+> 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 
 ## 1. 产品北极星
@@ -44,18 +44,28 @@ v0.3.0   Context Retrieval Lite  已收口
     ↓
 v0.3.1   检索 artifact + Brief 接入  已收口
     ↓
-v0.4.2   UI polish + 检索记忆展示  下一步
+v0.4.2   UI polish + 检索记忆展示  已收口
     ↓
-v0.5     第四面墙机制        干预记忆、角色觉察、反抗命运
+v0.5     第四面墙机制        干预记忆、角色觉察、反抗命运  已收口
     ↓
-v0.6     Deep Simulation     MiroFish / 多 Agent runtime
+v0.6.0   Runner Adapter      可插拔 SceneRunner / 注册表  已收口
+    ↓
+v0.6.1   Multi-Agent Protocol  协议 + 数据结构骨架（未接入运行）  已收口
+    ↓
+v0.6.2   multi_agent_stub    消费协议产出 trace 并投影回契约  已收口
+    ↓
+v0.6.3   trace 可视化        browse「Agent 轨迹」标签页  已收口
+    ↓
+v0.6.4   multi_agent_llm     OpenAI-compatible API 小模型推演  下一步
+    ↓
+v0.7     Product Web App     React/Vite 产品级前端，面向普通用户
     ↓
 Phase 5  社区与分享          远期
 ```
 
 当前最重要的判断：
 
-> v0.3.1 已封板（183 passed）。检索章节号从 import_meta 推导；`retrieval_context.json` 写盘完成。
+> v0.6.3 已封板（245 passed）。在 v0.6.2 `multi_agent_stub` 之上，`lne browse` 新增「Agent 轨迹」标签页读取分支 `multi_agent_trace.json`：分组展示角色计划/私下信息/误解/延迟行动/关系信号，私下信息标 `revealed`、误解标 `corrected`、延迟行动标 `executed`/`due_round`；缺 trace 空态、损坏不抛、旧 API 不破坏（additive 增 `has_multi_agent_trace`/`multi_agent_trace_count`）。下一步 v0.6.4 先做自研 `multi_agent_llm` runner：通过 OpenAI-compatible API 调用小模型生成 `MultiAgentTrace` JSON，不本地部署，不直接接 Zep / OASIS / CAMEL。
 
 ## 3. 已完成能力
 
@@ -73,6 +83,13 @@ Phase 5  社区与分享          远期
 | v0.4.1 边界加固 | 路径校验 validators.py / 树排序稳定 / 前端不白屏 / 37 参数化安全测试 | 已完成 |
 | v0.3.0 Context Retrieval Lite | BM25 检索 + 章节距离衰减 + facts/summaries/contract 注入 prompt | 已完成 |
 | v0.3.1 检索 artifact + Brief | retrieval_context.json 写盘 / source_weight / VolumeBrief 检索 | 已完成 |
+| v0.4.2 检索记忆展示 | browse「检索记忆」标签页按 source 分组展示命中与分数 | 已完成 |
+| v0.5 第四面墙 | 干预记忆账本 / 四触发器 / 五级觉察 / 决策与渲染注入 / env 开关 | 已完成 |
+| v0.5.1 第四面墙关闭语义 | `LNE_FOURTH_WALL=0` 不累积/不落盘/不泄漏 snapshot | 已完成 |
+| v0.6.0 Runner Adapter | `SceneRequest` / `SceneRunner` / 注册表 / `dispatch_scene` / env 切换 / 契约 additive | 已完成 |
+| v0.6.1 Multi-Agent Protocol | `protocol.py` 数据结构骨架 + 设计文档；私有/误解默认不泄漏；未接入运行 | 已完成 |
+| v0.6.2 multi_agent_stub | `projection.py` + `multi_agent_stub` runner；协议→投影→契约；非默认；私有不泄漏 | 已完成 |
+| v0.6.3 trace 可视化 | browse「Agent 轨迹」标签页 + 树角标；缺失空态/损坏不抛；additive API | 已完成 |
 
 **版本收口参考 run（验收用）**
 
@@ -103,10 +120,10 @@ lne list-genres
 当前刻意未完成的能力：
 
 - ChapterBrief / VolumeBrief 已接入检索语料；摘要内容仍为导入占位，质量提升留后续。
-- 检索结果已写入各分支 `retrieval_context.json`，可供 v0.4.2 UI 读取。
-- Web UI 尚未展示检索记忆（v0.4.2）。
-- 第四面墙数值、干预记忆、override ledger 尚未真正驱动角色行为（v0.5）。
+- 检索结果已写入各分支 `retrieval_context.json`，并由 `lne browse`「检索记忆」标签页展示（v0.4.2 完成）。
+- 第四面墙数值、干预记忆、override ledger 已在 v0.5 驱动角色决策与章节渲染；browse 展示 fourth_wall 段留后续。
 - 多场景长程仿真 / MiroFish OASIS 尚未接入（v0.6）。
+- 产品级前端尚未启动；当前 `lne browse` 是研发/演示 viewer，不是普通用户入口（v0.7）。
 - embedding / 向量库 / reranker / 多 provider gateway 尚未做，留到规模化后。
 
 ## 4. 三个参考项目的定位
@@ -163,9 +180,19 @@ MiroFish 的价值是“角色群体自己动起来”：
 - 长效记忆、关系、动机和对话。
 - 多角色在同一场景里互相影响。
 
-Living Novel Engine 当前 `scene_runner` 仍是轻量轮询。v0.3 先补长篇上下文检索；等单 prompt 多角色轮询明显表达不了计划、误解、延迟行动时，再在 v0.6 考虑升级为真正多 Agent runtime。
+本地源码扫描结论（2026-05-29）：
 
-短期不建议过早接 MiroFish，因为它会增加依赖、服务部署、数据同步和调试成本，而当前产品最核心的“连续读下去”还没完全验证。
+- MiroFish 的 LLM 调用主路径是 **OpenAI SDK 兼容 API**：`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL_NAME`，示例推荐 DashScope `qwen-plus`；并不要求本地部署模型。
+- 它用 Zep Cloud 做图谱/记忆，用 OASIS / CAMEL 做 Twitter/Reddit 式群体仿真；并支持 `LLM_BOOST_*` 作为并行模拟加速配置。
+- OASIS / CAMEL 的主抽象偏社交平台环境（agent graph、active agents、`LLMAction()`、`env.step(actions)`），与 LNE 的小说场景推演有相似处，但不应直接成为主线依赖。
+
+Living Novel Engine 已在 v0.6.0-v0.6.3 建好自研 runner adapter / protocol / projection / trace UI。短期不接 MiroFish，是因为它会增加账号、服务部署、数据同步、环境适配和调试成本；LNE 当前更需要验证“叙事专用多 Agent”是否能提升角色计划、误解、隐瞒、延迟行动和关系传播。
+
+因此后续策略是：
+
+- v0.6.4 先做自研 `multi_agent_llm` runner：通过 OpenAI-compatible API 调用小模型，不本地部署；输出 `MultiAgentTrace` JSON；复用现有 `project_trace`。
+- v0.6.5 再补并发、重试、成本控制和 trace 质量评估。
+- v0.8+ 若长篇记忆崩，再评估 Zep / 图数据库；若群体仿真需求很强，再评估 OASIS / CAMEL 作为可选 runner。
 
 ## 5. 版本路线图
 
@@ -370,7 +397,7 @@ distance_decay = 1 / (1 + abs(current_chapter - item_chapter) * 0.2)
 
 - 不做向量数据库、embedding、reranker。
 - 不做完整 MasterSetting 作者工作台。
-- 不接 MiroFish / OASIS 多 Agent runtime。
+- 不接 Zep Cloud / OASIS / CAMEL 作为主线运行时。
 - 不做 UI 美化。
 - 不做多 provider gateway。
 
@@ -409,7 +436,14 @@ distance_decay = 1 / (1 + abs(current_chapter - item_chapter) * 0.2)
 - 展示章节、分支和状态。
 - 允许复制命令继续运行 CLI。
 
-第二版再加写操作：
+定位说明：
+
+- v0.4 / v0.4.1 / v0.4.2 的前端是“研发 viewer + 可解释 demo”，技术栈为 stdlib HTTP + 原生 HTML/CSS/JS。
+- 它用于验证世界线树、状态、章节、检索记忆这些数据是否可信，不承担最终面向普通用户的产品体验。
+- 不在 v0.4 系列里重构 React，是为了避免在核心机制尚未稳定前把时间花在 UI 工程化上。
+- 真正普通用户可用的产品级前端单独放到 v0.7。
+
+写操作不继续堆在 v0.4 viewer 内，统一后移到 v0.7 产品级前端：
 
 - 输入干预。
 - 点击继续时间流逝。
@@ -428,9 +462,19 @@ distance_decay = 1 / (1 + abs(current_chapter - item_chapter) * 0.2)
 - 对内汇报、合作方试用、投资人演示最直观。
 - 把“世界线”从文件结构变成用户能感知的产品体验。
 
-### v0.5：Fourth Wall Awareness
+### v0.5：Fourth Wall Awareness（已收口 · 2026-05-29）
 
 目标：多次干预后，角色逐渐意识到命运被外部力量触碰。
+
+**实现要点**：
+
+- 新建 `engine/src/living_novel_engine/fourth_wall/`：`ledger.py`（`InterventionTrace` / `CharacterAwareness` / `FourthWallLedger` + 触发器检测 + 打分累积 + 持久化），`prompts.py`（分级提示文案）。
+- 四类触发器：`impossible_information`（低语/梦境等高维渠道）、`repeated_rescue`（同目标多次干预）、`personality_violation`（合约高抗拒/违规）、`fate_reversal`（强干预/高合约风险）。
+- 五级觉察 `none → unsettled → suspicious → aware → defiant`；分数钳制 [0,1]；场景/广域可见时在场旁观者弱外溢（系数 0.25）。
+- 账本随 lineage 累积：`fourth_wall.json` 写在 run 根目录；`resume continue` 透传、`resume intervene` 累加（`load_run_ledger`）。
+- 注入：≥unsettled 进角色决策 prompt；≥suspicious 放开 narrator「不要打破第四面墙」并允许分级表现；mock 模式按等级追加正文旁白与角色内心独白；快照写各角色 `fourth_wall_awareness`/`fourth_wall_level` 与顶层 `fourth_wall` 段。
+- 可关闭：`LNE_FOURTH_WALL=0/off/false`。
+- 测试 `tests/test_fourth_wall.py`（+17）；全量 **205 passed**。
 
 核心字段：
 
@@ -473,6 +517,97 @@ fourth_wall_awareness:
 
 - 这是 Living Novel Engine 最有辨识度的精神内核。
 - 读者从“看故事的人”变成故事里的不可见角色。
+
+### v0.6：Deep Simulation / Multi-Agent Runtime
+
+目标：当轻量 `scene_runner` 无法表达多角色计划、误解、延迟行动和关系传播时，引入更深的场景推演层。
+
+#### v0.6.0：Runner Adapter（已收口 · 2026-05-29）
+
+先把「单 prompt 多角色轮询」从硬编码实现抽象为可插拔组件，为后续多 Agent 留接缝，行为零变化。
+
+- 新建 `orchestrator/runners/`：
+  - `base.py`：`SceneRequest`（统一参数包，收敛原 16 个 `run_scene` 参数）、`SceneRunner`（ABC，`run(request) -> SimulationResult`）、`RunnerError`。
+  - `lightweight.py`：搬迁原 `run_scene` 全部实现为 `LightweightSceneRunner`（含 `_should_terminate` / `_collect_state_deltas` 等 helper）。
+  - `__init__.py`：注册表 `register_runner` / `get_runner` / `available_runners` / `dispatch_scene`，默认注册 `lightweight`。
+- `scene_runner.run_scene` 改为薄包装：构造 `SceneRequest` → `dispatch_scene`；新增可选 `runner_name`。
+- 选择优先级：显式 `runner_name` > env `LNE_SCENE_RUNNER` > 默认 `lightweight`；dispatcher 以 `runner.name` 权威标记结果。
+- 输出契约仅 additive：`SimulationResult.runner_name`、`events.json` 增 `"runner"`。
+- 测试 `tests/test_scene_runner_adapter.py`（+10），全量 **218 passed**，搬迁零回归。
+
+#### v0.6.1：Multi-Agent Runner Protocol（已收口 · 2026-05-29）
+
+先定义多 Agent runner 的「内部中间产物」协议，再决定自研还是接外部框架；协议 **未接入运行**，默认行为零变化。
+
+- 设计文档 `docs/v0.6.1-multi-agent-runner-protocol.md`：目标 / 不做 / 输出契约不变性约束 / v0.6.2 投影路线预告。
+- 新建 `orchestrator/runners/protocol.py`（仅 pydantic）：`AgentIntent` / `PrivateKnowledge` / `Misunderstanding` / `DelayedAction` / `RelationshipSignal` / `AgentTurnPlan` / `MultiAgentTrace`。
+- 硬规则：私下信息 / 误解默认 `visibility=private` 且未 reveal；`revealable_knowledge()` / `correctable_misunderstandings()` 是公开层过滤依据；`DelayedAction.due_round` + `is_due()` 表达延迟行动。
+- 文档漂移修正：`engine/README.md` 路线表 v0.3 改为 Context Retrieval Lite。
+- 测试 `tests/test_multi_agent_protocol.py`（+9），全量 **227 passed**，lightweight 零回归。
+
+#### v0.6.2：multi_agent_stub runner 本体（已收口 · 2026-05-29）
+
+第一个多 Agent 系 runner：用协议确定性地产出可解释 trace，再投影回既有契约，验证「协议→投影」闭环。
+
+- 新建 `orchestrator/runners/projection.py`：
+  - `build_demo_trace(request)`：从在场角色 + 干预 + 种子确定性构造 `MultiAgentTrace`。
+  - `project_trace(trace, ...)`：trace → `AcceptedEvent` / `StateDelta`，**强制规则**：仅 `visibility=public` 意图、`revealed=True` 私下信息、`corrected=True` 误解、`due_round<=max_rounds` 延迟行动进公开层；就地标记 `executed`。
+  - `apply_relationship_signals(trace, char_map)`：关系信号写回角色，供快照体现。
+- 新建 `orchestrator/runners/multi_agent_stub.py`：`MultiAgentStubRunner`（消费协议→投影→复用 `build_state_snapshot`+`render_chapter`→附 trace）；纯结构化，不接 LLM 推理、不接外部服务。
+- 输出契约：仅 additive 增 `SimulationResult.multi_agent_trace`（dict）+ 分支目录 `multi_agent_trace.json`；`lightweight` 恒为 `None`，不写该 artifact。
+- **非默认**：经显式 `runner_name` 或 `LNE_SCENE_RUNNER=multi_agent_stub` 启用。
+- 测试 `tests/test_multi_agent_stub.py`（+12），全量 **239 passed**，lightweight 零回归。
+
+#### v0.6.3：multi_agent_trace 可视化（已收口 · 2026-05-29）
+
+让 `lne browse` 能解释多 Agent 推演产物，为后续真实推理调试铺路；不接真实推理、不接 MiroFish、不引依赖。
+
+- 后端 `browser/indexer.py`：`get_branch` 读分支 `multi_agent_trace.json`（缺失→`None`、损坏→`{}`，不抛）；`BranchSummary` + 树分支节点增 `has_multi_agent_trace`/`multi_agent_trace_count`（additive，旧 API 不破坏）；抽 `_read_optional_json`/`_list_len_in_json` helper。
+- 前端「Agent 轨迹」标签页：分组展示 public/private 意图、私下信息（`revealed`）、误解（`corrected`）、延迟行动（`executed`/`due_round`）、关系信号；树分支「轨迹 N」角标；缺 trace 空态不白屏。
+- 文档漂移修正：README `multi_agent_stub` 示例补 story slug；协议文档「真正推理循环」→ v0.6.3+。
+- 测试 `tests/test_browser_multi_agent_trace.py`（+6），全量 **245 passed**；`node --check app.js` 通过。
+
+#### v0.6.4：multi_agent_llm runner（下一步）
+
+能力方向：
+
+- 把 stub 的确定性 `build_demo_trace` 升级为小模型推理：小模型负责多角色计划/误解/延迟行动推演，大模型负责章节正文渲染（投影层 `project_trace` 可直接复用）。
+- 调用方式采用现有 OpenAI-compatible API（`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL_NAME`），不要求本地部署模型。
+- runner 输出严格为 `MultiAgentTrace` JSON，继续复用 `project_trace()`、`build_state_snapshot()`、`render_chapter()`。
+- 继续把 Zep / OASIS / CAMEL 作为参考，不在本刀引入新服务或新框架依赖。
+- v0.6.5 再补并发、重试、成本控制、trace 质量评估，以及必要时的 fallback 策略。
+
+验收标准：
+
+- 同一场景至少 5 个角色可参与推演。
+- 事件流仍能被 story contract / retrieval / browser 读取。
+- 不破坏 imported project 与 builtin sample 的既有链路。
+- 私下信息、未纠正误解、未到期延迟行动仍不得泄漏到 `events.json` / `chapter.md`。
+- 失败时能回退到 `multi_agent_stub` 或给出清晰错误，不污染输出契约。
+
+### v0.7：Product Web App / 产品级前端
+
+目标：把当前 CLI + 研发 viewer 升级为普通用户能直接使用的产品入口。
+
+推荐技术路线：
+
+- 新建独立 `ui/`，使用 React + Vite + TypeScript。
+- 复用现有 `browser` API 或抽出更稳定的 local API server，不重写引擎。
+- 保留 `lne browse` 作为开发者调试 viewer；产品前端另起 `lne web` 或独立 dev server。
+
+首版产品体验：
+
+- 导入小说：选择 txt/md 文件或目录，显示抽取进度与可编辑世界锚定。
+- 世界线浏览：产品级世界线树、章节阅读、检索记忆、角色状态。
+- 用户干预：在 Web 内输入目标角色与干预内容，触发 `intervene`。
+- 选线续章：点击某条分支继续，必要时再干预。
+- 运行状态：长任务 loading / error / retry / 日志摘要，不要求用户复制命令。
+
+暂不放进 v0.5 / v0.6 的原因：
+
+- 现在最稀缺的不是页面框架，而是引擎独特性：第四面墙、深度推演、长篇一致性。
+- 过早重构 React 会消耗大量工程时间，却无法弥补核心玩法不够独特的问题。
+- 等 v0.5/v0.6 证明“普通续写器做不到的体验”后，再做产品级前端，展示价值会更强。
 
 ### Phase 5：社区与分享
 
@@ -529,8 +664,15 @@ v0.1.2 resume continue
   -> v0.1.3 resume intervene
   -> v0.4 Web UI（已完成）
   -> v0.3.0 Context Retrieval Lite（已完成）
-  -> v0.3.1 ChapterBrief / VolumeBrief
-  -> v0.6 Deep Simulation / MiroFish
+  -> v0.3.1 retrieval artifact + Brief 接入（已完成）
+  -> v0.4.2 检索记忆展示（已完成）
+  -> v0.5 第四面墙（已完成）
+  -> v0.6.0 Runner Adapter（已完成）
+  -> v0.6.1 Multi-Agent Runner Protocol（已完成）
+  -> v0.6.2 multi_agent_stub runner（已完成）
+  -> v0.6.3 multi_agent_trace 可视化（已完成）
+  -> v0.6.4 multi_agent_llm 小模型推演（下一步）
+  -> v0.7 产品级 Web App
 ```
 
 理由：
@@ -553,10 +695,15 @@ v0.1.2 resume continue
 | P2.7 | v0.4 只读 UI + v0.4.1 边界加固 | 世界线可视化、安全校验、稳定降级 | 已收口 |
 | P3 | v0.3.0 Context Retrieval Lite | BM25 lite / 章节距离衰减 / prompt 注入 | 已收口 |
 | **P3.1** | **v0.3.1 检索 artifact + Brief** | **retrieval_context.json / source_weight / VolumeBrief** | **已收口** |
-| **P4** | **v0.4.2 UI polish** | **检索记忆展示、阅读体验优化** | **下一步** |
-| P5 | v0.5 第四面墙 | 干预记忆、角色觉察与抗拒 | 待做 |
-| P6 | v0.6 Deep Simulation / MiroFish | 深度多 Agent 推演 | 待做 |
-| P7 | v0.6+ Commercial hardening | 向量库、embedding、reranker、多 provider gateway、完整工作台 | 待定 |
+| P4 | v0.4.2 UI polish | 检索记忆展示、阅读体验优化 | 已收口 |
+| P5 | v0.5 第四面墙 | 干预记忆、角色觉察与抗拒 | 已收口 |
+| P6.0 | v0.6.0 Runner Adapter | 可插拔 SceneRunner / 注册表 / 契约 additive | 已收口 |
+| P6.1 | v0.6.1 Multi-Agent Protocol | `protocol.py` 数据结构骨架 + 设计文档（未接入运行） | 已收口 |
+| P6.2 | v0.6.2 multi_agent_stub | `projection.py` + stub runner；协议→投影→契约；非默认 | 已收口 |
+| P6.3 | v0.6.3 trace 可视化 | browse「Agent 轨迹」标签页 + 树角标；additive API | 已收口 |
+| **P6.4** | **v0.6.4 multi_agent_llm** | **OpenAI-compatible API 小模型推演计划/误解** | **下一步** |
+| P7 | v0.7 Product Web App | React/Vite 产品级前端，Web 内导入/干预/续章/浏览 | 待做 |
+| P8 | v0.8+ Commercial hardening | 向量库、embedding、reranker、多 provider gateway、完整工作台 | 待定 |
 
 ## 8. 近期详细任务清单
 
@@ -656,9 +803,15 @@ v0.1.2 resume continue
 
 | 能力 | 开始时机 |
 | --- | --- |
-| v0.4.2 UI polish | v0.3.0 写出检索 artifact 后，让 UI 展示“引用了哪些事实/记忆” |
-| v0.5 第四面墙 | 角色决策已能稳定引用历史事实与干预痕迹后 |
-| v0.6 Deep Simulation / MiroFish | 单 prompt 多角色轮询明显无法表达计划、误解、延迟行动时 |
+| ~~v0.4.2 UI polish~~ | **已完成**（v0.4.2）：`retrieval_context.json` 已在 browse「检索记忆」标签页按 source 分组展示 |
+| ~~v0.5 第四面墙~~ | **已完成**（v0.5）：干预记忆账本 + 五级觉察 + 决策/渲染注入；`LNE_FOURTH_WALL` 可关闭 |
+| ~~v0.6.0 Runner Adapter~~ | **已完成**（v0.6.0）：可插拔 `SceneRunner` + 注册表，`LNE_SCENE_RUNNER` 可切换 |
+| ~~v0.6.1 Multi-Agent Protocol~~ | **已完成**（v0.6.1）：`protocol.py` 数据结构骨架 + 设计文档（未接入运行） |
+| ~~v0.6.2 multi_agent_stub~~ | **已完成**（v0.6.2）：`projection.py` + stub runner，协议→投影→契约，非默认，私有不泄漏 |
+| ~~v0.6.3 trace 可视化~~ | **已完成**（v0.6.3）：browse「Agent 轨迹」标签页 + 树角标，缺失空态/损坏不抛 |
+| v0.6.4 multi_agent_llm | stub 的确定性 trace 需升级为 OpenAI-compatible API 小模型推演时 |
+| Zep / OASIS / CAMEL | 长篇记忆或群体仿真强到自研轻量 runner 不够时，作为 v0.8+ 可选评估项 |
+| v0.7 Product Web App | v0.5/v0.6 证明核心玩法后，准备给普通用户试用时 |
 | 向量数据库 / embedding / reranker | BM25 lite 在 50+ 章导入项目上召回不够时 |
 | 完整 MasterSetting 工作台 | 服务作者/编辑而不只是读者干预，且目标章节规模到 100+ 章时 |
 | 多 provider gateway | 出现成本、稳定性、模型路由、客户私有化部署要求时 |
@@ -739,13 +892,14 @@ projects/
 
 | 风险 | 说明 | 应对 |
 | --- | --- | --- |
-| 过早集成 MiroFish | 多服务、多依赖、调试成本高 | v0.6 再接，v0.3 先补上下文检索 |
+| 过早集成 Zep / OASIS / CAMEL | 账号、服务、依赖、数据同步与调试成本高，会稀释 LNE 叙事运行时主线 | v0.6.4 先做自研 `multi_agent_llm`；v0.8+ 再按触发条件评估 |
 | 变成普通 AI 续写器 | 只生成文字，不维护世界状态 | 坚持 snapshot、events、contract、lineage |
 | 变成 WenShape 式作者工作台 | 功能堆到写作管理，而非读者干预 | v0.2 只借鉴上下文工程，不复制产品定位 |
 | 导入质量不稳定 | LLM 抽取角色/规则会漏 | proposal + 人工确认 + 可编辑 YAML |
 | 版权风险 | 续写商业小说容易涉及公开传播问题 | 本地个人使用优先，禁止冒充原作者和公开分发受保护内容 |
 | 章节越写越漂 | 长篇状态不一致 | v0.3 用 facts.jsonl + summaries + story_contract 做检索注入 |
-| 第四面墙滥用 | 太早出现会变俗套 | 默认关闭或低强度，等多次干预后触发 |
+| 第四面墙滥用 | 太早出现会变俗套 | **默认开启**；可用 `LNE_FOURTH_WALL=0` 完全关闭（不累积、不落盘、不注入）；多次强干预后分数自然升高 |
+| 过早做产品级前端 | React/交互工程会吞掉大量时间，但核心玩法尚未完全证明 | v0.7 再做；v0.5/v0.6 先补独特机制 |
 
 ## 11. 产品决策待拍板
 
@@ -753,18 +907,17 @@ projects/
 2. v0.2 导入是否先支持单文件 txt/md，而不是网页抓取？建议：是。
 3. 世界线默认固定三分支，还是用户选择生成数量？建议：Phase 0/1 固定三分支，UI 后再开放。
 4. 干预是否引入成本/冷却？建议：v0.5 前只做风险提示，不做硬成本。
-5. 第四面墙默认开关？建议：默认关闭或按题材开启。
+5. 第四面墙默认开关？建议：**默认开启**；题材敏感或演示时可设 `LNE_FOURTH_WALL=0` 关闭。
 6. MVP 文案主打“续写断更”还是“拯救意难平”？建议：对外主打“拯救意难平”，功能上兼容续写断更。
 
 ## 12. 一句话结论
 
-v0.1.x、v0.2.x、v0.3.0/v0.3.1、v0.4/v0.4.1 已收口；下一步最稳的路线是：
+v0.1.x、v0.2.x、v0.3.0/v0.3.1、v0.4/v0.4.1、v0.4.2、v0.5/v0.5.1、v0.6.0/v0.6.1/v0.6.2/v0.6.3 已收口；下一步最稳的路线是：
 
 ```text
-v0.4.2 检索记忆展示与 UI polish
-  -> v0.5 第四面墙
-  -> v0.6 Deep Simulation / MiroFish
-  -> v0.6+ 向量库 / 多 provider / 完整工作台
+v0.6.4 multi_agent_llm（OpenAI-compatible API 小模型推演，不本地部署）
+  -> v0.7 Product Web App（React/Vite 产品级前端）
+  -> v0.8+ Zep / OASIS / CAMEL / 向量库 / 多 provider / 完整工作台（按规模触发评估）
 ```
 
 WenShape 解决“长篇上下文怎么不崩”，webnovel-writer 解决“故事合约和网文味”，MiroFish 解决“角色群体怎么自己动起来”。Living Novel Engine 自己要牢牢抓住的，是它们都没有真正覆盖的核心：

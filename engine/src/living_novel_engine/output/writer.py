@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from living_novel_engine.fourth_wall import FourthWallLedger, load_ledger, save_ledger, should_persist_ledger
 from living_novel_engine.models import Intervention
 from living_novel_engine.models.events import SimulationResult
 
@@ -16,6 +17,43 @@ if TYPE_CHECKING:
 
 def _outputs_dir() -> Path:
     return Path(__file__).resolve().parents[3] / "outputs"
+
+
+def _ledger_path(run_dir: Path) -> Path:
+    return run_dir / "fourth_wall.json"
+
+
+def load_run_ledger(run_id: str) -> FourthWallLedger:
+    """读取某个 run 的第四面墙账本（缺失/损坏时返回空账本）。"""
+    return load_ledger(_outputs_dir() / run_id / "fourth_wall.json")
+
+
+def load_lineage_ledger(run_id: str) -> FourthWallLedger:
+    """沿 meta.json 父链向上查找最近一份有实质内容的 fourth_wall.json。
+
+    用于 resume：关闭第四面墙期间不写账本的 run 不会截断 lineage，
+    重新开启后可继承关闭前的觉察状态，但不会继承关闭期间的新干预。
+    """
+    run_dir = _outputs_dir() / run_id
+    path = _ledger_path(run_dir)
+    if path.exists():
+        ledger = load_ledger(path)
+        if ledger.traces or ledger.awareness:
+            return ledger.model_copy(update={"enabled": True})
+
+    meta_path = run_dir / "meta.json"
+    if meta_path.exists():
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        parent_id = meta.get("parent_run_id")
+        if parent_id:
+            return load_lineage_ledger(str(parent_id))
+
+    return FourthWallLedger(enabled=True)
+
+
+def _maybe_save_ledger(run_dir: Path, ledger: FourthWallLedger | None) -> None:
+    if should_persist_ledger(ledger):
+        save_ledger(_ledger_path(run_dir), ledger)  # type: ignore[arg-type]
 
 
 def _infer_chapter_from_result(result: SimulationResult) -> int:
@@ -39,11 +77,15 @@ def write_run_output(
     results: list[SimulationResult],
     *,
     run_id: str | None = None,
+    ledger: FourthWallLedger | None = None,
 ) -> RunOutput:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_id = run_id or f"run_{ts}_{uuid.uuid4().hex[:6]}"
     run_dir = _outputs_dir() / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
+
+    if ledger is not None:
+        _maybe_save_ledger(run_dir, ledger)
 
     intervention_payload = intervention.model_dump(mode="json")
     if intervention.contract_audit:
@@ -185,6 +227,7 @@ def _write_branch_outputs(
         "theme": result.theme,
         "branch_seed": result.branch_seed,
         "termination_reason": result.termination_reason,
+        "runner": result.runner_name,
         "accepted_events": [e.model_dump() for e in result.accepted_events],
         "state_deltas": [d.model_dump() for d in result.state_deltas],
         "final_scene_state": result.final_scene_state,
@@ -230,17 +273,31 @@ def _write_branch_outputs(
                 default=str,
             )
 
+    if result.multi_agent_trace is not None:
+        with open(branch_dir / "multi_agent_trace.json", "w", encoding="utf-8") as f:
+            json.dump(
+                result.multi_agent_trace,
+                f,
+                ensure_ascii=False,
+                indent=2,
+                default=str,
+            )
+
 
 def write_resume_output(
     parent: "ParentSnapshot",
     result: SimulationResult,
     *,
     kind: str = "resume_continue",
+    ledger: FourthWallLedger | None = None,
 ) -> ResumeRunOutput:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_id = f"run_{ts}_{uuid.uuid4().hex[:6]}_continue_{parent.branch_id}"
     run_dir = _outputs_dir() / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
+
+    if ledger is not None:
+        _maybe_save_ledger(run_dir, ledger)
 
     meta = _build_resume_meta(parent, kind)
     current_chapter = int(meta["current_chapter"])
@@ -261,11 +318,16 @@ def write_resume_intervene_output(
     parent: "ParentSnapshot",
     intervention: Intervention,
     results: list[SimulationResult],
+    *,
+    ledger: FourthWallLedger | None = None,
 ) -> ResumeInterveneOutput:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_id = f"run_{ts}_{uuid.uuid4().hex[:6]}_resume_intervene_{parent.branch_id}"
     run_dir = _outputs_dir() / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
+
+    if ledger is not None:
+        _maybe_save_ledger(run_dir, ledger)
 
     meta = _build_resume_meta(parent, "resume_intervene")
     current_chapter = int(meta["current_chapter"])

@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from living_novel_engine.fourth_wall import (
+    CharacterAwareness,
+    awareness_decision_hint,
+)
 from living_novel_engine.llm.client import LLMClient
 from living_novel_engine.models import CharacterAgent, Intervention, StoryWorld
 from living_novel_engine.models.events import CharacterAction
@@ -30,8 +34,10 @@ def decide_character_action(
     branch_spec: BranchSpec | None = None,
     source_type: str = "builtin_sample",
     retrieved_context: str = "",
+    awareness: CharacterAwareness | None = None,
 ) -> CharacterAction:
     perceived = _perceive_intervention(character, intervention)
+    fw_hint = awareness_decision_hint(awareness, character.name)
 
     system = """你是小说角色推演引擎中的单个角色 Agent。
 你必须严格遵循三段式决策，不得跳过：
@@ -123,6 +129,9 @@ def decide_character_action(
             "行为必须符合 world.yaml rules 和角色 boundaries。"
         )
 
+    if fw_hint:
+        user_parts.append(fw_hint)
+
     user = "\n".join(user_parts)
 
     if llm.mock:
@@ -166,6 +175,12 @@ def decide_character_action(
     if forced_stance and llm.mock:
         stance = forced_stance
 
+    internal_thought = decision.internal_thought
+    if llm.mock and awareness is not None:
+        aside = _mock_internal_aside(awareness)
+        if aside:
+            internal_thought = f"{internal_thought}；{aside}" if internal_thought else aside
+
     return CharacterAction(
         character_id=character.id,
         character_name=character.name,
@@ -173,9 +188,23 @@ def decide_character_action(
         action_type=decision.action_type,
         target=decision.target,
         content=decision.content,
-        internal_thought=decision.internal_thought,
+        internal_thought=internal_thought,
         intervention_response=decision.intervention_response or stance,
     )
+
+
+def _mock_internal_aside(awareness: CharacterAwareness) -> str:
+    """mock 模式下按觉察等级给角色加一句内心独白，让觉察"落到行为上"。"""
+    from living_novel_engine.fourth_wall import level_rank
+
+    rank = level_rank(awareness.level)
+    if rank < level_rank("suspicious"):
+        return ""
+    return {
+        "suspicious": "这些巧合……当真是巧合吗",
+        "aware": "冥冥中似有一双眼睛在看着我",
+        "defiant": "既有人在暗中操弄，我偏不照你安排走",
+    }.get(awareness.level, "")
 
 
 def _perceive_intervention(

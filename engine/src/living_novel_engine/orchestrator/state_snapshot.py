@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import copy
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from living_novel_engine.models import CharacterAgent, OpenThread, StoryWorld
 from living_novel_engine.models.events import SimulationResult
 from living_novel_engine.orchestrator.worldline_brancher import BranchSpec
+
+if TYPE_CHECKING:
+    from living_novel_engine.fourth_wall import FourthWallLedger
 
 
 def build_state_snapshot(
@@ -15,9 +18,11 @@ def build_state_snapshot(
     scene_state: dict[str, Any],
     spec: BranchSpec,
     result: SimulationResult,
+    ledger: "FourthWallLedger | None" = None,
 ) -> dict[str, Any]:
     """分支结束时的完整状态快照。"""
     before_map = {c.id: c for c in characters_before}
+    awareness_map = ledger.awareness if ledger is not None else {}
     character_snapshots: dict[str, dict[str, Any]] = {}
     relationship_changes: list[dict[str, str]] = []
 
@@ -35,6 +40,10 @@ def build_state_snapshot(
             "resources": resources,
             "narrative_role": char.narrative_role,
         }
+        aw = awareness_map.get(cid)
+        if aw is not None and ledger is not None and ledger.enabled and aw.score > 0:
+            character_snapshots[cid]["fourth_wall_awareness"] = aw.score
+            character_snapshots[cid]["fourth_wall_level"] = aw.level
         if prev:
             if prev.current_state.emotion != char.current_state.emotion:
                 character_snapshots[cid]["emotion_changed_from"] = prev.current_state.emotion
@@ -61,7 +70,7 @@ def build_state_snapshot(
 
     hook = _next_chapter_hook(spec, scene_state, result)
 
-    return {
+    snapshot: dict[str, Any] = {
         "worldline_id": result.worldline_id,
         "branch_theme": spec.theme,
         "branch_seed": spec.branch_seed,
@@ -77,6 +86,30 @@ def build_state_snapshot(
         },
         "time": scene_state.get("time", ""),
         "location": scene_state.get("location", ""),
+    }
+
+    if ledger is not None and ledger.enabled and (ledger.traces or awareness_map):
+        snapshot["fourth_wall"] = _fourth_wall_summary(ledger)
+
+    return snapshot
+
+
+def _fourth_wall_summary(ledger: "FourthWallLedger") -> dict[str, Any]:
+    """供快照与 UI 解释的第四面墙摘要。"""
+    return {
+        "enabled": ledger.enabled,
+        "intervention_count": len(ledger.traces),
+        "characters": {
+            cid: {
+                "score": aw.score,
+                "level": aw.level,
+                "attitude_toward_observer": aw.attitude_toward_observer,
+                "triggers": list(aw.triggers),
+                "intervention_count": aw.intervention_count,
+            }
+            for cid, aw in ledger.awareness.items()
+            if aw.score > 0
+        },
     }
 
 

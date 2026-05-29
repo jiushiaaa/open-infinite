@@ -24,6 +24,10 @@ class BranchSummary:
     termination_reason: str = ""
     chapter_chars: int = 0
     has_state: bool = False
+    has_retrieval: bool = False
+    retrieval_count: int = 0
+    has_multi_agent_trace: bool = False
+    multi_agent_trace_count: int = 0
 
 
 @dataclass
@@ -56,6 +60,13 @@ def _read_json(path: Path) -> dict[str, Any]:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError, UnicodeDecodeError):
         return {}
+
+
+def _read_optional_json(path: Path) -> dict[str, Any] | None:
+    """Read JSON if the file exists; None when absent, {} when corrupt (defensive)."""
+    if not path.exists():
+        return None
+    return _read_json(path)
 
 
 def _read_yaml(path: Path) -> Any:
@@ -106,6 +117,14 @@ def _branch_theme(branch_dir: Path, events: dict[str, Any] | None) -> str:
     return branch_dir.name
 
 
+def _list_len_in_json(path: Path, key: str) -> tuple[bool, int]:
+    """(exists, len(json[key])) ；缺失返回 (False, 0)，损坏/非列表返回 (True, 0)。"""
+    if not path.exists():
+        return False, 0
+    value = _read_json(path).get(key)
+    return True, len(value) if isinstance(value, list) else 0
+
+
 def _scan_branch(branch_dir: Path) -> BranchSummary:
     events: dict[str, Any] | None = None
     events_path = branch_dir / "events.json"
@@ -114,9 +133,14 @@ def _scan_branch(branch_dir: Path) -> BranchSummary:
 
     chapter_path = branch_dir / "chapter.md"
     chapter_chars = len(chapter_path.read_text(encoding="utf-8")) if chapter_path.exists() else 0
-    termination = ""
-    if events:
-        termination = str(events.get("termination_reason", ""))
+    termination = str(events.get("termination_reason", "")) if events else ""
+
+    has_retrieval, retrieval_count = _list_len_in_json(
+        branch_dir / "retrieval_context.json", "items"
+    )
+    has_trace, trace_count = _list_len_in_json(
+        branch_dir / "multi_agent_trace.json", "turn_plans"
+    )
 
     return BranchSummary(
         id=branch_dir.name,
@@ -124,6 +148,10 @@ def _scan_branch(branch_dir: Path) -> BranchSummary:
         termination_reason=termination,
         chapter_chars=chapter_chars,
         has_state=(branch_dir / "state_snapshot.json").exists(),
+        has_retrieval=has_retrieval,
+        retrieval_count=retrieval_count,
+        has_multi_agent_trace=has_trace,
+        multi_agent_trace_count=trace_count,
     )
 
 
@@ -276,15 +304,10 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
 
     chapter = _read_text(branch_dir / "chapter.md")
     summary = _read_text(branch_dir / "summary.md")
-    state: dict[str, Any] | None = None
-    state_path = branch_dir / "state_snapshot.json"
-    if state_path.exists():
-        state = _read_json(state_path)
-
-    events: dict[str, Any] | None = None
-    events_path = branch_dir / "events.json"
-    if events_path.exists():
-        events = _read_json(events_path)
+    state = _read_optional_json(branch_dir / "state_snapshot.json")
+    events = _read_optional_json(branch_dir / "events.json")
+    retrieval = _read_optional_json(branch_dir / "retrieval_context.json")
+    multi_agent_trace = _read_optional_json(branch_dir / "multi_agent_trace.json")
 
     run_summary = index_run(outputs_dir() / run_id)
     child_runs: list[str] = []
@@ -313,6 +336,8 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
         "summary_md": summary,
         "state_snapshot": state,
         "events": events,
+        "retrieval": retrieval,
+        "multi_agent_trace": multi_agent_trace,
         "child_runs": child_runs,
         "cli_hints": hints,
     }
@@ -491,6 +516,9 @@ def build_worldline_tree(*, story_slug: str | None = None) -> list[dict[str, Any
             "branch_id": branch.id,
             "theme": branch.theme,
             "chapter_chars": branch.chapter_chars,
+            "retrieval_count": branch.retrieval_count,
+            "has_multi_agent_trace": branch.has_multi_agent_trace,
+            "multi_agent_trace_count": branch.multi_agent_trace_count,
             "child_runs": [
                 run_node(cid) for cid in sorted(child_run_ids, reverse=True)
             ],
