@@ -212,6 +212,14 @@ def test_stub_runner_reveals_on_believe_seed():
     assert WHISPER in dumped
 
 
+def test_stub_trace_has_generation_meta():
+    # v0.6.5：stub 也写 generation_meta，便于浏览器区分 stub / llm / fallback
+    result = dispatch_scene(_request(believe=True), runner_name="multi_agent_stub")
+    gm = result.multi_agent_trace["generation_meta"]
+    assert gm["source"] == "stub"
+    assert gm["validation_status"] == "ok"
+
+
 # ── artifact 落盘 ──────────────────────────────────────────────
 
 

@@ -57,16 +57,17 @@ class LLMClient:
     def available(self) -> bool:
         return self.mock or bool(self._client)
 
-    def chat(
+    def _complete(
         self,
         system: str,
         user: str,
         *,
-        temperature: float = 0.7,
-        max_tokens: int = 4096,
-    ) -> str:
+        temperature: float,
+        max_tokens: int,
+    ) -> tuple[str, dict[str, Any] | None]:
+        """底层补全：返回 (正文, usage)。mock 与未配置 key 的语义与原 chat 一致。"""
         if self.mock:
-            return self._mock_response(system, user)
+            return self._mock_response(system, user), None
         if not self._client:
             raise RuntimeError("LLM_API_KEY 未配置，请复制 .env.example 为 .env 并填写密钥")
         resp = self._client.chat.completions.create(
@@ -78,7 +79,28 @@ class LLMClient:
             temperature=temperature,
             max_tokens=max_tokens,
         )
-        return (resp.choices[0].message.content or "").strip()
+        content = (resp.choices[0].message.content or "").strip()
+        return content, _extract_usage(resp)
+
+    def chat(
+        self,
+        system: str,
+        user: str,
+        *,
+        temperature: float = 0.7,
+        max_tokens: int = 4096,
+    ) -> str:
+        return self._complete(
+            system, user, temperature=temperature, max_tokens=max_tokens
+        )[0]
+
+    def _json_system_prompt(self, system: str, model_type: type[T]) -> str:
+        schema_hint = json.dumps(model_type.model_json_schema(), ensure_ascii=False)
+        return (
+            f"{system}\n\n"
+            "你必须只输出合法 JSON，不要 markdown 代码块。\n"
+            f"JSON Schema:\n{schema_hint}"
+        )
 
     def chat_json(
         self,
@@ -88,15 +110,27 @@ class LLMClient:
         *,
         temperature: float = 0.4,
     ) -> T:
-        schema_hint = json.dumps(model_type.model_json_schema(), ensure_ascii=False)
-        full_system = (
-            f"{system}\n\n"
-            "你必须只输出合法 JSON，不要 markdown 代码块。\n"
-            f"JSON Schema:\n{schema_hint}"
-        )
-        raw = self.chat(full_system, user, temperature=temperature)
+        raw = self.chat(self._json_system_prompt(system, model_type), user, temperature=temperature)
         data = _extract_json(raw)
         return model_type.model_validate(data)
+
+    def chat_json_with_usage(
+        self,
+        system: str,
+        user: str,
+        model_type: type[T],
+        *,
+        temperature: float = 0.4,
+    ) -> tuple[T, dict[str, Any] | None]:
+        """同 chat_json，但额外返回 OpenAI usage（token 计数）；拿不到为 None。"""
+        raw, usage = self._complete(
+            self._json_system_prompt(system, model_type),
+            user,
+            temperature=temperature,
+            max_tokens=4096,
+        )
+        data = _extract_json(raw)
+        return model_type.model_validate(data), usage
 
     def _mock_response(self, system: str, user: str) -> str:
         if "章节正文" in system or "网文" in system:
@@ -120,6 +154,18 @@ class LLMClient:
                 ensure_ascii=False,
             )
         return "【模拟响应】已处理请求。"
+
+
+def _extract_usage(resp: Any) -> dict[str, Any] | None:
+    """从 OpenAI 兼容响应中提取 token usage；缺失时返回 None。"""
+    usage = getattr(resp, "usage", None)
+    if usage is None:
+        return None
+    return {
+        "prompt_tokens": getattr(usage, "prompt_tokens", None),
+        "completion_tokens": getattr(usage, "completion_tokens", None),
+        "total_tokens": getattr(usage, "total_tokens", None),
+    }
 
 
 def _extract_json(text: str) -> dict[str, Any]:

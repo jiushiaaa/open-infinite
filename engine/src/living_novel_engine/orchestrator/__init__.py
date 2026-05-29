@@ -1,6 +1,7 @@
 from .runners import (
     DEFAULT_RUNNER,
     LightweightSceneRunner,
+    MultiAgentLLMRunner,
     MultiAgentStubRunner,
     RunnerError,
     SceneRequest,
@@ -18,6 +19,7 @@ __all__ = [
     "BranchSpec",
     "DEFAULT_RUNNER",
     "LightweightSceneRunner",
+    "MultiAgentLLMRunner",
     "MultiAgentStubRunner",
     "RunnerError",
     "SceneRequest",

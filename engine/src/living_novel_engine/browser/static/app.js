@@ -308,6 +308,32 @@ function traceBadge(on, onLabel, offLabel) {
   return `<span class="${cls}">${esc(on ? onLabel : offLabel)}</span>`;
 }
 
+function renderTraceMeta(meta) {
+  if (!meta) return "";
+  const src = meta.source || "?";
+  const cls =
+    src === "llm" ? "on" : src === "fallback" ? "off" : "";
+  const label =
+    src === "llm" ? "真 LLM 推演" : src === "fallback" ? "回退（确定性）" : src === "stub" ? "确定性 stub" : src;
+  const bits = [];
+  bits.push(`<span class="trace-flag ${cls}">来源: ${esc(label)}</span>`);
+  if (meta.model_name) bits.push(`<span class="meta">模型 ${esc(meta.model_name)}</span>`);
+  if (meta.attempt_count != null) bits.push(`<span class="meta">尝试 ${esc(meta.attempt_count)} 次</span>`);
+  if (meta.duration_ms != null) bits.push(`<span class="meta">耗时 ${esc(meta.duration_ms)}ms</span>`);
+  if (meta.validation_status) bits.push(`<span class="meta">校验 ${esc(meta.validation_status)}</span>`);
+  if (meta.fallback_reason) bits.push(`<span class="meta">回退原因 ${esc(meta.fallback_reason)}</span>`);
+  const usage = meta.usage;
+  if (usage && usage.total_tokens != null)
+    bits.push(`<span class="meta">tokens ${esc(usage.total_tokens)}</span>`);
+  const warns = Array.isArray(meta.validator_warnings) ? meta.validator_warnings : [];
+  const warnHtml = warns.length
+    ? `<div class="meta" style="margin-top:0.4rem">告警: ${warns.map(esc).join("；")}</div>`
+    : "";
+  return `<div class="trace-group"><h3>推演元数据 generation_meta</h3><div class="trace-item">${bits.join(
+    " · "
+  )}${warnHtml}</div></div>`;
+}
+
 function renderTraceGroup(title, count, itemsHtml) {
   return `<div class="trace-group"><h3>${esc(title)} <span class="meta">(${count})</span></h3>${
     itemsHtml || '<div class="empty" style="text-align:left">（无）</div>'
@@ -338,6 +364,8 @@ function renderTrace(data) {
   let html = `<div class="retrieval-head"><div><span class="field">世界线</span> ${esc(
     trace.worldline_id || data.branch_id || ""
   )}</div><div><span class="field">种子</span> ${esc(trace.branch_seed || "")}</div><div><span class="field">角色计划</span> ${plans.length} 份</div></div>`;
+
+  html += renderTraceMeta(trace.generation_meta);
 
   const intentItem = (i) =>
     `<div class="trace-item"><div class="trace-text">${esc(i.actor_id)} · <em>${esc(

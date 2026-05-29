@@ -1,8 +1,8 @@
 # External reference projects (已吸收精华；本地若保留参考副本请忽略)
-/MiroFish/
-# /webnovel-writer/
-# /WenShape/
-
+Reference_projects/MiroFish/
+Reference_projects/webnovel-writer/
+Reference_projects/WenShape/
+Reference_projects/
 # Secrets and local environment.
 .env
 .env.*

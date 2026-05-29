@@ -16,6 +16,7 @@ from living_novel_engine.orchestrator.runners.base import (
     SceneRunner,
 )
 from living_novel_engine.orchestrator.runners.lightweight import LightweightSceneRunner
+from living_novel_engine.orchestrator.runners.multi_agent_llm import MultiAgentLLMRunner
 from living_novel_engine.orchestrator.runners.multi_agent_stub import MultiAgentStubRunner
 
 DEFAULT_RUNNER = "lightweight"
@@ -71,13 +72,15 @@ def dispatch_scene(
     return result
 
 
-# 默认注册轻量 runner；multi_agent_stub 为可选（非默认），需显式或经 env 选择
+# 默认注册轻量 runner；multi_agent_* 为可选（非默认），需显式或经 env 选择
 register_runner(LightweightSceneRunner())
 register_runner(MultiAgentStubRunner())
+register_runner(MultiAgentLLMRunner())
 
 __all__ = [
     "DEFAULT_RUNNER",
     "LightweightSceneRunner",
+    "MultiAgentLLMRunner",
     "MultiAgentStubRunner",
     "RunnerError",
     "SceneRequest",

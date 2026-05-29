@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-29（v0.6.3 multi_agent_trace 可视化）
+> **最后更新**：2026-05-29（v0.6.5 多 Agent 推演工程可靠性）
 
 ---
 
@@ -82,13 +82,33 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | `245 passed`（2026-05-29） |
-| **官方下一版** | **v0.6.4** 自研 `multi_agent_llm` runner：OpenAI-compatible API 小模型推演计划/误解，不本地部署 |
-| **再下一版** | v0.7 产品级 React/Vite 前端 |
+| **测试基线** | `269 passed`（2026-05-29） |
+| **官方下一版** | **v0.7** 产品级 React/Vite Web App（普通用户入口） |
+| **再下一版** | v0.8+ 按触发条件评估 Zep / OASIS / CAMEL / LangGraph |
 
 ---
 
 ## 4. 已完成版本（按时间线）
+
+### v0.6.5 — 多 Agent 推演工程可靠性 ✅
+
+- **generation_meta**（`orchestrator/runners/meta.py` `TraceMeta`）：source（llm/fallback/stub）/ fallback_reason / model_name / attempt_count / duration_ms / validation_status / validator_warnings / usage / cost_estimate；additive 写进 `multi_agent_trace.json` 的 `generation_meta` 键，旧读取不破坏；stub 也补 `source=stub`
+- **trace 质量校验** `orchestrator/runners/trace_quality.py` `validate_and_repair_trace`：硬失败（空 turn_plans）→ runner 重试/回退；就地修复（回合号归一化 >=1 且 due>=created、暗算意图/未 reveal 私下信息/未 corrected 误解强制 private、补齐 worldline_id/seed）；告警（缺角色计划、干预未入目标私域）；**绝不抛**
+- **有限重试**：`LNE_MULTI_AGENT_MAX_RETRIES`（默认 1、上限 5），重试 prompt 带上一轮问题；耗尽回退确定性 trace
+- **token usage**：`LLMClient` 抽 `_complete()` 返回 `(content, usage)` + 新增 `chat_json_with_usage()`；`chat`/`chat_json` 行为不变；拿不到 usage 为 null 不报错
+- 前端「Agent 轨迹」新增「推演元数据」分组（彩色 source 徽标 + 模型/尝试/耗时/token/告警）
+- 设计文档 `docs/v0.6.5-multi-agent-reliability.md`
+- 测试：`tests/test_trace_quality.py`（+9）、`tests/test_multi_agent_llm.py` 扩充（meta/重试/usage/隐私）、stub +1；全量 **269 passed**；`node --check app.js` 通过；lightweight/stub 零回归
+
+### v0.6.4 — multi_agent_llm 小模型推演 runner ✅
+
+- 新建 `orchestrator/runners/assembly.py`：抽出共享装配层 `build_result_from_trace`（trace→投影→`apply_relationship_signals`→`build_state_snapshot`+`render_chapter`→`SimulationResult`），stub 与 llm 两个 runner 共用、输出严格同构
+- 新建 `orchestrator/runners/multi_agent_llm.py`：`MultiAgentLLMRunner`（name=`multi_agent_llm`，非默认）；`generate_trace` 让小模型一次性输出整场 `MultiAgentTrace` JSON（复用 `LLMClient.chat_json`，OpenAI-compatible，不本地部署、不引依赖）
+- **健壮回退**：mock / 无 API key / LLM 异常 / JSON 非法 / 校验失败 / 空 turn_plans → 回退确定性 `build_demo_trace`（不抛），demo/测试在无 API 环境下仍跑通
+- **隐私加固** `_sanitize_trace`：未 reveal 私下信息、未 corrected 误解、暗算/隐瞒类公开意图（conceal/deceive/scheme/...）强制非公开；`due_round<created_round` 归一化；补齐 worldline_id/branch_seed。投影层再做硬过滤，模型乱标也不泄漏
+- stub 重构为复用共享装配层，行为不变；生成的 `multi_agent_trace.json` 可直接用 v0.6.3 browse「Agent 轨迹」查看
+- 设计文档 `docs/v0.6.4-multi-agent-llm-runner.md`
+- 测试 `tests/test_multi_agent_llm.py`（+9，FakeLLM 走真实路径 / 回退 / 隐私加固 / 契约）；全量 **254 passed**，lightweight 零回归
 
 ### v0.6.3 — multi_agent_trace 可视化 ✅
 
@@ -293,7 +313,8 @@ lne list-genres
 | ~~browse 无检索展示~~ | **v0.4.2 已解决**：分支阅读器「检索记忆」标签页 | — |
 | ~~第四面墙未实现~~ | **v0.5 已解决**：awareness 分数、干预记忆账本、分级表现注入 | — |
 | ~~runner 不可替换~~ | **v0.6.0 已解决**：`SceneRunner` adapter + 注册表，可经 `LNE_SCENE_RUNNER` 切换 | — |
-| 多 Agent 真实推理 | v0.6.2 已有 `multi_agent_stub`（确定性演示投影），但尚非真正 LLM 多 Agent 推演 | **v0.6.4** 小模型推演 / 评估 MiroFish |
+| ~~多 Agent 真实推理~~ | **v0.6.4 已解决**：`multi_agent_llm` runner 通过 OpenAI-compatible 小模型推演 `MultiAgentTrace`（非默认、隐私加固、无 API 回退确定性 stub） | — |
+| ~~多 Agent 推演工程化~~ | **v0.6.5 已解决**：generation_meta（source/usage/重试/校验）+ trace 质量校验器 + 有限重试 + token usage；并发/精确成本留待 v0.8+ | — |
 | ~~trace 可视化~~ | **v0.6.3 已解决**：browse「Agent 轨迹」标签页展示计划/私下信息/误解/延迟行动/关系信号 | — |
 | 向量库 / embedding | 刻意不做，BM25 不够再考虑 | 50+ 章后评估 |
 
@@ -313,11 +334,11 @@ lne list-genres
 ✅ v0.6.1   Multi-Agent Runner Protocol（协议 + 数据结构骨架，未接入运行）
 ✅ v0.6.2   multi_agent_stub runner：协议→投影→契约，私有不泄漏，非默认
 ✅ v0.6.3   multi_agent_trace 可视化：browse「Agent 轨迹」标签页
+✅ v0.6.4   multi_agent_llm：OpenAI-compatible API 小模型推演计划/误解（非默认、隐私加固、无 API 回退 stub）
+✅ v0.6.5   推演工程可靠性：generation_meta + trace 质量校验 + 有限重试 + token usage
 
-→ v0.6.4   multi_agent_llm：OpenAI-compatible API 小模型推演计划/误解
-→ v0.6.5   并发、重试、成本控制、trace 质量评估
 → v0.7     产品级 React/Vite Web App（普通用户入口）
-→ v0.8+    Zep / OASIS / CAMEL / 向量库、多 provider、完整 MasterSetting 工作台
+→ v0.8+    Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库、多 provider、完整 MasterSetting 工作台
 ```
 
 ### v0.3.1 后续质量优化（非阻塞）
@@ -347,9 +368,9 @@ lne list-genres
 - [x] **v0.6.2** `multi_agent_stub` runner：消费协议产出 trace 并投影成 `AcceptedEvent`/`StateDelta`/`state_snapshot`（非默认，私有不泄漏）
 - [x] 保留 `SimulationResult` / `accepted_events` / `state_snapshot` 输出契约（仅 additive 增 `runner_name`/`runner`/`multi_agent_trace`）
 - [x] **v0.6.3** trace 接入 browse 可视化（「Agent 轨迹」标签页 + 树角标）
-- [ ] **v0.6.4** 自研 `multi_agent_llm` runner：通过 OpenAI-compatible API 调小模型输出 `MultiAgentTrace` JSON，不本地部署，不引入 Zep/OASIS/CAMEL
-- [ ] **v0.6.5** 并发、重试、成本控制、trace 质量评估与 fallback 策略
-- [ ] **v0.8+ 可选评估** Zep / 图数据库（长篇记忆崩时）与 OASIS / CAMEL（群体仿真需求强时）
+- [x] **v0.6.4** 自研 `multi_agent_llm` runner：通过 OpenAI-compatible API 调小模型输出 `MultiAgentTrace` JSON，不本地部署，不引入 Zep/OASIS/CAMEL（共享装配层 + 隐私加固 + 健壮回退）
+- [x] **v0.6.5** 推演工程可靠性：generation_meta（source/usage/重试/校验）+ trace 质量校验器 + 有限重试（`LNE_MULTI_AGENT_MAX_RETRIES`）+ token usage；fallback 策略；并发/精确成本计算留待 v0.8+
+- [ ] **v0.8+ 可选评估** Zep / 图数据库（长篇记忆崩时）、OASIS / CAMEL（群体仿真需求强时）、LangGraph 局部 runner（复杂状态流转明显增强时）
 - [ ] 验收：同一场景 ≥5 角色参与推演；事件流仍被 contract/retrieval/browser 读取
 
 ### v0.7 产品级前端（机制稳定后）
@@ -573,6 +594,31 @@ lne list-genres
 - **MiroFish 源码观察**：LLM 主路径是 OpenAI SDK 兼容 API（`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL_NAME`），示例推荐 DashScope `qwen-plus`，不要求本地部署；另有 `LLM_BOOST_*` 支持并行模拟加速。
 - **Zep Cloud**：MiroFish 用它做图谱/记忆；LNE 当前已有 `world.yaml`、`characters.yaml`、`story_contract.yaml`、`facts.jsonl`、summaries、snapshots、retrieval、fourth_wall、multi_agent_trace 等叙事专用记忆层，短期不接 Zep。
 - **OASIS / CAMEL**：适合 Twitter/Reddit 式群体环境与 `LLMAction()` / `env.step()`；LNE 是小说场景推演，先吸收 action loop / trace log 思想，不把它们变成主线依赖。
-- **路线**：v0.6.4 自研 `multi_agent_llm`（API 小模型，不本地部署）→ v0.6.5 并发/重试/成本/质量评估 → v0.8+ 再按“长篇记忆崩 / 群体仿真需求强”评估 Zep / OASIS / CAMEL。
+- **LangGraph 取舍**：MiroFish 主线不是 LangGraph；webnovel-writer 更像 Claude Code 写作流水线；WenShape 更像上下文工程 / 作者工作台。LNE 前期先用自研精简智能体协议（`SceneRunner` + `MultiAgentTrace` + `project_trace`），中后期如出现角色并行思考、裁判、审计、反思/重试、多轮共识等复杂状态流转，再局部引入 LangGraph 作为某个 runner 的内部实现。
+- **路线**：v0.6.4 自研 `multi_agent_llm`（API 小模型，不本地部署）→ v0.6.5 并发/重试/成本/质量评估 → v0.8+ 再按“长篇记忆崩 / 群体仿真需求强 / 状态流转复杂化”评估 Zep / OASIS / CAMEL / LangGraph。
+
+### 2026-05-29 — v0.6.4 multi_agent_llm 小模型推演 runner
+
+- **做了什么**：
+  - 抽出共享装配层 `orchestrator/runners/assembly.py`（`build_result_from_trace`：trace→`project_trace`→`apply_relationship_signals`→`build_state_snapshot`+`render_chapter`→`SimulationResult`），stub 与 llm runner 共用、输出严格同构；stub 重构为复用该层，行为不变
+  - 新建 `orchestrator/runners/multi_agent_llm.py`：`MultiAgentLLMRunner`（非默认）；`generate_trace` 用 `LLMClient.chat_json` 让小模型一次性输出 `MultiAgentTrace`（OpenAI-compatible，不本地部署、不引依赖）
+  - 健壮回退：mock/无 API/异常/非法 JSON/空 turn_plans → 确定性 `build_demo_trace`（不抛）；隐私加固 `_sanitize_trace`：未 reveal 私下信息、未 corrected 误解、暗算类公开意图强制非公开 + due_round 归一化 + 补齐 worldline_id/seed
+  - 注册并导出 `MultiAgentLLMRunner`；设计文档 `docs/v0.6.4-multi-agent-llm-runner.md`
+- **测试**：254 passed（+9，`tests/test_multi_agent_llm.py`：注册非默认 / mock 回退 / FakeLLM 真实路径 / 隐私加固不泄漏 / 契约 / 异常回退）；lightweight + stub 零回归
+- **文件**：`orchestrator/runners/{assembly,multi_agent_llm,multi_agent_stub}.py`、`orchestrator/runners/__init__.py`、`orchestrator/__init__.py`、`tests/test_multi_agent_llm.py`、`docs/v0.6.4-multi-agent-llm-runner.md`、文档
+- **下一刀建议**：v0.6.5 工程化——并发 / 重试 / 成本控制 / trace 质量评估与 fallback 策略；同一场景 ≥5 角色推演的稳定性
+
+### 2026-05-29 — v0.6.5 多 Agent 推演工程可靠性
+
+- **做了什么**：
+  - 新建 `orchestrator/runners/meta.py`（`TraceMeta`）+ `trace_quality.py`（`validate_and_repair_trace`：硬失败/就地修复/告警，绝不抛）
+  - `multi_agent_llm.generate_trace` 改返回 `(trace, TraceMeta)`：有限重试（`LNE_MULTI_AGENT_MAX_RETRIES` 默认 1）、validator 硬失败/异常重试带问题反馈、耗尽回退；记录 source/model/attempt/duration/usage/warnings
+  - `LLMClient` 抽 `_complete()` 返回 `(content, usage)` + 新增 `chat_json_with_usage()`；`chat`/`chat_json` 行为不变；新增 `_extract_usage`
+  - `assembly.build_result_from_trace` 接收 `generation_meta` 写进 `multi_agent_trace.generation_meta`；stub 也补 `source=stub`
+  - 前端「Agent 轨迹」新增「推演元数据」分组（`renderTraceMeta`，彩色 source 徽标）
+  - 设计文档 `docs/v0.6.5-multi-agent-reliability.md`
+- **测试**：269 passed（+15：`tests/test_trace_quality.py` +9、`test_multi_agent_llm.py` 扩充、stub +1）；`node --check app.js` 通过；lightweight/stub 零回归
+- **文件**：`orchestrator/runners/{meta,trace_quality,multi_agent_llm,multi_agent_stub,assembly}.py`、`llm/client.py`、`browser/static/app.js`、`tests/{test_trace_quality,test_multi_agent_llm,test_multi_agent_stub}.py`、`docs/v0.6.5-multi-agent-reliability.md`、文档
+- **下一刀建议**：转向 v0.7 Product Web App（React/Vite 产品级前端，普通用户入口）；runner 侧暂不再深挖，接真实模型后若发现稳定性缺口再补
 
 <!-- 以下由后续会话追加 -->

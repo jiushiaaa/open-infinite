@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.6.3（multi_agent_trace 可视化已验收；下一版 v0.6.4 multi_agent_llm） |
+| 当前版本 | v0.6.5（多 Agent 推演工程可靠性已验收；下一版 v0.7 Product Web App） |
 | 阶段 | 概念验证 / MVP 设计 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -593,11 +593,13 @@ MVP 支持：
 - v0.6.1（已收口）：Multi-Agent Runner Protocol——`orchestrator/runners/protocol.py` 定义角色计划/私下信息/误解/延迟行动/关系传播数据结构 + 设计文档；私有/误解默认不泄漏，未接入运行
 - v0.6.2（已收口）：`multi_agent_stub` runner——`projection.py` 把 `MultiAgentTrace` 投影回 `AcceptedEvent`/`StateDelta`/`state_snapshot`，强制 reveal/corrected/due_round 规则；非默认（`lightweight` 仍默认），仅 additive 增 `multi_agent_trace`
 - v0.6.3（已收口）：`multi_agent_trace` 可视化——`lne browse` 新增「Agent 轨迹」标签页展示角色计划/私下信息/误解/延迟行动/关系信号；后端 additive 增 `has_multi_agent_trace`/`multi_agent_trace_count`，缺失空态/损坏不抛
-- v0.6.4（下一步）：自研 `multi_agent_llm` runner，通过 OpenAI-compatible API 调用小模型生成 `MultiAgentTrace` JSON；不要求本地部署模型
-- v0.6.5：并发、重试、成本控制、trace 质量评估与 fallback 策略
+- v0.6.4（已收口）：自研 `multi_agent_llm` runner——通过 OpenAI-compatible API 调小模型一次性生成 `MultiAgentTrace` JSON，复用共享装配层 `assembly.build_result_from_trace` 与 v0.6.2 投影层；非默认、不本地部署、不引依赖；隐私加固 + 健壮回退（mock/无 API/异常→确定性 stub，不抛）
+- v0.6.5（已收口）：多 Agent 推演工程可靠性——`generation_meta`（source/usage/重试/校验，additive 写进 `multi_agent_trace.json`，browse 可区分真 LLM/回退/stub）+ trace 质量校验器 `trace_quality.validate_and_repair_trace`（硬失败/就地修复/告警，绝不抛）+ 有限重试（`LNE_MULTI_AGENT_MAX_RETRIES`，默认 1）+ token usage（`chat_json_with_usage`）；并发/精确成本计算留待 v0.8+
+- v0.7（下一步）：Product Web App，React/Vite 产品级前端，普通用户入口
 - 多角色计划、误解、延迟行动、关系传播
 - 小模型推演 + 大模型写正文的分层策略
 - Zep Cloud / OASIS / CAMEL 暂不作为主线依赖；仅作为 v0.8+ 可选评估项（长篇记忆崩或群体仿真需求明显增强时再接）
+- LangGraph 暂不作为主线架构；前期使用自研精简智能体协议，中后期仅在复杂状态流转需要时作为某个 runner 的局部实现评估
 
 ### v0.7 产品级前端
 
@@ -613,6 +615,7 @@ MVP 支持：
 - 多 provider gateway
 - Zep / 图数据库（长篇事实与角色长期记忆需要图谱化时）
 - OASIS / CAMEL 可选 runner（群体仿真需求强于自研轻量 runner 时）
+- LangGraph 局部状态流转 runner（当角色并行思考、裁判、审计、反思/重试、多轮共识显著复杂化时）
 - 完整 MasterSetting / 作者工作台能力
 
 ## 17. 开放问题
