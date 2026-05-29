@@ -390,6 +390,111 @@ export interface WorldAnchor {
   run_count: number;
 }
 
+// ── v0.7.4 基线与正史回放 ─────────────────────────────────
+
+export interface BaselineCharacterStateChange {
+  character_id: string;
+  name: string;
+  location: string;
+  emotion: string;
+}
+
+export interface BaselineReport {
+  version: string;
+  kind: "baseline";
+  story_slug: string;
+  source_kind: SourceKind;
+  run_id: string;
+  branch_id: string;
+  from_run_id: string | null;
+  from_branch_id: string | null;
+  chapter_number: number;
+  runner: string;
+  mock: boolean;
+  no_intervention: boolean;
+  summary: string;
+  natural_development_points: string[];
+  character_state_changes: BaselineCharacterStateChange[];
+  open_threads_touched: string[];
+  created_at: string;
+}
+
+export interface BaselineGenerateRequest {
+  rounds?: number;
+  mock?: boolean;
+  runner_name?: string;
+  from_run_id?: string | null;
+  from_branch_id?: string | null;
+}
+
+export interface BaselineGenerateResponse {
+  run_id: string;
+  branch_id: string;
+  story_slug: string;
+  summary: string;
+  report: BaselineReport;
+  tree: RunTreeNode[];
+}
+
+export interface HoldoutChapter {
+  chapter: number;
+  title: string;
+  path: string;
+  chars: number;
+}
+
+export interface HoldoutManifest {
+  version: string;
+  story_slug: string;
+  chapters: HoldoutChapter[];
+  created_at: string;
+  updated_at: string;
+  chapter_count: number;
+  available_chapters: number[];
+}
+
+export interface HoldoutChapterInput {
+  chapter: number;
+  title?: string;
+  content: string;
+}
+
+export interface HoldoutWriteRequest {
+  chapters: HoldoutChapterInput[];
+  force?: boolean;
+}
+
+export interface ReplayScores {
+  lexical_overlap: number;
+  entity_overlap: number;
+  thread_overlap: number;
+  length_ratio: number;
+  state_consistency: number;
+  overall: number;
+}
+
+export interface CanonReplayReport {
+  version: string;
+  kind: "canon_replay";
+  story_slug: string;
+  baseline_run_id: string;
+  baseline_branch_id: string;
+  holdout_chapter: number;
+  scores: ReplayScores;
+  matched_entities: string[];
+  missing_entities: string[];
+  matched_threads: string[];
+  warnings: string[];
+  interpretation: string;
+  created_at: string;
+}
+
+export interface CanonReplayRequest {
+  baseline_run_id: string;
+  baseline_branch_id?: string;
+  holdout_chapter: number;
+}
+
 // ── POST /api/interventions/guardrail （v0.7.2 护栏预检）──────
 
 export type GuardrailRisk = "low" | "medium" | "high";

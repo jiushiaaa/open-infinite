@@ -9,6 +9,7 @@ import type {
 import { ApiError, api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { navigate } from "../routing";
+import { BaselineCanonPanel } from "./BaselineCanonPanel";
 import { CharacterProbePanel } from "./CharacterProbePanel";
 import { CharacterAvatar, VisualAssetsControls } from "./VisualAssetPanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
@@ -253,6 +254,8 @@ function LeftColumn({
         loading={visualLoading}
         onReload={onVisualReload}
       />
+
+      <BaselineCanonPanel slug={data.slug} sourceKind={data.source_kind} />
 
       <div className="anchor__health">
         <HealthBadge health={health} />

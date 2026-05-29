@@ -1,13 +1,20 @@
 import type {
   AnchorPatch,
   AnchorUpdateResponse,
+  BaselineGenerateRequest,
+  BaselineGenerateResponse,
+  BaselineReport,
   BranchDetail,
+  CanonReplayReport,
+  CanonReplayRequest,
   CharacterProbe,
   ConnectivityResult,
   DiffActionRequest,
   DiffActionResponse,
   GuardrailRequest,
   GuardrailResult,
+  HoldoutManifest,
+  HoldoutWriteRequest,
   ImportNovelRequest,
   ImportNovelResponse,
   JobRecord,
@@ -172,6 +179,40 @@ export const api = {
       `/api/stories/${encodeURIComponent(storySlug)}/visual-assets/generate`,
       req,
     );
+  },
+  // ── v0.7.4 基线与正史回放 ─────────────────────────────────
+  generateBaseline(
+    storySlug: string,
+    req: BaselineGenerateRequest,
+  ): Promise<BaselineGenerateResponse> {
+    return postJson(`/api/stories/${encodeURIComponent(storySlug)}/baseline`, req);
+  },
+  getBaselineReport(runId: string): Promise<BaselineReport> {
+    return getJson(`/api/runs/${encodeURIComponent(runId)}/baseline`);
+  },
+  getHoldout(storySlug: string): Promise<HoldoutManifest> {
+    return getJson(`/api/stories/${encodeURIComponent(storySlug)}/canon/holdout`);
+  },
+  writeHoldout(
+    storySlug: string,
+    req: HoldoutWriteRequest,
+  ): Promise<HoldoutManifest> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/canon/holdout`,
+      req,
+    );
+  },
+  runCanonReplay(
+    storySlug: string,
+    req: CanonReplayRequest,
+  ): Promise<CanonReplayReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/canon/replay`,
+      req,
+    );
+  },
+  getCanonReplayReport(runId: string): Promise<CanonReplayReport> {
+    return getJson(`/api/runs/${encodeURIComponent(runId)}/canon-replay`);
   },
 };
 

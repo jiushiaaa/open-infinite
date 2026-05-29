@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -60,6 +61,9 @@ def _write_causal_diff(
 
 
 def _outputs_dir() -> Path:
+    env = os.environ.get("LNE_OUTPUTS_DIR")
+    if env:
+        return Path(env)
     return Path(__file__).resolve().parents[3] / "outputs"
 
 
@@ -429,6 +433,59 @@ def write_resume_intervene_output(
         parent=parent,
         intervention=intervention,
         results=results,
+    )
+
+
+@dataclass
+class BaselineRunOutput:
+    run_id: str
+    run_dir: Path
+    result: SimulationResult
+    report: dict
+
+
+def write_baseline_output(
+    *,
+    result: SimulationResult,
+    report: dict,
+    meta: dict,
+    baseline_meta: dict,
+    run_id: str | None = None,
+) -> BaselineRunOutput:
+    """写出无干预基线 run（v0.7.4）。
+
+    产物（全部 additive，不含 intervention.json / causal_diff.json）：
+        outputs/run_xxx_baseline/
+          meta.json
+          baseline_report.json
+          baseline/
+            chapter.md / events.json / state_snapshot.json / summary.md
+            retrieval_context.json（如有检索）/ multi_agent_trace.json（如有）
+            baseline_meta.json
+
+    复用 ``_write_branch_outputs(compilation=None, old_text=None)``，因此不会写
+    causal_diff.json，也不调用 build_branch_specs / contract_audit。
+    """
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_id = run_id or f"run_{ts}_{uuid.uuid4().hex[:6]}_baseline"
+    run_dir = _outputs_dir() / run_id
+    branch_dir = run_dir / "baseline"
+    branch_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(run_dir / "meta.json", "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False, indent=2, default=str)
+
+    with open(run_dir / "baseline_report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, ensure_ascii=False, indent=2, default=str)
+
+    chapter_number = int(report.get("chapter_number") or _infer_chapter_from_result(result))
+    _write_branch_outputs(branch_dir, result, chapter_number=chapter_number)
+
+    with open(branch_dir / "baseline_meta.json", "w", encoding="utf-8") as f:
+        json.dump(baseline_meta, f, ensure_ascii=False, indent=2, default=str)
+
+    return BaselineRunOutput(
+        run_id=run_id, run_dir=run_dir, result=result, report=report
     )
 
 

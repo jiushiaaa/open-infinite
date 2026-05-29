@@ -59,6 +59,21 @@ def build_continuation_spec(parent_branch_seed: str, parent_branch_id: str) -> B
     )
 
 
+def build_baseline_spec() -> BranchSpec:
+    """无干预基线（v0.7.4）：沿现有世界状态与人设自然推进一章，无任何高维干预。
+
+    branch_seed 复用 ``linear``（与 resume continue 相同的"无新干预"语义），
+    branch_id 标记为 ``baseline`` 以区分对照组目录。
+    """
+    return BranchSpec(
+        branch_id="baseline",
+        theme="无干预基线",
+        branch_seed="linear",
+        forced_stance="",
+        description="无高维干预，角色按现有世界状态、人设与伏笔压力自然发展（对照组）",
+    )
+
+
 def build_branch_specs(intervention: Intervention, count: int = 3) -> list[BranchSpec]:
     """固定三条世界线：相信 / 半信半疑 / 拒绝反弹。"""
     n = max(2, min(3, count))

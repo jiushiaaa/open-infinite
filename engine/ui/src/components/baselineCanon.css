@@ -1,0 +1,154 @@
+/* v0.7.4 基线与正史回放：轻量评估展示，不做成复杂评测平台。 */
+
+.bcanon {
+  margin: var(--space-4) 0;
+}
+.bcanon__note {
+  line-height: 1.5;
+  margin: 0 0 var(--space-3);
+}
+
+.bcanon__holdout {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--line);
+}
+.bcanon__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.bcanon__upload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  padding: var(--space-2);
+  background: var(--paper-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.bcanon__upload-bar {
+  display: flex;
+  gap: var(--space-2);
+}
+.bcanon__chapnum {
+  flex: 0 0 72px;
+}
+
+.bcanon__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.bcanon__replay-ctl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bcanon__select {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+
+.bcanon__notice {
+  color: var(--jade);
+  margin: var(--space-2) 0 0;
+}
+
+.bcanon__panel {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--paper-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.bcanon__panel-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.bcanon__summary {
+  line-height: 1.6;
+  margin: 0 0 var(--space-2);
+}
+.bcanon__sub {
+  display: block;
+  margin: var(--space-2) 0 4px;
+  letter-spacing: 0.04em;
+}
+.bcanon__list {
+  margin: 0;
+  padding-left: 1.1em;
+  line-height: 1.6;
+}
+.bcanon__list li {
+  margin-bottom: 2px;
+}
+
+.bcanon__overall {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.bcanon__overall-num {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--indigo);
+  line-height: 1;
+}
+
+.bcanon__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bcanon__bar-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 40px;
+  align-items: center;
+  gap: var(--space-2);
+}
+.bcanon__bar-label {
+  color: var(--ink-faint);
+}
+.bcanon__bar-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--paper-raised);
+  overflow: hidden;
+}
+.bcanon__bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--jade);
+  border-radius: 999px;
+}
+.bcanon__bar-val {
+  text-align: right;
+  color: var(--ink-faint);
+}
+
+.bcanon__interpret {
+  line-height: 1.6;
+  margin: var(--space-2) 0 0;
+}
+.bcanon__warnings {
+  margin: var(--space-2) 0 0;
+  padding-left: 1.1em;
+  color: var(--gold);
+  line-height: 1.5;
+}

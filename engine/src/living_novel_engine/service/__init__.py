@@ -9,6 +9,22 @@ from .anchor_update import (
     AnchorUpdateResult,
     update_world_anchor,
 )
+from .baseline import (
+    BaselineRequestError,
+    BaselineServiceResult,
+    generate_baseline,
+    get_baseline_report,
+)
+from .canon_replay import (
+    HoldoutExistsError,
+    HoldoutReadOnlyError,
+    HoldoutRequestError,
+    ReplayRequestError,
+    get_canon_replay_report,
+    get_holdout,
+    run_canon_replay,
+    write_holdout,
+)
 from .diff_actions import (
     VALID_ACTIONS,
     DiffActionError,
@@ -67,6 +83,18 @@ __all__ = [
     "AnchorReadOnlyError",
     "AnchorUpdateError",
     "AnchorUpdateResult",
+    "BaselineRequestError",
+    "BaselineServiceResult",
+    "generate_baseline",
+    "get_baseline_report",
+    "HoldoutExistsError",
+    "HoldoutReadOnlyError",
+    "HoldoutRequestError",
+    "ReplayRequestError",
+    "get_canon_replay_report",
+    "get_holdout",
+    "run_canon_replay",
+    "write_holdout",
     "DiffActionError",
     "DiffNotFoundError",
     "HealthReport",

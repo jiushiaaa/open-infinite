@@ -33,9 +33,10 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.7 | Product Web App：React/Vite 普通用户入口，Web 导入/创世/锚定/干预/Causal Diff/设置/异步 Job | 已收口 |
 | v0.7.2 | Agent Interaction：CharacterAction / CharacterProbe / InterventionGuardrail | 已收口 |
 | v0.7.3 | Visual Asset Generation：Seedream 5.0 Lite 封面/角色头像/场景图（增强层，可降级占位） | 已收口 |
-| v0.7.4 | Baseline & Canon Replay：无干预基线 + 正史回放 | 下一步 |
+| v0.7.4 | Baseline & Canon Replay：无干预基线 + 正史 holdout + deterministic 回放评估 | 已收口 |
+| v0.7.5 | Worldline Judge：世界线评分、故事弧、转折点、anti-slop、emergence_score | 下一步 |
 
-**测试基线**：`pytest -q` → **482 passed**（2026-05-30，v0.7.3 收口 +37；v0.7.2 基线 445）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **520 passed**（2026-05-30，v0.7.4 收口 +37；v0.7.3 基线 483）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -300,6 +301,23 @@ lne import-novel tests/fixtures/mini_novel/ --name my-story
 3. 进入某 imported/genesis 项目世界锚定页，点「生成视觉资产」。
 4. 观察 `projects/<slug>/visual_assets.json` 状态变 `ready`、`projects/<slug>/assets/` 落图；UI 显示真实封面/头像。
 5. 若线上接口返回格式与默认解析不符（非 `data[0].b64_json` / `data[0].url`），条目变 `failed` 并保留占位；据实调整 `SEEDREAM_PATH` 或在 `_parse` 扩展兼容字段。
+
+### v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放）
+
+Baseline / Replay 是**评估层**，不是干预主链路依赖。全程不打 LLM、不改 `run_scene` 默认行为、不改既有 chapter/events/state/trace/diff 契约，新 artifact 全部 additive；所有失败降级为明确错误（400/404/409），不白屏、不 500。
+
+- **Baseline Worldline**：角色在无高维干预下按现有世界状态/人设/伏笔压力自然推进一章，作为"干预世界线"的对照组。`build_baseline_spec()`（branch_id=`baseline`、branch_seed=`linear`）；`service/baseline.py` 支持「从故事锚定状态」与「从指定 run/branch 快照续」两种；`write_baseline_output` 写 `meta.json` + `baseline_report.json` + `baseline/`{chapter/events/state_snapshot/summary/baseline_meta}，**不写 `intervention.json` / `causal_diff.json`**。
+  - `POST /api/stories/<slug>/baseline`：入参 `rounds`/`mock`/`runner_name`/`from_run_id`/`from_branch_id`；返回 `run_id`/`branch_id`/`story_slug`/`summary`/`report`/`tree`。坏 slug 400、缺故事 404、参数错误 400。
+  - `GET /api/runs/<run_id>/baseline`：返回 `baseline_report.json`（不存在 404、损坏 400）。
+- **Canon Holdout**：imported/genesis 项目可把完结小说后续章节录为隐藏评估集；builtin 只读。存 `projects/<slug>/canon/holdout/chapter_NNN.md` + `canon/holdout_manifest.json`，**文件名由章号派生，用户不可控制路径**。
+  - `GET /api/stories/<slug>/canon/holdout`：返回 manifest + `chapter_count` + `available_chapters`（无 holdout → 空 manifest，不 404）。
+  - `POST /api/stories/<slug>/canon/holdout`：入参 `chapters[{chapter,title,content}]`、`force`；builtin 400、同章已存在且 `force=false` 409、空内容/非法章号 400。
+- **Canon Replay**：用无干预基线续写章节与某章 holdout 做 deterministic 评估，写 `outputs/<baseline_run_id>/canon_replay_report.json`。评分项（0–1）：`lexical_overlap`（字级 bigram Jaccard）、`entity_overlap`（角色/地点/势力命中）、`thread_overlap`（开放伏笔标题命中）、`length_ratio`、`state_consistency`（baseline 快照角色是否仍现身），加权 `overall`。**不打 LLM，holdout 文本只进 evaluator，不进角色/narrator/retrieval。**
+  - `POST /api/stories/<slug>/canon/replay`：入参 `baseline_run_id`/`baseline_branch_id`/`holdout_chapter`；无 baseline run / 无 holdout 404、损坏 artifact 400。
+  - `GET /api/runs/<run_id>/canon-replay`：返回报告（不存在 404、损坏 400）。
+- **Web UI**：世界锚定页左栏「基线与正史回放」区块——holdout 状态（builtin 只读提示 / imported 录入）、生成无干预基线、章节下拉 + 运行正史回放、基线摘要（自然发展/角色状态/触及伏笔）、回放评分条（总分 + 5 分项 + 解释 + 缺失实体/伏笔 + 警告）；中文文案，强调"基线不是原作、回放仅本地评估、不代表复刻原作"。
+- **输出目录根**：`writer._outputs_dir()` 与 `browser.paths.outputs_dir()` 现统一支持 `LNE_OUTPUTS_DIR`（默认仍为 `engine/outputs`）。
+- **未做**：Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）、LLM 语义评估、百万字 holdout、版权/公开分享策略、baseline↔intervention 并排偏离对比 UI。
 
 ## 输出结构
 

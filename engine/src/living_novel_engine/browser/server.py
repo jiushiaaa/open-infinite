@@ -125,6 +125,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
             if path.startswith("/api/stories/") and "/assets/" in path:
                 return self._handle_asset_file(path)
 
+            if path.startswith("/api/stories/") and path.endswith("/canon/holdout"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/canon/holdout")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_holdout_get(slug)
+
             if path.startswith("/api/stories/"):
                 slug = safe_id(path.split("/api/stories/", 1)[1].strip("/"))
                 if slug is None:
@@ -147,6 +154,20 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._send_json(
                     {"tree": indexer.build_worldline_tree(story_slug=story)}
                 )
+
+            if path.startswith("/api/runs/") and path.endswith("/baseline"):
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/baseline")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._handle_baseline_get(rid)
+
+            if path.startswith("/api/runs/") and path.endswith("/canon-replay"):
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/canon-replay")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._handle_canon_replay_get(rid)
 
             if path.startswith("/api/runs/") and "/branches/" in path:
                 rest = path[len("/api/runs/") :]
@@ -196,6 +217,24 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_visual_assets_generate(slug)
+            if path.startswith("/api/stories/") and path.endswith("/baseline"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/baseline")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_baseline_generate(slug)
+            if path.startswith("/api/stories/") and path.endswith("/canon/holdout"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/canon/holdout")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_holdout_write(slug)
+            if path.startswith("/api/stories/") and path.endswith("/canon/replay"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/canon/replay")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_canon_replay_run(slug)
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 return self._handle_anchor_update(path)
             if path == "/api/settings/runtime":
@@ -589,6 +628,174 @@ class BrowserHandler(BaseHTTPRequestHandler):
         if target is None:
             return self.send_error(404)
         self._send_file(target)
+
+    def _handle_baseline_generate(self, slug: str) -> None:
+        """v0.7.4：生成无干预基线世界线（对照组），不改变干预主链路。"""
+        from living_novel_engine.browser import indexer
+        from living_novel_engine.service import (
+            BaselineRequestError,
+            default_mock,
+            default_rounds,
+            default_runner,
+            generate_baseline,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        mock = bool(body["mock"]) if "mock" in body else default_mock()
+        rounds = int(body["rounds"]) if "rounds" in body else default_rounds()
+        runner = str(body["runner_name"]) if body.get("runner_name") else default_runner()
+        from_run = body.get("from_run_id")
+        from_branch = body.get("from_branch_id")
+        from_run = safe_id(str(from_run)) if from_run else None
+        from_branch = safe_id(str(from_branch)) if from_branch else None
+        if (body.get("from_run_id") and from_run is None) or (
+            body.get("from_branch_id") and from_branch is None
+        ):
+            return self._send_json(
+                {"error": "invalid from_run_id or from_branch_id"}, status=400
+            )
+
+        try:
+            result = generate_baseline(
+                story_slug=slug,
+                rounds=rounds,
+                mock=mock,
+                runner_name=runner,
+                from_run_id=from_run,
+                from_branch_id=from_branch,
+            )
+        except BaselineRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except (TypeError, ValueError) as exc:
+            return self._send_json({"error": f"参数错误：{exc}"}, status=400)
+
+        tree = indexer.build_worldline_tree(story_slug=result.story_slug)
+        self._send_json(
+            {
+                "run_id": result.run_id,
+                "branch_id": result.branch_id,
+                "story_slug": result.story_slug,
+                "summary": result.summary,
+                "report": result.report,
+                "tree": tree,
+            }
+        )
+
+    def _handle_baseline_get(self, run_id: str) -> None:
+        """v0.7.4：读取 baseline_report.json（不存在 404，损坏 400，不 500）。"""
+        from living_novel_engine.service import (
+            BaselineRequestError,
+            get_baseline_report,
+        )
+
+        try:
+            report = get_baseline_report(run_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except BaselineRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
+    def _handle_holdout_get(self, slug: str) -> None:
+        """v0.7.4：读取正史 holdout manifest（无 holdout → 空 manifest，不 404）。"""
+        from living_novel_engine.service import (
+            HoldoutRequestError,
+            get_holdout,
+        )
+
+        try:
+            manifest = get_holdout(slug)
+        except HoldoutRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        self._send_json(manifest)
+
+    def _handle_holdout_write(self, slug: str) -> None:
+        """v0.7.4：写入正史 holdout 章节（builtin 只读 400，重复 409，非法 400）。"""
+        from living_novel_engine.service import (
+            HoldoutExistsError,
+            HoldoutReadOnlyError,
+            HoldoutRequestError,
+            write_holdout,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        try:
+            manifest = write_holdout(
+                slug,
+                chapters=body.get("chapters") or [],
+                force=bool(body.get("force", False)),
+            )
+        except HoldoutReadOnlyError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except HoldoutExistsError as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        except HoldoutRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        self._send_json(manifest)
+
+    def _handle_canon_replay_run(self, slug: str) -> None:
+        """v0.7.4：运行正史回放评估，写 canon_replay_report.json（deterministic）。"""
+        from living_novel_engine.service import (
+            ReplayRequestError,
+            run_canon_replay,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        baseline_run = safe_id(str(body.get("baseline_run_id") or ""))
+        if baseline_run is None:
+            return self._send_json({"error": "invalid baseline_run_id"}, status=400)
+        baseline_branch_raw = str(body.get("baseline_branch_id") or "baseline")
+        baseline_branch = safe_id(baseline_branch_raw)
+        if baseline_branch is None:
+            return self._send_json({"error": "invalid baseline_branch_id"}, status=400)
+
+        try:
+            report = run_canon_replay(
+                story_slug=slug,
+                baseline_run_id=baseline_run,
+                baseline_branch_id=baseline_branch,
+                holdout_chapter=int(body.get("holdout_chapter") or 0),
+            )
+        except ReplayRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except (TypeError, ValueError) as exc:
+            return self._send_json({"error": f"参数错误：{exc}"}, status=400)
+        self._send_json(report)
+
+    def _handle_canon_replay_get(self, run_id: str) -> None:
+        """v0.7.4：读取 canon_replay_report.json（不存在 404，损坏 400，不 500）。"""
+        from living_novel_engine.service import (
+            ReplayRequestError,
+            get_canon_replay_report,
+        )
+
+        try:
+            report = get_canon_replay_report(run_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except ReplayRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
 
     def _handle_job_get(self, path: str) -> None:
         """v0.7 第九刀：轮询 job 状态。失败 job 也返回 200 + error，不抛 500。"""
