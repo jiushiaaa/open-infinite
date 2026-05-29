@@ -237,6 +237,11 @@ export interface RuntimeSettings {
   default_runner: string;
   available_runners: string[];
   seedream_enabled: boolean;
+  visual_assets_enabled: boolean;
+  seedream_key_present: boolean;
+  seedream_masked_key: string;
+  seedream_base_url: string;
+  seedream_model: string;
 }
 
 export interface RuntimeSettingsPatch {
@@ -246,6 +251,43 @@ export interface RuntimeSettingsPatch {
   default_mock?: boolean;
   default_rounds?: number;
   default_runner?: string;
+  seedream_api_key?: string;
+  seedream_base_url?: string;
+  seedream_model?: string;
+  visual_assets_enabled?: boolean;
+}
+
+// ── v0.7.3 视觉资产 ───────────────────────────────────────
+
+export type AssetStatus = "ready" | "failed" | "placeholder";
+export type VisualOverallStatus = "none" | "partial" | "ready" | "failed";
+
+export interface AssetEntry {
+  asset_id: string;
+  kind: string;
+  prompt: string;
+  status: AssetStatus;
+  path: string;
+  created_at: string;
+  error: string;
+}
+
+export interface VisualAssets {
+  version: string;
+  story_slug: string;
+  provider: string;
+  status: VisualOverallStatus;
+  cover: AssetEntry | null;
+  characters: Record<string, AssetEntry>;
+  scenes: Record<string, AssetEntry>;
+  worldline_nodes: Record<string, AssetEntry>;
+}
+
+export interface VisualAssetsGenerateRequest {
+  kinds?: string[];
+  character_ids?: string[];
+  force?: boolean;
+  mock?: boolean;
 }
 
 export interface ConnectivityResult {

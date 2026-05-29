@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-30（优化 Cursor 规则：会话开始并行读四文档 memory/迭代计划/PRD/engine README）
+> **最后更新**：2026-05-30（v0.7.3 Visual Asset Generation 收口：Seedream 视觉资产增强层 + 只读 UI，482 passed）
 
 ---
 
@@ -100,10 +100,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `442 passed`（2026-05-29，+32 v0.7.2 Agent Interaction）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.7.3 Visual Asset Generation**：Seedream 5.0 Lite 角色头像/封面/场景图 |
-| **后续路线** | v0.7.3 Seedream Visual Assets → v0.7.4 Baseline & Canon Replay → v0.7.5 Worldline Judge → v0.8 Long Novel Memory |
-| **刚收口** | v0.7.2 Agent Interaction：InterventionGuardrail（`POST /api/interventions/guardrail`）+ CharacterProbe（`GET /api/stories/<slug>/characters/<id>/probe`）+ CharacterAction additive 字段 + 角色探针/预检干预/结构化动作只读 UI |
+| **测试基线** | 后端 `482 passed`（2026-05-30，+37 v0.7.3 Visual Asset Generation）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.7.4 Baseline & Canon Replay**：无干预基线 + 正史回放 |
+| **后续路线** | v0.7.4 Baseline & Canon Replay → v0.7.5 Worldline Judge → v0.8 Long Novel Memory |
+| **刚收口** | v0.7.3 Visual Asset Generation：Seedream 5.0 Lite 视觉资产增强层（封面/角色头像/场景图）+ `visual_assets.json` additive artifact + `GET/POST /api/stories/<slug>/visual-assets(/generate)` + `GET /api/stories/<slug>/assets/<rel>` 安全静态服务 + 无 Key 古风占位降级 + 世界锚定页封面/头像/生成区与书架封面缩略只读 UI |
 
 ---
 
@@ -388,8 +388,8 @@ lne list-genres
 ✅ v0.7 第七刀 世界锚定轻编辑：`GET /health` + `POST /anchor`，白名单 YAML 写回 + 备份 + 健康检查
 ✅ v0.7 第八刀 运行设置面板：API Key/base_url/model/mock/rounds/runner 进程内设置 + 连通性测试
 ✅ v0.7 第九刀 异步 Job / 进度轮询：`POST /api/jobs/*` + `GET /api/jobs/<id>`，三处生成入口改走 job
-✅ v0.7.2   Agent Interaction：CharacterAction（additive）/ CharacterProbe / InterventionGuardrail + 只读 UI（442 passed）
-→ v0.7.3   Visual Asset Generation：Seedream 5.0 Lite 角色头像/封面/场景图
+✅ v0.7.2   Agent Interaction：CharacterAction（additive）/ CharacterProbe / InterventionGuardrail + 只读 UI（445 passed）
+✅ v0.7.3   Visual Asset Generation：Seedream 5.0 Lite 视觉资产增强层（封面/头像/场景）+ visual_assets.json additive + 安全静态服务 + 无 Key 古风占位降级（482 passed）
 → v0.7.4   Baseline & Canon Replay：无干预基线 + 正史回放（创世入口已完成前置）
 → v0.7.5   Worldline Judge：世界线评分、故事弧、转折点、anti-slop、emergence_score
 → v0.8     Long Novel Memory：百万字上传、分层记忆、canon ledger、混合检索、一致性审计
@@ -479,17 +479,21 @@ lne list-genres
 - [ ] `AbstractIntervention -> CharacterActionSequence` 实例化（仍是 v0.7.1 编译层，留 v0.8）
 - [ ] 把 CharacterAction 接入 multi_agent_trace 实际产出（留后续）；真实 LLM 探针（留后续）
 
-### v0.7.3 Visual Asset Generation（Seedream 5.0 Lite）
+### v0.7.3 Visual Asset Generation（Seedream 5.0 Lite）✅ 已收口
 
-- [ ] 接入 Seedream API：`https://ark.cn-beijing.volces.com`
-- [ ] 建议环境变量：`SEEDREAM_API_KEY`、`SEEDREAM_BASE_URL`、`SEEDREAM_MODEL`、`LNE_VISUAL_ASSETS`
-- [ ] 生成角色头像：从 `characters.yaml` / style_hint / genre template 生成稳定人物概念图
-- [ ] 生成故事封面：从 `world.yaml` / `story_contract.yaml` 生成项目封面
-- [ ] 生成场景背景：从章节地点、时间、氛围、世界线状态生成阅读背景或插图
-- [ ] 生成世界线节点缩略图：正史节点、涌现节点、Alternate Novel 节点
-- [ ] 本地缓存到 `projects/<slug>/assets/` 或 `outputs/<run_id>/<branch>/assets/`，记录 prompt/model/source_refs/file/created_at
-- [ ] 未配置 API Key 或调用失败时稳定降级为占位图，不影响文字主流程
-- [ ] 不做真人/影视角色复刻，不把视觉资产纳入 story contract 正史判断
+- [x] 接入 Seedream API：默认 `https://ark.cn-beijing.volces.com`（`visual_assets/seedream_client.py`，stdlib urllib，import 不读网络；兼容解析 b64_json/url，无法识别 → failed）
+- [x] 环境变量：`SEEDREAM_API_KEY`、`SEEDREAM_BASE_URL`、`SEEDREAM_MODEL`（默认 `seedream-5-0-lite`）、`SEEDREAM_PATH`（默认 `/api/v3/images/generations`，接口不确定可覆盖）、`LNE_VISUAL_ASSETS=1/0`
+- [x] additive artifact `projects/<slug>/visual_assets.json`（`VisualAssets`/`AssetEntry`：version/status/cover/characters/scenes/worldline_nodes，仅存相对路径+元数据，不含二进制）；图片落 `projects/<slug>/assets/`
+- [x] 视觉资产目录统一落 `projects/<slug>/`（gitignored），内置样例也只写 projects/，不污染 git 跟踪的 samples/
+- [x] 角色头像（姓名/性别/身份/性格/欲望/恐惧/状态/题材）+ 故事封面（标题/规则/场景/冲突/古风封面）+ 场景背景（scene_description/locations/章节摘要）中文 prompt（`prompt_builder.py`，克制、无 AI 味堆叠、不要求模仿在世艺术家）
+- [x] 世界线节点缩略图：artifact 字段 `worldline_nodes` 已预留 + prompt 函数已写，本轮 UI 暂以占位呈现（未绑定 run/branch 生成，避免破坏分支契约）
+- [x] service `service/visual_assets.py`：`get_visual_assets`（缺/损坏→status none，不 404）/`generate_visual_assets`（force=false 不重复 ready；mock 或无 Key → placeholder 不打外网）/`resolve_asset_path`（安全，禁穿越）
+- [x] API：`GET /api/stories/<slug>/visual-assets`、`POST /api/stories/<slug>/visual-assets/generate`、`GET /api/stories/<slug>/assets/<rel>`（路径安全校验，穿越 403、缺失 404、坏 slug 400、缺故事 404）
+- [x] `runtime_settings` additive 增 Seedream 字段（enabled/key_present/masked/base_url/model）+ 设置抽屉 Seedream 区块（密钥不回显明文、不落盘）
+- [x] UI：世界锚定页封面+生成/重新生成区、角色卡头像、书架故事卡封面缩略；无图古风占位、加载失败回退占位、生成中状态反馈，布局稳定不塌陷；中文文案
+- [x] 未配置 Key/失败稳定降级占位，不阻塞导入/创世/干预/浏览主流程
+- [x] 测试 `tests/test_visual_assets.py`（+37：prompt/store/seedream client fake/service/HTTP 含路径穿越）
+- [ ] 未做：真实线上批量生成队列、世界线节点真正绑定 run/branch 生成、图片版权/公开分享策略、真人/影视角色复刻（明确不做）
 
 ### v0.7.4 Baseline & Canon Replay
 
@@ -993,3 +997,17 @@ lne list-genres
   - 用户 @`memory.md` 或说「先读 memory」时仍须读完整四文档。
 - **测试**：规则/文档更新，无代码变更。
 - **文件**：`.cursor/rules/project-memory.mdc`、`memory.md`
+
+### 2026-05-30 — v0.7.3 Visual Asset Generation 收口（Seedream 视觉资产增强层）
+
+- **做了什么**：
+  - 新建 `visual_assets/` 包：`models.py`（`VisualAssets`/`AssetEntry`，additive artifact 契约，仅存相对路径+元数据）、`store.py`（artifact 读写 + 图片落盘 + 安全路径解析，缺/损坏降级 status none）、`seedream_client.py`（`SeedreamSettings`/`SeedreamClient`/`ImageResult`，import 不读网络，无 Key/关闭/异常稳定降级，兼容解析 b64_json/url，不泄漏 Key）、`prompt_builder.py`（封面/角色/场景/世界线节点中文 prompt，克制无 AI 味）。
+  - 新建 `service/visual_assets.py`：`get_visual_assets` / `generate_visual_assets`（force=false 不重复 ready、mock 或无 Key→placeholder 不打外网）/ `resolve_asset_path`（禁穿越）；视觉资产目录统一落 `projects/<slug>/`（gitignored，内置样例也不污染 samples/）。
+  - `browser/server.py` 加三路由：`GET /api/stories/<slug>/visual-assets`、`POST .../visual-assets/generate`、`GET /api/stories/<slug>/assets/<rel>`（路径安全：穿越 403、缺失 404、坏 slug 400、缺故事 404）；注册 webp mime。
+  - `service/runtime_settings.py` additive 增 Seedream 字段（enabled/key_present/masked/base_url/model）+ patch 写入 `SEEDREAM_*`/`LNE_VISUAL_ASSETS`（不落盘、不回显明文）。
+  - Web UI：`VisualAssetPanel.tsx`+`visualAssets.css`（`AssetImage`/`CharacterAvatar`/`VisualAssetsControls`/`StoryCoverThumb`）；`WorldAnchorPage` 左栏封面+生成/重新生成区、角色卡头像；`StoryEntryPage` 书架封面缩略；`SettingsDrawer` Seedream 区块；`api/{client,types}.ts` 加视觉资产类型/方法/`assetUrl`。无图古风占位、加载失败回退、布局稳定，中文文案。
+  - `.env.example` 补 Seedream 变量说明。
+- **测试**：482 passed（+37）：`tests/test_visual_assets.py`（prompt_builder / store 含损坏与穿越 / seedream client fake 含无 Key·mock·b64·异常 fallback / service 含 mock·fake ready·force / HTTP 含 GET·POST·资产服务·路径穿越 403）；既有 445 零回归；前端 `pnpm run build`（tsc -b + vite）通过。
+- **文件**：`visual_assets/{__init__,models,store,seedream_client,prompt_builder}.py`、`service/{__init__,visual_assets,runtime_settings}.py`、`browser/server.py`、`engine/ui/src/api/{client,types}.ts`、`engine/ui/src/components/{VisualAssetPanel.tsx,visualAssets.css,WorldAnchorPage.tsx,StoryEntryPage.tsx,SettingsDrawer.tsx}`、`engine/.env.example`、`tests/test_visual_assets.py`、文档。
+- **明确未做**：真实线上批量生成队列；世界线节点缩略图真正绑定 run/branch 生成（仅预留 artifact 字段 + UI 占位）；图片版权/公开分享策略；真人/影视角色复刻（明确不做）；Baseline/Canon Replay（v0.7.4）、Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）。**未做真实联调**（无外网，测试全走 fake/mock；真实 Seedream 联调见 README smoke checklist）。
+- **下一刀建议**：v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放），不要继续堆视觉功能。

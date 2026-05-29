@@ -14,11 +14,13 @@ import webbrowser
 from dataclasses import asdict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from living_novel_engine.browser import indexer
 from living_novel_engine.browser.paths import static_dir
 from living_novel_engine.browser.validators import safe_id
+
+mimetypes.add_type("image/webp", ".webp")
 
 
 def _first_qs(qs: dict[str, list[str]], key: str) -> str | None:
@@ -113,6 +115,16 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(check_project_health(slug).as_dict())
 
+            if path.startswith("/api/stories/") and path.endswith("/visual-assets"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/visual-assets")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_visual_assets_get(slug)
+
+            if path.startswith("/api/stories/") and "/assets/" in path:
+                return self._handle_asset_file(path)
+
             if path.startswith("/api/stories/"):
                 slug = safe_id(path.split("/api/stories/", 1)[1].strip("/"))
                 if slug is None:
@@ -176,6 +188,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._handle_import_novel()
             if path == "/api/story-genesis":
                 return self._handle_story_genesis()
+            if path.startswith("/api/stories/") and path.endswith(
+                "/visual-assets/generate"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/visual-assets/generate")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_visual_assets_generate(slug)
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 return self._handle_anchor_update(path)
             if path == "/api/settings/runtime":
@@ -495,6 +515,80 @@ class BrowserHandler(BaseHTTPRequestHandler):
             return self._send_json({"error": str(exc)}, status=400)
 
         self._send_json(probe.model_dump(mode="json"))
+
+    def _handle_visual_assets_get(self, slug: str) -> None:
+        """v0.7.3：读取项目级视觉资产清单（缺失/损坏安全降级，不 500）。"""
+        from living_novel_engine.service import (
+            VisualAssetRequestError,
+            get_visual_assets,
+        )
+
+        try:
+            va = get_visual_assets(slug)
+        except VisualAssetRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        self._send_json(va.model_dump(mode="json"))
+
+    def _handle_visual_assets_generate(self, slug: str) -> None:
+        """v0.7.3：生成视觉资产。无 Key / mock → 占位条目，不打外网、不阻塞。"""
+        from living_novel_engine.service import (
+            VisualAssetRequestError,
+            generate_visual_assets,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        kinds = body.get("kinds")
+        if kinds is not None and not isinstance(kinds, list):
+            return self._send_json({"error": "kinds 须为数组"}, status=400)
+        char_ids = body.get("character_ids")
+        if char_ids is not None and not isinstance(char_ids, list):
+            return self._send_json({"error": "character_ids 须为数组"}, status=400)
+
+        try:
+            va = generate_visual_assets(
+                slug,
+                kinds=[str(k) for k in kinds] if kinds is not None else None,
+                character_ids=[str(c) for c in char_ids]
+                if char_ids is not None
+                else None,
+                force=bool(body.get("force", False)),
+                mock=bool(body.get("mock", False)),
+            )
+        except VisualAssetRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        self._send_json(va.model_dump(mode="json"))
+
+    def _handle_asset_file(self, path: str) -> None:
+        """v0.7.3：提供本地生成的视觉资产文件（安全校验路径，禁止穿越）。"""
+        from living_novel_engine.service import (
+            VisualAssetPathError,
+            VisualAssetRequestError,
+            resolve_asset_path,
+        )
+
+        rest = path[len("/api/stories/") :]
+        slug_raw, _, rel = rest.partition("/assets/")
+        slug = safe_id(slug_raw.strip("/"))
+        if slug is None:
+            return self._send_json({"error": "invalid slug"}, status=400)
+        rel = unquote(rel)
+        try:
+            target = resolve_asset_path(slug, rel)
+        except VisualAssetRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except VisualAssetPathError:
+            return self._send_json({"error": "禁止访问该路径"}, status=403)
+        if target is None:
+            return self.send_error(404)
+        self._send_file(target)
 
     def _handle_job_get(self, path: str) -> None:
         """v0.7 第九刀：轮询 job 状态。失败 job 也返回 200 + error，不抛 500。"""

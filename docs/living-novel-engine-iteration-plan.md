@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-29（v0.7 Product Web App 九刀已收口；v0.7.2 Agent Interaction 已收口；下一步进入 v0.7.3 Seedream 视觉资产）
+> 版本：2026-05-30（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation 均已收口；下一步进入 v0.7.4 Baseline & Canon Replay）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 
@@ -70,7 +70,7 @@ v0.7     Product Web App     React/Vite 产品级前端，面向普通用户  �
     ↓
 v0.7.2   Agent Interaction   角色动作/情绪探针/干预护栏/轻量角色配置  已收口（CharacterAction/CharacterProbe/InterventionGuardrail）
     ↓
-v0.7.3   Visual Asset Generation  Seedream 5.0 Lite 角色头像/场景图/封面  待排期
+v0.7.3   Visual Asset Generation  Seedream 5.0 Lite 角色头像/场景图/封面  已收口
     ↓
 v0.7.4   Baseline & Canon Replay  无干预基线 + 正史回放评估（创世入口已完成前置）  待排期
     ↓
@@ -83,7 +83,7 @@ Phase 5  社区与分享          远期
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通：React/Vite 前端、Web 自由干预、Causal Diff 确立/抹除/回滚、世界锚定页、导入小说、主题创世、锚定轻编辑、真实 LLM/运行设置、异步 Job 进度轮询。**v0.7.2 Agent Interaction 已收口**：`InterventionGuardrail`（干预护栏预检 + `POST /api/interventions/guardrail`）、`CharacterProbe`（角色内心探针 + `GET /api/stories/<slug>/characters/<id>/probe`）、`CharacterAction` additive 结构化字段、世界锚定页角色探针入口、干预输入区预检按钮、Agent 轨迹结构化动作展示。当前测试基线为 **442 passed**。下一步进入 v0.7.3 Seedream 视觉资产、v0.7.4 Baseline & Canon Replay、v0.7.5 Worldline Judge；v0.8 正式开 Long Novel Memory 主线，目标是百万字到数百万字上传、分层记忆、正史账本、混合检索和一致性审计。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通：React/Vite 前端、Web 自由干预、Causal Diff 确立/抹除/回滚、世界锚定页、导入小说、主题创世、锚定轻编辑、真实 LLM/运行设置、异步 Job 进度轮询。**v0.7.2 Agent Interaction 已收口**：`InterventionGuardrail`（干预护栏预检 + `POST /api/interventions/guardrail`）、`CharacterProbe`（角色内心探针 + `GET /api/stories/<slug>/characters/<id>/probe`）、`CharacterAction` additive 结构化字段、世界锚定页角色探针入口、干预输入区预检按钮、Agent 轨迹结构化动作展示。**v0.7.3 Visual Asset Generation 已收口**：Seedream 视觉资产增强层（封面/角色头像/场景图）、additive artifact `visual_assets.json`、`GET/POST /api/stories/<slug>/visual-assets(/generate)` 与安全静态服务 `GET .../assets/<rel>`、无 Key 古风占位降级、世界锚定页/书架只读 UI。当前测试基线为 **482 passed**。下一步进入 v0.7.4 Baseline & Canon Replay、v0.7.5 Worldline Judge；v0.8 正式开 Long Novel Memory 主线，目标是百万字到数百万字上传、分层记忆、正史账本、混合检索和一致性审计。
 
 ## 3. 已完成能力
 
@@ -122,7 +122,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **442 passed**（截至 2026-05-29，v0.7.2 Agent Interaction 收口；v0.7 第九刀基线为 410）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **482 passed**（截至 2026-05-30，v0.7.3 Visual Asset Generation 收口 +37；v0.7.2 基线为 445）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1248,7 +1248,9 @@ fourth_wall_awareness:
 - 让用户在 Web UI 中能理解角色行动，而不是只读生成结果。
 - 为第四面墙、干预护栏和后续复杂多 Agent 推演打基础。
 
-### v0.7.3：Visual Asset Generation / Seedream 视觉资产
+### v0.7.3：Visual Asset Generation / Seedream 视觉资产 ✅ 已收口
+
+> **收口（2026-05-30，482 passed）**：新建 `visual_assets/`（models/store/seedream_client/prompt_builder）+ `service/visual_assets.py` + 三路由 `GET /api/stories/<slug>/visual-assets`、`POST .../visual-assets/generate`、`GET /api/stories/<slug>/assets/<rel>`（安全静态服务）。additive artifact `projects/<slug>/visual_assets.json`（仅相对路径+元数据），图片落 `projects/<slug>/assets/`。无 `SEEDREAM_API_KEY` / `LNE_VISUAL_ASSETS=0` / 生成失败时稳定降级古风占位，不阻塞导入/创世/干预/浏览。UI：世界锚定页封面+生成区、角色卡头像、书架封面缩略、设置抽屉 Seedream 区块。世界线节点缩略图仅预留 artifact 字段 + UI 占位（未绑定 run/branch 生成）。测试 `tests/test_visual_assets.py`（+37，全程 fake/mock，不打外网）。**未做**：真实线上批量队列、世界线节点真正生成、图片版权/分享策略、真人复刻（明确不做）。下一步 v0.7.4 Baseline & Canon Replay。
 
 目标：在产品级 Web App 的阅读与世界线体验稳定后，接入用户已有的 Seedream 生图能力，为故事生成可控、可缓存、可复用的视觉资产。
 
@@ -1714,8 +1716,8 @@ v0.1.2 resume continue
   -> v0.6.5 推演工程可靠性：generation_meta/质量校验/重试/usage（已完成）
   -> v0.7 产品级 Web App（已完成九刀主闭环）
   -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，已收口）
-  -> v0.7.3 Visual Asset Generation（Seedream 视觉资产，下一步）
-  -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放，待排期）
+  -> v0.7.3 Visual Asset Generation（Seedream 视觉资产，已收口）
+  -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放，下一步）
   -> v0.7.5 Worldline Judge（质量评审层，待排期）
 ```
 
@@ -1752,7 +1754,7 @@ v0.1.2 resume continue
 | P7.1-C | v0.7.1-C Causal Diff 后端数据 | `causal_diff.json`；段落级 old/new diff；确立/抹除/回滚字段预留 | 已收口 |
 | **P7** | **v0.7 Product Web App** | **React/Vite 产品级前端，Web 内导入/创世/锚定/干预/Causal Diff/设置/异步 Job；见 `docs/v0.7-product-web-app-ui-spec.md`** | **已收口** |
 | P7.2 | v0.7.2 Agent Interaction | CharacterAction / CharacterProbe / InterventionGuardrail / 轻量角色配置 UI | 已收口 |
-| P7.3 | v0.7.3 Visual Asset Generation | 接入 Seedream 5.0 Lite：角色头像、故事封面、场景背景、世界线节点缩略图 | 待排期 |
+| P7.3 | v0.7.3 Visual Asset Generation | 接入 Seedream 5.0 Lite：故事封面、角色头像、场景背景（世界线节点缩略图预留字段+UI 占位）；无 Key 古风占位降级 | 已收口 |
 | P7.4 | v0.7.4 Baseline & Canon Replay | 无干预基线；干预偏离对比；正史回放评估（导入/创世/样例入口已由 v0.7 完成） | 待排期 |
 | P7.5 | v0.7.5 Worldline Judge | 读者/编辑评审团、世界线评分、anti-slop 检查、质量建议 | 待排期 |
 | P8 | v0.8 Long Novel Memory | 百万字长篇上传、分层记忆、正史账本、混合检索、一致性审计、隐藏评估集 | 待排期 |
@@ -2010,8 +2012,8 @@ v0.1.x、v0.2.x、v0.3.0/v0.3.1、v0.4/v0.4.1、v0.4.2、v0.5/v0.5.1、v0.6.0–
 v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，已完成）
   -> v0.7 Product Web App（React/Vite 产品级前端九刀主闭环，已完成）
   -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，已收口）
-  -> v0.7.3 Visual Asset Generation（Seedream 5.0 Lite 视觉资产，下一步）
-  -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放；创世入口已完成）
+  -> v0.7.3 Visual Asset Generation（Seedream 5.0 Lite 视觉资产，已收口）
+  -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放，下一步；创世入口已完成）
   -> v0.7.5 Worldline Judge（世界线评审团）
   -> v0.8 Long Novel Memory（百万字上传 + 分层记忆 + 正史账本 + 一致性审计）
   -> v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining

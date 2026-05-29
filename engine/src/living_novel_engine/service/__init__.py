@@ -54,6 +54,13 @@ from .story_genesis import (
     GenesisServiceResult,
     generate_story,
 )
+from .visual_assets import (
+    VisualAssetPathError,
+    VisualAssetRequestError,
+    generate_visual_assets,
+    get_visual_assets,
+    resolve_asset_path,
+)
 
 __all__ = [
     "VALID_ACTIONS",
@@ -95,4 +102,9 @@ __all__ = [
     "import_novel_from_payload",
     "resolve_llm_quietly",
     "run_intervention",
+    "VisualAssetPathError",
+    "VisualAssetRequestError",
+    "generate_visual_assets",
+    "get_visual_assets",
+    "resolve_asset_path",
 ]

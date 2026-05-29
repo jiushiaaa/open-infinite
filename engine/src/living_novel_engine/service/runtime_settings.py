@@ -12,6 +12,13 @@ from dataclasses import dataclass
 
 from living_novel_engine.llm.client import LLMClient, LLMSettings
 from living_novel_engine.orchestrator import available_runners
+from living_novel_engine.visual_assets.seedream_client import (
+    DEFAULT_BASE_URL as _SD_DEFAULT_BASE,
+)
+from living_novel_engine.visual_assets.seedream_client import (
+    DEFAULT_MODEL as _SD_DEFAULT_MODEL,
+)
+from living_novel_engine.visual_assets.seedream_client import SeedreamSettings
 
 # 进程内环境变量键（与既有引擎读取保持一致）。
 _KEY = "LLM_API_KEY"
@@ -20,6 +27,11 @@ _MODEL = "LLM_MODEL_NAME"
 _MOCK = "LNE_MOCK"
 _ROUNDS = "LNE_DEFAULT_ROUNDS"
 _RUNNER = "LNE_SCENE_RUNNER"
+
+_SD_KEY = "SEEDREAM_API_KEY"
+_SD_BASE = "SEEDREAM_BASE_URL"
+_SD_MODEL = "SEEDREAM_MODEL"
+_VISUAL_FLAG = "LNE_VISUAL_ASSETS"
 
 _DEFAULT_BASE = "https://api.openai.com/v1"
 _DEFAULT_MODEL = "gpt-4o-mini"
@@ -43,6 +55,11 @@ class RuntimeSettings:
     default_runner: str
     available_runners: list[str]
     seedream_enabled: bool = False
+    visual_assets_enabled: bool = True
+    seedream_key_present: bool = False
+    seedream_masked_key: str = ""
+    seedream_base_url: str = _SD_DEFAULT_BASE
+    seedream_model: str = _SD_DEFAULT_MODEL
 
     def as_dict(self) -> dict:
         return {
@@ -55,6 +72,11 @@ class RuntimeSettings:
             "default_runner": self.default_runner,
             "available_runners": self.available_runners,
             "seedream_enabled": self.seedream_enabled,
+            "visual_assets_enabled": self.visual_assets_enabled,
+            "seedream_key_present": self.seedream_key_present,
+            "seedream_masked_key": self.seedream_masked_key,
+            "seedream_base_url": self.seedream_base_url,
+            "seedream_model": self.seedream_model,
         }
 
 
@@ -101,6 +123,7 @@ def default_runner() -> str:
 def get_runtime_settings() -> RuntimeSettings:
     settings = LLMSettings.from_env()
     key = settings.llm_api_key or ""
+    sd = SeedreamSettings.from_env()
     return RuntimeSettings(
         llm_api_key_present=bool(key),
         masked_key=_mask_key(key),
@@ -110,7 +133,12 @@ def get_runtime_settings() -> RuntimeSettings:
         default_rounds=default_rounds(),
         default_runner=default_runner(),
         available_runners=available_runners(),
-        seedream_enabled=False,
+        seedream_enabled=bool(sd.enabled and sd.api_key),
+        visual_assets_enabled=sd.enabled,
+        seedream_key_present=bool(sd.api_key),
+        seedream_masked_key=_mask_key(sd.api_key),
+        seedream_base_url=sd.base_url,
+        seedream_model=sd.model,
     )
 
 
@@ -154,6 +182,22 @@ def update_runtime_settings(patch: dict) -> RuntimeSettings:
                 f"未知 runner: {runner!r}；可用: {', '.join(available_runners())}"
             )
         os.environ[_RUNNER] = runner
+
+    if "seedream_api_key" in patch:
+        os.environ[_SD_KEY] = str(patch.get("seedream_api_key") or "")
+
+    if "seedream_base_url" in patch:
+        base = str(patch.get("seedream_base_url") or "").strip()
+        os.environ[_SD_BASE] = base or _SD_DEFAULT_BASE
+
+    if "seedream_model" in patch:
+        model = str(patch.get("seedream_model") or "").strip()
+        os.environ[_SD_MODEL] = model or _SD_DEFAULT_MODEL
+
+    if "visual_assets_enabled" in patch:
+        os.environ[_VISUAL_FLAG] = (
+            "1" if bool(patch.get("visual_assets_enabled")) else "0"
+        )
 
     return get_runtime_settings()
 

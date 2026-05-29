@@ -31,3 +31,8 @@ engine/projects/
 Thumbs.db
 .idea/
 .vscode/
+
+# Cursor rules
+.cursor/rules/
+.cursor/
+.cursor/skills/

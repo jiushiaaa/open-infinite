@@ -1,6 +1,7 @@
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { navigate } from "../routing";
+import { StoryCoverThumb } from "./VisualAssetPanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
 import "./storyEntry.css";
 
@@ -71,6 +72,10 @@ export function StoryEntryPage() {
                   className="story-card__open"
                   onClick={() => navigate({ name: "workspace", slug: s.slug })}
                 >
+                  <StoryCoverThumb
+                    slug={s.slug}
+                    seal={s.display_name.slice(0, 1) || "书"}
+                  />
                   <div className="story-card__head">
                     <span className="story-card__name">{s.display_name}</span>
                     <span

@@ -57,6 +57,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const [rounds, setRounds] = useState(settings.default_rounds);
   const [runner, setRunner] = useState(settings.default_runner);
 
+  const [sdKeyInput, setSdKeyInput] = useState("");
+  const [sdPresent, setSdPresent] = useState(settings.seedream_key_present);
+  const [sdMasked, setSdMasked] = useState(settings.seedream_masked_key);
+  const [sdBase, setSdBase] = useState(settings.seedream_base_url);
+  const [sdModel, setSdModel] = useState(settings.seedream_model);
+  const [visualEnabled, setVisualEnabled] = useState(settings.visual_assets_enabled);
+
   const [saving, setSaving] = useState(false);
   const [saveErr, setSaveErr] = useState<string | null>(null);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
@@ -66,6 +73,8 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
     setMasked(s.masked_key);
+    setSdPresent(s.seedream_key_present);
+    setSdMasked(s.seedream_masked_key);
   }
 
   async function save() {
@@ -79,11 +88,16 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         default_mock: mock,
         default_rounds: rounds,
         default_runner: runner,
+        seedream_base_url: sdBase.trim(),
+        seedream_model: sdModel.trim(),
+        visual_assets_enabled: visualEnabled,
         ...(keyInput.trim() ? { api_key: keyInput.trim() } : {}),
+        ...(sdKeyInput.trim() ? { seedream_api_key: sdKeyInput.trim() } : {}),
       };
       const updated = await api.updateRuntimeSettings(patch);
       applyResult(updated);
       setKeyInput("");
+      setSdKeyInput("");
       setSavedMsg("设置已保存（仅本机生效）");
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
@@ -228,6 +242,59 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
               </option>
             ))}
           </select>
+        </div>
+      </section>
+
+      <section className="settings__group">
+        <h3 className="settings__group-title">视觉资产（Seedream）</h3>
+        <label className="settings__toggle">
+          <input
+            type="checkbox"
+            checked={visualEnabled}
+            onChange={(e) => setVisualEnabled(e.target.checked)}
+            disabled={saving}
+          />
+          <span>启用视觉资产生成（封面 / 头像 / 场景）</span>
+        </label>
+        <div className="settings__field">
+          <label className="settings__label" htmlFor="set-sd-key">
+            Seedream 密钥
+            <span className={`badge tiny ${sdPresent ? "badge--jade" : "badge--gold"}`}>
+              {sdPresent ? `已配置 ${sdMasked}` : "未配置"}
+            </span>
+          </label>
+          <input
+            id="set-sd-key"
+            className="settings__input"
+            type="password"
+            placeholder={sdPresent ? "如需更换，输入新密钥" : "粘贴 Seedream API 密钥"}
+            value={sdKeyInput}
+            onChange={(e) => setSdKeyInput(e.target.value)}
+            disabled={saving}
+          />
+          <p className="settings__note tiny muted">
+            未配置时仍可使用，封面与头像会以古风占位呈现，不影响文字主流程。
+          </p>
+        </div>
+        <div className="settings__field">
+          <label className="settings__label" htmlFor="set-sd-base">接口地址</label>
+          <input
+            id="set-sd-base"
+            className="settings__input"
+            value={sdBase}
+            onChange={(e) => setSdBase(e.target.value)}
+            disabled={saving}
+          />
+        </div>
+        <div className="settings__field">
+          <label className="settings__label" htmlFor="set-sd-model">模型名称</label>
+          <input
+            id="set-sd-model"
+            className="settings__input"
+            value={sdModel}
+            onChange={(e) => setSdModel(e.target.value)}
+            disabled={saving}
+          />
         </div>
       </section>
 

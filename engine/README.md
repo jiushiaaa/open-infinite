@@ -32,9 +32,10 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.7.1-C | Causal Diff 后端数据：`causal_diff.json` 段落级 old/new diff | 已收口 |
 | v0.7 | Product Web App：React/Vite 普通用户入口，Web 导入/创世/锚定/干预/Causal Diff/设置/异步 Job | 已收口 |
 | v0.7.2 | Agent Interaction：CharacterAction / CharacterProbe / InterventionGuardrail | 已收口 |
-| v0.7.3 | Visual Asset Generation：Seedream 5.0 Lite 角色头像/封面/场景图 | 下一步 |
+| v0.7.3 | Visual Asset Generation：Seedream 5.0 Lite 封面/角色头像/场景图（增强层，可降级占位） | 已收口 |
+| v0.7.4 | Baseline & Canon Replay：无干预基线 + 正史回放 | 下一步 |
 
-**测试基线**：`pytest -q` → **442 passed**（2026-05-29，v0.7.2 收口；v0.7 第九刀基线 410）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **482 passed**（2026-05-30，v0.7.3 收口 +37；v0.7.2 基线 445）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -276,7 +277,29 @@ lne import-novel tests/fixtures/mini_novel/ --name my-story
   - 用中文解释"角色为什么不会无条件服从用户"。故事/角色缺失 → 404；快照损坏不 500。
 - **CharacterAction 结构化字段**：`models/events.py` 的 `CharacterAction` additive 增 `action_id` / `action_label` / `preconditions` / `effects` / `failure_reason` / `repair_suggestions` / `risk` / `visibility`，全部默认空值；第一版未强制接入 runner 主链路，旧构造与旧产物读取完全兼容。
 - **Web UI**：世界锚定页角色卡「角色探针」折叠入口；干预输入区「预检干预」按钮；Agent 轨迹页结构化动作（前置/效果/失败/修正）只读展示，缺字段空态正常。
-- **未做**（留后续版本）：`AbstractIntervention -> CharacterActionSequence` 实例化、runner 主链路重构、真实 LLM 探针、Seedream（v0.7.3）、Baseline/Canon Replay（v0.7.4）、Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）。
+- **未做**（留后续版本）：`AbstractIntervention -> CharacterActionSequence` 实例化、runner 主链路重构、真实 LLM 探针、Baseline/Canon Replay（v0.7.4）、Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）。
+
+### v0.7.3 Visual Asset Generation（Seedream 视觉资产增强层）
+
+视觉资产是**增强层**，不是核心文字运行时依赖：未配置 Key / 生成失败 / 关闭开关时，全程稳定降级为古风占位，**不阻塞导入、创世、干预、世界线浏览**。所有 artifact additive，不改 `run_scene` 与既有 chapter/events/state/trace/diff 契约。
+
+- **artifact** `projects/<slug>/visual_assets.json`（`VisualAssets`：`version/story_slug/provider/status(none|partial|ready|failed)/cover/characters/scenes/worldline_nodes`，每个 `AssetEntry` 仅含 `asset_id/kind/prompt/status/path/created_at/error`，**不含二进制**）；图片落 `projects/<slug>/assets/`（含内置样例，避免污染 git 跟踪的 `samples/`）。
+- **API**
+  - `GET /api/stories/<slug>/visual-assets`：返回清单；缺 artifact / 损坏 → `status=none` 占位，不 404；坏 slug 400；缺故事 404。
+  - `POST /api/stories/<slug>/visual-assets/generate`：入参 `kinds[]`（cover/characters/scenes）、`character_ids[]`、`force`、`mock`；默认 `force=false` 已 ready 不重复生成；`mock=true` 或无 Key → 占位条目、不打外网；Seedream 不可用时 200 + placeholder/failed，不阻塞。
+  - `GET /api/stories/<slug>/assets/<rel>`：本地资产静态服务，路径安全校验（穿越 403、缺失 404）。
+- **Seedream client**（`visual_assets/seedream_client.py`）：import 不读网络；无 `SEEDREAM_API_KEY` / `LNE_VISUAL_ASSETS=0` → `available=False`；网络/HTTP/格式异常一律捕获返回 `ok=False`；兼容解析 `b64_json` / `url`，无法识别 → failed；不在日志或响应泄漏 Key。
+- **环境变量**：`SEEDREAM_API_KEY`、`SEEDREAM_BASE_URL`（默认 `https://ark.cn-beijing.volces.com`）、`SEEDREAM_MODEL`（默认 `seedream-5-0-lite`）、`SEEDREAM_PATH`（默认 `/api/v3/images/generations`，接口不确定时可覆盖）、`LNE_VISUAL_ASSETS=1/0`。
+- **Web UI**：世界锚定页封面 + 「生成视觉资产 / 重新生成」、角色卡头像、书架故事卡封面缩略、设置抽屉 Seedream 区块；无图古风占位、加载失败回退、生成中状态反馈、布局稳定，中文文案。
+- **未做**：真实线上批量队列；世界线节点缩略图真正绑定 run/branch 生成（仅预留 artifact 字段 + UI 占位）；图片版权/公开分享策略；真人/影视角色复刻（明确不做）。
+
+**Seedream 真实联调 smoke checklist**（无外网时不要执行，CI/测试全走 fake/mock）：
+
+1. `engine/.env` 填 `SEEDREAM_API_KEY`（及按需 `SEEDREAM_BASE_URL` / `SEEDREAM_MODEL` / `SEEDREAM_PATH`）。
+2. `lne browse` 启动后端；前端 `pnpm run dev`。
+3. 进入某 imported/genesis 项目世界锚定页，点「生成视觉资产」。
+4. 观察 `projects/<slug>/visual_assets.json` 状态变 `ready`、`projects/<slug>/assets/` 落图；UI 显示真实封面/头像。
+5. 若线上接口返回格式与默认解析不符（非 `data[0].b64_json` / `data[0].url`），条目变 `failed` 并保留占位；据实调整 `SEEDREAM_PATH` 或在 `_parse` 扩展兼容字段。
 
 ## 输出结构
 

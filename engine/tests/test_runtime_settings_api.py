@@ -29,14 +29,20 @@ _ENV_KEYS = [
     "LNE_MOCK",
     "LNE_DEFAULT_ROUNDS",
     "LNE_SCENE_RUNNER",
+    "SEEDREAM_API_KEY",
+    "SEEDREAM_BASE_URL",
+    "SEEDREAM_MODEL",
+    "LNE_VISUAL_ASSETS",
 ]
 
 
 @pytest.fixture
 def iso_env(monkeypatch):
-    """隔离 6 个设置环境变量：默认无 key，teardown 由 monkeypatch 还原。"""
+    """隔离运行设置环境变量：默认无 key，teardown 由 monkeypatch 还原。"""
     monkeypatch.setenv("LLM_API_KEY", "")
-    for k in _ENV_KEYS[1:]:
+    monkeypatch.setenv("SEEDREAM_API_KEY", "")
+    protected = ("LLM_API_KEY", "SEEDREAM_API_KEY")
+    for k in [key for key in _ENV_KEYS if key not in protected]:
         monkeypatch.delenv(k, raising=False)
     yield
 
@@ -52,6 +58,21 @@ class TestService:
         assert s.default_runner in available_runners()
         assert 1 <= s.default_rounds <= 12
         assert s.seedream_enabled is False
+        assert s.visual_assets_enabled is True
+
+    def test_visual_assets_enabled_is_independent_from_seedream_key(self, iso_env):
+        s = update_runtime_settings({"visual_assets_enabled": False})
+        assert s.visual_assets_enabled is False
+        assert s.seedream_enabled is False
+        assert s.seedream_key_present is False
+
+        s = update_runtime_settings(
+            {"visual_assets_enabled": True, "seedream_api_key": "sd-secret-1234"}
+        )
+        assert s.visual_assets_enabled is True
+        assert s.seedream_enabled is True
+        assert s.seedream_masked_key.endswith("1234")
+        assert "secret" not in s.seedream_masked_key
 
     def test_update_sets_and_masks_key(self, iso_env):
         s = update_runtime_settings({"api_key": "sk-supersecret-7788", "model_name": "foo"})

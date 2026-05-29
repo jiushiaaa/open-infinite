@@ -3,12 +3,14 @@ import type {
   AnchorCharacter,
   AnchorPatch,
   ProjectHealth,
+  VisualAssets,
   WorldAnchor,
 } from "../api/types";
 import { ApiError, api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { navigate } from "../routing";
 import { CharacterProbePanel } from "./CharacterProbePanel";
+import { CharacterAvatar, VisualAssetsControls } from "./VisualAssetPanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
 import "./worldAnchor.css";
 
@@ -62,6 +64,7 @@ function initDraft(a: WorldAnchor): Draft {
 export function WorldAnchorPage({ slug }: { slug: string }) {
   const anchorReq = useAsync(() => api.getWorldAnchor(slug), [slug]);
   const healthReq = useAsync(() => api.getProjectHealth(slug), [slug]);
+  const visualReq = useAsync(() => api.getVisualAssets(slug), [slug]);
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -147,6 +150,9 @@ export function WorldAnchorPage({ slug }: { slug: string }) {
           onEdit={startEdit}
           onSave={save}
           onDiscard={discard}
+          visual={visualReq.data}
+          visualLoading={visualReq.loading}
+          onVisualReload={visualReq.reload}
         />
       </aside>
       <section className="anchor__center">
@@ -170,6 +176,7 @@ export function WorldAnchorPage({ slug }: { slug: string }) {
               editing={editing}
               draft={draft?.chars[c.id]}
               patch={patchDraft}
+              visual={visualReq.data}
             />
           ))
         )}
@@ -204,6 +211,9 @@ function LeftColumn({
   onEdit,
   onSave,
   onDiscard,
+  visual,
+  visualLoading,
+  onVisualReload,
 }: {
   data: WorldAnchor;
   health?: ProjectHealth | null;
@@ -215,6 +225,9 @@ function LeftColumn({
   onEdit: () => void;
   onSave: () => void;
   onDiscard: () => void;
+  visual?: VisualAssets | null;
+  visualLoading: boolean;
+  onVisualReload: () => void;
 }) {
   const w = data.world;
   const brokenFiles = health
@@ -233,6 +246,13 @@ function LeftColumn({
         </span>
       </div>
       <p className="muted tiny mono anchor__slug">{data.slug}</p>
+
+      <VisualAssetsControls
+        slug={data.slug}
+        visual={visual}
+        loading={visualLoading}
+        onReload={onVisualReload}
+      />
 
       <div className="anchor__health">
         <HealthBadge health={health} />
@@ -439,24 +459,33 @@ function CharacterCard({
   editing,
   draft,
   patch,
+  visual,
 }: {
   slug: string;
   c: AnchorCharacter;
   editing: boolean;
   draft?: CharDraft;
   patch: (fn: (d: Draft) => Draft) => void;
+  visual?: VisualAssets | null;
 }) {
   const setChar = (fn: (cd: CharDraft) => CharDraft) =>
     patch((d) => ({ ...d, chars: { ...d.chars, [c.id]: fn(d.chars[c.id]) } }));
 
   return (
     <div className="char-card">
-      <div className="char-card__head">
-        <span className="char-card__name">{c.name}</span>
-        <span className="badge tiny">{ROLE_LABEL[c.narrative_role] ?? c.narrative_role}</span>
-        {c.present_in_scene && <span className="badge badge--jade tiny">在场</span>}
+      <div className="char-card__head char-card__head--avatar">
+        <CharacterAvatar slug={slug} charId={c.id} name={c.name} visual={visual} />
+        <div className="char-card__headtext">
+          <span className="char-card__name">{c.name}</span>
+          <span className="char-card__tagline">
+            <span className="badge tiny">
+              {ROLE_LABEL[c.narrative_role] ?? c.narrative_role}
+            </span>
+            {c.present_in_scene && <span className="badge badge--jade tiny">在场</span>}
+          </span>
+          <span className="muted tiny mono">{c.id}</span>
+        </div>
       </div>
-      <p className="muted tiny mono">{c.id}</p>
 
       {editing && draft ? (
         <div className="char-card__state-edit">

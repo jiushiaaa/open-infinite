@@ -22,6 +22,8 @@ import type {
   StoryGenesisRequest,
   StoryGenesisResponse,
   StorySummary,
+  VisualAssets,
+  VisualAssetsGenerateRequest,
   WorldAnchor,
 } from "./types";
 
@@ -159,4 +161,26 @@ export const api = {
   getJob<T = unknown>(jobId: string): Promise<JobRecord<T>> {
     return getJson(`/api/jobs/${encodeURIComponent(jobId)}`);
   },
+  getVisualAssets(storySlug: string): Promise<VisualAssets> {
+    return getJson(`/api/stories/${encodeURIComponent(storySlug)}/visual-assets`);
+  },
+  generateVisualAssets(
+    storySlug: string,
+    req: VisualAssetsGenerateRequest,
+  ): Promise<VisualAssets> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/visual-assets/generate`,
+      req,
+    );
+  },
 };
+
+/** 把 artifact 中相对路径（assets/...）转为可直接用于 <img src> 的资产 URL。 */
+export function assetUrl(storySlug: string, relPath: string): string {
+  const rel = relPath.replace(/^assets\//, "");
+  const encoded = rel
+    .split("/")
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
+  return `${API_BASE}/api/stories/${encodeURIComponent(storySlug)}/assets/${encoded}`;
+}
