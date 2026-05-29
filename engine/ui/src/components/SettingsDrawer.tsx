@@ -1,0 +1,250 @@
+import { useState } from "react";
+import type { ConnectivityResult, RuntimeSettings } from "../api/types";
+import { ApiError, api } from "../api/client";
+import { useAsync } from "../hooks/useAsync";
+import { ErrorState, Loading } from "./common/States";
+import "./settings.css";
+
+export function SettingsDrawer({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className={`settings-scrim ${open ? "is-open" : ""}`}
+      onClick={onClose}
+      role="presentation"
+    >
+      <aside
+        className="settings"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-label="运行设置"
+      >
+        {open && <SettingsBody onClose={onClose} />}
+      </aside>
+    </div>
+  );
+}
+
+function SettingsBody({ onClose }: { onClose: () => void }) {
+  const { data, loading, error, reload } = useAsync(() => api.getRuntimeSettings(), []);
+  return (
+    <div className="settings__inner">
+      <header className="settings__head">
+        <h2 className="settings__title">运行设置</h2>
+        <button className="settings__close" onClick={onClose} aria-label="关闭">
+          ✕
+        </button>
+      </header>
+      {loading && <Loading label="正在读取设置…" />}
+      {error && <ErrorState message={error} onRetry={reload} />}
+      {data && <SettingsForm settings={data} />}
+    </div>
+  );
+}
+
+function SettingsForm({ settings }: { settings: RuntimeSettings }) {
+  const [keyInput, setKeyInput] = useState("");
+  const [present, setPresent] = useState(settings.llm_api_key_present);
+  const [masked, setMasked] = useState(settings.masked_key);
+  const [baseUrl, setBaseUrl] = useState(settings.llm_base_url);
+  const [model, setModel] = useState(settings.llm_model_name);
+  const [mock, setMock] = useState(settings.default_mock);
+  const [rounds, setRounds] = useState(settings.default_rounds);
+  const [runner, setRunner] = useState(settings.default_runner);
+
+  const [saving, setSaving] = useState(false);
+  const [saveErr, setSaveErr] = useState<string | null>(null);
+  const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
+  const [testRes, setTestRes] = useState<ConnectivityResult | null>(null);
+
+  function applyResult(s: RuntimeSettings) {
+    setPresent(s.llm_api_key_present);
+    setMasked(s.masked_key);
+  }
+
+  async function save() {
+    setSaving(true);
+    setSaveErr(null);
+    setSavedMsg(null);
+    try {
+      const patch = {
+        base_url: baseUrl.trim(),
+        model_name: model.trim(),
+        default_mock: mock,
+        default_rounds: rounds,
+        default_runner: runner,
+        ...(keyInput.trim() ? { api_key: keyInput.trim() } : {}),
+      };
+      const updated = await api.updateRuntimeSettings(patch);
+      applyResult(updated);
+      setKeyInput("");
+      setSavedMsg("设置已保存（仅本机生效）");
+    } catch (err) {
+      setSaveErr(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function clearKey() {
+    setSaving(true);
+    setSaveErr(null);
+    try {
+      const updated = await api.updateRuntimeSettings({ api_key: "" });
+      applyResult(updated);
+      setSavedMsg("已清除密钥");
+    } catch (err) {
+      setSaveErr(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function runTest() {
+    setTesting(true);
+    setTestRes(null);
+    try {
+      setTestRes(await api.testConnectivity(false));
+    } catch (err) {
+      setTestRes({ available: false, error: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setTesting(false);
+    }
+  }
+
+  return (
+    <div className="settings__form">
+      <section className="settings__group">
+        <h3 className="settings__group-title">模型连接</h3>
+        <div className="settings__field">
+          <label className="settings__label" htmlFor="set-key">
+            API 密钥
+            <span className={`badge tiny ${present ? "badge--jade" : "badge--gold"}`}>
+              {present ? `已配置 ${masked}` : "未配置"}
+            </span>
+          </label>
+          <div className="settings__key-row">
+            <input
+              id="set-key"
+              className="settings__input"
+              type="password"
+              placeholder={present ? "如需更换，输入新密钥" : "粘贴你的模型 API 密钥"}
+              value={keyInput}
+              onChange={(e) => setKeyInput(e.target.value)}
+              disabled={saving}
+            />
+            {present && (
+              <button
+                className="btn btn--ghost tiny"
+                onClick={clearKey}
+                disabled={saving}
+              >
+                清除
+              </button>
+            )}
+          </div>
+          <p className="settings__note tiny muted">
+            密钥只保存在本机引擎进程中，不会写入文件，也不会回传明文。
+          </p>
+        </div>
+        <div className="settings__field">
+          <label className="settings__label" htmlFor="set-base">接口地址</label>
+          <input
+            id="set-base"
+            className="settings__input"
+            value={baseUrl}
+            onChange={(e) => setBaseUrl(e.target.value)}
+            disabled={saving}
+          />
+        </div>
+        <div className="settings__field">
+          <label className="settings__label" htmlFor="set-model">模型名称</label>
+          <input
+            id="set-model"
+            className="settings__input"
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            disabled={saving}
+          />
+        </div>
+        <div className="settings__test">
+          <button className="btn btn--ghost tiny" onClick={runTest} disabled={testing}>
+            {testing ? "测试中…" : "测试连接"}
+          </button>
+          {testRes && (
+            <span
+              className={`badge tiny ${testRes.available ? "badge--jade" : "badge--cinnabar"}`}
+            >
+              {testRes.available
+                ? "连接正常"
+                : `不可用${testRes.reason ? "：" + testRes.reason : ""}`}
+            </span>
+          )}
+        </div>
+      </section>
+
+      <section className="settings__group">
+        <h3 className="settings__group-title">默认运行参数</h3>
+        <label className="settings__toggle">
+          <input
+            type="checkbox"
+            checked={mock}
+            onChange={(e) => setMock(e.target.checked)}
+            disabled={saving}
+          />
+          <span>默认用模拟生成（不消耗模型额度，适合先体验）</span>
+        </label>
+        <div className="settings__field">
+          <label className="settings__label" htmlFor="set-rounds">默认推演轮数（1–12）</label>
+          <input
+            id="set-rounds"
+            className="settings__input settings__input--num"
+            type="number"
+            min={1}
+            max={12}
+            value={rounds}
+            onChange={(e) => setRounds(Number(e.target.value))}
+            disabled={saving}
+          />
+        </div>
+        <div className="settings__field">
+          <label className="settings__label" htmlFor="set-runner">默认推演方式</label>
+          <select
+            id="set-runner"
+            className="settings__input"
+            value={runner}
+            onChange={(e) => setRunner(e.target.value)}
+            disabled={saving}
+          >
+            {settings.available_runners.map((r) => (
+              <option key={r} value={r}>
+                {RUNNER_LABEL[r] ?? r}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
+
+      {saveErr && <p className="settings__err">{saveErr}</p>}
+
+      <div className="settings__foot">
+        <span className="muted tiny">{savedMsg ?? "更改将用于之后的生成。"}</span>
+        <button className="btn btn--primary" onClick={save} disabled={saving}>
+          {saving ? "保存中…" : "保存设置"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const RUNNER_LABEL: Record<string, string> = {
+  lightweight: "轻量（最快，规则推演）",
+  multi_agent_stub: "多角色（占位，不调模型）",
+  multi_agent_llm: "多角色（真实模型，更慢更细）",
+};

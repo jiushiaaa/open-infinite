@@ -1,0 +1,20 @@
+import { AppShell } from "./components/AppShell";
+import { StoryEntryPage } from "./components/StoryEntryPage";
+import { WorkspacePage } from "./components/WorkspacePage";
+import { WorldAnchorPage } from "./components/WorldAnchorPage";
+import { ImportNovelPage } from "./components/ImportNovelPage";
+import { GenesisPage } from "./components/GenesisPage";
+import { useRoute } from "./routing";
+
+export function App() {
+  const route = useRoute();
+  return (
+    <AppShell route={route}>
+      {route.name === "workspace" && <WorkspacePage slug={route.slug} />}
+      {route.name === "anchor" && <WorldAnchorPage slug={route.slug} />}
+      {route.name === "import" && <ImportNovelPage />}
+      {route.name === "genesis" && <GenesisPage />}
+      {route.name === "entry" && <StoryEntryPage />}
+    </AppShell>
+  );
+}

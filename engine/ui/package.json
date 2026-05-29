@@ -1,0 +1,25 @@
+{
+  "name": "living-novel-engine-ui",
+  "private": true,
+  "version": "0.7.0",
+  "type": "module",
+  "description": "v0.7 Product Web App — 活体小说引擎产品级前端（古风纸面阅读工作台）",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

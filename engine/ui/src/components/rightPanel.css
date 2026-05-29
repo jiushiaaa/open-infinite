@@ -1,0 +1,143 @@
+.rpanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.rpanel__tabs {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 2px;
+  padding: var(--space-3) var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-raised);
+}
+.rpanel__tab {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--ink-faint);
+  border-bottom: 2px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.rpanel__tab:hover {
+  color: var(--ink);
+}
+.rpanel__tab.is-active {
+  color: var(--ink);
+  font-weight: 600;
+  border-bottom-color: var(--jade);
+}
+.rpanel__tab-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--jade-soft);
+}
+
+.rpanel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+/* ── 解释面板通用块 ─────────────────────────── */
+.expl-section {
+  margin-bottom: var(--space-5);
+}
+.expl-section__title {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin: 0 0 var(--space-2);
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--line-faint);
+}
+.kv {
+  display: flex;
+  gap: var(--space-2);
+  font-size: 13.5px;
+  margin-bottom: 6px;
+}
+.kv__k {
+  flex: 0 0 64px;
+  color: var(--ink-faint);
+}
+.kv__v {
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 状态增量 */
+.delta {
+  color: var(--jade);
+  font-size: 12px;
+}
+.delta--down {
+  color: var(--cinnabar);
+}
+.state-card {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  margin-bottom: var(--space-2);
+}
+.state-card__name {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 14px;
+}
+.state-card__role {
+  font-size: 11px;
+  color: var(--ink-ghost);
+}
+
+/* Agent 轨迹的克制 warning */
+.fourth-wall-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px var(--space-3);
+  border: 1px solid var(--cinnabar-soft);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--cinnabar-wash);
+  color: #7e2c22;
+  font-size: 12.5px;
+  margin-bottom: var(--space-3);
+}
+
+.trace-turn {
+  padding: var(--space-2) var(--space-3);
+  border-left: 2px solid var(--line-strong);
+  margin-bottom: var(--space-2);
+}
+.retr-item {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+  background: var(--paper);
+}
+.retr-item__src {
+  font-size: 11px;
+  color: var(--ink-ghost);
+  margin-bottom: 4px;
+}
+.retr-item__text {
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: var(--font-serif);
+}

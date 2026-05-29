@@ -1,0 +1,150 @@
+.cdiff {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.cdiff__lede {
+  margin-bottom: var(--space-5);
+}
+.cdiff__question {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  color: var(--ink);
+  margin: 0 0 var(--space-3);
+}
+.cdiff__tags {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.cdiff__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+.cdiff__settled {
+  margin-left: var(--space-1);
+}
+.cdiff__error {
+  margin: var(--space-2) 0 0;
+  padding: 6px 10px;
+  border: 1px solid var(--cinnabar-soft);
+  border-radius: var(--radius-sm);
+  background: var(--cinnabar-wash);
+  color: #7e2c22;
+  font-size: 12.5px;
+}
+.cdiff__note {
+  margin: var(--space-2) 0 0;
+}
+
+.cdiff__empty {
+  padding: var(--space-5);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.cdiff__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.cblock {
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper-raised);
+}
+.cblock__op {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.cblock__index {
+  color: var(--ink-faint);
+}
+
+.cblock__tag {
+  display: inline-block;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  color: var(--ink-faint);
+}
+.cblock__text {
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+  line-height: 1.95;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* 旧现实：低饱和朱砂底 + 朱砂细边 + 字色降低 */
+.cblock__old {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--cinnabar-soft);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--cinnabar-wash);
+  margin-bottom: var(--space-2);
+}
+.cblock__old .cblock__text {
+  color: #6e4a44;
+  text-decoration: line-through;
+  text-decoration-color: rgba(162, 59, 46, 0.4);
+}
+.cblock__old .cblock__tag {
+  color: var(--cinnabar);
+}
+
+/* 新世界线：低饱和玉绿底 + 细边 + 打字机出现 */
+.cblock__new {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--jade-soft);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--jade-wash);
+}
+.cblock__new .cblock__tag {
+  color: #2f5544;
+}
+.cblock__text--type {
+  animation: type-in 0.5s ease both;
+}
+@keyframes type-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cblock__explain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--line);
+}
+
+.cblock__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.cblock__soon {
+  margin-left: auto;
+}

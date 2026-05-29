@@ -1,0 +1,105 @@
+.reader {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.reader__head {
+  flex: 0 0 auto;
+  padding: var(--space-4) clamp(var(--space-4), 4vw, 56px) var(--space-2);
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--paper-raised), var(--paper));
+}
+.reader__titleline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.reader__title {
+  font-size: 22px;
+}
+.reader__tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+.reader__tab {
+  border: none;
+  background: transparent;
+  padding: 6px 2px;
+  margin-right: var(--space-4);
+  font-size: 14px;
+  color: var(--ink-faint);
+  border-bottom: 2px solid transparent;
+  transition: color 0.16s ease, border-color 0.16s ease;
+}
+.reader__tab:hover:not(:disabled) {
+  color: var(--ink);
+}
+.reader__tab.is-active {
+  color: var(--ink);
+  border-bottom-color: var(--cinnabar);
+  font-weight: 600;
+}
+.reader__tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.reader__au-note {
+  margin: var(--space-3) clamp(var(--space-4), 4vw, 56px) 0;
+  padding: 10px var(--space-4);
+  border: 1px solid #9fb0c0;
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--indigo-wash);
+  color: #2f4153;
+  font-size: 13px;
+}
+
+.reader__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-5) clamp(var(--space-4), 4vw, 56px) 120px;
+}
+
+/* ── 小说正文排版 ─────────────────────────── */
+.prose {
+  max-width: 720px;
+  margin: 0 auto;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 2;
+  color: var(--ink);
+}
+.prose__h {
+  font-size: 19px;
+  margin: var(--space-5) 0 var(--space-3);
+  color: var(--ink);
+}
+.prose__h:first-child {
+  margin-top: 0;
+}
+.prose__p {
+  margin: 0 0 var(--space-4);
+  text-align: justify;
+  text-indent: 2em;
+}
+.prose__quote {
+  margin: var(--space-3) 0;
+  padding: 6px var(--space-4);
+  border-left: 3px solid var(--gold);
+  background: var(--gold-wash);
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+.prose__rule {
+  border: none;
+  height: 1px;
+  background: var(--line-strong);
+  margin: var(--space-5) auto;
+  width: 40%;
+}

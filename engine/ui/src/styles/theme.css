@@ -1,0 +1,76 @@
+/*
+ * v0.7 古风纸面设计令牌
+ * 关键词：中文小说阅读器 / 纸面书案 / 克制系统感 / 低噪声
+ * 主色：墨黑、朱砂、玉青、深绿、低饱和金。
+ */
+:root {
+  /* 纸面背景 */
+  --paper: #f4efe3;
+  --paper-raised: #faf6ec;
+  --paper-sunken: #ece4d2;
+  --paper-texture: #efe7d6;
+
+  /* 墨色文字 */
+  --ink: #2b2620;
+  --ink-soft: #564e42;
+  --ink-faint: #8a8071;
+  --ink-ghost: #b3a994;
+
+  /* 主题强调色（低饱和） */
+  --cinnabar: #a23b2e; /* 朱砂：旧现实抹去 / 第四面墙 */
+  --cinnabar-soft: #c98579;
+  --cinnabar-wash: #f1dcd6;
+  --jade: #4a7c63; /* 玉青：新世界线凝聚 */
+  --jade-soft: #87ab98;
+  --jade-wash: #dde9e0;
+  --gold: #9c7c3c; /* 低饱和金：标记 / 高亮 */
+  --gold-wash: #ece0c4;
+  --indigo: #3f5266; /* 深蓝灰：Alternate Novel 标记（非错误感） */
+  --indigo-wash: #dde2e8;
+
+  /* 线条与分隔 */
+  --line: #d9cfba;
+  --line-strong: #c4b89c;
+  --line-faint: #e6ddca;
+
+  /* 半径与阴影（克制） */
+  --radius-sm: 4px;
+  --radius: 7px;
+  --radius-lg: 12px;
+  --shadow-card: 0 1px 2px rgba(60, 50, 30, 0.06);
+  --shadow-raised: 0 6px 24px rgba(60, 50, 30, 0.12);
+
+  /* 字体 */
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", "Source Han Serif SC", Georgia, serif;
+  --font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+
+  /* 间距节奏 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* 布局 */
+  --col-left: 332px;
+  --col-right: 384px;
+  --topbar-h: 56px;
+}
+
+/* 强反馈动效可降级（用户设置 / prefers-reduced-motion） */
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,8 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from living_novel_engine.models import Intervention
+
+if TYPE_CHECKING:
+    from living_novel_engine.intervention_compiler.models import InterventionCompilation
+
+# 稳定的分支目录 id：动态分支轴映射到这些 id，保持 outputs 结构与既有 browse/测试兼容
+STABLE_BRANCH_IDS: list[str] = ["branch_a", "branch_b", "branch_c", "branch_d"]
 
 # 固定三分支：演示差异稳定，不随 count 改变语义
 FIXED_BRANCHES: list[dict[str, str]] = [
@@ -67,4 +74,47 @@ def build_branch_specs(intervention: Intervention, count: int = 3) -> list[Branc
     ]
     if intervention.contract_audit and intervention.contract_audit.risk == "high":
         specs[0].description += "（高合约风险：相信亦可能付出代价）"
+    return specs
+
+
+def build_branch_specs_from_compilation(
+    compilation: "InterventionCompilation",
+    count: int = 3,
+) -> list[BranchSpec]:
+    """把 Intervention Compiler 的动态 branch_axis 映射为可执行 BranchSpec。
+
+    - branch_id 仍用稳定的 branch_a/b/c（保持 outputs 结构与既有测试/browse 兼容）
+    - branch_seed / forced_stance 取轴的 stance（believe/doubt/reject），驱动现有 runner
+    - theme / branch_id 之外的语义（label/outcome/lineage）来自动态轴，写入 description
+    - 若 compiler 没产出轴，回退到固定三分支语义
+    """
+    axis = compilation.branch_axis
+    if not axis:
+        return [
+            BranchSpec(
+                branch_id=t["branch_id"],
+                theme=t["theme"],
+                branch_seed=t["branch_seed"],
+                forced_stance=t["forced_stance"],
+                description=t["description"],
+            )
+            for t in FIXED_BRANCHES[: max(2, min(3, count))]
+        ]
+
+    n = max(2, min(len(STABLE_BRANCH_IDS), min(len(axis), count)))
+    specs: list[BranchSpec] = []
+    for i in range(n):
+        item = axis[i]
+        stance = item.stance or "reject"
+        desc = item.description or item.label
+        suffix = f"[{item.outcome}·{item.lineage_type}]"
+        specs.append(
+            BranchSpec(
+                branch_id=STABLE_BRANCH_IDS[i],
+                theme=item.label,
+                branch_seed=stance,
+                forced_stance=stance,
+                description=f"{desc} {suffix}",
+            )
+        )
     return specs

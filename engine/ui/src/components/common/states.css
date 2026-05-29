@@ -1,0 +1,34 @@
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.state__title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  margin: 0;
+}
+
+.state--error .state__title {
+  color: var(--cinnabar);
+}
+
+.state__brush {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  border-top-color: var(--jade);
+  animation: brush-spin 0.9s linear infinite;
+}
+
+@keyframes brush-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

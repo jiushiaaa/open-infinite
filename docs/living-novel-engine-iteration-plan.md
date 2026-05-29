@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-29（v0.6.5 多 Agent 推演工程可靠性）  
+> 版本：2026-05-29（v0.7 Product Web App 九刀已收口；下一步进入 v0.7.2 Agent Interaction）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 
@@ -60,18 +60,30 @@ v0.6.4   multi_agent_llm     OpenAI-compatible API 小模型推演  已收口
     ↓
 v0.6.5   推演工程可靠性      generation_meta/质量校验/重试/usage  已收口
     ↓
-v0.7     Product Web App     React/Vite 产品级前端，面向普通用户  下一步
+v0.7.1-A Intervention Compiler 最小闭环  rule-based 编译 + 动态 BranchAxis  已收口
+    ↓
+v0.7.1-B Intervention Compiler LLM 增强  LLM 编译 + fallback + 安全兜底  已收口
+    ↓
+v0.7.1-C Causal Diff 后端数据预留  old/new 段落级 diff artifact  已收口
+    ↓
+v0.7     Product Web App     React/Vite 产品级前端，面向普通用户  已收口 · 见 docs/v0.7-product-web-app-ui-spec.md
     ↓
 v0.7.2   Agent Interaction   角色动作/情绪探针/干预护栏/轻量角色配置  待排期
     ↓
+v0.7.3   Visual Asset Generation  Seedream 5.0 Lite 角色头像/场景图/封面  待排期
+    ↓
+v0.7.4   Baseline & Canon Replay  无干预基线 + 正史回放评估（创世入口已完成前置）  待排期
+    ↓
 v0.7.5   Worldline Judge     读者/编辑评审团 + 静态流水线项目取舍复盘  待排期
+    ↓
+v0.8     Long Novel Memory   百万字长篇上传 / 分层记忆 / 一致性审计  待排期
     ↓
 Phase 5  社区与分享          远期
 ```
 
 当前最重要的判断：
 
-> v0.6.5 已封板（269 passed）。在 v0.6.4 `multi_agent_llm` 上补工程可靠性：①`generation_meta`（source=llm/fallback/stub、model_name、attempt_count、duration_ms、validation_status、validator_warnings、usage、cost_estimate 占位）additive 写进 `multi_agent_trace.json`，browse「Agent 轨迹」新增「推演元数据」分组可区分真 LLM/回退/stub；②trace 质量校验器 `trace_quality.validate_and_repair_trace`（空 turn_plans 硬失败、回合号归一化、可见性强制、缺计划/干预未入私域告警，绝不抛）；③有限重试 `LNE_MULTI_AGENT_MAX_RETRIES`（默认 1）带问题反馈，耗尽回退；④token usage（`LLMClient.chat_json_with_usage`，拿不到为 null）。不引入新框架/依赖，不接 Zep/OASIS/CAMEL/LangGraph。下一步转向 v0.7 Product Web App，runner 侧暂不再深挖。eastworld 进入 v0.7.2+ 的角色动作/情绪探针/干预护栏预研；autonovel / AI_NovelGenerator 只进入 v0.7.5+ 的质量评审与上下文压缩预研，不改变 v0.7 主线。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通：React/Vite 前端、Web 自由干预、Causal Diff 确立/抹除/回滚、世界锚定页、导入小说、主题创世、锚定轻编辑、真实 LLM/运行设置、异步 Job 进度轮询。当前测试基线为 **410 passed**。下一步不再继续堆 v0.7 基础壳，而是进入 **v0.7.2 Agent Interaction**：把角色动作、情绪/信念探针、干预护栏和轻量角色配置结构化。随后依次进入 v0.7.3 Seedream 视觉资产、v0.7.4 Baseline & Canon Replay、v0.7.5 Worldline Judge；v0.8 正式开 Long Novel Memory 主线，目标是百万字到数百万字上传、分层记忆、正史账本、混合检索和一致性审计。
 
 ## 3. 已完成能力
 
@@ -98,6 +110,10 @@ Phase 5  社区与分享          远期
 | v0.6.3 trace 可视化 | browse「Agent 轨迹」标签页 + 树角标；缺失空态/损坏不抛；additive API | 已完成 |
 | v0.6.4 multi_agent_llm | 共享装配层 + 小模型推演 `MultiAgentTrace`；非默认；隐私加固 + 健壮回退 | 已完成 |
 | v0.6.5 推演工程可靠性 | generation_meta + trace 质量校验器 + 有限重试 + token usage；不引新依赖 | 已完成 |
+| v0.7.1-A Intervention Compiler | rule-based 自由干预编译；`AbstractIntervention` / compatibility / realization / dynamic BranchAxis / affected_scope | 已完成 |
+| v0.7.1-B LLM Compiler | 真实 LLM 编译 + rule-based fallback + `generation_meta`；rule_rewrite 安全兜底不污染原世界线 | 已完成 |
+| v0.7.1-C Causal Diff | `causal_diff.json` 后端 artifact；段落级 old/new diff；为确立/抹除/回滚预留生命周期字段 | 已完成 |
+| v0.7 Product Web App | React/Vite 产品级 Web App；Web 导入/创世/锚定/干预/Causal Diff/设置/异步 Job 主闭环 | 已完成 |
 
 **版本收口参考 run（验收用）**
 
@@ -106,7 +122,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **183 passed**（截至 2026-05-28）。
+**测试基线**：`cd engine && python -m pytest -q` → **410 passed**（截至 2026-05-29，v0.7 第九刀异步 Job 收口）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -451,6 +467,254 @@ docs/research/eastworld-agent-interaction-triage.md
 - 不接入 eastworld Redis / server / generated client。
 - 不把 LNE 产品方向改成游戏 NPC 框架。
 - 不复制源码，只吸收交互协议和 UI 设计。
+
+### 4.5.6 Intervention Compiler：自由干预到动态分支轴
+
+早期内置样例采用 `believe / doubt / reject` 三分支，是为了验证“高维低语 / 预知信息”这种**信息型干预**。它不能成为长期产品规则。
+
+LNE 的真实交互应该是：用户随便输入干预，系统先把它编译成符合世界观的结构化变量，再由角色和世界状态消化。
+
+```text
+Raw Reader Input
+  -> AbstractIntervention
+  -> InterventionGuardrail / Story Contract Audit
+  -> In-world Realization
+  -> Branch Axis
+  -> Worldlines
+```
+
+#### 干预类型与分支轴
+
+| 干预类型 | 示例 | 分支轴不应固定为 | 应生成的本次分支轴 |
+| --- | --- | --- | --- |
+| 信息型干预 | 告诉角色未来会发生某事 | 永远相信 / 怀疑 / 拒绝 | 相信预知 / 怀疑但调查 / 拒绝预兆 |
+| 强制行动型干预 | 让角色某时某刻必须做或不做某事 | 相信 / 不信 | 主动改道 / 被迫延迟 / 抗拒命运压力 / 干预失败但觉察异常 |
+| 资源或物品注入 | 让角色捡到一件物品 | 相信 / 不信 | 同世界合理吸收 / 降级转译 / 拒绝 / 开启异设世界线 |
+| 规则改写型干预 | 赋予系统、现代武器、穿越者身份 | 普通分叉 | 拒绝原世界线 / 转译成本世界规则 / 另开 Alternate Novel |
+
+#### 世界线类型
+
+```text
+Divergent Worldline
+  在原世界规则内分叉。
+  例如：预知梦、低语、谣言、误会、提前示警、角色改变选择。
+
+Alternate Novel / AU Worldline
+  改写世界前提、题材规则或基础物理/修炼体系。
+  例如：系统降临、AK47 进入中世纪、现代人穿越、主角获得完全不属于原作的外挂。
+```
+
+判断规则：
+
+- 如果干预能被世界观自然吸收，优先进入 `Divergent Worldline`。
+- 如果干预违反时代、题材、战力或核心合约，但可被转译，先给出降级方案。
+- 如果用户坚持改写前提，系统应另开 `Alternate Novel / AU Worldline`，并记录与原 story_contract 的差异，而不是把它伪装成普通分支。
+- UI 必须向用户解释：系统理解成了什么 `AbstractIntervention`，为什么生成这些分支轴。
+
+#### 数据结构预留
+
+```json
+{
+  "abstract_intervention": {
+    "intent": "prevent_character_from_entering_trap",
+    "input_mode": "free_text",
+    "intervention_type": "forced_action",
+    "target_refs": ["lin_wan_zhou"],
+    "desired_effect": "avoid_bamboo_grove",
+    "hard_result": false
+  },
+  "compatibility": {
+    "status": "partial",
+    "risk": "medium",
+    "reasons": ["角色不知道竹林埋伏", "可通过梦境或道具异常转译"]
+  },
+  "realization": {
+    "mode": "omen_and_delay",
+    "description": "退魂铃异常 + 预知梦 + 道心不安"
+  },
+  "branch_axis": [
+    {"id": "avoid", "label": "主动避开"},
+    {"id": "investigate", "label": "延迟调查"},
+    {"id": "resist", "label": "抗拒预兆，照旧赴约"}
+  ],
+  "lineage_type": "divergent_worldline"
+}
+```
+
+排期落点：
+
+- v0.7：产品前端展示“系统理解 / 世界观兼容性 / 本次分支轴”，避免用户误以为只能点固定选项。
+- v0.7.1：实现最小 `InterventionCompiler`，替代固定 believe/doubt/reject 的 UI 心智；CLI 可先保持兼容。
+- v0.7.2：把 `InterventionCompiler` 接入 `InterventionGuardrail`、`CharacterActionSequence` 与 preconditions/effects。
+- v0.8：`ActDirector` 负责将 `AbstractIntervention` 稳定实例化为角色动作序列，并支持 `Alternate Novel` 的新合约差异。
+
+### 4.6 学术论文底座：从“参考项目”升级到“系统机制”
+
+2026-05-29 已完成四篇论文研读，报告位于：
+
+```text
+docs/article/reports/
+├── 2404.17027v3-player-driven-emergence-report.md
+├── 2405.13042v2-storyverse-report.md
+├── 2407.13248v2-human-level-narratives-report.md
+└── 2505.03547v1-story2game-report.md
+```
+
+四篇论文分别补上 LNE 的四个理论与工程缺口：
+
+| 论文 | 回答的问题 | 对 LNE 的系统意义 | 排期落点 |
+| --- | --- | --- | --- |
+| Player-Driven Emergence in LLM-Driven Game Narrative | 用户自由干预是否会产生有价值的新剧情 | 将读者干预视为涌现节点和玩家欲望路径，而不是噪声 | v0.7 / v0.7.5 |
+| StoryVerse | 如何平衡作者/读者意图与角色自主行动 | 引入 `AbstractIntervention` / `ActDirector`，把高层意图实例化为角色动作序列 | v0.7.2 / v0.8 |
+| Are LLMs Capable of Generating Human-Level Narratives? | AI 故事为什么容易平、早收束、缺悬念 | 引入故事弧、转折点、张力、节奏评估，增强 `Worldline Judge` | v0.7.5 / v0.8 |
+| STORY2GAME | 开放动作如何落到可执行世界状态 | 为 `CharacterAction` 增加 preconditions / effects / failure reason / repair suggestions | v0.7.2 / v0.8 |
+
+#### 4.6.1 Player-Driven Emergence：涌现节点与世界线分歧
+
+核心结论：
+
+> 玩家和 LLM NPC 自由互动时，会创造设计者没有预设的新路径；这些路径反映玩家真实欲望，可作为系统迭代素材。
+
+LNE 吸收方向：
+
+- 新增 `emergence_nodes.json`，记录读者干预产生的非正史新节点。
+- 世界线树展示 `canon node` / `emergent node`。
+- `compare.md` 或 Web UI 展示每条分支的 `divergence_reason`。
+- `Worldline Judge` 增加 `emergence_score`。
+
+建议数据结构：
+
+```json
+{
+  "node_id": "em_001",
+  "source": "reader_intervention",
+  "description": "林晚舟派纸鹤探查竹林而不是直接赴约",
+  "category": "creative_information_gathering",
+  "canon_status": "branch_only",
+  "design_value": "high"
+}
+```
+
+排期：
+
+- v0.7：Web UI 展示分歧节点与分叉原因。
+- v0.7.5：`Worldline Judge` 评估分支涌现价值。
+- v0.8+：沉淀高价值涌现节点，形成世界线模板或推荐。
+
+#### 4.6.2 StoryVerse：抽象意图到具体角色动作
+
+核心结论：
+
+> 不要让作者/读者直接指定角色动作，而应先表达高层剧情意图，再由系统结合世界状态实例化为具体角色行动序列。
+
+LNE 吸收方向：
+
+```text
+raw reader input
+  -> AbstractIntervention
+  -> ActDirector
+  -> CharacterActionSequence
+  -> AcceptedEvents
+  -> Chapter
+```
+
+建议数据结构：
+
+```json
+{
+  "intent": "prevent_character_from_entering_trap",
+  "target": "lin_wan_zhou",
+  "desired_effect": "raise_suspicion",
+  "hard_result": false,
+  "acceptable_resolutions": ["believe", "investigate", "ignore", "misinterpret"]
+}
+```
+
+排期：
+
+- v0.7.2：在 `InterventionGuardrail` 后增加 `AbstractIntervention`。
+- v0.7.2：将干预意图转为 `CharacterActionSequence`。
+- v0.8+：实现轻量 `ActDirector`，协调读者意图、角色仿真、世界状态和故事合约。
+
+#### 4.6.3 Human-Level Narratives：故事弧与转折点评审
+
+核心结论：
+
+> LLM 默认生成的故事往往过于正向、过早解决冲突、缺少重大挫败和悬念；显式加入故事弧和转折点规划能显著提升叙事质量。
+
+LNE 吸收方向：
+
+- `Worldline Judge` 增加故事弧类型：
+  `Rags to Riches`、`Riches to Rags`、`Man in a Hole`、`Double Man in a Hole`、`Icarus`、`Cinderella`、`Oedipus`。
+- 增加五类 turning points：
+  `Opportunity`、`Change of Plans`、`Point of No Return`、`Major Setback`、`Climax`。
+- 评估每条分支是否太平、是否过早收束、是否缺少重大挫败。
+- narrator 加入“不要同章解决全部冲突”的规则。
+
+建议数据结构：
+
+```json
+{
+  "arc_type": "man_in_a_hole",
+  "turning_points": {
+    "tp1": "林晚舟收到低语",
+    "tp2": "她改变赴约计划",
+    "tp3": "她公开违抗旧约",
+    "tp4": "纸鹤暴露导致反派提前收网"
+  },
+  "missing_turning_points": ["climax"],
+  "tension_score": 0.74,
+  "pacing_warnings": ["tp4_and_tp5_too_close"]
+}
+```
+
+排期：
+
+- v0.7.5：`worldline_judgement.json` 加入 `narrative_discourse`。
+- v0.7.5：`compare.md` 展示每条线的故事弧和张力风险。
+- v0.8+：`worldline_brancher` 按不同故事弧生成分支，避免三条线换皮。
+- v0.8+：narrator 采用 outline -> turning points -> chapter 的两阶段生成。
+
+#### 4.6.4 STORY2GAME：动作前置条件与效果
+
+核心结论：
+
+> 开放文本行动不能直接变成正文，必须先变成可检查、可执行、可失败、可降级的动作。
+
+LNE 吸收方向：
+
+- `CharacterAction` 增加 `preconditions` 和 `effects`。
+- `InterventionGuardrail` 不只是拦截，还要给 `failure_reason` 和 `repair_suggestions`。
+- 动作执行后转为 `StateDelta` / `AcceptedEvent`。
+- 动态动作进入 action registry，解决“用户提出系统未预设动作”的情况。
+
+建议数据结构：
+
+```json
+{
+  "action_id": "act_001",
+  "actor_id": "lin_wan_zhou",
+  "verb": "investigate",
+  "target_refs": ["bamboo_forest"],
+  "preconditions": [
+    "lin_wan_zhou.has_item(retreat_soul_bell)",
+    "bamboo_forest.status != inaccessible"
+  ],
+  "effects": [
+    "thread.trap_exposed += 0.4",
+    "lin_wan_zhou.suspicion += 0.3"
+  ],
+  "failure_reason": null,
+  "repair_suggestions": []
+}
+```
+
+排期：
+
+- v0.7.2：`CharacterAction` 增加 preconditions/effects。
+- v0.7.2：越界动作给出失败原因和降级建议。
+- v0.8+：增加 `dynamic_action_registry.yaml` 和 `entity_aliases.yaml`。
+- v0.8+：做 entity resolution，避免同一物品/地点多名称导致状态断裂。
 
 ## 5. 版本路线图
 
@@ -844,9 +1108,11 @@ fourth_wall_awareness:
 - 设计文档 `docs/v0.6.5-multi-agent-reliability.md`；测试 `tests/test_trace_quality.py`（+9）+ `test_multi_agent_llm.py` 扩充 + stub +1，全量 **269 passed**，`node --check app.js` 通过，lightweight/stub 零回归。
 - 刻意不做（留待）：并发、精确价格计算（`cost_estimate` 占位 `null`）→ v0.8+ 按需。
 
-### v0.7：Product Web App / 产品级前端
+### v0.7：Product Web App / 产品级前端（已收口 · 九刀主闭环）
 
 目标：把当前 CLI + 研发 viewer 升级为普通用户能直接使用的产品入口。
+
+收口状态（2026-05-29）：该目标已通过九刀完成，当前 `engine/ui/` 已支持三入口（样例 / 导入 / 主题创世）、世界锚定与轻编辑、Web 自由干预、Causal Diff 确立 / 抹除 / 回滚、运行设置、异步 Job 进度轮询。`lne browse` 继续作为开发者 viewer 保留，产品前端复用现有 local API，不重写引擎。
 
 推荐技术路线：
 
@@ -856,13 +1122,40 @@ fourth_wall_awareness:
 
 首版产品体验：
 
+- 视觉基调：以古风 / 墨水屏 / 纸面阅读为主体，高维系统感只在关键事件中克制出现。
+- 动效原则：动效服务“因果被改写”的理解，不做过度赛博、过度闪烁、过度震屏；世界线坍缩、红色警告、文字重组都要短、轻、可关闭。
+- 三种创建入口：
+  - `Import Existing Novel`：上传 3-10 章或已有项目，从用户文本进入活体世界。
+  - `Story Genesis Mode`：用户只输入主题、题材、主角、大概内容，由 AI 生成第一章、世界设定、角色卡和初始合约。
+  - `Sample World`：使用内置原创样例快速体验。
 - 导入小说：选择 txt/md 文件或目录，显示抽取进度与可编辑世界锚定。
+- 创世模式：输入“我想看什么故事”，生成第一章和可运行故事世界；不要求用户先上传小说。
 - 世界线浏览：产品级世界线树、章节阅读、检索记忆、角色状态。
-- 用户干预：在 Web 内输入目标角色与干预内容，触发 `intervene`。
+- 用户干预：在 Web 内输入目标角色与干预内容，先展示干预编译结果，再触发 `intervene`。
+- Causal Diff / 因果差异块：用户在章节某段施加干预后，优先展示局部差异，而不是整章粗暴刷新。
+  - 被抹去的旧现实：微红底、朱砂边、删除线或墨迹淡出。
+  - 新凝聚的世界线：浅青 / 玉绿色底、细边框、流式打字出现。
+  - 操作：`确立此界线`、`抹除这次改写`、`回滚到干预前`、`查看因果差异`。
+  - 接受后才把该差异正式坍缩为本世界线正史；拒绝则回到干预前状态或重新推演。
+- 干预编译预览：展示 `AbstractIntervention`、世界观兼容性、干预进入世界的方式、本次专属 `Branch Axis`，以及 `Divergent Worldline` / `Alternate Novel` 类型。
+- 无干预继续：用户可以选择“静观其变”，生成 `Baseline Worldline`，观察角色按人设和世界状态自然发展。
 - 选线续章：点击某条分支继续，必要时再干预。
 - 运行状态：长任务 loading / error / retry / 日志摘要，不要求用户复制命令。
+- 世界线图谱：不把 `branch_a/b/c` 暴露为固定“相信/怀疑/拒绝”，而是显示每次干预实际生成的分歧标签。
+- 角色状态增量：推演后在角色状态面板展示变化量，例如好感 `+30 (↑ +5)`、心境 `警惕 -> 平静`，帮助用户感知干预影响。
+- 第四面墙提示：角色觉察到叙事篡改时，正文可有克制的朱砂色高亮；Agent 轨迹展示简短 warning。避免大面积红屏、强闪烁或惊吓式动效。
+- 剧情张力弧线：`Worldline Judge` 阶段将单点“当前张力”升级为 Story Arc Curve，展示干预前后张力走势。
 
-暂不放进 v0.5 / v0.6 的原因：
+交互优先级：
+
+| 优先级 | 交互 | 原因 | 排期 |
+| --- | --- | --- | --- |
+| P0 | `Causal Diff / 因果差异块` + 接受/拒绝/回滚 | 解决“AI 到底改了哪里”和“一键覆盖失控” | v0.7 |
+| P1 | 干预后角色状态增量 | 强化“我的一句话改变了角色”的即时反馈 | v0.7 |
+| P2 | 克制第四面墙高亮与 Agent warning | 放大角色觉醒时刻，但避免廉价化 | v0.7 / v0.7.2 |
+| P3 | 剧情张力弧线 | 世界线质量可视化，适合放进评审层 | v0.7.5 |
+
+当时未放进 v0.5 / v0.6 的原因：
 
 - 现在最稀缺的不是页面框架，而是引擎独特性：第四面墙、深度推演、长篇一致性。
 - 过早重构 React 会消耗大量工程时间，却无法弥补核心玩法不够独特的问题。
@@ -870,15 +1163,17 @@ fourth_wall_awareness:
 
 ### v0.7.2：Agent Interaction / 角色交互协议增强
 
-目标：在产品级 Web App 的基础体验跑通后，吸收 `eastworld` 的交互媒体 Agent 经验，让角色不仅能“生成剧情”，还能以更稳定的结构执行动作、暴露内心探针、接受干预护栏。
+目标：在产品级 Web App 的基础体验跑通后，吸收 `eastworld`、StoryVerse 与 STORY2GAME 的经验，让角色不仅能“生成剧情”，还能以更稳定的结构执行动作、暴露内心探针、接受干预护栏，并让自由输入通过 `InterventionCompiler` 变成本次专属分支轴。
 
 该版本只借鉴 `eastworld` 的交互协议和 Agent Studio 设计，不接入其 server、Redis 或 OpenAPI client。
 
 能力范围：
 
+- `InterventionCompiler`：`Raw Reader Input -> AbstractIntervention -> Compatibility -> Realization -> BranchAxis`。
 - `CharacterAction`：角色结构化动作，作为 `MultiAgentTrace` 与 `accepted_events` 之间的中间层。
 - `CharacterProbe`：查询角色信任、怀疑、恐惧、第四面墙觉察等内心状态。
 - `InterventionGuardrail`：在 `contract_audit` 前先对用户干预做题材、时代、战力、人格边界检查。
+- `BranchAxis`：为本次干预动态生成分支标签；信息型干预可用相信/怀疑/拒绝，强制行动型和规则改写型必须生成不同轴。
 - Web UI 轻量角色配置：核心信念、欲望、恐惧、口癖、已知/未知信息、可执行动作。
 - Agent 轨迹页增强：把“计划/误解/延迟行动”进一步展示为“角色动作 -> 状态变化 -> 章节渲染”。
 
@@ -886,12 +1181,26 @@ fourth_wall_awareness:
 
 ```json
 {
-  "character_id": "lin_wan_zhou",
-  "action": "investigate",
-  "target": "bamboo_forest",
-  "reason": "她不完全相信低语，但退魂铃异常让她决定先查证",
-  "visibility": "private",
-  "risk": "medium"
+  "abstract_intervention": {
+    "intent": "prevent_character_from_entering_trap",
+    "intervention_type": "forced_action",
+    "target_refs": ["lin_wan_zhou"],
+    "desired_effect": "avoid_bamboo_forest"
+  },
+  "lineage_type": "divergent_worldline",
+  "branch_axis": [
+    {"id": "avoid", "label": "主动避开"},
+    {"id": "investigate", "label": "延迟调查"},
+    {"id": "resist", "label": "抗拒预兆，照旧赴约"}
+  ],
+  "character_action": {
+    "character_id": "lin_wan_zhou",
+    "action": "investigate",
+    "target": "bamboo_forest",
+    "reason": "她不完全相信低语，但退魂铃异常让她决定先查证",
+    "visibility": "private",
+    "risk": "medium"
+  }
 }
 ```
 
@@ -911,6 +1220,9 @@ fourth_wall_awareness:
 
 - 至少 6 类 `CharacterAction` 可被 trace 生成、投影和 UI 展示。
 - `CharacterProbe` 可解释角色为何相信、怀疑或拒绝某次干预。
+- `InterventionCompiler` 可区分信息型、强制行动型、资源注入型、规则改写型干预。
+- `BranchAxis` 不固定为 believe/doubt/reject，分支名称随干预类型变化。
+- `Alternate Novel / AU Worldline` 有显式 lineage 标记和合约差异说明，不静默污染原世界线。
 - 越界干预会给出降级建议，而不是直接污染世界状态。
 - 不破坏既有 `multi_agent_llm` / `multi_agent_stub` 输出契约。
 
@@ -920,12 +1232,182 @@ fourth_wall_awareness:
 - 不做游戏引擎 SDK。
 - 不接 Redis / eastworld server。
 - 不生成 OpenAPI client。
+- 不把所有干预都硬塞成相信 / 怀疑 / 拒绝。
 
 产品价值：
 
 - 把“角色像活人”从正文表现推进到结构化行为层。
 - 让用户在 Web UI 中能理解角色行动，而不是只读生成结果。
 - 为第四面墙、干预护栏和后续复杂多 Agent 推演打基础。
+
+### v0.7.3：Visual Asset Generation / Seedream 视觉资产
+
+目标：在产品级 Web App 的阅读与世界线体验稳定后，接入用户已有的 Seedream 生图能力，为故事生成可控、可缓存、可复用的视觉资产。
+
+接入模型：
+
+```text
+provider: Seedream
+model: Seedream 5.0 Lite
+request_base_url: https://ark.cn-beijing.volces.com
+```
+
+能力范围：
+
+- 角色头像：根据 `characters.yaml` 的外貌、身份、气质、时代、题材约束生成。
+- 故事封面：根据 `world.yaml`、`story_contract.yaml` 和题材模板生成项目封面。
+- 场景背景：根据当前章节地点、时间、氛围、世界线状态生成阅读页背景或插图。
+- 世界线节点缩略图：为关键分歧节点、涌现节点、Alternate Novel 节点生成小图。
+- 视觉资产缓存：写入 `projects/<slug>/assets/` 或 `outputs/<run_id>/<branch>/assets/`，避免每次打开 UI 都重新生图。
+
+建议环境变量：
+
+```text
+SEEDREAM_API_KEY=
+SEEDREAM_BASE_URL=https://ark.cn-beijing.volces.com
+SEEDREAM_MODEL=seedream-5.0-lite
+LNE_VISUAL_ASSETS=on/off
+```
+
+设计原则：
+
+- 图片是增强沉浸感，不是替代正文；阅读区仍以文字为第一主角。
+- 头像和角色视觉必须稳定，不能每章漂移；需要记录 prompt、seed、asset_id、source fields。
+- 不直接用受版权保护作品的原图或影视演员脸；导入商业小说时默认生成“原创化概念图”。
+- 生图失败不影响干预、推演、续章和阅读；UI 回退到占位图。
+- 默认先做手动触发或后台生成，不在每次推演中同步阻塞。
+
+建议数据结构：
+
+```json
+{
+  "asset_id": "char_lin_wan_zhou_portrait_v1",
+  "asset_type": "character_portrait",
+  "provider": "seedream",
+  "model": "seedream-5.0-lite",
+  "prompt": "young cultivator woman, rain night, restrained literary style...",
+  "source_refs": ["characters.lin_wan_zhou", "world.genre", "style_hint"],
+  "file": "assets/characters/lin_wan_zhou_v1.png",
+  "created_at": "2026-05-29T00:00:00+08:00"
+}
+```
+
+验收标准：
+
+- 可为 imported project 生成至少 3 个角色头像 + 1 张故事封面。
+- 可为某个 run/branch 生成 1 张场景背景或世界线节点缩略图。
+- 资产有本地缓存和 metadata，重复打开 UI 不重复扣费。
+- 未配置 `SEEDREAM_API_KEY` 时稳定降级，不影响测试和主流程。
+
+暂不做：
+
+- 不做复杂图生图 / 换脸 / 影视角色复刻。
+- 不做每章自动批量插图。
+- 不把视觉资产纳入叙事正史判断；它只是 UI 资产，不参与 contract。
+
+### v0.7.4：Baseline & Canon Replay / 无干预基线与正史回放
+
+目标：让用户能比较“我不干预时世界会怎样”和“我干预后命运如何偏离”，同时用完结作品或自有文本做引擎质量评估。
+
+#### Baseline Worldline
+
+每个故事世界都应允许生成一条无高维干预的基线：
+
+```text
+Baseline Worldline
+  无新干预
+  -> 角色按人设、记忆、世界规则、资源状态、伏笔压力自主行动
+  -> 生成下一章或若干候选走向
+```
+
+用途：
+
+- 让用户先看“原世界自然会怎么走”。
+- 作为干预世界线的对照组。
+- 帮助 UI 展示“干预前 / 干预后”的蝴蝶效应。
+
+产品表达：
+
+```text
+无干预基线
+  -> 第三章之后，林晚舟仍按原计划赴约
+
+有干预世界线
+  -> 用户投放预知梦
+  -> 林晚舟延迟赴约 / 派纸鹤探查 / 抗拒预兆
+```
+
+#### Story Genesis Mode / 创世模式
+
+用户不必先上传小说，也可以通过主题输入生成一个可运行故事世界：
+
+```text
+用户输入主题 / 题材 / 主角设定 / 大概内容
+  -> AI 生成第一章
+  -> 抽取或同步生成 world.yaml / characters.yaml / story_contract.yaml
+  -> 生成 Baseline Worldline
+  -> 用户可选择静观其变或施加干预
+```
+
+创世模式产物应与 imported project 同构，仍落到 `projects/<slug>/`：
+
+```text
+projects/<slug>/
+  source/chapter_001.md
+  world.yaml
+  characters.yaml
+  story_contract.yaml
+  canon_chapter.md
+  canon_opening.md
+  generation_meta.json
+```
+
+#### Canon Replay Evaluation / 正史回放评估
+
+如果用户上传的是已经完结或已有后续章节的作品，可以用后续章节作为隐藏评估集：
+
+```text
+导入完整文本
+  -> 运行时只开放第 1 章或前 N 章作为 canon anchor
+  -> 无干预生成第 N+1 章走向
+  -> 与原作第 N+1 / N+2 章对比
+  -> 输出回放评估
+```
+
+评估维度：
+
+- 角色行为是否接近原作。
+- 关键事件是否命中。
+- 伏笔是否延续。
+- 情绪与主题是否偏移。
+- 是否过早解决冲突或走向套路化。
+
+注意：
+
+- 如果只输入第一章，系统只能合理预测后续，不能保证等于原作。
+- 如果导入全本，后续章节只能作为本地评估集，不应在运行时泄漏给角色或 narrator。
+- 受版权保护文本默认本地个人评估，不做公开分享。
+
+建议产物：
+
+```json
+{
+  "baseline_run_id": "run_xxx",
+  "holdout_chapters": ["chapter_002", "chapter_003"],
+  "canon_similarity": 0.62,
+  "event_hits": ["主角收到密信", "师门召回"],
+  "missed_events": ["反派提前登场"],
+  "character_alignment": 0.78,
+  "notes": "角色动机接近原作，但事件推进更保守。"
+}
+```
+
+验收标准：
+
+- Web UI 有三种入口：导入小说、主题创世、内置样例。
+- 创世模式可生成第一章和可运行项目，并复用现有 intervene / resume 链路。
+- 任意项目可生成无干预 `Baseline Worldline`。
+- 对有后续章节的测试文本，可生成 `canon_replay_report.json`。
 
 ### v0.7.5：Worldline Judge / 世界线评审团
 
@@ -972,6 +1454,191 @@ branch_c：建议保留观察。代价最大，第四面墙潜力最高，但短
 - 帮助用户从“我有三条线”进入“我知道该继续哪条线”。
 - 把静态写稿项目的评估经验，转化为 LNE 自己的世界线选择体验。
 - 为后续导出分支小说、社区分享和高质量续章打基础。
+
+### v0.8：Long Novel Memory / 百万字长篇支撑
+
+目标：让 LNE 能处理 100 万字以上、乃至 200-600 万字的长篇小说导入和世界线推演，并尽量避免角色偏离人设、时间线矛盾、资源凭空出现、伏笔遗忘和章节越写越漂。
+
+核心判断：长篇能力不能靠“扩大上下文窗口”解决。几百万字文本必须拆成可维护的分层记忆、可检索证据、写后投影和一致性审计。
+
+参考项目吸收点：
+
+| 来源 | 可吸收机制 | LNE 落点 |
+| --- | --- | --- |
+| WenShape | 卷/章结构、事实库、章节摘要、分卷摘要、BM25、实体增强、章节距离衰减、token budget、压缩器 | v0.8.1-v0.8.3 |
+| webnovel-writer | `MASTER_SETTING` / Volume / Chapter Contract、accepted `CHAPTER_COMMIT`、projection writers、RAG auto/hybrid | v0.8.1-v0.8.4 |
+| AI_NovelGenerator | `global_summary`、`character_state`、`plot_arcs`、一致性审校、向量检索 | v0.8.2-v0.8.4 |
+| autonovel | Lore / Characters / Outline / Chapters / Canon 分层、propagation debts、Judge loop | v0.8.1 / v0.8.4 |
+| MiroFish | GraphRAG、时序记忆、Agent 长期记忆 | v0.9+ 可选，不作为 v0.8 必选依赖 |
+
+#### v0.8.0：Long Novel Ingestion / 大文件导入
+
+几百万字上传不能走“一次粘贴进文本框”。产品和引擎都要支持异步导入：
+
+```text
+用户上传 txt/md/epub/zip
+  -> 前端分片上传
+  -> 后端创建 ingest_job
+  -> 原文落 source_raw/
+  -> 流式分章与编码清洗
+  -> 每章生成 chapter_brief
+  -> 每卷生成 volume_brief
+  -> 抽取 canon ledger / character_state / timeline
+  -> 建 BM25 / entity index / optional vector index
+  -> 生成导入报告与人工修订入口
+```
+
+关键约束：
+
+- 上传完成不等于导入完成；导入是后台任务。
+- 支持断点续传、失败恢复、进度条、部分完成状态。
+- 先导入前 20 章即可开始体验，后续章节继续异步索引。
+- 原文保留在 `source_raw/`，运行时不直接把原文整本塞进 prompt。
+- 导入报告要展示：章节数、总字数、疑似乱码、重复章节、缺章、角色抽取置信度、时间线风险。
+
+#### v0.8.1：Hierarchical Memory / 分层记忆
+
+建议目录：
+
+```text
+projects/<slug>/
+  source_raw/
+  source/
+  memory/
+    master_setting.yaml
+    volumes/volume_001.yaml
+    chapters/chapter_0001.yaml
+    scenes/chapter_0001_scene_01.yaml
+    character_states/<character_id>.yaml
+    timeline.yaml
+    plot_threads.yaml
+    propagation_debts.yaml
+```
+
+记忆层级：
+
+```text
+Contract Layer
+  世界规则、人设边界、题材规则、战力上限，永远高优先级
+
+Timeline Layer
+  时间、地点、事件顺序、角色同时只能在一个地方
+
+State Layer
+  角色状态、关系、资源、伤势、秘密、第四面墙觉察
+
+Retrieval Layer
+  facts / summaries / briefs / raw chunks 的相关证据
+
+Audit Layer
+  写完后反查人设、时间线、资源、伏笔和合约
+```
+
+#### v0.8.2：Canon Ledger / 正史账本
+
+把当前 `facts.jsonl` 升级为更细的长篇正史账本：
+
+```json
+{
+  "id": "event_000123",
+  "type": "event|state|relationship|resource|timeline|foreshadowing",
+  "chapter": 128,
+  "scene": 2,
+  "entities": ["lin_fan", "retreat_bell"],
+  "statement": "林凡在听雨轩外确认退魂铃已经碎裂。",
+  "truth_status": "canon",
+  "source_ref": "source/chapter_0128.md#scene_02",
+  "confidence": 0.92,
+  "valid_from": 128,
+  "valid_until": null
+}
+```
+
+账本用途：
+
+- 避免“角色已经死了又突然出现”“道具已碎又被使用”。
+- 让 `Baseline Worldline`、干预世界线、Canon Replay 都有证据来源。
+- 为后续 GraphRAG / Zep / 图数据库留下迁移口。
+
+#### v0.8.3：Hybrid Retrieval / 混合检索
+
+默认不强制上向量库，但长篇必须有可升级检索策略：
+
+```text
+Query
+  -> entity extraction
+  -> BM25
+  -> chapter distance decay
+  -> entity boost
+  -> source weight
+  -> optional vector / reranker
+  -> prompt budget pack
+```
+
+Prompt 预算建议：
+
+```text
+固定必带：story_contract + 当前角色状态 + 当前时间线
+近邻必带：最近 3-5 章摘要 / 最近事件
+检索补充：与当前场景相关的事实、伏笔、旧章节证据
+审计反馈：上一轮发现的矛盾和待修复项
+```
+
+向量 / embedding / reranker 的触发条件：
+
+- 50+ 章后 BM25 召回不稳定。
+- 用户上传 100 万字以上作品。
+- Canon Replay 命中率长期不足。
+- 角色/地名别名复杂，纯关键词无法稳定对齐。
+
+#### v0.8.4：Consistency Audit / 长篇一致性审计
+
+审计维度：
+
+- 角色一致性：目标、恐惧、关系、口癖、能力边界是否漂移。
+- 时间线一致性：日期、地点、同时性、事件先后是否矛盾。
+- 资源一致性：道具、伤势、货币、灵力、身份、秘密是否凭空变化。
+- 战力与合约：是否越过世界规则或题材边界。
+- 伏笔与债务：未解伏笔是否遗忘，设定改动是否产生 propagation debt。
+
+输出：
+
+```text
+consistency_report.json
+  persona_drift
+  timeline_conflicts
+  resource_conflicts
+  contract_violations
+  forgotten_threads
+  repair_suggestions
+```
+
+#### v0.8.5：Long Canon Replay Evaluation / 长篇正史回放评估
+
+如果用户上传完结小说，需要严格隔离运行时可见文本和隐藏评估集：
+
+```text
+runtime_visible/
+  前 N 章，角色和 narrator 可以看到
+
+holdout_private/
+  后续章节，只给 evaluator 看
+```
+
+原则：
+
+- 后续章节不得进入 retrieval、character_agent、narrator、multi_agent_runner prompt。
+- evaluator 可以读取 holdout，生成 `canon_replay_report.json`。
+- 如果用户只上传第一章，系统只能合理预测后续，不能承诺复现原作。
+- 如果用户上传全本，默认只作为本地个人评估，不提供公开分发受保护文本续写的能力。
+
+验收标准：
+
+- 能导入 100 万字以上文本并生成结构化导入报告。
+- 导入任务可恢复，失败后不丢已完成章节。
+- 无干预续章时能引用相关正史证据，而不是只看最近几章。
+- 生成后能发现至少一类人设、时间线、资源或伏笔矛盾。
+- 隐藏评估集不会泄漏到角色和 narrator。
 
 ### Phase 5：社区与分享
 
@@ -1037,8 +1704,10 @@ v0.1.2 resume continue
   -> v0.6.3 multi_agent_trace 可视化（已完成）
   -> v0.6.4 multi_agent_llm 小模型推演（已完成）
   -> v0.6.5 推演工程可靠性：generation_meta/质量校验/重试/usage（已完成）
-  -> v0.7 产品级 Web App（下一步）
-  -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，待排期）
+  -> v0.7 产品级 Web App（已完成九刀主闭环）
+  -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，下一步）
+  -> v0.7.3 Visual Asset Generation（Seedream 视觉资产，待排期）
+  -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放，待排期）
   -> v0.7.5 Worldline Judge（质量评审层，待排期）
 ```
 
@@ -1070,10 +1739,16 @@ v0.1.2 resume continue
 | P6.3 | v0.6.3 trace 可视化 | browse「Agent 轨迹」标签页 + 树角标；additive API | 已收口 |
 | P6.4 | v0.6.4 multi_agent_llm | 共享装配层 + 小模型推演 `MultiAgentTrace`；非默认；隐私加固 + 健壮回退 | 已收口 |
 | P6.5 | v0.6.5 推演工程可靠性 | generation_meta + trace 质量校验器 + 有限重试 + token usage | 已收口 |
-| **P7** | **v0.7 Product Web App** | **React/Vite 产品级前端，Web 内导入/干预/续章/浏览** | **下一步** |
+| P7.1-A | v0.7.1-A Intervention Compiler 最小闭环 | rule-based 自由输入 -> AbstractIntervention -> 动态 BranchAxis | 已收口 |
+| P7.1-B | v0.7.1-B LLM Compiler | LLM 编译 + fallback + rule_rewrite 安全兜底 | 已收口 |
+| P7.1-C | v0.7.1-C Causal Diff 后端数据 | `causal_diff.json`；段落级 old/new diff；确立/抹除/回滚字段预留 | 已收口 |
+| **P7** | **v0.7 Product Web App** | **React/Vite 产品级前端，Web 内导入/创世/锚定/干预/Causal Diff/设置/异步 Job；见 `docs/v0.7-product-web-app-ui-spec.md`** | **已收口** |
 | P7.2 | v0.7.2 Agent Interaction | CharacterAction / CharacterProbe / InterventionGuardrail / 轻量角色配置 UI | 待排期 |
+| P7.3 | v0.7.3 Visual Asset Generation | 接入 Seedream 5.0 Lite：角色头像、故事封面、场景背景、世界线节点缩略图 | 待排期 |
+| P7.4 | v0.7.4 Baseline & Canon Replay | 无干预基线；干预偏离对比；正史回放评估（导入/创世/样例入口已由 v0.7 完成） | 待排期 |
 | P7.5 | v0.7.5 Worldline Judge | 读者/编辑评审团、世界线评分、anti-slop 检查、质量建议 | 待排期 |
-| P8 | v0.8+ Commercial hardening | 向量库、embedding、reranker、多 provider gateway、完整工作台 | 待定 |
+| P8 | v0.8 Long Novel Memory | 百万字长篇上传、分层记忆、正史账本、混合检索、一致性审计、隐藏评估集 | 待排期 |
+| P9 | v0.9+ Commercial hardening | Zep/图数据库、OASIS/CAMEL、LangGraph 局部 runner、多 provider gateway、完整工作台 | 待定 |
 
 ## 8. 近期详细任务清单
 
@@ -1182,9 +1857,16 @@ v0.1.2 resume continue
 | ~~v0.6.4 multi_agent_llm~~ | **已完成**（v0.6.4）：OpenAI-compatible API 小模型推演 `MultiAgentTrace`，非默认，隐私加固 + 健壮回退 |
 | ~~v0.6.5 推演工程化~~ | **已完成**（v0.6.5）：generation_meta + trace 质量校验器 + 有限重试 + token usage |
 | Zep / OASIS / CAMEL | 长篇记忆或群体仿真强到自研轻量 runner 不够时，作为 v0.8+ 可选评估项 |
-| v0.7 Product Web App | v0.5/v0.6 证明核心玩法后，准备给普通用户试用时 |
+| ~~v0.7 Product Web App~~ | **已完成**：React/Vite 前端、三入口、锚定编辑、Web 干预、Causal Diff、设置、异步 Job 主闭环 |
 | v0.7.2 Agent Interaction | v0.7 产品前端跑通后，需要角色动作、情绪探针、干预护栏和轻量角色配置时 |
+| v0.7.3 Visual Asset Generation | 产品 UI 需要角色头像、故事封面、场景背景和世界线节点图，且不阻塞文字主链路时 |
+| v0.7.4 Baseline & Canon Replay | 需要比较无干预基线与干预后偏离，或用后续章节做正史回放评估时 |
 | v0.7.5 Worldline Judge | v0.7 产品前端跑通后，需要帮助用户选择“哪条世界线值得继续”时 |
+| v0.8 Long Novel Memory | 用户上传 100 万字以上作品，或出现角色漂移、时间线矛盾、伏笔遗忘、BM25 召回不足时 |
+| v0.8 ActDirector | 多次干预后需要把读者高层意图稳定转成角色动作序列时 |
+| v0.8 Discourse-aware Narrator | 分支正文出现太平、过早收束、缺少重大挫败和高潮时 |
+| v0.8 Dynamic Action Registry | 用户频繁提出未预设动作，需要动态动作落地为状态变化时 |
+| v0.8 Emergence Mining | 积累大量用户干预后，需要挖掘高价值涌现节点和世界线模板时 |
 | 向量数据库 / embedding / reranker | BM25 lite 在 50+ 章导入项目上召回不够时 |
 | 完整 MasterSetting 工作台 | 服务作者/编辑而不只是读者干预，且目标章节规模到 100+ 章时 |
 | 多 provider gateway | 出现成本、稳定性、模型路由、客户私有化部署要求时 |
@@ -1201,6 +1883,10 @@ docs/research/
 ├── eastworld-agent-interaction-triage.md
 ├── autonovel-static-pipeline-triage.md
 ├── ai-novel-generator-context-triage.md
+├── paper-player-driven-emergence-integration.md
+├── paper-storyverse-abstract-acts-integration.md
+├── paper-human-level-narratives-discourse-integration.md
+├── paper-story2game-action-system-integration.md
 ├── integration-strategy.md
 └── phase1-roadmap.md
 ```
@@ -1301,17 +1987,29 @@ projects/
 5. 第四面墙默认开关？建议：**默认开启**；题材敏感或演示时可设 `LNE_FOURTH_WALL=0` 关闭。
 6. MVP 文案主打“续写断更”还是“拯救意难平”？建议：对外主打“拯救意难平”，功能上兼容续写断更。
 
+最新决策（2026-05-29）：
+
+- 固定三分支只适用于早期 demo 和信息型干预；长期产品不固定相信/怀疑/拒绝。
+- 每次自由输入干预都应先生成 `AbstractIntervention` 和本次 `BranchAxis`。
+- 普通规则内分叉记为 `Divergent Worldline`；改写世界前提或题材规则的强干预记为 `Alternate Novel / AU Worldline`。
+- 例如中世纪/修仙世界中的 AK47、系统降临、现代科技乱入，不能静默塞进原世界线；必须拒绝、转译，或另开 AU 并记录合约差异。
+
 ## 12. 一句话结论
 
 v0.1.x、v0.2.x、v0.3.0/v0.3.1、v0.4/v0.4.1、v0.4.2、v0.5/v0.5.1、v0.6.0–v0.6.5 已收口；下一步最稳的路线是：
 
 ```text
-v0.7 Product Web App（React/Vite 产品级前端）
-  -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏）
+v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，已完成）
+  -> v0.7 Product Web App（React/Vite 产品级前端九刀主闭环，已完成）
+  -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，下一步）
+  -> v0.7.3 Visual Asset Generation（Seedream 5.0 Lite 视觉资产）
+  -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放；创世入口已完成）
   -> v0.7.5 Worldline Judge（世界线评审团）
+  -> v0.8 Long Novel Memory（百万字上传 + 分层记忆 + 正史账本 + 一致性审计）
+  -> v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining
   -> v0.8+ Zep / OASIS / CAMEL / 向量库 / 多 provider / 完整工作台（按规模触发评估）
 ```
 
-WenShape 解决“长篇上下文怎么不崩”，webnovel-writer 解决“故事合约和网文味”，MiroFish 解决“角色群体怎么自己动起来”，eastworld 解决“互动媒体 Agent 如何做动作、情绪查询和玩家护栏”的参考问题。Living Novel Engine 自己要牢牢抓住的，是它们都没有真正覆盖的核心：
+WenShape 解决“长篇上下文怎么不崩”，webnovel-writer 解决“故事合约和网文味”，MiroFish 解决“角色群体怎么自己动起来”，eastworld 解决“互动媒体 Agent 如何做动作、情绪查询和玩家护栏”的参考问题；四篇论文分别补上“用户涌现、意图调度、叙事质量、动作落地”的理论底座。Living Novel Engine 自己要牢牢抓住的，是它们都没有真正覆盖的核心：
 
 > 读者干预、世界线分支、角色反抗、活体小说运行时。

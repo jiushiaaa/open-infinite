@@ -27,8 +27,13 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.6.0 | Scene Runner Adapter：可插拔 `SceneRunner` + 注册表，默认 `lightweight` | 已收口 |
 | v0.6.4 | `multi_agent_llm` runner：OpenAI-compatible 小模型推演 `MultiAgentTrace`（非默认、隐私加固、无 API 回退 stub） | 已收口 |
 | v0.6.5 | 多 Agent 推演工程可靠性：generation_meta + trace 质量校验 + 有限重试 + token usage | 已收口 |
+| v0.7.1-A | Intervention Compiler 最小闭环：自由输入 -> 结构化干预 + 动态分支轴 | 已收口 |
+| v0.7.1-B | LLM Compiler：真实 LLM 编译 + fallback + 规则改写安全兜底 | 已收口 |
+| v0.7.1-C | Causal Diff 后端数据：`causal_diff.json` 段落级 old/new diff | 已收口 |
+| v0.7 | Product Web App：React/Vite 普通用户入口，Web 导入/创世/锚定/干预/Causal Diff/设置/异步 Job | 已收口 |
+| v0.7.2 | Agent Interaction：CharacterAction / CharacterProbe / InterventionGuardrail | 下一步 |
 
-**测试基线**：`pytest -q` → **269 passed**（2026-05-29）。
+**测试基线**：`pytest -q` → **410 passed**（2026-05-29）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -41,6 +46,14 @@ outputs/run_xxx/branch_a/retrieval_context.json
 字段：`query`、`current_chapter`、`prompt_block`、`items[]`（含 `id`、`source`、`score`、`text`、`chapter`、`evidence`）。builtin 样例不写此文件。
 
 v0.4.2 起，`lne browse` 在分支阅读器新增「检索记忆」标签页：按 `source`（合约 / 正史事实 / 章节摘要 / 卷摘要）分组展示本章生成引用的命中项与分数，世界线树的分支节点也会显示「检索 N」角标。
+
+v0.7.1-C 起，干预分支还会写入：
+
+```text
+outputs/run_xxx/branch_a/causal_diff.json
+```
+
+该文件保存段落级 `old_text` / `new_text` 因果差异块，以及 `status=proposed`、`lineage_type`、`diff_mode`、`affected_scope` 等字段，为 v0.7 产品前端的「时空 Diff / 确立 / 抹除 / 回滚」交互做数据预留。
 
 > 注意：当前浏览器是开发者/演示用 viewer，技术栈为 Python stdlib HTTP + 原生 HTML/CSS/JS。真正面向普通用户的产品级前端计划放在 v0.7，倾向新建 React + Vite + TypeScript 的独立 `ui/`，把导入、干预、续章和世界线浏览都做成可点击流程。
 
@@ -337,6 +350,6 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.6.3 | `multi_agent_trace` 可视化：browse「Agent 轨迹」标签页 ✓ |
 | v0.6.4 | `multi_agent_llm`：OpenAI-compatible API 小模型推演，不本地部署 ✓ |
 | v0.6.5 | 推演工程可靠性：generation_meta + trace 质量校验 + 有限重试 + token usage ✓ |
-| v0.7 | 产品级 React/Vite Web App（普通用户入口） |
-| v0.7 | 产品级 React/Vite Web App |
+| v0.7.1-A/B/C | Intervention Compiler + LLM 编译 + Causal Diff 数据地基 ✓ |
+| v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/v0.7-product-web-app-ui-spec.md`） |
 | v0.8+ | Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库 / 多 provider / 完整工作台（按规模触发评估） |

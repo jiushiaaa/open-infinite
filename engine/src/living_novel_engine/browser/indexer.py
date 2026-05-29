@@ -28,6 +28,8 @@ class BranchSummary:
     retrieval_count: int = 0
     has_multi_agent_trace: bool = False
     multi_agent_trace_count: int = 0
+    has_causal_diff: bool = False
+    causal_diff_count: int = 0
 
 
 @dataclass
@@ -141,6 +143,9 @@ def _scan_branch(branch_dir: Path) -> BranchSummary:
     has_trace, trace_count = _list_len_in_json(
         branch_dir / "multi_agent_trace.json", "turn_plans"
     )
+    has_diff, diff_count = _list_len_in_json(
+        branch_dir / "causal_diff.json", "blocks"
+    )
 
     return BranchSummary(
         id=branch_dir.name,
@@ -152,6 +157,8 @@ def _scan_branch(branch_dir: Path) -> BranchSummary:
         retrieval_count=retrieval_count,
         has_multi_agent_trace=has_trace,
         multi_agent_trace_count=trace_count,
+        has_causal_diff=has_diff,
+        causal_diff_count=diff_count,
     )
 
 
@@ -287,6 +294,9 @@ def get_run(run_id: str) -> dict[str, Any]:
         payload["compare_md"] = _read_text(run_dir / "compare.md")
     if summary.has_intervention:
         payload["intervention"] = _read_json(run_dir / "intervention.json")
+    compilation = _read_optional_json(run_dir / "intervention_compilation.json")
+    if compilation is not None:
+        payload["intervention_compilation"] = compilation
     if (run_dir / "meta.json").exists():
         payload["meta"] = _read_json(run_dir / "meta.json")
     if (run_dir / "parent_chapter.md").exists():
@@ -308,6 +318,7 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
     events = _read_optional_json(branch_dir / "events.json")
     retrieval = _read_optional_json(branch_dir / "retrieval_context.json")
     multi_agent_trace = _read_optional_json(branch_dir / "multi_agent_trace.json")
+    causal_diff = _read_optional_json(branch_dir / "causal_diff.json")
 
     run_summary = index_run(outputs_dir() / run_id)
     child_runs: list[str] = []
@@ -338,6 +349,7 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
         "events": events,
         "retrieval": retrieval,
         "multi_agent_trace": multi_agent_trace,
+        "causal_diff": causal_diff,
         "child_runs": child_runs,
         "cli_hints": hints,
     }
@@ -486,6 +498,141 @@ def get_story(slug: str) -> dict[str, Any]:
     return payload
 
 
+def _resolve_story_path(slug: str) -> tuple[Path, Literal["builtin", "imported"]]:
+    """定位故事目录并判定来源；projects 优先于同名 sample。"""
+    project_path = projects_dir() / slug
+    if project_path.exists() and (project_path / "world.yaml").exists():
+        return project_path, "imported"
+    sample_path = samples_dir() / slug
+    if sample_path.exists() and (sample_path / "world.yaml").exists():
+        return sample_path, "builtin"
+    raise FileNotFoundError(f"故事不存在: {slug}")
+
+
+def _anchor_characters(story_path: Path) -> list[dict[str, Any]]:
+    chars_path = story_path / "characters.yaml"
+    if not chars_path.exists():
+        return []
+    data = _read_yaml(chars_path) or {}
+    out: list[dict[str, Any]] = []
+    for c in data.get("characters", []) or []:
+        if not isinstance(c, dict):
+            continue
+        persona = c.get("persona", {}) or {}
+        state = c.get("current_state", {}) or {}
+        out.append(
+            {
+                "id": c.get("id"),
+                "name": c.get("name"),
+                "narrative_role": c.get("narrative_role", "supporting"),
+                "gender": c.get("gender", ""),
+                "present_in_scene": bool(c.get("present_in_scene", True)),
+                "persona": {
+                    "traits": list(persona.get("traits", []) or []),
+                    "desires": list(persona.get("desires", []) or []),
+                    "fears": list(persona.get("fears", []) or []),
+                    "boundaries": list(persona.get("boundaries", []) or []),
+                },
+                "current_state": {
+                    "location": state.get("location", ""),
+                    "emotion": state.get("emotion", ""),
+                    "resources": list(state.get("resources", []) or []),
+                },
+                "memory": list(c.get("memory", []) or []),
+                "relationships": dict(c.get("relationships", {}) or {}),
+                "address_rules": list(c.get("address_rules", []) or []),
+            }
+        )
+    return out
+
+
+def _anchor_open_threads(story_path: Path, world: dict[str, Any]) -> list[dict[str, Any]]:
+    ot_path = story_path / "open_threads.yaml"
+    raw: Any
+    if ot_path.exists():
+        raw = _read_yaml(ot_path) or []
+    else:
+        raw = world.get("open_threads", []) or []
+    threads: list[dict[str, Any]] = []
+    for i, t in enumerate(raw):
+        if isinstance(t, dict):
+            threads.append(
+                {
+                    "id": t.get("id", str(i)),
+                    "title": t.get("title", ""),
+                    "description": t.get("description", ""),
+                    "status": t.get("status", "open"),
+                }
+            )
+        else:
+            threads.append({"id": str(i), "title": str(t), "description": "", "status": "open"})
+    return threads
+
+
+def _anchor_summaries(story_path: Path) -> list[dict[str, Any]]:
+    summaries_dir = story_path / "summaries"
+    if not summaries_dir.exists():
+        return []
+    out: list[dict[str, Any]] = []
+    for sp in sorted(summaries_dir.glob("chapter_*.yaml")):
+        data = _read_yaml(sp)
+        if not isinstance(data, dict):
+            continue
+        out.append(
+            {
+                "chapter": data.get("chapter"),
+                "title": data.get("title", ""),
+                "summary": data.get("summary", ""),
+                "key_events": list(data.get("key_events", []) or []),
+                "characters_present": list(data.get("characters_present", []) or []),
+            }
+        )
+    return out
+
+
+def get_world_anchor(slug: str) -> dict[str, Any]:
+    """v0.7 第四刀：世界锚定页数据（world/characters/contract/threads/summaries）。
+
+    builtin sample 与 imported project 均可读；缺文件返回 null/[]，不抛 500。
+    """
+    from living_novel_engine.story_loader import intervention_chapter_from_project
+
+    story_path, source_kind = _resolve_story_path(slug)
+    world = _read_yaml(story_path / "world.yaml") or {}
+
+    current_chapter = None
+    if source_kind == "imported":
+        current_chapter = intervention_chapter_from_project(story_path)
+
+    contract_path = story_path / "story_contract.yaml"
+    story_contract = _read_yaml(contract_path) if contract_path.exists() else None
+
+    payload: dict[str, Any] = {
+        "slug": slug,
+        "source_kind": source_kind,
+        "display_name": world.get("display_name") or world.get("title") or slug,
+        "divergence_point": world.get("divergence_point", ""),
+        "world": {
+            "display_name": world.get("display_name") or world.get("title") or slug,
+            "source_type": world.get("source_type", source_kind),
+            "canonical_place_name": world.get("canonical_place_name", ""),
+            "worldline_policy": world.get("worldline_policy", ""),
+            "scene_description": world.get("scene_description", ""),
+            "current_chapter": current_chapter,
+            "rules": list(world.get("rules", []) or []),
+            "locations": list(world.get("locations", []) or []),
+            "factions": list(world.get("factions", []) or []),
+            "timeline": list(world.get("timeline", []) or []),
+        },
+        "characters": _anchor_characters(story_path),
+        "story_contract": story_contract,
+        "open_threads": _anchor_open_threads(story_path, world),
+        "summaries": _anchor_summaries(story_path),
+        "run_count": len(list_runs(story_slug=slug)),
+    }
+    return payload
+
+
 def build_worldline_tree(*, story_slug: str | None = None) -> list[dict[str, Any]]:
     """Build nested run trees keyed by parent (run_id, branch_id).
 
@@ -519,6 +666,8 @@ def build_worldline_tree(*, story_slug: str | None = None) -> list[dict[str, Any
             "retrieval_count": branch.retrieval_count,
             "has_multi_agent_trace": branch.has_multi_agent_trace,
             "multi_agent_trace_count": branch.multi_agent_trace_count,
+            "has_causal_diff": branch.has_causal_diff,
+            "causal_diff_count": branch.causal_diff_count,
             "child_runs": [
                 run_node(cid) for cid in sorted(child_run_ids, reverse=True)
             ],

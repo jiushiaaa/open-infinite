@@ -12,7 +12,51 @@ from living_novel_engine.models import Intervention
 from living_novel_engine.models.events import SimulationResult
 
 if TYPE_CHECKING:
+    from living_novel_engine.intervention_compiler.models import InterventionCompilation
     from living_novel_engine.resume.loader import ParentSnapshot
+
+
+def _write_compilation(run_dir: Path, compilation: "InterventionCompilation | None") -> None:
+    """写入 Intervention Compiler artifact（None 时不写，保持向后兼容）。"""
+    if compilation is None:
+        return
+    with open(run_dir / "intervention_compilation.json", "w", encoding="utf-8") as f:
+        json.dump(
+            compilation.model_dump(mode="json"),
+            f,
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
+
+
+def _write_causal_diff(
+    branch_dir: Path,
+    result: SimulationResult,
+    *,
+    old_text: str | None,
+    new_text: str | None,
+    compilation: "InterventionCompilation",
+    chapter_number: int,
+) -> None:
+    """写入 v0.7.1-C Causal Diff artifact（仅 intervene/resume intervene 分支）。"""
+    from living_novel_engine.causal_diff import build_causal_diff
+
+    artifact = build_causal_diff(
+        branch_id=result.worldline_id,
+        old_text=old_text,
+        new_text=new_text,
+        compilation=compilation,
+        chapter_number=chapter_number,
+    )
+    with open(branch_dir / "causal_diff.json", "w", encoding="utf-8") as f:
+        json.dump(
+            artifact.model_dump(mode="json"),
+            f,
+            ensure_ascii=False,
+            indent=2,
+            default=str,
+        )
 
 
 def _outputs_dir() -> Path:
@@ -78,6 +122,8 @@ def write_run_output(
     *,
     run_id: str | None = None,
     ledger: FourthWallLedger | None = None,
+    compilation: "InterventionCompilation | None" = None,
+    old_text: str | None = None,
 ) -> RunOutput:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_id = run_id or f"run_{ts}_{uuid.uuid4().hex[:6]}"
@@ -86,6 +132,7 @@ def write_run_output(
 
     if ledger is not None:
         _maybe_save_ledger(run_dir, ledger)
+    _write_compilation(run_dir, compilation)
 
     intervention_payload = intervention.model_dump(mode="json")
     if intervention.contract_audit:
@@ -113,6 +160,8 @@ def write_run_output(
             run_dir / result.worldline_id,
             result,
             chapter_number=_infer_chapter_from_result(result),
+            old_text=old_text,
+            compilation=compilation,
         )
 
     compare_md = _build_compare_md(results, intervention=intervention)
@@ -218,6 +267,8 @@ def _write_branch_outputs(
     result: SimulationResult,
     *,
     chapter_number: int | None = None,
+    old_text: str | None = None,
+    compilation: "InterventionCompilation | None" = None,
 ) -> None:
     branch_dir.mkdir(parents=True, exist_ok=True)
     snapshot = result.state_snapshot or result.final_scene_state
@@ -259,6 +310,16 @@ def _write_branch_outputs(
 
     (branch_dir / "summary.md").write_text(summary_text, encoding="utf-8")
     (branch_dir / "chapter.md").write_text(chapter_text, encoding="utf-8")
+
+    if compilation is not None:
+        _write_causal_diff(
+            branch_dir,
+            result,
+            old_text=old_text,
+            new_text=chapter_text,
+            compilation=compilation,
+            chapter_number=ch_num,
+        )
 
     with open(branch_dir / "state_snapshot.json", "w", encoding="utf-8") as f:
         json.dump(snapshot, f, ensure_ascii=False, indent=2, default=str)
@@ -320,6 +381,7 @@ def write_resume_intervene_output(
     results: list[SimulationResult],
     *,
     ledger: FourthWallLedger | None = None,
+    compilation: "InterventionCompilation | None" = None,
 ) -> ResumeInterveneOutput:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_id = f"run_{ts}_{uuid.uuid4().hex[:6]}_resume_intervene_{parent.branch_id}"
@@ -328,6 +390,7 @@ def write_resume_intervene_output(
 
     if ledger is not None:
         _maybe_save_ledger(run_dir, ledger)
+    _write_compilation(run_dir, compilation)
 
     meta = _build_resume_meta(parent, "resume_intervene")
     current_chapter = int(meta["current_chapter"])
@@ -353,6 +416,8 @@ def write_resume_intervene_output(
             run_dir / result.worldline_id,
             result,
             chapter_number=current_chapter,
+            old_text=parent.chapter_text,
+            compilation=compilation,
         )
 
     compare_md = _build_compare_md(results, intervention=intervention)

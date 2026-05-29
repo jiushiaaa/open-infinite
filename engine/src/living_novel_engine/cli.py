@@ -13,8 +13,12 @@ from living_novel_engine.llm.client import LLMClient, LLMSettings
 from living_novel_engine.models import Intervention
 from living_novel_engine.orchestrator.scene_runner import run_scene
 from living_novel_engine.orchestrator.worldline_brancher import (
-    build_branch_specs,
+    build_branch_specs_from_compilation,
     build_continuation_spec,
+)
+from living_novel_engine.intervention_compiler import (
+    InterventionCompilation,
+    compile_intervention_with_llm,
 )
 from living_novel_engine.fourth_wall import (
     FourthWallLedger,
@@ -88,22 +92,6 @@ def _report_awareness(ledger: FourthWallLedger | None, target: str) -> None:
     )
 
 
-def _fw_prepare_intervention(
-    intervention: Intervention,
-    *,
-    chapter: int,
-    present_ids: list[str],
-) -> FourthWallLedger | None:
-    """开启时：新建账本并记入本次干预；关闭时：返回 None（不累积、不落盘）。"""
-    if not fourth_wall_enabled():
-        return None
-    ledger = FourthWallLedger(enabled=True)
-    accumulate_intervention(
-        ledger, intervention, chapter=chapter, present_ids=present_ids
-    )
-    return ledger
-
-
 def _fw_load_for_resume(parent_run_id: str) -> FourthWallLedger | None:
     """开启时：沿 lineage 继承关闭前的账本；关闭时：返回 None。"""
     if not fourth_wall_enabled():
@@ -131,6 +119,31 @@ def _fw_resume_intervene(
 def _item(text: str) -> str:
     """ASCII list marker; avoids Windows legacy console encoding failures."""
     return f"  - {text}"
+
+
+def _report_compilation(compilation: InterventionCompilation) -> None:
+    """打印 Intervention Compiler 的理解结果与本次专属分支轴。"""
+    ai = compilation.abstract_intervention
+    comp = compilation.compatibility
+    console.print(
+        f"[bold magenta]干预编译[/bold magenta] source={compilation.source} "
+        f"类型={ai.intervention_type} "
+        f"兼容性={comp.status}/{comp.risk} 谱系={compilation.lineage_type}"
+    )
+    meta = compilation.generation_meta or {}
+    if meta.get("fallback_reason"):
+        console.print(f"  [yellow]回退原因:[/yellow] {meta['fallback_reason']}")
+    if meta.get("reconciled"):
+        console.print("  [yellow]已触发规则改写安全兜底[/yellow]")
+    for r in comp.reasons:
+        console.print(f"  [dim]理由:[/dim] {r}")
+    for c in comp.contract_conflicts:
+        console.print(f"  [red]规则冲突:[/red] {c}")
+    console.print(f"  [dim]落地方式:[/dim] {compilation.realization.description}")
+    axis_labels = "  |  ".join(
+        f"{a.label}({a.outcome})" for a in compilation.branch_axis
+    )
+    console.print(f"  [cyan]本次分支轴:[/cyan] {axis_labels}")
 
 
 def _resolve_llm(mock_flag: bool) -> LLMClient:
@@ -224,78 +237,38 @@ def intervene_cmd(
     mock: bool,
 ) -> None:
     """执行一次干预并生成多条世界线"""
-    bundle = load_story(slug)
-    char_map = bundle.character_map()
-    if target not in char_map:
-        raise click.ClickException(f"未知角色: {target}，可选: {', '.join(char_map.keys())}")
-
-    llm = _resolve_llm(mock)
-
-    intervention = build_intervention(
-        target=target,
-        content=content,
-        intervention_type=intervention_type,  # type: ignore[arg-type]
+    # v0.7：核心编排收敛到 service.run_intervention（与 Web API 共用，不复制推演逻辑）。
+    from living_novel_engine.service import (
+        InterventionRequestError,
+        run_intervention,
     )
-    intervention = audit_intervention(intervention, bundle.world, char_map)
 
-    console.print(
-        f"[green]干预已解析[/green] strength={intervention.strength} "
-        f"risk={intervention.contract_risk}"
-    )
-    audit = intervention.contract_audit
-    if audit:
-        console.print(f"  allowed={audit.allowed} resistance={audit.expected_character_resistance}")
-        for v in audit.violations:
-            console.print(f"  [red]违规:[/red] {v}")
-        for s in audit.repair_suggestions:
-            console.print(f"  [dim]建议:[/dim] {s}")
+    try:
+        result = run_intervention(
+            story_slug=slug,
+            target=target,
+            content=content,
+            intervention_type=intervention_type,
+            branches=branches,
+            rounds=rounds,
+            mock=mock,
+        )
+    except InterventionRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
 
-    specs = build_branch_specs(intervention, count=max(2, min(3, branches)))
-    query = f"{content} {char_map[target].name}"
-    intervention_chapter = bundle.intervention_chapter()
-    retrieved_ctx, retrieval_record = _prepare_retrieval(
-        bundle,
-        query,
-        bundle.world.source_type,
-        current_chapter=intervention_chapter,
-    )
-    if retrieval_record and retrieval_record.get("items"):
+    if result.llm_mock and not mock:
         console.print(
-            f"  [dim]检索到 {len(retrieval_record['items'])} 条相关上下文[/dim]"
+            "[yellow]未检测到 LLM_API_KEY，已自动启用 mock 模式（端到端演示）[/yellow]"
         )
-
-    ledger = _fw_prepare_intervention(
-        intervention,
-        chapter=intervention_chapter,
-        present_ids=_present_ids(bundle),
+    _report_compilation(result.compilation)
+    console.print(
+        f"分支: {', '.join(result.branch_ids)}"
     )
-    _report_awareness(ledger, target)
-
-    results = []
-    for spec in specs:
-        console.print(f"[cyan]推演 {spec.branch_id}[/cyan] — {spec.theme}")
-        result = run_scene(
-            bundle.world,
-            bundle.characters,
-            intervention,
-            spec,
-            llm,
-            max_rounds=rounds,
-            canon_excerpt=bundle.canon_context_for_narrator(),
-            prologue=bundle.prologue,
-            canon_opening=bundle.canon_opening,
-            canon_chapter=bundle.canon_chapter,
-            source_type=bundle.world.source_type,
-            retrieved_context=retrieved_ctx,
-            ledger=ledger,
-        )
-        results.append(_attach_retrieval(result, retrieval_record))
-
-    intervention.story_slug = slug
-    intervention.source_kind = bundle.source_kind
-    output = write_run_output(intervention, results, ledger=ledger)
-    console.print(f"\n[bold green]完成[/bold green] 输出目录: {output.run_dir}")
-    console.print(f"对比表: {output.run_dir / 'compare.md'}")
+    console.print(
+        f"干预编译结果: {result.run_dir / 'intervention_compilation.json'}"
+    )
+    console.print(f"\n[bold green]完成[/bold green] 输出目录: {result.run_dir}")
+    console.print(f"对比表: {result.run_dir / 'compare.md'}")
 
 
 @main.command("compare")
@@ -640,7 +613,18 @@ def resume_intervene_cmd(
             f"{parent.summary_text.strip()}"
         )
 
-    specs = build_branch_specs(intervention, count=max(2, min(3, branches)))
+    compilation = compile_intervention_with_llm(
+        content,
+        target=target,
+        world=world,
+        characters=char_map,
+        llm=llm,
+    )
+    _report_compilation(compilation)
+
+    specs = build_branch_specs_from_compilation(
+        compilation, count=max(2, min(3, branches))
+    )
     query = f"{content} {char_map[target].name}"
     retrieved_ctx, retrieval_record = _prepare_retrieval(
         bundle, query, parent.source_type, current_chapter=next_chapter
@@ -677,9 +661,14 @@ def resume_intervene_cmd(
         )
         results.append(_attach_retrieval(result, retrieval_record))
 
-    output = write_resume_intervene_output(parent, intervention, results, ledger=ledger)
+    output = write_resume_intervene_output(
+        parent, intervention, results, ledger=ledger, compilation=compilation
+    )
     console.print(f"\n[bold green]完成[/bold green] 新 run: {output.run_dir}")
     console.print(f"对比表: {output.run_dir / 'compare.md'}")
+    console.print(
+        f"干预编译结果: {output.run_dir / 'intervention_compilation.json'}"
+    )
     for spec in specs:
         ch = output.run_dir / spec.branch_id / "chapter.md"
         if ch.exists():

@@ -1,0 +1,132 @@
+.wtree {
+  padding: var(--space-4);
+}
+.wtree__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line);
+}
+.wtree__title {
+  font-size: 15px;
+}
+
+.wtree__list,
+.wtree__branches,
+.wtree__children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.wtree__run {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+.wtree__run-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.wtree__run-head.is-active-run {
+  /* 当前 run 高亮其左缘 */
+}
+.wtree__preview {
+  margin: 6px 0 var(--space-2);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wtree__branches {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: var(--space-2);
+}
+
+.wtree__branch {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+.wtree__branch:hover {
+  background: var(--paper-sunken);
+}
+.wtree__branch.is-selected {
+  border-color: var(--jade);
+  background: var(--jade-wash);
+}
+.wtree__branch.is-au.is-selected {
+  border-color: var(--indigo);
+  background: var(--indigo-wash);
+}
+.wtree__branch-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--jade-soft);
+  flex: 0 0 auto;
+}
+.wtree__branch.is-au .wtree__branch-dot {
+  background: #9fb0c0;
+}
+.wtree__branch-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.wtree__branch-label {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wtree__branch-sub {
+  display: flex;
+  gap: 4px;
+}
+.wtree__branch-marks {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+.mark {
+  font-size: 12px;
+  line-height: 1;
+  color: var(--ink-faint);
+}
+.mark--diff {
+  color: var(--cinnabar);
+  font-weight: 700;
+}
+.mark--trace {
+  color: var(--gold);
+}
+.mark--mem {
+  color: var(--jade);
+}
+
+.wtree__children {
+  margin-top: var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--line);
+}
