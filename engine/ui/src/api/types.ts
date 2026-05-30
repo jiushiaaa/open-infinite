@@ -147,9 +147,22 @@ export interface ImportChapterInput {
   content: string;
 }
 
+export interface ImportUploadChunk {
+  index: number;
+  data_b64: string;
+}
+
+export interface ImportUploadPayload {
+  filename: string;
+  total_size: number;
+  chunk_size?: number;
+  chunks: ImportUploadChunk[];
+}
+
 export interface ImportNovelRequest {
   name: string;
-  chapters: ImportChapterInput[];
+  chapters?: ImportChapterInput[];
+  upload?: ImportUploadPayload;
   genre?: string;
   mock?: boolean;
   force?: boolean;

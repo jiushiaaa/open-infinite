@@ -36,6 +36,7 @@
 - v0.8.x Entity Aliases / Entity Resolution
 - v0.8.x Runtime Memory Consumption-A
 - v0.8.x Frontend Artifact Panel
+- v0.8.x Long Upload Productization
 
 最近一次 Codex 迭代：
 - v0.8.0-A：导入写 `source_raw/`、`import_report.json`，Web/job 支持 additive `long_mode`
@@ -51,11 +52,12 @@
 - v0.8.x Entity Aliases：导入写 `memory/entity_aliases.yaml`，retrieval 做 alias expansion，锚定页只读展示别名摘要
 - v0.8.x Runtime Memory Consumption-A：干预、baseline 与 CLI resume 通过既有 `retrieved_context` 参数只读消费 memory/alias/ledger 安全子集，并写 `runtime_memory_context.json`
 - v0.8.x Frontend Artifact Panel：`get_branch()` 聚合 `runtime_memory_context`、`act_director_plan`、`dynamic_action_registry`、`narrative_diagnostics`、`emergence_nodes`；前端右侧「机制档案」统一只读展示
-- 后端 python -m pytest -q 为 570 passed
+- v0.8.x Long Upload Productization：导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态；后端 `upload` 分片 payload 解析后复用既有导入流水线
+- 后端 python -m pytest -q 为 573 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入长篇上传产品化。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 v0.8 收束整理：断点续传/恢复、导入报告细化，或 runner 状态执行层评估。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -76,11 +78,11 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `570 passed` |
+| 后端基线 | `573 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel |
-| 官方下一版 | v0.8 收束整理 / 长篇上传产品化 |
-| 后续主线 | 长篇上传产品化 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization |
+| 官方下一版 | v0.8 收束整理 / 断点续传与恢复 / runner 状态执行层评估 |
+| 后续主线 | 断点续传与恢复、导入报告细化、runner 状态执行层评估 |
 
 ## 资料位置
 
@@ -187,13 +189,13 @@ React/Vite 产品级前端主闭环已完成：
 
 本阶段未做：
 
-- 前端分片上传、断点续传、epub/zip
+- 真正断点续传/恢复、持久化 ingest job
 - LLM 细粒度事件抽取、scene 级切分
 - 向量库、embedding、reranker（entity alias resolution 第一刀已完成）
 - runner 消费 action plan、dynamic action registry 或 emergence nodes，并执行状态变化
 - 运行后写回审计、长篇 holdout 批量评估 UI
 
-下一刀建议：优先长篇上传产品化，先做前端分片/epub/zip 导入体验与 job 进度/失败空态；随后再考虑 runner consumption 的状态执行层。
+下一刀建议：优先断点续传/恢复和导入报告细化，或转向 runner consumption 的状态执行层。
 
 ## v0.8.x Entity Aliases 收口摘要
 
@@ -209,14 +211,21 @@ React/Vite 产品级前端主闭环已完成：
 - `service.run_intervention()`、baseline 服务与 CLI resume 通过既有 `retrieved_context` 参数消费该上下文，不改 `run_scene` 默认语义。
 - 每个 imported 分支 additive 写 `runtime_memory_context.json`；损坏/缺失 alias 文件降级为 warning，不阻断生成。
 - `browser.indexer.get_branch()` 返回 `runtime_memory_context`；React 右侧「机制档案」统一展示该上下文。
-- 完整验证：`python -m pytest -q` 570 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
+- 完整验证：`python -m pytest -q` 573 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
 
 ## v0.8.x Frontend Artifact Panel 收口摘要
 
 - `browser.indexer.get_branch()` additive 返回 run 级 `act_director_plan`、`dynamic_action_registry`、`emergence_nodes`，branch 级 `narrative_diagnostics`，以及既有 `runtime_memory_context`。
 - React 右侧解释面板新增「机制档案」tab，统一只读展示运行记忆、动作计划、动作注册表、叙事诊断、涌现节点；原「运行记忆」独立 tab 已收束进该面板。
 - 缺失 artifact 显示局部空态；损坏 JSON/YAML 不白屏，不影响章节阅读、检索、状态、Agent 轨迹或世界线评审。
-- 未做：runner 消费动作计划/动作注册表/涌现节点并改变状态；跨 run 涌现聚类；长篇分片上传、epub/zip。
+- 未做：runner 消费动作计划/动作注册表/涌现节点并改变状态；跨 run 涌现聚类；真正断点续传/恢复。
+
+## v0.8.x Long Upload Productization 收口摘要
+
+- 后端 `import_novel_from_payload()` 新增 additive `upload` 入参：`filename/total_size/chunks[{index,data_b64}]`，支持 txt/md 文本拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节。
+- `/api/import-novel` 与 `/api/jobs/import-novel` 均可传 `upload`；同步接口错误返回 400/409，异步 job 失败返回 `status=failed + error`，不白屏、不 500。
+- 前端导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、文件摘要、job 进度条、失败空态和重试；未选文件时保留原粘贴 3-10 章模式。
+- 未做：真正多请求断点续传/恢复、持久化 ingest job、epub spine 精排、角色抽取置信度和时间线风险增强。
 
 ## 每次任务完成后的收口清单
 

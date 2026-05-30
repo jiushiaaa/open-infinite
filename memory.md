@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel 收束已完成；后端 570 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 已完成；后端 573 passed，前端 build 通过）
 
 ---
 
@@ -101,10 +101,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `570 passed`（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Artifact Panel 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.8 收束整理 / 长篇上传产品化** |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases 已收口 → Runtime Memory Consumption-A 已收口 → 前端 Artifact Panel 已收口 → 长篇上传产品化 |
-| **刚收口** | v0.8.x Frontend Artifact Panel：`browser.indexer.get_branch()` additive 聚合 `runtime_memory_context.json`、`act_director_plan.json`、`dynamic_action_registry.yaml`、`narrative_diagnostics.json`、`emergence_nodes.json`；React 右侧「机制档案」统一只读解释层展示运行记忆、动作计划、动作注册表、叙事诊断与涌现节点。全程不改 `run_scene` 默认行为、不破坏既有运行产物契约。 |
+| **测试基线** | 后端 `573 passed`（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Artifact Panel + Long Upload Productization 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.8 收束整理 / 断点续传与恢复 / runner 状态执行层评估** |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases 已收口 → Runtime Memory Consumption-A 已收口 → 前端 Artifact Panel 已收口 → Long Upload Productization 已收口 |
+| **刚收口** | v0.8.x Long Upload Productization：前端导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态；后端 `upload` payload 会按分片还原并解析 txt/md/zip/epub，复用既有 `import_novel_from_payload()` 流水线。全程不改 `run_scene` 默认行为、不破坏既有运行产物契约。 |
 
 ---
 
@@ -346,7 +346,7 @@ lne list-genres
 | ~~创世入口未做~~ | **v0.7 第六刀已解决**：`POST /api/story-genesis` + `GenesisPage`，主题输入可生成第一章和同构项目并跳转世界锚定页 | — |
 | ~~无干预基线未显式化~~ | **v0.7.4 已解决**：`build_baseline_spec` + `service/baseline.py` + `baseline_report.json`（自然发展点/角色状态/触及伏笔），不写 intervention.json/causal_diff.json | — |
 | ~~正史回放评估未做~~ | **v0.7.4 已解决**：`service/canon_replay.py` holdout 读写 + deterministic evaluator（lexical/entity/thread/length/state→overall）+ `canon_replay_report.json`，不打 LLM | — |
-| 百万字上传未做 | 当前 import-novel 面向 3-10 章；不支持分片上传、异步导入、断点恢复和导入报告 | v0.8.0 |
+| ~~百万字上传未做~~ | **v0.8.0-A + v0.8.x 已解决主要入口**：已有 `long_mode`、`import_report.json`、source_raw；前端支持 txt/md/zip/epub 文件选择与分片 payload，job 进度/失败空态已接。仍未做真正断点续传/恢复。 | v0.8.0 / v0.8.x |
 | 长篇分层记忆未做 | 当前 briefs/facts 可撑短中篇，但 100 万字以上需要 master_setting / volumes / chapters / scenes / character_states / timeline | v0.8.1 |
 | 正史账本未升级 | `facts.jsonl` 还不够表达事件、状态、关系、资源、时间线、伏笔和有效期 | v0.8.2 |
 | 长篇混合检索未做 | 当前 BM25 lite 缺 entity boost、prompt budget pack、可选 vector/rerank 和百万字级评估 | v0.8.3 |
@@ -395,7 +395,7 @@ lne list-genres
 ✅ v0.7.5   Worldline Judge：branch 级世界线评分、故事弧、转折点、anti-slop、emergence_score + 右侧评审标签页
 ✅ v0.8     Long Novel Memory：百万字上传、分层记忆、canon ledger、混合检索、一致性审计、holdout 隔离底座
 ✅ v0.8+    ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining：A-slices artifact 已收口
-→ v0.8.x   Entity aliases / runtime memory consumption / 前端 artifact 面板已收口；下一步长篇上传产品化
+→ v0.8.x   Entity aliases / runtime memory consumption / 前端 artifact 面板 / 长篇上传产品化已收口
 → v0.9+    Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库、多 provider、完整 MasterSetting 工作台（按触发条件）
 ```
 
@@ -520,7 +520,7 @@ lne list-genres
 
 ### v0.8+ 论文能力深化
 
-- [x] `Long Novel Ingestion Report`：已落地 `source_raw/`、`import_report.json`、Web/job `long_mode`、部分完成状态摘要。未做：真正前端分片上传、epub/zip、断点续传、独立 `ingest_job` 失败恢复。
+- [x] `Long Novel Ingestion Report / Upload Productization`：已落地 `source_raw/`、`import_report.json`、Web/job `long_mode`、部分完成状态摘要；前端导入页已支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态。未做：真正断点续传/恢复、独立持久化 `ingest_job`。
 - [x] `Hierarchical Memory Skeleton`：已落地 `memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character_states、timeline、plot_threads、propagation_debts。未做：scene briefs、LLM 摘要重写、runner 消费完整分层 memory。
 - [x] `Canon Ledger Skeleton`：已落地 `memory/canon_ledger.jsonl`，覆盖 event/state/relationship/thread，带 `source_ref`、`confidence`、`valid_from` 等字段。未做：resource/timeline 细粒度语义抽取、`valid_until` 自动更新。
 - [x] `Hybrid Retrieval-A`：已把 canon ledger 作为 `canon_ledger` source 接入 BM25 + chapter distance decay + source weight；v0.8.x 已补 `entity_aliases.yaml` query/doc alias expansion。未做：vector/reranker、prompt budget pack。
@@ -1061,7 +1061,7 @@ lne list-genres
   - `service.import_novel_from_payload()` 新增 additive `long_mode`：默认仍保持 3-10 章小闭环；`long_mode=True` 时允许最多 200 章，生成导入报告摘要并合并风险 warnings。
   - `/api/import-novel` 与 `/api/jobs/import-novel` 接收 `long_mode` 并返回 `import_report` 摘要；前端类型 `ImportNovelRequest/Response` additive 增字段，现有 UI 不受影响。
 - **测试**：新增 `tests/test_v080_long_ingestion.py`（4 passed：25 章 long mode、旧 10 章限制、乱码/重复/缺章风险、job 返回报告摘要）；导入/job 相关回归 `tests/test_v080_long_ingestion.py tests/test_web_import_api.py tests/test_import_mock.py tests/test_jobs_api.py -q` 为 **39 passed**。
-- **明确未做**：真正前端分片上传、断点续传、epub/zip、后台部分索引、角色抽取置信度、时间线风险、entity index / vector index。
+- **明确未做**：当时未做前端分片上传、断点续传、epub/zip、后台部分索引、角色抽取置信度、时间线风险、entity index / vector index；其中前端分片上传与 epub/zip 已于 2026-05-31 补齐。
 - **下一刀建议**：v0.8.1 Hierarchical Memory 第一刀，先写 `memory/` 目录骨架、`master_setting.yaml`、chapter/volume briefs 镜像和 `memory_manifest.json`，继续不改 runner。
 
 ### 2026-05-30 — v0.8.1-A Hierarchical Memory Skeleton
@@ -1181,7 +1181,7 @@ lne list-genres
   - 分支目录 additive 写 `runtime_memory_context.json`，保留 `query/current_chapter/prompt_block/consumed_layers/entity_aliases/resolved_query_entities/warnings/retrieval`；`entity_aliases.yaml` 缺失或损坏降级为 warning，不阻断生成。
 - `browser.indexer.get_branch()` additive 返回 `runtime_memory_context`；当时 React 右侧解释面板新增「运行记忆」标签页，2026-05-31 已收束进「机制档案」统一只读面板。
 - **测试**：新增 `tests/test_v08x_runtime_memory_context.py`（3 passed：上下文构建、损坏降级、干预产物/API 读取）；相关回归 64 passed；完整后端 `python -m pytest -q` 为 **568 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
-- **明确未做**：`act_director_plan.json` / `dynamic_action_registry.yaml` / `emergence_nodes.json` 驱动 runner 实际状态变化、运行后审计写回、完整 artifact 总览面板、长篇分片上传/epub/zip。
+- **明确未做**：`act_director_plan.json` / `dynamic_action_registry.yaml` / `emergence_nodes.json` 驱动 runner 实际状态变化、运行后审计写回；完整 artifact 总览面板与长篇分片上传/epub/zip 已于 2026-05-31 补齐。
 - **下一刀建议**：前端 artifact 面板收束，把运行记忆、动作计划、动作注册表、叙事诊断、涌现节点做成统一只读解释面板；随后推进长篇上传产品化。
 
 ### 2026-05-31 — v0.8.x Frontend Artifact Panel 收束
@@ -1190,5 +1190,14 @@ lne list-genres
   - `browser.indexer.get_branch()` additive 返回 `act_director_plan`、`dynamic_action_registry`、`narrative_diagnostics`、`emergence_nodes`，与既有 `runtime_memory_context` 一起成为分支详情的统一解释层数据源；缺失/损坏 artifact 保持空态或 `{}`/`None` 降级，不抛 500。
   - React 右侧面板新增「机制档案」tab，收束运行记忆、动作计划、动作注册表、叙事诊断、涌现节点五类 v0.8 artifacts；原「运行记忆」独立 tab 合并进统一只读解释层。
 - **测试**：新增 `tests/test_v08x_artifact_panel.py`（2 passed：artifact bundle 暴露、损坏降级）；完整后端 `python -m pytest -q` 为 **570 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
-- **明确未做**：runner 消费动作计划/动作注册表/涌现节点并改变状态；前端分片上传、断点续传、epub/zip；运行后一致性审计写回。
+- **明确未做**：runner 消费动作计划/动作注册表/涌现节点并改变状态；真正断点续传/恢复；运行后一致性审计写回。
 - **下一刀建议**：进入长篇上传产品化，先做前端分片/epub/zip 导入体验与 job 进度/失败空态，不急着接向量库。
+
+### 2026-05-31 — v0.8.x Long Upload Productization
+
+- **做了什么**：
+  - `import_novel_from_payload()` 新增 additive `upload` 入参，支持 base64 分片还原并解析 txt/md、zip 内 txt/md、epub 内 html/xhtml 章节；损坏上传返回明确导入错误，异步 job 进入 failed/error，不抛 500。
+  - React 导入页新增 txt/md/zip/epub 文件选择、浏览器端分片、上传文件摘要、job 进度条和失败空态/重试；未选文件时保留原 3-10 章粘贴模式。
+- **测试**：新增 `tests/test_v08x_long_upload_product.py`（3 passed：txt 分片导入、zip 章节导入、epub job 成功 + 损坏 zip failed）；导入相关回归 `28 passed`；完整后端 `python -m pytest -q` 为 **573 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **明确未做**：真正多请求断点续传/恢复、持久化 ingest job、epub 目录 spine 精排、角色抽取置信度、时间线风险增强、向量库。
+- **下一刀建议**：做断点续传/恢复和更细导入报告，或转向 runner 消费动作计划/动作注册表/涌现节点的状态执行层评估。

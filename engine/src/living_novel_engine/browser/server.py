@@ -456,6 +456,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
             result = import_novel_from_payload(
                 name=name_raw,
                 chapters=body.get("chapters") or [],
+                upload=body.get("upload"),
                 genre=str(body.get("genre") or "xianxia"),
                 mock=mock,
                 force=bool(body.get("force", False)),
@@ -1005,6 +1006,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
         mock = bool(body["mock"]) if "mock" in body else default_mock()
         name_raw = str(body.get("name") or "")
         chapters = body.get("chapters") or []
+        upload = body.get("upload")
         genre = str(body.get("genre") or "xianxia")
         force = bool(body.get("force", False))
         long_mode = bool(body.get("long_mode", False))
@@ -1014,6 +1016,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
             result = import_novel_from_payload(
                 name=name_raw,
                 chapters=chapters,
+                upload=upload,
                 genre=genre,
                 mock=mock,
                 force=force,

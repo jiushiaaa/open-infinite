@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-31（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel 均已收口；下一步进入 v0.8 收束整理 / 长篇上传产品化）
+> 版本：2026-05-31（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 均已收口；下一步进入 v0.8 收束整理 / 断点续传与恢复 / runner 状态执行层评估）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/v0.1-to-v0.8-version-audit.md`。
@@ -84,7 +84,7 @@ Phase 5  社区与分享          远期
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀，以及右侧「机制档案」统一 artifact 解释层。当前后端基线为 **570 passed**，前端 build 通过。下一步不建议继续扩张大依赖，优先做长篇上传产品化。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层，以及 txt/md/zip/epub 长篇上传产品化。当前后端基线为 **573 passed**，前端 build 通过。下一步不建议继续扩张大依赖，优先做断点续传/恢复、导入报告细化，或评估 runner 状态执行层。
 
 ## 3. 已完成能力
 
@@ -132,7 +132,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **570 passed**（截至 2026-05-31，v0.8.x Frontend Artifact Panel 后复验）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **573 passed**（截至 2026-05-31，v0.8.x Long Upload Productization 后复验）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1528,6 +1528,8 @@ branch_c：建议保留观察。代价最大，第四面墙潜力最高，但短
 
 > **v0.8.0-A 已落地（2026-05-30）**：先完成长篇导入底座，不接向量库、不改 runner。`write_project()` 统一写入 `source_raw/` 与 `import_report.json`；Web/job 导入新增 additive `long_mode`，默认仍保持 3-10 章小闭环，`long_mode: true` 时允许最多 200 章；报告记录总章节、总字数、前 20 章可体验范围、`partial_ready`、疑似乱码章节、重复章名、缺章编号与每章 source/raw 路径。`/api/import-novel` 和 `/api/jobs/import-novel` 返回 `import_report` 摘要。已验证：`tests/test_v080_long_ingestion.py` + 导入/job 回归共 39 passed。
 
+> **v0.8.x Long Upload Productization 已落地（2026-05-31）**：在不改变既有 chapters JSON 契约的前提下，`import_novel_from_payload()` 新增 additive `upload` 分片 payload，支持 txt/md 合并文本、zip 内 txt/md 章节、epub 内 html/xhtml 章节。前端导入页新增 txt/md/zip/epub 文件选择、浏览器端分片、文件摘要、job 进度条和失败空态；未选文件时保留 3-10 章粘贴模式。已验证：新增 `tests/test_v08x_long_upload_product.py` 3 passed；完整后端 573 passed，前端 build 通过。未做：真正多请求断点续传/恢复、持久化 ingest job、epub spine 精排。
+
 #### v0.8.1：Hierarchical Memory / 分层记忆
 
 建议目录：
@@ -1627,7 +1629,7 @@ Prompt 预算建议：
 - Canon Replay 命中率长期不足。
 - 角色/地名别名复杂，纯关键词无法稳定对齐。
 
-> **v0.8.3-A 已落地（2026-05-30）**：先把 `memory/canon_ledger.jsonl` 接入现有零依赖 BM25 检索，不引入向量库。`ContextCorpus` 新增 `canon_ledger`，`retrieve_context()` 将账本记录作为 `canon_ledger` source 纳入语料，source weight 1.1，artifact item 保留 `entities/ledger_type/confidence`；prompt 仍并入“正史事实”块。v0.8.x 又补上 `memory/entity_aliases.yaml` 与 query/doc alias expansion，canon ledger 命中项 additive 返回 `resolved_entities`；Runtime Memory Consumption-A 将这些安全子集打包为 `runtime_memory_context.json` 并注入既有 `retrieved_context`；Frontend Artifact Panel 已将相关解释层收束到右侧「机制档案」。已验证：完整后端 570 passed，前端 build 通过。
+> **v0.8.3-A 已落地（2026-05-30）**：先把 `memory/canon_ledger.jsonl` 接入现有零依赖 BM25 检索，不引入向量库。`ContextCorpus` 新增 `canon_ledger`，`retrieve_context()` 将账本记录作为 `canon_ledger` source 纳入语料，source weight 1.1，artifact item 保留 `entities/ledger_type/confidence`；prompt 仍并入“正史事实”块。v0.8.x 又补上 `memory/entity_aliases.yaml` 与 query/doc alias expansion，canon ledger 命中项 additive 返回 `resolved_entities`；Runtime Memory Consumption-A 将这些安全子集打包为 `runtime_memory_context.json` 并注入既有 `retrieved_context`；Frontend Artifact Panel 已将相关解释层收束到右侧「机制档案」；Long Upload Productization 已补 txt/md/zip/epub 文件导入与分片体验。已验证：完整后端 573 passed，前端 build 通过。
 
 #### v0.8.x：Entity Aliases / Entity Resolution
 
@@ -1794,7 +1796,8 @@ v0.1.2 resume continue
   -> v0.8 Long Novel Memory（长篇记忆 artifact 底座，已收口）
   -> v0.8+ ActDirector / Narrator Diagnostics / Dynamic Action / Emergence Mining（已收口底座）
   -> v0.8.x entity aliases / runtime memory consumption / 前端 artifact 面板（已收口）
-  -> 长篇上传产品化（下一步）
+  -> 长篇上传产品化（已收口）
+  -> 断点续传与恢复 / runner 状态执行层评估（下一步）
 ```
 
 理由：
@@ -1835,7 +1838,7 @@ v0.1.2 resume continue
 | P7.5 | v0.7.5 Worldline Judge | branch 级 `worldline_judgement.json`、世界线评分、anti-slop、emergence_score、故事弧/转折点/张力、工作台右侧评审标签页 | 已收口 |
 | P8 | v0.8 Long Novel Memory | 长篇导入报告、分层记忆、正史账本、账本检索、一致性审计、隐藏评估集隔离 | 已收口底座 |
 | P8.1 | v0.8+ Action/Discourse/Emergence | ActDirector、叙事诊断、动态动作注册表、涌现节点汇总 | 已收口底座 |
-| P8.2 | v0.8.x 收束 | entity aliases、runner consumption、前端 artifact 面板、长篇上传产品化 | entity aliases、runtime memory consumption、前端 artifact 面板已收口；长篇上传产品化下一步 |
+| P8.2 | v0.8.x 收束 | entity aliases、runner consumption、前端 artifact 面板、长篇上传产品化 | entity aliases、runtime memory consumption、前端 artifact 面板、长篇上传产品化已收口；断点续传/恢复或 runner 状态执行层下一步 |
 | P9 | v0.9+ Commercial hardening | Zep/图数据库、OASIS/CAMEL、LangGraph 局部 runner、多 provider gateway、完整工作台 | 待定 |
 
 ## 8. 近期详细任务清单
@@ -2096,7 +2099,8 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.8 Long Novel Memory（百万字上传 + 分层记忆 + 正史账本 + 一致性审计，已收口底座）
   -> v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining（已收口 A-slices）
   -> v0.8.x entity aliases / runtime memory consumption / 前端 artifact 面板（已收口）
-  -> 长篇上传产品化（下一步）
+  -> 长篇上传产品化（已收口）
+  -> 断点续传与恢复 / runner 状态执行层评估（下一步）
   -> v0.9+ Zep / OASIS / CAMEL / 向量库 / 多 provider / 完整工作台（按规模触发评估）
 ```
 

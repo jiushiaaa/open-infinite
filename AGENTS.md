@@ -64,9 +64,10 @@
 - v0.8+ Emergence Mining-A 已收口。
 - v0.8.x Runtime Memory Consumption-A 已收口。
 - v0.8.x Frontend Artifact Panel 已收口。
-- 当前后端验证基线：`570 passed`。
+- v0.8.x Long Upload Productization 已收口。
+- 当前后端验证基线：`573 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一版：长篇上传产品化。
+- 官方下一版：v0.8 收束整理 / 断点续传与恢复 / runner 状态执行层评估。
 
 最近一次 Codex 迭代：
 
@@ -78,7 +79,8 @@
 - 干预 run 会写 `dynamic_action_registry.yaml` 与 `emergence_nodes.json`，但暂不执行状态变化、不做推荐系统。
 - 干预、baseline 与 CLI resume 会通过既有 `retrieved_context` 参数只读消费 memory/alias/ledger 安全子集，并写分支 `runtime_memory_context.json`。
 - 前端右侧「机制档案」已统一只读展示运行记忆、动作计划、动作注册表、叙事诊断、涌现节点。
-- 仍未做前端分片上传、epub/zip、向量库、runner 消费 action/emergence 层并执行状态变化、批量长篇 replay UI。
+- 前端导入页已支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条与失败空态；后端 upload payload 会解析分片并复用既有导入流水线。
+- 仍未做真正断点续传/恢复、向量库、runner 消费 action/emergence 层并执行状态变化、批量长篇 replay UI。
 
 ## 资料索引
 
