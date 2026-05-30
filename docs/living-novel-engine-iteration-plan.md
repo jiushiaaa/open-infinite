@@ -168,7 +168,7 @@ lne list-genres
 - 第四面墙数值、干预记忆、override ledger 已在 v0.5 驱动角色决策与章节渲染；browse 展示 fourth_wall 段留后续。
 - 多场景长程仿真 / MiroFish OASIS 尚未接入（v0.6）。
 - 旧 `lne browse` 仍是研发/演示 viewer；普通用户产品前端已由 v0.7 `engine/ui` 承接。
-- embedding / 向量库 / reranker / 多 provider gateway 尚未做，留到规模化后。
+- embedding / 向量库 / reranker 尚未做，留到 v0.9.3 Graph Memory Evaluation Spike；多 provider gateway 留到 v0.9.1 Provider & Cost Gateway Lite。
 
 ## 4. 三个参考项目的定位
 
@@ -237,13 +237,13 @@ LangGraph 取舍（2026-05-29）：
 - MiroFish 本地源码主线不是 LangGraph；多 Agent 沙盘靠 OASIS / CAMEL，报告生成处有 LangChain + Zep 的 ReACT 注释，但不是 LangGraph。
 - webnovel-writer 更像 Claude Code 式写作流水线；WenShape 更像长篇上下文工程 / 作者工作台；两者都不是 LangGraph 主线。
 - LNE 前期继续使用自研精简智能体协议（`SceneRunner` + `MultiAgentTrace` + `project_trace`），保持叙事契约、输出文件和 resume lineage 可控。
-- 中后期如果出现复杂状态流转（角色并行思考、裁判节点、规则审计节点、反思/重试节点、多轮共识），可在 v0.8+ 局部引入 LangGraph 作为某个 runner 的内部实现，而不是替换主线协议。
+- 中后期如果出现复杂状态流转（角色并行思考、裁判节点、规则审计节点、反思/重试节点、多轮共识），可在 v0.9.4 Advanced Runner Evaluation Spike 局部评估 LangGraph 作为某个 opt-in runner 的内部实现，而不是替换主线协议。
 
 因此后续策略是：
 
 - v0.6.4 已完成自研 `multi_agent_llm` runner：通过 OpenAI-compatible API 调用小模型，不本地部署；输出 `MultiAgentTrace` JSON；复用现有 `project_trace` 与共享装配层。
 - v0.6.5 已完成推演工程可靠性：generation_meta、trace 质量校验器、有限重试、token usage；并发与精确成本计算留待 v0.8+。
-- v0.8+ 若长篇记忆崩，再评估 Zep / 图数据库；若群体仿真需求很强，再评估 OASIS / CAMEL 作为可选 runner。
+- v0.9.3 若长篇记忆 / BM25 / canon ledger 召回崩，再评估 Zep / 图数据库 / GraphRAG；v0.9.4 若群体仿真需求很强，再评估 OASIS / CAMEL 作为可选 runner。
 
 ### 4.4 autonovel / AI_NovelGenerator：静态写稿流水线，仅保留边角料价值
 
@@ -1509,7 +1509,7 @@ branch_c：建议保留观察。代价最大，第四面墙潜力最高，但短
 | webnovel-writer | `MASTER_SETTING` / Volume / Chapter Contract、accepted `CHAPTER_COMMIT`、projection writers、RAG auto/hybrid | v0.8.1-v0.8.4 |
 | AI_NovelGenerator | `global_summary`、`character_state`、`plot_arcs`、一致性审校、向量检索 | v0.8.2-v0.8.4 |
 | autonovel | Lore / Characters / Outline / Chapters / Canon 分层、propagation debts、Judge loop | v0.8.1 / v0.8.4 |
-| MiroFish | GraphRAG、时序记忆、Agent 长期记忆 | v0.9+ 可选，不作为 v0.8 必选依赖 |
+| MiroFish | GraphRAG、时序记忆、Agent 长期记忆 | v0.9.3 / v0.9.4 触发式评估，不作为 v0.8 或 v0.9.0-alpha 必选依赖 |
 
 #### v0.8.0：Long Novel Ingestion / 大文件导入
 
@@ -1882,7 +1882,11 @@ v0.1.2 resume continue
 | P8.10-A | v0.8.10-A Runner State Execution Spike | opt-in 评估动作计划/动作注册表/涌现节点是否可安全转成状态变化；不改默认行为 | 待做 |
 | P8.10-B | v0.8.10-B Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
 | P9.0-alpha | v0.9.0-alpha Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 | 待 v0.8 收束后开启 |
-| P9+ | v0.9+ Commercial hardening | Zep/图数据库、OASIS/CAMEL、LangGraph 局部 runner、多 provider gateway、完整工作台 | 待定 |
+| P9.1 | v0.9.1 Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
+| P9.2 | v0.9.2 MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
+| P9.3 | v0.9.3 Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
+| P9.4 | v0.9.4 Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
+| P10 | v1.0-beta Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 待真实外部用户/团队长期使用 |
 
 ## 8. 近期详细任务清单
 
@@ -1990,7 +1994,7 @@ v0.1.2 resume continue
 | ~~v0.6.3 trace 可视化~~ | **已完成**（v0.6.3）：browse「Agent 轨迹」标签页 + 树角标，缺失空态/损坏不抛 |
 | ~~v0.6.4 multi_agent_llm~~ | **已完成**（v0.6.4）：OpenAI-compatible API 小模型推演 `MultiAgentTrace`，非默认，隐私加固 + 健壮回退 |
 | ~~v0.6.5 推演工程化~~ | **已完成**（v0.6.5）：generation_meta + trace 质量校验器 + 有限重试 + token usage |
-| Zep / OASIS / CAMEL | 长篇记忆或群体仿真强到自研轻量 runner 不够时，作为 v0.8+ 可选评估项 |
+| Zep / OASIS / CAMEL | 长篇记忆或群体仿真强到自研轻量 runner 不够时，分别作为 v0.9.3 / v0.9.4 spike 评估项 |
 | ~~v0.7 Product Web App~~ | **已完成**：React/Vite 前端、三入口、锚定编辑、Web 干预、Causal Diff、设置、异步 Job 主闭环 |
 | v0.7.2 Agent Interaction | v0.7 产品前端跑通后，需要角色动作、情绪探针、干预护栏和轻量角色配置时 |
 | v0.7.3 Visual Asset Generation | 产品 UI 需要角色头像、故事封面、场景背景和世界线节点图，且不阻塞文字主链路时 |
@@ -2002,8 +2006,8 @@ v0.1.2 resume continue
 | v0.8 Dynamic Action Registry | 用户频繁提出未预设动作，需要动态动作落地为状态变化时 |
 | v0.8 Emergence Mining | 积累大量用户干预后，需要挖掘高价值涌现节点和世界线模板时 |
 | 向量数据库 / embedding / reranker | BM25 lite 在 50+ 章导入项目上召回不够时 |
-| 完整 MasterSetting 工作台 | 服务作者/编辑而不只是读者干预，且目标章节规模到 100+ 章时 |
-| 多 provider gateway | 出现成本、稳定性、模型路由、客户私有化部署要求时 |
+| MasterSetting Workspace Lite | 服务作者/编辑而不只是读者干预，且长篇项目页稳定后；先做轻量版，不做完整作者工作台 |
+| Provider & Cost Gateway Lite | 出现成本、稳定性、模型路由、客户私有化部署要求时；排在 v0.9.1 |
 
 **预研（并行、不阻塞 MVP）**
 
@@ -2149,7 +2153,11 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.8.9 Long Replay & Audit UI（长篇回放与审计 UI）
   -> v0.8.10-A/B Runner State Execution（状态执行层评估与 MVP）
   -> v0.9.0-alpha Long Novel Creation Loop（长篇共创产品闭环）
-  -> v0.9+ Zep / OASIS / CAMEL / 向量库 / 多 provider / 完整工作台（按规模触发评估）
+  -> v0.9.1 Provider & Cost Gateway Lite（按成本/稳定性触发）
+  -> v0.9.2 MasterSetting Workspace Lite（长篇项目页稳定后）
+  -> v0.9.3 Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
+  -> v0.9.4 Advanced Runner Evaluation Spike（状态执行层不足时评估 LangGraph/OASIS/CAMEL）
+  -> v1.0-beta Commercial Hardening（真实外部用户/团队长期使用时）
 ```
 
 WenShape 解决“长篇上下文怎么不崩”，webnovel-writer 解决“故事合约和网文味”，MiroFish 解决“角色群体怎么自己动起来”，eastworld 解决“互动媒体 Agent 如何做动作、情绪查询和玩家护栏”的参考问题；四篇论文分别补上“用户涌现、意图调度、叙事质量、动作落地”的理论底座。Living Novel Engine 自己要牢牢抓住的，是它们都没有真正覆盖的核心：

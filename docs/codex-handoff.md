@@ -57,7 +57,7 @@
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 `v0.8.6 Long Import Review`：先做长篇导入报告细化、章节预览、导入质量空态和失败空态收束。后续排期为 `v0.8.7 Resumable Ingest Jobs`、`v0.8.8 Long Project Workspace`、`v0.8.9 Long Replay & Audit UI`、`v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 `v0.8.6 Long Import Review`：先做长篇导入报告细化、章节预览、导入质量空态和失败空态收束。后续排期为 `v0.8.7 Resumable Ingest Jobs`、`v0.8.8 Long Project Workspace`、`v0.8.9 Long Replay & Audit UI`、`v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -82,7 +82,7 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | 前端基线 | `pnpm run build` 通过 |
 | 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization |
 | 官方下一版 | `v0.8.6 Long Import Review` |
-| 后续主线 | `v0.8.6` 导入报告/章节预览 -> `v0.8.7` 断点续传/恢复 -> `v0.8.8` 长篇项目页 -> `v0.8.9` replay/audit UI -> `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 |
+| 后续主线 | `v0.8.6` 导入报告/章节预览 -> `v0.8.7` 断点续传/恢复 -> `v0.8.8` 长篇项目页 -> `v0.8.9` replay/audit UI -> `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
 ## 资料位置
 
@@ -227,7 +227,7 @@ React/Vite 产品级前端主闭环已完成：
 - 前端导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、文件摘要、job 进度条、失败空态和重试；未选文件时保留原粘贴 3-10 章模式。
 - 未做：真正多请求断点续传/恢复、持久化 ingest job、epub spine 精排、角色抽取置信度和时间线风险增强。
 
-## v0.8.6-v0.9.0-alpha 后续版本编排
+## v0.8.6-v1.0-beta 后续版本编排
 
 | 版本 | 名称 | 范围 | 状态 |
 | --- | --- | --- | --- |
@@ -238,6 +238,11 @@ React/Vite 产品级前端主闭环已完成：
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 待做 |
 | v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 待 v0.8 收束后开启 |
+| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 成本/稳定性触发 |
+| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后 |
+| v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | BM25/ledger 召回不足时触发 |
+| v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | v0.8.10 状态执行层不足时触发 |
+| v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 真实外部用户/团队长期使用时 |
 
 ## 每次任务完成后的收口清单
 

@@ -725,7 +725,7 @@ MVP 支持：
 
 - v0.3.0：BM25 lite、章节距离衰减、facts / summaries / story_contract 注入角色决策和章节生成 prompt
 - v0.3.1：ChapterBrief / VolumeBrief 轻量版，支撑 20+ 章项目的分层上下文
-- 暂不做向量数据库、embedding、完整 MasterSetting 工作台和 MiroFish 多 Agent runtime
+- 暂不做向量数据库、embedding、完整 MasterSetting 作者工作台和 MiroFish 多 Agent runtime；后续只在 v0.9.2 先做 MasterSetting Workspace Lite
 
 ### v0.4 世界线浏览器
 
@@ -755,8 +755,8 @@ MVP 支持：
 - v0.7.5（已收口）：Worldline Judge，branch 级 `worldline_judgement.json` + deterministic 评审 API/UI，评估角色一致性、合约风险、分支差异、故事弧、转折点、张力、anti-slop 与 emergence_score
 - 多角色计划、误解、延迟行动、关系传播
 - 小模型推演 + 大模型写正文的分层策略
-- Zep Cloud / OASIS / CAMEL 暂不作为主线依赖；仅作为 v0.8+ 可选评估项（长篇记忆崩或群体仿真需求明显增强时再接）
-- LangGraph 暂不作为主线架构；前期使用自研精简智能体协议，中后期仅在复杂状态流转需要时作为某个 runner 的局部实现评估
+- Zep Cloud / 图数据库 / GraphRAG 暂不作为主线依赖；仅作为 v0.9.3 Graph Memory Evaluation Spike（长篇记忆、BM25 或 canon ledger 召回明显不足时再评估）
+- OASIS / CAMEL / LangGraph 暂不作为主线架构；仅作为 v0.9.4 Advanced Runner Evaluation Spike（v0.8.10 状态执行层不足以表达复杂群体仿真或多轮状态流转时再评估）
 
 ### v0.7 产品级前端
 
@@ -947,15 +947,25 @@ holdout_private/
 - 至少能发现一类人设、时间线、资源或伏笔矛盾。
 - 隐藏评估集不会泄漏给运行时。
 
-### v0.9+ 商业化增强
+### v0.9.x / v1.0+ 产品化与商业化排期
 
-v0.9+ 是商业化增强与规模化阶段，不是当前下一刀。v0.9.0-alpha 先验证长篇共创闭环；更重的外部系统按规模触发。
+v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长篇共创闭环，优先把现有文件型引擎做成稳定产品；Zep、图数据库、OASIS/CAMEL、LangGraph 等外部重依赖只在明确触发条件满足后进入 spike，不作为 v0.9.0 默认主线。
 
-- Zep / 图数据库（长篇事实与角色长期记忆需要图谱化时）
-- OASIS / CAMEL 可选 runner（群体仿真需求强于自研轻量 runner 时）
-- LangGraph 局部状态流转 runner（当角色并行思考、裁判、审计、反思/重试、多轮共识显著复杂化时）
-- 多 provider gateway
-- 完整 MasterSetting / 作者工作台能力
+| 版本 | 名称 | 范围 | 触发条件 |
+| --- | --- | --- | --- |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | v0.8.6-v0.8.10 收束后 |
+| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 真实用户开始频繁跑长任务，单 provider 成本或稳定性成为问题 |
+| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后，用户需要系统化维护设定，而不只是运行分支 |
+| v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 50+ 章或百万字项目中 BM25/ledger 召回明显不足，审计频繁漏实体/关系 |
+| v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner 是否值得接入 | v0.8.10 状态执行层不足以表达角色并行思考、裁判、审计、反思/重试、多轮共识或群体仿真 |
+| v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 需要给真实外部用户或团队长期使用 |
+
+明确不作为当前排期默认项：
+
+- 不在 v0.9.0-alpha 直接接 Zep / 图数据库。
+- 不在 v0.9.0-alpha 直接接 OASIS / CAMEL。
+- 不把 LangGraph 替换为主架构；最多作为某个 opt-in runner 的内部实现。
+- 不先做完整作者工作台；先做 `MasterSetting Workspace Lite`，只覆盖长篇闭环必须字段。
 
 ## 17. 开放问题
 

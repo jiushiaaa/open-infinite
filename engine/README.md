@@ -55,6 +55,11 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.9 | Long Replay & Audit UI：长篇回放与一致性审计 UI | 待做 |
 | v0.8.10-A/B | Runner State Execution：opt-in 状态执行层评估与最小 MVP | 待做 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 待 v0.8 收束后开启 |
+| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
+| v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
+| v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 待 50+ 章或百万字召回不足时触发 |
+| v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
+| v1.0-beta | Commercial Hardening：账号、权限、云端持久化、配额、审计日志、版权提示、部署观测 | 待真实外部用户/团队长期使用 |
 
 **测试基线**：`pytest -q` → **573 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
@@ -482,4 +487,5 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/v0.7-product-web-app-ui-spec.md`） |
 | v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估 |
 | v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 |
-| v0.9+ | Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库 / 多 provider / 完整工作台（按规模触发评估） |
+| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（按触发条件） |
+| v1.0-beta | 商业化加固：账号、权限、云端持久化、配额、审计、版权、部署观测 |

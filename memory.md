@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 已完成；v0.8.6-v0.8.10 与 v0.9.0-alpha 路线已重排；后端 573 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 已完成；v0.8.6-v0.8.10、v0.9.0-alpha、v0.9.1-v0.9.4 与 v1.0-beta 路线已重排；后端 573 passed，前端 build 通过）
 
 ---
 
@@ -31,7 +31,7 @@
 |------|------|----------|
 | **WenShape** | 长篇上下文工程 / 作者工作台 | 已吸收 facts、summaries、BM25、项目结构概念；不复制作者工作台定位 |
 | **webnovel-writer** | Claude Code 网文流水线 / 故事合约 | 已吸收 genre templates、story_contract、chapter commit 概念；不依赖插件运行时 |
-| **MiroFish** | 多 Agent 社会仿真 / OASIS-CAMEL-Zep | 只作为 v0.8+ 可选评估；当前自研 `SceneRunner` + `MultiAgentTrace` |
+| **MiroFish** | 多 Agent 社会仿真 / OASIS-CAMEL-Zep | 只作为 v0.9.3 / v0.9.4 触发式评估；当前自研 `SceneRunner` + `MultiAgentTrace` |
 | **eastworld** | 互动媒体 Agent 协议 / Agent Studio | v0.7.2 参考 Actions、Emotion Query、Guardrails、轻量角色配置；不接 server/Redis/client |
 | **autonovel** | 静态写稿流水线 | 只借鉴 Reader/Critic Panel、anti-slop、质量循环；不复刻一键写书 |
 | **AI_NovelGenerator** | GUI 小说生成器 | 只借鉴上下文压缩、一致性检查；不复制 AGPL 源码，不回退为普通续写器 |
@@ -103,7 +103,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 |----|-----|
 | **测试基线** | 后端 `573 passed`（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Artifact Panel + Long Upload Productization 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
 | **官方下一版** | **v0.8.6 Long Import Review**（导入报告细化、章节预览、质量空态） |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization 已收口 → v0.8.6 Long Import Review → v0.8.7 Resumable Ingest Jobs → v0.8.8 Long Project Workspace → v0.8.9 Long Replay & Audit UI → v0.8.10 Runner State Execution A/B → v0.9.0-alpha Long Novel Creation Loop |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization 已收口 → v0.8.6 Long Import Review → v0.8.7 Resumable Ingest Jobs → v0.8.8 Long Project Workspace → v0.8.9 Long Replay & Audit UI → v0.8.10 Runner State Execution A/B → v0.9.0-alpha Long Novel Creation Loop → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
 | **刚收口** | v0.8.x Long Upload Productization：前端导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态；后端 `upload` payload 会按分片还原并解析 txt/md/zip/epub，复用既有 `import_novel_from_payload()` 流水线。全程不改 `run_scene` 默认行为、不破坏既有运行产物契约。 |
 
 ---
@@ -121,6 +121,11 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 待做 |
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 待 v0.8 收束后开启 |
+| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
+| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
+| v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
+| v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
+| v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 待真实外部用户/团队长期使用 |
 
 ## 4. 已完成版本（按时间线）
 
@@ -416,7 +421,11 @@ lne list-genres
 → v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI
 → v0.8.10  Runner State Execution：状态执行层评估与 MVP
 → v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环
-→ v0.9+    Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库、多 provider、完整 MasterSetting 工作台（按触发条件）
+→ v0.9.1   Provider & Cost Gateway Lite（成本/稳定性触发）
+→ v0.9.2   MasterSetting Workspace Lite（长篇项目页稳定后）
+→ v0.9.3   Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
+→ v0.9.4   Advanced Runner Evaluation Spike（状态执行层不足时评估 LangGraph/OASIS/CAMEL）
+→ v1.0-beta Commercial Hardening（真实外部用户/团队长期使用时）
 ```
 
 ### v0.3.1 后续质量优化（非阻塞）
@@ -448,7 +457,7 @@ lne list-genres
 - [x] **v0.6.3** trace 接入 browse 可视化（「Agent 轨迹」标签页 + 树角标）
 - [x] **v0.6.4** 自研 `multi_agent_llm` runner：通过 OpenAI-compatible API 调小模型输出 `MultiAgentTrace` JSON，不本地部署，不引入 Zep/OASIS/CAMEL（共享装配层 + 隐私加固 + 健壮回退）
 - [x] **v0.6.5** 推演工程可靠性：generation_meta（source/usage/重试/校验）+ trace 质量校验器 + 有限重试（`LNE_MULTI_AGENT_MAX_RETRIES`）+ token usage；fallback 策略；并发/精确成本计算留待 v0.8+
-- [ ] **v0.8+ 可选评估** Zep / 图数据库（长篇记忆崩时）、OASIS / CAMEL（群体仿真需求强时）、LangGraph 局部 runner（复杂状态流转明显增强时）
+- [ ] **v0.9.3 / v0.9.4 触发式评估** Zep / 图数据库 / GraphRAG（长篇记忆或 BM25/ledger 召回崩时）、OASIS / CAMEL / LangGraph 局部 runner（群体仿真或复杂状态流转明显增强时）
 - [ ] 验收：同一场景 ≥5 角色参与推演；事件流仍被 contract/retrieval/browser 读取
 
 ### v0.7 产品级前端 ✅（九刀主闭环已完成）
@@ -770,7 +779,7 @@ lne list-genres
 - **Zep Cloud**：MiroFish 用它做图谱/记忆；LNE 当前已有 `world.yaml`、`characters.yaml`、`story_contract.yaml`、`facts.jsonl`、summaries、snapshots、retrieval、fourth_wall、multi_agent_trace 等叙事专用记忆层，短期不接 Zep。
 - **OASIS / CAMEL**：适合 Twitter/Reddit 式群体环境与 `LLMAction()` / `env.step()`；LNE 是小说场景推演，先吸收 action loop / trace log 思想，不把它们变成主线依赖。
 - **LangGraph 取舍**：MiroFish 主线不是 LangGraph；webnovel-writer 更像 Claude Code 写作流水线；WenShape 更像上下文工程 / 作者工作台。LNE 前期先用自研精简智能体协议（`SceneRunner` + `MultiAgentTrace` + `project_trace`），中后期如出现角色并行思考、裁判、审计、反思/重试、多轮共识等复杂状态流转，再局部引入 LangGraph 作为某个 runner 的内部实现。
-- **路线**：v0.6.4 自研 `multi_agent_llm`（API 小模型，不本地部署）→ v0.6.5 并发/重试/成本/质量评估 → v0.8+ 再按“长篇记忆崩 / 群体仿真需求强 / 状态流转复杂化”评估 Zep / OASIS / CAMEL / LangGraph。
+- **路线**：v0.6.4 自研 `multi_agent_llm`（API 小模型，不本地部署）→ v0.6.5 并发/重试/成本/质量评估 → v0.9.3 / v0.9.4 再按“长篇记忆崩 / 群体仿真需求强 / 状态流转复杂化”评估 Zep / OASIS / CAMEL / LangGraph。
 
 ### 2026-05-29 — v0.6.4 multi_agent_llm 小模型推演 runner
 
@@ -1231,3 +1240,13 @@ lne list-genres
 - **测试**：文档路线同步；执行 `git diff --check` 验证格式。
 - **文件**：`memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/v0.7-product-web-app-ui-spec.md`、`engine/README.md`。
 - **下一刀建议**：新窗口从 `v0.8.6 Long Import Review` 开始，先扫描导入页、import report service/API、项目详情读取链路和失败空态测试。
+
+### 2026-05-31 — v0.9+ 商业化增强排期拆分
+
+- **做了什么**：
+  - 将 PRD 里笼统的 `v0.9+ 商业化增强` 拆成产品闭环、轻量网关、轻量工作台、图记忆评估、复杂 runner 评估、商业化加固六层。
+  - 明确 `v0.9.0-alpha` 只做长篇共创闭环，不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph。
+  - 将多 provider gateway 排为 `v0.9.1 Provider & Cost Gateway Lite`，完整 MasterSetting 排为 `v0.9.2 MasterSetting Workspace Lite`，Zep/图数据库排为 `v0.9.3 Graph Memory Evaluation Spike`，LangGraph/OASIS/CAMEL 排为 `v0.9.4 Advanced Runner Evaluation Spike`，真正商业化加固排为 `v1.0-beta`。
+- **测试**：文档路线同步；执行 `git diff --check` 验证格式。
+- **文件**：`memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/living-novel-engine-prd.md`、`docs/living-novel-engine-iteration-plan.md`、`engine/README.md`。
+- **下一刀建议**：仍从 `v0.8.6 Long Import Review` 开始；不要因 v0.9+ 段落提前引入重依赖。
