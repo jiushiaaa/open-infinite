@@ -13,6 +13,7 @@ def build_consistency_report(
     import_report: dict | None,
     canon_ledger_count: int,
     open_threads: list[dict],
+    entity_alias_count: int | None = None,
 ) -> dict:
     import_report = import_report or {}
     risks = import_report.get("risks", {}) or {}
@@ -97,6 +98,7 @@ def build_consistency_report(
             "risk_level": _risk_level(
                 timeline_conflicts, resource_conflicts, contract_violations
             ),
+            "entity_alias_count": int(entity_alias_count or 0),
         },
         "persona_drift": persona_drift,
         "timeline_conflicts": timeline_conflicts,

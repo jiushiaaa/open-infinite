@@ -45,11 +45,12 @@
 - v0.8+ Discourse-aware Narrator-A：每分支写 `narrative_diagnostics.json`，但暂不反馈 narrator
 - v0.8+ Dynamic Action Registry-A：干预 run 写 `dynamic_action_registry.yaml`，但暂不执行状态变化
 - v0.8+ Emergence Mining-A：干预 run 写 `emergence_nodes.json`，HTTP `POST/GET /api/runs/<run_id>/emergence-nodes`
-- 后端 python -m pytest -q 为 561 passed
+- v0.8.x Entity Aliases：导入写 `memory/entity_aliases.yaml`，retrieval 做 alias expansion，锚定页只读展示别名摘要
+- 后端 python -m pytest -q 为 565 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 v0.8.x entity aliases / entity resolution。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 runner consumption / 前端 artifact 面板。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -70,11 +71,11 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `561 passed` |
+| 后端基线 | `565 passed` |
 | 前端基线 | `pnpm run build` 通过 |
 | 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A |
-| 官方下一版 | v0.8 收束整理 / entity aliases / runner consumption |
-| 后续主线 | entity aliases / runner consumption / 前端 artifact 面板 |
+| 官方下一版 | v0.8 收束整理 / runner consumption / 前端 artifact 面板 |
+| 后续主线 | runner consumption / 前端 artifact 面板 |
 
 ## 资料位置
 
@@ -181,11 +182,19 @@ React/Vite 产品级前端主闭环已完成：
 
 - 前端分片上传、断点续传、epub/zip
 - LLM 细粒度事件抽取、scene 级切分
-- 向量库、embedding、reranker、entity alias resolution
+- 向量库、embedding、reranker（entity alias resolution 第一刀已完成）
 - runner 消费 memory 层、action plan、dynamic action registry 或 emergence nodes
 - 运行后写回审计、长篇 holdout 批量评估 UI
 
-下一刀建议：先做 v0.1-v0.8 文档总览和未做项收束；继续开发则优先 entity aliases / runner consumption / 前端 artifact 面板。
+下一刀建议：优先 runner consumption 第一刀，只读消费 memory/alias/ledger 的安全子集；随后做前端 artifact 面板。
+
+## v0.8.x Entity Aliases 收口摘要
+
+- 导入时生成 `memory/entity_aliases.yaml`，并在 `memory_manifest.json` 登记 `entity_aliases` layer。
+- `entity_aliases.py` 提供 build/write/load 与轻量 resolution；缺失/损坏分别返回 `missing` / `damaged`，不抛 500。
+- `retrieval/context_loader.py` 读取 alias index；`retrieval/retriever.py` 对 query 与 corpus 文本做 alias expansion，canon ledger 命中项 additive 返回 `resolved_entities`。
+- `consistency_report.json` summary 写 `entity_alias_count`；世界锚定 API/UI 只读展示别名状态、数量和样例。
+- 未做：LLM/NER 抽取、人工别名编辑、跨 run 写回、runner 消费 alias map、向量检索、完整 artifact 面板。
 
 ## 每次任务完成后的收口清单
 

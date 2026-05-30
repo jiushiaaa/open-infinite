@@ -8,6 +8,8 @@ from pathlib import Path
 
 import yaml
 
+from living_novel_engine.entity_aliases import EntityAliasIndex, load_entity_aliases
+
 
 @dataclass
 class FactItem:
@@ -73,6 +75,7 @@ class ContextCorpus:
     summaries: list[SummaryItem] = field(default_factory=list)
     volumes: list[VolumeBriefItem] = field(default_factory=list)
     canon_ledger: list[CanonLedgerItem] = field(default_factory=list)
+    entity_aliases: EntityAliasIndex = field(default_factory=EntityAliasIndex)
     contract: ContractData | None = None
 
 
@@ -83,12 +86,14 @@ def load_context_corpus(project_dir: Path) -> ContextCorpus:
     summaries = _load_summaries(summaries_dir)
     volumes = _load_volumes(summaries_dir)
     canon_ledger = _load_canon_ledger(project_dir / "memory" / "canon_ledger.jsonl")
+    entity_aliases = load_entity_aliases(project_dir)
     contract = _load_contract(project_dir / "story_contract.yaml")
     return ContextCorpus(
         facts=facts,
         summaries=summaries,
         volumes=volumes,
         canon_ledger=canon_ledger,
+        entity_aliases=entity_aliases,
         contract=contract,
     )
 

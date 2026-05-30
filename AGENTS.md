@@ -62,9 +62,9 @@
 - v0.8+ Discourse-aware Narrator-A diagnostics artifact 已收口。
 - v0.8+ Dynamic Action Registry-A 已收口。
 - v0.8+ Emergence Mining-A 已收口。
-- 当前后端验证基线：`561 passed`。
+- 当前后端验证基线：`565 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一版：`v0.8.x entity_aliases.yaml / entity resolution`；随后收束 runner consumption / 前端 artifact 面板 / 长篇上传产品化。
+- 官方下一版：runner consumption / 前端 artifact 面板 / 长篇上传产品化。
 
 最近一次 Codex 迭代：
 
@@ -74,7 +74,7 @@
 - 干预 run 会写 `act_director_plan.json`，但该计划暂不驱动 runner。
 - 分支会写 `narrative_diagnostics.json`，但诊断暂不反馈到 narrator。
 - 干预 run 会写 `dynamic_action_registry.yaml` 与 `emergence_nodes.json`，但暂不执行状态变化、不做推荐系统。
-- 仍未做前端分片上传、epub/zip、向量库、entity aliases、runner 消费 memory/action/emergence 层、批量长篇 replay UI。
+- 仍未做前端分片上传、epub/zip、向量库、runner 消费 memory/action/emergence/entity alias 层、批量长篇 replay UI。
 
 ## 资料索引
 

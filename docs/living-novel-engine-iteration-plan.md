@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-30（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 均已收口；下一步进入 v0.8 收束整理 / entity aliases / runner consumption）
+> 版本：2026-05-30（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution 均已收口；下一步进入 v0.8 收束整理 / runner consumption / 前端 artifact 面板）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/v0.1-to-v0.8-version-audit.md`。
@@ -84,7 +84,7 @@ Phase 5  社区与分享          远期
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座与四个 v0.8+ 机制底座：`act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`。当前后端基线为 **561 passed**，前端 build 通过。下一步不建议继续扩张大依赖，优先做 entity aliases、runner consumption 第一刀和前端 artifact 面板。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座，以及 `memory/entity_aliases.yaml` / entity resolution 第一刀。当前后端基线为 **565 passed**，前端 build 通过。下一步不建议继续扩张大依赖，优先做 runner consumption 第一刀和前端 artifact 面板。
 
 ## 3. 已完成能力
 
@@ -132,7 +132,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **561 passed**（截至 2026-05-30，v0.8+ Emergence Mining-A 后复验）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **565 passed**（截至 2026-05-30，v0.8.x Entity Aliases 后复验）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1627,7 +1627,21 @@ Prompt 预算建议：
 - Canon Replay 命中率长期不足。
 - 角色/地名别名复杂，纯关键词无法稳定对齐。
 
-> **v0.8.3-A 已落地（2026-05-30）**：先把 `memory/canon_ledger.jsonl` 接入现有零依赖 BM25 检索，不引入向量库。`ContextCorpus` 新增 `canon_ledger`，`retrieve_context()` 将账本记录作为 `canon_ledger` source 纳入语料，source weight 1.1，artifact item 保留 `entities/ledger_type/confidence`；prompt 仍并入“正史事实”块。已验证：新增 loader/retriever 测试 2 passed，检索/导入/浏览相关回归 39 passed。
+> **v0.8.3-A 已落地（2026-05-30）**：先把 `memory/canon_ledger.jsonl` 接入现有零依赖 BM25 检索，不引入向量库。`ContextCorpus` 新增 `canon_ledger`，`retrieve_context()` 将账本记录作为 `canon_ledger` source 纳入语料，source weight 1.1，artifact item 保留 `entities/ledger_type/confidence`；prompt 仍并入“正史事实”块。v0.8.x 又补上 `memory/entity_aliases.yaml` 与 query/doc alias expansion，canon ledger 命中项 additive 返回 `resolved_entities`。已验证：新增 loader/retriever/entity alias 测试通过，完整后端 565 passed，前端 build 通过。
+
+#### v0.8.x：Entity Aliases / Entity Resolution
+
+目标：在不引入 NER、向量库或 runner 重构的前提下，先解决同一角色、地点、势力、物品多名称导致的检索与审计断裂。
+
+当前已完成第一刀：
+
+- 导入时写 `memory/entity_aliases.yaml`，并在 `memory_manifest.json` 登记 `entity_aliases` layer。
+- alias skeleton 从 `characters.yaml`、`world.yaml` 的地点/势力和 `memory/canon_ledger.jsonl` 的 entities deterministic 生成。
+- `load_entity_aliases()` 对缺失/损坏文件分别返回 `missing` / `damaged`，检索与 UI 均稳定降级。
+- `retrieve_context()` 读取 alias index，对 query 与 corpus 文本做轻量 alias expansion；`retrieval_context.json` item 可带 `resolved_entities`。
+- `consistency_report.json` summary additive 写入 `entity_alias_count`；世界锚定页只读展示别名表状态和样例。
+
+明确未做：LLM/NER 实体抽取、人工别名编辑、跨 run 写回别名、向量检索、runner 消费别名表。
 
 #### v0.8.4：Consistency Audit / 长篇一致性审计
 
@@ -1753,7 +1767,7 @@ v0.1.2 resume continue
   -> v0.7.5 Worldline Judge（世界线评分 + 故事弧 + emergence_score，已收口）
   -> v0.8 Long Novel Memory（长篇记忆 artifact 底座，已收口）
   -> v0.8+ ActDirector / Narrator Diagnostics / Dynamic Action / Emergence Mining（已收口底座）
-  -> v0.8.x entity aliases / runner consumption / 前端 artifact 面板（下一步）
+  -> v0.8.x entity aliases（已收口）/ runner consumption / 前端 artifact 面板（下一步）
 ```
 
 理由：
@@ -1794,7 +1808,7 @@ v0.1.2 resume continue
 | P7.5 | v0.7.5 Worldline Judge | branch 级 `worldline_judgement.json`、世界线评分、anti-slop、emergence_score、故事弧/转折点/张力、工作台右侧评审标签页 | 已收口 |
 | P8 | v0.8 Long Novel Memory | 长篇导入报告、分层记忆、正史账本、账本检索、一致性审计、隐藏评估集隔离 | 已收口底座 |
 | P8.1 | v0.8+ Action/Discourse/Emergence | ActDirector、叙事诊断、动态动作注册表、涌现节点汇总 | 已收口底座 |
-| P8.2 | v0.8.x 收束 | entity aliases、runner consumption、前端 artifact 面板、长篇上传产品化 | 下一步 |
+| P8.2 | v0.8.x 收束 | entity aliases、runner consumption、前端 artifact 面板、长篇上传产品化 | entity aliases 已收口；runner consumption / 前端 artifact 面板下一步 |
 | P9 | v0.9+ Commercial hardening | Zep/图数据库、OASIS/CAMEL、LangGraph 局部 runner、多 provider gateway、完整工作台 | 待定 |
 
 ## 8. 近期详细任务清单
@@ -2054,7 +2068,7 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.7.5 Worldline Judge（世界线评分 + 故事弧 + emergence_score，已收口）
   -> v0.8 Long Novel Memory（百万字上传 + 分层记忆 + 正史账本 + 一致性审计，已收口底座）
   -> v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining（已收口 A-slices）
-  -> v0.8.x entity aliases / runner consumption / 前端 artifact 面板 / 长篇上传产品化（下一步）
+  -> v0.8.x entity aliases（已收口）/ runner consumption / 前端 artifact 面板 / 长篇上传产品化（下一步）
   -> v0.9+ Zep / OASIS / CAMEL / 向量库 / 多 provider / 完整工作台（按规模触发评估）
 ```
 

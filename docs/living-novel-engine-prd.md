@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 已验收；下一步 v0.8 收束整理 / entity aliases / runner consumption |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution 已验收；下一步 v0.8 收束整理 / runner consumption / 前端 artifact 面板 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -876,6 +876,8 @@ Prompt 预算：
 向量库、embedding、reranker 不作为 v0.8.0 必选项；当 50+ 章或 100 万字以上作品中 BM25 召回不足时再启用。
 
 当前已完成第一刀：现有 BM25 检索会读取 `memory/canon_ledger.jsonl`，以 `canon_ledger` source 进入 `retrieval_context.json`，并保留 entities、ledger_type、confidence。暂不接向量库、embedding、reranker。
+
+当前已完成 v0.8.x entity aliases 第一刀：导入时生成 `memory/entity_aliases.yaml`，从角色、地点、势力和 canon ledger entities 形成 deterministic alias skeleton；检索读取 alias map，对 query 与 corpus 做轻量别名扩展，命中项可返回 `resolved_entities`；一致性报告记录 `entity_alias_count`；世界锚定页只读展示别名状态。暂不做 LLM/NER 抽取、人工别名编辑、跨 run 写回或 runner 消费。
 
 #### v0.8.4 Consistency Audit
 

@@ -100,6 +100,21 @@
   justify-content: center;
   margin-top: var(--space-3);
 }
+.anchor__aliases {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.anchor__alias-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
 
 /* ── 通用块 ────────────────────────────────── */
 .anchor__block {

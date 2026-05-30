@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-30（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 已完成；后端 561 passed，前端 build 通过）
+> **最后更新**：2026-05-30（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution 已完成；后端 565 passed，前端 build 通过）
 
 ---
 
@@ -101,10 +101,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `561 passed`（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.8 收束整理 / entity aliases / runner consumption / 前端 artifact 面板** |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x entity aliases / runner consumption / 前端 artifact 面板 |
-| **刚收口** | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + v0.8+ 行动/叙事/涌现 artifact：`source_raw/`、`import_report.json`、`memory/`、`canon_ledger.jsonl`、`consistency_report.json`、`visibility_manifest.json`、`act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`。全程不改 runner、不破坏既有运行产物契约。 |
+| **测试基线** | 后端 `565 passed`（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.8 收束整理 / runner consumption / 前端 artifact 面板** |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases 已收口 → runner consumption / 前端 artifact 面板 |
+| **刚收口** | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + v0.8+ 行动/叙事/涌现 artifact + `memory/entity_aliases.yaml`：`source_raw/`、`import_report.json`、`memory/`、`canon_ledger.jsonl`、`entity_aliases.yaml`、`consistency_report.json`、`visibility_manifest.json`、`act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`。全程不改 runner、不破坏既有运行产物契约。 |
 
 ---
 
@@ -523,14 +523,14 @@ lne list-genres
 - [x] `Long Novel Ingestion Report`：已落地 `source_raw/`、`import_report.json`、Web/job `long_mode`、部分完成状态摘要。未做：真正前端分片上传、epub/zip、断点续传、独立 `ingest_job` 失败恢复。
 - [x] `Hierarchical Memory Skeleton`：已落地 `memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character_states、timeline、plot_threads、propagation_debts。未做：scene briefs、LLM 摘要重写、runner 消费 memory 层。
 - [x] `Canon Ledger Skeleton`：已落地 `memory/canon_ledger.jsonl`，覆盖 event/state/relationship/thread，带 `source_ref`、`confidence`、`valid_from` 等字段。未做：resource/timeline 细粒度语义抽取、`valid_until` 自动更新。
-- [x] `Hybrid Retrieval-A`：已把 canon ledger 作为 `canon_ledger` source 接入 BM25 + chapter distance decay + source weight。未做：entity boost、vector/reranker、prompt budget pack。
+- [x] `Hybrid Retrieval-A`：已把 canon ledger 作为 `canon_ledger` source 接入 BM25 + chapter distance decay + source weight；v0.8.x 已补 `entity_aliases.yaml` query/doc alias expansion。未做：vector/reranker、prompt budget pack。
 - [x] `Consistency Audit-A`：已输出 `memory/consistency_report.json`，覆盖导入级 timeline/resource/contract/thread 风险。未做：运行后写回审计、深层角色漂移/道具/死亡/地点冲突检测。
 - [x] `Long Canon Replay Isolation`：已写 `canon/visibility_manifest.json`，隔离 runtime-visible source 与 evaluator-only `holdout_private/`，并测试 holdout 不进入 retrieval。未做：自动 holdout 切分与批量 replay UI。
 - [x] `ActDirector-A`：已落地 `act_director_plan.json`，协调读者意图、角色、世界状态和故事合约生成动作计划。未做：runner 消费该计划并真实执行状态变化。
 - [x] `Discourse-aware Narrator-A`：已落地 `narrative_diagnostics.json`，做写后节奏/转折/张力诊断。未做：outline -> turning points -> chapter 两阶段 narrator 和诊断反馈生成。
 - [x] `Dynamic Action Registry-A`：已落地 `dynamic_action_registry.yaml`，从动作计划汇总动作类型、中文别名、前置条件、效果、失败原因、修复建议。未做：跨 run 项目级动作模板与执行器。
 - [x] `Emergence Mining-A`：已落地 `emergence_nodes.json` 与 `POST/GET /api/runs/<run_id>/emergence-nodes`，沉淀 run 级候选涌现节点。未做：跨 run 聚类、世界线模板或推荐系统。
-- [ ] `entity_aliases.yaml` / entity resolution：仍未做；这是下一步 v0.8.x 最值得优先补的公共层，避免同一物品/地点多名称导致状态断裂。
+- [x] `entity_aliases.yaml` / entity resolution：导入时生成 deterministic alias skeleton，retrieval/context loader/consistency report/锚定页可读取；损坏别名表降级为空索引。
 
 ### 刻意不做（短期）
 
@@ -1160,3 +1160,14 @@ lne list-genres
   - 新增 `docs/index.md`，整理 `docs/` 根层文档、`prd/` 专项文档、`article/` 论文资料、`article/reports/` 论文研读报告、`research/` 参考项目吸收报告的职责和推荐读取顺序。
   - 在 `AGENTS.md` 与 `docs/codex-handoff.md` 的资料索引中补充 `docs/index.md`，方便新会话快速定位文档。
 - **测试**：文档导航更新；执行 `git diff --check` 验证格式。
+
+### 2026-05-30 — v0.8.x Entity Aliases / Entity Resolution
+
+- **做了什么**：
+  - 新增 `entity_aliases.py`，提供 `build_entity_aliases()`、`write_entity_aliases()`、`load_entity_aliases()` 和轻量 query/doc expansion；缺失返回 `missing`，损坏返回 `damaged`，不抛 500。
+  - `write_hierarchical_memory()` 在导入时写 `memory/entity_aliases.yaml`，并在 `memory_manifest.json` 登记 `entity_aliases` layer；别名骨架从 characters、world locations/factions 与 canon ledger entities deterministic 生成。
+  - `retrieval/context_loader.py` 读取 alias index；`retrieval/retriever.py` 对 query 与 corpus 文本做别名扩展，canon ledger 命中项 additive 返回 `resolved_entities`，避免同一角色/地点/物品多名称导致召回断裂。
+  - `consistency_report.json` 的 summary additive 写 `entity_alias_count`；世界锚定 API/UI 只读展示实体别名状态、数量和样例，不允许编辑。
+- **测试**：新增 `tests/test_v08x_entity_aliases.py`（4 passed：导入写 alias + manifest + audit count、损坏降级、检索别名归一化、锚定 API 摘要）；邻近回归 `37 passed`；完整后端 `python -m pytest -q` 为 **565 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **明确未做**：LLM/NER 实体抽取、人工别名编辑器、跨 run 写回别名、向量检索/reranker、runner 消费 alias map、前端完整 artifact 面板。
+- **下一刀建议**：runner consumption 第一刀，先让运行时只读消费 memory/alias/ledger 的安全子集，保持 additive 与可回退；随后做前端 artifact 面板。

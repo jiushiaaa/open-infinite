@@ -382,6 +382,18 @@ export interface AnchorSummary {
   characters_present?: string[];
 }
 
+export interface EntityAliasSummary {
+  status: "ready" | "missing" | "damaged" | string;
+  path: string;
+  count: number;
+  sample_entities: Array<{
+    entity_id: string;
+    canonical_name: string;
+    entity_type: string;
+    alias_count: number;
+  }>;
+}
+
 export interface WorldAnchor {
   slug: string;
   source_kind: SourceKind;
@@ -403,6 +415,7 @@ export interface WorldAnchor {
   story_contract: Record<string, unknown> | null;
   open_threads: AnchorThread[];
   summaries: AnchorSummary[];
+  entity_aliases?: EntityAliasSummary;
   run_count: number;
 }
 

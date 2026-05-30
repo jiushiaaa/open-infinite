@@ -13,6 +13,7 @@ from pathlib import Path
 
 import yaml
 
+from living_novel_engine.entity_aliases import write_entity_aliases
 from living_novel_engine.import_novel.consistency_audit import build_consistency_report
 from living_novel_engine.import_novel.mock_extractor import ExtractionResult
 from living_novel_engine.import_novel.splitter import SplitChapter
@@ -49,11 +50,19 @@ def write_hierarchical_memory(
     _write_yaml(memory_dir / "timeline.yaml", _build_timeline(chapters))
     _write_yaml(memory_dir / "plot_threads.yaml", _build_plot_threads(extraction))
     _write_yaml(memory_dir / "propagation_debts.yaml", {"debts": []})
-    canon_ledger_count = _write_canon_ledger(memory_dir, chapters, extraction)
+    canon_records = _build_canon_ledger_records(chapters, extraction)
+    canon_ledger_count = _write_canon_ledger(memory_dir, canon_records)
+    entity_aliases = write_entity_aliases(
+        memory_dir,
+        story_slug=slug,
+        extraction=extraction,
+        canon_records=canon_records,
+    )
     consistency_report = build_consistency_report(
         story_slug=slug,
         import_report=import_report,
         canon_ledger_count=canon_ledger_count,
+        entity_alias_count=len(entity_aliases.get("entities", []) or []),
         open_threads=extraction.open_threads or [],
     )
     (memory_dir / "consistency_report.json").write_text(
@@ -87,6 +96,10 @@ def write_hierarchical_memory(
             "canon_ledger": {
                 "path": "memory/canon_ledger.jsonl",
                 "count": canon_ledger_count,
+            },
+            "entity_aliases": {
+                "path": "memory/entity_aliases.yaml",
+                "count": len(entity_aliases.get("entities", []) or []),
             },
             "consistency_report": {
                 "path": "memory/consistency_report.json",
@@ -238,12 +251,7 @@ def _build_plot_threads(extraction: ExtractionResult) -> dict:
     }
 
 
-def _write_canon_ledger(
-    memory_dir: Path,
-    chapters: list[SplitChapter],
-    extraction: ExtractionResult,
-) -> int:
-    records = _build_canon_ledger_records(chapters, extraction)
+def _write_canon_ledger(memory_dir: Path, records: list[dict]) -> int:
     lines = [json.dumps(record, ensure_ascii=False) for record in records]
     (memory_dir / "canon_ledger.jsonl").write_text(
         "\n".join(lines) + ("\n" if lines else ""),

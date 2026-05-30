@@ -81,7 +81,8 @@ def retrieve_context(
         return RetrievedContext(query=query, current_chapter=current_chapter)
 
     bm25 = BM25Lite(documents, doc_ids)
-    raw_scores = bm25.score(query, top_k=top_k * 2)
+    expanded_query = corpus.entity_aliases.expand_text(query)
+    raw_scores = bm25.score(expanded_query, top_k=top_k * 2)
 
     chapter_map = dict(zip(doc_ids, doc_chapters))
     type_map = dict(zip(doc_ids, doc_types))
@@ -118,19 +119,23 @@ def _build_corpus(
     doc_meta: list[dict[str, Any]] = []
 
     for fact in corpus.facts:
-        documents.append(f"{fact.subject} {fact.text}")
+        documents.append(corpus.entity_aliases.expand_text(f"{fact.subject} {fact.text}"))
         doc_ids.append(f"fact:{fact.id}")
         doc_chapters.append(fact.chapter)
         doc_types.append("fact")
+        resolved = corpus.entity_aliases.resolve_text(f"{fact.subject} {fact.text}")
         doc_meta.append({
             "text": fact.text,
             "chapter": fact.chapter,
             "evidence": fact.evidence,
             "subject": fact.subject,
+            "resolved_entities": resolved,
         })
 
     for item in corpus.canon_ledger:
-        documents.append(f"{' '.join(item.entities)} {item.type} {item.statement}")
+        documents.append(corpus.entity_aliases.expand_text(
+            f"{' '.join(item.entities)} {item.type} {item.statement}"
+        ))
         doc_ids.append(f"canon_ledger:{item.id}")
         doc_chapters.append(item.chapter)
         doc_types.append("canon_ledger")
@@ -139,6 +144,7 @@ def _build_corpus(
             "chapter": item.chapter,
             "evidence": item.source_ref,
             "entities": item.entities,
+            "resolved_entities": sorted(set(item.entities)),
             "ledger_type": item.type,
             "confidence": item.confidence,
         })
@@ -150,15 +156,17 @@ def _build_corpus(
         if summary.characters_present:
             text += " " + " ".join(summary.characters_present)
         evidence = summary.evidence_refs[0] if summary.evidence_refs else ""
-        documents.append(text)
+        documents.append(corpus.entity_aliases.expand_text(text))
         doc_ids.append(f"chapter_brief:ch{summary.chapter}")
         doc_chapters.append(summary.chapter)
         doc_types.append("chapter_brief")
+        resolved = corpus.entity_aliases.resolve_text(text)
         doc_meta.append({
             "text": summary.summary,
             "chapter": summary.chapter,
             "evidence": evidence,
             "title": summary.title,
+            "resolved_entities": resolved,
         })
 
     for vol in corpus.volumes:
@@ -170,7 +178,7 @@ def _build_corpus(
         if vol.key_facts:
             text += " " + " ".join(vol.key_facts)
         ch = vol.chapter_range[-1] if vol.chapter_range else 1
-        documents.append(text)
+        documents.append(corpus.entity_aliases.expand_text(text))
         doc_ids.append(f"volume_brief:{vol.volume}")
         doc_chapters.append(ch)
         doc_types.append("volume_brief")
@@ -180,16 +188,22 @@ def _build_corpus(
             "evidence": "",
             "volume": vol.volume,
             "chapter_range": vol.chapter_range,
+            "resolved_entities": corpus.entity_aliases.resolve_text(text),
         })
 
     if corpus.contract:
         contract_parts = _get_contract_parts(corpus.contract)
         for i, part in enumerate(contract_parts):
-            documents.append(part)
+            documents.append(corpus.entity_aliases.expand_text(part))
             doc_ids.append(f"contract:{i}")
             doc_chapters.append(1)
             doc_types.append("contract")
-            doc_meta.append({"text": part, "chapter": 1, "evidence": ""})
+            doc_meta.append({
+                "text": part,
+                "chapter": 1,
+                "evidence": "",
+                "resolved_entities": corpus.entity_aliases.resolve_text(part),
+            })
 
     return documents, doc_ids, doc_chapters, doc_types, doc_meta
 
@@ -223,8 +237,11 @@ def _format_results(
             "chapter": ch,
             "evidence": evidence,
         }
+        if meta.get("resolved_entities"):
+            item["resolved_entities"] = meta.get("resolved_entities", [])
         if dtype == "canon_ledger":
             item["entities"] = meta.get("entities", [])
+            item["resolved_entities"] = meta.get("resolved_entities", [])
             item["ledger_type"] = meta.get("ledger_type", "")
             item["confidence"] = meta.get("confidence", 0.0)
         items.append(item)

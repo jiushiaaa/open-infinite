@@ -306,6 +306,11 @@ function LeftColumn({
       </div>
 
       <section className="anchor__block">
+        <h3 className="anchor__block-title">实体别名</h3>
+        <AliasSummary data={data.entity_aliases} />
+      </section>
+
+      <section className="anchor__block">
         <h3 className="anchor__block-title">世界合约</h3>
         {data.story_contract ? (
           <pre className="anchor__contract mono">
@@ -659,6 +664,33 @@ function Fact({ k, v }: { k: string; v?: string }) {
     <div className="anchor__fact">
       <span className="anchor__fact-k muted tiny">{k}</span>
       <span className="anchor__fact-v">{v || "—"}</span>
+    </div>
+  );
+}
+
+function AliasSummary({ data }: { data?: WorldAnchor["entity_aliases"] }) {
+  if (!data || data.status === "missing") {
+    return <p className="muted tiny">尚未生成实体别名表。</p>;
+  }
+  if (data.status === "damaged") {
+    return <p className="anchor__save-err tiny">实体别名表无法解析，检索会自动跳过。</p>;
+  }
+  return (
+    <div className="anchor__aliases">
+      <div className="anchor__alias-head">
+        <span className="badge badge--jade tiny">已生成</span>
+        <span className="muted tiny mono">{data.path}</span>
+      </div>
+      <p className="muted tiny">已登记 {data.count} 个实体，用于同名/别称检索归一。</p>
+      {data.sample_entities.length > 0 && (
+        <div className="chip-row">
+          {data.sample_entities.map((e) => (
+            <span key={e.entity_id} className="badge tiny">
+              {e.canonical_name} · {e.alias_count}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

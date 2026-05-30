@@ -10,6 +10,7 @@ from typing import Any, Literal
 
 import yaml
 
+from living_novel_engine.entity_aliases import load_entity_aliases
 from living_novel_engine.browser.paths import outputs_dir, projects_dir, samples_dir
 from living_novel_engine.samples import list_samples
 
@@ -614,6 +615,10 @@ def _anchor_summaries(story_path: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _entity_alias_summary(story_path: Path) -> dict[str, Any]:
+    return load_entity_aliases(story_path).to_summary()
+
+
 def get_world_anchor(slug: str) -> dict[str, Any]:
     """v0.7 第四刀：世界锚定页数据（world/characters/contract/threads/summaries）。
 
@@ -652,6 +657,7 @@ def get_world_anchor(slug: str) -> dict[str, Any]:
         "story_contract": story_contract,
         "open_threads": _anchor_open_threads(story_path, world),
         "summaries": _anchor_summaries(story_path),
+        "entity_aliases": _entity_alias_summary(story_path),
         "run_count": len(list_runs(story_slug=slug)),
     }
     return payload
