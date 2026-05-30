@@ -81,6 +81,7 @@
 - 已完成的 PRD 及版本专项文档存储在 `D:\AI\open-infinite\docs\prd`。
 - 参考论文 PDF 与论文解读报告存储在 `D:\AI\open-infinite\docs\article`，其中报告在 `D:\AI\open-infinite\docs\article\reports`。
 - 参考开源项目存储在 `D:\AI\open-infinite\Reference_projects`，仅作设计参考和取舍分析，默认不直接复制源码、不引入依赖。
+- `docs` 资料导航见 `D:\AI\open-infinite\docs\index.md`，用于快速定位 PRD、专项版本文档、论文报告和研究资料。
 - 当前主 PRD 入口是 `D:\AI\open-infinite\docs\living-novel-engine-prd.md`；专项 PRD 和历史版本说明放在 `docs\prd`。
 - v0.1-v0.8 已完成能力与未做项总览见 `D:\AI\open-infinite\docs\v0.1-to-v0.8-version-audit.md`。
 

@@ -1153,3 +1153,10 @@ lne list-genres
 - **测试**：新增 `tests/test_v089_emergence_mining.py`（4 passed，含 HTTP 生成干预后读取/重建涌现节点）。
 - **明确未做**：跨 run 聚类、涌现节点推荐系统、世界线模板市场、前端涌现节点面板、将高价值节点自动反馈给下一轮生成。
 - **下一刀建议**：收束 v0.1-v0.8 文档总览与未做项，再考虑 entity aliases / runner consumption / 前端 artifact 面板。
+
+### 2026-05-30 — docs 目录导航整理
+
+- **做了什么**：
+  - 新增 `docs/index.md`，整理 `docs/` 根层文档、`prd/` 专项文档、`article/` 论文资料、`article/reports/` 论文研读报告、`research/` 参考项目吸收报告的职责和推荐读取顺序。
+  - 在 `AGENTS.md` 与 `docs/codex-handoff.md` 的资料索引中补充 `docs/index.md`，方便新会话快速定位文档。
+- **测试**：文档导航更新；执行 `git diff --check` 验证格式。

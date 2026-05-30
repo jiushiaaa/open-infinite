@@ -79,6 +79,7 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 ## 资料位置
 
 - 主 PRD：`D:\AI\open-infinite\docs\living-novel-engine-prd.md`
+- docs 导航：`D:\AI\open-infinite\docs\index.md`
 - v0.1-v0.8 版本审计：`D:\AI\open-infinite\docs\v0.1-to-v0.8-version-audit.md`
 - 已完成的 PRD 与专项版本文档：`D:\AI\open-infinite\docs\prd`
 - 参考论文 PDF 与报告：`D:\AI\open-infinite\docs\article`
