@@ -84,13 +84,14 @@ class TestRetrievalInjection:
         assert result.retrieval_record is None
 
     def test_imported_no_retrieval_files_graceful(self, tmp_path, monkeypatch):
-        """Imported project missing facts/summaries still works."""
+        """Imported project missing all retrieval files still works."""
         monkeypatch.setenv("LNE_PROJECTS_DIR", str(tmp_path))
         project_dir = _setup_project(tmp_path)
 
         import shutil
         shutil.rmtree(project_dir / "canon", ignore_errors=True)
         shutil.rmtree(project_dir / "summaries", ignore_errors=True)
+        shutil.rmtree(project_dir / "memory", ignore_errors=True)
         (project_dir / "story_contract.yaml").unlink(missing_ok=True)
 
         ctx = retrieve_context(project_dir, "任何查询")

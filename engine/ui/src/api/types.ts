@@ -151,6 +151,21 @@ export interface ImportNovelRequest {
   genre?: string;
   mock?: boolean;
   force?: boolean;
+  long_mode?: boolean;
+}
+
+export interface ImportReportSummary {
+  version: string;
+  total_chapters: number;
+  total_characters: number;
+  playable_chapter_limit: number;
+  partial_ready: boolean;
+  risks: {
+    garbled_chapters?: number[];
+    duplicate_titles?: string[];
+    missing_chapter_numbers?: number[];
+  };
+  warnings: string[];
 }
 
 export interface ImportNovelResponse {
@@ -161,6 +176,7 @@ export interface ImportNovelResponse {
   anchor_chapter_index: number;
   extraction_mode: string;
   warnings: string[];
+  import_report?: ImportReportSummary;
   anchor_hash: string;
 }
 
@@ -552,6 +568,89 @@ export interface WorldlineJudgementRequest {
   story_slug?: string;
 }
 
+// ── v0.8+ ActDirector / Dynamic Action / Emergence ───────
+
+export interface ActionPlanStep {
+  action_id: string;
+  branch_axis_id: string;
+  branch_label: string;
+  character_id: string;
+  character_name: string;
+  action_type: string;
+  action_label: string;
+  preconditions: string[];
+  effects: string[];
+  failure_reason: string;
+  repair_suggestions: string[];
+  risk: GuardrailRisk;
+  visibility: string;
+  rationale: string;
+  metadata: Record<string, unknown>;
+}
+
+export interface CharacterActionPlan {
+  version: string;
+  kind: "act_director_plan";
+  story_slug: string;
+  lineage_type: string;
+  source_compiler_version: string;
+  steps: ActionPlanStep[];
+  warnings: string[];
+}
+
+export interface ActionRegistryEntry {
+  action_type: string;
+  action_label: string;
+  aliases: string[];
+  preconditions: string[];
+  effects: string[];
+  failure_reasons: string[];
+  repair_suggestions: string[];
+  risk: GuardrailRisk;
+  visibility: string;
+  source_step_ids: string[];
+  branch_axis_ids: string[];
+  metadata: Record<string, unknown>;
+}
+
+export interface DynamicActionRegistry {
+  version: string;
+  kind: "dynamic_action_registry";
+  story_slug: string;
+  source_plan_version: string;
+  actions: ActionRegistryEntry[];
+  aliases: Record<string, string>;
+  warnings: string[];
+  summary: Record<string, unknown>;
+}
+
+export type EmergenceNodeStatus = "candidate" | "high_value" | "archive";
+
+export interface EmergenceNode {
+  node_id: string;
+  branch_id: string;
+  node_type: string;
+  title: string;
+  description: string;
+  score: number;
+  evidence: string[];
+  source_artifacts: string[];
+  tags: string[];
+  recommendation: string;
+  status: EmergenceNodeStatus;
+  metadata: Record<string, unknown>;
+}
+
+export interface EmergenceReport {
+  version: string;
+  kind: "emergence_nodes";
+  story_slug: string;
+  run_id: string;
+  nodes: EmergenceNode[];
+  summary: Record<string, unknown>;
+  warnings: string[];
+}
+
 // ── POST /api/interventions/guardrail （v0.7.2 护栏预检）──────
 
 export type GuardrailRisk = "low" | "medium" | "high";
@@ -654,6 +753,9 @@ export interface InterventionResponse {
   llm_mock: boolean;
   fallback_reason: string | null;
   intervention_compilation: InterventionCompilation;
+  act_director_plan?: CharacterActionPlan | null;
+  dynamic_action_registry?: DynamicActionRegistry | null;
+  emergence_nodes?: EmergenceReport | null;
   tree: RunTreeNode[];
 }
 

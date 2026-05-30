@@ -1,8 +1,9 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-30（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge 均已收口；下一步进入 v0.8 Long Novel Memory）
+> 版本：2026-05-30（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 均已收口；下一步进入 v0.8 收束整理 / entity aliases / runner consumption）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
+> v0.1-v0.8 已完成能力与未做项总览见 `docs/v0.1-to-v0.8-version-audit.md`。
 
 ## 1. 产品北极星
 
@@ -76,14 +77,14 @@ v0.7.4   Baseline & Canon Replay  无干预基线 + 正史 holdout + determinist
     ↓
 v0.7.5   Worldline Judge     读者/编辑评审团 + 静态流水线项目取舍复盘  已收口
     ↓
-v0.8     Long Novel Memory   百万字长篇上传 / 分层记忆 / 一致性审计  待排期
+v0.8     Long Novel Memory + Action/Discourse/Emergence artifacts  已收口底座
     ↓
 Phase 5  社区与分享          远期
 ```
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通：React/Vite 前端、Web 自由干预、Causal Diff 确立/抹除/回滚、世界锚定页、导入小说、主题创世、锚定轻编辑、真实 LLM/运行设置、异步 Job 进度轮询。**v0.7.2 Agent Interaction 已收口**：`InterventionGuardrail`（干预护栏预检 + `POST /api/interventions/guardrail`）、`CharacterProbe`（角色内心探针 + `GET /api/stories/<slug>/characters/<id>/probe`）、`CharacterAction` additive 结构化字段、世界锚定页角色探针入口、干预输入区预检按钮、Agent 轨迹结构化动作展示。**v0.7.3 Visual Asset Generation 已收口**：Seedream 视觉资产增强层（封面/角色头像/场景图）、additive artifact `visual_assets.json`、`GET/POST /api/stories/<slug>/visual-assets(/generate)` 与安全静态服务 `GET .../assets/<rel>`、无 Key 古风占位降级、世界锚定页/书架只读 UI。**v0.7.4 Baseline & Canon Replay 已收口**：`build_baseline_spec` + `service/baseline.py`（无干预基线，不写 intervention.json/causal_diff.json）、`service/canon_replay.py`（正史 holdout 读写 + deterministic 回放评估，不打 LLM）、`baseline_report.json`/`holdout_manifest.json`/`canon_replay_report.json` additive artifact、6 个新 API、世界锚定页「基线与正史回放」区块；Codex 兜底补 service 层 id 安全校验，并将 holdout UI 默认覆盖改为 false。**v0.7.5 Worldline Judge 已收口**：`worldline_judgement.json` branch 级 additive artifact、deterministic 世界线评分、`POST/GET /api/runs/<run_id>/branches/<branch_id>/worldline-judgement`、工作台右侧「世界线评审」标签页。当前后端基线为 **535 passed**，前端 build 通过。下一步进入 v0.8 Long Novel Memory 主线，目标是百万字到数百万字上传、分层记忆、正史账本、混合检索和一致性审计。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座与四个 v0.8+ 机制底座：`act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`。当前后端基线为 **561 passed**，前端 build 通过。下一步不建议继续扩张大依赖，优先做 entity aliases、runner consumption 第一刀和前端 artifact 面板。
 
 ## 3. 已完成能力
 
@@ -114,6 +115,15 @@ Phase 5  社区与分享          远期
 | v0.7.1-B LLM Compiler | 真实 LLM 编译 + rule-based fallback + `generation_meta`；rule_rewrite 安全兜底不污染原世界线 | 已完成 |
 | v0.7.1-C Causal Diff | `causal_diff.json` 后端 artifact；段落级 old/new diff；为确立/抹除/回滚预留生命周期字段 | 已完成 |
 | v0.7 Product Web App | React/Vite 产品级 Web App；Web 导入/创世/锚定/干预/Causal Diff/设置/异步 Job 主闭环 | 已完成 |
+| v0.7.2 Agent Interaction | CharacterAction / CharacterProbe / InterventionGuardrail / 轻量角色配置 UI | 已完成 |
+| v0.7.3 Visual Asset Generation | Seedream 视觉资产增强层，封面/头像/场景图，可降级占位 | 已完成 |
+| v0.7.4 Baseline & Canon Replay | 无干预基线 + 正史 holdout + deterministic 回放评估 | 已完成 |
+| v0.7.5 Worldline Judge | branch 级世界线评分、故事弧、转折点、`emergence_score` | 已完成 |
+| v0.8.0-A 至 v0.8.5-A | 长篇导入报告、分层记忆、canon ledger、账本检索、静态审计、holdout 可见性隔离 | 已完成 |
+| v0.8+ ActDirector-A | `act_director_plan.json`，抽象干预到角色动作计划 artifact | 已完成 |
+| v0.8+ Discourse-aware Narrator-A | `narrative_diagnostics.json`，分支正文节奏/转折/张力诊断 | 已完成 |
+| v0.8+ Dynamic Action Registry-A | `dynamic_action_registry.yaml`，动作类型/别名/前置/效果/失败/修复汇总 | 已完成 |
+| v0.8+ Emergence Mining-A | `emergence_nodes.json`，run 级候选涌现节点汇总与 API | 已完成 |
 
 **版本收口参考 run（验收用）**
 
@@ -122,7 +132,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **526 passed**（截至 2026-05-30，v0.7.4 Codex 兜底后复验）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **561 passed**（截至 2026-05-30，v0.8+ Emergence Mining-A 后复验）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -601,6 +611,8 @@ LNE 吸收方向：
 - v0.7.5：`Worldline Judge` 评估分支涌现价值。
 - v0.8+：沉淀高价值涌现节点，形成世界线模板或推荐。
 
+> **v0.8+ Emergence Mining-A 已落地（2026-05-30）**：先做 run 级 deterministic `emergence_nodes.json`，不做社区推荐系统。新增 `emergence_mining/` 包，从 `intervention.json`、`intervention_compilation.json`、`dynamic_action_registry.yaml`、分支 `causal_diff.json`、`worldline_judgement.json`、`narrative_diagnostics.json` 汇总候选涌现节点；`run_intervention()` 自动写报告，HTTP `POST/GET /api/runs/<run_id>/emergence-nodes` 支持重建/读取。已验证：`tests/test_v089_emergence_mining.py` 4 passed。
+
 #### 4.6.2 StoryVerse：抽象意图到具体角色动作
 
 核心结论：
@@ -635,6 +647,8 @@ raw reader input
 - v0.7.2：在 `InterventionGuardrail` 后增加 `AbstractIntervention`。
 - v0.7.2：将干预意图转为 `CharacterActionSequence`。
 - v0.8+：实现轻量 `ActDirector`，协调读者意图、角色仿真、世界状态和故事合约。
+
+> **v0.8+ ActDirector-A 已落地（2026-05-30）**：先做 deterministic planning artifact，不接 runner 主链路。新增 `act_director/` 包，`plan_character_actions()` 将 `InterventionCompilation` 转成 `CharacterActionPlan`，每个 branch axis / target 生成带 `preconditions`、`effects`、`risk`、`visibility`、`repair_suggestions` 的动作计划；`run_intervention()` 写出 `act_director_plan.json` 并在 service result extra 中返回摘要。已验证：`tests/test_v086_act_director.py` 3 passed；干预编译/API/CharacterAction 回归 50 passed。
 
 #### 4.6.3 Human-Level Narratives：故事弧与转折点评审
 
@@ -674,6 +688,8 @@ LNE 吸收方向：
 - v0.7.5：`compare.md` 展示每条线的故事弧和张力风险。
 - v0.8+：`worldline_brancher` 按不同故事弧生成分支，避免三条线换皮。
 - v0.8+：narrator 采用 outline -> turning points -> chapter 的两阶段生成。
+
+> **v0.8+ Discourse-aware Narrator-A 已落地（2026-05-30）**：先做写后诊断 artifact，不重写 narrator。新增 `narrative_diagnostics/` 包，`analyze_narrative()` 统计字数、句数、段落、对话标记、转折标记、pacing 和 tension curve，并给出 warnings/suggestions；`output.writer._write_branch_outputs()` 在每个分支写 `narrative_diagnostics.json`。已验证：`tests/test_v087_narrative_diagnostics.py` 2 passed；输出写盘/干预/基线/检索相关回归 62 passed。
 
 #### 4.6.4 STORY2GAME：动作前置条件与效果
 
@@ -715,6 +731,8 @@ LNE 吸收方向：
 - v0.7.2：越界动作给出失败原因和降级建议。
 - v0.8+：增加 `dynamic_action_registry.yaml` 和 `entity_aliases.yaml`。
 - v0.8+：做 entity resolution，避免同一物品/地点多名称导致状态断裂。
+
+> **v0.8+ Dynamic Action Registry-A 已落地（2026-05-30）**：先做 deterministic registry artifact，不接 runner 执行层。新增 `dynamic_action_registry/` 包，`build_action_registry()` 从 `CharacterActionPlan` 汇总动作类型、中文别名、前置条件、效果、失败原因、修复建议、风险等级与来源 step；`run_intervention()` 写出 `dynamic_action_registry.yaml` 并在 service result extra 中返回摘要。已验证：`tests/test_v088_dynamic_action_registry.py` 2 passed。
 
 ## 5. 版本路线图
 
@@ -1508,6 +1526,8 @@ branch_c：建议保留观察。代价最大，第四面墙潜力最高，但短
 - 原文保留在 `source_raw/`，运行时不直接把原文整本塞进 prompt。
 - 导入报告要展示：章节数、总字数、疑似乱码、重复章节、缺章、角色抽取置信度、时间线风险。
 
+> **v0.8.0-A 已落地（2026-05-30）**：先完成长篇导入底座，不接向量库、不改 runner。`write_project()` 统一写入 `source_raw/` 与 `import_report.json`；Web/job 导入新增 additive `long_mode`，默认仍保持 3-10 章小闭环，`long_mode: true` 时允许最多 200 章；报告记录总章节、总字数、前 20 章可体验范围、`partial_ready`、疑似乱码章节、重复章名、缺章编号与每章 source/raw 路径。`/api/import-novel` 和 `/api/jobs/import-novel` 返回 `import_report` 摘要。已验证：`tests/test_v080_long_ingestion.py` + 导入/job 回归共 39 passed。
+
 #### v0.8.1：Hierarchical Memory / 分层记忆
 
 建议目录：
@@ -1546,6 +1566,8 @@ Audit Layer
   写完后反查人设、时间线、资源、伏笔和合约
 ```
 
+> **v0.8.1-A 已落地（2026-05-30）**：先完成导入时的分层记忆 artifact 骨架，不让 runner 直接消费。`write_project()` 现在会写 `memory/memory_manifest.json`、`memory/master_setting.yaml`、`memory/volumes/volume_*.yaml`、`memory/chapters/chapter_*.yaml`、`memory/character_states/*.yaml`、`memory/timeline.yaml`、`memory/plot_threads.yaml`、`memory/propagation_debts.yaml`。这些文件镜像当前 world/characters/source/source_raw/open_threads，给后续 canon ledger、混合检索和一致性审计提供稳定目录契约。已验证：`tests/test_v081_hierarchical_memory.py` 2 passed；导入/检索相关回归中该新增 artifact 不改变既有读取契约。
+
 #### v0.8.2：Canon Ledger / 正史账本
 
 把当前 `facts.jsonl` 升级为更细的长篇正史账本：
@@ -1571,6 +1593,8 @@ Audit Layer
 - 避免“角色已经死了又突然出现”“道具已碎又被使用”。
 - 让 `Baseline Worldline`、干预世界线、Canon Replay 都有证据来源。
 - 为后续 GraphRAG / Zep / 图数据库留下迁移口。
+
+> **v0.8.2-A 已落地（2026-05-30）**：导入时生成 `memory/canon_ledger.jsonl`，并在 `memory_manifest.json` 中登记 `canon_ledger` layer。当前账本从章节、角色状态、角色关系、开放伏笔 deterministic 生成统一字段：`id/type/chapter/scene/entities/statement/truth_status/source_ref/confidence/valid_from/valid_until`。旧 `canon/facts.jsonl` 仍保留给 v0.3 检索链路使用；新账本先作为一致性审计和后续 GraphRAG/Zep 的迁移口。已验证：`tests/test_v082_canon_ledger.py` 2 passed；前三刀导入/记忆/检索回归 57 passed。
 
 #### v0.8.3：Hybrid Retrieval / 混合检索
 
@@ -1603,6 +1627,8 @@ Prompt 预算建议：
 - Canon Replay 命中率长期不足。
 - 角色/地名别名复杂，纯关键词无法稳定对齐。
 
+> **v0.8.3-A 已落地（2026-05-30）**：先把 `memory/canon_ledger.jsonl` 接入现有零依赖 BM25 检索，不引入向量库。`ContextCorpus` 新增 `canon_ledger`，`retrieve_context()` 将账本记录作为 `canon_ledger` source 纳入语料，source weight 1.1，artifact item 保留 `entities/ledger_type/confidence`；prompt 仍并入“正史事实”块。已验证：新增 loader/retriever 测试 2 passed，检索/导入/浏览相关回归 39 passed。
+
 #### v0.8.4：Consistency Audit / 长篇一致性审计
 
 审计维度：
@@ -1624,6 +1650,8 @@ consistency_report.json
   forgotten_threads
   repair_suggestions
 ```
+
+> **v0.8.4-A 已落地（2026-05-30）**：先做导入级静态一致性审计，不打 LLM、不接 runner。导入时写 `memory/consistency_report.json`，并在 manifest 登记 `consistency_report` layer；报告包含 `persona_drift`、`timeline_conflicts`、`resource_conflicts`、`contract_violations`、`forgotten_threads`、`repair_suggestions`。当前审计来源为 `import_report` 风险（乱码/重复章名/缺章）、`canon_ledger` 是否为空、开放伏笔待追踪。已验证：`tests/test_v084_consistency_audit.py` 2 passed；v0.8 导入/记忆/检索回归 61 passed。
 
 #### v0.8.5：Long Canon Replay Evaluation / 长篇正史回放评估
 
@@ -1651,6 +1679,8 @@ holdout_private/
 - 无干预续章时能引用相关正史证据，而不是只看最近几章。
 - 生成后能发现至少一类人设、时间线、资源或伏笔矛盾。
 - 隐藏评估集不会泄漏到角色和 narrator。
+
+> **v0.8.5-A 已落地（2026-05-30）**：在 v0.7.4 holdout/replay 基础上补长篇可见/隐藏边界。`write_holdout()` 保留旧 `canon/holdout/chapter_*.md`，同时镜像到根目录 `holdout_private/chapter_*.md`，并写 `canon/visibility_manifest.json`：其中 `runtime_visible` 指向可检索/可运行的 `source/` 章节，`holdout_private` 只给 evaluator 使用。`get_holdout()` additive 返回 `visibility_manifest` 摘要；检索测试确认 holdout 私有文本不会进入 `retrieval_context`。已验证：`tests/test_v085_long_canon_replay.py` 3 passed；Canon Replay / 检索回归 68 passed。
 
 ### Phase 5：社区与分享
 
@@ -1720,8 +1750,10 @@ v0.1.2 resume continue
   -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，已收口）
   -> v0.7.3 Visual Asset Generation（Seedream 视觉资产，已收口）
   -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放，已收口）
-  -> v0.7.5 Worldline Judge（世界线评分 + 故事弧 + emergence_score，下一步）
-  -> v0.7.5 Worldline Judge（质量评审层，待排期）
+  -> v0.7.5 Worldline Judge（世界线评分 + 故事弧 + emergence_score，已收口）
+  -> v0.8 Long Novel Memory（长篇记忆 artifact 底座，已收口）
+  -> v0.8+ ActDirector / Narrator Diagnostics / Dynamic Action / Emergence Mining（已收口底座）
+  -> v0.8.x entity aliases / runner consumption / 前端 artifact 面板（下一步）
 ```
 
 理由：
@@ -1760,7 +1792,9 @@ v0.1.2 resume continue
 | P7.3 | v0.7.3 Visual Asset Generation | 接入 Seedream 5.0 Lite：故事封面、角色头像、场景背景（世界线节点缩略图预留字段+UI 占位）；无 Key 古风占位降级 | 已收口 |
 | P7.4 | v0.7.4 Baseline & Canon Replay | 无干预基线（不写 intervention.json/causal_diff.json）；正史 holdout 读写；deterministic 回放评估（不打 LLM）；锚定页区块 | 已收口 |
 | P7.5 | v0.7.5 Worldline Judge | branch 级 `worldline_judgement.json`、世界线评分、anti-slop、emergence_score、故事弧/转折点/张力、工作台右侧评审标签页 | 已收口 |
-| P8 | v0.8 Long Novel Memory | 百万字长篇上传、分层记忆、正史账本、混合检索、一致性审计、隐藏评估集 | 待排期 |
+| P8 | v0.8 Long Novel Memory | 长篇导入报告、分层记忆、正史账本、账本检索、一致性审计、隐藏评估集隔离 | 已收口底座 |
+| P8.1 | v0.8+ Action/Discourse/Emergence | ActDirector、叙事诊断、动态动作注册表、涌现节点汇总 | 已收口底座 |
+| P8.2 | v0.8.x 收束 | entity aliases、runner consumption、前端 artifact 面板、长篇上传产品化 | 下一步 |
 | P9 | v0.9+ Commercial hardening | Zep/图数据库、OASIS/CAMEL、LangGraph 局部 runner、多 provider gateway、完整工作台 | 待定 |
 
 ## 8. 近期详细任务清单

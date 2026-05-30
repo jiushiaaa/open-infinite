@@ -11,6 +11,7 @@ import type {
   ConnectivityResult,
   DiffActionRequest,
   DiffActionResponse,
+  EmergenceReport,
   GuardrailRequest,
   GuardrailResult,
   HoldoutManifest,
@@ -234,6 +235,13 @@ export const api = {
     return getJson(
       `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/worldline-judgement`,
     );
+  },
+  // ── v0.8+ 涌现节点 ─────────────────────────────────────
+  generateEmergenceNodes(runId: string): Promise<EmergenceReport> {
+    return postJson(`/api/runs/${encodeURIComponent(runId)}/emergence-nodes`, {});
+  },
+  getEmergenceNodes(runId: string): Promise<EmergenceReport> {
+    return getJson(`/api/runs/${encodeURIComponent(runId)}/emergence-nodes`);
   },
 };
 

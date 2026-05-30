@@ -10,6 +10,7 @@ from pathlib import Path
 import yaml
 
 from living_novel_engine.import_novel.mock_extractor import ExtractionResult
+from living_novel_engine.import_novel.memory_writer import write_hierarchical_memory
 from living_novel_engine.import_novel.splitter import SplitChapter
 
 
@@ -31,6 +32,7 @@ def write_project(
     projects_dir: Path | None = None,
     allow_overwrite: bool = True,
     genre: str = "xianxia",
+    import_report: dict | None = None,
 ) -> Path:
     """将导入结果写入 projects/<slug>/ 目录并返回项目路径。
 
@@ -45,6 +47,13 @@ def write_project(
             raise FileExistsError(f"项目已存在: {project_dir}")
         shutil.rmtree(project_dir)
     project_dir.mkdir(parents=True, exist_ok=True)
+
+    # source_raw/ keeps the normalized raw text ledger for v0.8 long ingestion.
+    source_raw_dir = project_dir / "source_raw"
+    source_raw_dir.mkdir(exist_ok=True)
+    for ch in chapters:
+        fname = f"chapter_{ch.index:03d}.md"
+        (source_raw_dir / fname).write_text(ch.content, encoding="utf-8")
 
     # source/
     source_dir = project_dir / "source"
@@ -109,6 +118,29 @@ def write_project(
     }
     (project_dir / "import_meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+    if import_report is None:
+        from living_novel_engine.import_novel.report import build_import_report
+
+        import_report = build_import_report(
+            slug=slug,
+            chapters=chapters,
+            long_mode=len(chapters) > 10,
+            warnings=list(extraction.warnings),
+        )
+    (project_dir / "import_report.json").write_text(
+        json.dumps(import_report, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    write_hierarchical_memory(
+        project_dir,
+        slug=slug,
+        chapters=chapters,
+        extraction=extraction,
+        genre=genre,
+        import_report=import_report,
     )
 
     return project_dir

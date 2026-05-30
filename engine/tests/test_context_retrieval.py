@@ -65,6 +65,28 @@ def _make_project(tmp: Path) -> Path:
     with open(project / "story_contract.yaml", "w", encoding="utf-8") as f:
         yaml.dump(contract, f, allow_unicode=True)
 
+    memory_dir = project / "memory"
+    memory_dir.mkdir()
+    ledger = [
+        {
+            "id": "canon_000001",
+            "type": "event",
+            "chapter": 2,
+            "scene": 1,
+            "entities": ["mo_qing_yan", "retreat_bell"],
+            "statement": "墨青烟确认退魂铃曾在听雨轩响过。",
+            "truth_status": "canon",
+            "source_ref": "source/chapter_002.md",
+            "confidence": 0.9,
+            "valid_from": 2,
+            "valid_until": None,
+        }
+    ]
+    (memory_dir / "canon_ledger.jsonl").write_text(
+        "\n".join(json.dumps(item, ensure_ascii=False) for item in ledger) + "\n",
+        encoding="utf-8",
+    )
+
     volume = {
         "volume": 1,
         "chapter_range": [1, 3],
@@ -106,6 +128,12 @@ class TestContextLoader:
         assert len(corpus.volumes) == 1
         assert corpus.volumes[0].main_conflicts
         assert "风鸣铃" in corpus.volumes[0].main_conflicts[1]
+
+    def test_load_canon_ledger(self, tmp_path):
+        project = _make_project(tmp_path)
+        corpus = load_context_corpus(project)
+        assert len(corpus.canon_ledger) == 1
+        assert corpus.canon_ledger[0].entities == ["mo_qing_yan", "retreat_bell"]
 
     def test_load_summary_evidence_refs(self, tmp_path):
         project = _make_project(tmp_path)
@@ -188,6 +216,14 @@ class TestRetrieveContext:
         assert "volume_brief" in sources
         vol_items = [i for i in result.items if i["source"] == "volume_brief"]
         assert any("风鸣铃" in i["text"] for i in vol_items)
+
+    def test_canon_ledger_retrievable(self, tmp_path):
+        project = _make_project(tmp_path)
+        result = retrieve_context(project, "墨青烟 退魂铃")
+        ledger_items = [i for i in result.items if i["source"] == "canon_ledger"]
+        assert ledger_items
+        assert "退魂铃" in ledger_items[0]["text"]
+        assert ledger_items[0]["entities"] == ["mo_qing_yan", "retreat_bell"]
 
     def test_contract_not_decayed_at_high_chapter(self, tmp_path):
         project = _make_project(tmp_path)

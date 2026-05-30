@@ -33,9 +33,12 @@ from living_novel_engine.story_loader import load_story
 _SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _MANIFEST_NAME = "holdout_manifest.json"
+_VISIBILITY_MANIFEST_NAME = "visibility_manifest.json"
 _HOLDOUT_DIRNAME = "holdout"
+_HOLDOUT_PRIVATE_DIRNAME = "holdout_private"
 _CANON_DIRNAME = "canon"
 _REPLAY_REPORT_NAME = "canon_replay_report.json"
+_VISIBILITY_VERSION = "v0.8.5"
 _MAX_CHAPTER = 100000
 
 
@@ -95,8 +98,16 @@ def _canon_dir(slug: str, projects_dir: Path | None) -> Path:
     return _projects_dir(projects_dir) / slug / _CANON_DIRNAME
 
 
+def _project_dir(slug: str, projects_dir: Path | None) -> Path:
+    return _projects_dir(projects_dir) / slug
+
+
 def _holdout_dir(slug: str, projects_dir: Path | None) -> Path:
     return _canon_dir(slug, projects_dir) / _HOLDOUT_DIRNAME
+
+
+def _holdout_private_dir(slug: str, projects_dir: Path | None) -> Path:
+    return _project_dir(slug, projects_dir) / _HOLDOUT_PRIVATE_DIRNAME
 
 
 def _chapter_filename(chapter: int) -> str:
@@ -105,6 +116,10 @@ def _chapter_filename(chapter: int) -> str:
 
 def _chapter_rel_path(chapter: int) -> str:
     return f"{_CANON_DIRNAME}/{_HOLDOUT_DIRNAME}/{_chapter_filename(chapter)}"
+
+
+def _private_chapter_rel_path(chapter: int) -> str:
+    return f"{_HOLDOUT_PRIVATE_DIRNAME}/{_chapter_filename(chapter)}"
 
 
 # ── manifest 读写 ────────────────────────────────────────
@@ -132,6 +147,92 @@ def _save_manifest(slug: str, manifest: HoldoutManifest, projects_dir: Path | No
         json.dumps(manifest.model_dump(mode="json"), ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+
+
+def _runtime_visible_chapters(slug: str, projects_dir: Path | None) -> list[dict]:
+    source_dir = _project_dir(slug, projects_dir) / "source"
+    chapters: list[dict] = []
+    if not source_dir.is_dir():
+        return chapters
+    for fp in sorted(source_dir.glob("chapter_*.md")):
+        match = re.search(r"chapter_(\d+)", fp.name)
+        if not match:
+            continue
+        try:
+            chapter = int(match.group(1))
+            chars = len(fp.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        chapters.append({
+            "chapter": chapter,
+            "path": f"source/{fp.name}",
+            "chars": chars,
+        })
+    return chapters
+
+
+def _build_visibility_manifest(
+    slug: str,
+    holdout_manifest: HoldoutManifest,
+    projects_dir: Path | None,
+) -> dict:
+    runtime_visible = _runtime_visible_chapters(slug, projects_dir)
+    private_chapters = [
+        {
+            "chapter": ch.chapter,
+            "title": ch.title,
+            "path": _private_chapter_rel_path(ch.chapter),
+            "chars": ch.chars,
+        }
+        for ch in holdout_manifest.chapters
+    ]
+    return {
+        "version": _VISIBILITY_VERSION,
+        "story_slug": slug,
+        "created_at": datetime.now().isoformat(),
+        "runtime_visible": {
+            "dir": "source",
+            "chapter_count": len(runtime_visible),
+            "available_chapters": [c["chapter"] for c in runtime_visible],
+            "chapters": runtime_visible,
+        },
+        "holdout_private": {
+            "dir": _HOLDOUT_PRIVATE_DIRNAME,
+            "chapter_count": len(private_chapters),
+            "available_chapters": [c["chapter"] for c in private_chapters],
+            "chapters": private_chapters,
+        },
+        "rules": [
+            "holdout_private 不得进入 retrieval、character_agent、narrator 或 multi_agent_runner prompt",
+            "holdout_private 仅允许 evaluator 在 Canon Replay 阶段读取",
+        ],
+    }
+
+
+def _save_visibility_manifest(
+    slug: str,
+    holdout_manifest: HoldoutManifest,
+    projects_dir: Path | None,
+) -> dict:
+    manifest = _build_visibility_manifest(slug, holdout_manifest, projects_dir)
+    canon_dir = _canon_dir(slug, projects_dir)
+    canon_dir.mkdir(parents=True, exist_ok=True)
+    (canon_dir / _VISIBILITY_MANIFEST_NAME).write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return manifest
+
+
+def _load_visibility_manifest(slug: str, projects_dir: Path | None) -> dict:
+    path = _canon_dir(slug, projects_dir) / _VISIBILITY_MANIFEST_NAME
+    if not path.exists():
+        return _build_visibility_manifest(slug, _load_manifest(slug, projects_dir), projects_dir)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return _build_visibility_manifest(slug, _load_manifest(slug, projects_dir), projects_dir)
+    return data if isinstance(data, dict) else {}
 
 
 def _normalise_chapter_payload(raw: object) -> tuple[int, str, str]:
@@ -186,10 +287,15 @@ def write_holdout(
                 )
 
     holdout_dir.mkdir(parents=True, exist_ok=True)
+    private_dir = _holdout_private_dir(slug, projects_dir)
+    private_dir.mkdir(parents=True, exist_ok=True)
     now = datetime.now().isoformat()
     by_chapter = {c.chapter: c for c in manifest.chapters}
     for chapter, title, content in parsed:
         (holdout_dir / _chapter_filename(chapter)).write_text(content, encoding="utf-8")
+        (private_dir / _chapter_filename(chapter)).write_text(
+            content, encoding="utf-8"
+        )
         by_chapter[chapter] = HoldoutChapter(
             chapter=chapter,
             title=title,
@@ -203,14 +309,19 @@ def write_holdout(
         manifest.created_at = now
     manifest.updated_at = now
     _save_manifest(slug, manifest, projects_dir)
+    visibility = _save_visibility_manifest(slug, manifest, projects_dir)
 
-    return _manifest_response(manifest)
+    return _manifest_response(manifest, visibility_manifest=visibility)
 
 
-def _manifest_response(manifest: HoldoutManifest) -> dict:
+def _manifest_response(
+    manifest: HoldoutManifest, *, visibility_manifest: dict | None = None
+) -> dict:
     payload = manifest.model_dump(mode="json")
     payload["chapter_count"] = len(manifest.chapters)
     payload["available_chapters"] = manifest.chapter_numbers()
+    if visibility_manifest is not None:
+        payload["visibility_manifest"] = visibility_manifest
     return payload
 
 
@@ -223,7 +334,8 @@ def get_holdout(slug: str, *, projects_dir: Path | None = None) -> dict:
     slug = _validate_slug(slug)
     load_story(slug)  # 仅校验故事存在
     manifest = _load_manifest(slug, projects_dir)
-    return _manifest_response(manifest)
+    visibility = _load_visibility_manifest(slug, projects_dir)
+    return _manifest_response(manifest, visibility_manifest=visibility)
 
 
 # ── 回放评估 ─────────────────────────────────────────────

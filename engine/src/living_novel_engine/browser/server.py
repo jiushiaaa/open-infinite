@@ -179,6 +179,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid run_id"}, status=400)
                 return self._handle_canon_replay_get(rid)
 
+            if path.startswith("/api/runs/") and path.endswith("/emergence-nodes"):
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/emergence-nodes")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._handle_emergence_nodes_get(rid)
+
             if (
                 path.startswith("/api/runs/")
                 and "/branches/" in path
@@ -259,6 +266,12 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_canon_replay_run(slug)
+            if path.startswith("/api/runs/") and path.endswith("/emergence-nodes"):
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/emergence-nodes")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._handle_emergence_nodes_run(rid)
             if (
                 path.startswith("/api/runs/")
                 and "/branches/" in path
@@ -341,6 +354,9 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 "llm_mock": result.llm_mock,
                 "fallback_reason": result.fallback_reason,
                 "intervention_compilation": result.compilation.model_dump(mode="json"),
+                "act_director_plan": result.extra.get("act_director_plan"),
+                "dynamic_action_registry": result.extra.get("dynamic_action_registry"),
+                "emergence_nodes": result.extra.get("emergence_nodes"),
                 "tree": tree,
             }
         )
@@ -443,6 +459,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 genre=str(body.get("genre") or "xianxia"),
                 mock=mock,
                 force=bool(body.get("force", False)),
+                long_mode=bool(body.get("long_mode", False)),
                 projects_dir=indexer.projects_dir(),
             )
         except ProjectExistsError as exc:
@@ -461,6 +478,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 "anchor_chapter_index": result.anchor_chapter_index,
                 "extraction_mode": result.extraction_mode,
                 "warnings": result.warnings,
+                "import_report": result.import_report,
                 "anchor_hash": f"#/anchor/{result.story_slug}",
             }
         )
@@ -875,6 +893,36 @@ class BrowserHandler(BaseHTTPRequestHandler):
             return self._send_json({"error": str(exc)}, status=400)
         self._send_json(report)
 
+    def _handle_emergence_nodes_run(self, run_id: str) -> None:
+        """v0.8+：重新挖掘 run 级 emergence_nodes.json。"""
+        from living_novel_engine.service import (
+            EmergenceMiningRequestError,
+            mine_run_emergence,
+        )
+
+        try:
+            report = mine_run_emergence(run_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except EmergenceMiningRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
+    def _handle_emergence_nodes_get(self, run_id: str) -> None:
+        """v0.8+：读取 emergence_nodes.json（不存在 404，损坏 400，不 500）。"""
+        from living_novel_engine.service import (
+            EmergenceMiningRequestError,
+            get_emergence_nodes,
+        )
+
+        try:
+            report = get_emergence_nodes(run_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except EmergenceMiningRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
     def _handle_job_get(self, path: str) -> None:
         """v0.7 第九刀：轮询 job 状态。失败 job 也返回 200 + error，不抛 500。"""
         from living_novel_engine.service import JOBS
@@ -959,6 +1007,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
         chapters = body.get("chapters") or []
         genre = str(body.get("genre") or "xianxia")
         force = bool(body.get("force", False))
+        long_mode = bool(body.get("long_mode", False))
 
         def run(update):
             update(20, "拆分章节")
@@ -968,6 +1017,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 genre=genre,
                 mock=mock,
                 force=force,
+                long_mode=long_mode,
                 projects_dir=indexer.projects_dir(),
             )
             update(90, "校验项目")
@@ -979,6 +1029,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 "anchor_chapter_index": result.anchor_chapter_index,
                 "extraction_mode": result.extraction_mode,
                 "warnings": result.warnings,
+                "import_report": result.import_report,
                 "anchor_hash": f"#/anchor/{result.story_slug}",
             }
 

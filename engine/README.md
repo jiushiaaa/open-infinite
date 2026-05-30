@@ -35,8 +35,18 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.7.3 | Visual Asset Generation：Seedream 5.0 Lite 封面/角色头像/场景图（增强层，可降级占位） | 已收口 |
 | v0.7.4 | Baseline & Canon Replay：无干预基线 + 正史 holdout + deterministic 回放评估 | 已收口 |
 | v0.7.5 | Worldline Judge：世界线评分、故事弧、转折点、anti-slop、emergence_score | 已收口 |
+| v0.8.0-A | Long Novel Ingestion Report：`source_raw/`、`import_report.json`、`long_mode` | 已收口 |
+| v0.8.1-A | Hierarchical Memory Skeleton：`memory/` 分层记忆骨架与 manifest | 已收口 |
+| v0.8.2-A | Canon Ledger Skeleton：`memory/canon_ledger.jsonl` 统一正史账本 | 已收口 |
+| v0.8.3-A | Canon Ledger Retrieval：账本进入 BM25 检索 artifact | 已收口 |
+| v0.8.4-A | Static Consistency Audit：`memory/consistency_report.json` 导入级静态审计 | 已收口 |
+| v0.8.5-A | Long Canon Replay Isolation：`runtime_visible` / `holdout_private` manifest | 已收口 |
+| v0.8+ ActDirector-A | `act_director_plan.json`：抽象干预到角色动作计划 artifact | 已收口 |
+| v0.8+ Discourse-aware Narrator-A | `narrative_diagnostics.json`：分支正文节奏/转折/张力诊断 | 已收口 |
+| v0.8+ Dynamic Action Registry-A | `dynamic_action_registry.yaml`：从动作计划沉淀可复用动作别名注册表 | 已收口 |
+| v0.8+ Emergence Mining-A | `emergence_nodes.json`：run 级涌现节点汇总与 API | 已收口 |
 
-**测试基线**：`pytest -q` → **535 passed**（2026-05-30，v0.7.5 新增 9 个 Worldline Judge 测试，完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **561 passed**（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -46,7 +56,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 outputs/run_xxx/branch_a/retrieval_context.json
 ```
 
-字段：`query`、`current_chapter`、`prompt_block`、`items[]`（含 `id`、`source`、`score`、`text`、`chapter`、`evidence`）。builtin 样例不写此文件。
+字段：`query`、`current_chapter`、`prompt_block`、`items[]`（含 `id`、`source`、`score`、`text`、`chapter`、`evidence`）。v0.8.3 起，`memory/canon_ledger.jsonl` 会以 `canon_ledger` source 进入同一 artifact，账本命中项额外带 `entities`、`ledger_type`、`confidence`。builtin 样例不写此文件。
 
 v0.4.2 起，`lne browse` 在分支阅读器新增「检索记忆」标签页：按 `source`（合约 / 正史事实 / 章节摘要 / 卷摘要）分组展示本章生成引用的命中项与分数，世界线树的分支节点也会显示「检索 N」角标。
 
@@ -57,6 +67,38 @@ outputs/run_xxx/branch_a/causal_diff.json
 ```
 
 该文件保存段落级 `old_text` / `new_text` 因果差异块，以及 `status=proposed`、`lineage_type`、`diff_mode`、`affected_scope` 等字段，为 v0.7 产品前端的「时空 Diff / 确立 / 抹除 / 回滚」交互做数据预留。
+
+v0.8+ ActDirector-A 起，每次干预 run 根目录还会写入：
+
+```text
+outputs/run_xxx/act_director_plan.json
+```
+
+该文件是 `InterventionCompilation -> CharacterActionPlan` 的 deterministic 规划 artifact，只用于审计和后续 runner 接入；当前不驱动 `run_scene`，不改变旧 `events.json` / `state_snapshot.json` / `chapter.md`。
+
+v0.8+ Dynamic Action Registry-A 起，每次干预 run 根目录还会写入：
+
+```text
+outputs/run_xxx/dynamic_action_registry.yaml
+```
+
+该文件从 `act_director_plan.json` 汇总动作类型、中文别名、前置条件、效果、失败原因、修复建议、风险等级和来源 step；当前仅作审计/后续 runner 接入，不执行状态变化。
+
+v0.8+ Emergence Mining-A 起，每次干预 run 根目录还会写入：
+
+```text
+outputs/run_xxx/emergence_nodes.json
+```
+
+该文件从 `intervention.json`、`intervention_compilation.json`、`dynamic_action_registry.yaml`、分支 `causal_diff.json`、`worldline_judgement.json`、`narrative_diagnostics.json` 中汇总候选涌现节点，字段含 `node_type`、`score`、`source_artifacts`、`status` 与 `recommendation`。API：`POST /api/runs/<run_id>/emergence-nodes` 重新挖掘，`GET /api/runs/<run_id>/emergence-nodes` 读取报告；当前不做社区推荐或模板市场。
+
+v0.8+ Discourse-aware Narrator-A 起，每个分支还会写入：
+
+```text
+outputs/run_xxx/branch_a/narrative_diagnostics.json
+```
+
+该文件统计正文长度、句段、对话标记、转折标记、pacing、tension curve，并给出写后 warnings/suggestions；当前只做诊断，不重写 narrator。
 
 > 注意：`lne browse` 的旧浏览器仍保留为开发者/演示 viewer；面向普通用户的产品级前端已在 v0.7 落到 `engine/ui/`（React + Vite + TypeScript），负责导入、创世、锚定、干预、世界线浏览、设置与异步 Job。
 
@@ -244,7 +286,7 @@ lne import-novel tests/fixtures/mini_novel/ --name my-story
 
 自建章节目录：在 `engine/` 下创建 `chapters/`，每章一个 `.md` 或 `.txt`，再执行 `lne import-novel chapters/ --name <slug>`。已存在同名项目时需加 `--force`。
 
-产物目录：`projects/<slug>/`（`world.yaml`、`characters.yaml`、`canon_chapter.md` 等）。详见 [v0.2-import-novel-mvp.md](../docs/v0.2-import-novel-mvp.md)。
+产物目录：`projects/<slug>/`（`world.yaml`、`characters.yaml`、`canon_chapter.md` 等）。v0.8.0 起导入会额外写入 `source_raw/` 与 `import_report.json`：前者保存规范化后的原文账本，后者记录章节数、总字数、前 20 章可体验范围、疑似乱码、重复章名与缺章编号。Web/job 导入可传 `long_mode: true` 以允许 10 章以上、最多 200 章的长篇底座导入；默认小闭环仍保持 3-10 章限制。v0.8.1 起导入同时写入 `memory/` 分层记忆骨架：`memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character states、timeline、plot_threads 和 propagation debts。v0.8.2 起还会生成 `memory/canon_ledger.jsonl`，用统一字段记录章节事件、角色状态、关系与伏笔。v0.8.4 起还会生成 `memory/consistency_report.json`，先做导入级静态一致性审计。v0.8.5 起写入正史 holdout 时会生成 `canon/visibility_manifest.json`，把 `source/` 作为 `runtime_visible`，把 `holdout_private/` 明确标记为 evaluator-only。详见 [v0.2-import-novel-mvp.md](../docs/v0.2-import-novel-mvp.md)。
 
 ### 真实 LLM 验收（demo，非 pytest）
 

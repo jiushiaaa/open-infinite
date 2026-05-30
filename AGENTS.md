@@ -56,15 +56,25 @@
 - v0.7.2 Agent Interaction 已收口。
 - v0.7.3 Visual Asset Generation 已收口。
 - v0.7.4 Baseline & Canon Replay 已收口，并经 Codex 兜底补安全边界。
-- 当前后端验证基线：`526 passed`。
+- v0.7.5 Worldline Judge 已收口。
+- v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座已收口。
+- v0.8+ ActDirector-A planning artifact 已收口。
+- v0.8+ Discourse-aware Narrator-A diagnostics artifact 已收口。
+- v0.8+ Dynamic Action Registry-A 已收口。
+- v0.8+ Emergence Mining-A 已收口。
+- 当前后端验证基线：`561 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一版：`v0.7.5 Worldline Judge`。
+- 官方下一版：`v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining`。
 
-最近一次 Codex 兜底：
+最近一次 Codex 迭代：
 
-- `service/baseline.py` 和 `service/canon_replay.py` 补 service 层 `story_slug` / `run_id` / `branch_id` 安全校验。
-- `BaselineCanonPanel.tsx` 的 holdout 录入从默认 `force: true` 改为 `force: false`，避免无提示覆盖正史 holdout。
-- `tests/test_v074_baseline_canon_replay.py` 补路径穿越/坏 id 测试。
+- 长篇导入写入 `source_raw/`、`import_report.json`、`memory/`、`canon_ledger.jsonl`、`consistency_report.json`。
+- `canon_ledger` 已接入 BM25 检索 artifact，source 为 `canon_ledger`。
+- 正史 holdout 已写 `canon/visibility_manifest.json`，明确 `runtime_visible` / `holdout_private` 隔离。
+- 干预 run 会写 `act_director_plan.json`，但该计划暂不驱动 runner。
+- 分支会写 `narrative_diagnostics.json`，但诊断暂不反馈到 narrator。
+- 干预 run 会写 `dynamic_action_registry.yaml` 与 `emergence_nodes.json`，但暂不执行状态变化、不做推荐系统。
+- 仍未做前端分片上传、epub/zip、向量库、entity aliases、runner 消费 memory/action/emergence 层、批量长篇 replay UI。
 
 ## 资料索引
 
@@ -72,6 +82,7 @@
 - 参考论文 PDF 与论文解读报告存储在 `D:\AI\open-infinite\docs\article`，其中报告在 `D:\AI\open-infinite\docs\article\reports`。
 - 参考开源项目存储在 `D:\AI\open-infinite\Reference_projects`，仅作设计参考和取舍分析，默认不直接复制源码、不引入依赖。
 - 当前主 PRD 入口是 `D:\AI\open-infinite\docs\living-novel-engine-prd.md`；专项 PRD 和历史版本说明放在 `docs\prd`。
+- v0.1-v0.8 已完成能力与未做项总览见 `D:\AI\open-infinite\docs\v0.1-to-v0.8-version-audit.md`。
 
 ## 开发流程
 

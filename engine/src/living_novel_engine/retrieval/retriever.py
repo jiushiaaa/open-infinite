@@ -15,6 +15,7 @@ from living_novel_engine.retrieval.decay import distance_decay
 
 SOURCE_WEIGHT: dict[str, float] = {
     "fact": 1.0,
+    "canon_ledger": 1.1,
     "chapter_brief": 0.8,
     "volume_brief": 0.7,
     "contract": 1.2,
@@ -68,6 +69,7 @@ def retrieve_context(
     corpus = load_context_corpus(project_dir)
     if (
         not corpus.facts
+        and not corpus.canon_ledger
         and not corpus.summaries
         and not corpus.volumes
         and corpus.contract is None
@@ -125,6 +127,20 @@ def _build_corpus(
             "chapter": fact.chapter,
             "evidence": fact.evidence,
             "subject": fact.subject,
+        })
+
+    for item in corpus.canon_ledger:
+        documents.append(f"{' '.join(item.entities)} {item.type} {item.statement}")
+        doc_ids.append(f"canon_ledger:{item.id}")
+        doc_chapters.append(item.chapter)
+        doc_types.append("canon_ledger")
+        doc_meta.append({
+            "text": item.statement,
+            "chapter": item.chapter,
+            "evidence": item.source_ref,
+            "entities": item.entities,
+            "ledger_type": item.type,
+            "confidence": item.confidence,
         })
 
     for summary in corpus.summaries:
@@ -198,7 +214,7 @@ def _format_results(
         text = meta.get("text", "")
         evidence = meta.get("evidence", "")
 
-        items.append({
+        item = {
             "id": doc_id,
             "source": dtype,
             "type": dtype,
@@ -206,10 +222,19 @@ def _format_results(
             "text": text,
             "chapter": ch,
             "evidence": evidence,
-        })
+        }
+        if dtype == "canon_ledger":
+            item["entities"] = meta.get("entities", [])
+            item["ledger_type"] = meta.get("ledger_type", "")
+            item["confidence"] = meta.get("confidence", 0.0)
+        items.append(item)
 
         if dtype == "fact":
             facts_lines.append(f"- [{meta.get('subject', '')}] {text}")
+        elif dtype == "canon_ledger":
+            entities = ", ".join(meta.get("entities", []))
+            prefix = f"[{entities}] " if entities else ""
+            facts_lines.append(f"- {prefix}{text}")
         elif dtype == "chapter_brief":
             title = meta.get("title", "")
             summaries_lines.append(f"- 第{ch}章 {title}: {text}")

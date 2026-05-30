@@ -23,15 +23,31 @@
 - v0.7.3 Visual Asset Generation
 - v0.7.4 Baseline & Canon Replay
 - v0.7.5 Worldline Judge
+- v0.8.0-A Long Novel Ingestion Report
+- v0.8.1-A Hierarchical Memory Skeleton
+- v0.8.2-A Canon Ledger Skeleton
+- v0.8.3-A Canon Ledger Retrieval
+- v0.8.4-A Static Consistency Audit
+- v0.8.5-A Long Canon Replay Isolation
+- v0.8+ ActDirector-A Planning Artifact
+- v0.8+ Discourse-aware Narrator-A Diagnostics
 
-最近一次 Codex 兜底：
-- v0.7.4 service 层补 story_slug/run_id/branch_id 安全校验，防止绕过 HTTP 后路径穿越
-- BaselineCanonPanel holdout 录入从 force:true 改为 force:false
-- 后端 python -m pytest -q 为 535 passed（v0.7.5 新增 9 个测试）
+最近一次 Codex 迭代：
+- v0.8.0-A：导入写 `source_raw/`、`import_report.json`，Web/job 支持 additive `long_mode`
+- v0.8.1-A：导入写 `memory/` 分层记忆骨架与 `memory_manifest.json`
+- v0.8.2-A：导入写 `memory/canon_ledger.jsonl`
+- v0.8.3-A：`canon_ledger` 接入 BM25 检索 artifact
+- v0.8.4-A：导入写 `memory/consistency_report.json` 静态审计
+- v0.8.5-A：正史 holdout 写 `canon/visibility_manifest.json`，隔离 `runtime_visible` / `holdout_private`
+- v0.8+ ActDirector-A：干预 run 写 `act_director_plan.json`，但暂不驱动 runner
+- v0.8+ Discourse-aware Narrator-A：每分支写 `narrative_diagnostics.json`，但暂不反馈 narrator
+- v0.8+ Dynamic Action Registry-A：干预 run 写 `dynamic_action_registry.yaml`，但暂不执行状态变化
+- v0.8+ Emergence Mining-A：干预 run 写 `emergence_nodes.json`，HTTP `POST/GET /api/runs/<run_id>/emergence-nodes`
+- 后端 python -m pytest -q 为 561 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 v0.8 Long Novel Memory。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 v0.8+ Dynamic Action Registry / Emergence Mining。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -52,15 +68,16 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `535 passed` |
+| 后端基线 | `561 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5 |
-| 官方下一版 | v0.8 Long Novel Memory |
-| 后续主线 | v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A |
+| 官方下一版 | v0.8 收束整理 / entity aliases / runner consumption |
+| 后续主线 | entity aliases / runner consumption / 前端 artifact 面板 |
 
 ## 资料位置
 
 - 主 PRD：`D:\AI\open-infinite\docs\living-novel-engine-prd.md`
+- v0.1-v0.8 版本审计：`D:\AI\open-infinite\docs\v0.1-to-v0.8-version-audit.md`
 - 已完成的 PRD 与专项版本文档：`D:\AI\open-infinite\docs\prd`
 - 参考论文 PDF 与报告：`D:\AI\open-infinite\docs\article`
 - 论文报告：`D:\AI\open-infinite\docs\article\reports`
@@ -141,6 +158,31 @@ React/Vite 产品级前端主闭环已完成：
 - 不重构 runner
 - 不改既有 artifact 契约
 - 不把 judge 结果写回正文或 state_snapshot
+
+## v0.8.0-A 至 v0.8.4-A Long Novel Memory 收口摘要
+
+已完成长篇记忆的本地 artifact 底座，全部 additive，不改 runner：
+
+- v0.8.0-A：`source_raw/` 原文账本、`import_report.json` 导入报告、Web/job `long_mode`（默认仍 3-10 章，long mode 最多 200 章）
+- v0.8.1-A：`memory/` 分层记忆骨架：`memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character states、timeline、plot_threads、propagation_debts
+- v0.8.2-A：`memory/canon_ledger.jsonl`，统一字段记录章节事件、角色状态、关系、伏笔
+- v0.8.3-A：`canon_ledger` 作为 `canon_ledger` source 接入 BM25 检索，命中项保留 `entities`、`ledger_type`、`confidence`
+- v0.8.4-A：`memory/consistency_report.json` 导入级静态审计，覆盖 timeline/resource/contract/thread 风险与修复建议
+- v0.8.5-A：`canon/visibility_manifest.json` 明确 `runtime_visible` / `holdout_private`，`get_holdout()` 返回摘要，检索不读取私有章节正文
+- ActDirector-A：`act_director_plan.json` 将 `InterventionCompilation` 转成 `CharacterActionPlan`，每步含 preconditions/effects/risk/repair suggestions；当前只作 artifact，不改 runner
+- Discourse-aware Narrator-A：`narrative_diagnostics.json` 写后诊断，含 pacing、tension curve、warnings/suggestions；当前不改 narrator
+- Dynamic Action Registry-A：`dynamic_action_registry.yaml` 从 `act_director_plan.json` 汇总动作类型、中文别名、前置条件、效果、失败原因与修复建议；当前不执行状态变化
+- Emergence Mining-A：`emergence_nodes.json` 从干预、编译、动态动作、causal diff、worldline judgement、narrative diagnostics 汇总候选涌现节点；当前不做推荐系统
+
+本阶段未做：
+
+- 前端分片上传、断点续传、epub/zip
+- LLM 细粒度事件抽取、scene 级切分
+- 向量库、embedding、reranker、entity alias resolution
+- runner 消费 memory 层、action plan、dynamic action registry 或 emergence nodes
+- 运行后写回审计、长篇 holdout 批量评估 UI
+
+下一刀建议：先做 v0.1-v0.8 文档总览和未做项收束；继续开发则优先 entity aliases / runner consumption / 前端 artifact 面板。
 
 ## 每次任务完成后的收口清单
 

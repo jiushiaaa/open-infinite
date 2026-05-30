@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-30（v0.7.5 Worldline Judge branch 级 deterministic 评审层已完成；后端 535 passed，前端 build 通过）
+> **最后更新**：2026-05-30（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 已完成；后端 561 passed，前端 build 通过）
 
 ---
 
@@ -49,6 +49,7 @@
 
 - `docs/research/open-source-essence-absorption.md`
 - `docs/living-novel-engine-iteration-plan.md`
+- `docs/v0.1-to-v0.8-version-audit.md`
 - `docs/article/reports/*.md`
 
 ---
@@ -100,10 +101,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `535 passed`（2026-05-30，v0.7.5 新增 9 个 Worldline Judge 测试，完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.8 Long Novel Memory**：百万字上传、分层记忆、canon ledger、混合检索、一致性审计 |
-| **后续路线** | v0.8 Long Novel Memory → v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining |
-| **刚收口** | v0.7.5 Worldline Judge：`worldline_judgement.json` branch 级 additive artifact + deterministic evaluator（persona consistency / contract risk / branch diversity / narrative momentum / emotional payoff / anti-slop / continuation potential / emergence_score / story arc / turning points / tension）+ service/API（`POST/GET /api/runs/<run_id>/branches/<branch_id>/worldline-judgement`）+ 工作台右侧「世界线评审」只读标签页。全程不打 LLM、不改 runner、不写回正文或 state_snapshot。 |
+| **测试基线** | 后端 `561 passed`（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.8 收束整理 / entity aliases / runner consumption / 前端 artifact 面板** |
+| **后续路线** | v0.8 Long Novel Memory → v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining → entity aliases / runner consumption |
+| **刚收口** | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + v0.8+ 行动/叙事/涌现 artifact：`source_raw/`、`import_report.json`、`memory/`、`canon_ledger.jsonl`、`consistency_report.json`、`visibility_manifest.json`、`act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`。全程不改 runner、不破坏既有运行产物契约。 |
 
 ---
 
@@ -1049,3 +1050,105 @@ lne list-genres
 - **文件**：`worldline_judge/{__init__,models,evaluator}.py`、`service/{__init__,worldline_judge}.py`、`browser/server.py`、`engine/ui/src/api/{client,types}.ts`、`engine/ui/src/components/{RightPanel,WorkspacePage,WorldlineJudgePanel,worldlineJudge.css}.tsx`、`tests/test_v075_worldline_judge.py`、文档。
 - **明确未做**：LLM 语义评审、run 级聚合评审、`compare.md` 汇总、`emergence_nodes.json` 持久化、discourse-aware narrator、Long Novel Memory。
 - **下一刀建议**：v0.8 Long Novel Memory 第一刀，先做百万字导入的分片/异步导入与结构化导入报告，不急着接向量库。
+
+### 2026-05-30 — v0.8.0-A Long Novel Ingestion Report
+
+- **做了什么**：
+  - 新增 `import_novel/report.py`：构造 `import_report.json`（version `v0.8.0`），统计总章节、总字数、前 20 章可体验范围、`partial_ready`、疑似乱码章节、重复章名、缺章编号，以及每章 `source_raw_path` / `source_path`。
+  - `write_project()` 统一写入 `source_raw/` 和 `import_report.json`；即使走 CLI / 旧 writer 路径也有导入报告。`source/`、`canon_chapter.md`、`facts.jsonl`、`summaries/` 等既有契约不变。
+  - `service.import_novel_from_payload()` 新增 additive `long_mode`：默认仍保持 3-10 章小闭环；`long_mode=True` 时允许最多 200 章，生成导入报告摘要并合并风险 warnings。
+  - `/api/import-novel` 与 `/api/jobs/import-novel` 接收 `long_mode` 并返回 `import_report` 摘要；前端类型 `ImportNovelRequest/Response` additive 增字段，现有 UI 不受影响。
+- **测试**：新增 `tests/test_v080_long_ingestion.py`（4 passed：25 章 long mode、旧 10 章限制、乱码/重复/缺章风险、job 返回报告摘要）；导入/job 相关回归 `tests/test_v080_long_ingestion.py tests/test_web_import_api.py tests/test_import_mock.py tests/test_jobs_api.py -q` 为 **39 passed**。
+- **明确未做**：真正前端分片上传、断点续传、epub/zip、后台部分索引、角色抽取置信度、时间线风险、entity index / vector index。
+- **下一刀建议**：v0.8.1 Hierarchical Memory 第一刀，先写 `memory/` 目录骨架、`master_setting.yaml`、chapter/volume briefs 镜像和 `memory_manifest.json`，继续不改 runner。
+
+### 2026-05-30 — v0.8.1-A Hierarchical Memory Skeleton
+
+- **做了什么**：
+  - 新增 `import_novel/memory_writer.py`：导入时生成 `projects/<slug>/memory/` 分层记忆骨架，包含 `memory_manifest.json`、`master_setting.yaml`、`volumes/volume_*.yaml`、`chapters/chapter_*.yaml`、`character_states/*.yaml`、`timeline.yaml`、`plot_threads.yaml`、`propagation_debts.yaml`。
+  - `write_project()` 在写完 `import_report.json` 后统一调用 `write_hierarchical_memory()`；CLI、Web 同步导入、异步 job 导入都能得到同一套 memory artifact。
+  - 记忆骨架只镜像 world/characters/source/source_raw/open_threads，不进入 runner prompt，不改变 `chapter.md`、`events.json`、`state_snapshot.json` 等运行产物契约。
+- **测试**：新增 `tests/test_v081_hierarchical_memory.py`（2 passed：manifest/layers 文件存在、chapter/character/timeline/threads/debts 可审计）；导入/检索相关回归曾出现一次 Windows HTTP socket 超时，复跑失败单测通过。
+- **明确未做**：LLM 章节摘要重写、scene 级切分、角色状态随后续 run 自动投影、审计反馈写入、runner 消费 memory 层。
+- **下一刀建议**：v0.8.2 Canon Ledger 第一刀，把 `facts.jsonl` 镜像/升级为 `memory/canon_ledger.jsonl`，记录 event/state/relationship/thread 的统一字段，为后续审计和 GraphRAG 留迁移口。
+
+### 2026-05-30 — v0.8.2-A Canon Ledger Skeleton
+
+- **做了什么**：
+  - `import_novel/memory_writer.py` 新增 `memory/canon_ledger.jsonl`，并在 `memory_manifest.json` 登记 `canon_ledger` layer。
+  - 账本记录统一字段：`id/type/chapter/scene/entities/statement/truth_status/source_ref/confidence/valid_from/valid_until`；当前 deterministic 来源包括章节事件、角色状态、角色关系、开放伏笔。
+  - 旧 `canon/facts.jsonl` 保持不变，现有 BM25 检索仍走原链路；新 ledger 作为 v0.8 一致性审计、混合检索、GraphRAG/Zep 迁移口。
+- **测试**：新增 `tests/test_v082_canon_ledger.py`（2 passed）；前三刀导入/分层记忆/账本/导入 API/检索回归 `57 passed`。
+- **明确未做**：从 LLM 抽取细粒度事件、valid_until 自动更新、ledger 查询 API、ledger 参与 prompt、死亡/道具/时间线冲突审计。
+- **下一刀建议**：v0.8.3 Hybrid Retrieval 第一刀，先让 context loader 读取 `memory/canon_ledger.jsonl` 并以 `canon_ledger` source 进入检索语料，增加 entity boost，但不引入向量库。
+
+### 2026-05-30 — v0.8.3-A Canon Ledger Retrieval
+
+- **做了什么**：
+  - `retrieval/context_loader.py` 新增 `CanonLedgerItem` 与 `_load_canon_ledger()`，从 `memory/canon_ledger.jsonl` 读取统一正史账本；缺失/损坏时空列表降级。
+  - `retrieval/retriever.py` 将账本记录作为 `canon_ledger` source 纳入 BM25 语料，source weight 1.1；命中项保留 `entities`、`ledger_type`、`confidence`，并合并进 prompt 的“正史事实”块。
+  - 不引入向量库、embedding、reranker，也不改变 builtin 样例的无检索行为。
+- **测试**：`tests/test_context_retrieval.py` 新增 loader/retriever 覆盖；检索/导入/浏览相关回归 `39 passed`。
+- **明确未做**：entity alias resolution、向量检索、reranker、prompt budget pack、ledger 与旧 facts 去重。
+- **下一刀建议**：v0.8.4 Consistency Audit 第一刀，基于 `canon_ledger` 与导入报告做 deterministic 静态审计，先输出 `memory/consistency_report.json`，不接 LLM。
+
+### 2026-05-30 — v0.8.4-A Static Consistency Audit
+
+- **做了什么**：
+  - 新增 `import_novel/consistency_audit.py`，导入时生成 `memory/consistency_report.json`，并在 `memory_manifest.json` 登记 `consistency_report` layer。
+  - 报告字段覆盖 `persona_drift`、`timeline_conflicts`、`resource_conflicts`、`contract_violations`、`forgotten_threads`、`repair_suggestions`、summary issue_count/risk_level。
+  - 当前为 deterministic 导入级静态审计：把 `import_report` 的缺章/重复章名/乱码转成 timeline/resource 风险；检查 canon ledger 是否为空；把 open_threads 登记为待追踪伏笔。不打 LLM，不接 runner。
+- **测试**：新增 `tests/test_v084_consistency_audit.py`（2 passed）；v0.8 导入/记忆/账本/审计/检索/导入 API 回归 `61 passed`。
+- **明确未做**：运行后写回审计、角色漂移检测、道具/死亡/地点同时性冲突、LLM 语义审计、前端审计面板。
+- **下一刀建议**：v0.8.5 Long Canon Replay Evaluation 可复用 v0.7.4 holdout/replay，下一步应先做“长篇 runtime_visible / holdout_private manifest 隔离”，而不是让 holdout 进入检索。
+
+### 2026-05-30 — v0.8.5-A Long Canon Replay Isolation
+
+- **做了什么**：
+  - `service/canon_replay.write_holdout()` 保留旧 `canon/holdout/chapter_*.md`，同时镜像私有章节到 `holdout_private/chapter_*.md`。
+  - 新增 `canon/visibility_manifest.json`：`runtime_visible` 指向 `source/` 可见章节，`holdout_private` 指向 evaluator-only 私有章节，并写明不得进入 retrieval / character_agent / narrator / multi_agent_runner prompt。
+  - `get_holdout()` additive 返回 `visibility_manifest` 摘要；旧 holdout/replay API 结构保持可用。
+  - 检索测试确认用 holdout 私有文本查询时，不会进入 `retrieval_context.prompt_block` 或 items。
+- **测试**：新增 `tests/test_v085_long_canon_replay.py`（3 passed）；Canon Replay / 检索回归 `68 passed`。
+- **明确未做**：更复杂的隐藏评估集切分策略、按章节比例自动划分 runtime/holdout、长篇 replay 批量评估 UI、版权/分享策略。
+- **下一刀建议**：进入 v0.8+ ActDirector 第一刀，先做 deterministic `AbstractIntervention -> CharacterActionPlan` 规划 artifact，不接 runner 主链路。
+
+### 2026-05-30 — v0.8+ ActDirector-A Planning Artifact
+
+- **做了什么**：
+  - 新增 `act_director/` 包：`CharacterActionPlan` / `ActionPlanStep` / `plan_character_actions()`。
+  - `plan_character_actions()` 将 `InterventionCompilation` 的 `AbstractIntervention`、`branch_axis`、`compatibility` 转成可审计动作计划；每个 step 含 `preconditions`、`effects`、`failure_reason`、`repair_suggestions`、`risk`、`visibility`、`rationale`。
+  - `service.run_intervention()` 在写 run 产物后额外写 `act_director_plan.json`，并在 `InterventionServiceResult.extra["act_director_plan"]` 返回摘要。该 artifact 不驱动 `run_scene`，不改变 events/state/chapter 旧契约。
+- **测试**：新增 `tests/test_v086_act_director.py`（3 passed）；干预编译/LLM fallback/Web intervention/CharacterAction 回归 `50 passed`。
+- **明确未做**：runner 消费 action plan、把 CharacterAction 写入 `multi_agent_trace` 实际产出、前端 ActDirector 面板、LLM action planner。
+- **下一刀建议**：Discourse-aware Narrator-A，先给分支产物新增 `narrative_diagnostics.json` 或扩展 Worldline Judge 的节奏/转折建议，而不是直接重写 narrator。
+
+### 2026-05-30 — v0.8+ Discourse-aware Narrator-A Diagnostics
+
+- **做了什么**：
+  - 新增 `narrative_diagnostics/` 包：`analyze_narrative()` 输出 `narrative_diagnostics` artifact，包含 char/sentence/paragraph/dialogue/turning/pacing metrics、tension_curve、warnings、suggestions。
+  - `output.writer._write_branch_outputs()` 在每个分支写 `narrative_diagnostics.json`；baseline 分支也会获得该诊断。该 artifact 只做写后诊断，不改变 narrator prompt、不改正文。
+- **测试**：新增 `tests/test_v087_narrative_diagnostics.py`（2 passed）；输出写盘/干预/基线/检索相关回归 `62 passed`。
+- **明确未做**：outline -> turning points -> chapter 两阶段 narrator、分支故事弧规划、前端诊断面板、诊断结果反馈到下一轮生成。
+- **下一刀建议**：Dynamic Action Registry-A，先生成 `dynamic_action_registry.yaml` / action alias registry，不接 runner 执行。
+
+### 2026-05-30 — v0.8+ Dynamic Action Registry-A
+
+- **做了什么**：
+  - 新增 `dynamic_action_registry/` 包：`DynamicActionRegistry` / `ActionRegistryEntry` / `build_action_registry()`。
+  - `build_action_registry()` 从 `CharacterActionPlan` 汇总动作类型、中文别名、前置条件、效果、失败原因、修复建议、风险等级、来源 step 与分支轴，形成 `dynamic_action_registry.yaml`。
+  - `service.run_intervention()` 在写 `act_director_plan.json` 后同步写 run 根目录 `dynamic_action_registry.yaml`，并在 `InterventionServiceResult.extra["dynamic_action_registry"]` 返回摘要。该 artifact 只作审计与后续 runner 接入，不执行状态变化、不改变旧产物契约。
+- **测试**：新增 `tests/test_v088_dynamic_action_registry.py`（2 passed）。
+- **明确未做**：runner 消费动态动作注册表、动作 cooldown/cost、跨 run 的项目级动作模板沉淀、前端动作注册表面板。
+- **下一刀建议**：Emergence Mining-A，先从 intervention/causal_diff/worldline_judgement/narrative_diagnostics/action_registry 汇总 `emergence_nodes.json`，不做社区推荐系统。
+
+### 2026-05-30 — v0.8+ Emergence Mining-A
+
+- **做了什么**：
+  - 新增 `emergence_mining/` 包：`EmergenceReport` / `EmergenceNode` / `mine_emergence_nodes()` / `write_emergence_nodes()`。
+  - `mine_emergence_nodes()` 从 run 目录读取 `intervention.json`、`intervention_compilation.json`、`dynamic_action_registry.yaml`、分支 `causal_diff.json`、`worldline_judgement.json`、`narrative_diagnostics.json`，汇总候选涌现节点、来源 artifact、分值、状态和建议。
+  - `service.run_intervention()` 每次干预后自动写 run 根目录 `emergence_nodes.json`，并在 `InterventionServiceResult.extra["emergence_nodes"]` 返回摘要。
+  - 新增 `service/emergence_mining.py` 与 HTTP `POST/GET /api/runs/<run_id>/emergence-nodes`；run_id 走安全校验，缺 run/report 返回 404，坏报告返回 400。
+- **测试**：新增 `tests/test_v089_emergence_mining.py`（4 passed，含 HTTP 生成干预后读取/重建涌现节点）。
+- **明确未做**：跨 run 聚类、涌现节点推荐系统、世界线模板市场、前端涌现节点面板、将高价值节点自动反馈给下一轮生成。
+- **下一刀建议**：收束 v0.1-v0.8 文档总览与未做项，再考虑 entity aliases / runner consumption / 前端 artifact 面板。

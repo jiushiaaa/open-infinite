@@ -6,10 +6,12 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.7.5 Worldline Judge 已验收；下一版 v0.8 Long Novel Memory |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 已验收；下一步 v0.8 收束整理 / entity aliases / runner consumption |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
+
+v0.1-v0.8 已完成能力与未做项总览见 [`v0.1-to-v0.8-version-audit.md`](./v0.1-to-v0.8-version-audit.md)。
 
 ## 2. 背景
 
@@ -807,6 +809,8 @@ MVP 支持：
 - 先完成前若干章即可进入体验，后续章节继续异步索引。
 - 导入报告展示：总字数、章节数、缺章/重复章、乱码风险、角色抽取置信度、时间线风险。
 
+当前已完成第一刀：导入落盘统一生成 `source_raw/` 与 `import_report.json`；Web/job 导入支持 `long_mode`（默认仍为 3-10 章，长篇模式最多 200 章）；API 返回导入报告摘要，包含总字数、章节数、前 20 章可体验范围、部分完成标记、疑似乱码、重复章名与缺章编号。断点续传、epub/zip、角色抽取置信度与时间线风险仍留后续小刀。
+
 #### v0.8.1 Hierarchical Memory
 
 项目应逐步升级为分层记忆结构：
@@ -821,6 +825,8 @@ timeline.yaml
 plot_threads.yaml
 propagation_debts.yaml
 ```
+
+当前已完成第一刀：导入项目会生成 `memory/` 目录与 `memory_manifest.json`，并写入 `master_setting.yaml`、volume/chapter memory、character states、timeline、plot_threads、propagation_debts。当前这些 artifact 只作为可审计骨架和后续能力输入，不改变 runner 默认行为。
 
 分层职责：
 
@@ -842,6 +848,8 @@ propagation_debts.yaml
 - foreshadowing / unresolved threads
 
 每条记录应包含章节、场景、实体、事实陈述、来源引用、置信度、有效期和真伪状态。
+
+当前已完成第一刀：导入时生成 `memory/canon_ledger.jsonl`，并在 `memory_manifest.json` 记录账本 layer。账本从章节事件、角色状态、角色关系和开放伏笔生成统一字段；旧 `canon/facts.jsonl` 继续保留，保证现有检索链路不变。
 
 #### v0.8.3 Hybrid Retrieval
 
@@ -867,6 +875,8 @@ Prompt 预算：
 
 向量库、embedding、reranker 不作为 v0.8.0 必选项；当 50+ 章或 100 万字以上作品中 BM25 召回不足时再启用。
 
+当前已完成第一刀：现有 BM25 检索会读取 `memory/canon_ledger.jsonl`，以 `canon_ledger` source 进入 `retrieval_context.json`，并保留 entities、ledger_type、confidence。暂不接向量库、embedding、reranker。
+
 #### v0.8.4 Consistency Audit
 
 审计维度：
@@ -878,6 +888,8 @@ Prompt 预算：
 - 伏笔债务：未解伏笔是否遗忘，设定改动是否产生 propagation debt。
 
 输出 `consistency_report.json`，包含冲突位置、证据、风险等级和修复建议。
+
+当前已完成第一刀：导入时生成 `memory/consistency_report.json`，并在 manifest 中记录 consistency layer。报告先做静态审计：把导入报告中的乱码、重复章名、缺章风险转成 timeline/resource 风险，把开放伏笔登记为待追踪项；后续再接运行后的角色漂移、资源凭空变化和写后审计。
 
 #### v0.8.5 Long Canon Replay Evaluation
 
@@ -897,6 +909,8 @@ holdout_private/
 - evaluator 可读取 holdout，生成 `canon_replay_report.json`。
 - 如果只上传第一章，系统只能合理预测后续，不承诺复现原作。
 - 如果上传全本，默认只作为本地个人评估，不提供公开分发受保护文本续写的能力。
+
+当前已完成第一刀：写入 holdout 时会生成 `canon/visibility_manifest.json`，并镜像私有章节到 `holdout_private/`。`runtime_visible` 明确列出 `source/` 可见章节，`holdout_private` 只给 evaluator；`get_holdout()` 返回该 manifest 摘要，检索链路不会读取私有章节正文。
 
 验收：
 

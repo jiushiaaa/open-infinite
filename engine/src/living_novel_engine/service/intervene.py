@@ -10,14 +10,20 @@ retrieval → fourth wall → run_scene(每分支) → write_run_output。
 from __future__ import annotations
 
 import os
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
+
+import yaml
 
 from living_novel_engine.fourth_wall import (
     FourthWallLedger,
     accumulate_intervention,
     fourth_wall_enabled,
 )
+from living_novel_engine.act_director import plan_character_actions
+from living_novel_engine.dynamic_action_registry import build_action_registry
+from living_novel_engine.emergence_mining import write_emergence_nodes
 from living_novel_engine.intervention.contract_audit import audit_intervention
 from living_novel_engine.intervention.parser import build_intervention
 from living_novel_engine.intervention_compiler import (
@@ -183,6 +189,28 @@ def run_intervention(
         compilation=compilation,
         old_text=bundle.canon_chapter,
     )
+    action_plan = plan_character_actions(
+        compilation,
+        world=bundle.world,
+        characters=char_map,
+        story_slug=slug,
+    )
+    plan_payload = action_plan.model_dump(mode="json")
+    (output.run_dir / "act_director_plan.json").write_text(
+        json.dumps(plan_payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    action_registry = build_action_registry(action_plan)
+    registry_payload = action_registry.model_dump(mode="json")
+    (output.run_dir / "dynamic_action_registry.yaml").write_text(
+        yaml.safe_dump(
+            registry_payload,
+            allow_unicode=True,
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    emergence_payload = write_emergence_nodes(output.run_dir)
 
     meta = compilation.generation_meta or {}
     return InterventionServiceResult(
@@ -193,4 +221,9 @@ def run_intervention(
         llm_mock=used_mock,
         story_slug=slug,
         fallback_reason=meta.get("fallback_reason"),
+        extra={
+            "act_director_plan": plan_payload,
+            "dynamic_action_registry": registry_payload,
+            "emergence_nodes": emergence_payload,
+        },
     )

@@ -44,6 +44,21 @@ class VolumeBriefItem:
 
 
 @dataclass
+class CanonLedgerItem:
+    id: str
+    type: str
+    chapter: int
+    scene: int
+    entities: list[str]
+    statement: str
+    truth_status: str = "canon"
+    source_ref: str = ""
+    confidence: float = 0.0
+    valid_from: int | None = None
+    valid_until: int | None = None
+
+
+@dataclass
 class ContractData:
     world_rules: list[str] = field(default_factory=list)
     character_boundaries: dict[str, list[str]] = field(default_factory=dict)
@@ -57,6 +72,7 @@ class ContextCorpus:
     facts: list[FactItem] = field(default_factory=list)
     summaries: list[SummaryItem] = field(default_factory=list)
     volumes: list[VolumeBriefItem] = field(default_factory=list)
+    canon_ledger: list[CanonLedgerItem] = field(default_factory=list)
     contract: ContractData | None = None
 
 
@@ -66,9 +82,14 @@ def load_context_corpus(project_dir: Path) -> ContextCorpus:
     facts = _load_facts(project_dir / "canon" / "facts.jsonl")
     summaries = _load_summaries(summaries_dir)
     volumes = _load_volumes(summaries_dir)
+    canon_ledger = _load_canon_ledger(project_dir / "memory" / "canon_ledger.jsonl")
     contract = _load_contract(project_dir / "story_contract.yaml")
     return ContextCorpus(
-        facts=facts, summaries=summaries, volumes=volumes, contract=contract
+        facts=facts,
+        summaries=summaries,
+        volumes=volumes,
+        canon_ledger=canon_ledger,
+        contract=contract,
     )
 
 
@@ -143,6 +164,34 @@ def _load_volumes(summaries_dir: Path) -> list[VolumeBriefItem]:
             ))
         except (yaml.YAMLError, OSError, TypeError, ValueError):
             continue
+    return items
+
+
+def _load_canon_ledger(path: Path) -> list[CanonLedgerItem]:
+    if not path.exists():
+        return []
+    items: list[CanonLedgerItem] = []
+    try:
+        text = path.read_text(encoding="utf-8")
+        for line in text.strip().split("\n"):
+            if not line.strip():
+                continue
+            data = json.loads(line)
+            items.append(CanonLedgerItem(
+                id=str(data.get("id", "")),
+                type=str(data.get("type", "")),
+                chapter=int(data.get("chapter", 1) or 1),
+                scene=int(data.get("scene", 1) or 1),
+                entities=list(data.get("entities", []) or []),
+                statement=str(data.get("statement", "")),
+                truth_status=str(data.get("truth_status", "canon")),
+                source_ref=str(data.get("source_ref", "")),
+                confidence=float(data.get("confidence", 0.0) or 0.0),
+                valid_from=data.get("valid_from"),
+                valid_until=data.get("valid_until"),
+            ))
+    except (json.JSONDecodeError, OSError, TypeError, ValueError):
+        pass
     return items
 
 

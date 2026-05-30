@@ -314,6 +314,16 @@ def _write_branch_outputs(
 
     (branch_dir / "summary.md").write_text(summary_text, encoding="utf-8")
     (branch_dir / "chapter.md").write_text(chapter_text, encoding="utf-8")
+    from living_novel_engine.narrative_diagnostics import analyze_narrative
+
+    (branch_dir / "narrative_diagnostics.json").write_text(
+        json.dumps(
+            analyze_narrative(chapter_text, branch_id=result.worldline_id),
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     if compilation is not None:
         _write_causal_diff(

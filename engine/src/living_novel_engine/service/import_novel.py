@@ -14,6 +14,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from living_novel_engine.import_novel.mock_extractor import ExtractionResult, mock_extract
+from living_novel_engine.import_novel.report import (
+    build_import_report,
+    summarize_import_report,
+)
 from living_novel_engine.import_novel.splitter import SplitChapter, _extract_title
 from living_novel_engine.import_novel.validator import validate_project
 from living_novel_engine.import_novel.writer import _default_projects_dir, write_project
@@ -21,6 +25,7 @@ from living_novel_engine.llm.client import LLMClient, LLMSettings
 
 MIN_CHAPTERS = 3
 MAX_CHAPTERS = 10
+LONG_MAX_CHAPTERS = 200
 _SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
@@ -41,10 +46,11 @@ class ImportServiceResult:
     anchor_chapter_index: int
     warnings: list[str] = field(default_factory=list)
     extraction_mode: str = "mock"
+    import_report: dict = field(default_factory=dict)
 
 
-def _build_split_chapters(chapters: list[dict]) -> list[SplitChapter]:
-    """从 [{filename, content}] 构造 SplitChapter（按 filename 排序，镜像目录导入）。"""
+def _collect_chapter_items(chapters: list[dict]) -> list[tuple[str, str]]:
+    """校验并收集 [{filename, content}]，按 filename 排序。"""
     items: list[tuple[str, str]] = []
     for i, ch in enumerate(chapters):
         if not isinstance(ch, dict):
@@ -55,7 +61,11 @@ def _build_split_chapters(chapters: list[dict]) -> list[SplitChapter]:
         filename = str(ch.get("filename") or f"chapter_{i + 1:03d}.md")
         items.append((filename, content))
 
-    items.sort(key=lambda x: x[0])
+    return sorted(items, key=lambda x: x[0])
+
+
+def _build_split_chapters(items: list[tuple[str, str]]) -> list[SplitChapter]:
+    """从 [(filename, content)] 构造 SplitChapter（镜像目录导入）。"""
     split: list[SplitChapter] = []
     for i, (filename, content) in enumerate(items):
         stem = Path(filename).stem
@@ -112,6 +122,7 @@ def import_novel_from_payload(
     genre: str = "xianxia",
     mock: bool = False,
     force: bool = False,
+    long_mode: bool = False,
     projects_dir: Path | None = None,
 ) -> ImportServiceResult:
     """导入 3-10 章文本为可干预项目，复用 import_novel 流水线。
@@ -128,12 +139,17 @@ def import_novel_from_payload(
         raise ImportRequestError("chapters 须为数组")
     if len(chapters) < MIN_CHAPTERS:
         raise ImportRequestError(f"至少需要 {MIN_CHAPTERS} 章，当前 {len(chapters)} 章")
-    if len(chapters) > MAX_CHAPTERS:
+    max_chapters = LONG_MAX_CHAPTERS if long_mode else MAX_CHAPTERS
+    if len(chapters) > max_chapters:
+        limit_label = f"{max_chapters} 章"
+        suffix = "（v0.8 长篇导入）" if long_mode else "（v0.2 级小闭环）"
         raise ImportRequestError(
-            f"最多 {MAX_CHAPTERS} 章，当前 {len(chapters)} 章（v0.2 级小闭环）"
+            f"最多 {limit_label}，当前 {len(chapters)} 章{suffix}"
         )
 
-    split = _build_split_chapters(chapters)
+    items = _collect_chapter_items(chapters)
+    split = _build_split_chapters(items)
+    source_filenames = [filename for filename, _content in items]
     anchor_idx = len(split) - 1
 
     pdir = projects_dir or _default_projects_dir()
@@ -142,6 +158,13 @@ def import_novel_from_payload(
 
     extraction, mode = _extract(
         split, name=name, genre=genre, mock=mock, anchor_idx=anchor_idx
+    )
+    import_report = build_import_report(
+        slug=name,
+        chapters=split,
+        source_filenames=source_filenames,
+        long_mode=long_mode,
+        warnings=list(extraction.warnings),
     )
 
     project_dir = write_project(
@@ -152,10 +175,11 @@ def import_novel_from_payload(
         projects_dir=pdir,
         allow_overwrite=force,
         genre=genre,
+        import_report=import_report,
     )
 
     vr = validate_project(project_dir)
-    warnings = list(extraction.warnings) + list(vr.warnings)
+    warnings = list(import_report.get("warnings", [])) + list(vr.warnings)
     warnings.extend(f"校验未通过：{e}" for e in vr.errors)
 
     world = extraction.world_yaml
@@ -170,4 +194,5 @@ def import_novel_from_payload(
         anchor_chapter_index=anchor_idx,
         warnings=warnings,
         extraction_mode=mode,
+        import_report=summarize_import_report(import_report),
     )

@@ -60,6 +60,11 @@ from .intervene import (
     resolve_llm_quietly,
     run_intervention,
 )
+from .emergence_mining import (
+    EmergenceMiningRequestError,
+    get_emergence_nodes,
+    mine_run_emergence,
+)
 from .intervention_guardrail import (
     GuardrailRequestError,
     check_intervention_guardrail,
@@ -112,6 +117,7 @@ __all__ = [
     "CharacterProbe",
     "ProbeRequestError",
     "GuardrailRequestError",
+    "EmergenceMiningRequestError",
     "probe_character",
     "check_intervention_guardrail",
     "check_project_health",
@@ -135,6 +141,8 @@ __all__ = [
     "import_novel_from_payload",
     "resolve_llm_quietly",
     "run_intervention",
+    "get_emergence_nodes",
+    "mine_run_emergence",
     "VisualAssetPathError",
     "VisualAssetRequestError",
     "generate_visual_assets",
