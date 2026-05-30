@@ -64,7 +64,7 @@
 - v0.8+ Emergence Mining-A 已收口。
 - 当前后端验证基线：`561 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一版：`v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining`。
+- 官方下一版：`v0.8.x entity_aliases.yaml / entity resolution`；随后收束 runner consumption / 前端 artifact 面板 / 长篇上传产品化。
 
 最近一次 Codex 迭代：
 

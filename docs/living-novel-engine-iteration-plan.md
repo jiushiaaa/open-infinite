@@ -157,7 +157,7 @@ lne list-genres
 - 检索结果已写入各分支 `retrieval_context.json`，并由 `lne browse`「检索记忆」标签页展示（v0.4.2 完成）。
 - 第四面墙数值、干预记忆、override ledger 已在 v0.5 驱动角色决策与章节渲染；browse 展示 fourth_wall 段留后续。
 - 多场景长程仿真 / MiroFish OASIS 尚未接入（v0.6）。
-- 产品级前端尚未启动；当前 `lne browse` 是研发/演示 viewer，不是普通用户入口（v0.7）。
+- 旧 `lne browse` 仍是研发/演示 viewer；普通用户产品前端已由 v0.7 `engine/ui` 承接。
 - embedding / 向量库 / reranker / 多 provider gateway 尚未做，留到规模化后。
 
 ## 4. 三个参考项目的定位
@@ -2052,9 +2052,10 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.7.3 Visual Asset Generation（Seedream 5.0 Lite 视觉资产，已收口）
   -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放，已收口）
   -> v0.7.5 Worldline Judge（世界线评分 + 故事弧 + emergence_score，已收口）
-  -> v0.8 Long Novel Memory（百万字上传 + 分层记忆 + 正史账本 + 一致性审计）
-  -> v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining
-  -> v0.8+ Zep / OASIS / CAMEL / 向量库 / 多 provider / 完整工作台（按规模触发评估）
+  -> v0.8 Long Novel Memory（百万字上传 + 分层记忆 + 正史账本 + 一致性审计，已收口底座）
+  -> v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining（已收口 A-slices）
+  -> v0.8.x entity aliases / runner consumption / 前端 artifact 面板 / 长篇上传产品化（下一步）
+  -> v0.9+ Zep / OASIS / CAMEL / 向量库 / 多 provider / 完整工作台（按规模触发评估）
 ```
 
 WenShape 解决“长篇上下文怎么不崩”，webnovel-writer 解决“故事合约和网文味”，MiroFish 解决“角色群体怎么自己动起来”，eastworld 解决“互动媒体 Agent 如何做动作、情绪查询和玩家护栏”的参考问题；四篇论文分别补上“用户涌现、意图调度、叙事质量、动作落地”的理论底座。Living Novel Engine 自己要牢牢抓住的，是它们都没有真正覆盖的核心：

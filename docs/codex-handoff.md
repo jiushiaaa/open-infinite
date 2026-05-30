@@ -31,6 +31,8 @@
 - v0.8.5-A Long Canon Replay Isolation
 - v0.8+ ActDirector-A Planning Artifact
 - v0.8+ Discourse-aware Narrator-A Diagnostics
+- v0.8+ Dynamic Action Registry-A
+- v0.8+ Emergence Mining-A
 
 最近一次 Codex 迭代：
 - v0.8.0-A：导入写 `source_raw/`、`import_report.json`，Web/job 支持 additive `long_mode`
@@ -47,13 +49,13 @@
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 v0.8+ Dynamic Action Registry / Emergence Mining。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 v0.8.x entity aliases / entity resolution。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
 - 前端中文
 - 后端补 service/API 测试，前端 build 必须通过
-- 完成后同步 memory.md，必要时同步迭代计划/README/UI spec
+- 完成后同步 memory.md，必要时同步迭代计划/README/UI spec/codex-handoff
 ```
 
 ## 当前项目状态

@@ -103,7 +103,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 |----|-----|
 | **测试基线** | 后端 `561 passed`（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
 | **官方下一版** | **v0.8 收束整理 / entity aliases / runner consumption / 前端 artifact 面板** |
-| **后续路线** | v0.8 Long Novel Memory → v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining → entity aliases / runner consumption |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x entity aliases / runner consumption / 前端 artifact 面板 |
 | **刚收口** | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + v0.8+ 行动/叙事/涌现 artifact：`source_raw/`、`import_report.json`、`memory/`、`canon_ledger.jsonl`、`consistency_report.json`、`visibility_manifest.json`、`act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`。全程不改 runner、不破坏既有运行产物契约。 |
 
 ---
@@ -393,9 +393,10 @@ lne list-genres
 ✅ v0.7.3   Visual Asset Generation：Seedream 5.0 Lite 视觉资产增强层（封面/头像/场景）+ visual_assets.json additive + 安全静态服务 + 无 Key 古风占位降级（482 passed）
 ✅ v0.7.4   Baseline & Canon Replay：无干预基线（build_baseline_spec + service/baseline.py，不写 intervention.json/causal_diff.json）+ 正史 holdout 读写 + deterministic 回放评估（service/canon_replay.py，不打 LLM）+ 锚定页区块（Codex 兜底后 526 passed）
 ✅ v0.7.5   Worldline Judge：branch 级世界线评分、故事弧、转折点、anti-slop、emergence_score + 右侧评审标签页
-→ v0.8     Long Novel Memory：百万字上传、分层记忆、canon ledger、混合检索、一致性审计
-→ v0.8+    ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining
-→ v0.8+    Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库、多 provider、完整 MasterSetting 工作台（按触发条件）
+✅ v0.8     Long Novel Memory：百万字上传、分层记忆、canon ledger、混合检索、一致性审计、holdout 隔离底座
+✅ v0.8+    ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining：A-slices artifact 已收口
+→ v0.8.x   Entity aliases / runner consumption / 前端 artifact 面板 / 长篇上传产品化
+→ v0.9+    Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库、多 provider、完整 MasterSetting 工作台（按触发条件）
 ```
 
 ### v0.3.1 后续质量优化（非阻塞）
@@ -781,7 +782,7 @@ lne list-genres
 - **做了什么**：
   - 将 WenShape / webnovel-writer / MiroFish / eastworld / autonovel / AI_NovelGenerator 的定位、可借鉴点和明确不做项写入项目记忆
   - 将四篇论文报告写入项目记忆：2404 用户驱动涌现、2405 StoryVerse 抽象意图、2407 叙事质量与故事弧、2505 STORY2GAME 动作可执行化
-  - 更新官方路线：v0.7 Product Web App → v0.7.2 Agent Interaction → v0.7.5 Worldline Judge → v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining
+  - 当时更新官方路线：v0.7 Product Web App → v0.7.2 Agent Interaction → v0.7.5 Worldline Judge → v0.8+ 行动 / 叙事 / 涌现主线（现已完成 A-slices，下一步转入 v0.8.x 收束）
   - 明确短期仍保持 LNE 自研 `SceneRunner` + `MultiAgentTrace` 路线，外部项目只吸收机制与设计，不把源码并入仓库
 - **测试**：未运行，文档/记忆更新
 - **文件**：`memory.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/article/reports/*.md`

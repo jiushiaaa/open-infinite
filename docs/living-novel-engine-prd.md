@@ -771,7 +771,7 @@ MVP 支持：
 
 ### v0.7.4 Baseline & Canon Replay
 
-> 当前状态：已收口。后端基线经 Codex 兜底后为 `526 passed`，前端 `pnpm run build` 通过；最近补强了 service 层 id 安全校验，并将 holdout UI 默认覆盖改为 false。
+> 该阶段收口状态：已收口。后端基线经 Codex 兜底后为 `526 passed`，前端 `pnpm run build` 通过；当时补强了 service 层 id 安全校验，并将 holdout UI 默认覆盖改为 false。当前全项目基线以 `memory.md` 为准。
 
 - 三种入口已由 v0.7 Product Web App 完成：导入已有小说、主题创世、内置样例
 - `Baseline Worldline`：无高维干预，角色按人设、记忆、世界规则和伏笔压力自然推进
