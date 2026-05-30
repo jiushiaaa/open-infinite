@@ -61,6 +61,21 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
 | v1.0-beta | Commercial Hardening：账号、权限、云端持久化、配额、审计日志、版权提示、部署观测 | 待真实外部用户/团队长期使用 |
 
+### 产品化阶段说明
+
+完整口径见 `../docs/productization-phase-map.md`。当前判断如下：
+
+| 阶段 | 归类 | 说明 |
+|------|------|------|
+| v0.1-v0.3 | 技术 MVP | CLI、导入、检索、续章等核心链路已成立 |
+| v0.4-v0.6.5 | 研发/机制 MVP | 浏览器 viewer、第四面墙、runner、多 Agent 机制可审计可演示 |
+| v0.7-v0.7.5 | 短中篇产品化 MVP | React Web App 把普通用户主闭环跑通 |
+| v0.8.0-A-v0.8.5-A | 长篇引擎底座 MVP | 长篇 memory/canon/retrieval/audit/holdout 已落盘并可读取 |
+| v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
+| v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
+| v0.9.0-alpha | 长篇产品闭环 | 长篇共创主链路成立，但仍是 alpha |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
+
 **测试基线**：`pytest -q` → **573 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物

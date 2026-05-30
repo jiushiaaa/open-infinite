@@ -10,6 +10,7 @@
 - docs/codex-handoff.md
 - memory.md
 - docs/living-novel-engine-iteration-plan.md
+- docs/productization-phase-map.md
 - docs/living-novel-engine-prd.md
 - docs/v0.7-product-web-app-ui-spec.md
 - engine/README.md
@@ -84,9 +85,25 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | 官方下一版 | `v0.8.6 Long Import Review` |
 | 后续主线 | `v0.8.6` 导入报告/章节预览 -> `v0.8.7` 断点续传/恢复 -> `v0.8.8` 长篇项目页 -> `v0.8.9` replay/audit UI -> `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
+## 阶段性质与产品化判断
+
+完整口径见 `docs/productization-phase-map.md`。新窗口判断版本时不要把 “A-slice 已收口” 等同于 “完整商业产品已完成”。
+
+| 阶段 | 归类 | 判断 |
+| --- | --- | --- |
+| v0.1-v0.3 | 技术 MVP | CLI、导入、检索、续章等核心链路成立 |
+| v0.4-v0.6.5 | 研发/机制 MVP | 浏览器 viewer、第四面墙、runner、多 Agent 机制可审计可演示 |
+| v0.7-v0.7.5 | 短中篇产品化 MVP | 普通用户 Web 主闭环成立 |
+| v0.8.0-A-v0.8.5-A | 长篇引擎底座 MVP | 长篇 memory/canon/retrieval/audit/holdout 成立 |
+| v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 可读可验收，但不默认强执行 |
+| v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座变成上传、检查、管理、审计、回放、继续创作工作流 |
+| v0.9.0-alpha | 长篇产品闭环 | 长篇共创主链路成立，但仍是 alpha |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级账号/权限/云端/观测 |
+
 ## 资料位置
 
 - 主 PRD：`D:\AI\open-infinite\docs\living-novel-engine-prd.md`
+- 产品化阶段归类：`D:\AI\open-infinite\docs\productization-phase-map.md`
 - docs 导航：`D:\AI\open-infinite\docs\index.md`
 - v0.1-v0.8 版本审计：`D:\AI\open-infinite\docs\v0.1-to-v0.8-version-audit.md`
 - 已完成的 PRD 与专项版本文档：`D:\AI\open-infinite\docs\prd`

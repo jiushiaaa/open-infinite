@@ -96,6 +96,25 @@ Phase 5  社区与分享          远期
 
 > v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层，以及 txt/md/zip/epub 长篇上传产品化。当前后端基线为 **573 passed**，前端 build 通过。下一刀明确为 **v0.8.6 Long Import Review**：导入报告细化、章节预览、导入质量空态与失败空态收束；真正断点续传排到 v0.8.7，runner 状态执行层评估排到 v0.8.10-A/B。
 
+## 2.1 阶段性质与产品化程度
+
+完整口径见 `docs/productization-phase-map.md`。本路线图采用以下判断：
+
+| 阶段 | 阶段性质 | 产品化程度 | 当前判断 |
+| --- | --- | --- | --- |
+| v0.1-v0.3 | CLI、导入、检索、状态与续章底座 | 技术 MVP | 证明核心链路能运行，不是完整产品。 |
+| v0.4-v0.4.2 | 只读世界线浏览器与检索展示 | 研发/演示产品化 | 可浏览产物，但仍偏开发者 viewer。 |
+| v0.5-v0.6.5 | 第四面墙、SceneRunner、多 Agent 协议/runner | 引擎机制 MVP | 机制可审计、可演示，普通用户入口仍不完整。 |
+| v0.7-v0.7.5 | Product Web App + 交互/视觉/评审层 | 短中篇产品化 MVP | 第一轮真正面向普通用户的产品化闭环已成立。 |
+| v0.8.0-A-v0.8.5-A | Long Novel Memory、canon、retrieval、audit、holdout | 长篇引擎底座 MVP | 长篇记忆和正史能力成立，但仍偏 artifact/API。 |
+| v0.8+ A-slices | ActDirector、Narrator diagnostics、Action Registry、Emergence、Aliases、Runtime Memory | 机制接缝与解释层 MVP | A-slice 已可验收，但默认不代表强状态执行或复杂 runner。 |
+| v0.8.6-v0.8.10 | 导入检查、断点任务、项目页、审计 UI、runner 状态执行评估 | 长篇产品化收束 | 把长篇底座变成用户可理解、可修复、可继续创作的工作流。 |
+| v0.9.0-alpha | Long Novel Creation Loop | 长篇产品化闭环成立 | 上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出走通；仍是 alpha。 |
+| v0.9.1-v0.9.4 | Provider/Cost、MasterSetting、Graph Memory、Advanced Runner | 真实使用压力增强 | 按成本、召回、设定管理、runner 复杂度触发，不提前重依赖。 |
+| v1.0-beta | Commercial Hardening | 商业级/规模化 | 账号、权限、云端持久化、配额、审计、版权、部署观测。 |
+
+因此，“已经完成 MVP”需要带限定语：v0.7 已完成短中篇产品化 MVP，v0.8.0-A 至 v0.8.5-A 已完成长篇底座 MVP；v0.8.6-v0.8.10 是长篇产品化收束，v0.9.0-alpha 才是长篇共创产品闭环成立。
+
 ## 3. 已完成能力
 
 | 里程碑 | 内容 | 状态 |

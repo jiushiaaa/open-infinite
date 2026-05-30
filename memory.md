@@ -127,6 +127,25 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
 | v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 待真实外部用户/团队长期使用 |
 
+## 3.2 阶段性质归类
+
+完整说明见 `docs/productization-phase-map.md`。当前统一口径：
+
+| 阶段 | 性质 | 产品化判断 |
+| --- | --- | --- |
+| v0.1-v0.3 | CLI / 导入 / 检索 / 续章底座 | 技术 MVP，证明核心链路成立 |
+| v0.4-v0.4.2 | 只读世界线浏览器 | 研发/演示产品化，仍偏 viewer |
+| v0.5-v0.6.5 | 第四面墙、runner、多 Agent 机制 | 引擎机制 MVP，可审计可演示 |
+| v0.7-v0.7.5 | Product Web App 与交互/视觉/评审层 | 短中篇产品化 MVP 已成立 |
+| v0.8.0-A-v0.8.5-A | Long Novel Memory 与 canon 底座 | 长篇引擎底座 MVP 已成立 |
+| v0.8+ A-slices | ActDirector、叙事诊断、动作注册表、涌现、实体别名、运行时记忆消费 | 机制接缝与解释层 MVP，默认不代表强状态执行 |
+| v0.8.6-v0.8.10 | 长篇导入检查、任务恢复、项目页、回放审计 UI、runner 状态执行评估 | 长篇产品化收束段 |
+| v0.9.0-alpha | Long Novel Creation Loop | 长篇共创产品闭环成立，但仍非商业级 |
+| v0.9.1-v0.9.4 | provider/cost、MasterSetting、图记忆、advanced runner 评估 | 真实使用压力下的触发式增强 |
+| v1.0-beta | Commercial Hardening | 账号、权限、云端、配额、审计、版权、部署观测等商业化加固 |
+
+解释原则：说 “MVP 已完成” 时必须说明层级。v0.7 是短中篇产品化 MVP，v0.8.0-A 至 v0.8.5-A 是长篇底座 MVP；v0.8.6-v0.8.10 不是重做这些能力，而是把它们产品化为普通用户工作流。
+
 ## 4. 已完成版本（按时间线）
 
 ### v0.6.5 — 多 Agent 推演工程可靠性 ✅
@@ -1250,3 +1269,12 @@ lne list-genres
 - **测试**：文档路线同步；执行 `git diff --check` 验证格式。
 - **文件**：`memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/living-novel-engine-prd.md`、`docs/living-novel-engine-iteration-plan.md`、`engine/README.md`。
 - **下一刀建议**：仍从 `v0.8.6 Long Import Review` 开始；不要因 v0.9+ 段落提前引入重依赖。
+
+### 2026-05-31 — 产品化阶段归类文档化
+
+- **做了什么**：
+  - 新增 `docs/productization-phase-map.md`，统一解释技术 MVP、研发/机制 MVP、短中篇产品化 MVP、长篇底座 MVP、长篇产品化收束、v0.9.0-alpha 产品闭环、v0.9.1+ 触发式增强、v1.0-beta 商业化加固。
+  - 在 `docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/codex-handoff.md`、`engine/README.md`、`docs/index.md`、`AGENTS.md` 中补充或链接该口径。
+  - 明确 “MVP 已完成” 必须带限定语：v0.7-v0.7.5 是短中篇产品化 MVP；v0.8.0-A 至 v0.8.5-A 是长篇引擎底座 MVP；v0.8.6-v0.8.10 是长篇产品化收束；v0.9.0-alpha 才是长篇共创产品闭环成立，但仍不是商业级平台。
+- **测试**：文档口径同步；执行 `git diff --check` 验证格式。
+- **下一刀建议**：新窗口继续从 `v0.8.6 Long Import Review` 开始，不提前引入 Zep / 图数据库 / OASIS / CAMEL / LangGraph。

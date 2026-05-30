@@ -14,6 +14,7 @@
 
 - `memory.md`
 - `docs/living-novel-engine-iteration-plan.md`
+- `docs/productization-phase-map.md`
 - `docs/living-novel-engine-prd.md`
 - `docs/v0.7-product-web-app-ui-spec.md`
 - `engine/README.md`
@@ -23,6 +24,7 @@
 
 - `memory.md`：当前状态、测试基线、已知缺口、变更日志
 - `docs/living-novel-engine-iteration-plan.md`：版本路线和下一刀范围
+- `docs/productization-phase-map.md`：技术 MVP、产品化 MVP、长篇产品化、商业化加固的阶段归类
 - `docs/living-novel-engine-prd.md`：产品定位和用户流程
 - `docs/v0.7-product-web-app-ui-spec.md`：Web UI 风格和交互边界
 - `engine/README.md`：CLI/API/输出结构/验收命令

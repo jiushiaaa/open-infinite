@@ -18,17 +18,19 @@
 2. `codex-handoff.md`
 3. `../memory.md`
 4. `living-novel-engine-iteration-plan.md`
-5. `living-novel-engine-prd.md`
-6. `v0.7-product-web-app-ui-spec.md`
-7. `../engine/README.md`
+5. `productization-phase-map.md`
+6. `living-novel-engine-prd.md`
+7. `v0.7-product-web-app-ui-spec.md`
+8. `../engine/README.md`
 
 ### 做版本规划或判断下一步
 
 1. `../memory.md`
 2. `living-novel-engine-iteration-plan.md`
-3. `v0.1-to-v0.8-version-audit.md`
-4. `living-novel-engine-prd.md`
-5. 必要时读 `prd/` 下对应阶段专项文档
+3. `productization-phase-map.md`
+4. `v0.1-to-v0.8-version-audit.md`
+5. `living-novel-engine-prd.md`
+6. 必要时读 `prd/` 下对应阶段专项文档
 
 ### 做前端 UI 或产品体验
 
@@ -53,6 +55,7 @@
 | `codex-migration-guide.md` | 迁移说明 | `.cursor/rules`、`.cursor/skills` 与 Codex skills/plugins 的迁移关系 |
 | `living-novel-engine-prd.md` | 主 PRD | 产品定位、用户流程、核心能力、版本级需求入口 |
 | `living-novel-engine-iteration-plan.md` | 主路线图 | v0.1-v0.9+ 的迭代顺序、阶段状态、下一步路线 |
+| `productization-phase-map.md` | 阶段归类 | 统一解释技术 MVP、短中篇产品化 MVP、长篇底座、长篇产品化、商业化加固的边界 |
 | `v0.7-product-web-app-ui-spec.md` | UI 规格 | v0.7 产品级 Web App 的信息架构、视觉风格、组件边界和增量能力 |
 | `v0.1-to-v0.8-version-audit.md` | 版本审计 | v0.1 到 v0.8 已完成能力、产物边界、未做项和下一步建议 |
 
