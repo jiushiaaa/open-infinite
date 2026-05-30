@@ -12,6 +12,11 @@ import yaml
 
 from living_novel_engine.entity_aliases import load_entity_aliases
 from living_novel_engine.browser.paths import outputs_dir, projects_dir, samples_dir
+from living_novel_engine.import_novel.report import (
+    REPORT_VERSION,
+    chapter_previews_from_report,
+    summarize_import_report,
+)
 from living_novel_engine.samples import list_samples
 
 RunKind = Literal["intervene", "resume_continue", "resume_intervene", "unknown"]
@@ -539,6 +544,8 @@ def get_story(slug: str) -> dict[str, Any]:
     import_meta = story_path / "import_meta.json"
     if import_meta.exists():
         payload["import_meta"] = _read_json(import_meta)
+    if source_kind == "imported":
+        payload["import_review"] = _import_review(story_path)
 
     return payload
 
@@ -639,6 +646,106 @@ def _entity_alias_summary(story_path: Path) -> dict[str, Any]:
     return load_entity_aliases(story_path).to_summary()
 
 
+def _read_import_report_with_status(path: Path) -> tuple[str, dict[str, Any]]:
+    if not path.exists():
+        return "missing", {}
+    try:
+        return "ready", json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return "damaged", {}
+
+
+def _source_chapter_previews(story_path: Path, *, limit: int = 8) -> list[dict[str, Any]]:
+    source_dir = story_path / "source"
+    if not source_dir.exists():
+        return []
+    try:
+        paths = sorted(source_dir.glob("chapter_*.md"))
+    except OSError:
+        return []
+    previews: list[dict[str, Any]] = []
+    for index, path in enumerate(paths[:limit], start=1):
+        text = _read_text(path, limit=600).strip()
+        if not text:
+            continue
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        title = lines[0][:60] if lines else path.stem
+        preview = " ".join(lines)[:160]
+        previews.append(
+            {
+                "index": index,
+                "title": title,
+                "characters": len(text),
+                "preview": preview,
+                "source_path": f"source/{path.name}",
+                "source_filename": path.name,
+            }
+        )
+    return previews
+
+
+def _fallback_import_summary(status: str, previews: list[dict[str, Any]]) -> dict[str, Any]:
+    total_chars = sum(int(p.get("characters") or 0) for p in previews)
+    lengths = [int(p.get("characters") or 0) for p in previews]
+    warnings = [
+        "导入报告缺失，已仅用章节文件生成预览。"
+        if status == "missing"
+        else "导入报告无法解析，已仅用章节文件生成预览。"
+    ]
+    return {
+        "version": REPORT_VERSION,
+        "status": status,
+        "source": {"type": "unknown"},
+        "total_chapters": len(previews),
+        "total_characters": total_chars,
+        "chapter_stats": {
+            "min_characters": min(lengths, default=0),
+            "max_characters": max(lengths, default=0),
+            "average_characters": round(total_chars / len(lengths), 1)
+            if lengths
+            else 0,
+            "short_chapters": [],
+        },
+        "playable_chapter_limit": min(20, len(previews)),
+        "partial_ready": len(previews) > 20,
+        "risks": {},
+        "quality_risks": [],
+        "recommended_actions": [
+            {
+                "kind": "regenerate_import_report",
+                "label": "重新生成导入报告",
+                "description": "报告缺失或损坏时，先重新导入或覆盖项目，再继续长篇审查。",
+            }
+        ],
+        "warnings": warnings,
+    }
+
+
+def _import_review(story_path: Path) -> dict[str, Any]:
+    status, report = _read_import_report_with_status(story_path / "import_report.json")
+    fallback_previews = _source_chapter_previews(story_path)
+    if status == "ready":
+        previews = chapter_previews_from_report(report) or fallback_previews
+        return {
+            "status": "ready",
+            "summary": summarize_import_report(report),
+            "quality_risks": list(report.get("quality_risks", []) or []),
+            "recommended_actions": list(report.get("recommended_actions", []) or []),
+            "warnings": list(report.get("warnings", []) or []),
+            "chapter_previews": previews,
+        }
+
+    summary = _fallback_import_summary(status, fallback_previews)
+    return {
+        "status": status,
+        "summary": summary,
+        "quality_risks": [],
+        "recommended_actions": summary["recommended_actions"],
+        "warnings": summary["warnings"],
+        "chapter_previews": fallback_previews,
+    }
+
+
 def get_world_anchor(slug: str) -> dict[str, Any]:
     """v0.7 第四刀：世界锚定页数据（world/characters/contract/threads/summaries）。
 
@@ -678,6 +785,9 @@ def get_world_anchor(slug: str) -> dict[str, Any]:
         "open_threads": _anchor_open_threads(story_path, world),
         "summaries": _anchor_summaries(story_path),
         "entity_aliases": _entity_alias_summary(story_path),
+        "import_review": _import_review(story_path)
+        if source_kind == "imported"
+        else None,
         "run_count": len(list_runs(story_slug=slug)),
     }
     return payload

@@ -102,7 +102,8 @@ def _collect_upload_items(upload: dict | None) -> list[tuple[str, str]]:
         with zipfile.ZipFile(io.BytesIO(raw)) as zf:
             return _collect_epub_items(zf) if suffix == ".epub" else _collect_zip_items(zf)
     except (zipfile.BadZipFile, OSError, UnicodeDecodeError) as exc:
-        raise ImportRequestError(f"无法解析上传文件：{filename}") from exc
+        label = "epub" if suffix == ".epub" else "zip"
+        raise ImportRequestError(f"{label} 文件无法解析或已损坏：{filename}") from exc
 
 
 def _decode_upload_chunks(upload: dict) -> bytes:
@@ -118,9 +119,9 @@ def _decode_upload_chunks(upload: dict) -> bytes:
             index = int(chunk.get("index"))
         except (TypeError, ValueError) as exc:
             raise ImportRequestError(f"upload.chunks[{i}].index 非法") from exc
-        data = str(chunk.get("data_b64") or "")
-        if not data:
+        if chunk.get("data_b64") is None:
             raise ImportRequestError(f"upload.chunks[{i}].data_b64 为空")
+        data = str(chunk.get("data_b64") or "")
         try:
             parts.append((index, base64.b64decode(data, validate=True)))
         except (binascii.Error, ValueError) as exc:
@@ -306,6 +307,7 @@ def import_novel_from_payload(
     items = _collect_chapter_items(chapters)
     split = _build_split_chapters(items)
     source_filenames = [filename for filename, _content in items]
+    source_type, source_name = _source_from_payload(upload)
     anchor_idx = len(split) - 1
 
     pdir = projects_dir or _default_projects_dir()
@@ -319,6 +321,8 @@ def import_novel_from_payload(
         slug=name,
         chapters=split,
         source_filenames=source_filenames,
+        source_type=source_type,
+        source_name=source_name,
         long_mode=long_mode,
         warnings=list(extraction.warnings),
     )
@@ -352,3 +356,11 @@ def import_novel_from_payload(
         extraction_mode=mode,
         import_report=summarize_import_report(import_report),
     )
+
+
+def _source_from_payload(upload: dict | None) -> tuple[str, str]:
+    if not upload:
+        return "manual", ""
+    filename = str(upload.get("filename") or "").strip()
+    suffix = Path(filename).suffix.lower().lstrip(".")
+    return (suffix or "upload", filename)

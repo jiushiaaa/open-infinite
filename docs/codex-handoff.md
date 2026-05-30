@@ -38,6 +38,7 @@
 - v0.8.x Runtime Memory Consumption-A
 - v0.8.x Frontend Artifact Panel
 - v0.8.x Long Upload Productization
+- v0.8.6 Long Import Review
 
 最近一次 Codex 迭代：
 - v0.8.0-A：导入写 `source_raw/`、`import_report.json`，Web/job 支持 additive `long_mode`
@@ -54,11 +55,12 @@
 - v0.8.x Runtime Memory Consumption-A：干预、baseline 与 CLI resume 通过既有 `retrieved_context` 参数只读消费 memory/alias/ledger 安全子集，并写 `runtime_memory_context.json`
 - v0.8.x Frontend Artifact Panel：`get_branch()` 聚合 `runtime_memory_context`、`act_director_plan`、`dynamic_action_registry`、`narrative_diagnostics`、`emergence_nodes`；前端右侧「机制档案」统一只读展示
 - v0.8.x Long Upload Productization：导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态；后端 `upload` 分片 payload 解析后复用既有导入流水线
-- 后端 python -m pytest -q 为 573 passed
+- v0.8.6 Long Import Review：`import_report.json` 新增来源、章节统计、章节片段、解析 warning、质量风险和建议动作；`get_story()` / `get_world_anchor()` additive 返回 `import_review`，报告缺失或损坏稳定降级为 missing/damaged 空态；前端世界锚定页新增「导入检查」
+- 后端 python -m pytest -q 为 577 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 `v0.8.6 Long Import Review`：先做长篇导入报告细化、章节预览、导入质量空态和失败空态收束。后续排期为 `v0.8.7 Resumable Ingest Jobs`、`v0.8.8 Long Project Workspace`、`v0.8.9 Long Replay & Audit UI`、`v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 `v0.8.7 Resumable Ingest Jobs`：先做服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等和过期清理。后续排期为 `v0.8.8 Long Project Workspace`、`v0.8.9 Long Replay & Audit UI`、`v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -79,11 +81,11 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `573 passed` |
+| 后端基线 | `577 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization |
-| 官方下一版 | `v0.8.6 Long Import Review` |
-| 后续主线 | `v0.8.6` 导入报告/章节预览 -> `v0.8.7` 断点续传/恢复 -> `v0.8.8` 长篇项目页 -> `v0.8.9` replay/audit UI -> `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review |
+| 官方下一版 | `v0.8.7 Resumable Ingest Jobs` |
+| 后续主线 | `v0.8.7` 断点续传/恢复 -> `v0.8.8` 长篇项目页 -> `v0.8.9` replay/audit UI -> `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
 ## 阶段性质与产品化判断
 
@@ -212,7 +214,7 @@ React/Vite 产品级前端主闭环已完成：
 - runner 消费 action plan、dynamic action registry 或 emergence nodes，并执行状态变化
 - 运行后写回审计、长篇 holdout 批量评估 UI
 
-下一刀建议：`v0.8.6 Long Import Review`，优先做导入报告细化、章节列表/正文片段预览、导入质量空态与失败空态收束；断点续传/恢复顺延为 `v0.8.7`，runner 状态执行层评估顺延为 `v0.8.10-A/B`。
+下一刀建议：`v0.8.7 Resumable Ingest Jobs`，优先做服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等与过期清理；runner 状态执行层评估仍顺延为 `v0.8.10-A/B`。
 
 ## v0.8.x Entity Aliases 收口摘要
 
@@ -237,6 +239,14 @@ React/Vite 产品级前端主闭环已完成：
 - 缺失 artifact 显示局部空态；损坏 JSON/YAML 不白屏，不影响章节阅读、检索、状态、Agent 轨迹或世界线评审。
 - 未做：runner 消费动作计划/动作注册表/涌现节点并改变状态；跨 run 涌现聚类；真正断点续传/恢复。
 
+## v0.8.6 Long Import Review 收口摘要
+
+- `import_report.json` 升级为 additive `v0.8.6` 报告，新增 `source`、`chapter_stats`、章节 `preview`、`parsing_warnings`、`quality_risks`、`recommended_actions`。
+- `browser.indexer.get_story()` / `get_world_anchor()` 新增 `import_review`；报告缺失或损坏时不抛 500，而是用 `source/` 章节预览稳定降级为 `missing` / `damaged` 空态。
+- 前端世界锚定页新增「导入检查」区，展示来源、章节统计、风险、warning、章节片段和下一步建议。
+- 坏 zip / epub / 空文件 / 章节过少返回更明确的 400 或 job failed 文案；不改 `run_scene` 默认行为，不改既有 artifact 契约。
+- 完整验证：`python -m pytest -q` 577 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
+
 ## v0.8.x Long Upload Productization 收口摘要
 
 - 后端 `import_novel_from_payload()` 新增 additive `upload` 入参：`filename/total_size/chunks[{index,data_b64}]`，支持 txt/md 文本拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节。
@@ -248,8 +258,8 @@ React/Vite 产品级前端主闭环已完成：
 
 | 版本 | 名称 | 范围 | 状态 |
 | --- | --- | --- | --- |
-| v0.8.6 | Long Import Review | 导入报告细化、章节列表/正文片段预览、导入质量空态、坏 zip/epub/空文件/章节过少等错误态收束 | 下一刀 |
-| v0.8.7 | Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 待做 |
+| v0.8.6 | Long Import Review | 导入报告细化、章节列表/正文片段预览、导入质量空态、坏 zip/epub/空文件/章节过少等错误态收束 | 已收口 |
+| v0.8.7 | Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 下一刀 |
 | v0.8.8 | Long Project Workspace | 长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告，支持从项目发起 baseline/intervention | 待做 |
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度和实体归一化后的审计展示 | 待做 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 待做 |

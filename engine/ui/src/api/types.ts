@@ -171,16 +171,65 @@ export interface ImportNovelRequest {
 
 export interface ImportReportSummary {
   version: string;
+  status?: string;
+  source?: {
+    type?: string;
+    name?: string;
+    file_count?: number;
+    filenames?: string[];
+  };
   total_chapters: number;
   total_characters: number;
+  chapter_stats?: {
+    min_characters?: number;
+    max_characters?: number;
+    average_characters?: number;
+    short_chapters?: number[];
+  };
   playable_chapter_limit: number;
   partial_ready: boolean;
   risks: {
     garbled_chapters?: number[];
     duplicate_titles?: string[];
     missing_chapter_numbers?: number[];
+    short_chapters?: number[];
   };
+  quality_risks?: ImportQualityRisk[];
+  recommended_actions?: ImportRecommendedAction[];
   warnings: string[];
+}
+
+export interface ImportQualityRisk {
+  code: string;
+  level: "low" | "medium" | "high" | string;
+  message: string;
+  chapters?: number[];
+  titles?: string[];
+  missing_numbers?: number[];
+}
+
+export interface ImportRecommendedAction {
+  kind: string;
+  label: string;
+  description: string;
+}
+
+export interface ImportChapterPreview {
+  index: number;
+  title: string;
+  characters: number;
+  preview: string;
+  source_path?: string;
+  source_filename?: string;
+}
+
+export interface ImportReview {
+  status: "ready" | "missing" | "damaged" | string;
+  summary: ImportReportSummary;
+  quality_risks: ImportQualityRisk[];
+  recommended_actions: ImportRecommendedAction[];
+  warnings: string[];
+  chapter_previews: ImportChapterPreview[];
 }
 
 export interface ImportNovelResponse {
@@ -443,6 +492,7 @@ export interface WorldAnchor {
   open_threads: AnchorThread[];
   summaries: AnchorSummary[];
   entity_aliases?: EntityAliasSummary;
+  import_review?: ImportReview | null;
   run_count: number;
 }
 

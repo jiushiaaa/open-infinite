@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-31（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 均已收口；下一步进入 v0.8.6 Long Import Review，并已排定 v0.8.7-v0.8.10 与 v0.9.0-alpha）
+> 版本：2026-05-31（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review 均已收口；下一步进入 v0.8.7 Resumable Ingest Jobs，并已排定 v0.8.8-v0.8.10 与 v0.9.0-alpha）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/completed/v0.1-to-v0.8-version-audit.md`。
@@ -79,9 +79,9 @@ v0.7.5   Worldline Judge     读者/编辑评审团 + 静态流水线项目取�
     ↓
 v0.8     Long Novel Memory + Action/Discourse/Emergence artifacts  已收口底座
     ↓
-v0.8.6   Long Import Review  导入报告细化 / 章节预览 / 失败空态  下一刀
+v0.8.6   Long Import Review  导入报告细化 / 章节预览 / 失败空态  已收口
     ↓
-v0.8.7   Resumable Ingest Jobs  断点续传 / 分片恢复  待做
+v0.8.7   Resumable Ingest Jobs  断点续传 / 分片恢复  下一刀
     ↓
 v0.8.8   Long Project Workspace  长篇项目资产页  待做
     ↓
@@ -94,7 +94,7 @@ Phase 5  社区与分享          远期
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层，以及 txt/md/zip/epub 长篇上传产品化。当前后端基线为 **573 passed**，前端 build 通过。下一刀明确为 **v0.8.6 Long Import Review**：导入报告细化、章节预览、导入质量空态与失败空态收束；真正断点续传排到 v0.8.7，runner 状态执行层评估排到 v0.8.10-A/B。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化，以及 **v0.8.6 Long Import Review**：导入报告细化、章节预览、导入质量空态与失败空态收束。当前后端基线为 **577 passed**，前端 build 通过。下一刀明确为 **v0.8.7 Resumable Ingest Jobs**：服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等与过期清理；runner 状态执行层评估仍排到 v0.8.10-A/B。
 
 ## 2.1 阶段性质与产品化程度
 
@@ -161,7 +161,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **573 passed**（截至 2026-05-31，v0.8.x Long Upload Productization 后复验）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **577 passed**（截至 2026-05-31，v0.8.6 Long Import Review 后复验）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1766,6 +1766,8 @@ v0.8.x Long Upload Productization 已让 txt/md/zip/epub 能通过浏览器分�
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 给 runner 状态执行层做可回退验证 |
 | v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | action/emergence 开始影响状态，但默认链路仍安全 |
 
+> **v0.8.6 已落地（2026-05-31）**：`import_report.json` 升级为 additive `v0.8.6` 报告，新增来源信息、章节统计、章节片段、解析 warning、质量风险与建议动作；`get_story()` / `get_world_anchor()` additive 返回 `import_review`，报告缺失或损坏时从 `source/` 章节稳定降级为 `missing` / `damaged` 空态；前端世界锚定页新增「导入检查」区，帮助用户理解导入了什么、有什么风险、下一步做什么。坏 zip / epub / 空文件 / 章节过少会返回更明确的 400 或前端失败空态。已验证：新增 v0.8.6 测试 4 passed；导入相关回归 22 passed；完整后端 577 passed；前端 build 通过。
+
 ### v0.9.0-alpha：Long Novel Creation Loop
 
 v0.9.0-alpha 不是当前下一刀。它应在 v0.8.6-v0.8.10 收口后开启，目标是把长篇上传、记忆、分支运行、审计、世界线选择和导出串成完整产品闭环：
@@ -1847,8 +1849,8 @@ v0.1.2 resume continue
   -> v0.8+ ActDirector / Narrator Diagnostics / Dynamic Action / Emergence Mining（已收口底座）
   -> v0.8.x entity aliases / runtime memory consumption / 前端 artifact 面板（已收口）
   -> 长篇上传产品化（已收口）
-  -> v0.8.6 Long Import Review（下一刀：导入报告细化 + 章节预览 + 质量/失败空态）
-  -> v0.8.7 Resumable Ingest Jobs（断点续传与恢复）
+  -> v0.8.6 Long Import Review（已收口：导入报告细化 + 章节预览 + 质量/失败空态）
+  -> v0.8.7 Resumable Ingest Jobs（下一刀：断点续传与恢复）
   -> v0.8.8 Long Project Workspace（长篇项目资产页）
   -> v0.8.9 Long Replay & Audit UI（长篇回放与审计 UI）
   -> v0.8.10-A/B Runner State Execution（状态执行层评估与 MVP）
@@ -1894,8 +1896,8 @@ v0.1.2 resume continue
 | P8 | v0.8 Long Novel Memory | 长篇导入报告、分层记忆、正史账本、账本检索、一致性审计、隐藏评估集隔离 | 已收口底座 |
 | P8.1 | v0.8+ Action/Discourse/Emergence | ActDirector、叙事诊断、动态动作注册表、涌现节点汇总 | 已收口底座 |
 | P8.2 | v0.8.x 收束 | entity aliases、runner consumption、前端 artifact 面板、长篇上传产品化 | 已收口 |
-| P8.6 | v0.8.6 Long Import Review | 导入报告细化、章节预览、导入质量空态、失败空态收束 | 下一刀 |
-| P8.7 | v0.8.7 Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 待做 |
+| P8.6 | v0.8.6 Long Import Review | 导入报告细化、章节预览、导入质量空态、失败空态收束 | 已收口 |
+| P8.7 | v0.8.7 Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 下一刀 |
 | P8.8 | v0.8.8 Long Project Workspace | 长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告 | 待做 |
 | P8.9 | v0.8.9 Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化 | 待做 |
 | P8.10-A | v0.8.10-A Runner State Execution Spike | opt-in 评估动作计划/动作注册表/涌现节点是否可安全转成状态变化；不改默认行为 | 待做 |
@@ -2166,8 +2168,8 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining（已收口 A-slices）
   -> v0.8.x entity aliases / runtime memory consumption / 前端 artifact 面板（已收口）
   -> 长篇上传产品化（已收口）
-  -> v0.8.6 Long Import Review（下一刀：导入报告细化 + 章节预览 + 质量/失败空态）
-  -> v0.8.7 Resumable Ingest Jobs（断点续传与恢复）
+  -> v0.8.6 Long Import Review（已收口：导入报告细化 + 章节预览 + 质量/失败空态）
+  -> v0.8.7 Resumable Ingest Jobs（下一刀：断点续传与恢复）
   -> v0.8.8 Long Project Workspace（长篇项目资产页）
   -> v0.8.9 Long Replay & Audit UI（长篇回放与审计 UI）
   -> v0.8.10-A/B Runner State Execution（状态执行层评估与 MVP）

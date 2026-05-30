@@ -347,6 +347,12 @@ function CenterColumn({
   const w = data.world;
   return (
     <div className="anchor__scroll">
+      {data.import_review && (
+        <section className="anchor__block">
+          <ImportReviewPanel review={data.import_review} />
+        </section>
+      )}
+
       <section className="anchor__block">
         <h3 className="anchor__block-title">世界规则</h3>
         {editing && draft ? (
@@ -457,6 +463,111 @@ function CenterColumn({
       </section>
     </div>
   );
+}
+
+function ImportReviewPanel({
+  review,
+}: {
+  review: NonNullable<WorldAnchor["import_review"]>;
+}) {
+  const summary = review.summary;
+  const source = summary.source?.type ? sourceLabel(summary.source.type) : "未知来源";
+  const risks = review.quality_risks ?? [];
+  const actions = review.recommended_actions ?? [];
+  const previews = review.chapter_previews ?? [];
+  return (
+    <div className="anchor__import-review">
+      <div className="anchor__import-head">
+        <div>
+          <h3 className="anchor__block-title anchor__block-title--plain">导入检查</h3>
+          <p className="muted tiny">
+            {source} · {summary.total_chapters} 章 · {summary.total_characters} 字
+          </p>
+        </div>
+        <span className={`badge tiny ${review.status === "ready" ? "badge--jade" : "badge--gold"}`}>
+          {reviewStatusLabel(review.status)}
+        </span>
+      </div>
+
+      <div className="anchor__import-metrics">
+        <Fact k="可先体验" v={`前 ${summary.playable_chapter_limit} 章`} />
+        <Fact
+          k="平均字数"
+          v={
+            summary.chapter_stats?.average_characters != null
+              ? `${summary.chapter_stats.average_characters} 字`
+              : "—"
+          }
+        />
+        <Fact k="风险数" v={`${risks.length}`} />
+      </div>
+
+      {risks.length === 0 ? (
+        <p className="anchor__import-ok tiny">未发现明显导入质量风险。</p>
+      ) : (
+        <ul className="anchor__import-risks">
+          {risks.map((risk) => (
+            <li key={`${risk.code}-${risk.message}`}>
+              <span className={`anchor__risk-dot anchor__risk-dot--${risk.level}`} />
+              <span>{risk.message}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {review.warnings.length > 0 && (
+        <div className="anchor__import-warnings">
+          {review.warnings.map((w) => (
+            <p key={w} className="tiny">{w}</p>
+          ))}
+        </div>
+      )}
+
+      <div className="anchor__preview-list">
+        {previews.slice(0, 5).map((ch) => (
+          <div key={`${ch.index}-${ch.source_path}`} className="anchor__preview">
+            <div className="anchor__preview-title">
+              <span>{ch.index != null ? `第${ch.index}章` : "章节"}</span>
+              <strong>{ch.title || "未命名章节"}</strong>
+              <em>{ch.characters} 字</em>
+            </div>
+            <p>{ch.preview || "暂无正文片段。"}</p>
+          </div>
+        ))}
+      </div>
+
+      {actions.length > 0 && (
+        <div className="anchor__next-actions">
+          <span className="muted tiny">下一步</span>
+          {actions.slice(0, 3).map((action) => (
+            <div key={action.kind} className="anchor__next-action">
+              <strong>{action.label}</strong>
+              <p className="muted tiny">{action.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function sourceLabel(source: string) {
+  const map: Record<string, string> = {
+    manual: "手动粘贴",
+    txt: "txt 文件",
+    md: "md 文件",
+    zip: "zip 章节包",
+    epub: "epub 文件",
+    unknown: "未知来源",
+  };
+  return map[source] ?? source;
+}
+
+function reviewStatusLabel(status: string) {
+  if (status === "ready") return "报告完整";
+  if (status === "missing") return "报告缺失";
+  if (status === "damaged") return "报告损坏";
+  return status || "未知状态";
 }
 
 // ── 角色卡 ───────────────────────────────────────────────

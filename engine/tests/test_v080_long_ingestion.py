@@ -102,7 +102,7 @@ class TestLongIngestionReport:
 
         assert result.chapter_count == 25
         assert result.import_report["total_chapters"] == 25
-        assert report["version"] == "v0.8.0"
+        assert report["version"] == "v0.8.6"
         assert report["total_chapters"] == 25
         assert report["playable_chapter_limit"] == 20
         assert report["partial_ready"] is True
