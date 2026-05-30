@@ -519,17 +519,17 @@ lne list-genres
 
 ### v0.8+ 论文能力深化
 
-- [ ] `Long Novel Ingestion`：txt/md/epub/zip 分片上传，创建 `ingest_job`，支持进度、失败恢复、部分完成状态
-- [ ] `Hierarchical Memory`：`master_setting.yaml`、volume/chapter/scene briefs、character_states、timeline、plot_threads、propagation_debts
-- [ ] `Canon Ledger`：把 facts 升级为 event/state/relationship/resource/timeline/foreshadowing 账本，带 source_ref/confidence/valid_from
-- [ ] `Hybrid Retrieval`：BM25 + chapter distance decay + entity boost + source weight + optional vector/reranker + prompt budget pack
-- [ ] `Consistency Audit`：输出 `consistency_report.json`，检查角色漂移、时间线冲突、资源矛盾、合约越界、伏笔遗忘
-- [ ] `Long Canon Replay`：全本导入时隔离 `runtime_visible/` 与 `holdout_private/`，holdout 只给 evaluator，不能泄漏给角色/narrator/retrieval
-- [ ] `ActDirector`：协调读者意图、角色仿真、世界状态、故事合约
-- [ ] `Discourse-aware Narrator`：outline -> turning points -> chapter，避免章节太平或过早收束
-- [ ] `Dynamic Action Registry`：动态注册用户/角色新动作，写入 action registry
-- [ ] `Emergence Mining`：沉淀高价值 `emergence_nodes.json`，形成世界线模板或推荐
-- [ ] `entity_aliases.yaml` / entity resolution：避免同一物品/地点多名称导致状态断裂
+- [x] `Long Novel Ingestion Report`：已落地 `source_raw/`、`import_report.json`、Web/job `long_mode`、部分完成状态摘要。未做：真正前端分片上传、epub/zip、断点续传、独立 `ingest_job` 失败恢复。
+- [x] `Hierarchical Memory Skeleton`：已落地 `memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character_states、timeline、plot_threads、propagation_debts。未做：scene briefs、LLM 摘要重写、runner 消费 memory 层。
+- [x] `Canon Ledger Skeleton`：已落地 `memory/canon_ledger.jsonl`，覆盖 event/state/relationship/thread，带 `source_ref`、`confidence`、`valid_from` 等字段。未做：resource/timeline 细粒度语义抽取、`valid_until` 自动更新。
+- [x] `Hybrid Retrieval-A`：已把 canon ledger 作为 `canon_ledger` source 接入 BM25 + chapter distance decay + source weight。未做：entity boost、vector/reranker、prompt budget pack。
+- [x] `Consistency Audit-A`：已输出 `memory/consistency_report.json`，覆盖导入级 timeline/resource/contract/thread 风险。未做：运行后写回审计、深层角色漂移/道具/死亡/地点冲突检测。
+- [x] `Long Canon Replay Isolation`：已写 `canon/visibility_manifest.json`，隔离 runtime-visible source 与 evaluator-only `holdout_private/`，并测试 holdout 不进入 retrieval。未做：自动 holdout 切分与批量 replay UI。
+- [x] `ActDirector-A`：已落地 `act_director_plan.json`，协调读者意图、角色、世界状态和故事合约生成动作计划。未做：runner 消费该计划并真实执行状态变化。
+- [x] `Discourse-aware Narrator-A`：已落地 `narrative_diagnostics.json`，做写后节奏/转折/张力诊断。未做：outline -> turning points -> chapter 两阶段 narrator 和诊断反馈生成。
+- [x] `Dynamic Action Registry-A`：已落地 `dynamic_action_registry.yaml`，从动作计划汇总动作类型、中文别名、前置条件、效果、失败原因、修复建议。未做：跨 run 项目级动作模板与执行器。
+- [x] `Emergence Mining-A`：已落地 `emergence_nodes.json` 与 `POST/GET /api/runs/<run_id>/emergence-nodes`，沉淀 run 级候选涌现节点。未做：跨 run 聚类、世界线模板或推荐系统。
+- [ ] `entity_aliases.yaml` / entity resolution：仍未做；这是下一步 v0.8.x 最值得优先补的公共层，避免同一物品/地点多名称导致状态断裂。
 
 ### 刻意不做（短期）
 
