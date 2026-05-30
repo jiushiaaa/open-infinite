@@ -57,7 +57,7 @@
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 v0.8 收束整理：断点续传/恢复、导入报告细化，或 runner 状态执行层评估。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 `v0.8.6 Long Import Review`：先做长篇导入报告细化、章节预览、导入质量空态和失败空态收束。后续排期为 `v0.8.7 Resumable Ingest Jobs`、`v0.8.8 Long Project Workspace`、`v0.8.9 Long Replay & Audit UI`、`v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -81,8 +81,8 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | 后端基线 | `573 passed` |
 | 前端基线 | `pnpm run build` 通过 |
 | 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization |
-| 官方下一版 | v0.8 收束整理 / 断点续传与恢复 / runner 状态执行层评估 |
-| 后续主线 | 断点续传与恢复、导入报告细化、runner 状态执行层评估 |
+| 官方下一版 | `v0.8.6 Long Import Review` |
+| 后续主线 | `v0.8.6` 导入报告/章节预览 -> `v0.8.7` 断点续传/恢复 -> `v0.8.8` 长篇项目页 -> `v0.8.9` replay/audit UI -> `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 |
 
 ## 资料位置
 
@@ -195,7 +195,7 @@ React/Vite 产品级前端主闭环已完成：
 - runner 消费 action plan、dynamic action registry 或 emergence nodes，并执行状态变化
 - 运行后写回审计、长篇 holdout 批量评估 UI
 
-下一刀建议：优先断点续传/恢复和导入报告细化，或转向 runner consumption 的状态执行层。
+下一刀建议：`v0.8.6 Long Import Review`，优先做导入报告细化、章节列表/正文片段预览、导入质量空态与失败空态收束；断点续传/恢复顺延为 `v0.8.7`，runner 状态执行层评估顺延为 `v0.8.10-A/B`。
 
 ## v0.8.x Entity Aliases 收口摘要
 
@@ -226,6 +226,18 @@ React/Vite 产品级前端主闭环已完成：
 - `/api/import-novel` 与 `/api/jobs/import-novel` 均可传 `upload`；同步接口错误返回 400/409，异步 job 失败返回 `status=failed + error`，不白屏、不 500。
 - 前端导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、文件摘要、job 进度条、失败空态和重试；未选文件时保留原粘贴 3-10 章模式。
 - 未做：真正多请求断点续传/恢复、持久化 ingest job、epub spine 精排、角色抽取置信度和时间线风险增强。
+
+## v0.8.6-v0.9.0-alpha 后续版本编排
+
+| 版本 | 名称 | 范围 | 状态 |
+| --- | --- | --- | --- |
+| v0.8.6 | Long Import Review | 导入报告细化、章节列表/正文片段预览、导入质量空态、坏 zip/epub/空文件/章节过少等错误态收束 | 下一刀 |
+| v0.8.7 | Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 待做 |
+| v0.8.8 | Long Project Workspace | 长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告，支持从项目发起 baseline/intervention | 待做 |
+| v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度和实体归一化后的审计展示 | 待做 |
+| v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 待做 |
+| v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 待 v0.8 收束后开启 |
 
 ## 每次任务完成后的收口清单
 

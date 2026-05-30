@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization 已验收；下一步 v0.8 收束整理 / 断点续传与恢复 / runner 状态执行层评估 |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization 已验收；下一步 v0.8.6 Long Import Review |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -813,6 +813,27 @@ MVP 支持：
 
 当前已完成上传产品化：导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态；后端 `upload` payload 支持 base64 分片还原、txt/md 拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节。断点续传/恢复、角色抽取置信度与时间线风险仍留后续小刀。
 
+#### v0.8.6-v0.8.10 Long Novel Productization 收束
+
+v0.8 后半段不直接跳 v0.9，先把“上传成功”推进到“用户能确认、审计、继续创作”的长篇产品闭环前置层。
+
+| 版本 | 名称 | 产品目标 |
+| --- | --- | --- |
+| v0.8.6 | Long Import Review | 导入报告细化、章节列表/正文片段预览、导入质量空态、坏 zip/epub/空文件/章节过少等错误态收束 |
+| v0.8.7 | Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 |
+| v0.8.8 | Long Project Workspace | 长篇项目详情页展示章节、记忆、正史账本、实体别名、检索命中、审计报告，并支持从项目发起 baseline/intervention |
+| v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度和实体归一化审计展示 |
+| v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 |
+| v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 |
+
+#### v0.9.0-alpha Long Novel Creation Loop
+
+v0.9.0-alpha 在 v0.8.6-v0.8.10 收束后开启，目标是串起完整用户路径：
+
+```text
+上传原作/设定 -> 查看记忆与导入报告 -> 发起分支运行 -> 审计偏移 -> 选择世界线 -> 导出章节
+```
+
 #### v0.8.1 Hierarchical Memory
 
 项目应逐步升级为分层记忆结构：
@@ -927,6 +948,8 @@ holdout_private/
 - 隐藏评估集不会泄漏给运行时。
 
 ### v0.9+ 商业化增强
+
+v0.9+ 是商业化增强与规模化阶段，不是当前下一刀。v0.9.0-alpha 先验证长篇共创闭环；更重的外部系统按规模触发。
 
 - Zep / 图数据库（长篇事实与角色长期记忆需要图谱化时）
 - OASIS / CAMEL 可选 runner（群体仿真需求强于自研轻量 runner 时）

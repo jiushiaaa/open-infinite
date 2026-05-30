@@ -49,6 +49,12 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.x Runtime Memory Consumption-A | `runtime_memory_context.json`：运行时只读消费 memory/alias/ledger 安全子集 | 已收口 |
 | v0.8.x Frontend Artifact Panel | 右侧「机制档案」统一展示运行记忆、动作计划、动作注册表、叙事诊断、涌现节点 | 已收口 |
 | v0.8.x Long Upload Productization | txt/md/zip/epub 文件导入、浏览器端分片、job 进度与失败空态 | 已收口 |
+| v0.8.6 | Long Import Review：导入报告细化、章节预览、导入质量空态、失败空态收束 | 下一刀 |
+| v0.8.7 | Resumable Ingest Jobs：服务端分片 session、断点续传/恢复、hash 校验 | 待做 |
+| v0.8.8 | Long Project Workspace：长篇项目详情页与项目资产展示 | 待做 |
+| v0.8.9 | Long Replay & Audit UI：长篇回放与一致性审计 UI | 待做 |
+| v0.8.10-A/B | Runner State Execution：opt-in 状态执行层评估与最小 MVP | 待做 |
+| v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 待 v0.8 收束后开启 |
 
 **测试基线**：`pytest -q` → **573 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
@@ -474,4 +480,6 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.6.5 | 推演工程可靠性：generation_meta + trace 质量校验 + 有限重试 + token usage ✓ |
 | v0.7.1-A/B/C | Intervention Compiler + LLM 编译 + Causal Diff 数据地基 ✓ |
 | v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/v0.7-product-web-app-ui-spec.md`） |
-| v0.8+ | Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库 / 多 provider / 完整工作台（按规模触发评估） |
+| v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估 |
+| v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 |
+| v0.9+ | Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库 / 多 provider / 完整工作台（按规模触发评估） |

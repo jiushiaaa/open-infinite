@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 已完成；后端 573 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 已完成；v0.8.6-v0.8.10 与 v0.9.0-alpha 路线已重排；后端 573 passed，前端 build 通过）
 
 ---
 
@@ -102,11 +102,25 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | 项 | 值 |
 |----|-----|
 | **测试基线** | 后端 `573 passed`（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Artifact Panel + Long Upload Productization 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.8 收束整理 / 断点续传与恢复 / runner 状态执行层评估** |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases 已收口 → Runtime Memory Consumption-A 已收口 → 前端 Artifact Panel 已收口 → Long Upload Productization 已收口 |
+| **官方下一版** | **v0.8.6 Long Import Review**（导入报告细化、章节预览、质量空态） |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization 已收口 → v0.8.6 Long Import Review → v0.8.7 Resumable Ingest Jobs → v0.8.8 Long Project Workspace → v0.8.9 Long Replay & Audit UI → v0.8.10 Runner State Execution A/B → v0.9.0-alpha Long Novel Creation Loop |
 | **刚收口** | v0.8.x Long Upload Productization：前端导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态；后端 `upload` payload 会按分片还原并解析 txt/md/zip/epub，复用既有 `import_novel_from_payload()` 流水线。全程不改 `run_scene` 默认行为、不破坏既有运行产物契约。 |
 
 ---
+
+## 3.1 v0.8 收束期版本编排
+
+当前仍处在 **v0.8.x 收束段**，不直接跳 v0.9。v0.9 只在长篇上传、项目资产、审计 UI 与 runner 状态执行评估完成后开启。
+
+| 建议版本 | 名称 | 范围 | 状态 |
+| --- | --- | --- | --- |
+| v0.8.6 | Long Import Review | 导入报告细化、章节列表/正文片段预览、导入质量空态、坏 zip/epub/空文件/章节过少等错误态收束 | 下一刀 |
+| v0.8.7 | Resumable Ingest Jobs | 真正服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 待做 |
+| v0.8.8 | Long Project Workspace | 长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中、审计报告，并能从项目发起 baseline/intervention | 待做 |
+| v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 待做 |
+| v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 待做 |
+| v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 待 v0.8 收束后开启 |
 
 ## 4. 已完成版本（按时间线）
 
@@ -396,6 +410,12 @@ lne list-genres
 ✅ v0.8     Long Novel Memory：百万字上传、分层记忆、canon ledger、混合检索、一致性审计、holdout 隔离底座
 ✅ v0.8+    ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining：A-slices artifact 已收口
 → v0.8.x   Entity aliases / runtime memory consumption / 前端 artifact 面板 / 长篇上传产品化已收口
+→ v0.8.6   Long Import Review：导入报告细化 + 章节预览 + 质量/失败空态（下一刀）
+→ v0.8.7   Resumable Ingest Jobs：断点续传与恢复
+→ v0.8.8   Long Project Workspace：长篇项目资产页
+→ v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI
+→ v0.8.10  Runner State Execution：状态执行层评估与 MVP
+→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环
 → v0.9+    Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库、多 provider、完整 MasterSetting 工作台（按触发条件）
 ```
 
@@ -1200,4 +1220,14 @@ lne list-genres
   - React 导入页新增 txt/md/zip/epub 文件选择、浏览器端分片、上传文件摘要、job 进度条和失败空态/重试；未选文件时保留原 3-10 章粘贴模式。
 - **测试**：新增 `tests/test_v08x_long_upload_product.py`（3 passed：txt 分片导入、zip 章节导入、epub job 成功 + 损坏 zip failed）；导入相关回归 `28 passed`；完整后端 `python -m pytest -q` 为 **573 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **明确未做**：真正多请求断点续传/恢复、持久化 ingest job、epub 目录 spine 精排、角色抽取置信度、时间线风险增强、向量库。
-- **下一刀建议**：做断点续传/恢复和更细导入报告，或转向 runner 消费动作计划/动作注册表/涌现节点的状态执行层评估。
+- **下一刀建议**：`v0.8.6 Long Import Review`，先做导入报告细化、章节列表/正文片段预览、导入质量空态与失败空态收束；断点续传/恢复顺延为 `v0.8.7`，runner 状态执行层评估顺延为 `v0.8.10-A/B`。
+
+### 2026-05-31 — v0.8.6-v0.9.0-alpha 路线重排
+
+- **做了什么**：
+  - 明确当前仍在 v0.8.x 收束段，不直接跳 v0.9。
+  - 将下一刀排为 `v0.8.6 Long Import Review`：导入报告细化、章节预览、导入质量空态、失败空态收束。
+  - 将后续排期明确为 `v0.8.7 Resumable Ingest Jobs`、`v0.8.8 Long Project Workspace`、`v0.8.9 Long Replay & Audit UI`、`v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。
+- **测试**：文档路线同步；执行 `git diff --check` 验证格式。
+- **文件**：`memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/v0.7-product-web-app-ui-spec.md`、`engine/README.md`。
+- **下一刀建议**：新窗口从 `v0.8.6 Long Import Review` 开始，先扫描导入页、import report service/API、项目详情读取链路和失败空态测试。
