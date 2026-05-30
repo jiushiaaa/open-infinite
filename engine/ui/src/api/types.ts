@@ -16,6 +16,8 @@ export interface BranchSummaryNode {
   theme: string;
   chapter_chars: number;
   retrieval_count: number;
+  has_runtime_memory?: boolean;
+  runtime_memory_layer_count?: number;
   has_multi_agent_trace: boolean;
   multi_agent_trace_count: number;
   has_causal_diff: boolean;
@@ -392,6 +394,18 @@ export interface EntityAliasSummary {
     entity_type: string;
     alias_count: number;
   }>;
+}
+
+export interface RuntimeMemoryContext {
+  version: string;
+  query: string;
+  current_chapter: number;
+  prompt_block?: string;
+  consumed_layers: string[];
+  entity_aliases?: EntityAliasSummary;
+  resolved_query_entities?: string[];
+  warnings?: string[];
+  retrieval?: Record<string, unknown>;
 }
 
 export interface WorldAnchor {
@@ -783,6 +797,7 @@ export interface BranchDetail {
   state_snapshot: Record<string, unknown> | null;
   events: Record<string, unknown> | null;
   retrieval: Record<string, unknown> | null;
+  runtime_memory_context?: RuntimeMemoryContext | null;
   multi_agent_trace: Record<string, unknown> | null;
   causal_diff: CausalDiffArtifact | null;
   child_runs: string[];

@@ -37,7 +37,7 @@ from living_novel_engine.orchestrator.worldline_brancher import (
     build_branch_specs_from_compilation,
 )
 from living_novel_engine.output.writer import write_run_output
-from living_novel_engine.retrieval import retrieve_context
+from living_novel_engine.runtime_memory import build_runtime_memory_context
 from living_novel_engine.story_loader import load_story
 
 
@@ -75,9 +75,17 @@ def resolve_llm_quietly(mock_flag: bool) -> tuple[LLMClient, bool]:
 
 def _prepare_retrieval(bundle, query: str, source_type: str, *, current_chapter: int):
     if bundle.project_dir and source_type != "builtin_sample":
-        ctx = retrieve_context(bundle.project_dir, query, current_chapter=current_chapter)
-        return ctx.as_prompt_block(), ctx.to_artifact()
-    return "", None
+        ctx = build_runtime_memory_context(
+            bundle.project_dir,
+            query,
+            current_chapter=current_chapter,
+        )
+        return (
+            ctx.as_prompt_block(),
+            ctx.retrieval.to_artifact(),
+            ctx.to_artifact(),
+        )
+    return "", None, None
 
 
 def _present_ids(bundle) -> list[str]:
@@ -150,7 +158,7 @@ def run_intervention(
 
     query = f"{content} {char_map[target].name}"
     intervention_chapter = bundle.intervention_chapter()
-    retrieved_ctx, retrieval_record = _prepare_retrieval(
+    retrieved_ctx, retrieval_record, runtime_memory_record = _prepare_retrieval(
         bundle, query, bundle.world.source_type, current_chapter=intervention_chapter
     )
 
@@ -178,6 +186,8 @@ def run_intervention(
         )
         if retrieval_record is not None:
             result.retrieval_record = retrieval_record
+        if runtime_memory_record is not None:
+            result.runtime_memory_record = runtime_memory_record
         results.append(result)
 
     intervention.story_slug = slug

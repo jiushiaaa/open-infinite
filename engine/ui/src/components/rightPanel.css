@@ -141,3 +141,30 @@
   line-height: 1.6;
   font-family: var(--font-serif);
 }
+.memory-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+}
+.memory-chip--entity {
+  font-family: var(--font-mono);
+  color: var(--jade);
+  background: var(--jade-wash);
+  border-color: var(--jade-soft);
+}
+.runtime-warning {
+  padding: 8px var(--space-3);
+  border: 1px solid var(--cinnabar-soft);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--cinnabar-wash);
+  color: #7e2c22;
+  font-size: 12.5px;
+  margin-bottom: var(--space-2);
+}

@@ -72,6 +72,9 @@ class SimulationResult(BaseModel):
     final_scene_state: dict[str, Any] = Field(default_factory=dict)
     state_snapshot: dict[str, Any] = Field(default_factory=dict)
     retrieval_record: dict[str, Any] | None = None
+    # v0.8.x additive：runner 消费的只读记忆上下文审计 artifact。
+    # imported 项目在 retrieval 注入时填充；builtin / 无记忆项目保持 None。
+    runtime_memory_record: dict[str, Any] | None = None
     runner_name: str = "lightweight"
     # v0.6.2 additive：多 Agent runner 的可解释内部轨迹（MultiAgentTrace.model_dump()）。
     # 仅 multi_agent 系 runner 会填充；lightweight 恒为 None，不影响既有契约。

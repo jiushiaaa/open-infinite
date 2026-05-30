@@ -24,7 +24,7 @@ from living_novel_engine.baseline.models import (
 from living_novel_engine.orchestrator.scene_runner import run_scene
 from living_novel_engine.orchestrator.worldline_brancher import build_baseline_spec
 from living_novel_engine.output.writer import write_baseline_output
-from living_novel_engine.retrieval import retrieve_context
+from living_novel_engine.runtime_memory import build_runtime_memory_context
 from living_novel_engine.service.intervene import resolve_llm_quietly
 from living_novel_engine.story_loader import load_story
 
@@ -158,12 +158,14 @@ def _run_from_anchor(bundle, llm, *, rounds: int, runner_name: str | None):
     spec = build_baseline_spec()
     source_type = bundle.world.source_type
     query = bundle.world.display_name or bundle.world.title
-    retrieved_ctx, retrieval_record = "", None
+    retrieved_ctx, retrieval_record, runtime_memory_record = "", None, None
     if bundle.project_dir and source_type != "builtin_sample":
-        ctx = retrieve_context(
+        ctx = build_runtime_memory_context(
             bundle.project_dir, query, current_chapter=bundle.intervention_chapter()
         )
-        retrieved_ctx, retrieval_record = ctx.as_prompt_block(), ctx.to_artifact()
+        retrieved_ctx = ctx.as_prompt_block()
+        retrieval_record = ctx.retrieval.to_artifact()
+        runtime_memory_record = ctx.to_artifact()
 
     result = run_scene(
         bundle.world,
@@ -182,6 +184,8 @@ def _run_from_anchor(bundle, llm, *, rounds: int, runner_name: str | None):
     )
     if retrieval_record is not None:
         result.retrieval_record = retrieval_record
+    if runtime_memory_record is not None:
+        result.runtime_memory_record = runtime_memory_record
     chapter_number = next(
         (int(e.chapter) for e in result.accepted_events if getattr(e, "chapter", None)),
         13,
@@ -215,11 +219,17 @@ def _run_from_parent(
             f"{parent.summary_text.strip()}"
         )
 
-    retrieved_ctx, retrieval_record = "", None
+    retrieved_ctx, retrieval_record, runtime_memory_record = "", None, None
     if bundle.project_dir and parent.source_type != "builtin_sample":
         query = parent.summary_text[:200] if parent.summary_text else parent.branch_theme
-        ctx = retrieve_context(bundle.project_dir, query, current_chapter=next_chapter)
-        retrieved_ctx, retrieval_record = ctx.as_prompt_block(), ctx.to_artifact()
+        ctx = build_runtime_memory_context(
+            bundle.project_dir,
+            query,
+            current_chapter=next_chapter,
+        )
+        retrieved_ctx = ctx.as_prompt_block()
+        retrieval_record = ctx.retrieval.to_artifact()
+        runtime_memory_record = ctx.to_artifact()
 
     result = run_scene(
         world,
@@ -241,6 +251,8 @@ def _run_from_parent(
     )
     if retrieval_record is not None:
         result.retrieval_record = retrieval_record
+    if runtime_memory_record is not None:
+        result.runtime_memory_record = runtime_memory_record
     return result, next_chapter, world
 
 

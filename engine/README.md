@@ -46,8 +46,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ Dynamic Action Registry-A | `dynamic_action_registry.yaml`：从动作计划沉淀可复用动作别名注册表 | 已收口 |
 | v0.8+ Emergence Mining-A | `emergence_nodes.json`：run 级涌现节点汇总与 API | 已收口 |
 | v0.8.x Entity Aliases | `memory/entity_aliases.yaml`：实体别名骨架与检索归一化 | 已收口 |
+| v0.8.x Runtime Memory Consumption-A | `runtime_memory_context.json`：运行时只读消费 memory/alias/ledger 安全子集 | 已收口 |
 
-**测试基线**：`pytest -q` → **565 passed**（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **568 passed**（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -55,11 +56,14 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 
 ```text
 outputs/run_xxx/branch_a/retrieval_context.json
+outputs/run_xxx/branch_a/runtime_memory_context.json
 ```
 
 字段：`query`、`current_chapter`、`prompt_block`、`items[]`（含 `id`、`source`、`score`、`text`、`chapter`、`evidence`）。v0.8.3 起，`memory/canon_ledger.jsonl` 会以 `canon_ledger` source 进入同一 artifact，账本命中项额外带 `entities`、`ledger_type`、`confidence`。v0.8.x 起，`memory/entity_aliases.yaml` 会被 retrieval 读取并用于 query/doc alias expansion，命中项可 additive 带 `resolved_entities`。builtin 样例不写此文件。
 
-v0.4.2 起，`lne browse` 在分支阅读器新增「检索记忆」标签页：按 `source`（合约 / 正史事实 / 章节摘要 / 卷摘要）分组展示本章生成引用的命中项与分数，世界线树的分支节点也会显示「检索 N」角标。
+`runtime_memory_context.json` 是 v0.8.x Runner Consumption-A 的只读审计 artifact：它记录本次生成实际注入的运行时记忆层（`consumed_layers`）、实体别名状态、归一化命中的实体、降级 warnings 与嵌套的 retrieval artifact。它通过既有 `retrieved_context` 参数进入角色 Agent 与 narrator，不改变 `run_scene` 默认行为；`entity_aliases.yaml` 缺失或损坏时只写 warning，不阻断生成。
+
+v0.4.2 起，`lne browse` 在分支阅读器新增「检索记忆」标签页：按 `source`（合约 / 正史事实 / 章节摘要 / 卷摘要）分组展示本章生成引用的命中项与分数，世界线树的分支节点也会显示「检索 N」角标。v0.8.x 起，React 产品前端右侧解释面板新增「运行记忆」标签页，只读展示 `runtime_memory_context.json` 的记忆层、别名状态与降级提示。
 
 v0.7.1-C 起，干预分支还会写入：
 
@@ -287,7 +291,7 @@ lne import-novel tests/fixtures/mini_novel/ --name my-story
 
 自建章节目录：在 `engine/` 下创建 `chapters/`，每章一个 `.md` 或 `.txt`，再执行 `lne import-novel chapters/ --name <slug>`。已存在同名项目时需加 `--force`。
 
-产物目录：`projects/<slug>/`（`world.yaml`、`characters.yaml`、`canon_chapter.md` 等）。v0.8.0 起导入会额外写入 `source_raw/` 与 `import_report.json`：前者保存规范化后的原文账本，后者记录章节数、总字数、前 20 章可体验范围、疑似乱码、重复章名与缺章编号。Web/job 导入可传 `long_mode: true` 以允许 10 章以上、最多 200 章的长篇底座导入；默认小闭环仍保持 3-10 章限制。v0.8.1 起导入同时写入 `memory/` 分层记忆骨架：`memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character states、timeline、plot_threads 和 propagation debts。v0.8.2 起还会生成 `memory/canon_ledger.jsonl`，用统一字段记录章节事件、角色状态、关系与伏笔。v0.8.4 起还会生成 `memory/consistency_report.json`，先做导入级静态一致性审计。v0.8.5 起写入正史 holdout 时会生成 `canon/visibility_manifest.json`，把 `source/` 作为 `runtime_visible`，把 `holdout_private/` 明确标记为 evaluator-only。v0.8.x 起导入生成 `memory/entity_aliases.yaml`，作为角色/地点/势力/账本实体的 deterministic 别名骨架。详见 [v0.2-import-novel-mvp.md](../docs/v0.2-import-novel-mvp.md)。
+产物目录：`projects/<slug>/`（`world.yaml`、`characters.yaml`、`canon_chapter.md` 等）。v0.8.0 起导入会额外写入 `source_raw/` 与 `import_report.json`：前者保存规范化后的原文账本，后者记录章节数、总字数、前 20 章可体验范围、疑似乱码、重复章名与缺章编号。Web/job 导入可传 `long_mode: true` 以允许 10 章以上、最多 200 章的长篇底座导入；默认小闭环仍保持 3-10 章限制。v0.8.1 起导入同时写入 `memory/` 分层记忆骨架：`memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character states、timeline、plot_threads 和 propagation debts。v0.8.2 起还会生成 `memory/canon_ledger.jsonl`，用统一字段记录章节事件、角色状态、关系与伏笔。v0.8.4 起还会生成 `memory/consistency_report.json`，先做导入级静态一致性审计。v0.8.5 起写入正史 holdout 时会生成 `canon/visibility_manifest.json`，把 `source/` 作为 `runtime_visible`，把 `holdout_private/` 明确标记为 evaluator-only。v0.8.x 起导入生成 `memory/entity_aliases.yaml`，作为角色/地点/势力/账本实体的 deterministic 别名骨架；运行干预、baseline 或 CLI resume 时会写分支 `runtime_memory_context.json`，审计本章实际消费的 memory/alias/ledger 安全子集。详见 [v0.2-import-novel-mvp.md](../docs/v0.2-import-novel-mvp.md)。
 
 ### 真实 LLM 验收（demo，非 pytest）
 

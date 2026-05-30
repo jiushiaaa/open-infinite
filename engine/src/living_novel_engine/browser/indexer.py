@@ -27,6 +27,8 @@ class BranchSummary:
     has_state: bool = False
     has_retrieval: bool = False
     retrieval_count: int = 0
+    has_runtime_memory: bool = False
+    runtime_memory_layer_count: int = 0
     has_multi_agent_trace: bool = False
     multi_agent_trace_count: int = 0
     has_causal_diff: bool = False
@@ -141,6 +143,9 @@ def _scan_branch(branch_dir: Path) -> BranchSummary:
     has_retrieval, retrieval_count = _list_len_in_json(
         branch_dir / "retrieval_context.json", "items"
     )
+    has_runtime_memory, runtime_memory_layer_count = _list_len_in_json(
+        branch_dir / "runtime_memory_context.json", "consumed_layers"
+    )
     has_trace, trace_count = _list_len_in_json(
         branch_dir / "multi_agent_trace.json", "turn_plans"
     )
@@ -156,6 +161,8 @@ def _scan_branch(branch_dir: Path) -> BranchSummary:
         has_state=(branch_dir / "state_snapshot.json").exists(),
         has_retrieval=has_retrieval,
         retrieval_count=retrieval_count,
+        has_runtime_memory=has_runtime_memory,
+        runtime_memory_layer_count=runtime_memory_layer_count,
         has_multi_agent_trace=has_trace,
         multi_agent_trace_count=trace_count,
         has_causal_diff=has_diff,
@@ -342,6 +349,7 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
     state = _read_optional_json(branch_dir / "state_snapshot.json")
     events = _read_optional_json(branch_dir / "events.json")
     retrieval = _read_optional_json(branch_dir / "retrieval_context.json")
+    runtime_memory = _read_optional_json(branch_dir / "runtime_memory_context.json")
     multi_agent_trace = _read_optional_json(branch_dir / "multi_agent_trace.json")
     causal_diff = _read_optional_json(branch_dir / "causal_diff.json")
 
@@ -373,6 +381,7 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
         "state_snapshot": state,
         "events": events,
         "retrieval": retrieval,
+        "runtime_memory_context": runtime_memory,
         "multi_agent_trace": multi_agent_trace,
         "causal_diff": causal_diff,
         "child_runs": child_runs,
@@ -694,6 +703,8 @@ def build_worldline_tree(*, story_slug: str | None = None) -> list[dict[str, Any
             "theme": branch.theme,
             "chapter_chars": branch.chapter_chars,
             "retrieval_count": branch.retrieval_count,
+            "has_runtime_memory": branch.has_runtime_memory,
+            "runtime_memory_layer_count": branch.runtime_memory_layer_count,
             "has_multi_agent_trace": branch.has_multi_agent_trace,
             "multi_agent_trace_count": branch.multi_agent_trace_count,
             "has_causal_diff": branch.has_causal_diff,

@@ -2,12 +2,13 @@ import { useState } from "react";
 import type { BranchDetail, InterventionCompilation } from "../api/types";
 import { CharacterStatePanel } from "./CharacterStatePanel";
 import { RetrievalPanel } from "./RetrievalPanel";
+import { RuntimeMemoryPanel } from "./RuntimeMemoryPanel";
 import { AgentTracePanel } from "./AgentTracePanel";
 import { CompilationPanel } from "./CompilationPanel";
 import { WorldlineJudgePanel } from "./WorldlineJudgePanel";
 import "./rightPanel.css";
 
-type Tab = "state" | "retrieval" | "trace" | "compilation" | "judge";
+type Tab = "state" | "retrieval" | "memory" | "trace" | "compilation" | "judge";
 
 export function RightPanel({
   storySlug,
@@ -26,6 +27,11 @@ export function RightPanel({
     { id: "compilation", label: "干预编译", dot: !!compilation },
     { id: "state", label: "状态", dot: !!branch.state_snapshot },
     { id: "retrieval", label: "检索记忆", dot: !!branch.retrieval },
+    {
+      id: "memory",
+      label: "运行记忆",
+      dot: !!branch.runtime_memory_context,
+    },
     { id: "trace", label: "Agent 轨迹", dot: !!branch.multi_agent_trace },
     { id: "judge", label: "世界线评审" },
   ];
@@ -52,6 +58,9 @@ export function RightPanel({
         )}
         {tab === "state" && <CharacterStatePanel snapshot={branch.state_snapshot} />}
         {tab === "retrieval" && <RetrievalPanel retrieval={branch.retrieval} />}
+        {tab === "memory" && (
+          <RuntimeMemoryPanel memory={branch.runtime_memory_context} />
+        )}
         {tab === "trace" && <AgentTracePanel trace={branch.multi_agent_trace} />}
         {tab === "judge" && (
           <WorldlineJudgePanel storySlug={storySlug} branch={branch} />

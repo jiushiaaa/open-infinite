@@ -348,6 +348,16 @@ def _write_branch_outputs(
                 default=str,
             )
 
+    if result.runtime_memory_record is not None:
+        with open(branch_dir / "runtime_memory_context.json", "w", encoding="utf-8") as f:
+            json.dump(
+                result.runtime_memory_record,
+                f,
+                ensure_ascii=False,
+                indent=2,
+                default=str,
+            )
+
     if result.multi_agent_trace is not None:
         with open(branch_dir / "multi_agent_trace.json", "w", encoding="utf-8") as f:
             json.dump(

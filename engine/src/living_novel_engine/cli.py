@@ -49,7 +49,7 @@ from living_novel_engine.resources.genre_loader import (
     get_genre_display_name,
     list_genres,
 )
-from living_novel_engine.retrieval import retrieve_context
+from living_novel_engine.runtime_memory import build_runtime_memory_context
 
 console = Console()
 
@@ -60,17 +60,27 @@ def _prepare_retrieval(
     source_type: str,
     *,
     current_chapter: int = 1,
-) -> tuple[str, dict | None]:
+) -> tuple[str, dict | None, dict | None]:
     """imported 项目检索上下文；builtin 返回空且不写 artifact。"""
     if bundle.project_dir and source_type != "builtin_sample":
-        ctx = retrieve_context(bundle.project_dir, query, current_chapter=current_chapter)
-        return ctx.as_prompt_block(), ctx.to_artifact()
-    return "", None
+        ctx = build_runtime_memory_context(
+            bundle.project_dir,
+            query,
+            current_chapter=current_chapter,
+        )
+        return ctx.as_prompt_block(), ctx.retrieval.to_artifact(), ctx.to_artifact()
+    return "", None, None
 
 
-def _attach_retrieval(result, record: dict | None):
+def _attach_retrieval(
+    result,
+    record: dict | None,
+    runtime_record: dict | None = None,
+):
     if record is not None:
         result.retrieval_record = record
+    if runtime_record is not None:
+        result.runtime_memory_record = runtime_record
     return result
 
 
@@ -520,7 +530,7 @@ def resume_continue_cmd(run_id: str, branch: str, rounds: int, mock: bool) -> No
         )
 
     query = parent.summary_text[:200] if parent.summary_text else parent.branch_theme
-    retrieved_ctx, retrieval_record = _prepare_retrieval(
+    retrieved_ctx, retrieval_record, runtime_memory_record = _prepare_retrieval(
         bundle, query, parent.source_type, current_chapter=next_chapter
     )
 
@@ -544,7 +554,7 @@ def resume_continue_cmd(run_id: str, branch: str, rounds: int, mock: bool) -> No
         retrieved_context=retrieved_ctx,
         ledger=ledger,
     )
-    _attach_retrieval(result, retrieval_record)
+    _attach_retrieval(result, retrieval_record, runtime_memory_record)
 
     output = write_resume_output(parent, result, ledger=ledger)
     ch_len = len((output.run_dir / "linear" / "chapter.md").read_text(encoding="utf-8"))
@@ -626,7 +636,7 @@ def resume_intervene_cmd(
         compilation, count=max(2, min(3, branches))
     )
     query = f"{content} {char_map[target].name}"
-    retrieved_ctx, retrieval_record = _prepare_retrieval(
+    retrieved_ctx, retrieval_record, runtime_memory_record = _prepare_retrieval(
         bundle, query, parent.source_type, current_chapter=next_chapter
     )
 
@@ -659,7 +669,7 @@ def resume_intervene_cmd(
             retrieved_context=retrieved_ctx,
             ledger=ledger,
         )
-        results.append(_attach_retrieval(result, retrieval_record))
+        results.append(_attach_retrieval(result, retrieval_record, runtime_memory_record))
 
     output = write_resume_intervene_output(
         parent, intervention, results, ledger=ledger, compilation=compilation
