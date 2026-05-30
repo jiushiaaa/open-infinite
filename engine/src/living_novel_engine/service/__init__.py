@@ -77,6 +77,11 @@ from .visual_assets import (
     get_visual_assets,
     resolve_asset_path,
 )
+from .worldline_judge import (
+    WorldlineJudgeRequestError,
+    get_worldline_judgement,
+    judge_worldline,
+)
 
 __all__ = [
     "VALID_ACTIONS",
@@ -135,4 +140,7 @@ __all__ = [
     "generate_visual_assets",
     "get_visual_assets",
     "resolve_asset_path",
+    "WorldlineJudgeRequestError",
+    "get_worldline_judgement",
+    "judge_worldline",
 ]

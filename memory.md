@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-30（v0.7.4 Baseline & Canon Replay 收口：无干预基线 + 正史 holdout + deterministic 回放评估 + 锚定页区块，520 passed）
+> **最后更新**：2026-05-30（v0.7.5 Worldline Judge branch 级 deterministic 评审层已完成；后端 535 passed，前端 build 通过）
 
 ---
 
@@ -100,10 +100,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `520 passed`（2026-05-30，+37 v0.7.4 Baseline & Canon Replay）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.7.5 Worldline Judge**：世界线评分、故事弧、转折点、anti-slop、emergence_score |
-| **后续路线** | v0.7.5 Worldline Judge → v0.8 Long Novel Memory |
-| **刚收口** | v0.7.4 Baseline & Canon Replay：`build_baseline_spec`（branch_seed=linear/branch_id=baseline）+ `write_baseline_output`（不写 intervention.json/causal_diff.json）+ `service/baseline.py` + `service/canon_replay.py`（holdout 读写 + deterministic evaluator）+ `baseline_report.json`/`holdout_manifest.json`/`canon_replay_report.json` additive artifact + 6 个新 API（baseline 生成/读取、holdout 读写、replay 运行/读取）+ 世界锚定页「基线与正史回放」区块（中文、空态、builtin 只读、评分条）。`writer._outputs_dir()` 改为支持 `LNE_OUTPUTS_DIR`（向后兼容） |
+| **测试基线** | 后端 `535 passed`（2026-05-30，v0.7.5 新增 9 个 Worldline Judge 测试，完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.8 Long Novel Memory**：百万字上传、分层记忆、canon ledger、混合检索、一致性审计 |
+| **后续路线** | v0.8 Long Novel Memory → v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining |
+| **刚收口** | v0.7.5 Worldline Judge：`worldline_judgement.json` branch 级 additive artifact + deterministic evaluator（persona consistency / contract risk / branch diversity / narrative momentum / emotional payoff / anti-slop / continuation potential / emergence_score / story arc / turning points / tension）+ service/API（`POST/GET /api/runs/<run_id>/branches/<branch_id>/worldline-judgement`）+ 工作台右侧「世界线评审」只读标签页。全程不打 LLM、不改 runner、不写回正文或 state_snapshot。 |
 
 ---
 
@@ -351,7 +351,7 @@ lne list-genres
 | 长篇混合检索未做 | 当前 BM25 lite 缺 entity boost、prompt budget pack、可选 vector/rerank 和百万字级评估 | v0.8.3 |
 | 长篇一致性审计未做 | 需要系统化发现角色漂移、时间线冲突、资源矛盾、合约越界和伏笔遗忘 | v0.8.4 |
 | ~~干预缺“抽象意图”中间层~~ | **v0.7.1-A/B 已解决编译层**：已有 `AbstractIntervention` / compatibility / dynamic BranchAxis；仍缺把抽象意图转为可执行 `CharacterActionSequence` | v0.7.2 / v0.8 |
-| 世界线缺质量评审 | 需要 `Worldline Judge` 评估角色一致性、合约风险、涌现价值、故事弧、转折点、张力、AI 腔 | v0.7.5 |
+| ~~世界线缺质量评审~~ | **v0.7.5 已解决第一刀**：branch 级 `worldline_judgement.json` + deterministic `Worldline Judge`，覆盖角色一致性、合约风险、分支差异、叙事动量、情绪兑现、anti-slop、续写潜力、涌现价值、故事弧、转折点、张力；LLM 语义评审留后续 | — |
 | 涌现节点未沉淀 | 用户干预导致的新路径尚未结构化保存为 `emergence_nodes.json` | v0.7 / v0.8 |
 | 叙事弧/转折点未进入 narrator | 论文 2407 指出 LLM 故事易平、早收束；需 discourse-aware narrator 管理故事弧和 TP | v0.8 |
 | 动态动作注册表未做 | 用户频繁提出未预设动作时，需要 `dynamic_action_registry.yaml` 与 entity alias/resolution | v0.8 |
@@ -390,8 +390,8 @@ lne list-genres
 ✅ v0.7 第九刀 异步 Job / 进度轮询：`POST /api/jobs/*` + `GET /api/jobs/<id>`，三处生成入口改走 job
 ✅ v0.7.2   Agent Interaction：CharacterAction（additive）/ CharacterProbe / InterventionGuardrail + 只读 UI（445 passed）
 ✅ v0.7.3   Visual Asset Generation：Seedream 5.0 Lite 视觉资产增强层（封面/头像/场景）+ visual_assets.json additive + 安全静态服务 + 无 Key 古风占位降级（482 passed）
-✅ v0.7.4   Baseline & Canon Replay：无干预基线（build_baseline_spec + service/baseline.py，不写 intervention.json/causal_diff.json）+ 正史 holdout 读写 + deterministic 回放评估（service/canon_replay.py，不打 LLM）+ 锚定页区块（520 passed）
-→ v0.7.5   Worldline Judge：世界线评分、故事弧、转折点、anti-slop、emergence_score
+✅ v0.7.4   Baseline & Canon Replay：无干预基线（build_baseline_spec + service/baseline.py，不写 intervention.json/causal_diff.json）+ 正史 holdout 读写 + deterministic 回放评估（service/canon_replay.py，不打 LLM）+ 锚定页区块（Codex 兜底后 526 passed）
+✅ v0.7.5   Worldline Judge：branch 级世界线评分、故事弧、转折点、anti-slop、emergence_score + 右侧评审标签页
 → v0.8     Long Novel Memory：百万字上传、分层记忆、canon ledger、混合检索、一致性审计
 → v0.8+    ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining
 → v0.8+    Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库、多 provider、完整 MasterSetting 工作台（按触发条件）
@@ -507,13 +507,14 @@ lne list-genres
 - [ ] 注意：只给第一章时只能合理预测后续，不能保证等于原作；导入全本时后续章节不得泄漏给角色和 narrator（holdout 文本只进 evaluator，未进角色/narrator/retrieval）
 - [ ] **未做**：Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）、LLM 语义评估、百万字 holdout、版权/公开分享策略
 
-### v0.7.5 Worldline Judge（autonovel + 2404/2407 论文）
+### v0.7.5 Worldline Judge（autonovel + 2404/2407 论文）✅
 
-- [ ] `worldline_judgement.json`：每条分支结构化评分
-- [ ] 评估维度：persona consistency、contract risk、branch diversity、narrative momentum、emotional payoff、anti-slop、continuation potential
-- [ ] 论文 2404：加入 `emergence_score`，识别高价值涌现节点
-- [ ] 论文 2407：加入 story arc、turning points、tension、pacing warnings
-- [ ] `compare.md` / Web UI 展示“推荐继续 / 谨慎继续 / 建议归档”
+- [x] `worldline_judgement.json`：每条分支结构化评分（branch 级 artifact）
+- [x] 评估维度：persona consistency、contract risk、branch diversity、narrative momentum、emotional payoff、anti-slop、continuation potential
+- [x] 论文 2404：加入 `emergence_score`，识别高价值涌现节点
+- [x] 论文 2407：加入 story arc、turning points、tension、pacing warnings
+- [x] Web UI 展示“推荐继续 / 谨慎继续 / 建议归档”（工作台右侧「世界线评审」标签页）
+- [ ] `compare.md` 汇总展示评审结果（本刀未做；可后续在 CLI/报告层追加）
 
 ### v0.8+ 论文能力深化
 
@@ -1022,7 +1023,29 @@ lne list-genres
   - **API（6 个，全 additive）**：`POST /api/stories/<slug>/baseline`、`GET /api/runs/<run_id>/baseline`、`GET/POST /api/stories/<slug>/canon/holdout`、`POST /api/stories/<slug>/canon/replay`、`GET /api/runs/<run_id>/canon-replay`。坏 slug 400、缺故事 404、builtin 写 holdout 400、同章 409、缺 baseline/holdout 404、损坏 artifact 400，**不 500**。
   - **基础设施修正**：`writer._outputs_dir()` 改为优先读 `LNE_OUTPUTS_DIR`（与 `browser.paths.outputs_dir()` 对齐；默认值不变，既有 monkeypatch 测试不受影响），让 baseline/replay 服务与 server/indexer 输出根一致、测试可隔离。
   - **Web UI**：新建 `BaselineCanonPanel.tsx`+`baselineCanon.css`（世界锚定页左栏区块）：holdout 状态（builtin 只读提示 / imported 录入 textarea）、生成无干预基线、章节下拉 + 运行正史回放、基线摘要（自然发展/角色状态/触及伏笔）、回放评分条（总分 + 5 分项 + 解释 + 缺失实体/伏笔 + 警告）；中文文案，强调"基线不是原作、回放仅本地评估"；`api/{client,types}.ts` 加 6 方法 + 全套类型。
-- **测试**：520 passed（+37，`tests/test_v074_baseline_canon_replay.py`：baseline service builtin/imported/缺故事/坏参数/无 intervention.json artifact/GET report；holdout 读写/409/force 覆盖/builtin 只读/空内容/非法章号/坏 slug/文件名派生防穿越；evaluator 分数范围/实体命中缺失/相同文本高分/空文本告警；replay service 写盘/缺 baseline/缺 holdout/坏章号/GET；HTTP baseline·holdout·replay 全流程 + 404/400/409）；既有 483 零回归；前端 `pnpm run build`（tsc -b + vite）通过。
+- **测试**：520 passed（+37，`tests/test_v074_baseline_canon_replay.py`：baseline service builtin/imported/缺故事/坏参数/无 intervention.json artifact/GET report；holdout 读写/409/force 覆盖/builtin 只读/空内容/非法章号/坏 slug/文件名派生防穿越；evaluator 分数范围/实体命中缺失/相同文本高分/空文本告警；replay service 写盘/缺 baseline/缺 holdout/坏章号/GET；HTTP baseline·holdout·replay 全流程 + 404/400/409）；随后 Codex 兜底补 service 层 id 安全校验和 holdout UI 默认不覆盖，复验为 **526 passed**；前端 `pnpm run build`（tsc -b + vite）通过。
 - **文件**：`baseline/{__init__,models}.py`、`canon_replay/{__init__,models,evaluator}.py`、`service/{__init__,baseline,canon_replay}.py`、`orchestrator/worldline_brancher.py`、`output/writer.py`、`browser/server.py`、`engine/ui/src/api/{client,types}.ts`、`engine/ui/src/components/{BaselineCanonPanel.tsx,baselineCanon.css,WorldAnchorPage.tsx}`、`tests/test_v074_baseline_canon_replay.py`、文档。
 - **明确未做**：Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）、LLM 语义评估、百万字 holdout、版权/公开分享策略、baseline↔intervention 并排偏离对比 UI、run-detail 页持久化展示 baseline/replay 报告（当前在锚定页生成时即时展示，报告可经 GET API 读回）。
 - **下一刀建议**：v0.7.5 Worldline Judge（`worldline_judgement.json`：persona consistency / contract risk / branch diversity / narrative momentum / emotional payoff / anti-slop / continuation potential + emergence_score + story arc/turning points）。
+
+### 2026-05-30 — Codex 接力迁移文档
+
+- **做了什么**：
+  - 新增 `AGENTS.md`：沉淀 Codex 项目级规则、会话开始必读、硬约束、验证命令、Cursor 迁移原则，并补充资料索引（`docs/prd`、`docs/article`、`Reference_projects`）。
+  - 新增 `docs/codex-handoff.md`：新窗口第一条消息模板、当前版本状态、v0.7.5 Worldline Judge 建议边界、每刀收口清单。
+  - 新增 `docs/codex-migration-guide.md`：说明 `.cursor/rules`、`.cursor/skills` 与 Codex skills/plugins 的迁移对应关系，避免整包复制通用技能造成上下文噪音。
+  - 同步当前基线与入口路径：v0.7.4 经 Codex 兜底后后端 `526 passed`、前端 build 通过；主 PRD 入口为 `docs/living-novel-engine-prd.md`，已完成专项 PRD 存在 `docs/prd/`。
+- **测试**：文档迁移为主；执行 `git diff --check` 验证无 whitespace error。
+- **文件**：`AGENTS.md`、`.cursor/rules/project-memory.mdc`、`docs/codex-handoff.md`、`docs/codex-migration-guide.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/v0.7-product-web-app-ui-spec.md`、`engine/README.md`、`memory.md`。
+- **下一刀建议**：新开 Codex 窗口后按 `docs/codex-handoff.md` 接力，进入 v0.7.5 Worldline Judge。
+
+### 2026-05-30 — v0.7.5 Worldline Judge 收口
+
+- **做了什么**：
+  - 新增 `worldline_judge/{models,evaluator}.py`：deterministic 分支评审，输出 `worldline_judgement.json`，覆盖角色一致性、合约风险、分支差异、叙事动量、情绪兑现、anti-slop、续写潜力、`emergence_score`、故事弧、转折点、张力与“推荐继续 / 谨慎继续 / 建议归档”。
+  - 新增 `service/worldline_judge.py` + HTTP `POST/GET /api/runs/<run_id>/branches/<branch_id>/worldline-judgement`，所有 run_id/branch_id/story_slug 走安全校验；缺报告 404，损坏 artifact 400；不打 LLM、不改 runner、不写回正文或 state_snapshot。
+  - 前端工作台右侧新增「世界线评审」标签页，可读取/生成报告，中文展示总分、推荐、故事弧、维度评分、优势/警告/建议/转折点。
+- **测试**：`tests/test_v075_worldline_judge.py` 9 passed；`engine/ui pnpm run build` 通过；完整后端 `python -m pytest -q` 为 535 passed。
+- **文件**：`worldline_judge/{__init__,models,evaluator}.py`、`service/{__init__,worldline_judge}.py`、`browser/server.py`、`engine/ui/src/api/{client,types}.ts`、`engine/ui/src/components/{RightPanel,WorkspacePage,WorldlineJudgePanel,worldlineJudge.css}.tsx`、`tests/test_v075_worldline_judge.py`、文档。
+- **明确未做**：LLM 语义评审、run 级聚合评审、`compare.md` 汇总、`emergence_nodes.json` 持久化、discourse-aware narrator、Long Novel Memory。
+- **下一刀建议**：v0.8 Long Novel Memory 第一刀，先做百万字导入的分片/异步导入与结构化导入报告，不急着接向量库。

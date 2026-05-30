@@ -4,15 +4,18 @@ import { CharacterStatePanel } from "./CharacterStatePanel";
 import { RetrievalPanel } from "./RetrievalPanel";
 import { AgentTracePanel } from "./AgentTracePanel";
 import { CompilationPanel } from "./CompilationPanel";
+import { WorldlineJudgePanel } from "./WorldlineJudgePanel";
 import "./rightPanel.css";
 
-type Tab = "state" | "retrieval" | "trace" | "compilation";
+type Tab = "state" | "retrieval" | "trace" | "compilation" | "judge";
 
 export function RightPanel({
+  storySlug,
   branch,
   compilation,
   compilationLoading,
 }: {
+  storySlug: string;
   branch: BranchDetail;
   compilation: InterventionCompilation | null;
   compilationLoading: boolean;
@@ -24,6 +27,7 @@ export function RightPanel({
     { id: "state", label: "状态", dot: !!branch.state_snapshot },
     { id: "retrieval", label: "检索记忆", dot: !!branch.retrieval },
     { id: "trace", label: "Agent 轨迹", dot: !!branch.multi_agent_trace },
+    { id: "judge", label: "世界线评审" },
   ];
 
   return (
@@ -49,6 +53,9 @@ export function RightPanel({
         {tab === "state" && <CharacterStatePanel snapshot={branch.state_snapshot} />}
         {tab === "retrieval" && <RetrievalPanel retrieval={branch.retrieval} />}
         {tab === "trace" && <AgentTracePanel trace={branch.multi_agent_trace} />}
+        {tab === "judge" && (
+          <WorldlineJudgePanel storySlug={storySlug} branch={branch} />
+        )}
       </div>
     </div>
   );

@@ -252,6 +252,26 @@ def index_run(run_dir: Path) -> RunSummary | None:
     )
 
 
+def _quick_story_slug(run_dir: Path) -> str | None:
+    """Cheaply infer run story_slug before scanning branch folders.
+
+    ``index_run`` reads every branch to populate tree badges. Story-filtered
+    calls can skip most runs by consulting root-level metadata first.
+    """
+    for name in ("meta.json", "intervention.json", "baseline_report.json"):
+        path = run_dir / name
+        if not path.exists():
+            continue
+        try:
+            data = _read_json(path)
+        except Exception:
+            continue
+        slug = data.get("story_slug") or data.get("sample_slug")
+        if slug:
+            return str(slug)
+    return "tianhuang-night" if run_dir.name.startswith("run_") else None
+
+
 def list_runs(*, story_slug: str | None = None) -> list[RunSummary]:
     out_dir = outputs_dir()
     if not out_dir.exists():
@@ -268,6 +288,10 @@ def list_runs(*, story_slug: str | None = None) -> list[RunSummary]:
                 continue
         except OSError:
             continue
+        if story_slug:
+            quick_slug = _quick_story_slug(run_dir)
+            if quick_slug is not None and quick_slug != story_slug:
+                continue
         try:
             summary = index_run(run_dir)
         except Exception:

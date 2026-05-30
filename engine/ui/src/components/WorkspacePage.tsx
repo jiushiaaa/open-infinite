@@ -127,6 +127,7 @@ export function WorkspacePage({ slug }: { slug: string }) {
       <aside className="workspace__right">
         {sel && branch.data && (
           <RightPanel
+            storySlug={slug}
             branch={branch.data}
             compilation={compilation}
             compilationLoading={run.loading}

@@ -495,6 +495,63 @@ export interface CanonReplayRequest {
   holdout_chapter: number;
 }
 
+// ── v0.7.5 世界线评审 ───────────────────────────────────
+
+export type WorldlineRecommendation = "推荐继续" | "谨慎继续" | "建议归档";
+
+export interface WorldlineJudgeScores {
+  persona_consistency: number;
+  contract_risk: number;
+  branch_diversity: number;
+  narrative_momentum: number;
+  emotional_payoff: number;
+  anti_slop: number;
+  continuation_potential: number;
+  emergence_score: number;
+  story_arc: number;
+  turning_points: number;
+  tension: number;
+  overall: number;
+}
+
+export interface JudgementDimension {
+  key: string;
+  label: string;
+  score: number;
+  evidence: string[];
+  comment: string;
+}
+
+export interface StoryArcPoint {
+  label: string;
+  tension: number;
+  momentum: number;
+}
+
+export interface WorldlineJudgement {
+  version: string;
+  kind: "worldline_judgement";
+  story_slug: string;
+  source_kind: SourceKind;
+  run_id: string;
+  branch_id: string;
+  chapter_number: number | null;
+  recommendation: WorldlineRecommendation;
+  scores: WorldlineJudgeScores;
+  dimensions: JudgementDimension[];
+  turning_points: string[];
+  story_arc_curve: StoryArcPoint[];
+  strengths: string[];
+  warnings: string[];
+  suggestions: string[];
+  interpretation: string;
+  created_at: string;
+}
+
+export interface WorldlineJudgementRequest {
+  story_slug?: string;
+}
+
 // ── POST /api/interventions/guardrail （v0.7.2 护栏预检）──────
 
 export type GuardrailRisk = "low" | "medium" | "high";

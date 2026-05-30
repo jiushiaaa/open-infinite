@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.7 Product Web App（九刀主闭环已验收；下一版 v0.7.2 Agent Interaction） |
+| 当前版本 | v0.7.5 Worldline Judge 已验收；下一版 v0.8 Long Novel Memory |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -747,9 +747,10 @@ MVP 支持：
 - v0.6.5（已收口）：多 Agent 推演工程可靠性——`generation_meta`（source/usage/重试/校验，additive 写进 `multi_agent_trace.json`，browse 可区分真 LLM/回退/stub）+ trace 质量校验器 `trace_quality.validate_and_repair_trace`（硬失败/就地修复/告警，绝不抛）+ 有限重试（`LNE_MULTI_AGENT_MAX_RETRIES`，默认 1）+ token usage（`chat_json_with_usage`）；并发/精确成本计算留待 v0.8+
 - v0.7.1-A/B/C（已收口）：Intervention Compiler + LLM 编译 + Causal Diff 数据地基。自由输入先转 `AbstractIntervention`，判断 `Divergent Worldline` vs `Alternate Novel`，再生成本次专属分支轴；每个干预分支写出 `causal_diff.json`，供产品前端展示旧现实 / 新世界线差异。
 - v0.7（已收口）：Product Web App，React/Vite 产品级前端；已完成三入口、世界锚定、Web 干预、Causal Diff 操作、运行设置与异步 Job 进度；详细 UI 规格见 `docs/v0.7-product-web-app-ui-spec.md`
-- v0.7.2（下一步）：Agent Interaction，补 `CharacterAction`、`CharacterProbe`、`InterventionGuardrail` 与轻量角色配置，让角色动作和干预护栏结构化
-- v0.7.3（建议）：Seedream 5.0 Lite 视觉资产层，为角色头像、故事封面、场景背景、世界线节点缩略图提供可选生成与本地缓存
-- v0.7.4（建议）：Baseline & Canon Replay，支持无干预基线、干预偏离对比和完结文本 holdout 正史回放评估；主题创世入口已由 v0.7 完成
+- v0.7.2（已收口）：Agent Interaction，补 `CharacterAction`、`CharacterProbe`、`InterventionGuardrail` 与轻量角色配置，让角色动作和干预护栏结构化
+- v0.7.3（已收口）：Seedream 5.0 Lite 视觉资产层，为角色头像、故事封面、场景背景、世界线节点缩略图提供可选生成与本地缓存
+- v0.7.4（已收口）：Baseline & Canon Replay，支持无干预基线、正史 holdout 和 deterministic 回放评估；主题创世入口已由 v0.7 完成
+- v0.7.5（已收口）：Worldline Judge，branch 级 `worldline_judgement.json` + deterministic 评审 API/UI，评估角色一致性、合约风险、分支差异、故事弧、转折点、张力、anti-slop 与 emergence_score
 - 多角色计划、误解、延迟行动、关系传播
 - 小模型推演 + 大模型写正文的分层策略
 - Zep Cloud / OASIS / CAMEL 暂不作为主线依赖；仅作为 v0.8+ 可选评估项（长篇记忆崩或群体仿真需求明显增强时再接）
@@ -767,6 +768,8 @@ MVP 支持：
 - 视觉方向必须保持古风纸面 / 中文小说编辑器 / 克制系统感，不做纯赛博极客风
 
 ### v0.7.4 Baseline & Canon Replay
+
+> 当前状态：已收口。后端基线经 Codex 兜底后为 `526 passed`，前端 `pnpm run build` 通过；最近补强了 service 层 id 安全校验，并将 holdout UI 默认覆盖改为 false。
 
 - 三种入口已由 v0.7 Product Web App 完成：导入已有小说、主题创世、内置样例
 - `Baseline Worldline`：无高维干预，角色按人设、记忆、世界规则和伏笔压力自然推进

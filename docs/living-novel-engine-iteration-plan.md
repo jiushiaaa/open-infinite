@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-30（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay 均已收口；下一步进入 v0.7.5 Worldline Judge）
+> 版本：2026-05-30（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge 均已收口；下一步进入 v0.8 Long Novel Memory）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 
@@ -74,7 +74,7 @@ v0.7.3   Visual Asset Generation  Seedream 5.0 Lite 角色头像/场景图/封�
     ↓
 v0.7.4   Baseline & Canon Replay  无干预基线 + 正史 holdout + deterministic 回放评估  已收口
     ↓
-v0.7.5   Worldline Judge     读者/编辑评审团 + 静态流水线项目取舍复盘  下一步
+v0.7.5   Worldline Judge     读者/编辑评审团 + 静态流水线项目取舍复盘  已收口
     ↓
 v0.8     Long Novel Memory   百万字长篇上传 / 分层记忆 / 一致性审计  待排期
     ↓
@@ -83,7 +83,7 @@ Phase 5  社区与分享          远期
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通：React/Vite 前端、Web 自由干预、Causal Diff 确立/抹除/回滚、世界锚定页、导入小说、主题创世、锚定轻编辑、真实 LLM/运行设置、异步 Job 进度轮询。**v0.7.2 Agent Interaction 已收口**：`InterventionGuardrail`（干预护栏预检 + `POST /api/interventions/guardrail`）、`CharacterProbe`（角色内心探针 + `GET /api/stories/<slug>/characters/<id>/probe`）、`CharacterAction` additive 结构化字段、世界锚定页角色探针入口、干预输入区预检按钮、Agent 轨迹结构化动作展示。**v0.7.3 Visual Asset Generation 已收口**：Seedream 视觉资产增强层（封面/角色头像/场景图）、additive artifact `visual_assets.json`、`GET/POST /api/stories/<slug>/visual-assets(/generate)` 与安全静态服务 `GET .../assets/<rel>`、无 Key 古风占位降级、世界锚定页/书架只读 UI。**v0.7.4 Baseline & Canon Replay 已收口**：`build_baseline_spec` + `service/baseline.py`（无干预基线，不写 intervention.json/causal_diff.json）、`service/canon_replay.py`（正史 holdout 读写 + deterministic 回放评估，不打 LLM）、`baseline_report.json`/`holdout_manifest.json`/`canon_replay_report.json` additive artifact、6 个新 API、世界锚定页「基线与正史回放」区块。当前测试基线为 **520 passed**。下一步进入 v0.7.5 Worldline Judge；v0.8 正式开 Long Novel Memory 主线，目标是百万字到数百万字上传、分层记忆、正史账本、混合检索和一致性审计。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通：React/Vite 前端、Web 自由干预、Causal Diff 确立/抹除/回滚、世界锚定页、导入小说、主题创世、锚定轻编辑、真实 LLM/运行设置、异步 Job 进度轮询。**v0.7.2 Agent Interaction 已收口**：`InterventionGuardrail`（干预护栏预检 + `POST /api/interventions/guardrail`）、`CharacterProbe`（角色内心探针 + `GET /api/stories/<slug>/characters/<id>/probe`）、`CharacterAction` additive 结构化字段、世界锚定页角色探针入口、干预输入区预检按钮、Agent 轨迹结构化动作展示。**v0.7.3 Visual Asset Generation 已收口**：Seedream 视觉资产增强层（封面/角色头像/场景图）、additive artifact `visual_assets.json`、`GET/POST /api/stories/<slug>/visual-assets(/generate)` 与安全静态服务 `GET .../assets/<rel>`、无 Key 古风占位降级、世界锚定页/书架只读 UI。**v0.7.4 Baseline & Canon Replay 已收口**：`build_baseline_spec` + `service/baseline.py`（无干预基线，不写 intervention.json/causal_diff.json）、`service/canon_replay.py`（正史 holdout 读写 + deterministic 回放评估，不打 LLM）、`baseline_report.json`/`holdout_manifest.json`/`canon_replay_report.json` additive artifact、6 个新 API、世界锚定页「基线与正史回放」区块；Codex 兜底补 service 层 id 安全校验，并将 holdout UI 默认覆盖改为 false。**v0.7.5 Worldline Judge 已收口**：`worldline_judgement.json` branch 级 additive artifact、deterministic 世界线评分、`POST/GET /api/runs/<run_id>/branches/<branch_id>/worldline-judgement`、工作台右侧「世界线评审」标签页。当前后端基线为 **535 passed**，前端 build 通过。下一步进入 v0.8 Long Novel Memory 主线，目标是百万字到数百万字上传、分层记忆、正史账本、混合检索和一致性审计。
 
 ## 3. 已完成能力
 
@@ -122,7 +122,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **520 passed**（截至 2026-05-30，v0.7.4 Baseline & Canon Replay 收口 +37；v0.7.3 基线为 483）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **526 passed**（截至 2026-05-30，v0.7.4 Codex 兜底后复验）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1317,7 +1317,7 @@ LNE_VISUAL_ASSETS=on/off
 
 ### v0.7.4：Baseline & Canon Replay / 无干预基线与正史回放 ✅ 已收口
 
-> **收口（2026-05-30，520 passed）**：新建 `baseline/{models}`（`BaselineReport`/`CharacterStateChange`）+ `service/baseline.py`（`generate_baseline` 从锚定或 parent 快照续；`get_baseline_report`）+ `orchestrator/worldline_brancher.build_baseline_spec()`（branch_id=`baseline`、branch_seed=`linear`）+ `output/writer.write_baseline_output`（写 `baseline_report.json`+`baseline/` 分支目录，**不写 intervention.json/causal_diff.json**）。新建 `canon_replay/{models,evaluator}` + `service/canon_replay.py`（holdout 读写：仅 imported/genesis 可写、builtin 只读、force=False 同章 409、文件名由章号派生防穿越；deterministic `evaluate_replay`：lexical/entity/thread/length/state→overall，不打 LLM）。6 个 additive API：`POST /api/stories/<slug>/baseline`、`GET /api/runs/<run_id>/baseline`、`GET/POST /api/stories/<slug>/canon/holdout`、`POST /api/stories/<slug>/canon/replay`、`GET /api/runs/<run_id>/canon-replay`。`writer._outputs_dir()` 改为支持 `LNE_OUTPUTS_DIR`（默认不变）。UI：世界锚定页「基线与正史回放」区块（中文、holdout 空态、builtin 只读、生成基线/运行回放、评分条、缺失实体/伏笔）。测试 `tests/test_v074_baseline_canon_replay.py`（+37，不打外网/LLM）。**未做**：Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）、LLM 语义评估、百万字 holdout、版权/公开分享策略、baseline↔intervention 并排偏离对比 UI。下一步 v0.7.5 Worldline Judge。
+> **收口（2026-05-30，Codex 兜底后 526 passed）**：新建 `baseline/{models}`（`BaselineReport`/`CharacterStateChange`）+ `service/baseline.py`（`generate_baseline` 从锚定或 parent 快照续；`get_baseline_report`）+ `orchestrator/worldline_brancher.build_baseline_spec()`（branch_id=`baseline`、branch_seed=`linear`）+ `output/writer.write_baseline_output`（写 `baseline_report.json`+`baseline/` 分支目录，**不写 intervention.json/causal_diff.json**）。新建 `canon_replay/{models,evaluator}` + `service/canon_replay.py`（holdout 读写：仅 imported/genesis 可写、builtin 只读、force=False 同章 409、文件名由章号派生防穿越；deterministic `evaluate_replay`：lexical/entity/thread/length/state→overall，不打 LLM）。6 个 additive API：`POST /api/stories/<slug>/baseline`、`GET /api/runs/<run_id>/baseline`、`GET/POST /api/stories/<slug>/canon/holdout`、`POST /api/stories/<slug>/canon/replay`、`GET /api/runs/<run_id>/canon-replay`。`writer._outputs_dir()` 改为支持 `LNE_OUTPUTS_DIR`（默认不变）。UI：世界锚定页「基线与正史回放」区块（中文、holdout 空态、builtin 只读、生成基线/运行回放、评分条、缺失实体/伏笔）。Codex 兜底补 service 层 `story_slug`/`run_id`/`branch_id` 安全校验，并把 holdout UI 默认覆盖改为 false。测试 `tests/test_v074_baseline_canon_replay.py`（兜底后 43 passed，不打外网/LLM）。**未做**：Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）、LLM 语义评估、百万字 holdout、版权/公开分享策略、baseline↔intervention 并排偏离对比 UI。下一步 v0.7.5 Worldline Judge。
 
 目标：让用户能比较“我不干预时世界会怎样”和“我干预后命运如何偏离”，同时用完结作品或自有文本做引擎质量评估。
 
@@ -1759,7 +1759,7 @@ v0.1.2 resume continue
 | P7.2 | v0.7.2 Agent Interaction | CharacterAction / CharacterProbe / InterventionGuardrail / 轻量角色配置 UI | 已收口 |
 | P7.3 | v0.7.3 Visual Asset Generation | 接入 Seedream 5.0 Lite：故事封面、角色头像、场景背景（世界线节点缩略图预留字段+UI 占位）；无 Key 古风占位降级 | 已收口 |
 | P7.4 | v0.7.4 Baseline & Canon Replay | 无干预基线（不写 intervention.json/causal_diff.json）；正史 holdout 读写；deterministic 回放评估（不打 LLM）；锚定页区块 | 已收口 |
-| P7.5 | v0.7.5 Worldline Judge | 读者/编辑评审团、世界线评分、anti-slop 检查、质量建议 | 待排期 |
+| P7.5 | v0.7.5 Worldline Judge | branch 级 `worldline_judgement.json`、世界线评分、anti-slop、emergence_score、故事弧/转折点/张力、工作台右侧评审标签页 | 已收口 |
 | P8 | v0.8 Long Novel Memory | 百万字长篇上传、分层记忆、正史账本、混合检索、一致性审计、隐藏评估集 | 待排期 |
 | P9 | v0.9+ Commercial hardening | Zep/图数据库、OASIS/CAMEL、LangGraph 局部 runner、多 provider gateway、完整工作台 | 待定 |
 
@@ -2017,8 +2017,7 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.7.2 Agent Interaction（角色动作/情绪探针/干预护栏，已收口）
   -> v0.7.3 Visual Asset Generation（Seedream 5.0 Lite 视觉资产，已收口）
   -> v0.7.4 Baseline & Canon Replay（无干预基线 + 正史回放，已收口）
-  -> v0.7.5 Worldline Judge（世界线评分 + 故事弧 + emergence_score，下一步）
-  -> v0.7.5 Worldline Judge（世界线评审团）
+  -> v0.7.5 Worldline Judge（世界线评分 + 故事弧 + emergence_score，已收口）
   -> v0.8 Long Novel Memory（百万字上传 + 分层记忆 + 正史账本 + 一致性审计）
   -> v0.8+ ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining
   -> v0.8+ Zep / OASIS / CAMEL / 向量库 / 多 provider / 完整工作台（按规模触发评估）

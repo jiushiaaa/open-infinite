@@ -1,0 +1,112 @@
+/* v0.7.5 Worldline Judge：右侧只读评审层，保持纸面和克制系统感。 */
+
+.wjudge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.wjudge__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.wjudge__title {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.wjudge__report {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.wjudge__overall {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.wjudge__score {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--indigo);
+}
+
+.wjudge__interpret {
+  margin: 0;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.wjudge__curve,
+.wjudge__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.wjudge__curve {
+  padding: var(--space-2);
+  background: var(--paper-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.wjudge__curve-point,
+.wjudge__bar-row {
+  display: grid;
+  grid-template-columns: 58px 1fr 42px;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.wjudge__bar-label {
+  color: var(--ink-faint);
+}
+
+.wjudge__track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--paper-raised);
+  overflow: hidden;
+}
+
+.wjudge__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--jade);
+}
+
+.wjudge__fill.is-risk {
+  background: var(--cinnabar);
+}
+
+.wjudge__bar-val {
+  text-align: right;
+  color: var(--ink-faint);
+}
+
+.wjudge__sub {
+  display: block;
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+
+.wjudge__textlist ul {
+  margin: 0;
+  padding-left: 1.1em;
+  line-height: 1.55;
+}
+
+.wjudge__warnings {
+  color: var(--gold);
+}

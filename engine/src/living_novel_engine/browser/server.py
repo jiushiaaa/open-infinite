@@ -64,6 +64,16 @@ class BrowserHandler(BaseHTTPRequestHandler):
         raw = self.rfile.read(length)
         return json.loads(raw.decode("utf-8"))
 
+    def _extract_run_branch_for_suffix(
+        self, path: str, suffix: str
+    ) -> tuple[str | None, str | None]:
+        rest = path[len("/api/runs/") :]
+        run_id_raw, _, branch_part = rest.partition("/branches/")
+        run_id = safe_id(run_id_raw.strip("/"))
+        branch_raw = branch_part[: -len(suffix)].strip("/")
+        branch_id = safe_id(branch_raw)
+        return run_id, branch_id
+
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
         path = parsed.path
@@ -169,6 +179,20 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid run_id"}, status=400)
                 return self._handle_canon_replay_get(rid)
 
+            if (
+                path.startswith("/api/runs/")
+                and "/branches/" in path
+                and path.endswith("/worldline-judgement")
+            ):
+                run_id, branch_id = self._extract_run_branch_for_suffix(
+                    path, "/worldline-judgement"
+                )
+                if run_id is None or branch_id is None:
+                    return self._send_json(
+                        {"error": "invalid run_id or branch_id"}, status=400
+                    )
+                return self._handle_worldline_judgement_get(run_id, branch_id)
+
             if path.startswith("/api/runs/") and "/branches/" in path:
                 rest = path[len("/api/runs/") :]
                 run_id_raw, _, branch_part = rest.partition("/branches/")
@@ -235,6 +259,19 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_canon_replay_run(slug)
+            if (
+                path.startswith("/api/runs/")
+                and "/branches/" in path
+                and path.endswith("/worldline-judgement")
+            ):
+                run_id, branch_id = self._extract_run_branch_for_suffix(
+                    path, "/worldline-judgement"
+                )
+                if run_id is None or branch_id is None:
+                    return self._send_json(
+                        {"error": "invalid run_id or branch_id"}, status=400
+                    )
+                return self._handle_worldline_judgement_run(run_id, branch_id)
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 return self._handle_anchor_update(path)
             if path == "/api/settings/runtime":
@@ -797,6 +834,47 @@ class BrowserHandler(BaseHTTPRequestHandler):
             return self._send_json({"error": str(exc)}, status=400)
         self._send_json(report)
 
+    def _handle_worldline_judgement_run(self, run_id: str, branch_id: str) -> None:
+        """v0.7.5：生成世界线评审报告（deterministic，不打 LLM）。"""
+        from living_novel_engine.service import (
+            WorldlineJudgeRequestError,
+            judge_worldline,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+        story_slug_raw = body.get("story_slug") if isinstance(body, dict) else None
+        story_slug = safe_id(str(story_slug_raw)) if story_slug_raw else None
+        if story_slug_raw and story_slug is None:
+            return self._send_json({"error": "invalid story_slug"}, status=400)
+
+        try:
+            report = judge_worldline(
+                run_id=run_id, branch_id=branch_id, story_slug=story_slug
+            )
+        except WorldlineJudgeRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        self._send_json(report)
+
+    def _handle_worldline_judgement_get(self, run_id: str, branch_id: str) -> None:
+        """v0.7.5：读取 worldline_judgement.json（不存在 404，损坏 400，不 500）。"""
+        from living_novel_engine.service import (
+            WorldlineJudgeRequestError,
+            get_worldline_judgement,
+        )
+
+        try:
+            report = get_worldline_judgement(run_id, branch_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except WorldlineJudgeRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
     def _handle_job_get(self, path: str) -> None:
         """v0.7 第九刀：轮询 job 状态。失败 job 也返回 200 + error，不抛 500。"""
         from living_novel_engine.service import JOBS
@@ -990,6 +1068,13 @@ class BrowserServerStartError(RuntimeError):
     """Raised when the browser HTTP server cannot bind (port in use, etc)."""
 
 
+class BrowserHTTPServer(ThreadingHTTPServer):
+    """Threaded browser server tuned for short-lived pytest fixtures."""
+
+    daemon_threads = True
+    block_on_close = False
+
+
 def start_browser_server(
     host: str = "127.0.0.1",
     port: int = 8765,
@@ -997,7 +1082,7 @@ def start_browser_server(
     open_browser: bool = True,
 ) -> ThreadingHTTPServer:
     try:
-        httpd = ThreadingHTTPServer((host, port), BrowserHandler)
+        httpd = BrowserHTTPServer((host, port), BrowserHandler)
     except OSError as exc:
         raise BrowserServerStartError(
             f"无法绑定 {host}:{port}（{exc.strerror or exc}）。请检查端口占用或换 --port。"

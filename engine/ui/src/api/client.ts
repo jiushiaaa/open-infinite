@@ -32,6 +32,8 @@ import type {
   VisualAssets,
   VisualAssetsGenerateRequest,
   WorldAnchor,
+  WorldlineJudgement,
+  WorldlineJudgementRequest,
 } from "./types";
 
 // 复用 `lne browse` 的只读端点。开发时由 vite proxy 转发 /api 到 8765；
@@ -213,6 +215,25 @@ export const api = {
   },
   getCanonReplayReport(runId: string): Promise<CanonReplayReport> {
     return getJson(`/api/runs/${encodeURIComponent(runId)}/canon-replay`);
+  },
+  // ── v0.7.5 世界线评审 ───────────────────────────────────
+  generateWorldlineJudgement(
+    runId: string,
+    branchId: string,
+    req: WorldlineJudgementRequest,
+  ): Promise<WorldlineJudgement> {
+    return postJson(
+      `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/worldline-judgement`,
+      req,
+    );
+  },
+  getWorldlineJudgement(
+    runId: string,
+    branchId: string,
+  ): Promise<WorldlineJudgement> {
+    return getJson(
+      `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/worldline-judgement`,
+    );
   },
 };
 

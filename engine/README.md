@@ -34,9 +34,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.7.2 | Agent Interaction：CharacterAction / CharacterProbe / InterventionGuardrail | 已收口 |
 | v0.7.3 | Visual Asset Generation：Seedream 5.0 Lite 封面/角色头像/场景图（增强层，可降级占位） | 已收口 |
 | v0.7.4 | Baseline & Canon Replay：无干预基线 + 正史 holdout + deterministic 回放评估 | 已收口 |
-| v0.7.5 | Worldline Judge：世界线评分、故事弧、转折点、anti-slop、emergence_score | 下一步 |
+| v0.7.5 | Worldline Judge：世界线评分、故事弧、转折点、anti-slop、emergence_score | 已收口 |
 
-**测试基线**：`pytest -q` → **520 passed**（2026-05-30，v0.7.4 收口 +37；v0.7.3 基线 483）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **535 passed**（2026-05-30，v0.7.5 新增 9 个 Worldline Judge 测试，完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -58,7 +58,7 @@ outputs/run_xxx/branch_a/causal_diff.json
 
 该文件保存段落级 `old_text` / `new_text` 因果差异块，以及 `status=proposed`、`lineage_type`、`diff_mode`、`affected_scope` 等字段，为 v0.7 产品前端的「时空 Diff / 确立 / 抹除 / 回滚」交互做数据预留。
 
-> 注意：当前浏览器是开发者/演示用 viewer，技术栈为 Python stdlib HTTP + 原生 HTML/CSS/JS。真正面向普通用户的产品级前端计划放在 v0.7，倾向新建 React + Vite + TypeScript 的独立 `ui/`，把导入、干预、续章和世界线浏览都做成可点击流程。
+> 注意：`lne browse` 的旧浏览器仍保留为开发者/演示 viewer；面向普通用户的产品级前端已在 v0.7 落到 `engine/ui/`（React + Vite + TypeScript），负责导入、创世、锚定、干预、世界线浏览、设置与异步 Job。
 
 ### v0.5 第四面墙机制
 
@@ -317,7 +317,19 @@ Baseline / Replay 是**评估层**，不是干预主链路依赖。全程不打 
   - `GET /api/runs/<run_id>/canon-replay`：返回报告（不存在 404、损坏 400）。
 - **Web UI**：世界锚定页左栏「基线与正史回放」区块——holdout 状态（builtin 只读提示 / imported 录入）、生成无干预基线、章节下拉 + 运行正史回放、基线摘要（自然发展/角色状态/触及伏笔）、回放评分条（总分 + 5 分项 + 解释 + 缺失实体/伏笔 + 警告）；中文文案，强调"基线不是原作、回放仅本地评估、不代表复刻原作"。
 - **输出目录根**：`writer._outputs_dir()` 与 `browser.paths.outputs_dir()` 现统一支持 `LNE_OUTPUTS_DIR`（默认仍为 `engine/outputs`）。
-- **未做**：Worldline Judge（v0.7.5）、Long Novel Memory（v0.8）、LLM 语义评估、百万字 holdout、版权/公开分享策略、baseline↔intervention 并排偏离对比 UI。
+- **未做**：Long Novel Memory（v0.8）、LLM 语义评估、百万字 holdout、版权/公开分享策略、baseline↔intervention 并排偏离对比 UI。
+
+### v0.7.5 Worldline Judge（世界线评审）
+
+Worldline Judge 是**评估层**，不是生成层：读取既有 branch artifact，写出 branch 级 `worldline_judgement.json`，不打 LLM、不改 `run_scene` 默认行为、不改既有 chapter/events/state/trace/diff 契约，也不把评审结果写回正文或 state_snapshot。
+
+- **artifact**：`outputs/<run_id>/<branch_id>/worldline_judgement.json`，字段包括 `recommendation`（推荐继续 / 谨慎继续 / 建议归档）、`scores`、`dimensions`、`story_arc_curve`、`turning_points`、`strengths`、`warnings`、`suggestions`、`interpretation`。
+- **评分维度（0–1）**：`persona_consistency`、`contract_risk`（风险值，越低越好）、`branch_diversity`、`narrative_momentum`、`emotional_payoff`、`anti_slop`、`continuation_potential`、`emergence_score`、`story_arc`、`turning_points`、`tension`、`overall`。
+- **API**
+  - `POST /api/runs/<run_id>/branches/<branch_id>/worldline-judgement`：生成/覆盖该分支评审；body 可传 `story_slug`，缺省时从 `meta.json` / `intervention.json` / `baseline_report.json` 推断。坏 id 400、缺分支/正文 404、损坏 artifact 400。
+  - `GET /api/runs/<run_id>/branches/<branch_id>/worldline-judgement`：读取报告；不存在 404、损坏 400。
+- **Web UI**：工作台右侧新增「世界线评审」标签页，展示总分、推荐、故事弧、维度评分、优势/警告/建议/转折点；中文文案，强调本地 deterministic 评估、不改正文。
+- **未做**：LLM 语义评审、run 级聚合评审、`compare.md` 汇总、`emergence_nodes.json` 持久化、discourse-aware narrator。
 
 ## 输出结构
 
@@ -331,7 +343,8 @@ outputs/run_<timestamp>/
 │   ├── events.json
 │   ├── summary.md
 │   ├── chapter.md
-│   └── state_snapshot.json  # 完整状态快照
+│   ├── state_snapshot.json  # 完整状态快照
+│   └── worldline_judgement.json  # v0.7.5 可选评审报告
 ```
 
 ### v0.4 世界线浏览器（只读）
