@@ -47,8 +47,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ Emergence Mining-A | `emergence_nodes.json`：run 级涌现节点汇总与 API | 已收口 |
 | v0.8.x Entity Aliases | `memory/entity_aliases.yaml`：实体别名骨架与检索归一化 | 已收口 |
 | v0.8.x Runtime Memory Consumption-A | `runtime_memory_context.json`：运行时只读消费 memory/alias/ledger 安全子集 | 已收口 |
+| v0.8.x Frontend Artifact Panel | 右侧「机制档案」统一展示运行记忆、动作计划、动作注册表、叙事诊断、涌现节点 | 已收口 |
 
-**测试基线**：`pytest -q` → **568 passed**（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **570 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -63,7 +64,7 @@ outputs/run_xxx/branch_a/runtime_memory_context.json
 
 `runtime_memory_context.json` 是 v0.8.x Runner Consumption-A 的只读审计 artifact：它记录本次生成实际注入的运行时记忆层（`consumed_layers`）、实体别名状态、归一化命中的实体、降级 warnings 与嵌套的 retrieval artifact。它通过既有 `retrieved_context` 参数进入角色 Agent 与 narrator，不改变 `run_scene` 默认行为；`entity_aliases.yaml` 缺失或损坏时只写 warning，不阻断生成。
 
-v0.4.2 起，`lne browse` 在分支阅读器新增「检索记忆」标签页：按 `source`（合约 / 正史事实 / 章节摘要 / 卷摘要）分组展示本章生成引用的命中项与分数，世界线树的分支节点也会显示「检索 N」角标。v0.8.x 起，React 产品前端右侧解释面板新增「运行记忆」标签页，只读展示 `runtime_memory_context.json` 的记忆层、别名状态与降级提示。
+v0.4.2 起，`lne browse` 在分支阅读器新增「检索记忆」标签页：按 `source`（合约 / 正史事实 / 章节摘要 / 卷摘要）分组展示本章生成引用的命中项与分数，世界线树的分支节点也会显示「检索 N」角标。v0.8.x 起，React 产品前端右侧解释面板新增「机制档案」标签页，统一只读展示 `runtime_memory_context.json`、`act_director_plan.json`、`dynamic_action_registry.yaml`、`narrative_diagnostics.json` 与 `emergence_nodes.json`；缺失或损坏 artifact 显示空态，不影响正文阅读。
 
 v0.7.1-C 起，干预分支还会写入：
 
@@ -104,6 +105,8 @@ outputs/run_xxx/branch_a/narrative_diagnostics.json
 ```
 
 该文件统计正文长度、句段、对话标记、转折标记、pacing、tension curve，并给出写后 warnings/suggestions；当前只做诊断，不重写 narrator。
+
+`GET /api/runs/<run_id>/branches/<branch_id>` 会 additive 返回这些解释性 artifact：`runtime_memory_context`、`act_director_plan`、`dynamic_action_registry`、`narrative_diagnostics`、`emergence_nodes`。这些字段仅供右侧只读解释层展示；缺失返回 `null`，损坏 JSON 返回 `{}`、损坏 YAML 返回 `null`，前端保持空态，不改变 `chapter.md` / `events.json` / `state_snapshot.json` / `multi_agent_trace.json` / `causal_diff.json` 既有契约。
 
 > 注意：`lne browse` 的旧浏览器仍保留为开发者/演示 viewer；面向普通用户的产品级前端已在 v0.7 落到 `engine/ui/`（React + Vite + TypeScript），负责导入、创世、锚定、干预、世界线浏览、设置与异步 Job。
 

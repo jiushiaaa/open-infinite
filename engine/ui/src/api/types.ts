@@ -678,6 +678,26 @@ export interface EmergenceReport {
   warnings: string[];
 }
 
+export interface NarrativeDiagnostics {
+  version: string;
+  kind: "narrative_diagnostics";
+  branch_id?: string;
+  metrics?: {
+    char_count?: number;
+    sentence_count?: number;
+    paragraph_count?: number;
+    dialogue_marker_count?: number;
+    turning_marker_count?: number;
+    pacing?: number;
+  };
+  tension_curve?: Array<{
+    index: number;
+    tension: number;
+  }>;
+  warnings?: string[];
+  suggestions?: string[];
+}
+
 // ── POST /api/interventions/guardrail （v0.7.2 护栏预检）──────
 
 export type GuardrailRisk = "low" | "medium" | "high";
@@ -798,6 +818,10 @@ export interface BranchDetail {
   events: Record<string, unknown> | null;
   retrieval: Record<string, unknown> | null;
   runtime_memory_context?: RuntimeMemoryContext | null;
+  act_director_plan?: CharacterActionPlan | null;
+  dynamic_action_registry?: DynamicActionRegistry | null;
+  narrative_diagnostics?: NarrativeDiagnostics | null;
+  emergence_nodes?: EmergenceReport | null;
   multi_agent_trace: Record<string, unknown> | null;
   causal_diff: CausalDiffArtifact | null;
   child_runs: string[];

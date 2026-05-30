@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-30（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A 已完成；后端 568 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel 收束已完成；后端 570 passed，前端 build 通过）
 
 ---
 
@@ -101,10 +101,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `568 passed`（2026-05-30，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.8 收束整理 / 前端 artifact 面板 / 长篇上传产品化** |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases 已收口 → Runtime Memory Consumption-A 已收口 → 前端 artifact 面板 / 长篇上传产品化 |
-| **刚收口** | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + v0.8+ 行动/叙事/涌现 artifact + `memory/entity_aliases.yaml` + `runtime_memory_context.json`：`source_raw/`、`import_report.json`、`memory/`、`canon_ledger.jsonl`、`entity_aliases.yaml`、`consistency_report.json`、`visibility_manifest.json`、`runtime_memory_context.json`、`act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`。全程不改 `run_scene` 默认行为、不破坏既有运行产物契约。 |
+| **测试基线** | 后端 `570 passed`（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Artifact Panel 完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.8 收束整理 / 长篇上传产品化** |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases 已收口 → Runtime Memory Consumption-A 已收口 → 前端 Artifact Panel 已收口 → 长篇上传产品化 |
+| **刚收口** | v0.8.x Frontend Artifact Panel：`browser.indexer.get_branch()` additive 聚合 `runtime_memory_context.json`、`act_director_plan.json`、`dynamic_action_registry.yaml`、`narrative_diagnostics.json`、`emergence_nodes.json`；React 右侧「机制档案」统一只读解释层展示运行记忆、动作计划、动作注册表、叙事诊断与涌现节点。全程不改 `run_scene` 默认行为、不破坏既有运行产物契约。 |
 
 ---
 
@@ -395,7 +395,7 @@ lne list-genres
 ✅ v0.7.5   Worldline Judge：branch 级世界线评分、故事弧、转折点、anti-slop、emergence_score + 右侧评审标签页
 ✅ v0.8     Long Novel Memory：百万字上传、分层记忆、canon ledger、混合检索、一致性审计、holdout 隔离底座
 ✅ v0.8+    ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining：A-slices artifact 已收口
-→ v0.8.x   Entity aliases / runtime memory consumption 已收口；前端 artifact 面板 / 长篇上传产品化
+→ v0.8.x   Entity aliases / runtime memory consumption / 前端 artifact 面板已收口；下一步长篇上传产品化
 → v0.9+    Zep / OASIS / CAMEL / LangGraph 局部 runner / 向量库、多 provider、完整 MasterSetting 工作台（按触发条件）
 ```
 
@@ -1170,7 +1170,7 @@ lne list-genres
   - `retrieval/context_loader.py` 读取 alias index；`retrieval/retriever.py` 对 query 与 corpus 文本做别名扩展，canon ledger 命中项 additive 返回 `resolved_entities`，避免同一角色/地点/物品多名称导致召回断裂。
   - `consistency_report.json` 的 summary additive 写 `entity_alias_count`；世界锚定 API/UI 只读展示实体别名状态、数量和样例，不允许编辑。
 - **测试**：新增 `tests/test_v08x_entity_aliases.py`（4 passed：导入写 alias + manifest + audit count、损坏降级、检索别名归一化、锚定 API 摘要）；邻近回归 `37 passed`；完整后端 `python -m pytest -q` 为 **565 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
-- **明确未做**：LLM/NER 实体抽取、人工别名编辑器、跨 run 写回别名、向量检索/reranker、前端完整 artifact 面板。
+- **明确未做**：LLM/NER 实体抽取、人工别名编辑器、跨 run 写回别名、向量检索/reranker；前端 artifact 面板已于 2026-05-31 收束。
 - **下一刀建议**：runner consumption 第一刀，先让运行时只读消费 memory/alias/ledger 的安全子集，保持 additive 与可回退；随后做前端 artifact 面板。
 
 ### 2026-05-30 — v0.8.x Runtime Memory Consumption-A
@@ -1179,7 +1179,16 @@ lne list-genres
   - 新增 `runtime_memory.py`，把 `memory/entity_aliases.yaml` 状态、query 实体归一化、`retrieve_context()` 结果与 consumed layers 打包为只读运行时记忆上下文。
   - `service.run_intervention()`、baseline 服务与 CLI resume 复用该上下文，把 `ctx.as_prompt_block()` 继续通过既有 `retrieved_context` 参数注入角色 Agent / narrator；不改 `run_scene` 默认行为。
   - 分支目录 additive 写 `runtime_memory_context.json`，保留 `query/current_chapter/prompt_block/consumed_layers/entity_aliases/resolved_query_entities/warnings/retrieval`；`entity_aliases.yaml` 缺失或损坏降级为 warning，不阻断生成。
-  - `browser.indexer.get_branch()` additive 返回 `runtime_memory_context`；React 右侧解释面板新增「运行记忆」标签页，中文空态展示本章消费的记忆层、别名状态与降级提示。
+- `browser.indexer.get_branch()` additive 返回 `runtime_memory_context`；当时 React 右侧解释面板新增「运行记忆」标签页，2026-05-31 已收束进「机制档案」统一只读面板。
 - **测试**：新增 `tests/test_v08x_runtime_memory_context.py`（3 passed：上下文构建、损坏降级、干预产物/API 读取）；相关回归 64 passed；完整后端 `python -m pytest -q` 为 **568 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **明确未做**：`act_director_plan.json` / `dynamic_action_registry.yaml` / `emergence_nodes.json` 驱动 runner 实际状态变化、运行后审计写回、完整 artifact 总览面板、长篇分片上传/epub/zip。
 - **下一刀建议**：前端 artifact 面板收束，把运行记忆、动作计划、动作注册表、叙事诊断、涌现节点做成统一只读解释面板；随后推进长篇上传产品化。
+
+### 2026-05-31 — v0.8.x Frontend Artifact Panel 收束
+
+- **做了什么**：
+  - `browser.indexer.get_branch()` additive 返回 `act_director_plan`、`dynamic_action_registry`、`narrative_diagnostics`、`emergence_nodes`，与既有 `runtime_memory_context` 一起成为分支详情的统一解释层数据源；缺失/损坏 artifact 保持空态或 `{}`/`None` 降级，不抛 500。
+  - React 右侧面板新增「机制档案」tab，收束运行记忆、动作计划、动作注册表、叙事诊断、涌现节点五类 v0.8 artifacts；原「运行记忆」独立 tab 合并进统一只读解释层。
+- **测试**：新增 `tests/test_v08x_artifact_panel.py`（2 passed：artifact bundle 暴露、损坏降级）；完整后端 `python -m pytest -q` 为 **570 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **明确未做**：runner 消费动作计划/动作注册表/涌现节点并改变状态；前端分片上传、断点续传、epub/zip；运行后一致性审计写回。
+- **下一刀建议**：进入长篇上传产品化，先做前端分片/epub/zip 导入体验与 job 进度/失败空态，不急着接向量库。

@@ -340,7 +340,8 @@ def get_run(run_id: str) -> dict[str, Any]:
 
 
 def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
-    branch_dir = outputs_dir() / run_id / branch_id
+    run_dir = outputs_dir() / run_id
+    branch_dir = run_dir / branch_id
     if not branch_dir.is_dir():
         raise FileNotFoundError(f"分支不存在: {run_id}/{branch_id}")
 
@@ -352,8 +353,14 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
     runtime_memory = _read_optional_json(branch_dir / "runtime_memory_context.json")
     multi_agent_trace = _read_optional_json(branch_dir / "multi_agent_trace.json")
     causal_diff = _read_optional_json(branch_dir / "causal_diff.json")
+    act_director_plan = _read_optional_json(run_dir / "act_director_plan.json")
+    dynamic_action_registry = _read_yaml(run_dir / "dynamic_action_registry.yaml")
+    narrative_diagnostics = _read_optional_json(
+        branch_dir / "narrative_diagnostics.json"
+    )
+    emergence_nodes = _read_optional_json(run_dir / "emergence_nodes.json")
 
-    run_summary = index_run(outputs_dir() / run_id)
+    run_summary = index_run(run_dir)
     child_runs: list[str] = []
     if run_summary:
         for r in list_runs(story_slug=run_summary.story_slug):
@@ -382,6 +389,10 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
         "events": events,
         "retrieval": retrieval,
         "runtime_memory_context": runtime_memory,
+        "act_director_plan": act_director_plan,
+        "dynamic_action_registry": dynamic_action_registry,
+        "narrative_diagnostics": narrative_diagnostics,
+        "emergence_nodes": emergence_nodes,
         "multi_agent_trace": multi_agent_trace,
         "causal_diff": causal_diff,
         "child_runs": child_runs,

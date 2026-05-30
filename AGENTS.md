@@ -50,7 +50,7 @@
 
 ## 当前版本状态
 
-截至 2026-05-30：
+截至 2026-05-31：
 
 - v0.7 Product Web App 九刀已收口。
 - v0.7.2 Agent Interaction 已收口。
@@ -63,9 +63,10 @@
 - v0.8+ Dynamic Action Registry-A 已收口。
 - v0.8+ Emergence Mining-A 已收口。
 - v0.8.x Runtime Memory Consumption-A 已收口。
-- 当前后端验证基线：`568 passed`。
+- v0.8.x Frontend Artifact Panel 已收口。
+- 当前后端验证基线：`570 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一版：前端 artifact 面板 / 长篇上传产品化。
+- 官方下一版：长篇上传产品化。
 
 最近一次 Codex 迭代：
 
@@ -76,6 +77,7 @@
 - 分支会写 `narrative_diagnostics.json`，但诊断暂不反馈到 narrator。
 - 干预 run 会写 `dynamic_action_registry.yaml` 与 `emergence_nodes.json`，但暂不执行状态变化、不做推荐系统。
 - 干预、baseline 与 CLI resume 会通过既有 `retrieved_context` 参数只读消费 memory/alias/ledger 安全子集，并写分支 `runtime_memory_context.json`。
+- 前端右侧「机制档案」已统一只读展示运行记忆、动作计划、动作注册表、叙事诊断、涌现节点。
 - 仍未做前端分片上传、epub/zip、向量库、runner 消费 action/emergence 层并执行状态变化、批量长篇 replay UI。
 
 ## 资料索引
