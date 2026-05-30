@@ -12,7 +12,7 @@
 - docs/living-novel-engine-iteration-plan.md
 - docs/productization-phase-map.md
 - docs/living-novel-engine-prd.md
-- docs/v0.7-product-web-app-ui-spec.md
+- docs/completed/v0.7-product-web-app-ui-spec.md
 - engine/README.md
 
 当前项目是 Living Novel Engine，核心代码在 engine/。
@@ -105,8 +105,8 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 - 主 PRD：`D:\AI\open-infinite\docs\living-novel-engine-prd.md`
 - 产品化阶段归类：`D:\AI\open-infinite\docs\productization-phase-map.md`
 - docs 导航：`D:\AI\open-infinite\docs\index.md`
-- v0.1-v0.8 版本审计：`D:\AI\open-infinite\docs\v0.1-to-v0.8-version-audit.md`
-- 已完成的 PRD 与专项版本文档：`D:\AI\open-infinite\docs\prd`
+- v0.1-v0.8 版本审计：`D:\AI\open-infinite\docs\completed\v0.1-to-v0.8-version-audit.md`
+- 已完成的 PRD、UI spec 与专项版本文档：`D:\AI\open-infinite\docs\completed`
 - 参考论文 PDF 与报告：`D:\AI\open-infinite\docs\article`
 - 论文报告：`D:\AI\open-infinite\docs\article\reports`
 - 参考开源项目：`D:\AI\open-infinite\Reference_projects`

@@ -20,7 +20,7 @@
 4. `living-novel-engine-iteration-plan.md`
 5. `productization-phase-map.md`
 6. `living-novel-engine-prd.md`
-7. `v0.7-product-web-app-ui-spec.md`
+7. `completed/v0.7-product-web-app-ui-spec.md`
 8. `../engine/README.md`
 
 ### 做版本规划或判断下一步
@@ -28,13 +28,13 @@
 1. `../memory.md`
 2. `living-novel-engine-iteration-plan.md`
 3. `productization-phase-map.md`
-4. `v0.1-to-v0.8-version-audit.md`
+4. `completed/v0.1-to-v0.8-version-audit.md`
 5. `living-novel-engine-prd.md`
-6. 必要时读 `prd/` 下对应阶段专项文档
+6. 必要时读 `completed/` 下对应阶段专项文档
 
 ### 做前端 UI 或产品体验
 
-1. `v0.7-product-web-app-ui-spec.md`
+1. `completed/v0.7-product-web-app-ui-spec.md`
 2. `living-novel-engine-prd.md`
 3. `codex-handoff.md`
 4. `../engine/README.md`
@@ -56,20 +56,21 @@
 | `living-novel-engine-prd.md` | 主 PRD | 产品定位、用户流程、核心能力、版本级需求入口 |
 | `living-novel-engine-iteration-plan.md` | 主路线图 | v0.1-v0.9+ 的迭代顺序、阶段状态、下一步路线 |
 | `productization-phase-map.md` | 阶段归类 | 统一解释技术 MVP、短中篇产品化 MVP、长篇底座、长篇产品化、商业化加固的边界 |
-| `v0.7-product-web-app-ui-spec.md` | UI 规格 | v0.7 产品级 Web App 的信息架构、视觉风格、组件边界和增量能力 |
-| `v0.1-to-v0.8-version-audit.md` | 版本审计 | v0.1 到 v0.8 已完成能力、产物边界、未做项和下一步建议 |
+| `completed/` | 收口归档 | 已收口版本 PRD、Release Note、工程协议、UI spec 与版本审计，供追溯和必要时引用 |
 
-## 3. prd/ 专项文档
+## 3. completed/ 收口归档
 
-`prd/` 存放阶段专项 PRD、Release Note 或工程协议。它们是历史阶段的细化依据，不一定代表当前最高优先级；当前状态以 `../memory.md` 和主迭代计划为准。
+`completed/` 存放已收口的阶段专项 PRD、Release Note、工程协议、UI spec 与版本审计。它们是历史阶段的细化依据，不承担当前最高优先级；当前状态以 `../memory.md`、主迭代计划和 `productization-phase-map.md` 为准。
 
 | 路径 | 阶段 | 作用 |
 | --- | --- | --- |
-| `prd/v0.2-import-novel-mvp.md` | v0.2 | 导入已有小说的最小闭环设计、命令面和成功标准 |
-| `prd/v0.4-worldline-browser-release.md` | v0.4 | 只读世界线浏览器的 Release Note、功能矩阵和复现验收链路 |
-| `prd/v0.6.1-multi-agent-runner-protocol.md` | v0.6.1 | Multi-Agent Runner Protocol 的数据结构、输出契约和边界 |
-| `prd/v0.6.4-multi-agent-llm-runner.md` | v0.6.4 | `multi_agent_llm` runner 的架构、隐私加固、回退和用法 |
-| `prd/v0.6.5-multi-agent-reliability.md` | v0.6.5 | 多 Agent 推演可靠性、trace 质量校验、重试和 token usage |
+| `completed/v0.1-to-v0.8-version-audit.md` | v0.1-v0.8 | 已完成能力、产物边界、未做项和下一步建议 |
+| `completed/v0.2-import-novel-mvp.md` | v0.2 | 导入已有小说的最小闭环设计、命令面和成功标准 |
+| `completed/v0.4-worldline-browser-release.md` | v0.4 | 只读世界线浏览器的 Release Note、功能矩阵和复现验收链路 |
+| `completed/v0.6.1-multi-agent-runner-protocol.md` | v0.6.1 | Multi-Agent Runner Protocol 的数据结构、输出契约和边界 |
+| `completed/v0.6.4-multi-agent-llm-runner.md` | v0.6.4 | `multi_agent_llm` runner 的架构、隐私加固、回退和用法 |
+| `completed/v0.6.5-multi-agent-reliability.md` | v0.6.5 | 多 Agent 推演可靠性、trace 质量校验、重试和 token usage |
+| `completed/v0.7-product-web-app-ui-spec.md` | v0.7 | 产品级 Web App 的信息架构、视觉风格、组件边界和增量能力 |
 
 ## 4. article/ 论文资料
 
@@ -101,7 +102,7 @@
 
 ## 6. 维护约定
 
-- 新增大版本或阶段专项文档时，优先放入 `prd/`，并在本文件登记。
+- 新增仍在跟进的主线文档可留在 `docs/` 根部；已收口版本专项文档归档到 `completed/`，并在本文件登记。
 - 新增论文原文放 `article/`，论文解读放 `article/reports/`，不要只放 PDF 不写报告。
 - 新增参考项目分析放 `research/`，并写清“吸收什么 / 不做什么 / 是否复制资产 / 许可证边界”。
 - `AGENTS.md` 和 `memory.md` 保持在根目录：前者是 Agent 入口规则，后者是当前事实收口。

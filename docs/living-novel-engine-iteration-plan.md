@@ -3,7 +3,7 @@
 > 版本：2026-05-31（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 均已收口；下一步进入 v0.8.6 Long Import Review，并已排定 v0.8.7-v0.8.10 与 v0.9.0-alpha）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
-> v0.1-v0.8 已完成能力与未做项总览见 `docs/v0.1-to-v0.8-version-audit.md`。
+> v0.1-v0.8 已完成能力与未做项总览见 `docs/completed/v0.1-to-v0.8-version-audit.md`。
 
 ## 1. 产品北极星
 
@@ -67,7 +67,7 @@ v0.7.1-B Intervention Compiler LLM 增强  LLM 编译 + fallback + 安全兜底 
     ↓
 v0.7.1-C Causal Diff 后端数据预留  old/new 段落级 diff artifact  已收口
     ↓
-v0.7     Product Web App     React/Vite 产品级前端，面向普通用户  已收口 · 见 docs/v0.7-product-web-app-ui-spec.md
+v0.7     Product Web App     React/Vite 产品级前端，面向普通用户  已收口 · 见 docs/completed/v0.7-product-web-app-ui-spec.md
     ↓
 v0.7.2   Agent Interaction   角色动作/情绪探针/干预护栏/轻量角色配置  已收口（CharacterAction/CharacterProbe/InterventionGuardrail）
     ↓
@@ -1886,7 +1886,7 @@ v0.1.2 resume continue
 | P7.1-A | v0.7.1-A Intervention Compiler 最小闭环 | rule-based 自由输入 -> AbstractIntervention -> 动态 BranchAxis | 已收口 |
 | P7.1-B | v0.7.1-B LLM Compiler | LLM 编译 + fallback + rule_rewrite 安全兜底 | 已收口 |
 | P7.1-C | v0.7.1-C Causal Diff 后端数据 | `causal_diff.json`；段落级 old/new diff；确立/抹除/回滚字段预留 | 已收口 |
-| **P7** | **v0.7 Product Web App** | **React/Vite 产品级前端，Web 内导入/创世/锚定/干预/Causal Diff/设置/异步 Job；见 `docs/v0.7-product-web-app-ui-spec.md`** | **已收口** |
+| **P7** | **v0.7 Product Web App** | **React/Vite 产品级前端，Web 内导入/创世/锚定/干预/Causal Diff/设置/异步 Job；见 `docs/completed/v0.7-product-web-app-ui-spec.md`** | **已收口** |
 | P7.2 | v0.7.2 Agent Interaction | CharacterAction / CharacterProbe / InterventionGuardrail / 轻量角色配置 UI | 已收口 |
 | P7.3 | v0.7.3 Visual Asset Generation | 接入 Seedream 5.0 Lite：故事封面、角色头像、场景背景（世界线节点缩略图预留字段+UI 占位）；无 Key 古风占位降级 | 已收口 |
 | P7.4 | v0.7.4 Baseline & Canon Replay | 无干预基线（不写 intervention.json/causal_diff.json）；正史 holdout 读写；deterministic 回放评估（不打 LLM）；锚定页区块 | 已收口 |

@@ -499,7 +499,7 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.6.4 | `multi_agent_llm`：OpenAI-compatible API 小模型推演，不本地部署 ✓ |
 | v0.6.5 | 推演工程可靠性：generation_meta + trace 质量校验 + 有限重试 + token usage ✓ |
 | v0.7.1-A/B/C | Intervention Compiler + LLM 编译 + Causal Diff 数据地基 ✓ |
-| v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/v0.7-product-web-app-ui-spec.md`） |
+| v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/completed/v0.7-product-web-app-ui-spec.md`） |
 | v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估 |
 | v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 |
 | v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（按触发条件） |

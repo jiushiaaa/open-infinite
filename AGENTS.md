@@ -16,7 +16,7 @@
 - `docs/living-novel-engine-iteration-plan.md`
 - `docs/productization-phase-map.md`
 - `docs/living-novel-engine-prd.md`
-- `docs/v0.7-product-web-app-ui-spec.md`
+- `docs/completed/v0.7-product-web-app-ui-spec.md`
 - `engine/README.md`
 - 如存在接力任务，再读 `docs/codex-handoff.md`
 
@@ -26,7 +26,7 @@
 - `docs/living-novel-engine-iteration-plan.md`：版本路线和下一刀范围
 - `docs/productization-phase-map.md`：技术 MVP、产品化 MVP、长篇产品化、商业化加固的阶段归类
 - `docs/living-novel-engine-prd.md`：产品定位和用户流程
-- `docs/v0.7-product-web-app-ui-spec.md`：Web UI 风格和交互边界
+- `docs/completed/v0.7-product-web-app-ui-spec.md`：已收口的 Web UI 风格和交互边界
 - `engine/README.md`：CLI/API/输出结构/验收命令
 
 事实优先级：
@@ -89,12 +89,12 @@
 
 ## 资料索引
 
-- 已完成的 PRD 及版本专项文档存储在 `D:\AI\open-infinite\docs\prd`。
+- 已完成的 PRD、UI spec 及版本专项文档存储在 `D:\AI\open-infinite\docs\completed`。
 - 参考论文 PDF 与论文解读报告存储在 `D:\AI\open-infinite\docs\article`，其中报告在 `D:\AI\open-infinite\docs\article\reports`。
 - 参考开源项目存储在 `D:\AI\open-infinite\Reference_projects`，仅作设计参考和取舍分析，默认不直接复制源码、不引入依赖。
 - `docs` 资料导航见 `D:\AI\open-infinite\docs\index.md`，用于快速定位 PRD、专项版本文档、论文报告和研究资料。
-- 当前主 PRD 入口是 `D:\AI\open-infinite\docs\living-novel-engine-prd.md`；专项 PRD 和历史版本说明放在 `docs\prd`。
-- v0.1-v0.8 已完成能力与未做项总览见 `D:\AI\open-infinite\docs\v0.1-to-v0.8-version-audit.md`。
+- 当前主 PRD 入口是 `D:\AI\open-infinite\docs\living-novel-engine-prd.md`；专项 PRD、UI spec 和历史版本说明放在 `docs\completed`。
+- v0.1-v0.8 已完成能力与未做项总览见 `D:\AI\open-infinite\docs\completed\v0.1-to-v0.8-version-audit.md`。
 
 ## 开发流程
 

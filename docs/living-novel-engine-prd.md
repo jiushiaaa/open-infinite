@@ -11,7 +11,7 @@
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
 
-v0.1-v0.8 已完成能力与未做项总览见 [`v0.1-to-v0.8-version-audit.md`](./v0.1-to-v0.8-version-audit.md)。
+v0.1-v0.8 已完成能力与未做项总览见 [`completed/v0.1-to-v0.8-version-audit.md`](./completed/v0.1-to-v0.8-version-audit.md)。
 
 产品化阶段归类见 [`productization-phase-map.md`](./productization-phase-map.md)。当前 PRD 中的 “MVP” 默认不是单一含义：v0.7-v0.7.5 指短中篇产品化 MVP 已成立；v0.8.0-A-v0.8.5-A 指长篇引擎底座 MVP 已成立；v0.8.6-v0.8.10 是把长篇底座产品化为普通用户工作流；v0.9.0-alpha 完成后才算长篇共创产品闭环成立，但仍不是商业级平台。
 
@@ -750,7 +750,7 @@ MVP 支持：
 - v0.6.4（已收口）：自研 `multi_agent_llm` runner——通过 OpenAI-compatible API 调小模型一次性生成 `MultiAgentTrace` JSON，复用共享装配层 `assembly.build_result_from_trace` 与 v0.6.2 投影层；非默认、不本地部署、不引依赖；隐私加固 + 健壮回退（mock/无 API/异常→确定性 stub，不抛）
 - v0.6.5（已收口）：多 Agent 推演工程可靠性——`generation_meta`（source/usage/重试/校验，additive 写进 `multi_agent_trace.json`，browse 可区分真 LLM/回退/stub）+ trace 质量校验器 `trace_quality.validate_and_repair_trace`（硬失败/就地修复/告警，绝不抛）+ 有限重试（`LNE_MULTI_AGENT_MAX_RETRIES`，默认 1）+ token usage（`chat_json_with_usage`）；并发/精确成本计算留待 v0.8+
 - v0.7.1-A/B/C（已收口）：Intervention Compiler + LLM 编译 + Causal Diff 数据地基。自由输入先转 `AbstractIntervention`，判断 `Divergent Worldline` vs `Alternate Novel`，再生成本次专属分支轴；每个干预分支写出 `causal_diff.json`，供产品前端展示旧现实 / 新世界线差异。
-- v0.7（已收口）：Product Web App，React/Vite 产品级前端；已完成三入口、世界锚定、Web 干预、Causal Diff 操作、运行设置与异步 Job 进度；详细 UI 规格见 `docs/v0.7-product-web-app-ui-spec.md`
+- v0.7（已收口）：Product Web App，React/Vite 产品级前端；已完成三入口、世界锚定、Web 干预、Causal Diff 操作、运行设置与异步 Job 进度；详细 UI 规格见 `docs/completed/v0.7-product-web-app-ui-spec.md`
 - v0.7.2（已收口）：Agent Interaction，补 `CharacterAction`、`CharacterProbe`、`InterventionGuardrail` 与轻量角色配置，让角色动作和干预护栏结构化
 - v0.7.3（已收口）：Seedream 5.0 Lite 视觉资产层，为角色头像、故事封面、场景背景、世界线节点缩略图提供可选生成与本地缓存
 - v0.7.4（已收口）：Baseline & Canon Replay，支持无干预基线、正史 holdout 和 deterministic 回放评估；主题创世入口已由 v0.7 完成

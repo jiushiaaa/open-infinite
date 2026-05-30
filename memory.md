@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 已完成；v0.8.6-v0.8.10、v0.9.0-alpha、v0.9.1-v0.9.4 与 v1.0-beta 路线已重排；后端 573 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization 已完成；v0.8.6-v0.8.10、v0.9.0-alpha、v0.9.1-v0.9.4 与 v1.0-beta 路线已重排；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 573 passed，前端 build 通过）
 
 ---
 
@@ -49,7 +49,7 @@
 
 - `docs/research/open-source-essence-absorption.md`
 - `docs/living-novel-engine-iteration-plan.md`
-- `docs/v0.1-to-v0.8-version-audit.md`
+- `docs/completed/v0.1-to-v0.8-version-audit.md`
 - `docs/article/reports/*.md`
 
 ---
@@ -60,10 +60,11 @@
 open-infinite/
 ├── memory.md                          ← 本文件（跨会话记忆）
 ├── docs/
+│   ├── index.md                                # docs 导航
 │   ├── living-novel-engine-iteration-plan.md   # 主迭代计划
-│   ├── v0.2-import-novel-mvp.md
-│   ├── v0.4-worldline-browser-release.md
-│   ├── prd/living-novel-engine-prd.md
+│   ├── living-novel-engine-prd.md              # 主 PRD
+│   ├── productization-phase-map.md             # 产品化阶段归类
+│   ├── completed/                              # 已收口版本文档归档
 │   └── research/open-source-essence-absorption.md
 ├── engine/
 │   ├── README.md
@@ -715,14 +716,14 @@ lne list-genres
 ### 2026-05-29 — v0.4.2 文档状态同步（PRD + iteration plan）
 
 - **做了什么**：PRD 当前版本 → v0.4.2；主线 B 路线补 v0.4.2 已完成 + v0.5 下一步；8.7 触发条件表 v0.4.2 标为已完成
-- **文件**：`docs/prd/living-novel-engine-prd.md`、`docs/living-novel-engine-iteration-plan.md`
+- **文件**：`docs/living-novel-engine-prd.md`、`docs/living-novel-engine-iteration-plan.md`
 - **下一刀建议**：v0.5 第四面墙
 
 ### 2026-05-29 — 产品级前端排期补充
 
 - **做了什么**：明确当前 `lne browse` 是开发者/演示 viewer，不是最终普通用户前端；新增 v0.7 Product Web App 路线
 - **决策**：v0.5/v0.6 继续优先验证核心机制，v0.7 再新建 React + Vite + TypeScript `ui/`，把导入、干预、续章、世界线浏览做成可点击流程
-- **文件**：`docs/living-novel-engine-iteration-plan.md`、`docs/prd/living-novel-engine-prd.md`、`engine/README.md`、`memory.md`
+- **文件**：`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`engine/README.md`、`memory.md`
 - **下一刀建议**：仍然是 v0.5 第四面墙
 
 ### 2026-05-29 — v0.5 第四面墙机制收口
@@ -846,7 +847,7 @@ lne list-genres
   - 将三入口产品流写入 v0.7 / v0.7.4：导入小说、主题创世、内置样例；用户不上传小说也可输入主题/题材/主角/大概内容生成第一章和故事世界
   - 增加 `Baseline Worldline` 与 `Canon Replay Evaluation`：无高维干预时角色自然发展；完结文本可把后续章节作为 holdout，评估无干预续写是否接近原作
 - **测试**：未运行，文档/记忆更新
-- **文件**：`docs/living-novel-engine-iteration-plan.md`、`docs/prd/living-novel-engine-prd.md`、`memory.md`
+- **文件**：`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`memory.md`
 - **下一刀建议**：先让 Cursor 继续按 v0.7 Product Web App / v0.7.1 Intervention Compiler 做设计或实现；若还不急前端，则优先落 `AbstractIntervention` 数据结构和 `Baseline Worldline` CLI 原型
 
 ### 2026-05-29 — v0.8 Long Novel Memory 路线补充
@@ -857,7 +858,7 @@ lne list-genres
   - 吸收参考项目机制：WenShape 的事实/摘要/章节绑定检索，webnovel-writer 的 contract/commit/projection，AI_NovelGenerator 的角色状态/全局摘要/一致性审校，autonovel 的分层设定和 propagation debts
   - 规划 v0.8.0-v0.8.5：Long Novel Ingestion、Hierarchical Memory、Canon Ledger、Hybrid Retrieval、Consistency Audit、Long Canon Replay Evaluation
 - **测试**：未运行，文档/记忆更新
-- **文件**：`docs/living-novel-engine-iteration-plan.md`、`docs/prd/living-novel-engine-prd.md`、`memory.md`
+- **文件**：`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`memory.md`
 - **下一刀建议**：继续把剩余产品/技术路线聊清楚；全部确认后再正式进入开发，优先从 v0.7.1 或 v0.8.0 中选择第一刀
 
 ### 2026-05-29 — v0.7 UI 交互原则与 Causal Diff 路线补充
@@ -867,7 +868,7 @@ lne list-genres
   - 将 `Causal Diff / 因果差异块` 写入 v0.7 核心交互：用户在正文局部施加干预后，展示“被抹去的旧现实”和“新凝聚的世界线”，并提供确立、抹除、回滚、查看因果差异
   - 将干预后角色状态增量、克制第四面墙高亮、Agent 轨迹 warning、剧情张力弧线写入 PRD 与迭代计划，并明确优先级
 - **测试**：未运行，文档/记忆更新
-- **文件**：`docs/living-novel-engine-iteration-plan.md`、`docs/prd/living-novel-engine-prd.md`、`memory.md`
+- **文件**：`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`memory.md`
 - **下一刀建议**：继续确认剩余产品交互；正式开发 v0.7 时优先实现 Causal Diff 与回滚心理安全感
 
 ### 2026-05-29 — v0.7.1-A Intervention Compiler 最小闭环收口
@@ -1037,7 +1038,7 @@ lne list-genres
 ### 2026-05-29 — 路线与文档整理（v0.7 主闭环封存）
 
 - **做了什么**：
-  - 将 `memory.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/prd/living-novel-engine-prd.md`、`docs/v0.7-product-web-app-ui-spec.md`、`engine/README.md` 从旧的 v0.7.1-C / 317 passed / “v0.7 下一步”口径同步为当前实际状态：**v0.7 Product Web App 九刀已收口，测试基线 410 passed，下一步进入 v0.7.2 Agent Interaction**。
+  - 将 `memory.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/completed/v0.7-product-web-app-ui-spec.md`、`engine/README.md` 从旧的 v0.7.1-C / 317 passed / “v0.7 下一步”口径同步为当前实际状态：**v0.7 Product Web App 九刀已收口，测试基线 410 passed，下一步进入 v0.7.2 Agent Interaction**。
   - 清理已过期缺口：Web 导入、主题创世、Causal Diff 操作、世界锚定页、运行设置、异步 Job 不再标为待做。
   - 将 v0.7.4 重新聚焦为 Baseline Worldline / Canon Replay；其中 Story Genesis Mode 标为已完成前置。
   - 保留 v0.7.3 Seedream 5.0 Lite、v0.7.5 Worldline Judge、v0.8 Long Novel Memory 的正式排期。
@@ -1082,12 +1083,12 @@ lne list-genres
 ### 2026-05-30 — Codex 接力迁移文档
 
 - **做了什么**：
-  - 新增 `AGENTS.md`：沉淀 Codex 项目级规则、会话开始必读、硬约束、验证命令、Cursor 迁移原则，并补充资料索引（`docs/prd`、`docs/article`、`Reference_projects`）。
+  - 新增 `AGENTS.md`：沉淀 Codex 项目级规则、会话开始必读、硬约束、验证命令、Cursor 迁移原则，并补充资料索引（`docs/completed`、`docs/article`、`Reference_projects`）。
   - 新增 `docs/codex-handoff.md`：新窗口第一条消息模板、当前版本状态、v0.7.5 Worldline Judge 建议边界、每刀收口清单。
   - 新增 `docs/codex-migration-guide.md`：说明 `.cursor/rules`、`.cursor/skills` 与 Codex skills/plugins 的迁移对应关系，避免整包复制通用技能造成上下文噪音。
-  - 同步当前基线与入口路径：v0.7.4 经 Codex 兜底后后端 `526 passed`、前端 build 通过；主 PRD 入口为 `docs/living-novel-engine-prd.md`，已完成专项 PRD 存在 `docs/prd/`。
+  - 同步当前基线与入口路径：v0.7.4 经 Codex 兜底后后端 `526 passed`、前端 build 通过；主 PRD 入口为 `docs/living-novel-engine-prd.md`，已完成专项 PRD 存在 `docs/completed/`。
 - **测试**：文档迁移为主；执行 `git diff --check` 验证无 whitespace error。
-- **文件**：`AGENTS.md`、`.cursor/rules/project-memory.mdc`、`docs/codex-handoff.md`、`docs/codex-migration-guide.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/v0.7-product-web-app-ui-spec.md`、`engine/README.md`、`memory.md`。
+- **文件**：`AGENTS.md`、`.cursor/rules/project-memory.mdc`、`docs/codex-handoff.md`、`docs/codex-migration-guide.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/completed/v0.7-product-web-app-ui-spec.md`、`engine/README.md`、`memory.md`。
 - **下一刀建议**：新开 Codex 窗口后按 `docs/codex-handoff.md` 接力，进入 v0.7.5 Worldline Judge。
 
 ### 2026-05-30 — v0.7.5 Worldline Judge 收口
@@ -1206,7 +1207,7 @@ lne list-genres
 ### 2026-05-30 — docs 目录导航整理
 
 - **做了什么**：
-  - 新增 `docs/index.md`，整理 `docs/` 根层文档、`prd/` 专项文档、`article/` 论文资料、`article/reports/` 论文研读报告、`research/` 参考项目吸收报告的职责和推荐读取顺序。
+  - 新增 `docs/index.md`，整理 `docs/` 根层文档、`completed/` 收口归档、`article/` 论文资料、`article/reports/` 论文研读报告、`research/` 参考项目吸收报告的职责和推荐读取顺序。
   - 在 `AGENTS.md` 与 `docs/codex-handoff.md` 的资料索引中补充 `docs/index.md`，方便新会话快速定位文档。
 - **测试**：文档导航更新；执行 `git diff --check` 验证格式。
 
@@ -1257,7 +1258,7 @@ lne list-genres
   - 将下一刀排为 `v0.8.6 Long Import Review`：导入报告细化、章节预览、导入质量空态、失败空态收束。
   - 将后续排期明确为 `v0.8.7 Resumable Ingest Jobs`、`v0.8.8 Long Project Workspace`、`v0.8.9 Long Replay & Audit UI`、`v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。
 - **测试**：文档路线同步；执行 `git diff --check` 验证格式。
-- **文件**：`memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/v0.7-product-web-app-ui-spec.md`、`engine/README.md`。
+- **文件**：`memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/completed/v0.7-product-web-app-ui-spec.md`、`engine/README.md`。
 - **下一刀建议**：新窗口从 `v0.8.6 Long Import Review` 开始，先扫描导入页、import report service/API、项目详情读取链路和失败空态测试。
 
 ### 2026-05-31 — v0.9+ 商业化增强排期拆分
@@ -1278,3 +1279,12 @@ lne list-genres
   - 明确 “MVP 已完成” 必须带限定语：v0.7-v0.7.5 是短中篇产品化 MVP；v0.8.0-A 至 v0.8.5-A 是长篇引擎底座 MVP；v0.8.6-v0.8.10 是长篇产品化收束；v0.9.0-alpha 才是长篇共创产品闭环成立，但仍不是商业级平台。
 - **测试**：文档口径同步；执行 `git diff --check` 验证格式。
 - **下一刀建议**：新窗口继续从 `v0.8.6 Long Import Review` 开始，不提前引入 Zep / 图数据库 / OASIS / CAMEL / LangGraph。
+
+### 2026-05-31 — docs 根目录收束与 completed 归档
+
+- **做了什么**：
+  - 新建 `docs/completed/`，把已收口版本文档归档：`v0.1-to-v0.8-version-audit.md`、`v0.2-import-novel-mvp.md`、`v0.4-worldline-browser-release.md`、`v0.6.1-multi-agent-runner-protocol.md`、`v0.6.4-multi-agent-llm-runner.md`、`v0.6.5-multi-agent-reliability.md`、`v0.7-product-web-app-ui-spec.md`。
+  - `docs/` 根目录收束为活文档与入口文档：`index.md`、`codex-handoff.md`、`codex-migration-guide.md`、`living-novel-engine-iteration-plan.md`、`living-novel-engine-prd.md`、`productization-phase-map.md`。
+  - 同步 `AGENTS.md`、`docs/index.md`、`docs/codex-handoff.md`、主 PRD、主迭代计划、`engine/README.md` 中的路径，避免新窗口或 AI 读到已失效的旧位置。
+- **测试**：文档目录重构；执行 `git diff --check` 验证格式。
+- **下一刀建议**：仍从 `v0.8.6 Long Import Review` 开始；已收口资料如需追溯，从 `docs/completed/` 读取。
