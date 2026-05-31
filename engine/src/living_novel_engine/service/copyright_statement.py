@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from living_novel_engine.browser.validators import safe_id
+from living_novel_engine.service.commercial_audit_log import append_project_audit_log_event
 from living_novel_engine.service.project_health import resolve_story_path
 
 VERSION = "v1.0-beta-project-copyright-statement-d"
@@ -146,6 +147,21 @@ def write_project_copyright_statement(
     path.write_text(
         json.dumps(record, ensure_ascii=False, indent=2),
         encoding="utf-8",
+    )
+    append_project_audit_log_event(
+        sid,
+        {
+            "action": "rights_reviewed",
+            "label": "保存版权/来源声明",
+            "summary": "已更新项目版权/来源声明。",
+            "actor_type": "user",
+            "severity": "info",
+            "metadata": {
+                "artifact_path": ARTIFACT_PATH,
+                "license_status": statement["license_status"],
+            },
+        },
+        projects_dir=projects_dir,
     )
     return get_project_copyright_statement(sid, projects_dir=projects_dir)
 

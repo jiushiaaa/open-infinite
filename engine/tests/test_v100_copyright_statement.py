@@ -15,6 +15,7 @@ import yaml
 from living_novel_engine.browser import server
 from living_novel_engine.service import (
     build_chapter_export,
+    get_project_audit_log,
     get_project_copyright_statement,
     write_project_copyright_statement,
 )
@@ -117,6 +118,27 @@ def test_write_copyright_statement_persists_sanitized_artifact(tmp_path):
     assert "LLM_API_KEY" not in text
     assert "SEEDREAM_API_KEY" not in text
     assert str(tmp_path) not in text
+
+
+def test_write_copyright_statement_appends_audit_event(tmp_path):
+    projects = tmp_path / "projects"
+    _make_project(projects)
+
+    write_project_copyright_statement(
+        "rights-story",
+        {
+            "source_title": "测试原作",
+            "license_status": "authorized",
+            "permitted_uses": ["private_research"],
+            "attestation": "已确认授权边界。",
+        },
+        projects_dir=projects,
+    )
+    audit = get_project_audit_log("rights-story", projects_dir=projects)
+
+    assert any(event["action"] == "rights_reviewed" for event in audit["events"])
+    event = next(event for event in audit["events"] if event["action"] == "rights_reviewed")
+    assert event["metadata"]["artifact_path"] == "memory/project_copyright_statement.json"
 
 
 def test_damaged_copyright_statement_degrades_to_warning(tmp_path):

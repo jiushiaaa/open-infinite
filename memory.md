@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I 与 v1.0-beta Project Retention Policy-J 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、对象存储、真实认证或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 680 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J 与 v1.0-beta Copyright Audit Hook-K 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、对象存储、真实认证或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 681 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `680 passed`（2026-06-01，v1.0-beta Project Retention Policy-J 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **测试基线** | 后端 `681 passed`（2026-06-01，v1.0-beta Copyright Audit Hook-K 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
 | **官方下一刀** | v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统 |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强已收口 → v1.0-beta Commercial Hardening 本地优先加固 |
-| **刚收口** | v1.0-beta Project Retention Policy-J：新增项目删除/保留策略 API，本地写入 `memory/project_retention_policy.json` 并追加审计事件。 |
+| **刚收口** | v1.0-beta Copyright Audit Hook-K：版权/来源声明保存后自动追加 `rights_reviewed` 本地审计事件。 |
 
 ---
 
@@ -136,6 +136,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v1.0-beta Account-H | Account Project Space Boundary | 账号与项目空间边界 | 已收口，见 `docs/completed/v1.0-beta-account-project-space-boundary-h.md` |
 | v1.0-beta Audit-I | Audit Log Append Policy | 审计日志追加策略 | 已收口，见 `docs/completed/v1.0-beta-audit-log-append-policy-i.md` |
 | v1.0-beta Retention-J | Project Retention Policy | 项目删除/保留策略 | 已收口，见 `docs/completed/v1.0-beta-project-retention-policy-j.md` |
+| v1.0-beta CopyrightAudit-K | Copyright Audit Hook | 版权声明审计接入 | 已收口，见 `docs/completed/v1.0-beta-copyright-audit-hook-k.md` |
 
 ## 3.2 阶段性质归类
 
@@ -465,6 +466,7 @@ lne list-genres
 ✅ v1.0-beta Account Project Space Boundary-H（已收口，见 docs/completed/v1.0-beta-account-project-space-boundary-h.md）
 ✅ v1.0-beta Audit Log Append Policy-I（已收口，见 docs/completed/v1.0-beta-audit-log-append-policy-i.md）
 ✅ v1.0-beta Project Retention Policy-J（已收口，见 docs/completed/v1.0-beta-project-retention-policy-j.md）
+✅ v1.0-beta Copyright Audit Hook-K（已收口，见 docs/completed/v1.0-beta-copyright-audit-hook-k.md）
 → v1.0-beta 后续商业化加固拆分（先明确下一刀边界，不直接云端化）
 ```
 
@@ -509,6 +511,7 @@ lne list-genres
 - [x] **v1.0-beta Account Project Space Boundary-H**：本地账号语义、项目空间清单和未来团队归属迁移边界；当前不接认证、团队空间或 ACL
 - [x] **v1.0-beta Audit Log Append Policy-I**：本地 `project_audit_log.jsonl` 白名单追加写入；当前不接真实账号或不可篡改审计存储
 - [x] **v1.0-beta Project Retention Policy-J**：本地项目删除/保留策略 artifact 与 API；当前不实际删除项目、不接对象存储或数据库
+- [x] **v1.0-beta Copyright Audit Hook-K**：版权/来源声明写操作接入本地审计日志；当前不接真实账号或不可篡改审计存储
 - [ ] 验收：同一场景 ≥5 角色参与推演；事件流仍被 contract/retrieval/browser 读取
 
 ### v0.7 产品级前端 ✅（九刀主闭环已完成）
@@ -1870,3 +1873,13 @@ lne list-genres
 - **测试/验证**：先写红灯测试确认 service/API 缺失，补实现后 `tests/test_v100_project_retention_policy.py` 为 **7 passed**；邻近回归为 **29 passed**；完整门禁为后端 **680 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
 - **边界**：不实际删除项目目录、上传原文、生成产物、holdout 或审计日志；不接对象存储、数据库、持久队列、真实账号、团队空间或请求级 ACL；不改 `run_scene`。
 - **下一刀建议**：继续 v1.0-beta 本地优先商业化加固，可拆“审计事件接入关键写操作”或“设置页商业化状态总览”小刀；不要直接进入云端多租户、对象存储或商业计费系统。
+
+### 2026-06-01 — v1.0-beta Copyright Audit Hook-K
+
+- **做了什么**：
+  - `write_project_copyright_statement()` 成功保存 `memory/project_copyright_statement.json` 后追加 `rights_reviewed` 审计事件。
+  - `GET /api/stories/<slug>/audit-log` 可聚合该事件，metadata 包含版权声明 artifact path 与 license status。
+  - 新增 `docs/completed/v1.0-beta-copyright-audit-hook-k.md`，归档审计 hook、边界和验证。
+- **测试/验证**：先写红灯测试确认缺少 `rights_reviewed`，补实现后 focused 为 **1 passed**；版权/审计/保留策略相邻回归为 **26 passed**；完整门禁为后端 **681 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
+- **边界**：不接真实账号、团队空间、认证 provider、请求级 ACL、云端不可篡改审计存储、对象存储、数据库或队列；不把所有写操作一次性接入审计，不改 `run_scene`。
+- **下一刀建议**：继续 v1.0-beta 本地优先商业化加固，可继续把设定编辑、世界线选择或状态 overlay apply/rollback 接入审计日志；不要直接进入云端多租户、对象存储或商业计费系统。

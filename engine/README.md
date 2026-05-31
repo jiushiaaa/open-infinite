@@ -70,6 +70,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Account-H | Account Project Space Boundary：账号与项目空间边界 | 已收口，见 `../docs/completed/v1.0-beta-account-project-space-boundary-h.md` |
 | v1.0-beta Audit-I | Audit Log Append Policy：本地审计日志追加策略 | 已收口，见 `../docs/completed/v1.0-beta-audit-log-append-policy-i.md` |
 | v1.0-beta Retention-J | Project Retention Policy：项目删除/保留策略 | 已收口，见 `../docs/completed/v1.0-beta-project-retention-policy-j.md` |
+| v1.0-beta Audit Hook-K | Copyright Audit Hook：版权声明写入审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-copyright-audit-hook-k.md` |
 
 ### 产品化阶段说明
 
@@ -86,7 +87,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略和项目保留策略 |
 
-**测试基线**：`pytest -q` → **680 passed**（2026-06-01，v1.0-beta Project Retention Policy-J 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **681 passed**（2026-06-01，v1.0-beta Copyright Audit Hook-K 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -536,6 +537,16 @@ copy .env.example .env
 - 坏 slug 返回 400，缺项目返回 404，内置样例只读返回 409。
 - 当前不实际删除项目目录、上传原文、生成产物、holdout 或审计日志；不接对象存储、数据库、持久队列、真实账号或团队空间。
 
+### v1.0-beta Copyright Audit Hook-K（已收口）
+
+本版本已把版权/来源声明写操作接入本地项目审计日志：
+
+- `write_project_copyright_statement()` 在成功写入 `memory/project_copyright_statement.json` 后追加 `rights_reviewed` 审计事件。
+- 审计事件写入 `memory/project_audit_log.jsonl`，并带上 `artifact_path` 与 `license_status`。
+- `GET /api/stories/<slug>/audit-log` 会继续聚合该事件。
+- 现有 `GET/POST /api/stories/<slug>/copyright-statement` 错误语义保持不变。
+- 当前不接真实账号、团队空间、认证 provider、云端不可篡改审计存储、对象存储、数据库或队列。
+
 ## 快速演示
 
 ```bash
@@ -785,3 +796,4 @@ outputs/run_<ts>_resume_intervene_linear/
 | v1.0-beta Account-H | 账号与项目空间边界（已收口） |
 | v1.0-beta Audit-I | 本地审计日志追加策略（已收口） |
 | v1.0-beta Retention-J | 项目删除/保留策略（已收口） |
+| v1.0-beta Audit Hook-K | 版权声明写入审计钩子（已收口） |

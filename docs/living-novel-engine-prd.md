@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I 与 v1.0-beta Project Retention Policy-J 已整体收口；后续 v1.0-beta 商业化加固需继续拆分 |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J 与 v1.0-beta Copyright Audit Hook-K 已整体收口；后续 v1.0-beta 商业化加固需继续拆分 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -995,6 +995,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | v1.0-beta Account-H | Account Project Space Boundary | 本地账号语义、项目空间清单和未来团队归属边界 | 已收口；不接真实认证、团队空间或请求级 ACL |
 | v1.0-beta Audit-I | Audit Log Append Policy | 本地项目审计日志白名单追加策略 | 已收口；不接云端不可篡改审计存储或真实账号 |
 | v1.0-beta Retention-J | Project Retention Policy | 本地项目删除/保留策略 artifact 与 API | 已收口；不实际删除文件、不接对象存储或数据库 |
+| v1.0-beta Audit Hook-K | Copyright Audit Hook | 版权/来源声明写入接入本地审计日志 | 已收口；不改变版权 API 行为、不接云端不可篡改存储 |
 
 明确不作为当前排期默认项：
 
