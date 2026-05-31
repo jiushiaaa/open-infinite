@@ -11,6 +11,7 @@ import type {
   ProjectCreationLoop,
   ProjectCreationLoopAction,
   ProjectCreationLoopCandidate,
+  ProjectCreationLoopEvidence,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
   ResumeContinueResponse,
@@ -462,6 +463,16 @@ function CreationLoopPanel({
               ))}
             </div>
           )}
+          {completion.evidence.length > 0 && (
+            <div className="creation-loop__evidence">
+              <p className="tiny muted">判定依据</p>
+              {completion.evidence.slice(0, 4).map((item) => (
+                <span key={item.id} title={item.ref}>
+                  {item.label}：{evidenceSourceLabel(item)}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
       {recommended ? (
@@ -767,6 +778,16 @@ function stepStatusLabel(value: string): string {
     warn: "需核对",
   };
   return map[value] ?? value;
+}
+
+function evidenceSourceLabel(item: ProjectCreationLoopEvidence): string {
+  const map: Record<string, string> = {
+    artifact: "已有产物",
+    api: "可执行接口",
+    route: "可查看页面",
+    state: "当前状态",
+  };
+  return map[item.source] ?? "当前依据";
 }
 
 function memoryLayerLabel(value: string): string {

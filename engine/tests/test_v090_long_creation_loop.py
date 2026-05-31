@@ -455,6 +455,21 @@ def test_project_workspace_creation_loop_recommends_exportable_worldline(
     assert loop["completion"]["kind"] == "creation_loop_completion"
     assert loop["completion"]["status"] == "todo"
     assert "选择后审计" in loop["completion"]["blocking_labels"]
+    evidence = loop["completion"]["evidence"]
+    assert [item["id"] for item in evidence] == [
+        item["id"] for item in loop["checklist"]
+    ]
+    judgement_evidence = next(
+        item for item in evidence if item["id"] == "worldline_judgement"
+    )
+    export_evidence = next(item for item in evidence if item["id"] == "chapter_export")
+    audit_evidence = next(item for item in evidence if item["id"] == "post_run_audit")
+    assert judgement_evidence["source"] == "artifact"
+    assert judgement_evidence["ref"] == "worldline_judgement.json"
+    assert export_evidence["source"] == "api"
+    assert export_evidence["ref"].endswith("/chapter-export")
+    assert audit_evidence["source"] == "route"
+    assert audit_evidence["ref"] == "#/anchor/export-story"
     assert any("继续推荐世界线" in step for step in loop["next_steps"])
 
 
@@ -488,6 +503,13 @@ def test_creation_loop_completion_exposes_actions_for_blockers(
     )
     assert selection["api_path"] == "/api/stories/export-story/selected-worldline"
     assert replay["route_hash"] == "#/anchor/export-story"
+    judgement_evidence = next(
+        item
+        for item in loop["completion"]["evidence"]
+        if item["id"] == "worldline_judgement"
+    )
+    assert judgement_evidence["source"] == "api"
+    assert judgement_evidence["ref"] == judgement["api_path"]
 
 
 def test_resume_continue_service_writes_linear_child_run(isolated_dirs, monkeypatch):

@@ -179,6 +179,7 @@
 
 .creation-loop__completion {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
@@ -217,6 +218,22 @@
   gap: 8px;
   justify-content: flex-end;
   max-width: 320px;
+}
+
+.creation-loop__evidence {
+  display: grid;
+  gap: 4px;
+  min-width: 180px;
+  max-width: 260px;
+  text-align: right;
+}
+
+.creation-loop__evidence p {
+  margin: 0;
+}
+
+.creation-loop__evidence span {
+  max-width: none;
 }
 
 .creation-loop__completion.is-ready {
@@ -609,6 +626,11 @@
     justify-content: flex-start;
     margin-top: 10px;
     max-width: none;
+  }
+  .creation-loop__evidence {
+    margin-top: 10px;
+    max-width: none;
+    text-align: left;
   }
   .creation-loop__actions {
     justify-content: flex-start;

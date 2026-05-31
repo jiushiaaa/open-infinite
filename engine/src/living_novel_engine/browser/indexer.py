@@ -1091,6 +1091,70 @@ def _creation_loop_actions(
     return actions
 
 
+def _creation_loop_evidence(
+    *,
+    slug: str,
+    checklist: list[dict[str, str]],
+    recommended: dict[str, Any] | None,
+    post_run_audit: dict[str, Any],
+) -> list[dict[str, str]]:
+    evidence: list[dict[str, str]] = []
+    run_id = str((recommended or {}).get("run_id") or "")
+    branch_id = str((recommended or {}).get("branch_id") or "")
+    export_api_path = str((recommended or {}).get("export_api_path") or "")
+    has_judgement = bool((recommended or {}).get("has_judgement"))
+
+    for item in checklist:
+        item_id = str(item.get("id") or "")
+        source = "state"
+        ref = item_id
+        detail = str(item.get("detail") or "")
+        if item_id == "import_review":
+            source = "route"
+            ref = f"#/anchor/{slug}"
+            detail = "世界锚定页会展示导入检查与章节片段。"
+        elif item_id == "branch_run" and recommended:
+            source = "artifact"
+            ref = f"run:{run_id}/branch:{branch_id}"
+            detail = "推荐世界线已有可阅读分支输出。"
+        elif item_id == "worldline_judgement" and recommended:
+            if has_judgement:
+                source = "artifact"
+                ref = "worldline_judgement.json"
+                detail = "推荐世界线已有评审 artifact。"
+            else:
+                source = "api"
+                ref = f"/api/runs/{run_id}/branches/{branch_id}/worldline-judgement"
+                detail = "可用快捷动作生成推荐世界线评审。"
+        elif item_id == "replay_audit":
+            source = "route"
+            ref = f"#/anchor/{slug}"
+            detail = "回放与审计页提供范围回放和静态风险维度。"
+        elif item_id == "post_run_audit":
+            source = "route"
+            ref = str(post_run_audit.get("review_hash") or f"#/anchor/{slug}")
+            detail = str(post_run_audit.get("summary") or detail)
+        elif item_id in {"chapter_export", "export_share_guard"} and export_api_path:
+            source = "api"
+            ref = export_api_path
+            detail = (
+                "章节导出接口会返回正文、来源说明和版权边界。"
+                if item_id == "chapter_export"
+                else "导出负载内含 share_guard 版权边界。"
+            )
+        evidence.append(
+            {
+                "id": item_id,
+                "label": str(item.get("label") or ""),
+                "status": str(item.get("status") or ""),
+                "source": source,
+                "ref": ref,
+                "detail": detail,
+            }
+        )
+    return evidence
+
+
 def _as_int(value: Any) -> int:
     if isinstance(value, bool):
         return 0
@@ -1392,6 +1456,12 @@ def _creation_loop_summary(
         ),
     ]
     completion = _creation_loop_completion(checklist)
+    completion["evidence"] = _creation_loop_evidence(
+        slug=slug,
+        checklist=checklist,
+        recommended=recommended,
+        post_run_audit=post_run_audit,
+    )
     completion["actions"] = _creation_loop_actions(
         slug=slug,
         recommended=recommended,

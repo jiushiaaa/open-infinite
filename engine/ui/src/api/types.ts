@@ -401,9 +401,19 @@ export interface ProjectCreationLoopCompletion {
   total_count: number;
   blocking_ids: string[];
   blocking_labels: string[];
+  evidence: ProjectCreationLoopEvidence[];
   actions: ProjectCreationLoopAction[];
   summary: string;
   can_mark_alpha_complete: boolean;
+}
+
+export interface ProjectCreationLoopEvidence {
+  id: string;
+  label: string;
+  status: string;
+  source: "artifact" | "api" | "route" | "state" | string;
+  ref: string;
+  detail: string;
 }
 
 export interface ProjectCreationLoopAction {
