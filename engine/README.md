@@ -55,8 +55,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.9 | Long Replay & Audit UI：长篇回放与一致性审计 UI | 已收口 |
 | v0.8.10-A | Runner State Execution Spike：opt-in 状态执行 dry-run 评估 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP：最小 opt-in 状态写入与回滚 | 已收口 |
-| v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 进行中：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Builtin Holdout Blocked Requirement / Closeout CLI / Closeout Record / Checklist / Hint / Resume Job / Selection / Post-run Audit 已收口 |
-| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
+| v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 已整体收口，见 `../docs/completed/v0.9.0-alpha-long-creation-loop.md` |
+| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 当前下一刀 |
 | v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 待 50+ 章或百万字召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
@@ -74,10 +74,10 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.0-A-v0.8.5-A | 长篇引擎底座 MVP | 长篇 memory/canon/retrieval/audit/holdout 已落盘并可读取 |
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
-| v0.9.0-alpha | 长篇产品闭环 | 进行中：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Builtin Holdout Blocked Requirement / Closeout CLI / Closeout Record / Checklist / Hint / Resume Job / Selection / Post-run Audit 已走通，完整主链路仍是 alpha |
+| v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **616 passed**（2026-06-01，v0.9.0-alpha Creation Loop Closeout Record 子刀后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **617 passed**（2026-06-01，v0.9.0-alpha Low-risk Audit Closeout / Alpha Closure 后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -186,6 +186,8 @@ lne creation-loop-closeout <slug> --require-ready --write-report
 ```
 
 `--json` 输出与 HTTP closeout 同构的 `story_slug/version/completion_status/actions/closeout`；`--require-ready` 在 `closeout.can_close_alpha=false` 时以退出码 1 失败。`--write-report` 只在 ready 时向导入项目写入 additive `creation_loop_alpha_closeout.json`，未 ready 不落盘；该报告用于记录本地 alpha 收口证据，不执行 action、不改变 `run_scene` 默认行为。
+
+v0.9.0-alpha 收口后，`risk_level=low` 的静态审计 info 提示不会阻断 ready；中高风险静态审计、范围回放中高风险、缺失实体、缺评审、缺选择或缺导出仍会阻断 closeout。
 
 前端还会显示 `creation_loop.recommended.continue_hint` 作为 CLI 续写入口，例如 `lne resume continue <run_id> --branch <branch_id> --mock`。v0.9.0-alpha Resume Continue HTTP Job 起，项目工作台也可通过显式按钮触发：
 
@@ -584,6 +586,6 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.7.1-A/B/C | Intervention Compiler + LLM 编译 + Causal Diff 数据地基 ✓ |
 | v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/completed/v0.7-product-web-app-ui-spec.md`） |
 | v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估与最小写入 |
-| v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（进行中：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Builtin Holdout Blocked Requirement / Closeout CLI / Closeout Record / Checklist / Hint / Resume Job / Selection / Post-run Audit 已收口） |
-| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（按触发条件） |
+| v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（已整体收口） |
+| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.1 当前下一刀） |
 | v1.0-beta | 商业化加固：账号、权限、云端持久化、配额、审计、版权、部署观测 |

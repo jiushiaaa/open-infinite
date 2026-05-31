@@ -6,14 +6,14 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已启动，Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Builtin Holdout Blocked Requirement、Creation Loop Closeout CLI、Creation Loop Closeout Record、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口 |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已整体收口；下一版为 v0.9.1 Provider & Cost Gateway Lite |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
 
 v0.1-v0.8 已完成能力与未做项总览见 [`completed/v0.1-to-v0.8-version-audit.md`](./completed/v0.1-to-v0.8-version-audit.md)。
 
-产品化阶段归类见 [`productization-phase-map.md`](./productization-phase-map.md)。当前 PRD 中的 “MVP” 默认不是单一含义：v0.7-v0.7.5 指短中篇产品化 MVP 已成立；v0.8.0-A-v0.8.5-A 指长篇引擎底座 MVP 已成立；v0.8.6-v0.8.10 是把长篇底座产品化为普通用户工作流；v0.9.0-alpha 已启动但尚未整体收口，完成后才算长篇共创产品闭环成立，且仍不是商业级平台。
+产品化阶段归类见 [`productization-phase-map.md`](./productization-phase-map.md)。当前 PRD 中的 “MVP” 默认不是单一含义：v0.7-v0.7.5 指短中篇产品化 MVP 已成立；v0.8.0-A-v0.8.5-A 指长篇引擎底座 MVP 已成立；v0.8.6-v0.8.10 是把长篇底座产品化为普通用户工作流；v0.9.0-alpha 已整体收口为长篇共创 alpha 产品闭环，但仍不是商业级平台。
 
 ## 2. 背景
 
@@ -830,7 +830,7 @@ v0.8 后半段不直接跳 v0.9，先把“上传成功”推进到“用户能�
 
 #### v0.9.0-alpha Long Novel Creation Loop
 
-v0.9.0-alpha 已启动，目标是串起完整用户路径：
+v0.9.0-alpha 已整体收口，已经串起完整用户路径：
 
 ```text
 上传原作/设定 -> 查看记忆与导入报告 -> 发起分支运行 -> 审计偏移 -> 选择世界线 -> 导出章节
@@ -852,13 +852,14 @@ v0.9.0-alpha 已启动，目标是串起完整用户路径：
 - **Builtin Holdout Blocked Requirement**：内置样例无法录入 holdout 时，`canon_holdout` requirement 标为 `blocked` 并提示需导入长篇项目后录入 holdout，避免把只读样例误判为普通缺失。
 - **Creation Loop Closeout CLI**：`lne creation-loop-closeout <slug>` 可本地验收 closeout 状态，`--json` 输出与 HTTP 同构 payload，`--require-ready` 在未 ready 时失败，用于导入项目 alpha 收口闸门。
 - **Creation Loop Closeout Record**：`lne creation-loop-closeout <slug> --write-report` 仅在 ready 后写入项目级 `creation_loop_alpha_closeout.json`，记录 closeout 依据；未 ready 或 builtin 样例不落盘。
+- **Low-risk Audit Closeout**：静态审计中 `risk_level=low` 的 info 提示不再阻断 alpha ready；中高风险、缺失实体、缺评审、缺选择、缺导出仍阻断。
 - **Creation Loop Checklist**：长篇项目工作台新增只读 `creation_loop`，展示推荐世界线、候选分支、导入/分支/评审/审计/导出五步清单和下一步提醒。
 - **Continuation Hint**：推荐世界线下展示 CLI 续写入口 `lne resume continue <run_id> --branch <branch_id> --mock`，作为 HTTP resume job 前的最小继续创作入口。
 - **Resume Continue HTTP Job**：推荐世界线可通过显式按钮触发 `/api/jobs/resume-continue`，沿父分支生成新的 `linear` 下一章并跳转阅读；不改 `run_scene` 默认行为。
 - **Worldline Selection Persistence**：用户可把推荐或候选世界线「设为起点」，写入 `selected_worldline.json` 并在 `creation_loop.selected` 中读回。
 - **Post-run Audit Entry**：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态一致性审计、范围回放风险、缺失实体和下一步审计入口。
 
-v0.9.0-alpha 仍需用真实样例或导入项目通过 closeout HTTP 验收接口或 `lne creation-loop-closeout --require-ready --write-report` 跑到 `creation_loop.closeout.status=ready` 并写入 `creation_loop_alpha_closeout.json` 后再做版本收口声明；公开分享发布、provider/cost gateway 不在当前 alpha 小刀内。运行后审计目前是只读入口，尚未写回正史账本或驱动下一轮 runner。
+v0.9.0-alpha 已通过本地导入项目 `v090-alpha-proof` 写入 `creation_loop_alpha_closeout.json` 完成 alpha 收口声明；公开分享发布、provider/cost gateway 不在该版本内。运行后审计目前是只读入口，尚未写回正史账本或驱动下一轮 runner。
 
 #### v0.8.1 Hierarchical Memory
 
@@ -979,8 +980,8 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 
 | 版本 | 名称 | 范围 | 触发条件 |
 | --- | --- | --- | --- |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | 已启动：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout CLI / Closeout Record / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口，整体闭环继续推进 |
-| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 真实用户开始频繁跑长任务，单 provider 成本或稳定性成为问题 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | 已整体收口，见 `completed/v0.9.0-alpha-long-creation-loop.md` |
+| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 当前下一刀；不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后，用户需要系统化维护设定，而不只是运行分支 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 50+ 章或百万字项目中 BM25/ledger 召回明显不足，审计频繁漏实体/关系 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner 是否值得接入 | v0.8.10 状态执行层不足以表达角色并行思考、裁判、审计、反思/重试、多轮共识或群体仿真 |

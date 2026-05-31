@@ -1374,11 +1374,9 @@ def _post_run_audit_summary(
         if isinstance(latest_range, dict) and latest_range
         else {}
     )
-    risk_level = str(
-        range_summary.get("risk_level")
-        or (audit.get("summary") or {}).get("risk_level")
-        or "unknown"
-    )
+    static_summary = audit.get("summary") or {}
+    static_risk_level = str(static_summary.get("risk_level") or "unknown")
+    risk_level = str(range_summary.get("risk_level") or static_risk_level or "unknown")
     entity_audit = (
         latest_range.get("entity_audit", {})
         if isinstance(latest_range, dict) and latest_range
@@ -1387,7 +1385,10 @@ def _post_run_audit_summary(
     missing_entities = [
         str(item) for item in _as_list(entity_audit.get("missing_entities"))
     ][:8]
-    static_issue_count = _as_int((audit.get("summary") or {}).get("issue_count"))
+    static_issue_count = _as_int(static_summary.get("issue_count"))
+    has_static_blocker = static_risk_level in {"medium", "high"} or (
+        static_issue_count > 0 and static_risk_level != "low"
+    )
     has_judgement = bool(candidate and candidate.get("has_judgement"))
     has_causal_diff = bool(candidate and candidate.get("has_causal_diff"))
     has_range_replay = latest_range is not None
@@ -1399,7 +1400,7 @@ def _post_run_audit_summary(
         next_actions.append("先核对 Causal Diff，确认干预造成的偏移边界。")
     if not has_range_replay:
         next_actions.append("进入回放与审计，运行章节范围回放。")
-    if static_issue_count > 0 or risk_level in {"medium", "high"} or missing_entities:
+    if has_static_blocker or risk_level in {"medium", "high"} or missing_entities:
         next_actions.append("回放与审计中仍有风险，继续前先处理高影响项。")
     if not next_actions:
         next_actions.append("审计入口已补齐，可以继续生成下一章或导出留档。")
@@ -1411,7 +1412,7 @@ def _post_run_audit_summary(
         status = "todo"
         summary = "已选世界线尚未完成范围回放，继续前建议先补审计。"
     elif (
-        static_issue_count > 0
+        has_static_blocker
         or risk_level in {"medium", "high"}
         or missing_entities
         or not has_judgement
@@ -1554,8 +1555,10 @@ def _creation_loop_summary(
     has_judgement = any(bool(c.get("has_judgement")) for c in candidates)
     has_export = any(bool(c.get("has_export")) for c in candidates)
     audit_status = str(audit.get("status") or "missing")
-    issue_count = int((audit.get("summary") or {}).get("issue_count") or 0)
-    if audit_status == "ready" and issue_count == 0:
+    audit_summary = audit.get("summary") or {}
+    issue_count = int(audit_summary.get("issue_count") or 0)
+    audit_risk_level = str(audit_summary.get("risk_level") or "unknown")
+    if audit_status == "ready" and (issue_count == 0 or audit_risk_level == "low"):
         audit_item_status = "done"
     elif audit_status in ("ready", "damaged"):
         audit_item_status = "warn"
@@ -1587,6 +1590,8 @@ def _creation_loop_summary(
             status=audit_item_status,
             detail=(
                 "静态审计未发现问题。"
+                if audit_item_status == "done" and issue_count == 0
+                else "静态审计为低风险，仅有可复盘提示。"
                 if audit_item_status == "done"
                 else "结合一致性审计与回放结果检查偏移风险。"
             ),

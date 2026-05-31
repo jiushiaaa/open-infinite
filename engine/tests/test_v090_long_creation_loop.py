@@ -250,6 +250,33 @@ def _write_clean_consistency_report(projects):
     )
 
 
+def _write_low_risk_info_consistency_report(projects):
+    report_path = projects / "export-story" / "memory" / "consistency_report.json"
+    report_path.write_text(
+        json.dumps(
+            {
+                "version": "test-low-risk-info",
+                "summary": {"issue_count": 3, "risk_level": "low"},
+                "persona_drift": [],
+                "timeline_conflicts": [],
+                "resource_conflicts": [],
+                "contract_violations": [],
+                "forgotten_threads": [
+                    {
+                        "kind": "open_thread",
+                        "severity": "info",
+                        "detail": "开放伏笔待追踪：风鸣铃争夺",
+                        "evidence": "open_threads.yaml",
+                    }
+                ],
+                "repair_suggestions": ["当前未发现导入级静态风险。"],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+
 def _write_child_continue_run(outputs, parent_run_id: str, parent_branch_id: str):
     child_run_id = "run_v090_child"
     run_dir = outputs / child_run_id
@@ -796,6 +823,38 @@ def test_creation_loop_ready_state_marks_alpha_closeable(isolated_story_dirs):
     assert [item["id"] for item in closeout["evidence"]] == [
         item["id"] for item in loop["checklist"]
     ]
+
+
+def test_creation_loop_low_risk_audit_info_does_not_block_closeout(
+    isolated_story_dirs,
+):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    _write_causal_diff(outputs, run_id, branch_id)
+    _write_low_risk_info_consistency_report(projects)
+    _write_replay_range(outputs, risk_level="low", missing_entities=[])
+    _, _, select_worldline = _worldline_selection_api()
+    select_worldline(
+        story_slug="export-story",
+        run_id=run_id,
+        branch_id=branch_id,
+        note="低风险审计提示不阻断 alpha 收口。",
+    )
+
+    loop = indexer.get_project_workspace("export-story")["creation_loop"]
+
+    audit_item = next(item for item in loop["checklist"] if item["id"] == "replay_audit")
+    assert audit_item["status"] == "done"
+    assert loop["post_run_audit"]["status"] == "ready"
+    assert loop["completion"]["status"] == "ready"
+    assert loop["closeout"]["status"] == "ready"
 
 
 def test_http_creation_loop_closeout_reports_ready_state(isolated_story_dirs):
