@@ -37,6 +37,10 @@ def test_permission_matrix_declares_roles_resources_and_no_enforcement(monkeypat
     assert "write" not in by_resource["master_setting"]["permissions"]["viewer"]
     assert "write" in by_resource["master_setting"]["permissions"]["editor"]
     assert by_resource["generation_actions"]["permissions"]["viewer"] == ["read_status"]
+    assert "POST /api/stories/<slug>/audit-log/events" in by_resource["audit_log"][
+        "current_endpoints"
+    ]
+    assert by_resource["audit_log"]["permissions"]["editor"] == ["read", "append"]
     assert "permission-secret" not in text
     assert "LLM_API_KEY" not in text
     assert "SEEDREAM_API_KEY" not in text

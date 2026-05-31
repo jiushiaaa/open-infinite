@@ -520,6 +520,12 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._handle_worldline_judgement_run(run_id, branch_id)
             if path.startswith("/api/stories/") and path.endswith("/master-setting"):
                 return self._handle_master_setting_update(path)
+            if path.startswith("/api/stories/") and path.endswith("/audit-log/events"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/audit-log/events")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_audit_log_event_append(slug)
             if path.startswith("/api/stories/") and path.endswith(
                 "/copyright-statement"
             ):
@@ -559,6 +565,27 @@ class BrowserHandler(BaseHTTPRequestHandler):
             self.send_error(404)
         except Exception as exc:
             self._send_json({"error": str(exc)}, status=500)
+
+    def _handle_audit_log_event_append(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            ProjectAuditLogConflictError,
+            ProjectAuditLogRequestError,
+            append_project_audit_log_event,
+        )
+
+        try:
+            payload = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            result = append_project_audit_log_event(slug, payload)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except ProjectAuditLogRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except ProjectAuditLogConflictError as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        return self._send_json(result)
 
     def _handle_chapter_export_get(self, run_id: str, branch_id: str) -> None:
         """v0.9.0-alpha：导出所选世界线章节为 Markdown payload。"""

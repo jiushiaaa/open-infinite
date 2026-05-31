@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G 与 v1.0-beta Account Project Space Boundary-H 已整体收口；后续 v1.0-beta 商业化加固需继续拆分）
+> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H 与 v1.0-beta Audit Log Append Policy-I 已整体收口；后续 v1.0-beta 商业化加固需继续拆分）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/completed/v0.1-to-v0.8-version-audit.md`。
@@ -104,11 +104,12 @@ v1.0-beta Quota & Observability Lite-E      配额与观测口径         已收
 v1.0-beta Local Deployment Readiness-F      本地部署就绪清单       已收口：详见 docs/completed/v1.0-beta-local-deployment-readiness-f.md
 v1.0-beta Cloud Persistence Boundary-G      云端持久化迁移边界     已收口：详见 docs/completed/v1.0-beta-cloud-persistence-boundary-g.md
 v1.0-beta Account Project Space Boundary-H  账号与项目空间边界     已收口：详见 docs/completed/v1.0-beta-account-project-space-boundary-h.md
+v1.0-beta Audit Log Append Policy-I         审计日志追加策略       已收口：详见 docs/completed/v1.0-beta-audit-log-append-policy-i.md
 ```
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **667 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider & Cost Gateway Lite 已整体收口**，完整证明见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；**v0.9.2 MasterSetting Workspace Lite 已整体收口**，完整证明见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；**v0.9.3 Graph Memory Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`；**v0.9.4 Advanced Runner Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`；**v1.0-beta Commercial Hardening Scope-A 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`；**v1.0-beta Commercial Audit Log Schema-B 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`；**v1.0-beta Permission Matrix Draft-C 已收口**，完整证明见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`；**v1.0-beta Project Copyright Statement-D 已收口**，完整证明见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`；**v1.0-beta Quota & Observability Lite-E 已收口**，完整证明见 `docs/completed/v1.0-beta-quota-observability-lite-e.md`；**v1.0-beta Local Deployment Readiness-F 已收口**，完整证明见 `docs/completed/v1.0-beta-local-deployment-readiness-f.md`；**v1.0-beta Cloud Persistence Boundary-G 已收口**，完整证明见 `docs/completed/v1.0-beta-cloud-persistence-boundary-g.md`；**v1.0-beta Account Project Space Boundary-H 已收口**，完整证明见 `docs/completed/v1.0-beta-account-project-space-boundary-h.md`。当前不接 LangGraph/OASIS/CAMEL，也不直接进入云端多租户、对象存储、认证或计费系统。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **673 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider & Cost Gateway Lite 已整体收口**，完整证明见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；**v0.9.2 MasterSetting Workspace Lite 已整体收口**，完整证明见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；**v0.9.3 Graph Memory Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`；**v0.9.4 Advanced Runner Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`；**v1.0-beta Commercial Hardening Scope-A 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`；**v1.0-beta Commercial Audit Log Schema-B 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`；**v1.0-beta Permission Matrix Draft-C 已收口**，完整证明见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`；**v1.0-beta Project Copyright Statement-D 已收口**，完整证明见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`；**v1.0-beta Quota & Observability Lite-E 已收口**，完整证明见 `docs/completed/v1.0-beta-quota-observability-lite-e.md`；**v1.0-beta Local Deployment Readiness-F 已收口**，完整证明见 `docs/completed/v1.0-beta-local-deployment-readiness-f.md`；**v1.0-beta Cloud Persistence Boundary-G 已收口**，完整证明见 `docs/completed/v1.0-beta-cloud-persistence-boundary-g.md`；**v1.0-beta Account Project Space Boundary-H 已收口**，完整证明见 `docs/completed/v1.0-beta-account-project-space-boundary-h.md`；**v1.0-beta Audit Log Append Policy-I 已收口**，完整证明见 `docs/completed/v1.0-beta-audit-log-append-policy-i.md`。当前不接 LangGraph/OASIS/CAMEL，也不直接进入云端多租户、对象存储、认证或计费系统。
 
 ## 2.1 阶段性质与产品化程度
 
@@ -133,6 +134,7 @@ v1.0-beta Account Project Space Boundary-H  账号与项目空间边界     已�
 | v1.0-beta Deploy-F | Local Deployment Readiness | 本地部署就绪清单 | 已收口：健康检查、环境脱敏、静态资源/API 冒烟和运行步骤。 |
 | v1.0-beta Cloud-G | Cloud Persistence Boundary | 云端持久化迁移边界 | 已收口：本地 artifact 到未来平台资源的映射和保留规则。 |
 | v1.0-beta Account-H | Account Project Space Boundary | 账号与项目空间边界 | 已收口：本地账号语义、项目空间清单和未来团队归属边界。 |
+| v1.0-beta Audit-I | Audit Log Append Policy | 审计日志追加策略 | 已收口：本地 `project_audit_log.jsonl` 白名单追加写入。 |
 
 因此，“已经完成 MVP”需要带限定语：v0.7 已完成短中篇产品化 MVP，v0.8.0-A 至 v0.8.5-A 已完成长篇底座 MVP；v0.8.6-v0.8.10 是长篇产品化收束，v0.9.0-alpha 才是长篇共创产品闭环成立。
 
@@ -182,7 +184,7 @@ v1.0-beta Account Project Space Boundary-H  账号与项目空间边界     已�
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **667 passed**（截至 2026-06-01，v1.0-beta Account Project Space Boundary-H 收口后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **673 passed**（截至 2026-06-01，v1.0-beta Audit Log Append Policy-I 收口后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1903,6 +1905,8 @@ v0.9.0-alpha 已整体收口。它已把长篇上传、记忆、分支运行、�
 
 > **v1.0-beta Account Project Space Boundary-H 已收口（2026-06-01）**：新增 `get_account_project_space_boundary()` 与 `GET /api/settings/account-project-space-boundary`，只读定义本地账号语义、项目空间清单和未来团队归属迁移边界；`account_model.mode=local_single_operator`、`enforcement.mode=not_enforced`，不接认证 provider、团队空间、成员邀请、跨设备同步或请求级 ACL。收口归档见 `docs/completed/v1.0-beta-account-project-space-boundary-h.md`。后续继续拆分 v1.0-beta 商业化加固小刀。
 
+> **v1.0-beta Audit Log Append Policy-I 已收口（2026-06-01）**：新增 `append_project_audit_log_event()` 与 `POST /api/stories/<slug>/audit-log/events`，白名单追加本地 `memory/project_audit_log.jsonl`；坏 payload 返回 400，缺项目返回 404，内置样例只读返回 409；`metadata` 会丢弃疑似密钥字段或密钥值。`GET /api/stories/<slug>/audit-log` 继续聚合追加后的 JSONL 行。收口归档见 `docs/completed/v1.0-beta-audit-log-append-policy-i.md`。后续继续拆分 v1.0-beta 商业化加固小刀。
+
 ### Phase 5：社区与分享
 
 远期方向：
@@ -2043,6 +2047,7 @@ v0.1.2 resume continue
 | P10-F | v1.0-beta Local Deployment Readiness | 健康检查、环境脱敏、静态资源/API 冒烟和运行步骤 | 已收口 |
 | P10-G | v1.0-beta Cloud Persistence Boundary | 本地 artifact 到未来平台资源的映射、保留规则和迁移边界 | 已收口 |
 | P10-H | v1.0-beta Account Project Space Boundary | 本地账号语义、项目空间清单和未来团队归属边界 | 已收口 |
+| P10-I | v1.0-beta Audit Log Append Policy | 本地项目审计日志白名单追加策略 | 已收口 |
 
 ## 8. 近期详细任务清单
 
@@ -2322,6 +2327,7 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v1.0-beta Local Deployment Readiness-F（已收口：本地部署就绪清单）
   -> v1.0-beta Cloud Persistence Boundary-G（已收口：云端持久化迁移边界）
   -> v1.0-beta Account Project Space Boundary-H（已收口：账号与项目空间边界）
+  -> v1.0-beta Audit Log Append Policy-I（已收口：审计日志追加策略）
   -> v1.0-beta 后续商业化加固拆分（先明确下一刀边界）
 ```
 

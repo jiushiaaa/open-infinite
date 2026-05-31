@@ -94,14 +94,17 @@ def get_permission_matrix_draft() -> dict[str, Any]:
         _resource(
             resource_id="audit_log",
             label="项目审计日志",
-            current_endpoints=["GET /api/stories/<slug>/audit-log"],
+            current_endpoints=[
+                "GET /api/stories/<slug>/audit-log",
+                "POST /api/stories/<slug>/audit-log/events",
+            ],
             permissions={
-                "owner": ["read", "future_append"],
-                "editor": ["read", "future_append"],
+                "owner": ["read", "append"],
+                "editor": ["read", "append"],
                 "viewer": ["read"],
             },
             notes=[
-                "Schema-B 当前只读聚合；future_append 仅表示后续可设计追加日志。"
+                "Append Policy-I 当前只允许白名单事件本地追加；不代表已接认证或不可篡改审计存储。"
             ],
         ),
         _resource(

@@ -117,7 +117,8 @@
 - v1.0-beta Local Deployment Readiness-F 已收口。
 - v1.0-beta Cloud Persistence Boundary-G 已收口。
 - v1.0-beta Account Project Space Boundary-H 已收口。
-- 当前后端验证基线：`667 passed`。
+- v1.0-beta Audit Log Append Policy-I 已收口。
+- 当前后端验证基线：`673 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
 - 官方下一刀：v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统。
 - 后续排期：`v1.0-beta` 本地优先商业化加固，真实外部用户前不默认做云端多租户/计费系统。
@@ -165,6 +166,7 @@
 - `v1.0-beta Local Deployment Readiness-F` 已新增 `GET /api/settings/deployment-readiness`，只读汇总本地 HTTP 入口、静态资源、数据目录、脱敏运行环境、API 冒烟计划、运行步骤和验证步骤；不打网络、不落盘、不接云端部署或计费系统，归档见 `docs/completed/v1.0-beta-local-deployment-readiness-f.md`。
 - `v1.0-beta Cloud Persistence Boundary-G` 已新增 `GET /api/settings/cloud-persistence-boundary`，只读映射本地 artifact 到未来平台资源、保留规则和迁移边界；不上传文件、不接对象存储/数据库/队列，归档见 `docs/completed/v1.0-beta-cloud-persistence-boundary-g.md`。
 - `v1.0-beta Account Project Space Boundary-H` 已新增 `GET /api/settings/account-project-space-boundary`，只读定义本地账号语义、项目空间清单和未来团队归属迁移边界；不接认证、团队空间或 ACL，归档见 `docs/completed/v1.0-beta-account-project-space-boundary-h.md`。
+- `v1.0-beta Audit Log Append Policy-I` 已新增 `POST /api/stories/<slug>/audit-log/events`，白名单追加本地 `memory/project_audit_log.jsonl` 审计事件；坏 payload 400、缺项目 404、内置样例 409，不接云端不可篡改审计存储，归档见 `docs/completed/v1.0-beta-audit-log-append-policy-i.md`。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。后续商业化加固需要先拆成小刀再实现。
 

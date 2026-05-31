@@ -12,16 +12,32 @@ import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from living_novel_engine.service.project_health import resolve_story_path
 
 _VERSION = "v1.0-beta-commercial-audit-log-schema-b"
+_APPEND_VERSION = "v1.0-beta-audit-log-append-policy-i"
 _STORAGE = "memory/project_audit_log.jsonl"
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+_APPEND_ACTIONS = {
+    "manual_note",
+    "rights_reviewed",
+    "retention_policy_reviewed",
+    "project_space_reviewed",
+    "audit_reviewed",
+}
+_APPEND_SEVERITIES = {"info", "warning", "action_required"}
+_ACTOR_TYPES = {"user", "system"}
+_SENSITIVE_MARKERS = ("api_key", "secret", "token", "password", "llm_api_key", "seedream_api_key")
 
 
 class ProjectAuditLogRequestError(ValueError):
     """Invalid audit log request, mapped to HTTP 400."""
+
+
+class ProjectAuditLogConflictError(ValueError):
+    """Audit log write conflicts, mapped to HTTP 409."""
 
 
 def _validate_slug(slug: str) -> str:
@@ -216,7 +232,7 @@ def _project_log_events(project_dir: Path) -> tuple[list[dict[str, Any]], list[d
 def _schema() -> dict[str, Any]:
     return {
         "storage": _STORAGE,
-        "write_policy": "future_additive_jsonl",
+        "write_policy": "local_append_jsonl_opt_in",
         "required_fields": [
             "event_id",
             "action",
@@ -234,6 +250,10 @@ def _schema() -> dict[str, Any]:
             "master_setting_updated",
             "creation_loop_closed",
             "manual_note",
+            "rights_reviewed",
+            "retention_policy_reviewed",
+            "project_space_reviewed",
+            "audit_reviewed",
         ],
     }
 
@@ -284,6 +304,128 @@ def get_project_audit_log(
         "next_steps": [
             "后续写操作逐步追加 project_audit_log.jsonl，而不是覆盖既有 artifact。",
             "权限矩阵接入前，先用该只读时间线核对项目关键动作。",
+            "云端不可篡改审计存储留到真实外部用户阶段。",
+        ],
+    }
+
+
+def _clean_text(value: Any, *, max_len: int, fallback: str = "") -> str:
+    text = str(value or "").strip()
+    if not text:
+        text = fallback
+    return text[:max_len]
+
+
+def _looks_sensitive(key: str, value: Any) -> bool:
+    lowered_key = key.lower()
+    if any(marker in lowered_key for marker in _SENSITIVE_MARKERS):
+        return True
+    if isinstance(value, str):
+        lowered_value = value.lower()
+        return "secret" in lowered_value or lowered_value.startswith(("sk-", "sd-"))
+    return False
+
+
+def _safe_metadata(raw: Any) -> tuple[dict[str, Any], list[dict[str, str]]]:
+    if raw in (None, ""):
+        return {}, []
+    if not isinstance(raw, dict):
+        return {}, [
+            {
+                "code": "metadata_dropped",
+                "message": "metadata 不是对象，已跳过。",
+            }
+        ]
+
+    metadata: dict[str, Any] = {}
+    warnings: list[dict[str, str]] = []
+    for key, value in raw.items():
+        clean_key = _clean_text(key, max_len=80)
+        if not clean_key:
+            continue
+        if _looks_sensitive(clean_key, value):
+            warnings.append(
+                {
+                    "code": "metadata_key_dropped",
+                    "message": f"metadata.{clean_key} 疑似敏感字段，已跳过。",
+                }
+            )
+            continue
+        if isinstance(value, bool) or isinstance(value, (int, float)):
+            metadata[clean_key] = value
+        elif isinstance(value, str):
+            metadata[clean_key] = value[:240]
+        elif isinstance(value, list):
+            metadata[clean_key] = [
+                item if isinstance(item, (bool, int, float)) else str(item)[:120]
+                for item in value[:10]
+            ]
+        else:
+            metadata[clean_key] = str(value)[:240]
+    return metadata, warnings
+
+
+def append_project_audit_log_event(
+    story_slug: str,
+    payload: dict[str, Any],
+    *,
+    projects_dir: Path | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Append one safe local event to memory/project_audit_log.jsonl."""
+
+    slug = _validate_slug(story_slug)
+    if not isinstance(payload, dict):
+        raise ProjectAuditLogRequestError("payload 必须是对象")
+    action = _clean_text(payload.get("action"), max_len=80)
+    if action not in _APPEND_ACTIONS:
+        raise ProjectAuditLogRequestError("action 不在允许的审计事件白名单内")
+    summary = _clean_text(payload.get("summary"), max_len=240)
+    if not summary:
+        raise ProjectAuditLogRequestError("summary 不能为空")
+    severity = _clean_text(payload.get("severity"), max_len=40, fallback="info")
+    if severity not in _APPEND_SEVERITIES:
+        raise ProjectAuditLogRequestError("severity 不合法")
+    actor_type = _clean_text(payload.get("actor_type"), max_len=40, fallback="user")
+    if actor_type not in _ACTOR_TYPES:
+        raise ProjectAuditLogRequestError("actor_type 不合法")
+
+    project_dir, source_kind = resolve_story_path(slug, projects_dir)
+    if source_kind == "builtin":
+        raise ProjectAuditLogConflictError("内置样例为只读目录，不能追加项目审计日志")
+
+    created = now or datetime.now()
+    created_at = created.isoformat(timespec="seconds")
+    metadata, warnings = _safe_metadata(payload.get("metadata"))
+    event = _event(
+        event_id=f"audit-{created.strftime('%Y%m%d%H%M%S')}-{uuid4().hex[:8]}",
+        action=action,
+        label=_clean_text(payload.get("label"), max_len=80, fallback=summary),
+        artifact=_STORAGE,
+        created_at=created_at,
+        actor_type=actor_type,
+        severity=severity,
+        summary=summary,
+        metadata=metadata,
+    )
+
+    log_path = project_dir / _STORAGE
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n")
+
+    return {
+        "version": _APPEND_VERSION,
+        "status": "appended",
+        "story_slug": slug,
+        "source_kind": source_kind,
+        "storage": _STORAGE,
+        "event": event,
+        "warnings": warnings,
+        "audit_log": get_project_audit_log(slug, projects_dir=projects_dir),
+        "next_steps": [
+            "继续保持 project_audit_log.jsonl 追加写入，不覆盖既有 artifact。",
+            "接真实账号前，actor_type 只表达本地事件来源，不代表已鉴权身份。",
             "云端不可篡改审计存储留到真实外部用户阶段。",
         ],
     }
