@@ -411,6 +411,8 @@ class BrowserHandler(BaseHTTPRequestHandler):
                         {"error": "invalid run_id or branch_id"}, status=400
                     )
                 return self._handle_worldline_judgement_run(run_id, branch_id)
+            if path.startswith("/api/stories/") and path.endswith("/master-setting"):
+                return self._handle_master_setting_update(path)
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 return self._handle_anchor_update(path)
             if path == "/api/settings/runtime":
@@ -786,6 +788,44 @@ class BrowserHandler(BaseHTTPRequestHandler):
             {
                 "anchor": indexer.get_world_anchor(slug),
                 "health": result.health.as_dict(),
+                "changed": result.changed,
+                "backup": result.backup_dir.name if result.backup_dir else None,
+            }
+        )
+
+    def _handle_master_setting_update(self, path: str) -> None:
+        """v0.9.2：MasterSetting Lite 白名单轻编辑写回。"""
+        from living_novel_engine.browser import indexer
+        from living_novel_engine.service import (
+            MasterSettingConflictError,
+            MasterSettingReadOnlyError,
+            MasterSettingUpdateError,
+            update_master_setting,
+        )
+
+        rest = path[len("/api/stories/") :]
+        slug = safe_id(rest[: -len("/master-setting")].strip("/"))
+        if slug is None:
+            return self._send_json({"error": "invalid slug"}, status=400)
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        try:
+            result = update_master_setting(slug, body if isinstance(body, dict) else {})
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except MasterSettingConflictError as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        except (MasterSettingReadOnlyError, MasterSettingUpdateError) as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+
+        workspace = indexer.get_project_workspace(slug)
+        self._send_json(
+            {
+                "master_setting_workspace": workspace["master_setting_workspace"],
                 "changed": result.changed,
                 "backup": result.backup_dir.name if result.backup_dir else None,
             }

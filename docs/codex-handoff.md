@@ -71,6 +71,7 @@
 - v0.9.1 Provider & Cost Gateway Lite
 - v0.9.2 MasterSetting Workspace Summary-A
 - v0.9.2 MasterSetting Workspace Panel-B
+- v0.9.2 MasterSetting Workspace Edit-C
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -119,16 +120,17 @@
 - v0.9.1 Provider & Cost Gateway Lite：整体收口归档见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`
 - v0.9.2 MasterSetting Workspace Summary-A：`get_project_workspace()` additive 返回只读 `master_setting_workspace`，聚合设定、人物状态、时间线、伏笔和章节摘要；损坏 artifact 返回 damaged/warnings，不写文件
 - v0.9.2 MasterSetting Workspace Panel-B：长篇项目工作台新增只读「设定工作台」面板和右侧设定状态，展示世界规则、人物状态、时间线、伏笔线、章节摘要和后续建议
+- v0.9.2 MasterSetting Workspace Edit-C：新增 `POST /api/stories/<slug>/master-setting`，仅白名单编辑 `master_setting.yaml` 的 display/genre/rules/limits/forbidden，保存前备份、保存后写报告；缺故事 404，损坏/缺失设定 409，非法 payload 400
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 627 passed
+- 后端 python -m pytest -q 为 632 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步继续 `v0.9.2 MasterSetting Workspace Lite`：Summary-A/Panel-B 已完成后端只读聚合与前端只读面板；下一刀可做最小轻编辑，优先只改 `master_setting.yaml` 并提供安全校验/回滚，或先复核是否满足 v0.9.2 收口条件。v0.9.2 不做完整作者工作台；Zep / 图数据库 / OASIS / CAMEL / LangGraph 仍分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步继续 `v0.9.2 MasterSetting Workspace Lite`：Summary-A/Panel-B/Edit-C 已完成后端只读聚合、前端只读面板与后端白名单轻编辑；下一刀可接前端最小写控件并刷新项目工作台，或先复核是否满足 v0.9.2 收口条件。v0.9.2 不做完整作者工作台；Zep / 图数据库 / OASIS / CAMEL / LangGraph 仍分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -149,10 +151,10 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `627 passed` |
+| 后端基线 | `632 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Summary-A/Panel-B |
-| 官方下一刀 | `v0.9.2 MasterSetting Workspace Lite` 最小轻编辑或收口复核 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Summary-A/Panel-B/Edit-C |
+| 官方下一刀 | `v0.9.2 MasterSetting Workspace Lite` 前端写控件或收口复核 |
 | 后续主线 | `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
 ## 阶段性质与产品化判断
@@ -545,6 +547,13 @@ React/Vite 产品级前端主闭环已完成：
 - 前端对对象/数组型设定条目做安全格式化，避免 `[object Object]` 或英文占位；缺失资料继续走中文空态。
 - 边界：只读消费 `master_setting_workspace`，不写 `memory/` artifact，不改 runner，不做完整作者工作台。
 
+## v0.9.2 MasterSetting Workspace Edit-C 收口摘要
+
+- 新增 `service.master_setting_update.update_master_setting()` 与 `POST /api/stories/<slug>/master-setting`。
+- 仅允许编辑 `display_name`、`genre`、`world_rules`、`power_system_limits`、`forbidden_additions`；保存前备份 `backups/<timestamp>/memory/master_setting.yaml`，保存后写 `memory/master_setting_update_report.json`。
+- HTTP 状态：坏 slug 400，缺故事 404，损坏/缺失 `master_setting.yaml` 409，非白名单 payload 400。
+- 边界：不编辑人物/时间线/伏笔/章节摘要，不同步 `world.yaml`，不改 runner；前端写控件留后续子刀。
+
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
 - `browser.indexer.get_project_workspace()` 版本提升为 `v0.9.0-alpha`，additive 返回 `creation_loop`：`recommended`、`candidates`、五步 `checklist`、中文 `next_steps`。
@@ -601,7 +610,7 @@ React/Vite 产品级前端主闭环已完成：
 | v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 已整体收口 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 已整体收口 |
-| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 进行中：Summary-A/Panel-B 已收口，下一步最小轻编辑 |
+| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 进行中：Summary-A/Panel-B/Edit-C 已收口，下一步前端写控件或收口复核 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | BM25/ledger 召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | v0.8.10 状态执行层不足时触发 |
 | v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 真实外部用户/团队长期使用时 |

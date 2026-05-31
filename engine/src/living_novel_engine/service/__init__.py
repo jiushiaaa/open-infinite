@@ -39,6 +39,13 @@ from .diff_actions import (
     apply_diff_action,
 )
 from .jobs import JOBS, JOB_KINDS, JobRecord, JobStore
+from .master_setting_update import (
+    MasterSettingConflictError,
+    MasterSettingReadOnlyError,
+    MasterSettingUpdateError,
+    MasterSettingUpdateResult,
+    update_master_setting,
+)
 from .project_health import HealthReport, check_project_health
 from .runtime_settings import (
     RuntimeSettings,
@@ -157,6 +164,10 @@ __all__ = [
     "JOB_KINDS",
     "JobRecord",
     "JobStore",
+    "MasterSettingConflictError",
+    "MasterSettingReadOnlyError",
+    "MasterSettingUpdateError",
+    "MasterSettingUpdateResult",
     "RuntimeSettings",
     "RunnerStateExecutionConflict",
     "RunnerStateExecutionRequestError",
@@ -180,6 +191,7 @@ __all__ = [
     "rollback_runner_state_execution",
     "run_resume_continue",
     "test_connectivity",
+    "update_master_setting",
     "update_runtime_settings",
     "update_world_anchor",
     "GenesisProjectExistsError",

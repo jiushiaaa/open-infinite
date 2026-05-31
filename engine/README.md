@@ -57,7 +57,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.10-B | Runner State Execution MVP：最小 opt-in 状态写入与回滚 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 已整体收口，见 `../docs/completed/v0.9.0-alpha-long-creation-loop.md` |
 | v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 已整体收口 |
-| v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 进行中：Summary-A/Panel-B 已收口 |
+| v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 进行中：Summary-A/Panel-B/Edit-C 已收口 |
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 待 50+ 章或百万字召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
 | v1.0-beta | Commercial Hardening：账号、权限、云端持久化、配额、审计日志、版权提示、部署观测 | 待真实外部用户/团队长期使用 |
@@ -77,7 +77,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **627 passed**（2026-06-01，v0.9.2 MasterSetting Workspace Summary-A 后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过，Panel-B 前端面板构建通过。
+**测试基线**：`pytest -q` → **632 passed**（2026-06-01，v0.9.2 MasterSetting Workspace Edit-C 后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -367,14 +367,16 @@ copy .env.example .env
 
 ### v0.9.2 MasterSetting Workspace Lite（进行中）
 
-前两刀已新增只读 MasterSetting 工作台汇总与前端展示，不改变导入或 runner：
+前三刀已新增只读 MasterSetting 工作台汇总、前端展示与后端白名单轻编辑，不改变导入或 runner：
 
 - `GET /api/stories/<slug>/project-workspace` additive 返回 `master_setting_workspace`。
 - 数据源为现有 `memory/master_setting.yaml`、`memory/character_states/`、`memory/timeline.yaml`、`memory/plot_threads.yaml` 与 `memory/chapters/`。
 - 返回世界规则、地点、势力、人物状态摘要、时间线样例、伏笔样例、章节摘要样例、section count、只读能力标记、下一步建议和 warning。
 - `master_setting.yaml` 缺失或损坏时降级为 `missing` / `damaged`，不让项目工作台 500；其他记忆层尽量继续展示。
 - React 长篇项目工作台新增「设定工作台」面板，展示世界规则/限制/地点/势力、人物状态、时间线、伏笔线、章节摘要和后续建议；右侧项目资产面板显示设定状态。
-- 当前只读，不写 artifact，不做完整作者工作台；最小轻编辑留后续子刀。
+- `POST /api/stories/<slug>/master-setting` 可白名单保存 `display_name`、`genre`、`world_rules`、`power_system_limits`、`forbidden_additions`，坏 slug 400、缺故事 404、损坏/缺失 MasterSetting 409。
+- 保存前备份 `backups/<timestamp>/memory/master_setting.yaml`，保存后写 `memory/master_setting_update_report.json`。
+- 当前不编辑人物、时间线、伏笔、章节摘要，不同步 `world.yaml`，不做完整作者工作台；前端写控件留后续子刀。
 
 ## 快速演示
 
@@ -614,5 +616,5 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/completed/v0.7-product-web-app-ui-spec.md`） |
 | v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估与最小写入 |
 | v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（已整体收口） |
-| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.2 Summary-A/Panel-B 已收口，后续最小轻编辑） |
+| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.2 Summary-A/Panel-B/Edit-C 已收口，后续前端写控件或收口复核） |
 | v1.0-beta | 商业化加固：账号、权限、云端持久化、配额、审计、版权、部署观测 |
