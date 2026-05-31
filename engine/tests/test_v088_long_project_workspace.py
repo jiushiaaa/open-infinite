@@ -83,6 +83,23 @@ def test_project_workspace_collects_long_project_assets(tmp_path, monkeypatch):
     assert workspace["audit"]["status"] == "ready"
     assert "repair_suggestions" in workspace["audit"]
     assert workspace["retrieval"]["status"] == "missing"
+    master_workspace = workspace["master_setting_workspace"]
+    assert master_workspace["version"] == "v0.9.2"
+    assert master_workspace["status"] == "ready"
+    assert master_workspace["summary"]["world_rule_count"] >= 1
+    assert master_workspace["summary"]["character_count"] >= 1
+    assert master_workspace["summary"]["timeline_event_count"] == 6
+    assert master_workspace["summary"]["chapter_brief_count"] == 6
+    section_ids = {section["id"] for section in master_workspace["sections"]}
+    assert {
+        "world_rules",
+        "characters",
+        "timeline",
+        "plot_threads",
+        "chapter_briefs",
+    }.issubset(section_ids)
+    assert master_workspace["characters"][0]["name"]
+    assert master_workspace["timeline"]["samples"][0]["summary"]
     assert workspace["actions"]["anchor_hash"] == "#/anchor/workspace-story"
     assert workspace["actions"]["can_start_baseline"] is True
     assert workspace["actions"]["can_start_intervention"] is True
@@ -112,6 +129,30 @@ def test_project_workspace_degrades_damaged_reports(tmp_path, monkeypatch):
     assert workspace["audit"]["warnings"]
 
 
+def test_master_setting_workspace_degrades_damaged_master_setting(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(indexer, "projects_dir", lambda: tmp_path)
+    monkeypatch.setattr(indexer, "outputs_dir", lambda: tmp_path / "_outputs")
+    import_novel_from_payload(
+        name="workspace-master-damaged",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=tmp_path,
+    )
+    memory_dir = tmp_path / "workspace-master-damaged" / "memory"
+    (memory_dir / "master_setting.yaml").write_text("world_rules: [", encoding="utf-8")
+
+    workspace = indexer.get_project_workspace("workspace-master-damaged")
+
+    master_workspace = workspace["master_setting_workspace"]
+    assert master_workspace["status"] == "damaged"
+    assert master_workspace["summary"]["world_rule_count"] == 0
+    assert master_workspace["summary"]["character_count"] >= 1
+    assert master_workspace["warnings"]
+
+
 def test_project_workspace_http_statuses(running_server):
     port, tmp_path = running_server
     import_novel_from_payload(
@@ -126,6 +167,8 @@ def test_project_workspace_http_statuses(running_server):
     assert status == 200
     assert body["chapter_overview"]["total_chapters"] == 6
     assert body["memory"]["status"] == "ready"
+    assert body["master_setting_workspace"]["status"] == "ready"
+    assert body["master_setting_workspace"]["version"] == "v0.9.2"
     assert body["creation_loop"]["version"] == "v0.9.0-alpha"
     assert body["creation_loop"]["status"] == "empty"
 

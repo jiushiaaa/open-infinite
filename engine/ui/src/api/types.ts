@@ -247,6 +247,87 @@ export interface ProjectWorkspaceMemory {
   warnings: string[];
 }
 
+export interface ProjectMasterSettingWorkspace {
+  version: string;
+  status: "ready" | "missing" | "damaged" | string;
+  mode: string;
+  summary: {
+    world_rule_count: number;
+    character_count: number;
+    timeline_event_count: number;
+    plot_thread_count: number;
+    chapter_brief_count: number;
+  };
+  sections: Array<{
+    id: string;
+    label: string;
+    status: string;
+    count: number;
+    source_path: string;
+  }>;
+  world: {
+    display_name: string;
+    genre: string;
+    world_rules: unknown[];
+    locations: unknown[];
+    factions: unknown[];
+    power_system_limits: unknown[];
+    forbidden_additions: unknown[];
+  };
+  characters: Array<{
+    character_id: string;
+    name: string;
+    narrative_role: string;
+    current_state: {
+      location: string;
+      emotion: string;
+      resource_count: number;
+    };
+    persona_boundaries: unknown[];
+    relationship_count: number;
+    memory_count: number;
+    source_path: string;
+  }>;
+  timeline: {
+    status: string;
+    event_count: number;
+    samples: Array<{
+      chapter?: number | null;
+      title: string;
+      summary: string;
+      source_ref: string;
+    }>;
+  };
+  plot_threads: {
+    status: string;
+    thread_count: number;
+    active_threads: Array<{
+      id: string;
+      title: string;
+      status: string;
+      source_refs: unknown[];
+    }>;
+  };
+  chapter_briefs: {
+    status: string;
+    chapter_count: number;
+    samples: Array<{
+      chapter?: number | null;
+      title: string;
+      summary: string;
+      characters_present: unknown[];
+      source_ref: string;
+    }>;
+  };
+  capabilities: {
+    read_only: boolean;
+    can_edit: boolean;
+    edit_note: string;
+  };
+  next_steps: string[];
+  warnings: string[];
+}
+
 export interface ProjectWorkspaceCanonLedger {
   status: "ready" | "missing" | "damaged" | string;
   entry_count: number;
@@ -321,6 +402,7 @@ export interface ProjectWorkspace {
   };
   import_review: ImportReview | null;
   memory: ProjectWorkspaceMemory;
+  master_setting_workspace: ProjectMasterSettingWorkspace;
   canon_ledger: ProjectWorkspaceCanonLedger;
   entity_aliases: EntityAliasSummary;
   retrieval: ProjectWorkspaceRetrieval;

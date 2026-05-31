@@ -88,6 +88,16 @@ def _read_yaml(path: Path) -> Any:
         return None
 
 
+def _read_yaml_with_status(path: Path) -> tuple[str, Any]:
+    if not path.exists():
+        return "missing", None
+    try:
+        with open(path, encoding="utf-8") as f:
+            return "ready", yaml.safe_load(f)
+    except (OSError, yaml.YAMLError, UnicodeDecodeError):
+        return "damaged", None
+
+
 def _read_text(path: Path, limit: int | None = None) -> str:
     if not path.exists():
         return ""
@@ -811,6 +821,235 @@ def _memory_summary(story_path: Path) -> dict[str, Any]:
         "layer_count": len(layers),
         "layers": layers,
         "warnings": [],
+    }
+
+
+def _master_setting_workspace(story_path: Path) -> dict[str, Any]:
+    """v0.9.2-A：只读聚合 MasterSetting 工作台数据，不写 artifact。"""
+
+    memory_dir = story_path / "memory"
+    master_status, raw_master = _read_yaml_with_status(
+        memory_dir / "master_setting.yaml"
+    )
+    master = raw_master if isinstance(raw_master, dict) else {}
+    warnings: list[str] = []
+    if master_status == "missing":
+        warnings.append("MasterSetting 设定文件缺失。")
+    elif master_status == "damaged" or not isinstance(raw_master, dict):
+        master_status = "damaged"
+        warnings.append("MasterSetting 设定文件无法解析。")
+
+    character_samples, character_warnings = _master_character_samples(
+        memory_dir / "character_states"
+    )
+    warnings.extend(character_warnings)
+    timeline = _master_timeline(memory_dir / "timeline.yaml", warnings)
+    plot_threads = _master_plot_threads(memory_dir / "plot_threads.yaml", warnings)
+    chapter_briefs = _master_chapter_briefs(memory_dir / "chapters", warnings)
+
+    world_rules = _as_list(master.get("world_rules"))
+    locations = _as_list(master.get("locations"))
+    factions = _as_list(master.get("factions"))
+    power_limits = _as_list(master.get("power_system_limits"))
+    forbidden_additions = _as_list(master.get("forbidden_additions"))
+
+    return {
+        "version": "v0.9.2",
+        "status": master_status,
+        "mode": "read_only",
+        "summary": {
+            "world_rule_count": len(world_rules),
+            "character_count": len(character_samples),
+            "timeline_event_count": timeline["event_count"],
+            "plot_thread_count": plot_threads["thread_count"],
+            "chapter_brief_count": chapter_briefs["chapter_count"],
+        },
+        "sections": [
+            _master_section(
+                "world_rules",
+                "世界规则",
+                len(world_rules),
+                master_status,
+                "memory/master_setting.yaml",
+            ),
+            _master_section(
+                "characters",
+                "人物状态",
+                len(character_samples),
+                "ready" if character_samples else "missing",
+                "memory/character_states",
+            ),
+            _master_section(
+                "timeline",
+                "时间线",
+                timeline["event_count"],
+                timeline["status"],
+                "memory/timeline.yaml",
+            ),
+            _master_section(
+                "plot_threads",
+                "伏笔",
+                plot_threads["thread_count"],
+                plot_threads["status"],
+                "memory/plot_threads.yaml",
+            ),
+            _master_section(
+                "chapter_briefs",
+                "章节摘要",
+                chapter_briefs["chapter_count"],
+                chapter_briefs["status"],
+                "memory/chapters",
+            ),
+        ],
+        "world": {
+            "display_name": str(master.get("display_name") or ""),
+            "genre": str(master.get("genre") or ""),
+            "world_rules": world_rules[:8],
+            "locations": locations[:8],
+            "factions": factions[:8],
+            "power_system_limits": power_limits[:6],
+            "forbidden_additions": forbidden_additions[:8],
+        },
+        "characters": character_samples[:8],
+        "timeline": timeline,
+        "plot_threads": plot_threads,
+        "chapter_briefs": chapter_briefs,
+        "capabilities": {
+            "read_only": True,
+            "can_edit": False,
+            "edit_note": "v0.9.2-A 先只读聚合设定资产，轻编辑留后续子刀。",
+        },
+        "next_steps": [
+            "先核对世界规则、人物状态、时间线、伏笔和章节摘要是否齐全。",
+            "若存在缺失或损坏，优先重新导入或修复 memory artifact。",
+            "确认只读聚合稳定后，再进入 MasterSetting 轻编辑子刀。",
+        ],
+        "warnings": warnings,
+    }
+
+
+def _master_section(
+    section_id: str, label: str, count: int, status: str, source_path: str
+) -> dict[str, Any]:
+    return {
+        "id": section_id,
+        "label": label,
+        "status": status,
+        "count": max(0, int(count)),
+        "source_path": source_path,
+    }
+
+
+def _master_character_samples(
+    characters_dir: Path,
+) -> tuple[list[dict[str, Any]], list[str]]:
+    if not characters_dir.exists():
+        return [], ["人物状态目录缺失。"]
+
+    samples: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    for path in sorted(characters_dir.glob("*.yaml")):
+        status, raw = _read_yaml_with_status(path)
+        if status != "ready" or not isinstance(raw, dict):
+            warnings.append(f"人物状态无法解析：{path.name}")
+            continue
+        persona = raw.get("persona", {}) if isinstance(raw.get("persona"), dict) else {}
+        state = (
+            raw.get("current_state", {})
+            if isinstance(raw.get("current_state"), dict)
+            else {}
+        )
+        resources = _as_list(state.get("resources"))
+        samples.append(
+            {
+                "character_id": str(raw.get("character_id") or path.stem),
+                "name": str(raw.get("name") or path.stem),
+                "narrative_role": str(raw.get("narrative_role") or ""),
+                "current_state": {
+                    "location": str(state.get("location") or ""),
+                    "emotion": str(state.get("emotion") or ""),
+                    "resource_count": len(resources),
+                },
+                "persona_boundaries": _as_list(persona.get("boundaries"))[:5],
+                "relationship_count": len(raw.get("relationships") or {}),
+                "memory_count": len(_as_list(raw.get("memory"))),
+                "source_path": f"memory/character_states/{path.name}",
+            }
+        )
+    return samples, warnings
+
+
+def _master_timeline(path: Path, warnings: list[str]) -> dict[str, Any]:
+    status, raw = _read_yaml_with_status(path)
+    if status != "ready" or not isinstance(raw, dict):
+        warnings.append("时间线文件缺失或无法解析。")
+        return {"status": status, "event_count": 0, "samples": []}
+    events = [item for item in _as_list(raw.get("events")) if isinstance(item, dict)]
+    return {
+        "status": "ready",
+        "event_count": len(events),
+        "samples": [
+            {
+                "chapter": item.get("chapter"),
+                "title": str(item.get("title") or ""),
+                "summary": str(item.get("title") or item.get("source_ref") or ""),
+                "source_ref": str(item.get("source_ref") or ""),
+            }
+            for item in events[:8]
+        ],
+    }
+
+
+def _master_plot_threads(path: Path, warnings: list[str]) -> dict[str, Any]:
+    status, raw = _read_yaml_with_status(path)
+    if status != "ready" or not isinstance(raw, dict):
+        warnings.append("伏笔文件缺失或无法解析。")
+        return {"status": status, "thread_count": 0, "active_threads": []}
+    threads = [
+        item for item in _as_list(raw.get("active_threads")) if isinstance(item, dict)
+    ]
+    return {
+        "status": "ready",
+        "thread_count": len(threads),
+        "active_threads": [
+            {
+                "id": str(item.get("id") or ""),
+                "title": str(item.get("title") or ""),
+                "status": str(item.get("status") or "open"),
+                "source_refs": _as_list(item.get("source_refs"))[:4],
+            }
+            for item in threads[:8]
+        ],
+    }
+
+
+def _master_chapter_briefs(chapters_dir: Path, warnings: list[str]) -> dict[str, Any]:
+    if not chapters_dir.exists():
+        warnings.append("章节摘要目录缺失。")
+        return {"status": "missing", "chapter_count": 0, "samples": []}
+
+    samples: list[dict[str, Any]] = []
+    damaged = 0
+    for path in sorted(chapters_dir.glob("chapter_*.yaml")):
+        status, raw = _read_yaml_with_status(path)
+        if status != "ready" or not isinstance(raw, dict):
+            damaged += 1
+            continue
+        samples.append(
+            {
+                "chapter": raw.get("chapter"),
+                "title": str(raw.get("title") or ""),
+                "summary": str(raw.get("summary") or ""),
+                "characters_present": _as_list(raw.get("characters_present"))[:6],
+                "source_ref": str(raw.get("source_ref") or ""),
+            }
+        )
+    if damaged:
+        warnings.append(f"{damaged} 个章节摘要无法解析。")
+    return {
+        "status": "damaged" if damaged and not samples else "ready",
+        "chapter_count": len(samples),
+        "samples": samples[:8],
     }
 
 
@@ -1712,6 +1951,7 @@ def get_project_workspace(slug: str) -> dict[str, Any]:
         },
         "import_review": import_review,
         "memory": _memory_summary(story_path),
+        "master_setting_workspace": _master_setting_workspace(story_path),
         "canon_ledger": _canon_ledger_summary(story_path),
         "entity_aliases": _entity_alias_summary(story_path),
         "retrieval": _retrieval_summary(slug),
