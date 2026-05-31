@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
 import { JobCancelled, pollJob } from "../api/jobs";
 import type {
+  IngestSessionSummary,
   ImportChapterInput,
   ImportNovelRequest,
   ImportNovelResponse,
-  ImportUploadPayload,
 } from "../api/types";
 import { navigate } from "../routing";
 import "./importNovel.css";
@@ -89,27 +89,45 @@ export function ImportNovelPage() {
     setProgress(0);
     setStage("排队中…");
     try {
-      const payload = await buildImportRequest({
-        name: name.trim(),
-        genre: genre.trim() || "xianxia",
-        mock,
-        force,
-        chapters: filled,
-        uploadFile,
-        setStage,
-        setProgress,
-      });
-      const { job_id } = await api.postJobImportNovel(payload);
+      const trimmedName = name.trim();
+      const effectiveGenre = genre.trim() || "xianxia";
+      const submit = uploadFile
+        ? await startResumableImport({
+            name: trimmedName,
+            genre: effectiveGenre,
+            mock,
+            force,
+            uploadFile,
+            setStage,
+            setProgress,
+          })
+        : {
+            ...(await api.postJobImportNovel(
+              buildManualImportRequest({
+                name: trimmedName,
+                genre: effectiveGenre,
+                mock,
+                force,
+                chapters: filled,
+              }),
+            )),
+            storageKey: "",
+          };
       setStage("排队中…");
-      setProgress((p) => Math.max(p, 25));
+      setProgress((p) => Math.max(p, uploadFile ? 50 : 25));
       const result = await pollJob<ImportNovelResponse>(
-        job_id,
+        submit.job_id,
         (p) => {
-          setProgress(Math.max(25, p.progress));
+          const base = uploadFile ? 50 : 25;
+          const scaled = uploadFile
+            ? 50 + Math.round(p.progress * 0.5)
+            : p.progress;
+          setProgress(Math.max(base, scaled));
           setStage(p.stage ? `${p.stage}…` : "导入中…");
         },
         () => stoppedRef.current,
       );
+      if (submit.storageKey) localStorage.removeItem(submit.storageKey);
       navigate({ name: "anchor", slug: result.story_slug });
     } catch (err) {
       if (err instanceof JobCancelled) return;
@@ -196,7 +214,7 @@ export function ImportNovelPage() {
                 长篇文件
               </label>
               <p className="muted tiny import__upload-hint">
-                支持 txt、md、zip、epub。zip 请放入按文件名排序的 txt/md 章节。
+                支持 txt、md、zip、epub。文件会写入可恢复上传会话，刷新后可续传缺失分片。
               </p>
             </div>
             <input
@@ -322,41 +340,19 @@ export function ImportNovelPage() {
   );
 }
 
-async function buildImportRequest({
+function buildManualImportRequest({
   name,
   genre,
   mock,
   force,
   chapters,
-  uploadFile,
-  setStage,
-  setProgress,
 }: {
   name: string;
   genre: string;
   mock: boolean;
   force: boolean;
   chapters: Draft[];
-  uploadFile: File | null;
-  setStage: (stage: string) => void;
-  setProgress: (progress: number) => void;
-}): Promise<ImportNovelRequest> {
-  if (uploadFile) {
-    setStage("切分上传文件…");
-    const upload = await buildUploadPayload(uploadFile, (done) => {
-      setProgress(Math.min(24, Math.max(1, done)));
-    });
-    return {
-      name,
-      chapters: [],
-      upload,
-      genre,
-      mock,
-      force,
-      long_mode: true,
-    };
-  }
-
+}): ImportNovelRequest {
   const payloadChapters: ImportChapterInput[] = chapters.map((c, i) => ({
     filename: `chapter_${String(i + 1).padStart(3, "0")}.md`,
     content: c.content.trim(),
@@ -370,26 +366,106 @@ async function buildImportRequest({
   };
 }
 
-async function buildUploadPayload(
+async function startResumableImport({
+  name,
+  genre,
+  mock,
+  force,
+  uploadFile,
+  setStage,
+  setProgress,
+}: {
+  name: string;
+  genre: string;
+  mock: boolean;
+  force: boolean;
+  uploadFile: File;
+  setStage: (stage: string) => void;
+  setProgress: (progress: number) => void;
+}): Promise<{ job_id: string; status: string; storageKey: string }> {
+  const storageKey = ingestStorageKey(name, uploadFile);
+  setStage("准备上传会话…");
+  let session = await restoreIngestSession(storageKey, uploadFile);
+  if (!session) {
+    session = await api.createIngestSession({
+      name,
+      filename: uploadFile.name,
+      total_size: uploadFile.size,
+      chunk_size: CHUNK_SIZE,
+      total_chunks: chunkCount(uploadFile.size),
+      genre,
+      mock,
+      force,
+      long_mode: true,
+    });
+    localStorage.setItem(storageKey, session.session_id);
+  }
+
+  session = await uploadMissingChunks(uploadFile, session, setStage, setProgress);
+  if (session.missing_chunks.length > 0) {
+    throw new Error("仍有分片未上传完成，请稍后重试。");
+  }
+  setStage("合并上传分片…");
+  setProgress(50);
+  const submitted = await api.completeIngestSession(session.session_id);
+  return { ...submitted, storageKey };
+}
+
+async function restoreIngestSession(
+  storageKey: string,
   file: File,
-  onProgress: (progress: number) => void,
-): Promise<ImportUploadPayload> {
-  const chunks = [];
-  for (let offset = 0, index = 0; offset < file.size; offset += CHUNK_SIZE, index += 1) {
-    const end = Math.min(offset + CHUNK_SIZE, file.size);
+): Promise<IngestSessionSummary | null> {
+  const sessionId = localStorage.getItem(storageKey);
+  if (!sessionId) return null;
+  try {
+    const session = await api.getIngestSession(sessionId);
+    if (
+      session.filename === file.name &&
+      session.total_size === file.size &&
+      session.chunk_size > 0 &&
+      session.status !== "imported"
+    ) {
+      return session;
+    }
+  } catch {
+    localStorage.removeItem(storageKey);
+  }
+  return null;
+}
+
+async function uploadMissingChunks(
+  file: File,
+  session: IngestSessionSummary,
+  setStage: (stage: string) => void,
+  setProgress: (progress: number) => void,
+): Promise<IngestSessionSummary> {
+  let current = session;
+  const missing = [...current.missing_chunks];
+  const total = Math.max(1, current.total_chunks);
+  for (const index of missing) {
+    const offset = index * current.chunk_size;
+    const end = Math.min(offset + current.chunk_size, file.size);
     const buffer = await file.slice(offset, end).arrayBuffer();
-    chunks.push({
+    setStage(`上传第 ${index + 1}/${total} 片…`);
+    current = await api.putIngestChunk(current.session_id, {
       index,
       data_b64: arrayBufferToBase64(buffer),
+      sha256: await sha256Hex(buffer),
     });
-    onProgress(Math.round((end / Math.max(1, file.size)) * 24));
+    const uploaded = current.received_chunks.length;
+    setProgress(Math.min(49, Math.max(1, Math.round((uploaded / total) * 49))));
   }
-  return {
-    filename: file.name,
-    total_size: file.size,
-    chunk_size: CHUNK_SIZE,
-    chunks,
-  };
+  return current;
+}
+
+function ingestStorageKey(name: string, file: File) {
+  return [
+    "lne-ingest",
+    name,
+    file.name,
+    String(file.size),
+    String(file.lastModified || 0),
+  ].join(":");
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer) {
@@ -399,6 +475,13 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
     binary += String.fromCharCode(bytes[i]);
   }
   return btoa(binary);
+}
+
+async function sha256Hex(buffer: ArrayBuffer) {
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+  return [...new Uint8Array(digest)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function isAcceptedUpload(filename: string) {

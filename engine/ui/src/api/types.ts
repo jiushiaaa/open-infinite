@@ -244,6 +244,50 @@ export interface ImportNovelResponse {
   anchor_hash: string;
 }
 
+export interface IngestSessionCreateRequest {
+  name: string;
+  filename: string;
+  total_size: number;
+  chunk_size: number;
+  total_chunks?: number;
+  file_sha256?: string;
+  genre?: string;
+  mock?: boolean;
+  force?: boolean;
+  long_mode?: boolean;
+}
+
+export interface IngestChunkRequest {
+  index: number;
+  data_b64: string;
+  sha256?: string;
+}
+
+export interface IngestSessionSummary {
+  version: string;
+  session_id: string;
+  status: "uploading" | "ready" | "imported" | "expired" | string;
+  filename: string;
+  total_size: number;
+  chunk_size: number;
+  total_chunks: number;
+  received_chunks: number[];
+  missing_chunks: number[];
+  received_bytes: number;
+  progress: number;
+  created_at: number;
+  updated_at: number;
+  expires_at: number;
+  import_request: {
+    name?: string;
+    genre?: string;
+    mock?: boolean;
+    force?: boolean;
+    long_mode?: boolean;
+  };
+  duplicate?: boolean;
+}
+
 // ── GET /api/stories/<slug>/health & POST /api/stories/<slug>/anchor ──
 
 export type HealthStatus = "ok" | "warning" | "error";

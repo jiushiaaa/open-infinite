@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review 已完成；下一刀进入 v0.8.7 Resumable Ingest Jobs；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 577 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs 已完成；下一刀进入 v0.8.8 Long Project Workspace；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 581 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `577 passed`（2026-05-31，v0.8.6 Long Import Review 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.8.7 Resumable Ingest Jobs**（服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等） |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review 已收口 → v0.8.7 Resumable Ingest Jobs → v0.8.8 Long Project Workspace → v0.8.9 Long Replay & Audit UI → v0.8.10 Runner State Execution A/B → v0.9.0-alpha Long Novel Creation Loop → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.8.6 Long Import Review：`import_report.json` additive 增加来源类型、章节统计、正文片段预览、解析 warning、质量风险和建议动作；`get_story` / `get_world_anchor` 返回 `import_review`，报告缺失/损坏时用 `source/` 章节稳定降级；React 世界锚定页新增「导入检查」区，展示章节数、来源、预览、风险、失败/缺报告空态和下一步。 |
+| **测试基线** | 后端 `581 passed`（2026-05-31，v0.8.7 Resumable Ingest Jobs 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.8.8 Long Project Workspace**（长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告） |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs 已收口 → v0.8.8 Long Project Workspace → v0.8.9 Long Replay & Audit UI → v0.8.10 Runner State Execution A/B → v0.9.0-alpha Long Novel Creation Loop → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
+| **刚收口** | v0.8.7 Resumable Ingest Jobs：新增持久化 ingest session，支持服务端分片 manifest、刷新后查询缺失分片、重复 chunk 幂等、chunk/full-file sha256 校验、缺片 409、坏 session 400/404；前端导入页改为 session 上传并用 localStorage 恢复缺失分片，complete 后复用既有 import job。 |
 
 ---
 
@@ -116,8 +116,8 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | 建议版本 | 名称 | 范围 | 状态 |
 | --- | --- | --- | --- |
 | v0.8.6 | Long Import Review | 导入报告细化、章节列表/正文片段预览、导入质量空态、坏 zip/epub/空文件/章节过少等错误态收束 | 已收口 |
-| v0.8.7 | Resumable Ingest Jobs | 真正服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 下一刀 |
-| v0.8.8 | Long Project Workspace | 长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中、审计报告，并能从项目发起 baseline/intervention | 待做 |
+| v0.8.7 | Resumable Ingest Jobs | 真正服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 已收口 |
+| v0.8.8 | Long Project Workspace | 长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中、审计报告，并能从项目发起 baseline/intervention | 下一刀 |
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 待做 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 待做 |
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
@@ -385,7 +385,7 @@ lne list-genres
 | ~~创世入口未做~~ | **v0.7 第六刀已解决**：`POST /api/story-genesis` + `GenesisPage`，主题输入可生成第一章和同构项目并跳转世界锚定页 | — |
 | ~~无干预基线未显式化~~ | **v0.7.4 已解决**：`build_baseline_spec` + `service/baseline.py` + `baseline_report.json`（自然发展点/角色状态/触及伏笔），不写 intervention.json/causal_diff.json | — |
 | ~~正史回放评估未做~~ | **v0.7.4 已解决**：`service/canon_replay.py` holdout 读写 + deterministic evaluator（lexical/entity/thread/length/state→overall）+ `canon_replay_report.json`，不打 LLM | — |
-| ~~百万字上传未做~~ | **v0.8.0-A + v0.8.x 已解决主要入口**：已有 `long_mode`、`import_report.json`、source_raw；前端支持 txt/md/zip/epub 文件选择与分片 payload，job 进度/失败空态已接。仍未做真正断点续传/恢复。 | v0.8.0 / v0.8.x |
+| ~~百万字上传未做~~ | **v0.8.0-A + v0.8.x 已解决主要入口**：已有 `long_mode`、`import_report.json`、source_raw；前端支持 txt/md/zip/epub 文件选择、服务端 ingest session 分片续传、job 进度/失败空态。仍未做云端多用户持久队列与对象存储。 | v0.8.0 / v0.8.x |
 | 长篇分层记忆未做 | 当前 briefs/facts 可撑短中篇，但 100 万字以上需要 master_setting / volumes / chapters / scenes / character_states / timeline | v0.8.1 |
 | 正史账本未升级 | `facts.jsonl` 还不够表达事件、状态、关系、资源、时间线、伏笔和有效期 | v0.8.2 |
 | 长篇混合检索未做 | 当前 BM25 lite 缺 entity boost、prompt budget pack、可选 vector/rerank 和百万字级评估 | v0.8.3 |
@@ -436,8 +436,8 @@ lne list-genres
 ✅ v0.8+    ActDirector / Discourse-aware Narrator / Dynamic Action Registry / Emergence Mining：A-slices artifact 已收口
 → v0.8.x   Entity aliases / runtime memory consumption / 前端 artifact 面板 / 长篇上传产品化已收口
 → v0.8.6   Long Import Review：导入报告细化 + 章节预览 + 质量/失败空态（已收口）
-→ v0.8.7   Resumable Ingest Jobs：断点续传与恢复（下一刀）
-→ v0.8.8   Long Project Workspace：长篇项目资产页
+→ v0.8.7   Resumable Ingest Jobs：断点续传与恢复（已收口）
+→ v0.8.8   Long Project Workspace：长篇项目资产页（下一刀）
 → v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI
 → v0.8.10  Runner State Execution：状态执行层评估与 MVP
 → v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环
@@ -569,7 +569,7 @@ lne list-genres
 
 ### v0.8+ 论文能力深化
 
-- [x] `Long Novel Ingestion Report / Upload Productization`：已落地 `source_raw/`、`import_report.json`、Web/job `long_mode`、部分完成状态摘要；前端导入页已支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态。未做：真正断点续传/恢复、独立持久化 `ingest_job`。
+- [x] `Long Novel Ingestion Report / Upload Productization / Resumable Ingest Jobs`：已落地 `source_raw/`、`import_report.json`、Web/job `long_mode`、部分完成状态摘要；前端导入页已支持 txt/md/zip/epub 文件选择、服务端 ingest session 分片续传、job 进度条和失败空态。未做：云端多用户持久队列、对象存储、跨设备恢复。
 - [x] `Hierarchical Memory Skeleton`：已落地 `memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character_states、timeline、plot_threads、propagation_debts。未做：scene briefs、LLM 摘要重写、runner 消费完整分层 memory。
 - [x] `Canon Ledger Skeleton`：已落地 `memory/canon_ledger.jsonl`，覆盖 event/state/relationship/thread，带 `source_ref`、`confidence`、`valid_from` 等字段。未做：resource/timeline 细粒度语义抽取、`valid_until` 自动更新。
 - [x] `Hybrid Retrieval-A`：已把 canon ledger 作为 `canon_ledger` source 接入 BM25 + chapter distance decay + source weight；v0.8.x 已补 `entity_aliases.yaml` query/doc alias expansion。未做：vector/reranker、prompt budget pack。
@@ -1298,3 +1298,13 @@ lne list-genres
 - **测试**：新增 `tests/test_v086_long_import_review.py`（4 passed）；导入相关回归 `22 passed`；完整后端 `python -m pytest -q` 为 **577 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **明确未做**：真正多请求断点续传/恢复、持久化 ingest job、epub spine 精排、角色抽取置信度、时间线语义风险增强、向量库、runner 状态执行。
 - **下一刀建议**：进入 `v0.8.7 Resumable Ingest Jobs`，做服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等与过期清理。
+
+### 2026-05-31 — v0.8.7 Resumable Ingest Jobs
+
+- **做了什么**：
+  - 新增 `service/ingest_sessions.py`，以本地持久化 manifest + chunk 文件实现导入上传 session：创建 session、查询缺失分片、写入分片、重复 chunk 幂等、chunk/full-file sha256 校验、缺片/冲突/过期清晰降级。
+  - 新增 HTTP 接口：`POST /api/ingest-sessions`、`GET /api/ingest-sessions/<session_id>`、`POST /api/ingest-sessions/<session_id>/chunks`、`POST /api/ingest-sessions/<session_id>/complete`；complete 后复用既有 `import_novel_from_payload()` 与 import job，不改导入 artifact 契约。
+  - React 导入页改为 session 上传：创建或恢复 localStorage 里的 session id，只补传缺失分片，逐片计算 sha256，上传完成后触发 complete job 并进入世界锚定页。
+- **测试**：新增 `tests/test_v087_resumable_ingest_jobs.py`（4 passed）；导入/job 回归 `28 passed`；完整后端 `python -m pytest -q` 为 **581 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **明确未做**：云端多用户持久队列、对象存储、跨设备恢复、分片并发上传、前端 session 列表管理、epub spine 精排、长篇项目资产页。
+- **下一刀建议**：进入 `v0.8.8 Long Project Workspace`，做长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中与审计报告，并提供从项目发起 baseline/intervention 的入口。

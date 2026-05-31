@@ -217,6 +217,9 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid run_id"}, status=400)
                 return self._send_json(indexer.get_run(run_id))
 
+            if path.startswith("/api/ingest-sessions/"):
+                return self._handle_ingest_session_get(path)
+
             if path.startswith("/api/jobs/"):
                 return self._handle_job_get(path)
 
@@ -291,6 +294,12 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._handle_settings_update()
             if path == "/api/settings/runtime/test":
                 return self._handle_settings_test()
+            if path == "/api/ingest-sessions":
+                return self._handle_ingest_session_create()
+            if path.startswith("/api/ingest-sessions/") and path.endswith("/chunks"):
+                return self._handle_ingest_chunk_write(path)
+            if path.startswith("/api/ingest-sessions/") and path.endswith("/complete"):
+                return self._handle_ingest_complete(path)
             if path == "/api/jobs/intervention":
                 return self._handle_job_intervention()
             if path == "/api/jobs/import-novel":
@@ -923,6 +932,160 @@ class BrowserHandler(BaseHTTPRequestHandler):
         except EmergenceMiningRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         self._send_json(report)
+
+    def _extract_ingest_session_id(self, path: str, suffix: str = "") -> str | None:
+        rest = path[len("/api/ingest-sessions/") :]
+        if suffix:
+            rest = rest[: -len(suffix)]
+        return safe_id(rest.strip("/"))
+
+    def _handle_ingest_session_create(self) -> None:
+        """v0.8.7：创建可恢复长篇导入上传 session。"""
+        from living_novel_engine.service import (
+            IngestSessionConflict,
+            IngestSessionRequestError,
+            create_ingest_session,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        try:
+            summary = create_ingest_session(
+                name=str(body.get("name") or ""),
+                filename=str(body.get("filename") or ""),
+                total_size=body.get("total_size"),
+                chunk_size=body.get("chunk_size"),
+                total_chunks=body.get("total_chunks"),
+                file_sha256=str(body.get("file_sha256") or ""),
+                genre=str(body.get("genre") or "xianxia"),
+                mock=bool(body.get("mock", True)),
+                force=bool(body.get("force", False)),
+                long_mode=bool(body.get("long_mode", True)),
+            )
+        except IngestSessionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except IngestSessionConflict as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        self._send_json(summary, status=201)
+
+    def _handle_ingest_session_get(self, path: str) -> None:
+        """v0.8.7：读取 session manifest，供刷新后恢复缺失分片。"""
+        from living_novel_engine.service import (
+            IngestSessionConflict,
+            IngestSessionNotFound,
+            IngestSessionRequestError,
+            get_ingest_session,
+        )
+
+        session_id = self._extract_ingest_session_id(path)
+        if session_id is None:
+            return self._send_json({"error": "invalid ingest session id"}, status=400)
+        try:
+            summary = get_ingest_session(session_id)
+        except IngestSessionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except IngestSessionNotFound as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except IngestSessionConflict as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        self._send_json(summary)
+
+    def _handle_ingest_chunk_write(self, path: str) -> None:
+        """v0.8.7：写入单个分片；重复同内容 chunk 幂等返回 duplicate。"""
+        from living_novel_engine.service import (
+            IngestSessionConflict,
+            IngestSessionNotFound,
+            IngestSessionRequestError,
+            write_ingest_chunk,
+        )
+
+        session_id = self._extract_ingest_session_id(path, "/chunks")
+        if session_id is None:
+            return self._send_json({"error": "invalid ingest session id"}, status=400)
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        try:
+            summary = write_ingest_chunk(
+                session_id,
+                index=body.get("index"),
+                data_b64=str(body.get("data_b64") or ""),
+                sha256=str(body.get("sha256") or ""),
+            )
+        except IngestSessionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except IngestSessionNotFound as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except IngestSessionConflict as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        self._send_json(summary)
+
+    def _handle_ingest_complete(self, path: str) -> None:
+        """v0.8.7：合并 session 分片并提交既有 import_novel job。"""
+        from living_novel_engine.browser import indexer
+        from living_novel_engine.service import (
+            JOBS,
+            IngestSessionConflict,
+            IngestSessionNotFound,
+            IngestSessionRequestError,
+            build_upload_from_session,
+            import_novel_from_payload,
+            import_request_from_session,
+            mark_ingest_session_imported,
+        )
+
+        session_id = self._extract_ingest_session_id(path, "/complete")
+        if session_id is None:
+            return self._send_json({"error": "invalid ingest session id"}, status=400)
+        try:
+            self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        try:
+            upload = build_upload_from_session(session_id)
+            req = import_request_from_session(session_id)
+        except IngestSessionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except IngestSessionNotFound as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except IngestSessionConflict as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+
+        def run(update):
+            update(15, "合并分片")
+            result = import_novel_from_payload(
+                name=str(req.get("name") or ""),
+                chapters=[],
+                upload=upload,
+                genre=str(req.get("genre") or "xianxia"),
+                mock=bool(req.get("mock", True)),
+                force=bool(req.get("force", False)),
+                long_mode=bool(req.get("long_mode", True)),
+                projects_dir=indexer.projects_dir(),
+            )
+            mark_ingest_session_imported(session_id)
+            update(90, "校验项目")
+            return {
+                "story_slug": result.story_slug,
+                "display_name": result.display_name,
+                "character_count": result.character_count,
+                "chapter_count": result.chapter_count,
+                "anchor_chapter_index": result.anchor_chapter_index,
+                "extraction_mode": result.extraction_mode,
+                "warnings": result.warnings,
+                "import_report": result.import_report,
+                "anchor_hash": f"#/anchor/{result.story_slug}",
+                "ingest_session_id": session_id,
+            }
+
+        rec = JOBS.submit("import_novel", run)
+        self._send_json({"job_id": rec.job_id, "status": rec.status}, status=202)
 
     def _handle_job_get(self, path: str) -> None:
         """v0.7 第九刀：轮询 job 状态。失败 job 也返回 200 + error，不抛 500。"""

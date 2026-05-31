@@ -16,6 +16,9 @@ import type {
   GuardrailResult,
   HoldoutManifest,
   HoldoutWriteRequest,
+  IngestChunkRequest,
+  IngestSessionCreateRequest,
+  IngestSessionSummary,
   ImportNovelRequest,
   ImportNovelResponse,
   JobRecord,
@@ -170,6 +173,24 @@ export const api = {
   },
   getJob<T = unknown>(jobId: string): Promise<JobRecord<T>> {
     return getJson(`/api/jobs/${encodeURIComponent(jobId)}`);
+  },
+  createIngestSession(req: IngestSessionCreateRequest): Promise<IngestSessionSummary> {
+    return postJson("/api/ingest-sessions", req);
+  },
+  getIngestSession(sessionId: string): Promise<IngestSessionSummary> {
+    return getJson(`/api/ingest-sessions/${encodeURIComponent(sessionId)}`);
+  },
+  putIngestChunk(
+    sessionId: string,
+    req: IngestChunkRequest,
+  ): Promise<IngestSessionSummary> {
+    return postJson(`/api/ingest-sessions/${encodeURIComponent(sessionId)}/chunks`, req);
+  },
+  completeIngestSession(sessionId: string): Promise<JobSubmitResponse> {
+    return postJson(
+      `/api/ingest-sessions/${encodeURIComponent(sessionId)}/complete`,
+      {},
+    );
   },
   getVisualAssets(storySlug: string): Promise<VisualAssets> {
     return getJson(`/api/stories/${encodeURIComponent(storySlug)}/visual-assets`);

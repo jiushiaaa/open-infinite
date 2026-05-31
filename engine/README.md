@@ -50,8 +50,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.x Frontend Artifact Panel | 右侧「机制档案」统一展示运行记忆、动作计划、动作注册表、叙事诊断、涌现节点 | 已收口 |
 | v0.8.x Long Upload Productization | txt/md/zip/epub 文件导入、浏览器端分片、job 进度与失败空态 | 已收口 |
 | v0.8.6 | Long Import Review：导入报告细化、章节预览、导入质量空态、失败空态收束 | 已收口 |
-| v0.8.7 | Resumable Ingest Jobs：服务端分片 session、断点续传/恢复、hash 校验 | 下一刀 |
-| v0.8.8 | Long Project Workspace：长篇项目详情页与项目资产展示 | 待做 |
+| v0.8.7 | Resumable Ingest Jobs：服务端分片 session、断点续传/恢复、hash 校验 | 已收口 |
+| v0.8.8 | Long Project Workspace：长篇项目详情页与项目资产展示 | 下一刀 |
 | v0.8.9 | Long Replay & Audit UI：长篇回放与一致性审计 UI | 待做 |
 | v0.8.10-A/B | Runner State Execution：opt-in 状态执行层评估与最小 MVP | 待做 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 待 v0.8 收束后开启 |
@@ -76,7 +76,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 长篇共创主链路成立，但仍是 alpha |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **577 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **581 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -321,7 +321,7 @@ lne import-novel tests/fixtures/mini_novel/ --name my-story
 
 自建章节目录：在 `engine/` 下创建 `chapters/`，每章一个 `.md` 或 `.txt`，再执行 `lne import-novel chapters/ --name <slug>`。已存在同名项目时需加 `--force`。
 
-产物目录：`projects/<slug>/`（`world.yaml`、`characters.yaml`、`canon_chapter.md` 等）。v0.8.0 起导入会额外写入 `source_raw/` 与 `import_report.json`：前者保存规范化后的原文账本，后者记录章节数、总字数、前 20 章可体验范围、疑似乱码、重复章名与缺章编号。v0.8.6 起 `import_report.json` additive 升级为导入检查报告，新增 `source`、`chapter_stats`、章节 `preview`、`parsing_warnings`、`quality_risks`、`recommended_actions`；`get_story()` / `get_world_anchor()` 会返回 `import_review`，报告缺失或损坏时稳定降级为 missing/damaged 空态并尽量从 `source/` 章节生成预览。Web/job 导入可传 `long_mode: true` 以允许 10 章以上、最多 200 章的长篇底座导入；默认小闭环仍保持 3-10 章限制。v0.8.x 起 `/api/import-novel` 与 `/api/jobs/import-novel` 可 additive 传 `upload`：`filename/total_size/chunks[{index,data_b64}]`，后端支持 txt/md 合并文本拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节；导入页会在浏览器端分片并显示 job 进度和失败空态。v0.8.1 起导入同时写入 `memory/` 分层记忆骨架：`memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character states、timeline、plot_threads 和 propagation debts。v0.8.2 起还会生成 `memory/canon_ledger.jsonl`，用统一字段记录章节事件、角色状态、关系与伏笔。v0.8.4 起还会生成 `memory/consistency_report.json`，先做导入级静态一致性审计。v0.8.5 起写入正史 holdout 时会生成 `canon/visibility_manifest.json`，把 `source/` 作为 `runtime_visible`，把 `holdout_private/` 明确标记为 evaluator-only。v0.8.x 起导入生成 `memory/entity_aliases.yaml`，作为角色/地点/势力/账本实体的 deterministic 别名骨架；运行干预、baseline 或 CLI resume 时会写分支 `runtime_memory_context.json`，审计本章实际消费的 memory/alias/ledger 安全子集。详见 [v0.2-import-novel-mvp.md](../docs/v0.2-import-novel-mvp.md)。
+产物目录：`projects/<slug>/`（`world.yaml`、`characters.yaml`、`canon_chapter.md` 等）。v0.8.0 起导入会额外写入 `source_raw/` 与 `import_report.json`：前者保存规范化后的原文账本，后者记录章节数、总字数、前 20 章可体验范围、疑似乱码、重复章名与缺章编号。v0.8.6 起 `import_report.json` additive 升级为导入检查报告，新增 `source`、`chapter_stats`、章节 `preview`、`parsing_warnings`、`quality_risks`、`recommended_actions`；`get_story()` / `get_world_anchor()` 会返回 `import_review`，报告缺失或损坏时稳定降级为 missing/damaged 空态并尽量从 `source/` 章节生成预览。Web/job 导入可传 `long_mode: true` 以允许 10 章以上、最多 200 章的长篇底座导入；默认小闭环仍保持 3-10 章限制。v0.8.x 起 `/api/import-novel` 与 `/api/jobs/import-novel` 可 additive 传 `upload`：`filename/total_size/chunks[{index,data_b64}]`，后端支持 txt/md 合并文本拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节；v0.8.7 起新增 `/api/ingest-sessions` 系列接口，支持服务端分片 manifest、查询缺失分片、重复 chunk 幂等、sha256 校验和 complete 后复用既有 import job；导入页会用本地 session id 恢复缺失分片并显示 job 进度和失败空态。v0.8.1 起导入同时写入 `memory/` 分层记忆骨架：`memory_manifest.json`、`master_setting.yaml`、volume/chapter memory、character states、timeline、plot_threads 和 propagation debts。v0.8.2 起还会生成 `memory/canon_ledger.jsonl`，用统一字段记录章节事件、角色状态、关系与伏笔。v0.8.4 起还会生成 `memory/consistency_report.json`，先做导入级静态一致性审计。v0.8.5 起写入正史 holdout 时会生成 `canon/visibility_manifest.json`，把 `source/` 作为 `runtime_visible`，把 `holdout_private/` 明确标记为 evaluator-only。v0.8.x 起导入生成 `memory/entity_aliases.yaml`，作为角色/地点/势力/账本实体的 deterministic 别名骨架；运行干预、baseline 或 CLI resume 时会写分支 `runtime_memory_context.json`，审计本章实际消费的 memory/alias/ledger 安全子集。详见 [v0.2-import-novel-mvp.md](../docs/v0.2-import-novel-mvp.md)。
 
 ### 真实 LLM 验收（demo，非 pytest）
 
