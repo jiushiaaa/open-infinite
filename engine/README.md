@@ -77,7 +77,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 进行中：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Checklist / Hint / Resume Job / Selection / Post-run Audit 已走通，完整主链路仍是 alpha |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **611 passed**（2026-05-31，v0.9.0-alpha Creation Loop Closeout API 子刀后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **612 passed**（2026-05-31，v0.9.0-alpha Creation Loop Closeout API Actions 子刀后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -174,7 +174,7 @@ GET /api/stories/<slug>/project-workspace
 GET /api/stories/<slug>/creation-loop-closeout
 ```
 
-返回 JSON 包含 `story_slug`、`version` 和 `closeout`。该接口复用项目工作台的只读判定，slug 走安全校验，非法 slug 返回 400；它不写 artifact，也不是发布按钮。
+返回 JSON 包含 `story_slug`、`version`、`completion_status`、`actions` 和 `closeout`。该接口复用项目工作台的只读判定，slug 走安全校验，非法 slug 返回 400；它不写 artifact、不执行动作，也不是发布按钮。
 
 前端还会显示 `creation_loop.recommended.continue_hint` 作为 CLI 续写入口，例如 `lne resume continue <run_id> --branch <branch_id> --mock`。v0.9.0-alpha Resume Continue HTTP Job 起，项目工作台也可通过显式按钮触发：
 

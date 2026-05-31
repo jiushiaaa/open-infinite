@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 611 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 612 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `611 passed`（2026-05-31，v0.9.0-alpha Creation Loop Closeout API 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **测试基线** | 后端 `612 passed`（2026-05-31，v0.9.0-alpha Creation Loop Closeout API Actions 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
 | **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop（进行中） → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.9.0-alpha Creation Loop Closeout API：`GET /api/stories/<slug>/creation-loop-closeout` 直接返回只读 alpha 收口报告，便于真实样例/导入项目自动验收。 |
+| **刚收口** | v0.9.0-alpha Creation Loop Closeout API Actions：closeout endpoint 返回 `completion_status` 与 `actions`，便于自动化补齐阻塞项。 |
 
 ---
 
@@ -1498,3 +1498,13 @@ lne list-genres
 - **测试**：先让 `tests/test_v090_long_creation_loop.py` 因缺少 closeout HTTP 接口红灯，再补实现到 **14 passed**；完整后端 `python -m pytest -q` 为 **611 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **边界**：这是自动验收入口，不是版本发布按钮；不新增公开分享、provider/cost gateway 或审计写回。
 - **下一刀建议**：用该接口对真实样例/导入项目做收口记录；若样例仍 `not_ready`，优先补真实阻塞项。
+
+### 2026-05-31 — v0.9.0-alpha Creation Loop Closeout API Actions
+
+- **做了什么**：
+  - `GET /api/stories/<slug>/creation-loop-closeout` 额外返回 `completion_status` 与 `actions`，复用 `creation_loop.completion.actions`。
+  - ready 项目返回空 actions；not_ready 项目返回可执行/可跳转动作，例如生成世界线评审、设为起点、查看回放与审计。
+  - 字段仍只读，不写 artifact、不执行动作、不改变 project workspace 主结构。
+- **测试**：先让 `tests/test_v090_long_creation_loop.py` 因缺少 `completion_status/actions` 红灯，再补实现到 **15 passed**；完整后端 `python -m pytest -q` 为 **612 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **边界**：只给自动化和 UI 提示提供动作清单，不自动代表用户选择，不直接调用 LLM 或写入审计结果。
+- **下一刀建议**：用 actions 对本地 `tianhuang-night` 或导入项目逐项补齐阻塞；如果仍无法 ready，再记录真实阻塞原因。

@@ -792,6 +792,8 @@ def test_http_creation_loop_closeout_reports_ready_state(isolated_story_dirs):
     try:
         status, body = _get(port, "/api/stories/export-story/creation-loop-closeout")
         assert status == 200
+        assert body["completion_status"] == "ready"
+        assert body["actions"] == []
         assert body["closeout"]["status"] == "ready"
         assert body["closeout"]["can_close_alpha"] is True
         assert body["closeout"]["remaining_blockers"] == []
@@ -799,6 +801,34 @@ def test_http_creation_loop_closeout_reports_ready_state(isolated_story_dirs):
         bad_status, bad = _get(port, "/api/stories/..%2Foutside/creation-loop-closeout")
         assert bad_status == 400
         assert bad["error"] == "invalid slug"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+def test_http_creation_loop_closeout_exposes_blocker_actions(isolated_story_dirs):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    _write_branch(outputs, with_judgement=False)
+    port = _free_port()
+    httpd = server.start_browser_server("127.0.0.1", port, open_browser=False)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, body = _get(port, "/api/stories/export-story/creation-loop-closeout")
+        assert status == 200
+        assert body["completion_status"] == "todo"
+        assert [action["id"] for action in body["actions"]] == [
+            "worldline_judgement",
+            "select_worldline",
+            "replay_audit",
+        ]
     finally:
         httpd.shutdown()
         httpd.server_close()

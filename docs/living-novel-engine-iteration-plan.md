@@ -96,7 +96,7 @@ v0.9.0-alpha Long Novel Creation Loop   长篇共创闭环        进行中：Ex
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **611 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已启动**，Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已提供只读章节导出、父链章节合集导出、导出版权/分享 guard、闭环完成度判定、阻塞动作提示、判定依据、审计快捷运行、alpha ready 验收、alpha closeout 收口报告、直接 HTTP 验收接口、推荐世界线、项目级继续创作清单、CLI 续写入口、显式续写 job、可读回的已选世界线和选择后审计入口；完整长篇共创闭环尚未整体收口。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **612 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已启动**，Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已提供只读章节导出、父链章节合集导出、导出版权/分享 guard、闭环完成度判定、阻塞动作提示、判定依据、审计快捷运行、alpha ready 验收、alpha closeout 收口报告、直接 HTTP 验收接口与阻塞动作清单、推荐世界线、项目级继续创作清单、CLI 续写入口、显式续写 job、可读回的已选世界线和选择后审计入口；完整长篇共创闭环尚未整体收口。
 
 ## 2.1 阶段性质与产品化程度
 
@@ -163,7 +163,7 @@ v0.9.0-alpha Long Novel Creation Loop   长篇共创闭环        进行中：Ex
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **611 passed**（截至 2026-05-31，v0.9.0-alpha Creation Loop Closeout API 子刀后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **612 passed**（截至 2026-05-31，v0.9.0-alpha Creation Loop Closeout API Actions 子刀后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1807,6 +1807,8 @@ v0.9.0-alpha 已启动。它应把长篇上传、记忆、分支运行、审计�
 > **v0.9.0-alpha Creation Loop Alpha Closeout Report 已落地（2026-05-31）**：`creation_loop.closeout` additive 返回 `creation_loop_alpha_closeout`，把 completion 的 ready 状态、剩余阻塞、判定依据和下一步整理成只读 alpha 收口报告；前端「创作闭环」区新增「Alpha 收口」面板，ready 时显示「可收口」，未 ready 时显示「待补齐」。该子刀不写 artifact、不改 runner、不自动宣告版本完成。已验证：v0.9.0-alpha 测试保持 13 passed；完整后端 610 passed；前端 build 通过。
 
 > **v0.9.0-alpha Creation Loop Closeout API 已落地（2026-05-31）**：新增 `GET /api/stories/<slug>/creation-loop-closeout`，直接返回 `story_slug`、`version` 与 `closeout`，用于真实样例/导入项目自动验收 alpha 收口状态；slug 继续走 `safe_id`，非法 slug 400。该接口只读复用 project workspace，不写 artifact、不改 runner。已验证：v0.9.0-alpha 测试扩充至 14 passed；完整后端 611 passed；前端 build 通过。
+
+> **v0.9.0-alpha Creation Loop Closeout API Actions 已落地（2026-05-31）**：`GET /api/stories/<slug>/creation-loop-closeout` 额外返回 `completion_status` 与 `actions`，ready 时 actions 为空，not_ready 时直接列出可执行/可跳转阻塞动作，便于自动化补齐评审、选择世界线或进入审计。该接口仍只读，不执行动作。已验证：v0.9.0-alpha 测试扩充至 15 passed；完整后端 612 passed；前端 build 通过。
 
 > **v0.9.0-alpha Creation Loop Checklist 已落地（2026-05-31）**：`GET /api/stories/<slug>/project-workspace` additive 返回 `creation_loop`，聚合候选世界线、推荐继续分支、导入/分支/评审/审计/导出五步清单和中文下一步。该字段只读扫描既有 run/branch artifact，不写新 artifact，不改 `run_scene` 默认行为。前端长篇项目工作台新增「创作闭环」区，可打开推荐世界线。已验证：v0.9.0-alpha 测试扩充至 4 passed；相邻工作台测试合计 7 passed；完整后端 599 passed；前端 build 通过。
 

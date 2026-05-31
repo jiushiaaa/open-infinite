@@ -112,11 +112,15 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 workspace = indexer.get_project_workspace(slug)
-                closeout = (workspace.get("creation_loop") or {}).get("closeout")
+                creation_loop = workspace.get("creation_loop") or {}
+                closeout = creation_loop.get("closeout")
+                completion = creation_loop.get("completion") or {}
                 return self._send_json(
                     {
                         "story_slug": slug,
                         "version": "v0.9.0-alpha",
+                        "completion_status": completion.get("status") or "unknown",
+                        "actions": completion.get("actions") or [],
                         "closeout": closeout,
                     }
                 )

@@ -90,13 +90,13 @@
 - v0.9.0-alpha Creation Loop Audit Quick Run：已选世界线缺范围回放且存在 baseline/holdout 时，completion 直接提供运行范围回放动作
 - v0.9.0-alpha Creation Loop Alpha Ready State：完整低风险闭环下 `can_mark_alpha_complete=true`，前端状态显示「可收口」
 - v0.9.0-alpha Creation Loop Alpha Closeout Report：`creation_loop.closeout` 只读汇总 alpha 收口状态、阻塞项、依据和下一步，前端显示「Alpha 收口」
-- v0.9.0-alpha Creation Loop Closeout API：`GET /api/stories/<slug>/creation-loop-closeout` 直接返回 closeout，便于真实样例/导入项目验收
+- v0.9.0-alpha Creation Loop Closeout API：`GET /api/stories/<slug>/creation-loop-closeout` 直接返回 closeout 和阻塞动作，便于真实样例/导入项目验收
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 611 passed
+- 后端 python -m pytest -q 为 612 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
@@ -121,7 +121,7 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `611 passed` |
+| 后端基线 | `612 passed` |
 | 前端基线 | `pnpm run build` 通过 |
 | 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Chapter Export、v0.9.0-alpha Chapter Collection Export、v0.9.0-alpha Export Share Guard、v0.9.0-alpha Creation Loop Completion Gate、v0.9.0-alpha Creation Loop Action Hints、v0.9.0-alpha Creation Loop Readiness Evidence、v0.9.0-alpha Creation Loop Audit Quick Run、v0.9.0-alpha Creation Loop Alpha Ready State、v0.9.0-alpha Creation Loop Alpha Closeout Report、v0.9.0-alpha Creation Loop Closeout API、v0.9.0-alpha Creation Loop Checklist、v0.9.0-alpha Continuation Hint、v0.9.0-alpha Resume Continue HTTP Job、v0.9.0-alpha Worldline Selection Persistence、v0.9.0-alpha Post-run Audit Entry |
 | 官方下一版 | `v0.9.0-alpha Long Novel Creation Loop`（进行中） |
@@ -395,6 +395,13 @@ React/Vite 产品级前端主闭环已完成：
 - HTTP ready fixture 覆盖导入项目在 clean audit、评审、Causal Diff、低风险范围回放、已选起点、章节导出和版权 guard 满足时返回 `closeout.status=ready`。
 - 边界：只读复用 workspace closeout；非法 slug 400；不写 artifact、不改 runner、不代表发布按钮。
 - 完整验证：`python -m pytest -q` 611 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
+
+## v0.9.0-alpha Creation Loop Closeout API Actions 收口摘要
+
+- `GET /api/stories/<slug>/creation-loop-closeout` 额外返回 `completion_status` 与 `actions`。
+- ready 项目 actions 为空；not_ready 项目返回生成世界线评审、设为起点、查看回放与审计等阻塞补齐动作。
+- 边界：只读提示动作，不自动执行，不写 artifact，不代表用户选择。
+- 完整验证：`python -m pytest -q` 612 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
 
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
