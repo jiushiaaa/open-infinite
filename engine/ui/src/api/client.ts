@@ -27,6 +27,8 @@ import type {
   ImportNovelResponse,
   JobRecord,
   JobSubmitResponse,
+  MasterSettingPatch,
+  MasterSettingUpdateResponse,
   ProviderGatewaySummary,
   ProviderUsageSummary,
   ProjectWorkspace,
@@ -148,6 +150,15 @@ export const api = {
   },
   updateWorldAnchor(storySlug: string, patch: AnchorPatch): Promise<AnchorUpdateResponse> {
     return postJson(`/api/stories/${encodeURIComponent(storySlug)}/anchor`, patch);
+  },
+  updateMasterSetting(
+    storySlug: string,
+    patch: MasterSettingPatch,
+  ): Promise<MasterSettingUpdateResponse> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/master-setting`,
+      patch,
+    );
   },
   getRun(runId: string): Promise<RunDetail> {
     return getJson(`/api/runs/${encodeURIComponent(runId)}`);

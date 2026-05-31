@@ -154,6 +154,8 @@ def test_master_setting_update_http_success(running_server):
     assert body["backup"]
     master = body["master_setting_workspace"]
     assert master["status"] == "ready"
+    assert master["mode"] == "lite_edit"
+    assert master["capabilities"]["can_edit"] is True
     assert master["world"]["display_name"] == "归云斋异闻录"
     assert master["summary"]["world_rule_count"] == 2
 

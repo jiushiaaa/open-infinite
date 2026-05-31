@@ -14,6 +14,7 @@ import type {
   ProjectCreationLoopCandidate,
   ProjectCreationLoopEvidence,
   ProjectCreationLoopActionRequirement,
+  MasterSettingPatch,
   ProjectMasterSettingWorkspace,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
@@ -269,7 +270,11 @@ function ProjectWorkspaceOverview({
         />
       )}
 
-      <MasterSettingPanel master={data.master_setting_workspace} />
+      <MasterSettingPanel
+        storySlug={data.slug}
+        master={data.master_setting_workspace}
+        onSaved={onSelectionChanged}
+      />
 
       <section className="project-workspace__section">
         <SectionTitle title="章节片段" status={`${data.chapter_overview.playable_chapter_limit} 章可先读`} />
@@ -680,8 +685,25 @@ function CreationLoopPanel({
   );
 }
 
-function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace }) {
-  const summary = master.summary;
+interface MasterSettingDraft {
+  displayName: string;
+  genre: string;
+  worldRules: string;
+  powerLimits: string;
+  forbiddenAdditions: string;
+}
+
+function MasterSettingPanel({
+  storySlug,
+  master,
+  onSaved,
+}: {
+  storySlug: string;
+  master: ProjectMasterSettingWorkspace;
+  onSaved: () => void;
+}) {
+  const [currentMaster, setCurrentMaster] = useState(master);
+  const summary = currentMaster.summary;
   const metrics = [
     { label: "世界规则", value: summary.world_rule_count },
     { label: "人物", value: summary.character_count },
@@ -689,24 +711,61 @@ function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace 
     { label: "伏笔", value: summary.plot_thread_count },
     { label: "章节摘要", value: summary.chapter_brief_count },
   ];
-  const worldRules = unknownList(master.world.world_rules, 4);
-  const limits = unknownList(master.world.power_system_limits, 3);
-  const locations = unknownList(master.world.locations, 3);
-  const factions = unknownList(master.world.factions, 3);
+  const worldRules = unknownList(currentMaster.world.world_rules, 4);
+  const limits = unknownList(currentMaster.world.power_system_limits, 3);
+  const locations = unknownList(currentMaster.world.locations, 3);
+  const factions = unknownList(currentMaster.world.factions, 3);
   const hasWorldFacts =
     worldRules.length > 0 || limits.length > 0 || locations.length > 0 || factions.length > 0;
+  const canEdit = currentMaster.capabilities.can_edit && currentMaster.status === "ready";
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<MasterSettingDraft>(() => initMasterDraft(master));
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedMsg, setSavedMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentMaster(master);
+    setDraft(initMasterDraft(master));
+  }, [master]);
+
+  async function saveMasterSetting() {
+    if (!canEdit || saving) return;
+    setSaving(true);
+    setSaveError(null);
+    setSavedMsg(null);
+    const patch: MasterSettingPatch = {
+      display_name: draft.displayName.trim(),
+      genre: draft.genre.trim(),
+      world_rules: linesToList(draft.worldRules),
+      power_system_limits: linesToList(draft.powerLimits),
+      forbidden_additions: linesToList(draft.forbiddenAdditions),
+    };
+    try {
+      const result = await api.updateMasterSetting(storySlug, patch);
+      setEditing(false);
+      setCurrentMaster(result.master_setting_workspace);
+      setDraft(initMasterDraft(result.master_setting_workspace));
+      setSavedMsg(result.backup ? `设定已保存，备份 ${result.backup}` : "设定已保存");
+      window.setTimeout(onSaved, 2500);
+    } catch (err) {
+      setSaveError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <section className="project-workspace__section master-setting">
       <SectionTitle
         title="设定工作台"
-        status={`${statusLabel(master.status)} · ${
-          master.capabilities.read_only ? "只读" : "可编辑"
+        status={`${statusLabel(currentMaster.status)} · ${
+          currentMaster.capabilities.read_only ? "只读" : "可编辑"
         }`}
       />
-      {master.warnings.length > 0 ? (
+      {currentMaster.warnings.length > 0 ? (
         <div className="risk-strip">
-          {master.warnings.slice(0, 4).map((warning) => (
+          {currentMaster.warnings.slice(0, 4).map((warning) => (
             <span key={warning}>{warning}</span>
           ))}
         </div>
@@ -723,11 +782,115 @@ function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace 
         ))}
       </div>
 
+      <div className="master-setting__editbar">
+        {canEdit ? (
+          editing ? (
+            <>
+              <button
+                type="button"
+                className="workspace-btn workspace-btn--primary"
+                onClick={saveMasterSetting}
+                disabled={saving}
+              >
+                {saving ? "保存中…" : "保存设定"}
+              </button>
+              <button
+                type="button"
+                className="workspace-btn"
+                onClick={() => {
+                  setEditing(false);
+                  setSaveError(null);
+                  setDraft(initMasterDraft(currentMaster));
+                }}
+                disabled={saving}
+              >
+                放弃修改
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="workspace-btn"
+              onClick={() => {
+                setEditing(true);
+                setSaveError(null);
+                setSavedMsg(null);
+                setDraft(initMasterDraft(currentMaster));
+              }}
+            >
+              编辑设定
+            </button>
+          )
+        ) : (
+          <span>{currentMaster.capabilities.edit_note}</span>
+        )}
+        {savedMsg && <strong>{savedMsg}</strong>}
+      </div>
+      {saveError && <p className="master-setting__error">{saveError}</p>}
+
+      {editing && (
+        <div className="master-setting__editor">
+          <label className="master-setting__field">
+            <span>作品名</span>
+            <input
+              value={draft.displayName}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, displayName: event.target.value }))
+              }
+              disabled={saving}
+            />
+          </label>
+          <label className="master-setting__field">
+            <span>题材</span>
+            <input
+              value={draft.genre}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, genre: event.target.value }))
+              }
+              disabled={saving}
+            />
+          </label>
+          <label className="master-setting__field master-setting__field--wide">
+            <span>世界规则</span>
+            <textarea
+              value={draft.worldRules}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, worldRules: event.target.value }))
+              }
+              disabled={saving}
+            />
+          </label>
+          <label className="master-setting__field">
+            <span>力量限制</span>
+            <textarea
+              value={draft.powerLimits}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, powerLimits: event.target.value }))
+              }
+              disabled={saving}
+            />
+          </label>
+          <label className="master-setting__field">
+            <span>禁用设定</span>
+            <textarea
+              value={draft.forbiddenAdditions}
+              onChange={(event) =>
+                setDraft((prev) => ({
+                  ...prev,
+                  forbiddenAdditions: event.target.value,
+                }))
+              }
+              disabled={saving}
+            />
+          </label>
+        </div>
+      )}
+
       <div className="master-setting__layout">
         <article className="master-setting__block master-setting__block--wide">
           <div className="master-setting__block-head">
-            <h3>{master.world.display_name || "世界设定"}</h3>
-            <span>{master.world.genre || "题材未标注"}</span>
+            <h3>{currentMaster.world.display_name || "世界设定"}</h3>
+            <span>{currentMaster.world.genre || "题材未标注"}</span>
           </div>
           {!hasWorldFacts ? (
             <p className="muted tiny">暂无可展示的世界规则。</p>
@@ -742,12 +905,12 @@ function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace 
         </article>
 
         <article className="master-setting__block">
-          <SectionTitle title="人物状态" status={`${master.characters.length} 人`} />
-          {master.characters.length === 0 ? (
+          <SectionTitle title="人物状态" status={`${currentMaster.characters.length} 人`} />
+          {currentMaster.characters.length === 0 ? (
             <p className="muted tiny">暂无人物状态样例。</p>
           ) : (
             <ul className="master-setting__list">
-              {master.characters.slice(0, 4).map((character) => (
+              {currentMaster.characters.slice(0, 4).map((character) => (
                 <li key={character.character_id || character.name}>
                   <strong>{character.name || character.character_id}</strong>
                   <span>
@@ -762,12 +925,12 @@ function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace 
         </article>
 
         <article className="master-setting__block">
-          <SectionTitle title="时间线" status={`${master.timeline.event_count} 件`} />
-          {master.timeline.samples.length === 0 ? (
+          <SectionTitle title="时间线" status={`${currentMaster.timeline.event_count} 件`} />
+          {currentMaster.timeline.samples.length === 0 ? (
             <p className="muted tiny">暂无时间线样例。</p>
           ) : (
             <ul className="master-setting__list">
-              {master.timeline.samples.slice(0, 3).map((event) => (
+              {currentMaster.timeline.samples.slice(0, 3).map((event) => (
                 <li key={`${event.chapter ?? "x"}-${event.title}-${event.source_ref}`}>
                   <strong>{event.chapter ? `第 ${event.chapter} 章` : "未标章节"}</strong>
                   <span>{event.title || event.summary || "未记录事件"}</span>
@@ -778,12 +941,12 @@ function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace 
         </article>
 
         <article className="master-setting__block">
-          <SectionTitle title="伏笔线" status={`${master.plot_threads.thread_count} 条`} />
-          {master.plot_threads.active_threads.length === 0 ? (
+          <SectionTitle title="伏笔线" status={`${currentMaster.plot_threads.thread_count} 条`} />
+          {currentMaster.plot_threads.active_threads.length === 0 ? (
             <p className="muted tiny">暂无活跃伏笔。</p>
           ) : (
             <ul className="master-setting__list">
-              {master.plot_threads.active_threads.slice(0, 3).map((thread) => (
+              {currentMaster.plot_threads.active_threads.slice(0, 3).map((thread) => (
                 <li key={thread.id || thread.title}>
                   <strong>{thread.status || "未标状态"}</strong>
                   <span>{thread.title || thread.id}</span>
@@ -794,12 +957,12 @@ function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace 
         </article>
 
         <article className="master-setting__block">
-          <SectionTitle title="章节摘要" status={`${master.chapter_briefs.chapter_count} 章`} />
-          {master.chapter_briefs.samples.length === 0 ? (
+          <SectionTitle title="章节摘要" status={`${currentMaster.chapter_briefs.chapter_count} 章`} />
+          {currentMaster.chapter_briefs.samples.length === 0 ? (
             <p className="muted tiny">暂无章节摘要。</p>
           ) : (
             <ul className="master-setting__list">
-              {master.chapter_briefs.samples.slice(0, 3).map((chapter) => (
+              {currentMaster.chapter_briefs.samples.slice(0, 3).map((chapter) => (
                 <li key={`${chapter.chapter ?? "x"}-${chapter.title}-${chapter.source_ref}`}>
                   <strong>{chapter.chapter ? `第 ${chapter.chapter} 章` : "未标章节"}</strong>
                   <span>{chapter.summary || chapter.title || "未记录摘要"}</span>
@@ -810,14 +973,14 @@ function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace 
         </article>
       </div>
 
-      {master.next_steps.length > 0 && (
+      {currentMaster.next_steps.length > 0 && (
         <div className="project-workspace__steps master-setting__steps">
-          {master.next_steps.slice(0, 4).map((step) => (
+          {currentMaster.next_steps.slice(0, 4).map((step) => (
             <span key={step}>{step}</span>
           ))}
         </div>
       )}
-      <p className="master-setting__note">{master.capabilities.edit_note}</p>
+      <p className="master-setting__note">{currentMaster.capabilities.edit_note}</p>
     </section>
   );
 }
@@ -829,6 +992,28 @@ function FactList({ label, items, empty }: { label: string; items: string[]; emp
       <span>{items.length > 0 ? items.join("、") : empty}</span>
     </div>
   );
+}
+
+function initMasterDraft(master: ProjectMasterSettingWorkspace): MasterSettingDraft {
+  return {
+    displayName: master.world.display_name,
+    genre: master.world.genre,
+    worldRules: unknownList(master.world.world_rules, 20).join("\n"),
+    powerLimits: unknownList(master.world.power_system_limits, 12).join("\n"),
+    forbiddenAdditions: unknownList(master.world.forbidden_additions, 20).join("\n"),
+  };
+}
+
+function linesToList(value: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const line of value.split(/\r?\n/)) {
+    const text = line.trim();
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
+    out.push(text);
+  }
+  return out;
 }
 
 function ProjectArtifactGrid({

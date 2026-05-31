@@ -657,6 +657,87 @@
   margin-top: 12px;
 }
 
+.master-setting__editbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: 12px 0;
+}
+
+.master-setting__editbar span,
+.master-setting__editbar strong {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.master-setting__editbar strong {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.master-setting__error {
+  border: 1px solid rgba(156, 74, 49, 0.35);
+  border-radius: 6px;
+  color: var(--cinnabar);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  padding: 8px 10px;
+}
+
+.master-setting__editor {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 6px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 12px;
+  padding: 12px;
+}
+
+.master-setting__field {
+  min-width: 0;
+}
+
+.master-setting__field--wide {
+  grid-column: 1 / -1;
+}
+
+.master-setting__field span {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.master-setting__field input,
+.master-setting__field textarea {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.55;
+  min-width: 0;
+  padding: 8px 9px;
+  width: 100%;
+}
+
+.master-setting__field textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.master-setting__field input:focus,
+.master-setting__field textarea:focus {
+  border-color: var(--cinnabar);
+  outline: none;
+}
+
 .master-setting__note {
   margin: 10px 0 0;
   color: var(--muted);
@@ -811,6 +892,7 @@
   .master-setting__metrics,
   .master-setting__layout,
   .master-setting__facts,
+  .master-setting__editor,
   .chapter-preview-list,
   .project-workspace__grid,
   .creation-loop__checklist {

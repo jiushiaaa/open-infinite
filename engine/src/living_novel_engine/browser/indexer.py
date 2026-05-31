@@ -852,11 +852,12 @@ def _master_setting_workspace(story_path: Path) -> dict[str, Any]:
     factions = _as_list(master.get("factions"))
     power_limits = _as_list(master.get("power_system_limits"))
     forbidden_additions = _as_list(master.get("forbidden_additions"))
+    can_edit = master_status == "ready"
 
     return {
         "version": "v0.9.2",
         "status": master_status,
-        "mode": "read_only",
+        "mode": "lite_edit" if can_edit else "read_only",
         "summary": {
             "world_rule_count": len(world_rules),
             "character_count": len(character_samples),
@@ -904,25 +905,29 @@ def _master_setting_workspace(story_path: Path) -> dict[str, Any]:
         "world": {
             "display_name": str(master.get("display_name") or ""),
             "genre": str(master.get("genre") or ""),
-            "world_rules": world_rules[:8],
+            "world_rules": world_rules[:20],
             "locations": locations[:8],
             "factions": factions[:8],
-            "power_system_limits": power_limits[:6],
-            "forbidden_additions": forbidden_additions[:8],
+            "power_system_limits": power_limits[:12],
+            "forbidden_additions": forbidden_additions[:20],
         },
         "characters": character_samples[:8],
         "timeline": timeline,
         "plot_threads": plot_threads,
         "chapter_briefs": chapter_briefs,
         "capabilities": {
-            "read_only": True,
-            "can_edit": False,
-            "edit_note": "v0.9.2-A 先只读聚合设定资产，轻编辑留后续子刀。",
+            "read_only": not can_edit,
+            "can_edit": can_edit,
+            "edit_note": (
+                "可轻编辑标题、题材、世界规则、力量限制和禁用设定。"
+                if can_edit
+                else "设定文件缺失或损坏时仅展示空态，不允许保存。"
+            ),
         },
         "next_steps": [
             "先核对世界规则、人物状态、时间线、伏笔和章节摘要是否齐全。",
             "若存在缺失或损坏，优先重新导入或修复 memory artifact。",
-            "确认只读聚合稳定后，再进入 MasterSetting 轻编辑子刀。",
+            "如需调整设定，只轻编辑白名单字段，并保留保存报告与备份。",
         ],
         "warnings": warnings,
     }

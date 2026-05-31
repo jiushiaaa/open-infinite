@@ -328,6 +328,20 @@ export interface ProjectMasterSettingWorkspace {
   warnings: string[];
 }
 
+export interface MasterSettingPatch {
+  display_name?: string;
+  genre?: string;
+  world_rules?: string[];
+  power_system_limits?: string[];
+  forbidden_additions?: string[];
+}
+
+export interface MasterSettingUpdateResponse {
+  master_setting_workspace: ProjectMasterSettingWorkspace;
+  changed: string[];
+  backup: string | null;
+}
+
 export interface ProjectWorkspaceCanonLedger {
   status: "ready" | "missing" | "damaged" | string;
   entry_count: number;
