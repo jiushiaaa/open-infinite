@@ -765,6 +765,45 @@ def test_creation_loop_ready_state_marks_alpha_closeable(isolated_story_dirs):
     ]
 
 
+def test_http_creation_loop_closeout_reports_ready_state(isolated_story_dirs):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    _write_causal_diff(outputs, run_id, branch_id)
+    _write_clean_consistency_report(projects)
+    _write_replay_range(outputs, risk_level="low", missing_entities=[])
+    _, _, select_worldline = _worldline_selection_api()
+    select_worldline(
+        story_slug="export-story",
+        run_id=run_id,
+        branch_id=branch_id,
+        note="用于 alpha HTTP 收口验收。",
+    )
+    port = _free_port()
+    httpd = server.start_browser_server("127.0.0.1", port, open_browser=False)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, body = _get(port, "/api/stories/export-story/creation-loop-closeout")
+        assert status == 200
+        assert body["closeout"]["status"] == "ready"
+        assert body["closeout"]["can_close_alpha"] is True
+        assert body["closeout"]["remaining_blockers"] == []
+
+        bad_status, bad = _get(port, "/api/stories/..%2Foutside/creation-loop-closeout")
+        assert bad_status == 400
+        assert bad["error"] == "invalid slug"
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
 def test_http_worldline_selection_statuses(isolated_story_dirs):
     projects, outputs = isolated_story_dirs
     import_novel_from_payload(

@@ -104,6 +104,23 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(indexer.get_project_workspace(slug))
 
+            if path.startswith("/api/stories/") and path.endswith(
+                "/creation-loop-closeout"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/creation-loop-closeout")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                workspace = indexer.get_project_workspace(slug)
+                closeout = (workspace.get("creation_loop") or {}).get("closeout")
+                return self._send_json(
+                    {
+                        "story_slug": slug,
+                        "version": "v0.9.0-alpha",
+                        "closeout": closeout,
+                    }
+                )
+
             if path.startswith("/api/stories/") and path.endswith("/selected-worldline"):
                 rest = path[len("/api/stories/") :]
                 slug = safe_id(rest[: -len("/selected-worldline")].strip("/"))
