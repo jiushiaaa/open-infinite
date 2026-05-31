@@ -38,7 +38,9 @@ _HOLDOUT_DIRNAME = "holdout"
 _HOLDOUT_PRIVATE_DIRNAME = "holdout_private"
 _CANON_DIRNAME = "canon"
 _REPLAY_REPORT_NAME = "canon_replay_report.json"
+_REPLAY_RANGE_REPORT_NAME = "canon_replay_range_report.json"
 _VISIBILITY_VERSION = "v0.8.5"
+_REPLAY_RANGE_VERSION = "v0.8.9"
 _MAX_CHAPTER = 100000
 
 
@@ -475,3 +477,179 @@ def get_canon_replay_report(
         return json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as exc:
         raise ReplayRequestError(f"正史回放报告损坏: {rid}") from exc
+
+
+def _range_risk_level(average_overall: float) -> str:
+    if average_overall >= 0.66:
+        return "low"
+    if average_overall >= 0.4:
+        return "medium"
+    return "high"
+
+
+def _score_averages(reports: list[dict]) -> dict[str, float]:
+    keys = (
+        "lexical_overlap",
+        "entity_overlap",
+        "thread_overlap",
+        "length_ratio",
+        "state_consistency",
+        "overall",
+    )
+    if not reports:
+        return {key: 0.0 for key in keys}
+    out: dict[str, float] = {}
+    for key in keys:
+        values = [float(r.get("scores", {}).get(key) or 0.0) for r in reports]
+        out[key] = round(sum(values) / len(values), 4)
+    return out
+
+
+def _risk_dimensions(score_averages: dict[str, float]) -> list[dict]:
+    labels = {
+        "lexical_overlap": "字词重合",
+        "entity_overlap": "实体命中",
+        "thread_overlap": "伏笔命中",
+        "length_ratio": "篇幅比",
+        "state_consistency": "状态一致",
+    }
+    risks: list[dict] = []
+    for key, label in labels.items():
+        score = float(score_averages.get(key) or 0.0)
+        if score >= 0.66:
+            level = "low"
+        elif score >= 0.4:
+            level = "medium"
+        else:
+            level = "high"
+        risks.append(
+            {
+                "key": key,
+                "label": label,
+                "score": score,
+                "risk_level": level,
+                "message": (
+                    f"{label}偏低，建议核对该范围的原文、实体别名和伏笔记录。"
+                    if level == "high"
+                    else f"{label}存在偏移，可结合章节正文复核。"
+                    if level == "medium"
+                    else f"{label}暂未见明显风险。"
+                ),
+            }
+        )
+    return risks
+
+
+def _entity_audit(reports: list[dict]) -> dict:
+    matched: set[str] = set()
+    missing: set[str] = set()
+    missing_by_chapter: list[dict] = []
+    for report in reports:
+        chapter = int(report.get("holdout_chapter") or 0)
+        chapter_missing = list(report.get("missing_entities", []) or [])
+        matched.update(str(e) for e in report.get("matched_entities", []) or [] if e)
+        missing.update(str(e) for e in chapter_missing if e)
+        if chapter_missing:
+            missing_by_chapter.append(
+                {"chapter": chapter, "entities": chapter_missing[:12]}
+            )
+    return {
+        "matched_entities": sorted(matched),
+        "missing_entities": sorted(missing),
+        "missing_entities_by_chapter": missing_by_chapter,
+    }
+
+
+def run_canon_replay_range(
+    *,
+    story_slug: str,
+    baseline_run_id: str,
+    baseline_branch_id: str = "baseline",
+    chapter_start: int,
+    chapter_end: int,
+    projects_dir: Path | None = None,
+    outputs_dir: Path | None = None,
+) -> dict:
+    """批量运行一段 holdout 章节的正史回放，写 range 报告（v0.8.9）。"""
+
+    slug = _validate_slug(story_slug)
+    baseline_run_id = _validate_identifier(baseline_run_id, "baseline_run_id")
+    baseline_branch_id = _validate_identifier(
+        baseline_branch_id or "baseline", "baseline_branch_id"
+    )
+    try:
+        start = int(chapter_start)
+        end = int(chapter_end)
+    except (TypeError, ValueError) as exc:
+        raise ReplayRequestError("章节范围必须为整数") from exc
+    if start < 1 or end < 1 or start > end:
+        raise ReplayRequestError("章节范围非法（须满足 1 <= start <= end）")
+
+    manifest = _load_manifest(slug, projects_dir)
+    available = [
+        chapter
+        for chapter in manifest.chapter_numbers()
+        if start <= chapter <= end
+    ]
+    if not available:
+        raise FileNotFoundError(f"章节范围 {start}-{end} 内没有正史 holdout")
+
+    reports = [
+        run_canon_replay(
+            story_slug=slug,
+            baseline_run_id=baseline_run_id,
+            baseline_branch_id=baseline_branch_id,
+            holdout_chapter=chapter,
+            projects_dir=projects_dir,
+            outputs_dir=outputs_dir,
+        )
+        for chapter in available
+    ]
+    score_averages = _score_averages(reports)
+    weakest = min(
+        reports,
+        key=lambda r: float(r.get("scores", {}).get("overall") or 0.0),
+    )
+    average_overall = float(score_averages["overall"])
+    payload = {
+        "version": _REPLAY_RANGE_VERSION,
+        "kind": "canon_replay_range",
+        "story_slug": slug,
+        "baseline_run_id": baseline_run_id,
+        "baseline_branch_id": baseline_branch_id,
+        "chapter_range": {"start": start, "end": end},
+        "available_chapters": available,
+        "reports": reports,
+        "summary": {
+            "chapter_count": len(reports),
+            "average_overall": average_overall,
+            "risk_level": _range_risk_level(average_overall),
+            "weakest_chapter": int(weakest.get("holdout_chapter") or 0),
+            "warning_count": sum(len(r.get("warnings", []) or []) for r in reports),
+        },
+        "score_averages": score_averages,
+        "risk_dimensions": _risk_dimensions(score_averages),
+        "entity_audit": _entity_audit(reports),
+        "created_at": datetime.now().isoformat(),
+    }
+
+    out_root = _outputs_root(outputs_dir)
+    path = out_root / baseline_run_id / _REPLAY_RANGE_REPORT_NAME
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return payload
+
+
+def get_canon_replay_range_report(
+    run_id: str, *, outputs_dir: Path | None = None
+) -> dict:
+    """读取 v0.8.9 range replay 报告（不存在 404，损坏 400）。"""
+
+    rid = _validate_identifier(run_id, "run_id")
+    path = _outputs_root(outputs_dir) / rid / _REPLAY_RANGE_REPORT_NAME
+    if not path.exists():
+        raise FileNotFoundError(f"正史范围回放报告不存在: {rid}")
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        raise ReplayRequestError(f"正史范围回放报告损坏: {rid}") from exc

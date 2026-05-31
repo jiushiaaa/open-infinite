@@ -67,6 +67,48 @@
   margin: var(--space-2) 0 0;
 }
 
+.bcanon__audit {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+.bcanon__audit-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.bcanon__metric {
+  min-width: 0;
+  padding: 8px;
+  background: var(--paper-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.bcanon__metric span {
+  display: block;
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+.bcanon__metric strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 1rem;
+}
+.bcanon__dimension-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-2);
+}
+.bcanon__dimension-list span {
+  padding: 4px 6px;
+  background: var(--paper-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+
 .bcanon__panel {
   margin-top: var(--space-3);
   padding: var(--space-3);
@@ -151,4 +193,40 @@
   padding-left: 1.1em;
   color: var(--gold);
   line-height: 1.5;
+}
+
+.bcanon__risk-grid {
+  display: grid;
+  gap: 8px;
+}
+.bcanon__risk {
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+}
+.bcanon__risk div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+.bcanon__risk p {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+.bcanon__risk--high {
+  border-color: var(--cinnabar-soft);
+  background: var(--cinnabar-wash);
+}
+.bcanon__risk--medium {
+  border-color: var(--gold);
+}
+.bcanon__entity-audit {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--line);
 }

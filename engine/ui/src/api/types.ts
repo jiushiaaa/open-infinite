@@ -284,6 +284,12 @@ export interface ProjectWorkspaceAudit {
     risk_level?: string;
     entity_alias_count?: number;
   };
+  dimensions: Array<{
+    key: string;
+    label: string;
+    issue_count: number;
+    severity_counts: Record<string, number>;
+  }>;
   issues: Array<{
     category: string;
     kind: string;
@@ -740,6 +746,88 @@ export interface CanonReplayRequest {
   baseline_run_id: string;
   baseline_branch_id?: string;
   holdout_chapter: number;
+}
+
+export interface CanonReplayRangeRequest {
+  baseline_run_id: string;
+  baseline_branch_id?: string;
+  chapter_start: number;
+  chapter_end: number;
+}
+
+export interface CanonReplayRiskDimension {
+  key: string;
+  label: string;
+  score: number;
+  risk_level: "low" | "medium" | "high" | string;
+  message: string;
+}
+
+export interface CanonReplayRangeReport {
+  version: string;
+  kind: "canon_replay_range";
+  story_slug: string;
+  baseline_run_id: string;
+  baseline_branch_id: string;
+  chapter_range: {
+    start: number;
+    end: number;
+  };
+  available_chapters: number[];
+  reports: CanonReplayReport[];
+  summary: {
+    chapter_count: number;
+    average_overall: number;
+    risk_level: "low" | "medium" | "high" | string;
+    weakest_chapter: number;
+    warning_count: number;
+  };
+  score_averages: ReplayScores;
+  risk_dimensions: CanonReplayRiskDimension[];
+  entity_audit: {
+    matched_entities: string[];
+    missing_entities: string[];
+    missing_entities_by_chapter: Array<{
+      chapter: number;
+      entities: string[];
+    }>;
+  };
+  created_at: string;
+}
+
+export interface ReplayAuditBaselineRun {
+  run_id: string;
+  branch_id: string;
+  chapter_number?: number | null;
+  summary: string;
+  created_at: string;
+  from_run_id?: string | null;
+  from_branch_id?: string | null;
+}
+
+export interface ReplayAuditWorkspace {
+  version: string;
+  slug: string;
+  source_kind: SourceKind;
+  display_name: string;
+  holdout: HoldoutManifest;
+  baseline_runs: ReplayAuditBaselineRun[];
+  replay_ranges: Array<{
+    run_id: string;
+    status: string;
+    chapter_range: {
+      start?: number;
+      end?: number;
+    };
+    available_chapters: number[];
+    summary: CanonReplayRangeReport["summary"];
+    risk_dimensions: CanonReplayRiskDimension[];
+    entity_audit: CanonReplayRangeReport["entity_audit"];
+    created_at: string;
+  }>;
+  audit: ProjectWorkspaceAudit;
+  entity_aliases: EntityAliasSummary;
+  next_steps: string[];
 }
 
 // ── v0.7.5 世界线评审 ───────────────────────────────────

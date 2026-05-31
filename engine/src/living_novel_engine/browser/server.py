@@ -104,6 +104,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(indexer.get_project_workspace(slug))
 
+            if path.startswith("/api/stories/") and path.endswith("/replay-audit"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/replay-audit")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._send_json(indexer.get_replay_audit_workspace(slug))
+
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 rest = path[len("/api/stories/") :]
                 slug = safe_id(rest[: -len("/anchor")].strip("/"))
@@ -270,6 +277,12 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_holdout_write(slug)
+            if path.startswith("/api/stories/") and path.endswith("/canon/replay-range"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/canon/replay-range")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_canon_replay_range_run(slug)
             if path.startswith("/api/stories/") and path.endswith("/canon/replay"):
                 rest = path[len("/api/stories/") :]
                 slug = safe_id(rest[: -len("/canon/replay")].strip("/"))
@@ -845,6 +858,42 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 baseline_run_id=baseline_run,
                 baseline_branch_id=baseline_branch,
                 holdout_chapter=int(body.get("holdout_chapter") or 0),
+            )
+        except ReplayRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except (TypeError, ValueError) as exc:
+            return self._send_json({"error": f"参数错误：{exc}"}, status=400)
+        self._send_json(report)
+
+    def _handle_canon_replay_range_run(self, slug: str) -> None:
+        """v0.8.9：按章节范围运行正史回放，写 range 报告。"""
+        from living_novel_engine.service import (
+            ReplayRequestError,
+            run_canon_replay_range,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        baseline_run = safe_id(str(body.get("baseline_run_id") or ""))
+        if baseline_run is None:
+            return self._send_json({"error": "invalid baseline_run_id"}, status=400)
+        baseline_branch_raw = str(body.get("baseline_branch_id") or "baseline")
+        baseline_branch = safe_id(baseline_branch_raw)
+        if baseline_branch is None:
+            return self._send_json({"error": "invalid baseline_branch_id"}, status=400)
+
+        try:
+            report = run_canon_replay_range(
+                story_slug=slug,
+                baseline_run_id=baseline_run,
+                baseline_branch_id=baseline_branch,
+                chapter_start=int(body.get("chapter_start") or 0),
+                chapter_end=int(body.get("chapter_end") or 0),
             )
         except ReplayRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)

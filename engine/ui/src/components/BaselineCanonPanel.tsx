@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type {
   BaselineReport,
+  CanonReplayRangeReport,
   CanonReplayReport,
   HoldoutManifest,
+  ReplayAuditWorkspace,
   SourceKind,
 } from "../api/types";
 import { ApiError, api } from "../api/client";
@@ -27,7 +29,7 @@ function pct(v: number): string {
   return `${Math.round((v ?? 0) * 100)}%`;
 }
 
-/** 基线与正史回放区块：放在世界锚定左栏。所有失败降级为提示，不阻塞主流程。 */
+/** 基线与长篇回放审计区块：放在世界锚定左栏。失败降级为提示，不阻塞主流程。 */
 export function BaselineCanonPanel({
   slug,
   sourceKind,
@@ -37,31 +39,62 @@ export function BaselineCanonPanel({
 }) {
   const isBuiltin = sourceKind === "builtin";
 
+  const [audit, setAudit] = useState<ReplayAuditWorkspace | null>(null);
   const [holdout, setHoldout] = useState<HoldoutManifest | null>(null);
   const [baseline, setBaseline] = useState<BaselineReport | null>(null);
   const [baselineRunId, setBaselineRunId] = useState<string>("");
   const [replay, setReplay] = useState<CanonReplayReport | null>(null);
+  const [rangeReplay, setRangeReplay] = useState<CanonReplayRangeReport | null>(null);
 
   const [genWorking, setGenWorking] = useState(false);
   const [replayWorking, setReplayWorking] = useState(false);
+  const [rangeWorking, setRangeWorking] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadChapter, setUploadChapter] = useState<string>("");
   const [uploadTitle, setUploadTitle] = useState<string>("");
   const [uploadContent, setUploadContent] = useState<string>("");
   const [uploadWorking, setUploadWorking] = useState(false);
   const [replayChapter, setReplayChapter] = useState<number | null>(null);
+  const [rangeStart, setRangeStart] = useState<number | null>(null);
+  const [rangeEnd, setRangeEnd] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  async function reloadAudit() {
+    try {
+      const data = await api.getReplayAuditWorkspace(slug);
+      setAudit(data);
+      setHoldout(data.holdout);
+      if (!baselineRunId && data.baseline_runs[0]) {
+        setBaselineRunId(data.baseline_runs[0].run_id);
+      }
+    } catch {
+      try {
+        setHoldout(await api.getHoldout(slug));
+      } catch {
+        setHoldout(null);
+      }
+    }
+  }
 
   useEffect(() => {
     let alive = true;
     api
-      .getHoldout(slug)
-      .then((m) => {
-        if (alive) setHoldout(m);
+      .getReplayAuditWorkspace(slug)
+      .then((data) => {
+        if (!alive) return;
+        setAudit(data);
+        setHoldout(data.holdout);
+        if (data.baseline_runs[0]) {
+          setBaselineRunId(data.baseline_runs[0].run_id);
+        }
       })
       .catch(() => {
-        if (alive) setHoldout(null);
+        if (!alive) return;
+        api
+          .getHoldout(slug)
+          .then((m) => alive && setHoldout(m))
+          .catch(() => alive && setHoldout(null));
       });
     return () => {
       alive = false;
@@ -69,25 +102,25 @@ export function BaselineCanonPanel({
   }, [slug]);
 
   const available = holdout?.available_chapters ?? [];
-
-  async function reloadHoldout() {
-    try {
-      setHoldout(await api.getHoldout(slug));
-    } catch {
-      /* 静默：缺 holdout 不是错误 */
-    }
-  }
+  const currentRange = useMemo(() => {
+    if (available.length === 0) return null;
+    const start = rangeStart ?? available[0];
+    const end = rangeEnd ?? available[available.length - 1];
+    return start <= end ? { start, end } : { start: end, end: start };
+  }, [available, rangeEnd, rangeStart]);
 
   async function generateBaseline() {
     setGenWorking(true);
     setErr(null);
     setNotice(null);
     setReplay(null);
+    setRangeReplay(null);
     try {
       const res = await api.generateBaseline(slug, { mock: true });
       setBaseline(res.report);
       setBaselineRunId(res.run_id);
       setNotice("无干预基线已生成。");
+      await reloadAudit();
     } catch (e) {
       setErr(toMessage(e));
     } finally {
@@ -112,6 +145,28 @@ export function BaselineCanonPanel({
       setErr(toMessage(e));
     } finally {
       setReplayWorking(false);
+    }
+  }
+
+  async function runRangeReplay() {
+    if (!baselineRunId || !currentRange) return;
+    setRangeWorking(true);
+    setErr(null);
+    setNotice(null);
+    try {
+      const rep = await api.runCanonReplayRange(slug, {
+        baseline_run_id: baselineRunId,
+        baseline_branch_id: "baseline",
+        chapter_start: currentRange.start,
+        chapter_end: currentRange.end,
+      });
+      setRangeReplay(rep);
+      setNotice(`已完成第 ${currentRange.start}-${currentRange.end} 章范围回放。`);
+      await reloadAudit();
+    } catch (e) {
+      setErr(toMessage(e));
+    } finally {
+      setRangeWorking(false);
     }
   }
 
@@ -140,7 +195,7 @@ export function BaselineCanonPanel({
       setUploadTitle("");
       setUploadContent("");
       setNotice(`已保存正史第 ${chapter} 章为 holdout。`);
-      await reloadHoldout();
+      await reloadAudit();
     } catch (e) {
       setErr(toMessage(e));
     } finally {
@@ -150,12 +205,13 @@ export function BaselineCanonPanel({
 
   return (
     <section className="anchor__block bcanon">
-      <h3 className="anchor__block-title">基线与正史回放</h3>
+      <h3 className="anchor__block-title">回放与审计</h3>
       <p className="muted tiny bcanon__note">
-        基线不是原作，只是角色在无高维干预下的自然发展对照。正史回放仅用于本地评估，不代表复刻原作。
+        基线不是原作；长篇回放用 holdout 章节做本地评估，审计结果只辅助判断世界线偏移与实体缺口。
       </p>
 
-      {/* holdout 状态 */}
+      <AuditSnapshot audit={audit} />
+
       <div className="bcanon__holdout">
         <div className="bcanon__row">
           <span className="muted tiny">正史 holdout</span>
@@ -211,7 +267,6 @@ export function BaselineCanonPanel({
         </div>
       )}
 
-      {/* 基线生成 */}
       <div className="bcanon__actions">
         <button
           className="btn btn--primary tiny"
@@ -220,27 +275,60 @@ export function BaselineCanonPanel({
         >
           {genWorking ? "正在推进基线…" : "生成无干预基线"}
         </button>
-        {baseline && available.length > 0 && (
-          <div className="bcanon__replay-ctl">
-            <select
-              className="bcanon__select"
-              value={replayChapter ?? available[0]}
-              onChange={(e) => setReplayChapter(parseInt(e.target.value, 10))}
-            >
-              {available.map((c) => (
-                <option key={c} value={c}>
-                  第 {c} 章
-                </option>
-              ))}
-            </select>
-            <button
-              className="btn btn--ghost tiny"
-              onClick={runReplay}
-              disabled={replayWorking}
-            >
-              {replayWorking ? "评估中…" : "运行正史回放"}
-            </button>
-          </div>
+        {available.length > 0 && baselineRunId && (
+          <>
+            <div className="bcanon__replay-ctl">
+              <select
+                className="bcanon__select"
+                value={replayChapter ?? available[0]}
+                onChange={(e) => setReplayChapter(parseInt(e.target.value, 10))}
+              >
+                {available.map((c) => (
+                  <option key={c} value={c}>
+                    第 {c} 章
+                  </option>
+                ))}
+              </select>
+              <button
+                className="btn btn--ghost tiny"
+                onClick={runReplay}
+                disabled={replayWorking}
+              >
+                {replayWorking ? "评估中…" : "单章回放"}
+              </button>
+            </div>
+            <div className="bcanon__replay-ctl">
+              <select
+                className="bcanon__select"
+                value={currentRange?.start ?? available[0]}
+                onChange={(e) => setRangeStart(parseInt(e.target.value, 10))}
+              >
+                {available.map((c) => (
+                  <option key={c} value={c}>
+                    起 第 {c} 章
+                  </option>
+                ))}
+              </select>
+              <select
+                className="bcanon__select"
+                value={currentRange?.end ?? available[available.length - 1]}
+                onChange={(e) => setRangeEnd(parseInt(e.target.value, 10))}
+              >
+                {available.map((c) => (
+                  <option key={c} value={c}>
+                    至 第 {c} 章
+                  </option>
+                ))}
+              </select>
+              <button
+                className="btn btn--ghost tiny"
+                onClick={runRangeReplay}
+                disabled={rangeWorking}
+              >
+                {rangeWorking ? "审计中…" : "范围回放"}
+              </button>
+            </div>
+          </>
         )}
       </div>
 
@@ -248,8 +336,44 @@ export function BaselineCanonPanel({
       {err && <p className="anchor__save-err tiny">{err}</p>}
 
       {baseline && <BaselineSummary report={baseline} />}
+      {rangeReplay && <RangeReplayScorecard report={rangeReplay} />}
       {replay && <ReplayScorecard report={replay} />}
+      {audit?.replay_ranges?.[0] && !rangeReplay && (
+        <RangeReplaySnapshot range={audit.replay_ranges[0]} />
+      )}
     </section>
+  );
+}
+
+function AuditSnapshot({ audit }: { audit: ReplayAuditWorkspace | null }) {
+  if (!audit) return null;
+  const issueCount = audit.audit.summary.issue_count ?? 0;
+  return (
+    <div className="bcanon__audit">
+      <div className="bcanon__audit-metrics">
+        <Metric label="基线" value={audit.baseline_runs.length} />
+        <Metric label="审计项" value={issueCount} />
+        <Metric label="别名实体" value={audit.entity_aliases.count} />
+      </div>
+      {audit.audit.dimensions.length > 0 && (
+        <div className="bcanon__dimension-list">
+          {audit.audit.dimensions.map((dim) => (
+            <span key={dim.key}>
+              {dim.label} · {dim.issue_count}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="bcanon__metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }
 
@@ -261,41 +385,96 @@ function BaselineSummary({ report }: { report: BaselineReport }) {
         <span className="muted tiny">第 {report.chapter_number} 章 · 无干预</span>
       </div>
       {report.summary && <p className="bcanon__summary">{report.summary}</p>}
-      {report.natural_development_points.length > 0 && (
-        <>
-          <span className="bcanon__sub muted tiny">自然发展</span>
-          <ul className="bcanon__list">
-            {report.natural_development_points.map((p, i) => (
-              <li key={i}>{p}</li>
-            ))}
-          </ul>
-        </>
-      )}
-      {report.character_state_changes.length > 0 && (
-        <>
-          <span className="bcanon__sub muted tiny">角色状态变化</span>
-          <ul className="bcanon__list">
-            {report.character_state_changes.map((c) => (
-              <li key={c.character_id}>
-                <strong>{c.name || c.character_id}</strong>
-                {c.location ? ` · ${c.location}` : ""}
-                {c.emotion ? ` · ${c.emotion}` : ""}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      {report.open_threads_touched.length > 0 && (
-        <>
-          <span className="bcanon__sub muted tiny">触及伏笔</span>
-          <div className="chip-row">
-            {report.open_threads_touched.map((t, i) => (
-              <span key={i} className="badge tiny">
-                {t}
-              </span>
-            ))}
+    </div>
+  );
+}
+
+function RangeReplayScorecard({ report }: { report: CanonReplayRangeReport }) {
+  return (
+    <div className="bcanon__panel">
+      <div className="bcanon__panel-head">
+        <span className="badge badge--indigo tiny">范围回放</span>
+        <span className="muted tiny">
+          第 {report.chapter_range.start}-{report.chapter_range.end} 章 ·{" "}
+          {riskLabel(report.summary.risk_level)}
+        </span>
+      </div>
+      <div className="bcanon__overall">
+        <span className="bcanon__overall-num">
+          {pct(report.summary.average_overall)}
+        </span>
+        <span className="muted tiny">平均总分</span>
+      </div>
+      <RiskDimensions dimensions={report.risk_dimensions} />
+      <EntityAudit audit={report.entity_audit} />
+    </div>
+  );
+}
+
+function RangeReplaySnapshot({
+  range,
+}: {
+  range: ReplayAuditWorkspace["replay_ranges"][number];
+}) {
+  return (
+    <div className="bcanon__panel">
+      <div className="bcanon__panel-head">
+        <span className="badge badge--indigo tiny">最近范围回放</span>
+        <span className="muted tiny">
+          {range.chapter_range.start}-{range.chapter_range.end} 章
+        </span>
+      </div>
+      <p className="bcanon__summary">
+        平均总分 {pct(range.summary.average_overall)}，风险：
+        {riskLabel(range.summary.risk_level)}。
+      </p>
+      <RiskDimensions dimensions={range.risk_dimensions} />
+    </div>
+  );
+}
+
+function RiskDimensions({
+  dimensions,
+}: {
+  dimensions: CanonReplayRangeReport["risk_dimensions"];
+}) {
+  if (dimensions.length === 0) return null;
+  return (
+    <div className="bcanon__risk-grid">
+      {dimensions.map((dim) => (
+        <div className={`bcanon__risk bcanon__risk--${dim.risk_level}`} key={dim.key}>
+          <div>
+            <strong>{dim.label}</strong>
+            <span>{pct(dim.score)}</span>
           </div>
-        </>
+          <p>{dim.message}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EntityAudit({
+  audit,
+}: {
+  audit: CanonReplayRangeReport["entity_audit"];
+}) {
+  const missing = audit.missing_entities ?? [];
+  const matched = audit.matched_entities ?? [];
+  return (
+    <div className="bcanon__entity-audit">
+      <span className="bcanon__sub muted tiny">实体归一化</span>
+      <p className="muted tiny">
+        命中 {matched.length} 个，缺失 {missing.length} 个。
+      </p>
+      {audit.missing_entities_by_chapter.length > 0 && (
+        <ul className="bcanon__list">
+          {audit.missing_entities_by_chapter.slice(0, 4).map((row) => (
+            <li key={row.chapter}>
+              第 {row.chapter} 章缺失：{row.entities.join("、")}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
@@ -313,7 +492,7 @@ function ReplayScorecard({ report }: { report: CanonReplayReport }) {
   return (
     <div className="bcanon__panel">
       <div className="bcanon__panel-head">
-        <span className="badge badge--indigo tiny">正史回放</span>
+        <span className="badge badge--indigo tiny">单章回放</span>
         <span className="muted tiny">对比第 {report.holdout_chapter} 章</span>
       </div>
       <div className="bcanon__overall">
@@ -325,10 +504,7 @@ function ReplayScorecard({ report }: { report: CanonReplayReport }) {
           <div key={key} className="bcanon__bar-row">
             <span className="bcanon__bar-label tiny">{SCORE_LABELS[key]}</span>
             <span className="bcanon__bar-track">
-              <span
-                className="bcanon__bar-fill"
-                style={{ width: pct(val) }}
-              />
+              <span className="bcanon__bar-fill" style={{ width: pct(val) }} />
             </span>
             <span className="bcanon__bar-val tiny mono">{pct(val)}</span>
           </div>
@@ -337,25 +513,15 @@ function ReplayScorecard({ report }: { report: CanonReplayReport }) {
       {report.interpretation && (
         <p className="bcanon__interpret tiny">{report.interpretation}</p>
       )}
-      {report.missing_entities.length > 0 && (
-        <>
-          <span className="bcanon__sub muted tiny">缺失关键实体</span>
-          <div className="chip-row">
-            {report.missing_entities.map((e, i) => (
-              <span key={i} className="badge badge--cinnabar tiny">
-                {e}
-              </span>
-            ))}
-          </div>
-        </>
-      )}
-      {report.warnings.length > 0 && (
-        <ul className="bcanon__warnings tiny">
-          {report.warnings.map((w, i) => (
-            <li key={i}>{w}</li>
-          ))}
-        </ul>
-      )}
     </div>
   );
+}
+
+function riskLabel(value: string): string {
+  const map: Record<string, string> = {
+    low: "低风险",
+    medium: "中风险",
+    high: "高风险",
+  };
+  return map[value] ?? value;
 }

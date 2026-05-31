@@ -862,6 +862,7 @@ def _audit_summary(story_path: Path) -> dict[str, Any]:
             "status": status,
             "version": "",
             "summary": {"issue_count": 0, "risk_level": "unknown"},
+            "dimensions": [],
             "issues": [],
             "repair_suggestions": [],
             "warnings": [warning],
@@ -875,13 +876,16 @@ def _audit_summary(story_path: Path) -> dict[str, Any]:
         "forgotten_threads",
     ]
     issues: list[dict[str, Any]] = []
+    dimensions: list[dict[str, Any]] = []
     for group in issue_groups:
         raw_items = report.get(group, []) or []
         if not isinstance(raw_items, list):
             continue
+        severity_counts: dict[str, int] = defaultdict(int)
         for item in raw_items:
             if not isinstance(item, dict):
                 continue
+            severity_counts[str(item.get("severity") or "unknown")] += 1
             issues.append(
                 {
                     "category": group,
@@ -891,16 +895,36 @@ def _audit_summary(story_path: Path) -> dict[str, Any]:
                     "evidence": item.get("evidence", ""),
                 }
             )
+        dimensions.append(
+            {
+                "key": group,
+                "label": _audit_dimension_label(group),
+                "issue_count": len(raw_items),
+                "severity_counts": dict(sorted(severity_counts.items())),
+            }
+        )
 
     return {
         "status": "ready",
         "version": report.get("version", ""),
         "created_at": report.get("created_at", ""),
         "summary": report.get("summary", {"issue_count": len(issues)}),
+        "dimensions": dimensions,
         "issues": issues[:10],
         "repair_suggestions": list(report.get("repair_suggestions", []) or []),
         "warnings": [],
     }
+
+
+def _audit_dimension_label(key: str) -> str:
+    labels = {
+        "persona_drift": "人设漂移",
+        "timeline_conflicts": "时间线",
+        "resource_conflicts": "资源/文本",
+        "contract_violations": "合约风险",
+        "forgotten_threads": "开放伏笔",
+    }
+    return labels.get(key, key)
 
 
 def _retrieval_summary(slug: str) -> dict[str, Any]:
@@ -1006,6 +1030,88 @@ def get_project_workspace(slug: str) -> dict[str, Any]:
                 "确认无误后生成无干预基线，或选择世界线发起干预。",
             ],
         },
+    }
+
+
+def _baseline_run_summaries(slug: str) -> list[dict[str, Any]]:
+    runs: list[dict[str, Any]] = []
+    for run in list_runs(story_slug=slug):
+        report = _read_optional_json(outputs_dir() / run.run_id / "baseline_report.json")
+        if not isinstance(report, dict) or not report:
+            continue
+        runs.append(
+            {
+                "run_id": run.run_id,
+                "branch_id": report.get("branch_id", "baseline"),
+                "chapter_number": report.get("chapter_number"),
+                "summary": report.get("summary", ""),
+                "created_at": report.get("created_at", ""),
+                "from_run_id": report.get("from_run_id"),
+                "from_branch_id": report.get("from_branch_id"),
+            }
+        )
+    runs.sort(key=lambda r: str(r.get("run_id") or ""), reverse=True)
+    return runs
+
+
+def _replay_range_reports(slug: str) -> list[dict[str, Any]]:
+    reports: list[dict[str, Any]] = []
+    for baseline in _baseline_run_summaries(slug):
+        run_id = str(baseline.get("run_id") or "")
+        report = _read_optional_json(
+            outputs_dir() / run_id / "canon_replay_range_report.json"
+        )
+        if not isinstance(report, dict) or not report:
+            continue
+        reports.append(
+            {
+                "run_id": run_id,
+                "status": "ready",
+                "chapter_range": report.get("chapter_range", {}),
+                "available_chapters": report.get("available_chapters", []),
+                "summary": report.get("summary", {}),
+                "risk_dimensions": report.get("risk_dimensions", []),
+                "entity_audit": report.get("entity_audit", {}),
+                "created_at": report.get("created_at", ""),
+            }
+        )
+    return reports
+
+
+def get_replay_audit_workspace(slug: str) -> dict[str, Any]:
+    """v0.8.9 长篇回放与审计工作台数据。"""
+
+    story_path, source_kind = _resolve_story_path(slug)
+    world = _read_yaml(story_path / "world.yaml") or {}
+    holdout: dict[str, Any]
+    try:
+        from living_novel_engine.service import get_holdout
+
+        holdout = get_holdout(slug, projects_dir=projects_dir())
+    except Exception as exc:
+        holdout = {
+            "version": "",
+            "story_slug": slug,
+            "chapters": [],
+            "chapter_count": 0,
+            "available_chapters": [],
+            "warnings": [str(exc)],
+        }
+    return {
+        "version": "v0.8.9",
+        "slug": slug,
+        "source_kind": source_kind,
+        "display_name": world.get("display_name") or world.get("title") or slug,
+        "holdout": holdout,
+        "baseline_runs": _baseline_run_summaries(slug),
+        "replay_ranges": _replay_range_reports(slug),
+        "audit": _audit_summary(story_path),
+        "entity_aliases": _entity_alias_summary(story_path),
+        "next_steps": [
+            "先录入或确认正史 holdout 章节范围。",
+            "生成无干预基线后，选择章节范围运行正史回放。",
+            "结合风险维度、缺失实体和一致性审计决定是否继续该世界线。",
+        ],
     }
 
 

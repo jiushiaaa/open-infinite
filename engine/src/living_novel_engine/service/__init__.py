@@ -21,8 +21,10 @@ from .canon_replay import (
     HoldoutRequestError,
     ReplayRequestError,
     get_canon_replay_report,
+    get_canon_replay_range_report,
     get_holdout,
     run_canon_replay,
+    run_canon_replay_range,
     write_holdout,
 )
 from .diff_actions import (
@@ -113,8 +115,10 @@ __all__ = [
     "HoldoutRequestError",
     "ReplayRequestError",
     "get_canon_replay_report",
+    "get_canon_replay_range_report",
     "get_holdout",
     "run_canon_replay",
+    "run_canon_replay_range",
     "write_holdout",
     "DiffActionError",
     "DiffNotFoundError",

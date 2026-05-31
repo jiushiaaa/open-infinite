@@ -6,6 +6,8 @@ import type {
   BaselineReport,
   BranchDetail,
   CanonReplayReport,
+  CanonReplayRangeReport,
+  CanonReplayRangeRequest,
   CanonReplayRequest,
   CharacterProbe,
   ConnectivityResult,
@@ -31,6 +33,7 @@ import type {
   RunTreeNode,
   RuntimeSettings,
   RuntimeSettingsPatch,
+  ReplayAuditWorkspace,
   StoryGenesisRequest,
   StoryGenesisResponse,
   StorySummary,
@@ -240,6 +243,18 @@ export const api = {
       `/api/stories/${encodeURIComponent(storySlug)}/canon/replay`,
       req,
     );
+  },
+  runCanonReplayRange(
+    storySlug: string,
+    req: CanonReplayRangeRequest,
+  ): Promise<CanonReplayRangeReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/canon/replay-range`,
+      req,
+    );
+  },
+  getReplayAuditWorkspace(storySlug: string): Promise<ReplayAuditWorkspace> {
+    return getJson(`/api/stories/${encodeURIComponent(storySlug)}/replay-audit`);
   },
   getCanonReplayReport(runId: string): Promise<CanonReplayReport> {
     return getJson(`/api/runs/${encodeURIComponent(runId)}/canon-replay`);

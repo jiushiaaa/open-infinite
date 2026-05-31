@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace 已验收；下一步 v0.8.9 Long Replay & Audit UI |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI 已验收；下一步 v0.8.10-A Runner State Execution Spike |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -813,7 +813,7 @@ MVP 支持：
 
 当前已完成第一刀：导入落盘统一生成 `source_raw/` 与 `import_report.json`；Web/job 导入支持 `long_mode`（默认仍为 3-10 章，长篇模式最多 200 章）；API 返回导入报告摘要，包含总字数、章节数、前 20 章可体验范围、部分完成标记、疑似乱码、重复章名与缺章编号。
 
-当前已完成上传产品化、导入检查、断点续传和长篇项目工作台第一刀：导入页支持 txt/md/zip/epub 文件选择、服务端 ingest session 分片续传、job 进度条和失败空态；后端 `upload` payload 支持 base64 分片还原、txt/md 拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节；`import_report.json` 会记录来源、章节统计、章节片段、解析 warning、质量风险与建议动作，前端世界锚定页用「导入检查」帮助用户确认“导入了什么、有什么风险、下一步做什么”。`WorkspacePage` 已在未选世界线时集中展示章节、记忆、正史账本、实体别名、检索命中和审计报告；角色抽取置信度、时间线语义风险和长篇 replay/audit 专门 UI 仍留后续小刀。
+当前已完成上传产品化、导入检查、断点续传、长篇项目工作台和长篇回放审计 UI 第一刀：导入页支持 txt/md/zip/epub 文件选择、服务端 ingest session 分片续传、job 进度条和失败空态；后端 `upload` payload 支持 base64 分片还原、txt/md 拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节；`import_report.json` 会记录来源、章节统计、章节片段、解析 warning、质量风险与建议动作，前端世界锚定页用「导入检查」帮助用户确认“导入了什么、有什么风险、下一步做什么”。`WorkspacePage` 已在未选世界线时集中展示章节、记忆、正史账本、实体别名、检索命中和审计报告；「回放与审计」面板支持单章/范围 Canon Replay、风险维度和实体归一化审计。角色抽取置信度、时间线语义风险、运行后审计写回和 runner 状态执行仍留后续小刀。
 
 #### v0.8.6-v0.8.10 Long Novel Productization 收束
 

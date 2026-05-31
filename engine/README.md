@@ -52,8 +52,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.6 | Long Import Review：导入报告细化、章节预览、导入质量空态、失败空态收束 | 已收口 |
 | v0.8.7 | Resumable Ingest Jobs：服务端分片 session、断点续传/恢复、hash 校验 | 已收口 |
 | v0.8.8 | Long Project Workspace：长篇项目详情页与项目资产展示 | 已收口 |
-| v0.8.9 | Long Replay & Audit UI：长篇回放与一致性审计 UI | 下一刀 |
-| v0.8.10-A/B | Runner State Execution：opt-in 状态执行层评估与最小 MVP | 待做 |
+| v0.8.9 | Long Replay & Audit UI：长篇回放与一致性审计 UI | 已收口 |
+| v0.8.10-A/B | Runner State Execution：opt-in 状态执行层评估与最小 MVP | 下一刀 / 待做 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 待 v0.8 收束后开启 |
 | v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
@@ -76,7 +76,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 长篇共创主链路成立，但仍是 alpha |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **584 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **587 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 

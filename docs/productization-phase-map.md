@@ -4,7 +4,7 @@
 
 ## 1. 一句话结论
 
-Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了 **长篇记忆与机制底座 MVP**。v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs 与 v0.8.8 Long Project Workspace 已把导入检查、断点续传和项目资产页收口；接下来的 v0.8.9-v0.8.10 继续把长篇底座收束成普通用户可复盘、可审计、可继续创作的产品工作流；v0.9.0-alpha 完成后，才算长篇共创产品闭环正式成立。
+Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了 **长篇记忆与机制底座 MVP**。v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace 与 v0.8.9 Long Replay & Audit UI 已把导入检查、断点续传、项目资产页和回放审计 UI 收口；接下来的 v0.8.10 继续评估 runner 状态执行，把长篇底座收束成普通用户可复盘、可审计、可继续创作的产品工作流；v0.9.0-alpha 完成后，才算长篇共创产品闭环正式成立。
 
 ## 2. 阶段归类表
 
