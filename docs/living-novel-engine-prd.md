@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B 与 v1.0-beta Permission Matrix Draft-C 已整体收口；后续进入 v1.0-beta Project Copyright Statement-D |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C 与 v1.0-beta Project Copyright Statement-D 已整体收口；后续进入 v1.0-beta Quota & Observability Lite-E |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -840,7 +840,7 @@ v0.9.0-alpha 已整体收口，已经串起完整用户路径：
 
 - **Chapter Export**：所选世界线可通过只读 API 和阅读区按钮导出 Markdown，导出内容包含来源说明、AI 生成说明、评审摘要与章节正文；不写回 `chapter.md`，不导出上传原作全文或 holdout 私有正文。
 - **Chapter Collection Export**：当前分支可沿父链导出连续章节合集，合集只包含生成章节、来源 run/branch 和安全 warning，不导出上传原作全文。
-- **Export Share Guard**：单章导出与合集导出均返回 `share_guard`，Markdown 写入「版权与分享边界」，前端下载前要求中文确认版权责任；该 guard 不等于公开分享发布能力。
+- **Export Share Guard**：单章导出与合集导出均返回 `share_guard`，Markdown 写入「版权与分享边界」，前端下载前要求中文确认版权责任；v1.0-beta Copyright-D 后会附带项目级 `rights_basis`，但该 guard 不等于公开分享发布能力。
 - **Creation Loop Completion Gate**：`creation_loop` 返回 `completion`，显示完成/总数、阻塞项、summary 与 `can_mark_alpha_complete`，前端展示闭环完成度；该判定只读，不替代人工版本收口。
 - **Creation Loop Action Hints**：`completion.actions` 把缺失评审、未选起点、未跑审计等阻塞项转成可执行/可跳转动作；前端可直接生成推荐世界线评审或跳转审计页。
 - **Creation Loop Readiness Evidence**：`completion.evidence` 把清单项映射到 artifact、API 或页面依据；前端完成度区展示判定来源，方便用户复盘“为什么还没收口”。
@@ -988,7 +988,8 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | v1.0-beta Scope-A | Commercial Hardening Scope | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测范围复核 | 已收口，见 `completed/v1.0-beta-commercial-hardening-scope-a.md`；当前只保留只读范围报告，不进入云端多租户、对象存储或计费系统 |
 | v1.0-beta Schema-B | Commercial Audit Log | 本地项目审计日志 schema 与只读聚合 | 已收口，见 `completed/v1.0-beta-commercial-audit-log-schema-b.md`；当前只读聚合，不让写操作追加日志 |
 | v1.0-beta Matrix-C | Permission Matrix Draft | owner/editor/viewer 权限矩阵草案 | 已收口，见 `completed/v1.0-beta-permission-matrix-draft-c.md`；继续只读，不接认证系统、不拦截请求 |
-| v1.0-beta Copyright-D | Project Copyright Statement | 项目级版权/来源声明 schema | 下一刀；继续不提供公开发布入口 |
+| v1.0-beta Copyright-D | Project Copyright Statement | 项目级版权/来源声明 schema | 已收口，见 `completed/v1.0-beta-project-copyright-statement-d.md`；继续不提供公开发布入口 |
+| v1.0-beta Quota-E | Quota & Observability Lite | 本地配额、用量、job 状态与观测摘要 | 下一刀；不接真实计费系统或云端监控平台 |
 
 明确不作为当前排期默认项：
 

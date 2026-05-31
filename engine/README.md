@@ -63,7 +63,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Scope-A | Commercial Hardening Scope：商业化七域范围复核、本地优先边界 | 已收口，见 `../docs/completed/v1.0-beta-commercial-hardening-scope-a.md` |
 | v1.0-beta Schema-B | Commercial Audit Log：本地项目审计日志 schema 与只读聚合 | 已收口，见 `../docs/completed/v1.0-beta-commercial-audit-log-schema-b.md` |
 | v1.0-beta Matrix-C | Permission Matrix Draft：owner/editor/viewer 权限矩阵草案 | 已收口，见 `../docs/completed/v1.0-beta-permission-matrix-draft-c.md` |
-| v1.0-beta Copyright-D | Project Copyright Statement：项目级版权/来源声明 schema | 下一刀 |
+| v1.0-beta Copyright-D | Project Copyright Statement：项目级版权/来源声明 schema | 已收口，见 `../docs/completed/v1.0-beta-project-copyright-statement-d.md` |
+| v1.0-beta Quota-E | Quota & Observability Lite：本地配额与观测口径 | 下一刀 |
 
 ### 产品化阶段说明
 
@@ -80,7 +81,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核，以及后续商业级加固 |
 
-**测试基线**：`pytest -q` → **652 passed**（2026-06-01，v1.0-beta Permission Matrix Draft-C 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **659 passed**（2026-06-01，v1.0-beta Project Copyright Statement-D 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -153,7 +154,7 @@ v0.9.0-alpha Chapter Export 起，选中的世界线章节可通过只读导出�
 GET /api/runs/<run_id>/branches/<branch_id>/chapter-export
 ```
 
-返回 JSON 包含 `filename`、`content_type`、`content_md`、`share_guard` 与 `metadata`。导出内容会包含来源说明、AI 生成说明、版权与分享边界、世界线评审摘要和章节正文；服务不会写回 `chapter.md`，不会导出上传原作全文或 holdout 私有正文，也不改变 `run_scene` 默认行为。坏 id 返回 400，缺章节返回 404。前端阅读区提供「导出章节」按钮，下载前会用中文确认版权与分享边界。
+返回 JSON 包含 `filename`、`content_type`、`content_md`、`share_guard` 与 `metadata`。导出内容会包含来源说明、AI 生成说明、版权与分享边界、世界线评审摘要和章节正文；v1.0-beta Copyright-D 后 `share_guard.rights_basis` 会引用项目级版权/来源声明。服务不会写回 `chapter.md`，不会导出上传原作全文或 holdout 私有正文，也不改变 `run_scene` 默认行为。坏 id 返回 400，缺章节返回 404。前端阅读区提供「导出章节」按钮，下载前会用中文确认版权与分享边界。
 
 v0.9.0-alpha Chapter Collection Export 起，当前分支可沿 `meta.parent_run_id` / `meta.parent_branch` 父链导出连续章节合集：
 
@@ -161,7 +162,16 @@ v0.9.0-alpha Chapter Collection Export 起，当前分支可沿 `meta.parent_run
 GET /api/runs/<run_id>/branches/<branch_id>/chapter-collection-export
 ```
 
-合集按父链顺序合并生成章节，包含来源说明、AI 生成说明、版权与分享边界、每节来源 run/branch 与安全截断 warning；它只读，不导出上传原作全文，不写 artifact。前端阅读区提供「导出合集」按钮，下载前会用同一份 `share_guard` 做中文确认。
+合集按父链顺序合并生成章节，包含来源说明、AI 生成说明、版权与分享边界、每节来源 run/branch 与安全截断 warning；它只读，不导出上传原作全文，不写 artifact。前端阅读区提供「导出合集」按钮，下载前会用同一份 `share_guard` 做中文确认；`share_guard.rights_basis` 同样来自项目级声明。
+
+v1.0-beta Project Copyright Statement-D 起，导入项目可维护本地版权/来源声明：
+
+```text
+GET /api/stories/<slug>/copyright-statement
+POST /api/stories/<slug>/copyright-statement
+```
+
+声明写入 `memory/project_copyright_statement.json`，字段包括 `source_title`、`source_author`、`rights_holder`、`license_status`、`permitted_uses`、`attestation` 和 `notes`。缺声明时返回 `status=missing`，损坏声明返回 `status=damaged` warning，内置样例写入返回 409。该接口只为导出 share guard 提供权利依据，不提供公开发布、版权审核或商用授权能力。
 
 v0.9.0-alpha Creation Loop Checklist 起，长篇项目工作台 API 会 additive 返回项目级创作闭环清单：
 
@@ -442,6 +452,19 @@ copy .env.example .env
 - `enforcement.mode=not_enforced`，表示当前只是产品/API 设计草案，不代表服务端已接认证或权限拦截。
 - 延后项包括真实认证、请求级权限拦截和团队项目 ACL。
 
+### v1.0-beta Project Copyright Statement-D（已收口）
+
+本版本已新增项目级版权/来源声明 schema，并接入导出 share guard：
+
+- `GET /api/stories/<slug>/copyright-statement`
+- `POST /api/stories/<slug>/copyright-statement`
+- 导入项目声明写入 `memory/project_copyright_statement.json`。
+- 声明字段包括 `source_title`、`source_author`、`rights_holder`、`license_status`、`permitted_uses`、`attestation` 和 `notes`。
+- 未声明项目返回 `status=missing` 并从 `import_report.json` 推断上传来源摘要；损坏声明返回 `status=damaged` warning。
+- 内置样例 GET 返回 `status=builtin_sample`，POST 返回 409。
+- 单章导出与合集导出的 `share_guard.rights_basis` 会引用该声明；Markdown 版权段会写入声明状态、来源标题、权利状态和声明用途。
+- 当前不开放公开分享、公开发布、版权审核或商用授权能力。
+
 ## 快速演示
 
 ```bash
@@ -684,4 +707,5 @@ outputs/run_<ts>_resume_intervene_linear/
 | v1.0-beta Scope-A | 商业化范围复核：账号、权限、云端持久化、配额、审计、版权、部署观测七域只读报告（已收口） |
 | v1.0-beta Schema-B | 本地项目审计日志 schema 与只读聚合（已收口） |
 | v1.0-beta Matrix-C | owner/editor/viewer 权限矩阵草案（已收口） |
-| v1.0-beta Copyright-D | 项目级版权/来源声明 schema |
+| v1.0-beta Copyright-D | 项目级版权/来源声明 schema（已收口） |
+| v1.0-beta Quota-E | 本地配额与观测口径（下一刀） |

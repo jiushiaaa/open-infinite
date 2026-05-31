@@ -42,6 +42,12 @@ from .commercial_audit_log import (
 )
 from .commercial_hardening import get_commercial_hardening_scope
 from .commercial_permissions import get_permission_matrix_draft
+from .copyright_statement import (
+    ProjectCopyrightStatementConflictError,
+    ProjectCopyrightStatementRequestError,
+    get_project_copyright_statement,
+    write_project_copyright_statement,
+)
 from .diff_actions import (
     VALID_ACTIONS,
     DiffActionError,
@@ -163,6 +169,10 @@ __all__ = [
     "get_project_audit_log",
     "get_commercial_hardening_scope",
     "get_permission_matrix_draft",
+    "ProjectCopyrightStatementConflictError",
+    "ProjectCopyrightStatementRequestError",
+    "get_project_copyright_statement",
+    "write_project_copyright_statement",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
     "HoldoutRequestError",

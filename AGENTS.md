@@ -112,9 +112,10 @@
 - v1.0-beta Commercial Hardening Scope-A 已收口。
 - v1.0-beta Commercial Audit Log Schema-B 已收口。
 - v1.0-beta Permission Matrix Draft-C 已收口。
-- 当前后端验证基线：`652 passed`。
+- v1.0-beta Project Copyright Statement-D 已收口。
+- 当前后端验证基线：`659 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：`v1.0-beta Project Copyright Statement-D`。
+- 官方下一刀：`v1.0-beta Quota & Observability Lite-E`。
 - 后续排期：`v1.0-beta` 本地优先商业化加固（版权声明、配额/观测），真实外部用户前不默认做云端多租户/计费系统。
 
 最近一次 Codex 迭代：
@@ -155,8 +156,9 @@
 - `v1.0-beta Commercial Hardening Scope-A` 已新增 `GET /api/settings/commercial-hardening-scope`，只读整理账号/权限/云端持久化/配额/审计/版权/部署观测的当前覆盖、缺口、延后项和本地优先下一步；不读密钥、不打网络、不落盘、不接云端多租户或计费系统，归档见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`。
 - `v1.0-beta Commercial Audit Log Schema-B` 已新增 `GET /api/stories/<slug>/audit-log`，只读聚合导入检查、世界线选择、设定轻编辑、creation loop closeout 与现有 `memory/project_audit_log.jsonl` 行；坏 JSONL 行降级 warning，不写日志，归档见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`。
 - `v1.0-beta Permission Matrix Draft-C` 已新增 `GET /api/settings/permission-matrix`，只读列出 owner/editor/viewer 三角色与项目工作台、设定编辑、世界线选择、生成动作、审计日志、导出等资源权限；`enforcement.mode=not_enforced`，不接认证、不拦截请求，归档见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`。
+- `v1.0-beta Project Copyright Statement-D` 已新增 `GET/POST /api/stories/<slug>/copyright-statement`，本地写入 `memory/project_copyright_statement.json`，并让章节/合集导出 `share_guard.rights_basis` 消费项目级权利依据；继续不提供公开发布入口，归档见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
-- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。下一刀先做项目级版权/来源声明。
+- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。下一刀先做本地配额与观测 Lite。
 
 ## 资料索引
 

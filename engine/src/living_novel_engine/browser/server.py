@@ -114,6 +114,23 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._send_json(get_project_audit_log(slug))
 
             if path.startswith("/api/stories/") and path.endswith(
+                "/copyright-statement"
+            ):
+                from living_novel_engine.service import (
+                    ProjectCopyrightStatementRequestError,
+                    get_project_copyright_statement,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/copyright-statement")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_project_copyright_statement(slug))
+                except ProjectCopyrightStatementRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
+            if path.startswith("/api/stories/") and path.endswith(
                 "/graph-memory-evaluation"
             ):
                 from living_novel_engine.service import evaluate_graph_memory_trigger
@@ -476,6 +493,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._handle_worldline_judgement_run(run_id, branch_id)
             if path.startswith("/api/stories/") and path.endswith("/master-setting"):
                 return self._handle_master_setting_update(path)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/copyright-statement"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/copyright-statement")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_copyright_statement_write(slug)
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 return self._handle_anchor_update(path)
             if path == "/api/settings/runtime":
@@ -556,6 +581,28 @@ class BrowserHandler(BaseHTTPRequestHandler):
         except WorldlineSelectionRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         self._send_json({"selection": selection})
+
+    def _handle_copyright_statement_write(self, slug: str) -> None:
+        """v1.0-beta：写入项目级版权/来源声明。"""
+        from living_novel_engine.service import (
+            ProjectCopyrightStatementConflictError,
+            ProjectCopyrightStatementRequestError,
+            write_project_copyright_statement,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+        try:
+            report = write_project_copyright_statement(slug, body)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except ProjectCopyrightStatementConflictError as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        except ProjectCopyrightStatementRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
 
     def _handle_selected_worldline_write(self, slug: str) -> None:
         """v0.9.0-alpha：持久化用户选择的继续世界线。"""

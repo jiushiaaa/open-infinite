@@ -49,26 +49,70 @@ def _branch_label(
     return theme or ("顺势续写" if branch_id == "linear" else branch_id)
 
 
-def _share_guard(source_kind: str) -> dict[str, Any]:
+def _rights_basis_for_story(story_slug: str) -> dict[str, Any]:
+    from living_novel_engine.service.copyright_statement import (
+        build_rights_basis_for_story,
+    )
+
+    return build_rights_basis_for_story(story_slug)
+
+
+def _share_guard(
+    source_kind: str,
+    *,
+    rights_basis: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     normalized = (source_kind or "unknown").lower()
     source_warning = (
         "来源包含用户上传或未知文本，默认不提供公开分享授权。"
         if normalized not in {"builtin", "genesis"}
         else "来源为内置样例或生成内容时，公开分享前仍需确认素材授权和平台规则。"
     )
+    rights_basis = rights_basis or {
+        "status": "unavailable",
+        "artifact_path": "memory/project_copyright_statement.json",
+        "license_status": "unknown",
+        "source_title": "",
+        "permitted_uses": [],
+        "attestation_present": False,
+    }
+    basis_status = str(rights_basis.get("status") or "unknown")
+    basis_warning = (
+        "项目级版权/来源声明已记录；导出仍不代表公开发布或商用授权。"
+        if basis_status in {"declared", "builtin_sample"}
+        else "项目级版权/来源声明尚未补齐，导出前需人工确认权利来源。"
+    )
     return {
         "kind": "export_share_guard",
         "status": "rights_confirmation_required",
         "source_kind": source_kind or "unknown",
+        "rights_basis": rights_basis,
         "private_use_allowed": True,
         "public_share_allowed": False,
         "requires_rights_confirmation": True,
         "notice": "当前导出仅用于本地个人评估；公开分享、发布或商用前必须确认上传文本、生成内容和素材来源均已获得授权。",
         "warnings": [
             source_warning,
+            basis_warning,
             "不要冒充原作者，不要公开分发受保护原文或可替代原作阅读的内容。",
         ],
     }
+
+
+def _rights_basis_lines(rights_basis: dict[str, Any]) -> list[str]:
+    status = str(rights_basis.get("status") or "unknown")
+    lines = [f"- 项目声明状态：{status}"]
+    title = str(rights_basis.get("source_title") or "")
+    if title:
+        lines.append(f"- 来源标题：{title}")
+    license_status = str(rights_basis.get("license_status") or "unknown")
+    lines.append(f"- 权利状态：{license_status}")
+    permitted_uses = rights_basis.get("permitted_uses") or []
+    if permitted_uses:
+        lines.append(f"- 声明用途：{', '.join(str(item) for item in permitted_uses)}")
+    if rights_basis.get("attestation_present"):
+        lines.append("- 权利确认：已填写")
+    return lines
 
 
 def build_chapter_export(
@@ -131,7 +175,8 @@ def build_chapter_export(
     source_notice = (
         "本次导出只包含所选世界线的生成章节与必要元数据，不导出上传原作全文或隐藏评估集正文。"
     )
-    share_guard = _share_guard(source_kind)
+    rights_basis = _rights_basis_for_story(story_slug)
+    share_guard = _share_guard(source_kind, rights_basis=rights_basis)
     safe_story_slug = safe_id(story_slug) or "story"
     filename = f"{safe_story_slug}_{rid}_{bid}_chapter.md"
     exported_at = datetime.now().isoformat(timespec="seconds")
@@ -171,6 +216,8 @@ def build_chapter_export(
             "",
         ]
     )
+    lines.extend(_rights_basis_lines(rights_basis))
+    lines.append("")
     lines.extend(f"- {warning}" for warning in share_guard["warnings"])
     lines.extend(
         [
@@ -323,7 +370,8 @@ def build_chapter_collection_export(
     source_notice = (
         "本次合集只包含世界线父链中的生成章节与必要元数据，不导出上传原作全文或隐藏评估集正文。"
     )
-    share_guard = _share_guard(source_kind)
+    rights_basis = _rights_basis_for_story(story_slug)
+    share_guard = _share_guard(source_kind, rights_basis=rights_basis)
 
     lines = [
         f"# 导出合集：{items[-1]['branch_label'] if items else bid}",
@@ -357,6 +405,8 @@ def build_chapter_collection_export(
             "",
         ]
     )
+    lines.extend(_rights_basis_lines(rights_basis))
+    lines.append("")
     lines.extend(f"- {warning}" for warning in share_guard["warnings"])
     lines.append("")
     for idx, item in enumerate(items, start=1):
