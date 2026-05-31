@@ -9,6 +9,7 @@ from .anchor_update import (
     AnchorUpdateResult,
     update_world_anchor,
 )
+from .advanced_runner_evaluation import evaluate_advanced_runner_trigger
 from .baseline import (
     BaselineRequestError,
     BaselineServiceResult,
@@ -140,6 +141,7 @@ __all__ = [
     "AnchorReadOnlyError",
     "AnchorUpdateError",
     "AnchorUpdateResult",
+    "evaluate_advanced_runner_trigger",
     "BaselineRequestError",
     "BaselineServiceResult",
     "ChapterExportRequestError",

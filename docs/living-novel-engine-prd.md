@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite 与 v0.9.3 Graph Memory Evaluation Spike 已整体收口；后续进入 v0.9.4 Advanced Runner Evaluation Trigger-A |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite 与 v0.9.3 Graph Memory Evaluation Spike 已整体收口；v0.9.4 Advanced Runner Evaluation Trigger-A 已验收，后续做 Advanced Runner Probe-B |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -984,7 +984,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 已整体收口，见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 已整体收口，见 `completed/v0.9.2-master-setting-workspace-lite.md`；项目工作台已展示设定、人物、时间线、伏笔和章节摘要，并支持 `master_setting.yaml` 白名单后端保存与前端最小写控件 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 已整体收口，见 `completed/v0.9.3-graph-memory-evaluation-spike.md`；当前只保留触发报告、检索 probe 与失败样例收集，不进入重依赖实现 |
-| v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner 是否值得接入 | v0.8.10 状态执行层不足以表达角色并行思考、裁判、审计、反思/重试、多轮共识或群体仿真 |
+| v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner 是否值得接入 | 进行中：Trigger-A 已新增只读触发报告，下一步 Advanced Runner Probe-B；仅在评测证明自研 runner 不足时进入重依赖评估 |
 | v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 需要给真实外部用户或团队长期使用 |
 
 明确不作为当前排期默认项：
