@@ -73,6 +73,7 @@
 | `completed/v0.7-product-web-app-ui-spec.md` | v0.7 | 产品级 Web App 的信息架构、视觉风格、组件边界和增量能力 |
 | `completed/v0.9.0-alpha-long-creation-loop.md` | v0.9.0-alpha | 长篇共创闭环收口说明、closeout proof、边界与下一步 |
 | `completed/v0.9.1-provider-cost-gateway-lite.md` | v0.9.1 | Provider/Cost Lite 收口说明、脱敏 provider 状态、usage 汇总、成本估算与路由矩阵 |
+| `completed/v0.9.2-master-setting-workspace-lite.md` | v0.9.2 | MasterSetting Workspace Lite 收口说明、设定资产聚合、白名单轻编辑、前端最小写控件与边界 |
 
 ## 4. article/ 论文资料
 

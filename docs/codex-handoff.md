@@ -73,6 +73,7 @@
 - v0.9.2 MasterSetting Workspace Panel-B
 - v0.9.2 MasterSetting Workspace Edit-C
 - v0.9.2 MasterSetting Workspace Frontend-D
+- v0.9.2 MasterSetting Workspace Lite
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -123,6 +124,7 @@
 - v0.9.2 MasterSetting Workspace Panel-B：长篇项目工作台新增只读「设定工作台」面板和右侧设定状态，展示世界规则、人物状态、时间线、伏笔线、章节摘要和后续建议
 - v0.9.2 MasterSetting Workspace Edit-C：新增 `POST /api/stories/<slug>/master-setting`，仅白名单编辑 `master_setting.yaml` 的 display/genre/rules/limits/forbidden，保存前备份、保存后写报告；缺故事 404，损坏/缺失设定 409，非法 payload 400
 - v0.9.2 MasterSetting Workspace Frontend-D：长篇项目工作台「设定工作台」新增最小写控件，可编辑作品名、题材、世界规则、力量限制、禁用设定；保存后本地更新面板并刷新项目工作台
+- v0.9.2 MasterSetting Workspace Lite：整体收口归档见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
@@ -132,7 +134,7 @@
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步继续 `v0.9.2 MasterSetting Workspace Lite` 收口复核：Summary-A/Panel-B/Edit-C/Frontend-D 已完成后端只读聚合、前端只读面板、后端白名单轻编辑与前端最小写控件。v0.9.2 不做完整作者工作台；Zep / 图数据库 / OASIS / CAMEL / LangGraph 仍分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步继续 `v0.9.3 Graph Memory Evaluation Spike` 触发条件复核：v0.9.2 MasterSetting Workspace Lite 已整体收口。只有 50+ 章或百万字项目中 BM25 / canon ledger / entity aliases 召回明显不足，或一致性审计频繁漏实体/关系时，才进入 Zep / 图数据库 / GraphRAG 评估；OASIS / CAMEL / LangGraph 仍后移到 `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -155,8 +157,8 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | --- | --- |
 | 后端基线 | `632 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Summary-A/Panel-B/Edit-C/Frontend-D |
-| 官方下一刀 | `v0.9.2 MasterSetting Workspace Lite` 收口复核 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite |
+| 官方下一刀 | `v0.9.3 Graph Memory Evaluation Spike` 触发条件复核 |
 | 后续主线 | `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
 ## 阶段性质与产品化判断
@@ -564,6 +566,13 @@ React/Vite 产品级前端主闭环已完成：
 - 验证：focused `tests/test_v092_master_setting_update.py` 5 passed；前端 `pnpm run build` 通过；浏览器冒烟确认成功提示、新标题和规则内容同屏可见且 console 无 warn/error。
 - 边界：仍只编辑 `master_setting.yaml` 白名单字段，不编辑人物/时间线/伏笔/章节摘要，不同步 `world.yaml`，不改 runner，不做完整作者工作台。
 
+## v0.9.2 MasterSetting Workspace Lite 整体收口摘要
+
+- 收口归档：`docs/completed/v0.9.2-master-setting-workspace-lite.md`。
+- 四个子刀已覆盖只读聚合、前端展示、后端白名单轻编辑、前端最小写控件、保存备份与保存报告。
+- 边界：不做完整作者工作台、不编辑人物/时间线/伏笔/章节摘要、不同步 `world.yaml`、不引入图数据库或云端协作。
+- 下一步：进入 v0.9.3 Graph Memory Evaluation Spike 的触发条件复核；当前不能默认引入 Zep / 图数据库 / GraphRAG。
+
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
 - `browser.indexer.get_project_workspace()` 版本提升为 `v0.9.0-alpha`，additive 返回 `creation_loop`：`recommended`、`candidates`、五步 `checklist`、中文 `next_steps`。
@@ -620,7 +629,7 @@ React/Vite 产品级前端主闭环已完成：
 | v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 已整体收口 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 已整体收口 |
-| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 进行中：Summary-A/Panel-B/Edit-C/Frontend-D 已收口，下一步收口复核 |
+| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 已整体收口 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | BM25/ledger 召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | v0.8.10 状态执行层不足时触发 |
 | v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 真实外部用户/团队长期使用时 |

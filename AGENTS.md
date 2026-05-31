@@ -102,9 +102,10 @@
 - v0.9.2 MasterSetting Workspace Panel-B 已收口。
 - v0.9.2 MasterSetting Workspace Edit-C 已收口。
 - v0.9.2 MasterSetting Workspace Frontend-D 已收口。
+- v0.9.2 MasterSetting Workspace Lite 已整体收口。
 - 当前后端验证基线：`632 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：`v0.9.2 MasterSetting Workspace Lite` 收口复核。
+- 官方下一刀：`v0.9.3 Graph Memory Evaluation Spike` 触发条件复核。
 - 后续排期：`v0.9.1-v0.9.4` 触发式增强 → `v1.0-beta` 商业化加固。
 
 最近一次 Codex 迭代：
@@ -137,6 +138,7 @@
 - `v0.9.2 MasterSetting Workspace Panel-B` 已在长篇项目工作台新增「设定工作台」只读面板，展示世界规则、人物状态、时间线、伏笔线、章节摘要和后续建议；右侧项目资产面板显示设定状态。
 - `v0.9.2 MasterSetting Workspace Edit-C` 已新增 `POST /api/stories/<slug>/master-setting`，仅白名单编辑 `master_setting.yaml` 的 display/genre/rules/limits/forbidden，保存前备份、保存后写报告；损坏/缺失设定返回 409。
 - `v0.9.2 MasterSetting Workspace Frontend-D` 已在「设定工作台」新增最小写控件，支持编辑作品名、题材、世界规则、力量限制和禁用设定；保存后本地更新面板并刷新项目工作台。
+- `v0.9.2 MasterSetting Workspace Lite` 已整体收口，归档见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；下一步只复核 v0.9.3 图记忆触发条件，不默认接 Zep / 图数据库 / GraphRAG。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v0.9.1 开始也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。
 
