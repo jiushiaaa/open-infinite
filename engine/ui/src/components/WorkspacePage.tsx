@@ -334,6 +334,10 @@ function CreationLoopPanel({
   const selected = loop.selected ?? null;
   const postAudit = loop.post_run_audit ?? null;
   const completion = loop.completion ?? null;
+  let loopStatus = loop.status === "ready" ? "可继续" : "待生成";
+  if (completion?.can_mark_alpha_complete) {
+    loopStatus = "可收口";
+  }
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [quickAction, setQuickAction] = useState<string | null>(null);
@@ -450,7 +454,7 @@ function CreationLoopPanel({
     <section className="project-workspace__section creation-loop">
       <SectionTitle
         title="创作闭环"
-        status={loop.status === "ready" ? "可继续" : "待生成"}
+        status={loopStatus}
       />
       {completion && (
         <div className={`creation-loop__completion is-${completion.status}`}>

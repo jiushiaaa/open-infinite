@@ -137,7 +137,13 @@ def _write_causal_diff(outputs, run_id: str, branch_id: str):
     )
 
 
-def _write_replay_range(outputs):
+def _write_replay_range(
+    outputs,
+    *,
+    risk_level: str = "medium",
+    missing_entities: list[str] | None = None,
+):
+    missing = ["风鸣铃"] if missing_entities is None else missing_entities
     baseline_dir = outputs / "run_v090_baseline"
     baseline_dir.mkdir()
     (baseline_dir / "meta.json").write_text(
@@ -166,25 +172,29 @@ def _write_replay_range(outputs):
                 "available_chapters": [1, 2, 3],
                 "summary": {
                     "chapter_count": 2,
-                    "average_overall": 0.74,
-                    "risk_level": "medium",
+                    "average_overall": 0.92 if risk_level == "low" else 0.74,
+                    "risk_level": risk_level,
                     "weakest_chapter": 2,
-                    "warning_count": 1,
+                    "warning_count": 0 if not missing else 1,
                 },
-                "risk_dimensions": [
+                "risk_dimensions": []
+                if not missing
+                else [
                     {
                         "key": "entity_missing",
                         "label": "实体缺失",
-                        "level": "medium",
+                        "level": risk_level,
                         "detail": "风鸣铃在回放中缺失。",
                     }
                 ],
                 "entity_audit": {
                     "matched_entities": ["赵轩"],
-                    "missing_entities": ["风鸣铃"],
+                    "missing_entities": missing,
                     "missing_entities_by_chapter": [
                         {"chapter": 2, "entities": ["风鸣铃"]}
-                    ],
+                    ]
+                    if missing
+                    else [],
                 },
                 "created_at": "2026-05-31T12:01:00Z",
             },
@@ -211,6 +221,26 @@ def _write_baseline_run(outputs):
                 "branch_id": "baseline",
                 "summary": "无干预基线已生成。",
                 "created_at": "2026-05-31T12:00:00Z",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_clean_consistency_report(projects):
+    report_path = projects / "export-story" / "memory" / "consistency_report.json"
+    report_path.write_text(
+        json.dumps(
+            {
+                "version": "test-clean",
+                "summary": {"issue_count": 0, "risk_level": "low"},
+                "persona_drift": [],
+                "timeline_conflicts": [],
+                "resource_conflicts": [],
+                "contract_violations": [],
+                "forgotten_threads": [],
+                "repair_suggestions": [],
             },
             ensure_ascii=False,
         ),
@@ -688,6 +718,38 @@ def test_creation_loop_surfaces_selected_worldline_post_run_audit(
     assert completion["done_count"] < completion["total_count"]
     assert "选择后审计" in completion["blocking_labels"]
     assert completion["can_mark_alpha_complete"] is False
+
+
+def test_creation_loop_ready_state_marks_alpha_closeable(isolated_story_dirs):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    _write_causal_diff(outputs, run_id, branch_id)
+    _write_clean_consistency_report(projects)
+    _write_replay_range(outputs, risk_level="low", missing_entities=[])
+    _, _, select_worldline = _worldline_selection_api()
+    select_worldline(
+        story_slug="export-story",
+        run_id=run_id,
+        branch_id=branch_id,
+        note="低风险世界线可进入 alpha 收口。",
+    )
+
+    completion = indexer.get_project_workspace("export-story")["creation_loop"][
+        "completion"
+    ]
+
+    assert completion["status"] == "ready"
+    assert completion["done_count"] == completion["total_count"]
+    assert completion["blocking_ids"] == []
+    assert completion["actions"] == []
+    assert completion["can_mark_alpha_complete"] is True
 
 
 def test_http_worldline_selection_statuses(isolated_story_dirs):
