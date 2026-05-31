@@ -83,6 +83,7 @@
 | `completed/v1.0-beta-quota-observability-lite-e.md` | v1.0-beta | Quota & Observability Lite-E 收口说明、本地配额/观测口径、usage 与 job 状态 |
 | `completed/v1.0-beta-local-deployment-readiness-f.md` | v1.0-beta | Local Deployment Readiness-F 收口说明、本地部署就绪、脱敏环境、静态资源与 API 冒烟 |
 | `completed/v1.0-beta-cloud-persistence-boundary-g.md` | v1.0-beta | Cloud Persistence Boundary-G 收口说明、本地 artifact 到未来平台资源的映射、保留规则与迁移边界 |
+| `completed/v1.0-beta-account-project-space-boundary-h.md` | v1.0-beta | Account Project Space Boundary-H 收口说明、本地账号语义、项目空间清单与未来团队归属边界 |
 
 ## 4. article/ 论文资料
 

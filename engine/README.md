@@ -67,6 +67,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Quota-E | Quota & Observability Lite：本地配额与观测口径 | 已收口，见 `../docs/completed/v1.0-beta-quota-observability-lite-e.md` |
 | v1.0-beta Deploy-F | Local Deployment Readiness：本地部署就绪清单 | 已收口，见 `../docs/completed/v1.0-beta-local-deployment-readiness-f.md` |
 | v1.0-beta Cloud-G | Cloud Persistence Boundary：云端持久化迁移边界 | 已收口，见 `../docs/completed/v1.0-beta-cloud-persistence-boundary-g.md` |
+| v1.0-beta Account-H | Account Project Space Boundary：账号与项目空间边界 | 已收口，见 `../docs/completed/v1.0-beta-account-project-space-boundary-h.md` |
 
 ### 产品化阶段说明
 
@@ -81,9 +82,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪和云端持久化迁移边界 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界和账号/项目空间边界 |
 
-**测试基线**：`pytest -q` → **665 passed**（2026-06-01，v1.0-beta Cloud Persistence Boundary-G 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **667 passed**（2026-06-01，v1.0-beta Account Project Space Boundary-H 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -500,6 +501,17 @@ copy .env.example .env
 - `retention_policy` 明确项目删除、分片过期、审计追加和 holdout 私有隔离规则。
 - 当前不接对象存储、数据库、持久队列、跨设备恢复、云端账号或团队空间；不上传文件、不迁移数据、不写 artifact。
 
+### v1.0-beta Account Project Space Boundary-H（已收口）
+
+本版本已新增账号与项目空间边界，不执行真实认证：
+
+- `GET /api/settings/account-project-space-boundary`
+- 返回 `version=v1.0-beta-account-project-space-boundary-h`、`account_model`、`local_inventory`、`project_spaces`、`future_metadata_fields`、`migration_boundaries`、`enforcement`、`deferred_actions`、`warnings` 和中文 `next_steps`。
+- `account_model.mode=local_single_operator`、`auth_provider=not_configured`、`team_space=not_configured`，表示当前仍是本地单用户语义。
+- `project_spaces` 覆盖 `projects/`、`samples/`、`outputs/run_*/` 和 `outputs/story_selections/`。
+- `future_metadata_fields` 预留 `owner_account_id`、`team_id`、`visibility`、`created_by`，但当前不写入 artifact。
+- 当前不接真实账号、团队空间、认证 provider、成员邀请、跨设备同步或请求级 ACL；不新增权限拦截，不改变现有 API 行为。
+
 ## 快速演示
 
 ```bash
@@ -746,3 +758,4 @@ outputs/run_<ts>_resume_intervene_linear/
 | v1.0-beta Quota-E | 本地配额与观测口径（已收口） |
 | v1.0-beta Deploy-F | 本地部署就绪清单（已收口） |
 | v1.0-beta Cloud-G | 云端持久化迁移边界（已收口） |
+| v1.0-beta Account-H | 账号与项目空间边界（已收口） |
