@@ -229,6 +229,7 @@ def test_project_workspace_creation_loop_recommends_exportable_worldline(
     assert loop["recommended"]["has_export"] is True
     assert loop["recommended"]["has_judgement"] is True
     assert loop["recommended"]["overall_score"] == 0.82
+    assert loop["recommended"]["continue_hint"].startswith("lne resume continue")
     assert loop["checklist"][0]["status"] == "done"
     assert any(step["id"] == "chapter_export" for step in loop["checklist"])
     assert any("继续推荐世界线" in step for step in loop["next_steps"])

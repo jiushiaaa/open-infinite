@@ -198,6 +198,34 @@
   line-height: 1.7;
 }
 
+.creation-loop__command {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  max-width: 100%;
+}
+
+.creation-loop__command span {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.creation-loop__command code {
+  display: block;
+  min-width: 0;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .creation-loop__checklist {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -427,5 +455,8 @@
   }
   .creation-loop__focus button {
     margin-top: 12px;
+  }
+  .creation-loop__command {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

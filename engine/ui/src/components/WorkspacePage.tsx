@@ -321,6 +321,12 @@ function CreationLoopPanel({
               {recommended.has_causal_diff ? " · 已有时空 Diff" : ""}
               {recommended.state_overlay_applied ? " · 已应用状态覆盖" : ""}
             </p>
+            {recommended.continue_hint && (
+              <div className="creation-loop__command">
+                <span>续写入口</span>
+                <code>{recommended.continue_hint}</code>
+              </div>
+            )}
           </div>
           <button
             type="button"

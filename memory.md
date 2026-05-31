@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export 与 Creation Loop Checklist 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 599 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export、Creation Loop Checklist 与 Continuation Hint 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 599 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `599 passed`（2026-05-31，v0.9.0-alpha Creation Loop Checklist 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export 与 Creation Loop Checklist 子刀已收口） |
+| **测试基线** | 后端 `599 passed`（2026-05-31，v0.9.0-alpha Continuation Hint 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export、Creation Loop Checklist 与 Continuation Hint 子刀已收口） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop（进行中） → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.9.0-alpha Creation Loop Checklist：`GET /api/stories/<slug>/project-workspace` additive 返回 `creation_loop`，前端长篇项目工作台展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene` 默认行为。 |
+| **刚收口** | v0.9.0-alpha Continuation Hint：前端长篇项目工作台在推荐世界线下展示 `creation_loop.recommended.continue_hint`，把推荐分支接到 CLI 续写入口；不写 artifact，不改 `run_scene` 默认行为。 |
 
 ---
 
@@ -121,7 +121,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 已收口 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Chapter Export 与 Creation Loop Checklist 子刀已收口 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Chapter Export / Checklist / Continuation Hint 子刀已收口 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 整体收口后按成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
@@ -441,7 +441,7 @@ lne list-genres
 → v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI（已收口）
 → v0.8.10-A Runner State Execution Spike：状态执行层 dry-run 评估（已收口）
 → v0.8.10-B Runner State Execution MVP：最小 opt-in 状态写入（已收口）
-→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（进行中：Chapter Export 与 Creation Loop Checklist 已收口）
+→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（进行中：Chapter Export / Checklist / Continuation Hint 已收口）
 → v0.9.1   Provider & Cost Gateway Lite（v0.9.0-alpha 整体收口后按成本/稳定性触发）
 → v0.9.2   MasterSetting Workspace Lite（长篇项目页稳定后）
 → v0.9.3   Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
@@ -1370,3 +1370,10 @@ lne list-genres
 - **测试**：`tests/test_v090_long_creation_loop.py` 扩充到 4 passed；`tests/test_v088_long_project_workspace.py` 确认 HTTP additive 字段；相邻测试 7 passed；完整后端 `python -m pytest -q` 为 **599 passed**；前端 `pnpm run build` 通过。
 - **明确未做**：还未做“选择世界线”持久化、运行后审计写回、自动继续生成下一章、多章节合集导出、公开分享、版权工作流、provider/cost gateway。
 - **下一刀建议**：继续 v0.9.0-alpha，做“选中世界线 -> 继续生成/续写入口”子刀：基于 creation_loop 推荐分支给出明确续写入口或 job 状态，不改 `run_scene` 默认行为。
+
+### 2026-05-31 — v0.9.0-alpha Continuation Hint
+
+- **做了什么**：前端「创作闭环」推荐世界线下新增 `续写入口` 命令展示，直接露出 `creation_loop.recommended.continue_hint`（例如 `lne resume continue <run_id> --branch <branch_id> --mock`）。
+- **边界**：这不是 HTTP 续写 job，只是把已有 CLI 续写入口产品化展示；不写新 artifact，不改 `run_scene` 默认行为，不接真实外网。
+- **测试**：`tests/test_v090_long_creation_loop.py` 断言推荐分支包含 `continue_hint`；完整后端仍为 **599 passed**；前端 `pnpm run build` 通过。
+- **下一刀建议**：若继续 v0.9.0-alpha，可抽取 `resume continue` service 并新增 opt-in HTTP job；这会牵涉 CLI 逻辑复用、父链安全校验和 job 轮询，不宜和纯展示混在一刀。
