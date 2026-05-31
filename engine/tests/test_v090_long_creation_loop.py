@@ -53,7 +53,13 @@ def _worldline_selection_api():
     return WorldlineSelectionRequestError, get_selected_worldline, select_worldline
 
 
-def _write_branch(outputs, run_id: str = "run_v090_export", branch_id: str = "branch_a"):
+def _write_branch(
+    outputs,
+    run_id: str = "run_v090_export",
+    branch_id: str = "branch_a",
+    *,
+    with_judgement: bool = True,
+):
     run_dir = outputs / run_id
     branch_dir = run_dir / branch_id
     branch_dir.mkdir(parents=True)
@@ -96,17 +102,18 @@ def _write_branch(outputs, run_id: str = "run_v090_export", branch_id: str = "br
         "# 第七章 风鸣旧案\n\n赵轩在归云斋前停步，先取出风鸣铃核对旧案线索。",
         encoding="utf-8",
     )
-    (branch_dir / "worldline_judgement.json").write_text(
-        json.dumps(
-            {
-                "recommendation": "推荐继续",
-                "scores": {"overall": 0.82},
-                "warnings": ["伏笔仍需后续兑现"],
-            },
-            ensure_ascii=False,
-        ),
-        encoding="utf-8",
-    )
+    if with_judgement:
+        (branch_dir / "worldline_judgement.json").write_text(
+            json.dumps(
+                {
+                    "recommendation": "推荐继续",
+                    "scores": {"overall": 0.82},
+                    "warnings": ["伏笔仍需后续兑现"],
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
     return run_id, branch_id
 
 
@@ -449,6 +456,38 @@ def test_project_workspace_creation_loop_recommends_exportable_worldline(
     assert loop["completion"]["status"] == "todo"
     assert "选择后审计" in loop["completion"]["blocking_labels"]
     assert any("继续推荐世界线" in step for step in loop["next_steps"])
+
+
+def test_creation_loop_completion_exposes_actions_for_blockers(
+    isolated_story_dirs,
+):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(
+        outputs,
+        run_id="run_v090_needs_actions",
+        with_judgement=False,
+    )
+
+    loop = indexer.get_project_workspace("export-story")["creation_loop"]
+    actions = loop["completion"]["actions"]
+
+    judgement = next(action for action in actions if action["id"] == "worldline_judgement")
+    selection = next(action for action in actions if action["id"] == "select_worldline")
+    replay = next(action for action in actions if action["id"] == "replay_audit")
+    assert judgement["status"] == "available"
+    assert judgement["method"] == "POST"
+    assert judgement["api_path"] == (
+        f"/api/runs/{run_id}/branches/{branch_id}/worldline-judgement"
+    )
+    assert selection["api_path"] == "/api/stories/export-story/selected-worldline"
+    assert replay["route_hash"] == "#/anchor/export-story"
 
 
 def test_resume_continue_service_writes_linear_child_run(isolated_dirs, monkeypatch):

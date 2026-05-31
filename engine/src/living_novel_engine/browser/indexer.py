@@ -1035,6 +1035,62 @@ def _creation_loop_completion(checklist: list[dict[str, str]]) -> dict[str, Any]
     }
 
 
+def _creation_loop_actions(
+    *,
+    slug: str,
+    recommended: dict[str, Any] | None,
+    selected: dict[str, Any],
+    post_run_audit: dict[str, Any],
+) -> list[dict[str, str]]:
+    actions: list[dict[str, str]] = []
+    if recommended:
+        run_id = str(recommended.get("run_id") or "")
+        branch_id = str(recommended.get("branch_id") or "")
+        if not recommended.get("has_judgement"):
+            actions.append(
+                {
+                    "id": "worldline_judgement",
+                    "label": "生成世界线评审",
+                    "status": "available",
+                    "kind": "api",
+                    "method": "POST",
+                    "api_path": (
+                        f"/api/runs/{run_id}/branches/{branch_id}/worldline-judgement"
+                    ),
+                    "detail": "补齐推荐世界线的评审报告。",
+                }
+            )
+        if (
+            selected.get("status") != "ready"
+            or selected.get("run_id") != run_id
+            or selected.get("branch_id") != branch_id
+        ):
+            actions.append(
+                {
+                    "id": "select_worldline",
+                    "label": "设为下一章起点",
+                    "status": "available",
+                    "kind": "api",
+                    "method": "POST",
+                    "api_path": f"/api/stories/{slug}/selected-worldline",
+                    "detail": "把推荐世界线记录为后续续写起点。",
+                }
+            )
+    if post_run_audit.get("status") != "ready":
+        actions.append(
+            {
+                "id": "replay_audit",
+                "label": "查看回放与审计",
+                "status": "available",
+                "kind": "route",
+                "method": "NAVIGATE",
+                "route_hash": f"#/anchor/{slug}",
+                "detail": "补齐范围回放或复盘现有风险。",
+            }
+        )
+    return actions
+
+
 def _as_int(value: Any) -> int:
     if isinstance(value, bool):
         return 0
@@ -1336,6 +1392,12 @@ def _creation_loop_summary(
         ),
     ]
     completion = _creation_loop_completion(checklist)
+    completion["actions"] = _creation_loop_actions(
+        slug=slug,
+        recommended=recommended,
+        selected=selected,
+        post_run_audit=post_run_audit,
+    )
 
     next_steps: list[str] = []
     if recommended:

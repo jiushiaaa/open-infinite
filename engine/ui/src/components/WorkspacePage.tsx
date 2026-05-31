@@ -9,6 +9,7 @@ import type {
   ProjectWorkspaceAudit,
   ProjectWorkspaceCanonLedger,
   ProjectCreationLoop,
+  ProjectCreationLoopAction,
   ProjectCreationLoopCandidate,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
@@ -334,6 +335,7 @@ function CreationLoopPanel({
   const completion = loop.completion ?? null;
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(false);
+  const [quickAction, setQuickAction] = useState<string | null>(null);
   const [stage, setStage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [mock, setMock] = useState(true);
@@ -397,6 +399,33 @@ function CreationLoopPanel({
     }
   }
 
+  async function runCompletionAction(action: ProjectCreationLoopAction) {
+    if (!recommended || busy || selecting || quickAction) return;
+    if (action.id === "replay_audit") {
+      navigate({ name: "anchor", slug: storySlug });
+      return;
+    }
+    if (action.id === "select_worldline") {
+      await selectCandidate(recommended);
+      return;
+    }
+    if (action.id !== "worldline_judgement") return;
+    setQuickAction(action.id);
+    setError(null);
+    setStage("正在生成世界线评审…");
+    try {
+      await api.generateWorldlineJudgement(recommended.run_id, recommended.branch_id, {
+        story_slug: storySlug,
+      });
+      setStage("世界线评审已生成。");
+      onSelectionChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setQuickAction(null);
+    }
+  }
+
   return (
     <section className="project-workspace__section creation-loop">
       <SectionTitle
@@ -416,6 +445,22 @@ function CreationLoopPanel({
             <span>
               待处理：{completion.blocking_labels.slice(0, 3).join("、")}
             </span>
+          )}
+          {completion.actions.length > 0 && (
+            <div className="creation-loop__completion-actions">
+              {completion.actions.slice(0, 3).map((action) => (
+                <button
+                  type="button"
+                  className="workspace-btn"
+                  key={action.id}
+                  onClick={() => runCompletionAction(action)}
+                  disabled={busy || selecting || quickAction !== null}
+                  title={action.detail}
+                >
+                  {quickAction === action.id ? "处理中…" : action.label}
+                </button>
+              ))}
+            </div>
           )}
         </div>
       )}

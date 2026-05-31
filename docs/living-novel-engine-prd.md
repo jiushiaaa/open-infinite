@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已启动，Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口 |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已启动，Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -842,6 +842,7 @@ v0.9.0-alpha 已启动，目标是串起完整用户路径：
 - **Chapter Collection Export**：当前分支可沿父链导出连续章节合集，合集只包含生成章节、来源 run/branch 和安全 warning，不导出上传原作全文。
 - **Export Share Guard**：单章导出与合集导出均返回 `share_guard`，Markdown 写入「版权与分享边界」，前端下载前要求中文确认版权责任；该 guard 不等于公开分享发布能力。
 - **Creation Loop Completion Gate**：`creation_loop` 返回 `completion`，显示完成/总数、阻塞项、summary 与 `can_mark_alpha_complete`，前端展示闭环完成度；该判定只读，不替代人工版本收口。
+- **Creation Loop Action Hints**：`completion.actions` 把缺失评审、未选起点、未跑审计等阻塞项转成可执行/可跳转动作；前端可直接生成推荐世界线评审或跳转审计页。
 - **Creation Loop Checklist**：长篇项目工作台新增只读 `creation_loop`，展示推荐世界线、候选分支、导入/分支/评审/审计/导出五步清单和下一步提醒。
 - **Continuation Hint**：推荐世界线下展示 CLI 续写入口 `lne resume continue <run_id> --branch <branch_id> --mock`，作为 HTTP resume job 前的最小继续创作入口。
 - **Resume Continue HTTP Job**：推荐世界线可通过显式按钮触发 `/api/jobs/resume-continue`，沿父分支生成新的 `linear` 下一章并跳转阅读；不改 `run_scene` 默认行为。
@@ -969,7 +970,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 
 | 版本 | 名称 | 范围 | 触发条件 |
 | --- | --- | --- | --- |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | 已启动：Export / Collection Export / Share Guard / Completion Gate / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口，整体闭环继续推进 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | 已启动：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口，整体闭环继续推进 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 真实用户开始频繁跑长任务，单 provider 成本或稳定性成为问题 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后，用户需要系统化维护设定，而不只是运行分支 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 50+ 章或百万字项目中 BM25/ledger 召回明显不足，审计频繁漏实体/关系 |

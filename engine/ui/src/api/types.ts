@@ -401,8 +401,20 @@ export interface ProjectCreationLoopCompletion {
   total_count: number;
   blocking_ids: string[];
   blocking_labels: string[];
+  actions: ProjectCreationLoopAction[];
   summary: string;
   can_mark_alpha_complete: boolean;
+}
+
+export interface ProjectCreationLoopAction {
+  id: string;
+  label: string;
+  status: string;
+  kind: "api" | "route" | string;
+  method: string;
+  api_path?: string;
+  route_hash?: string;
+  detail: string;
 }
 
 export interface ProjectCreationLoop {

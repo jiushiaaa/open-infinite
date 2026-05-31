@@ -211,6 +211,14 @@
   text-align: right;
 }
 
+.creation-loop__completion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  max-width: 320px;
+}
+
 .creation-loop__completion.is-ready {
   border-color: rgba(86, 125, 79, 0.35);
 }
@@ -596,6 +604,11 @@
     margin-top: 8px;
     max-width: none;
     text-align: left;
+  }
+  .creation-loop__completion-actions {
+    justify-content: flex-start;
+    margin-top: 10px;
+    max-width: none;
   }
   .creation-loop__actions {
     justify-content: flex-start;
