@@ -80,6 +80,7 @@
 | `completed/v1.0-beta-commercial-audit-log-schema-b.md` | v1.0-beta | Commercial Audit Log Schema-B 收口说明、本地审计事件 schema、只读聚合与边界 |
 | `completed/v1.0-beta-permission-matrix-draft-c.md` | v1.0-beta | Permission Matrix Draft-C 收口说明、owner/editor/viewer 权限矩阵草案与未执行边界 |
 | `completed/v1.0-beta-project-copyright-statement-d.md` | v1.0-beta | Project Copyright Statement-D 收口说明、项目级版权/来源声明 schema 与导出 rights basis |
+| `completed/v1.0-beta-quota-observability-lite-e.md` | v1.0-beta | Quota & Observability Lite-E 收口说明、本地配额/观测口径、usage 与 job 状态 |
 
 ## 4. article/ 论文资料
 

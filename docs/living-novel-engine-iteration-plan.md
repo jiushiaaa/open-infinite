@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C 与 v1.0-beta Project Copyright Statement-D 已整体收口；下一步 v1.0-beta Quota & Observability Lite-E）
+> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D 与 v1.0-beta Quota & Observability Lite-E 已整体收口；下一步 v1.0-beta Local Deployment Readiness-F）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/completed/v0.1-to-v0.8-version-audit.md`。
@@ -100,11 +100,12 @@ v1.0-beta Commercial Hardening Scope-A     商业化范围复核         已收�
 v1.0-beta Commercial Audit Log Schema-B    项目审计日志 schema    已收口：详见 docs/completed/v1.0-beta-commercial-audit-log-schema-b.md
 v1.0-beta Permission Matrix Draft-C         权限矩阵草案           已收口：详见 docs/completed/v1.0-beta-permission-matrix-draft-c.md
 v1.0-beta Project Copyright Statement-D     版权与来源声明         已收口：详见 docs/completed/v1.0-beta-project-copyright-statement-d.md
+v1.0-beta Quota & Observability Lite-E      配额与观测口径         已收口：详见 docs/completed/v1.0-beta-quota-observability-lite-e.md
 ```
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **659 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider & Cost Gateway Lite 已整体收口**，完整证明见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；**v0.9.2 MasterSetting Workspace Lite 已整体收口**，完整证明见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；**v0.9.3 Graph Memory Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`；**v0.9.4 Advanced Runner Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`；**v1.0-beta Commercial Hardening Scope-A 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`；**v1.0-beta Commercial Audit Log Schema-B 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`；**v1.0-beta Permission Matrix Draft-C 已收口**，完整证明见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`；**v1.0-beta Project Copyright Statement-D 已收口**，完整证明见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`。当前不接 LangGraph/OASIS/CAMEL，也不直接进入云端多租户、对象存储或计费系统。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **661 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider & Cost Gateway Lite 已整体收口**，完整证明见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；**v0.9.2 MasterSetting Workspace Lite 已整体收口**，完整证明见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；**v0.9.3 Graph Memory Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`；**v0.9.4 Advanced Runner Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`；**v1.0-beta Commercial Hardening Scope-A 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`；**v1.0-beta Commercial Audit Log Schema-B 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`；**v1.0-beta Permission Matrix Draft-C 已收口**，完整证明见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`；**v1.0-beta Project Copyright Statement-D 已收口**，完整证明见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`；**v1.0-beta Quota & Observability Lite-E 已收口**，完整证明见 `docs/completed/v1.0-beta-quota-observability-lite-e.md`。当前不接 LangGraph/OASIS/CAMEL，也不直接进入云端多租户、对象存储或计费系统。
 
 ## 2.1 阶段性质与产品化程度
 
@@ -125,7 +126,8 @@ v1.0-beta Project Copyright Statement-D     版权与来源声明         已收
 | v1.0-beta Schema-B | Commercial Audit Log | 本地商业化加固第一项 | 已收口：项目审计日志 schema 与只读聚合。 |
 | v1.0-beta Matrix-C | Permission Matrix Draft | 权限模型草案 | 已收口：owner/editor/viewer 权限矩阵。 |
 | v1.0-beta Copyright-D | Project Copyright Statement | 版权与来源声明 | 已收口：项目级版权/来源声明 schema。 |
-| v1.0-beta Quota-E | Quota & Observability Lite | 配额与观测口径 | 下一刀：本地配额、用量、job 状态与观测摘要。 |
+| v1.0-beta Quota-E | Quota & Observability Lite | 配额与观测口径 | 已收口：本地配额、用量、job 状态与观测摘要。 |
+| v1.0-beta Deploy-F | Local Deployment Readiness | 本地部署就绪清单 | 下一刀：健康检查、环境脱敏、静态资源/API 冒烟和运行步骤。 |
 
 因此，“已经完成 MVP”需要带限定语：v0.7 已完成短中篇产品化 MVP，v0.8.0-A 至 v0.8.5-A 已完成长篇底座 MVP；v0.8.6-v0.8.10 是长篇产品化收束，v0.9.0-alpha 才是长篇共创产品闭环成立。
 
@@ -175,7 +177,7 @@ v1.0-beta Project Copyright Statement-D     版权与来源声明         已收
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **659 passed**（截至 2026-06-01，v1.0-beta Project Copyright Statement-D 收口后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **661 passed**（截至 2026-06-01，v1.0-beta Quota & Observability Lite-E 收口后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1888,6 +1890,8 @@ v0.9.0-alpha 已整体收口。它已把长篇上传、记忆、分支运行、�
 
 > **v1.0-beta Project Copyright Statement-D 已收口（2026-06-01）**：新增 `get_project_copyright_statement()` / `write_project_copyright_statement()` 与 `GET/POST /api/stories/<slug>/copyright-statement`，项目级版权/来源声明落本地 `memory/project_copyright_statement.json`；单章/合集导出的 `share_guard` 新增 additive `rights_basis`，Markdown 版权段写入声明状态、来源标题、权利状态和声明用途。非法 slug 返回 400，缺项目 404，内置样例写入 409，损坏声明降级为 warning。收口归档见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`。下一刀进入 `v1.0-beta Quota & Observability Lite-E`。
 
+> **v1.0-beta Quota & Observability Lite-E 已收口（2026-06-01）**：新增 `get_quota_observability_lite()` 与 `GET /api/settings/quota-observability`，只读汇总 provider usage、当前内存 job 状态、软配额口径和观测缺口；`quota_policy.mode=not_enforced`，不阻断生成请求。`JobStore` 新增 additive `snapshot()` 与 `max_jobs` 供本地观测。非法 `story_slug` 返回 400。收口归档见 `docs/completed/v1.0-beta-quota-observability-lite-e.md`。下一刀进入 `v1.0-beta Local Deployment Readiness-F`。
+
 ### Phase 5：社区与分享
 
 远期方向：
@@ -2024,7 +2028,8 @@ v0.1.2 resume continue
 | P10-B | v1.0-beta Commercial Audit Log | 本地项目审计日志 schema 与只读聚合 | 已收口 |
 | P10-C | v1.0-beta Permission Matrix Draft | owner/editor/viewer 权限矩阵草案 | 已收口 |
 | P10-D | v1.0-beta Project Copyright Statement | 项目级版权/来源声明 schema | 已收口 |
-| P10-E | v1.0-beta Quota & Observability Lite | 本地配额、用量、job 状态与观测摘要 | 下一刀 |
+| P10-E | v1.0-beta Quota & Observability Lite | 本地配额、用量、job 状态与观测摘要 | 已收口 |
+| P10-F | v1.0-beta Local Deployment Readiness | 健康检查、环境脱敏、静态资源/API 冒烟和运行步骤 | 下一刀 |
 
 ## 8. 近期详细任务清单
 
@@ -2300,7 +2305,8 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v1.0-beta Commercial Audit Log Schema-B（已收口：本地审计日志 schema）
   -> v1.0-beta Permission Matrix Draft-C（已收口：权限矩阵草案）
   -> v1.0-beta Project Copyright Statement-D（已收口：版权/来源声明）
-  -> v1.0-beta Quota & Observability Lite-E（下一刀：本地配额与观测）
+  -> v1.0-beta Quota & Observability Lite-E（已收口：本地配额与观测）
+  -> v1.0-beta Local Deployment Readiness-F（下一刀：本地部署就绪清单）
 ```
 
 WenShape 解决“长篇上下文怎么不崩”，webnovel-writer 解决“故事合约和网文味”，MiroFish 解决“角色群体怎么自己动起来”，eastworld 解决“互动媒体 Agent 如何做动作、情绪查询和玩家护栏”的参考问题；四篇论文分别补上“用户涌现、意图调度、叙事质量、动作落地”的理论底座。Living Novel Engine 自己要牢牢抓住的，是它们都没有真正覆盖的核心：

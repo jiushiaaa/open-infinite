@@ -84,6 +84,14 @@ class JobStore:
         with self._lock:
             return len(self._jobs)
 
+    def snapshot(self) -> list[dict]:
+        with self._lock:
+            return [rec.to_dict() for rec in self._jobs.values()]
+
+    @property
+    def max_jobs(self) -> int:
+        return self._max
+
     def _run(self, rec: JobRecord, runner: RunnerFn) -> None:
         self._touch(rec, status="running", progress=5, stage="排队中")
 

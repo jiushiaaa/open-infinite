@@ -64,6 +64,10 @@ from .master_setting_update import (
     update_master_setting,
 )
 from .project_health import HealthReport, check_project_health
+from .quota_observability import (
+    QuotaObservabilityRequestError,
+    get_quota_observability_lite,
+)
 from .retrieval_probe import evaluate_retrieval_probes
 from .runtime_settings import (
     RuntimeSettings,
@@ -173,6 +177,8 @@ __all__ = [
     "ProjectCopyrightStatementRequestError",
     "get_project_copyright_statement",
     "write_project_copyright_statement",
+    "QuotaObservabilityRequestError",
+    "get_quota_observability_lite",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
     "HoldoutRequestError",
