@@ -606,6 +606,8 @@ export interface RuntimeSettings {
   seedream_masked_key: string;
   seedream_base_url: string;
   seedream_model: string;
+  llm_input_cost_per_1k: number;
+  llm_output_cost_per_1k: number;
 }
 
 export interface RuntimeSettingsPatch {
@@ -619,6 +621,8 @@ export interface RuntimeSettingsPatch {
   seedream_base_url?: string;
   seedream_model?: string;
   visual_assets_enabled?: boolean;
+  llm_input_cost_per_1k?: number;
+  llm_output_cost_per_1k?: number;
 }
 
 export interface ProviderGatewayProvider {
@@ -648,6 +652,8 @@ export interface ProviderGatewaySummary {
     estimation_mode: string;
     price_table_status: string;
     estimated_total: number | null;
+    input_cost_per_1k: number;
+    output_cost_per_1k: number;
     usage_fields: string[];
     note: string;
   };
@@ -685,6 +691,8 @@ export interface ProviderUsageSummary {
     currency: string;
     estimated_total: number | null;
     reason: string;
+    input_cost_per_1k: number;
+    output_cost_per_1k: number;
   };
 }
 

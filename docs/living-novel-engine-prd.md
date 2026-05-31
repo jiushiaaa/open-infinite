@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已整体收口；v0.9.1 Provider Gateway Summary-A / Provider Usage Summary-B / Provider Status Panel-C 已验收，下一刀继续 Provider & Cost Gateway Lite 的路由或价格配置 |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已整体收口；v0.9.1 Provider Gateway Summary-A / Provider Usage Summary-B / Provider Status Panel-C / Manual Price Estimate-D 已验收，下一刀继续 Provider & Cost Gateway Lite 的模型路由配置 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -981,7 +981,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | 版本 | 名称 | 范围 | 触发条件 |
 | --- | --- | --- | --- |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | 已整体收口，见 `completed/v0.9.0-alpha-long-creation-loop.md` |
-| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 进行中：provider 摘要、usage 聚合和设置展示已收口，后续继续路由或价格配置；不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph |
+| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 进行中：provider 摘要、usage 聚合、设置展示和手动估算已收口，后续继续模型路由配置；不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后，用户需要系统化维护设定，而不只是运行分支 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 50+ 章或百万字项目中 BM25/ledger 召回明显不足，审计频繁漏实体/关系 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner 是否值得接入 | v0.8.10 状态执行层不足以表达角色并行思考、裁判、审计、反思/重试、多轮共识或群体仿真 |

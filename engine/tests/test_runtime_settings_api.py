@@ -36,6 +36,8 @@ _ENV_KEYS = [
     "SEEDREAM_BASE_URL",
     "SEEDREAM_MODEL",
     "LNE_VISUAL_ASSETS",
+    "LNE_LLM_INPUT_COST_PER_1K",
+    "LNE_LLM_OUTPUT_COST_PER_1K",
 ]
 
 
@@ -67,6 +69,8 @@ class TestService:
         assert 1 <= s.default_rounds <= 12
         assert s.seedream_enabled is False
         assert s.visual_assets_enabled is True
+        assert s.llm_input_cost_per_1k == 0
+        assert s.llm_output_cost_per_1k == 0
 
     def test_visual_assets_enabled_is_independent_from_seedream_key(self, iso_env):
         s = update_runtime_settings({"visual_assets_enabled": False})
@@ -99,6 +103,18 @@ class TestService:
             update_runtime_settings({"default_rounds": 99})
         with pytest.raises(SettingsError):
             update_runtime_settings({"default_rounds": 0})
+
+    def test_cost_rates_are_configurable(self, iso_env):
+        s = update_runtime_settings(
+            {"llm_input_cost_per_1k": "0.01", "llm_output_cost_per_1k": 0.03}
+        )
+        assert s.llm_input_cost_per_1k == 0.01
+        assert s.llm_output_cost_per_1k == 0.03
+
+        with pytest.raises(SettingsError):
+            update_runtime_settings({"llm_input_cost_per_1k": -1})
+        with pytest.raises(SettingsError):
+            update_runtime_settings({"llm_output_cost_per_1k": "bad"})
 
     def test_runner_invalid(self, iso_env):
         with pytest.raises(SettingsError):
@@ -151,6 +167,9 @@ class TestService:
         self, iso_env, tmp_path, monkeypatch
     ):
         monkeypatch.setenv("LNE_OUTPUTS_DIR", str(tmp_path / "outputs"))
+        update_runtime_settings(
+            {"llm_input_cost_per_1k": 0.01, "llm_output_cost_per_1k": 0.03}
+        )
         run_dir = tmp_path / "outputs" / "run_usage"
         _write_json(
             run_dir / "intervention.json",
@@ -201,7 +220,8 @@ class TestService:
         assert summary["totals"]["total_tokens"] == 45
         assert summary["by_provider"][0]["provider_id"] == "primary_llm"
         assert summary["by_provider"][0]["total_tokens"] == 45
-        assert summary["cost_estimate"]["estimated_total"] is None
+        assert summary["cost_estimate"]["estimated_total"] == 0.00075
+        assert summary["cost_estimate"]["reason"] == "configured"
 
     def test_provider_usage_summary_filters_story_slug(self, iso_env, tmp_path, monkeypatch):
         monkeypatch.setenv("LNE_OUTPUTS_DIR", str(tmp_path / "outputs"))
@@ -314,6 +334,12 @@ class TestHttp:
 
     def test_post_rounds_400(self, running_server):
         status, _b = _post(running_server, "/api/settings/runtime", {"default_rounds": 50})
+        assert status == 400
+
+    def test_post_cost_rate_400(self, running_server):
+        status, _b = _post(
+            running_server, "/api/settings/runtime", {"llm_input_cost_per_1k": -1}
+        )
         assert status == 400
 
     def test_post_runner_400(self, running_server):

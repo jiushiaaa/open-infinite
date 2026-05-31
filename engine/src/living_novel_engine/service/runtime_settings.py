@@ -31,6 +31,8 @@ _MODEL = "LLM_MODEL_NAME"
 _MOCK = "LNE_MOCK"
 _ROUNDS = "LNE_DEFAULT_ROUNDS"
 _RUNNER = "LNE_SCENE_RUNNER"
+_COST_INPUT = "LNE_LLM_INPUT_COST_PER_1K"
+_COST_OUTPUT = "LNE_LLM_OUTPUT_COST_PER_1K"
 
 _SD_KEY = "SEEDREAM_API_KEY"
 _SD_BASE = "SEEDREAM_BASE_URL"
@@ -64,6 +66,8 @@ class RuntimeSettings:
     seedream_masked_key: str = ""
     seedream_base_url: str = _SD_DEFAULT_BASE
     seedream_model: str = _SD_DEFAULT_MODEL
+    llm_input_cost_per_1k: float = 0.0
+    llm_output_cost_per_1k: float = 0.0
 
     def as_dict(self) -> dict:
         return {
@@ -81,6 +85,8 @@ class RuntimeSettings:
             "seedream_masked_key": self.seedream_masked_key,
             "seedream_base_url": self.seedream_base_url,
             "seedream_model": self.seedream_model,
+            "llm_input_cost_per_1k": self.llm_input_cost_per_1k,
+            "llm_output_cost_per_1k": self.llm_output_cost_per_1k,
         }
 
 
@@ -124,6 +130,16 @@ def default_runner() -> str:
     return _DEFAULT_RUNNER
 
 
+def _cost_rate_from_env(key: str) -> float:
+    raw = os.environ.get(key, "").strip()
+    if not raw:
+        return 0.0
+    try:
+        return max(0.0, float(raw))
+    except ValueError:
+        return 0.0
+
+
 def get_runtime_settings() -> RuntimeSettings:
     settings = LLMSettings.from_env()
     key = settings.llm_api_key or ""
@@ -143,6 +159,8 @@ def get_runtime_settings() -> RuntimeSettings:
         seedream_masked_key=_mask_key(sd.api_key),
         seedream_base_url=sd.base_url,
         seedream_model=sd.model,
+        llm_input_cost_per_1k=_cost_rate_from_env(_COST_INPUT),
+        llm_output_cost_per_1k=_cost_rate_from_env(_COST_OUTPUT),
     )
 
 
@@ -196,6 +214,10 @@ def get_provider_gateway_summary() -> dict:
             }
         )
 
+    price_table_configured = (
+        settings.llm_input_cost_per_1k > 0 or settings.llm_output_cost_per_1k > 0
+    )
+
     return {
         "version": "v0.9.1-provider-cost-lite",
         "routing": {
@@ -233,8 +255,12 @@ def get_provider_gateway_summary() -> dict:
         "cost_policy": {
             "currency": "USD",
             "estimation_mode": "usage_metadata_only",
-            "price_table_status": "not_configured",
+            "price_table_status": (
+                "configured" if price_table_configured else "not_configured"
+            ),
             "estimated_total": None,
+            "input_cost_per_1k": settings.llm_input_cost_per_1k,
+            "output_cost_per_1k": settings.llm_output_cost_per_1k,
             "usage_fields": ["prompt_tokens", "completion_tokens", "total_tokens"],
             "note": "当前只汇总 token 用量来源；精确价格表留给后续按 provider 配置。",
         },
@@ -315,8 +341,33 @@ def _empty_usage() -> dict[str, int]:
     return {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
 
+def _cost_estimate(totals: dict[str, int], settings: RuntimeSettings) -> dict[str, Any]:
+    input_rate = settings.llm_input_cost_per_1k
+    output_rate = settings.llm_output_cost_per_1k
+    if input_rate <= 0 and output_rate <= 0:
+        return {
+            "currency": "USD",
+            "estimated_total": None,
+            "reason": "price_table_not_configured",
+            "input_cost_per_1k": input_rate,
+            "output_cost_per_1k": output_rate,
+        }
+    estimated = (
+        totals["prompt_tokens"] / 1000 * input_rate
+        + totals["completion_tokens"] / 1000 * output_rate
+    )
+    return {
+        "currency": "USD",
+        "estimated_total": round(estimated, 6),
+        "reason": "configured",
+        "input_cost_per_1k": input_rate,
+        "output_cost_per_1k": output_rate,
+    }
+
+
 def get_provider_usage_summary(*, story_slug: str | None = None) -> dict:
-    """汇总已有 generation_meta.usage；不估价、不联网、不改 artifact。"""
+    """汇总已有 generation_meta.usage；只用手动单价估算，不联网不改 artifact。"""
+    settings = get_runtime_settings()
     root = outputs_dir()
     totals = _empty_usage()
     provider_totals: dict[str, dict[str, int]] = {"primary_llm": _empty_usage()}
@@ -382,12 +433,18 @@ def get_provider_usage_summary(*, story_slug: str | None = None) -> dict:
         "records": records[:50],
         "record_limit": 50,
         "truncated": len(records) > 50,
-        "cost_estimate": {
-            "currency": "USD",
-            "estimated_total": None,
-            "reason": "price_table_not_configured",
-        },
+        "cost_estimate": _cost_estimate(totals, settings),
     }
+
+
+def _parse_cost_rate(value: object, field: str) -> float:
+    try:
+        rate = float(value)
+    except (TypeError, ValueError):
+        raise SettingsError(f"{field} 须为非负数字")
+    if rate < 0:
+        raise SettingsError(f"{field} 须为非负数字")
+    return rate
 
 
 def update_runtime_settings(patch: dict) -> RuntimeSettings:
@@ -430,6 +487,18 @@ def update_runtime_settings(patch: dict) -> RuntimeSettings:
                 f"未知 runner: {runner!r}；可用: {', '.join(available_runners())}"
             )
         os.environ[_RUNNER] = runner
+
+    if "llm_input_cost_per_1k" in patch:
+        os.environ[_COST_INPUT] = str(
+            _parse_cost_rate(patch.get("llm_input_cost_per_1k"), "llm_input_cost_per_1k")
+        )
+
+    if "llm_output_cost_per_1k" in patch:
+        os.environ[_COST_OUTPUT] = str(
+            _parse_cost_rate(
+                patch.get("llm_output_cost_per_1k"), "llm_output_cost_per_1k"
+            )
+        )
 
     if "seedream_api_key" in patch:
         os.environ[_SD_KEY] = str(patch.get("seedream_api_key") or "")

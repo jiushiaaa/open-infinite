@@ -95,9 +95,10 @@
 - v0.9.1 Provider Gateway Summary-A 已收口。
 - v0.9.1 Provider Usage Summary-B 已收口。
 - v0.9.1 Provider Status Panel-C 已收口。
-- 当前后端验证基线：`624 passed`。
+- v0.9.1 Manual Price Estimate-D 已收口。
+- 当前后端验证基线：`626 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：`v0.9.1 Provider & Cost Gateway Lite` 后续路由或价格配置。
+- 官方下一刀：`v0.9.1 Provider & Cost Gateway Lite` 后续模型路由配置。
 - 后续排期：`v0.9.1-v0.9.4` 触发式增强 → `v1.0-beta` 商业化加固。
 
 最近一次 Codex 迭代：
@@ -123,6 +124,7 @@
 - `v0.9.1 Provider Gateway Summary-A` 已新增只读 `GET /api/settings/providers`，返回脱敏 provider 列表、单 provider 路由状态、mock/占位图降级策略、成本观测口径和 warning；不打网络、不落盘、不返回明文 Key。
 - `v0.9.1 Provider Usage Summary-B` 已新增只读 `GET /api/settings/provider-usage`，从 `intervention_compilation.json` / `multi_agent_trace.json` 汇总 `generation_meta.usage`，支持安全 `story_slug` 过滤；不内置真实价格表。
 - `v0.9.1 Provider Status Panel-C` 已在设置抽屉展示模型状态与累计用量；保存设置或清除密钥后会刷新，只读不写价格/路由策略。
+- `v0.9.1 Manual Price Estimate-D` 已支持手动配置每千输入/输出单价并按 usage 粗估费用；不硬编码厂商价格、不联网查价。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v0.9.1 开始也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。
 

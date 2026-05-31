@@ -61,6 +61,8 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const [mock, setMock] = useState(settings.default_mock);
   const [rounds, setRounds] = useState(settings.default_rounds);
   const [runner, setRunner] = useState(settings.default_runner);
+  const [inputCost, setInputCost] = useState(settings.llm_input_cost_per_1k);
+  const [outputCost, setOutputCost] = useState(settings.llm_output_cost_per_1k);
 
   const [sdKeyInput, setSdKeyInput] = useState("");
   const [sdPresent, setSdPresent] = useState(settings.seedream_key_present);
@@ -90,6 +92,8 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
     setMasked(s.masked_key);
     setSdPresent(s.seedream_key_present);
     setSdMasked(s.seedream_masked_key);
+    setInputCost(s.llm_input_cost_per_1k);
+    setOutputCost(s.llm_output_cost_per_1k);
   }
 
   async function save() {
@@ -106,6 +110,8 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         seedream_base_url: sdBase.trim(),
         seedream_model: sdModel.trim(),
         visual_assets_enabled: visualEnabled,
+        llm_input_cost_per_1k: Math.max(0, inputCost || 0),
+        llm_output_cost_per_1k: Math.max(0, outputCost || 0),
         ...(keyInput.trim() ? { api_key: keyInput.trim() } : {}),
         ...(sdKeyInput.trim() ? { seedream_api_key: sdKeyInput.trim() } : {}),
       };
@@ -226,6 +232,45 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         error={providerState.error}
         onRetry={providerState.reload}
       />
+
+      <section className="settings__group">
+        <h3 className="settings__group-title">成本估算</h3>
+        <div className="settings__metric-row">
+          <div className="settings__field">
+            <label className="settings__label" htmlFor="set-input-cost">
+              每千输入单价
+            </label>
+            <input
+              id="set-input-cost"
+              className="settings__input"
+              type="number"
+              min={0}
+              step={0.000001}
+              value={inputCost}
+              onChange={(e) => setInputCost(Number(e.target.value))}
+              disabled={saving}
+            />
+          </div>
+          <div className="settings__field">
+            <label className="settings__label" htmlFor="set-output-cost">
+              每千输出单价
+            </label>
+            <input
+              id="set-output-cost"
+              className="settings__input"
+              type="number"
+              min={0}
+              step={0.000001}
+              value={outputCost}
+              onChange={(e) => setOutputCost(Number(e.target.value))}
+              disabled={saving}
+            />
+          </div>
+        </div>
+        <p className="settings__note tiny muted">
+          单价由你手动填写，仅用于本机估算；留空或 0 时只显示用量，不估算费用。
+        </p>
+      </section>
 
       <section className="settings__group">
         <h3 className="settings__group-title">默认运行参数</h3>
@@ -403,6 +448,13 @@ function ProviderStatusPanel({
               ? `另有 ${data.usage.missing_usage_record_count} 条旧记录缺少用量。`
               : "暂无缺失用量的记录。"}
           </p>
+          <p className="settings__note tiny muted">
+            {data.usage.cost_estimate.estimated_total === null
+              ? "尚未填写单价，当前只统计用量。"
+              : `按手动单价估算约 ${formatCost(
+                  data.usage.cost_estimate.estimated_total,
+                )} 美元。`}
+          </p>
           {data.gateway.warnings.slice(0, 2).map((warning) => (
             <p className="settings__note tiny muted" key={warning.code}>
               {warning.message}
@@ -416,6 +468,13 @@ function ProviderStatusPanel({
 
 function formatTokens(value: number): string {
   return Math.max(0, value).toLocaleString("zh-CN");
+}
+
+function formatCost(value: number): string {
+  return Math.max(0, value).toLocaleString("zh-CN", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 6,
+  });
 }
 
 const RUNNER_LABEL: Record<string, string> = {
