@@ -110,10 +110,11 @@
 - v0.9.4 Advanced Runner Probe-B 已收口。
 - v0.9.4 Advanced Runner Evaluation Spike 已整体收口。
 - v1.0-beta Commercial Hardening Scope-A 已收口。
-- 当前后端验证基线：`645 passed`。
+- v1.0-beta Commercial Audit Log Schema-B 已收口。
+- 当前后端验证基线：`650 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：`v1.0-beta Commercial Audit Log Schema-B`。
-- 后续排期：`v1.0-beta` 本地优先商业化加固（审计日志、权限矩阵、版权声明），真实外部用户前不默认做云端多租户/计费系统。
+- 官方下一刀：`v1.0-beta Permission Matrix Draft-C`。
+- 后续排期：`v1.0-beta` 本地优先商业化加固（权限矩阵、版权声明），真实外部用户前不默认做云端多租户/计费系统。
 
 最近一次 Codex 迭代：
 
@@ -151,8 +152,9 @@
 - `v0.9.4 Advanced Runner Evaluation Trigger-A` 已新增 `GET /api/runs/<run_id>/advanced-runner-evaluation`，只读判断当前 run 是否满足高级 runner 评估触发条件；不接 LangGraph / OASIS / CAMEL，不写 artifact。
 - `v0.9.4 Advanced Runner Probe-B` 已新增 `GET /api/runs/<run_id>/advanced-runner-probes`，收集状态执行、trace 与涌现节点失败样例；v0.9.4 已整体收口，归档见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`。
 - `v1.0-beta Commercial Hardening Scope-A` 已新增 `GET /api/settings/commercial-hardening-scope`，只读整理账号/权限/云端持久化/配额/审计/版权/部署观测的当前覆盖、缺口、延后项和本地优先下一步；不读密钥、不打网络、不落盘、不接云端多租户或计费系统，归档见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`。
+- `v1.0-beta Commercial Audit Log Schema-B` 已新增 `GET /api/stories/<slug>/audit-log`，只读聚合导入检查、世界线选择、设定轻编辑、creation loop closeout 与现有 `memory/project_audit_log.jsonl` 行；坏 JSONL 行降级 warning，不写日志，归档见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
-- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。下一刀先做本地项目审计日志 schema 与只读聚合。
+- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。下一刀先做 owner/editor/viewer 权限矩阵草案。
 
 ## 资料索引
 

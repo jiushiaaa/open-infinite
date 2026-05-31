@@ -61,7 +61,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 已整体收口，见 `../docs/completed/v0.9.3-graph-memory-evaluation-spike.md` |
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 已整体收口，见 `../docs/completed/v0.9.4-advanced-runner-evaluation-spike.md` |
 | v1.0-beta Scope-A | Commercial Hardening Scope：商业化七域范围复核、本地优先边界 | 已收口，见 `../docs/completed/v1.0-beta-commercial-hardening-scope-a.md` |
-| v1.0-beta Schema-B | Commercial Audit Log：本地项目审计日志 schema 与只读聚合 | 下一刀 |
+| v1.0-beta Schema-B | Commercial Audit Log：本地项目审计日志 schema 与只读聚合 | 已收口，见 `../docs/completed/v1.0-beta-commercial-audit-log-schema-b.md` |
+| v1.0-beta Matrix-C | Permission Matrix Draft：owner/editor/viewer 权限矩阵草案 | 下一刀 |
 
 ### 产品化阶段说明
 
@@ -78,7 +79,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核，以及后续商业级加固 |
 
-**测试基线**：`pytest -q` → **645 passed**（2026-06-01，v1.0-beta Commercial Hardening Scope-A 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **650 passed**（2026-06-01，v1.0-beta Commercial Audit Log Schema-B 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -418,6 +419,17 @@ copy .env.example .env
 - `ready_actions` 将下一步收束到本地审计日志 schema、权限矩阵草案和项目级版权/来源声明。
 - 该接口不读/回显密钥、不创建客户端、不打网络、不落盘，不改变既有 run/project artifact。
 
+### v1.0-beta Commercial Audit Log Schema-B（已收口）
+
+本版本已新增本地项目审计日志 schema 与只读聚合，不让写操作追加日志：
+
+- `GET /api/stories/<slug>/audit-log`
+- 返回 `version=v1.0-beta-commercial-audit-log-schema-b`、`schema`、`summary`、`events`、`warnings` 和中文 `next_steps`。
+- `schema.storage=memory/project_audit_log.jsonl`，用于后续 additive 写入，不在本刀创建文件。
+- 只读聚合现有 artifact：`import_report.json`、`selected_worldline.json`、`memory/master_setting_update_report.json`、`creation_loop_alpha_closeout.json` 和已有 `memory/project_audit_log.jsonl` 行。
+- 坏 slug 返回 400，缺项目返回 404；损坏 JSONL 行降级为 warning。
+- 当前不接账号/权限系统、对象存储、数据库、队列、计费或不可篡改审计存储。
+
 ## 快速演示
 
 ```bash
@@ -658,4 +670,5 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（已整体收口） |
 | v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.4 已整体收口） |
 | v1.0-beta Scope-A | 商业化范围复核：账号、权限、云端持久化、配额、审计、版权、部署观测七域只读报告（已收口） |
-| v1.0-beta Schema-B | 本地项目审计日志 schema 与只读聚合 |
+| v1.0-beta Schema-B | 本地项目审计日志 schema 与只读聚合（已收口） |
+| v1.0-beta Matrix-C | owner/editor/viewer 权限矩阵草案 |
