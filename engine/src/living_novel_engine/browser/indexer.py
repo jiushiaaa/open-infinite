@@ -990,6 +990,187 @@ def _retrieval_summary(slug: str) -> dict[str, Any]:
     }
 
 
+def _score_value(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
+def _check_item(
+    *,
+    item_id: str,
+    label: str,
+    status: str,
+    detail: str,
+) -> dict[str, str]:
+    return {"id": item_id, "label": label, "status": status, "detail": detail}
+
+
+def _creation_loop_summary(
+    *,
+    slug: str,
+    source_kind: str,
+    import_review: dict[str, Any] | None,
+    audit: dict[str, Any],
+    runs: list[RunSummary],
+) -> dict[str, Any]:
+    """v0.9.0-alpha：项目级创作闭环清单，不写 artifact。"""
+
+    child_counts: dict[tuple[str, str], int] = defaultdict(int)
+    for run in runs:
+        if run.parent_run_id and run.parent_branch:
+            child_counts[(run.parent_run_id, run.parent_branch)] += 1
+
+    candidates: list[dict[str, Any]] = []
+    for run in runs:
+        run_dir = outputs_dir() / run.run_id
+        for branch in run.branches:
+            branch_dir = run_dir / branch.id
+            judgement = _read_optional_json(branch_dir / "worldline_judgement.json")
+            judgement_ready = bool(judgement)
+            scores = judgement.get("scores", {}) if isinstance(judgement, dict) else {}
+            overall_score = (
+                _score_value(scores.get("overall")) if isinstance(scores, dict) else None
+            )
+            recommendation = (
+                str(judgement.get("recommendation") or "") if judgement_ready else ""
+            )
+            causal_diff = _read_optional_json(branch_dir / "causal_diff.json")
+            overlay = _read_optional_json(branch_dir / "state_execution_overlay.json")
+            has_export = (branch_dir / "chapter.md").exists() and branch.chapter_chars > 0
+            continue_hint = (
+                f"lne resume continue {run.run_id} --branch {branch.id} --mock"
+                if branch.id != "linear"
+                else (
+                    f"lne resume intervene {run.run_id} --branch linear "
+                    '--target <char_id> --content "..." --mock'
+                )
+            )
+            candidates.append(
+                {
+                    "run_id": run.run_id,
+                    "branch_id": branch.id,
+                    "run_kind": run.kind,
+                    "branch_label": branch.theme or branch.id,
+                    "chapter_chars": branch.chapter_chars,
+                    "has_export": has_export,
+                    "export_api_path": (
+                        f"/api/runs/{run.run_id}/branches/{branch.id}/chapter-export"
+                    )
+                    if has_export
+                    else "",
+                    "has_judgement": judgement_ready,
+                    "recommendation": recommendation or "未评审",
+                    "overall_score": overall_score,
+                    "has_causal_diff": bool(causal_diff),
+                    "causal_diff_status": causal_diff.get("status")
+                    if isinstance(causal_diff, dict) and causal_diff
+                    else None,
+                    "state_overlay_applied": bool(overlay),
+                    "child_run_count": child_counts.get((run.run_id, branch.id), 0),
+                    "continue_hint": continue_hint,
+                }
+            )
+
+    recommendation_rank = {"推荐继续": 3, "谨慎继续": 2, "建议归档": 1}
+    ranked_candidates = sorted(
+        candidates,
+        key=lambda item: (
+            bool(item.get("has_export")),
+            recommendation_rank.get(str(item.get("recommendation")), 0),
+            float(item.get("overall_score") or 0),
+            int(item.get("chapter_chars") or 0),
+        ),
+        reverse=True,
+    )
+    recommended = ranked_candidates[0] if ranked_candidates else None
+
+    if source_kind == "imported":
+        review_status = str((import_review or {}).get("status") or "missing")
+        import_status = "done" if review_status == "ready" else "warn"
+        import_detail = (
+            "导入检查报告可用。"
+            if review_status == "ready"
+            else "导入检查缺失或损坏，先回到世界锚定页确认来源与章节。"
+        )
+    else:
+        import_status = "done"
+        import_detail = "内置样例无需长篇导入检查。"
+
+    has_judgement = any(bool(c.get("has_judgement")) for c in candidates)
+    has_export = any(bool(c.get("has_export")) for c in candidates)
+    audit_status = str(audit.get("status") or "missing")
+    issue_count = int((audit.get("summary") or {}).get("issue_count") or 0)
+    if audit_status == "ready" and issue_count == 0:
+        audit_item_status = "done"
+    elif audit_status in ("ready", "damaged"):
+        audit_item_status = "warn"
+    else:
+        audit_item_status = "todo"
+
+    checklist = [
+        _check_item(
+            item_id="import_review",
+            label="确认导入质量",
+            status=import_status,
+            detail=import_detail,
+        ),
+        _check_item(
+            item_id="branch_run",
+            label="生成候选世界线",
+            status="done" if candidates else "todo",
+            detail="已有可阅读分支。" if candidates else "先发起基线或干预生成世界线。",
+        ),
+        _check_item(
+            item_id="worldline_judgement",
+            label="评审世界线",
+            status="done" if has_judgement else "todo",
+            detail="已有世界线评审。" if has_judgement else "先运行世界线评审再决定继续。",
+        ),
+        _check_item(
+            item_id="replay_audit",
+            label="核对审计风险",
+            status=audit_item_status,
+            detail=(
+                "静态审计未发现问题。"
+                if audit_item_status == "done"
+                else "结合一致性审计与回放结果检查偏移风险。"
+            ),
+        ),
+        _check_item(
+            item_id="chapter_export",
+            label="导出当前章节",
+            status="done" if has_export else "todo",
+            detail="至少一条世界线可导出章节。" if has_export else "生成章节后再导出。",
+        ),
+    ]
+
+    next_steps: list[str] = []
+    if recommended:
+        next_steps.append(
+            f"继续推荐世界线：{recommended['branch_label']}，先核对评审与 Diff，再导出或续写。"
+        )
+        if not recommended.get("has_judgement"):
+            next_steps.append("该候选尚未评审，先运行世界线评审。")
+        if recommended.get("has_export"):
+            next_steps.append("可先导出章节留档，再决定是否继续生成下一章。")
+    else:
+        next_steps.append("先从项目工作台发起基线或干预，生成至少一条世界线。")
+    if audit_item_status != "done":
+        next_steps.append("继续前建议查看回放与审计，确认没有高风险冲突。")
+
+    return {
+        "version": "v0.9.0-alpha",
+        "status": "ready" if recommended else "empty",
+        "recommended": recommended,
+        "candidates": ranked_candidates[:6],
+        "checklist": checklist,
+        "next_steps": next_steps,
+    }
+
+
 def get_project_workspace(slug: str) -> dict[str, Any]:
     """v0.8.8 长篇项目工作台：汇总导入、记忆、正史、审计与运行入口。"""
 
@@ -1002,9 +1183,11 @@ def get_project_workspace(slug: str) -> dict[str, Any]:
         else _source_chapter_previews(story_path)
     )
     review_summary = import_review.get("summary", {}) if import_review else {}
+    audit = _audit_summary(story_path)
+    runs = list_runs(story_slug=slug)
 
     return {
-        "version": "v0.8.8",
+        "version": "v0.9.0-alpha",
         "slug": slug,
         "source_kind": source_kind,
         "display_name": world.get("display_name") or world.get("title") or slug,
@@ -1033,8 +1216,15 @@ def get_project_workspace(slug: str) -> dict[str, Any]:
         "canon_ledger": _canon_ledger_summary(story_path),
         "entity_aliases": _entity_alias_summary(story_path),
         "retrieval": _retrieval_summary(slug),
-        "audit": _audit_summary(story_path),
-        "run_count": len(list_runs(story_slug=slug)),
+        "audit": audit,
+        "run_count": len(runs),
+        "creation_loop": _creation_loop_summary(
+            slug=slug,
+            source_kind=source_kind,
+            import_review=import_review,
+            audit=audit,
+            runs=runs,
+        ),
         "actions": {
             "anchor_hash": f"#/anchor/{slug}",
             "workspace_hash": f"#/workspace/{slug}",

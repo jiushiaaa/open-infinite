@@ -325,6 +325,7 @@ export interface ProjectWorkspace {
   entity_aliases: EntityAliasSummary;
   retrieval: ProjectWorkspaceRetrieval;
   audit: ProjectWorkspaceAudit;
+  creation_loop?: ProjectCreationLoop;
   run_count: number;
   actions: {
     anchor_hash: string;
@@ -333,6 +334,42 @@ export interface ProjectWorkspace {
     can_start_intervention: boolean;
     next_steps: string[];
   };
+}
+
+export type CreationLoopStepStatus = "done" | "todo" | "warn" | string;
+
+export interface ProjectCreationLoopCandidate {
+  run_id: string;
+  branch_id: string;
+  run_kind: string;
+  branch_label: string;
+  chapter_chars: number;
+  has_export: boolean;
+  export_api_path: string;
+  has_judgement: boolean;
+  recommendation: string;
+  overall_score: number | null;
+  has_causal_diff: boolean;
+  causal_diff_status?: string | null;
+  state_overlay_applied: boolean;
+  child_run_count: number;
+  continue_hint: string;
+}
+
+export interface ProjectCreationLoopChecklistItem {
+  id: string;
+  label: string;
+  status: CreationLoopStepStatus;
+  detail: string;
+}
+
+export interface ProjectCreationLoop {
+  version: string;
+  status: "ready" | "empty" | string;
+  recommended: ProjectCreationLoopCandidate | null;
+  candidates: ProjectCreationLoopCandidate[];
+  checklist: ProjectCreationLoopChecklistItem[];
+  next_steps: string[];
 }
 
 export interface ImportNovelResponse {

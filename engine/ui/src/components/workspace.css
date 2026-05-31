@@ -172,6 +172,106 @@
   font-size: 13px;
 }
 
+.creation-loop__focus {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.creation-loop__focus h3 {
+  margin: 5px 0 7px;
+  color: var(--ink);
+  font-size: 17px;
+  letter-spacing: 0;
+}
+
+.creation-loop__focus p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.creation-loop__checklist {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.creation-loop__step {
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.creation-loop__step strong,
+.creation-loop__step span {
+  display: block;
+  font-size: 12px;
+}
+
+.creation-loop__step strong {
+  color: var(--ink);
+}
+
+.creation-loop__step span {
+  margin-top: 5px;
+  color: var(--muted);
+}
+
+.creation-loop__step p {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.creation-loop__step.is-done {
+  border-color: rgba(70, 120, 94, 0.38);
+}
+
+.creation-loop__step.is-warn {
+  border-color: rgba(156, 74, 49, 0.35);
+}
+
+.creation-loop__next {
+  margin-bottom: 12px;
+}
+
+.creation-loop__candidates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.creation-loop__candidates li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.creation-loop__candidates span {
+  color: var(--ink-soft);
+}
+
+.creation-loop__candidates strong {
+  color: var(--ink);
+  white-space: nowrap;
+}
+
 .chapter-preview-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -317,7 +417,15 @@
   }
   .project-workspace__metrics,
   .chapter-preview-list,
-  .project-workspace__grid {
+  .project-workspace__grid,
+  .creation-loop__checklist {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .creation-loop__focus,
+  .creation-loop__candidates li {
+    display: block;
+  }
+  .creation-loop__focus button {
+    margin-top: 12px;
   }
 }

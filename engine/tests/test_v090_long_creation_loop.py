@@ -1,4 +1,4 @@
-"""v0.9.0-alpha Long Novel Creation Loop: selected chapter export."""
+"""v0.9.0-alpha Long Novel Creation Loop: export and checklist slices."""
 
 from __future__ import annotations
 
@@ -10,7 +10,8 @@ import urllib.request
 
 import pytest
 
-from living_novel_engine.browser import server
+from living_novel_engine.browser import indexer, server
+from living_novel_engine.service import import_novel_from_payload
 
 
 def _chapter_export_api():
@@ -81,6 +82,19 @@ def _write_branch(outputs, run_id: str = "run_v090_export", branch_id: str = "br
     return run_id, branch_id
 
 
+def _chapters(n: int = 6) -> list[dict]:
+    return [
+        {
+            "filename": f"chapter_{i:03d}.md",
+            "content": (
+                f"第{i}章 创作闭环\n"
+                f"赵轩在归云斋整理第 {i} 章线索，沈冰月记录风鸣铃的回响。"
+            ),
+        }
+        for i in range(1, n + 1)
+    ]
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))
@@ -102,6 +116,20 @@ def isolated_dirs(tmp_path, monkeypatch):
     monkeypatch.setenv("LNE_OUTPUTS_DIR", str(outputs))
     monkeypatch.setenv("LLM_API_KEY", "")
     return outputs
+
+
+@pytest.fixture
+def isolated_story_dirs(tmp_path, monkeypatch):
+    projects = tmp_path / "projects"
+    outputs = tmp_path / "outputs"
+    projects.mkdir()
+    outputs.mkdir()
+    monkeypatch.setenv("LNE_PROJECTS_DIR", str(projects))
+    monkeypatch.setenv("LNE_OUTPUTS_DIR", str(outputs))
+    monkeypatch.setenv("LLM_API_KEY", "")
+    monkeypatch.setattr(indexer, "projects_dir", lambda: projects)
+    monkeypatch.setattr(indexer, "outputs_dir", lambda: outputs)
+    return projects, outputs
 
 
 @pytest.fixture
@@ -176,3 +204,31 @@ def test_http_chapter_export_statuses(running_server):
     )
     assert missing_status == 404
     assert "章节不存在" in missing["error"]
+
+
+def test_project_workspace_creation_loop_recommends_exportable_worldline(
+    isolated_story_dirs,
+):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+
+    workspace = indexer.get_project_workspace("export-story")
+    loop = workspace["creation_loop"]
+
+    assert loop["version"] == "v0.9.0-alpha"
+    assert loop["status"] == "ready"
+    assert loop["recommended"]["run_id"] == run_id
+    assert loop["recommended"]["branch_id"] == branch_id
+    assert loop["recommended"]["has_export"] is True
+    assert loop["recommended"]["has_judgement"] is True
+    assert loop["recommended"]["overall_score"] == 0.82
+    assert loop["checklist"][0]["status"] == "done"
+    assert any(step["id"] == "chapter_export" for step in loop["checklist"])
+    assert any("继续推荐世界线" in step for step in loop["next_steps"])

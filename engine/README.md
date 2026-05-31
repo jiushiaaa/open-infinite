@@ -55,7 +55,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.9 | Long Replay & Audit UI：长篇回放与一致性审计 UI | 已收口 |
 | v0.8.10-A | Runner State Execution Spike：opt-in 状态执行 dry-run 评估 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP：最小 opt-in 状态写入与回滚 | 已收口 |
-| v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 进行中：Chapter Export 已收口 |
+| v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 进行中：Chapter Export / Checklist 已收口 |
 | v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 待 50+ 章或百万字召回不足时触发 |
@@ -74,10 +74,10 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.0-A-v0.8.5-A | 长篇引擎底座 MVP | 长篇 memory/canon/retrieval/audit/holdout 已落盘并可读取 |
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
-| v0.9.0-alpha | 长篇产品闭环 | 进行中：Chapter Export 已走通，完整主链路仍是 alpha |
+| v0.9.0-alpha | 长篇产品闭环 | 进行中：Chapter Export / Checklist 已走通，完整主链路仍是 alpha |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **598 passed**（2026-05-31，v0.9.0-alpha Chapter Export 子刀后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **599 passed**（2026-05-31，v0.9.0-alpha Creation Loop Checklist 子刀后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -151,6 +151,14 @@ GET /api/runs/<run_id>/branches/<branch_id>/chapter-export
 ```
 
 返回 JSON 包含 `filename`、`content_type`、`content_md` 与 `metadata`。导出内容会包含来源说明、AI 生成说明、世界线评审摘要和章节正文；服务不会写回 `chapter.md`，不会导出上传原作全文或 holdout 私有正文，也不改变 `run_scene` 默认行为。坏 id 返回 400，缺章节返回 404。前端阅读区提供「导出章节」按钮下载当前世界线 Markdown。
+
+v0.9.0-alpha Creation Loop Checklist 起，长篇项目工作台 API 会 additive 返回项目级创作闭环清单：
+
+```text
+GET /api/stories/<slug>/project-workspace
+```
+
+新增 `creation_loop` 字段包含 `recommended` 推荐世界线、`candidates` 候选分支、导入/分支/评审/审计/导出五步 `checklist` 和中文 `next_steps`。该字段只读扫描既有 run/branch artifact，不写新文件，不持久化“已选择世界线”，也不改变 `run_scene` 默认行为。前端项目工作台新增「创作闭环」区，可打开推荐分支继续阅读或导出。
 
 v0.8+ Discourse-aware Narrator-A 起，每个分支还会写入：
 
@@ -528,6 +536,6 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.7.1-A/B/C | Intervention Compiler + LLM 编译 + Causal Diff 数据地基 ✓ |
 | v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/completed/v0.7-product-web-app-ui-spec.md`） |
 | v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估与最小写入 |
-| v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（进行中：Chapter Export 已收口） |
+| v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（进行中：Chapter Export / Checklist 已收口） |
 | v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（按触发条件） |
 | v1.0-beta | 商业化加固：账号、权限、云端持久化、配额、审计、版权、部署观测 |

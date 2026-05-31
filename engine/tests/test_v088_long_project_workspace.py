@@ -126,6 +126,8 @@ def test_project_workspace_http_statuses(running_server):
     assert status == 200
     assert body["chapter_overview"]["total_chapters"] == 6
     assert body["memory"]["status"] == "ready"
+    assert body["creation_loop"]["version"] == "v0.9.0-alpha"
+    assert body["creation_loop"]["status"] == "empty"
 
     bad_status, bad = _get(port, "/api/stories/..%2Fsecret/project-workspace")
     assert bad_status == 400

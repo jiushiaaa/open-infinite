@@ -7,6 +7,8 @@ import type {
   ProjectWorkspace,
   ProjectWorkspaceAudit,
   ProjectWorkspaceCanonLedger,
+  ProjectCreationLoop,
+  ProjectCreationLoopCandidate,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
   RunTreeNode,
@@ -228,6 +230,18 @@ function ProjectWorkspaceOverview({
         </div>
       </section>
 
+      {data.creation_loop && (
+        <CreationLoopPanel
+          loop={data.creation_loop}
+          onOpen={(candidate) =>
+            onSelectFirst({
+              runId: candidate.run_id,
+              branchId: candidate.branch_id,
+            })
+          }
+        />
+      )}
+
       <section className="project-workspace__section">
         <SectionTitle title="章节片段" status={`${data.chapter_overview.playable_chapter_limit} 章可先读`} />
         {data.chapter_overview.previews.length === 0 ? (
@@ -277,6 +291,89 @@ function ProjectWorkspaceSidePanel({ data }: { data: ProjectWorkspace }) {
         进入世界锚定
       </button>
     </div>
+  );
+}
+
+function CreationLoopPanel({
+  loop,
+  onOpen,
+}: {
+  loop: ProjectCreationLoop;
+  onOpen: (candidate: ProjectCreationLoopCandidate) => void;
+}) {
+  const recommended = loop.recommended;
+  return (
+    <section className="project-workspace__section creation-loop">
+      <SectionTitle
+        title="创作闭环"
+        status={loop.status === "ready" ? "可继续" : "待生成"}
+      />
+      {recommended ? (
+        <div className="creation-loop__focus">
+          <div>
+            <p className="tiny muted">推荐继续世界线</p>
+            <h3>{recommended.branch_label}</h3>
+            <p>
+              {recommended.recommendation}
+              {typeof recommended.overall_score === "number"
+                ? ` · 评审 ${(recommended.overall_score * 100).toFixed(0)}`
+                : ""}
+              {recommended.has_causal_diff ? " · 已有时空 Diff" : ""}
+              {recommended.state_overlay_applied ? " · 已应用状态覆盖" : ""}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="workspace-btn workspace-btn--primary"
+            onClick={() => onOpen(recommended)}
+          >
+            打开世界线
+          </button>
+        </div>
+      ) : (
+        <EmptyState
+          title="尚无候选世界线"
+          hint="先从项目工作台发起基线或干预，生成可阅读分支。"
+        />
+      )}
+
+      <div className="creation-loop__checklist">
+        {loop.checklist.map((item) => (
+          <div
+            className={`creation-loop__step is-${item.status}`}
+            key={item.id}
+          >
+            <strong>{item.label}</strong>
+            <span>{stepStatusLabel(item.status)}</span>
+            <p>{item.detail}</p>
+          </div>
+        ))}
+      </div>
+
+      {loop.next_steps.length > 0 && (
+        <div className="project-workspace__steps creation-loop__next">
+          {loop.next_steps.map((step) => (
+            <span key={step}>{step}</span>
+          ))}
+        </div>
+      )}
+
+      {loop.candidates.length > 1 && (
+        <ul className="creation-loop__candidates">
+          {loop.candidates.slice(0, 3).map((candidate) => (
+            <li key={`${candidate.run_id}-${candidate.branch_id}`}>
+              <span>{candidate.branch_label}</span>
+              <strong>
+                {candidate.recommendation}
+                {typeof candidate.overall_score === "number"
+                  ? ` · ${(candidate.overall_score * 100).toFixed(0)}`
+                  : ""}
+              </strong>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -432,6 +529,15 @@ function statusLabel(value: string): string {
     ready: "已就绪",
     missing: "未生成",
     damaged: "需修复",
+  };
+  return map[value] ?? value;
+}
+
+function stepStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    done: "已完成",
+    todo: "待处理",
+    warn: "需核对",
   };
   return map[value] ?? value;
 }

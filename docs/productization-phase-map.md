@@ -4,7 +4,7 @@
 
 ## 1. 一句话结论
 
-Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了 **长篇记忆与机制底座 MVP**。v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI 与 v0.8.10-A/B Runner State Execution 已把导入检查、断点续传、项目资产页、回放审计 UI、状态执行 dry-run 评估和可回滚 overlay 写入收口；v0.9.0-alpha 已启动，Chapter Export 已让所选世界线章节可带来源/AI 说明导出，下一步继续把这些能力串成普通用户可复盘、可审计、可继续创作的长篇共创闭环。
+Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了 **长篇记忆与机制底座 MVP**。v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI 与 v0.8.10-A/B Runner State Execution 已把导入检查、断点续传、项目资产页、回放审计 UI、状态执行 dry-run 评估和可回滚 overlay 写入收口；v0.9.0-alpha 已启动，Chapter Export 已让所选世界线章节可带来源/AI 说明导出，Creation Loop Checklist 已让项目工作台能推荐继续世界线并展示清单。下一步继续把这些能力串成普通用户可复盘、可审计、可继续创作的长篇共创闭环。
 
 ## 2. 阶段归类表
 
@@ -17,7 +17,7 @@ Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了
 | v0.8.0-A-v0.8.5-A | Long Novel Memory、canon ledger、retrieval、audit、holdout isolation | 长篇引擎底座 MVP | 长篇导入后的记忆、正史账本、检索、一致性审计和回放隔离已经成立，但仍偏 artifact/API。 |
 | v0.8+ A-slices | ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A | 机制接缝与解释层 MVP | 这些 A-slice 是可读、可验收、可解释的最小闭环；默认不代表已经进入强状态执行或复杂 runner。 |
 | v0.8.6-v0.8.10 | Long Import Review、Resumable Jobs、Long Workspace、Replay/Audit UI、Runner State Execution | 长篇产品化收束 | 已把长篇底座变成清晰的上传、检查、管理、审计、回放、状态覆盖与继续创作前置流程。 |
-| v0.9.0-alpha | Long Novel Creation Loop | 长篇产品化闭环成立 | 进行中：Chapter Export 已收口；上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出整体走通后仍是 alpha，不等于商业级。 |
+| v0.9.0-alpha | Long Novel Creation Loop | 长篇产品化闭环成立 | 进行中：Chapter Export / Checklist 已收口；上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出整体走通后仍是 alpha，不等于商业级。 |
 | v0.9.1-v0.9.4 | Provider/Cost、MasterSetting Lite、Graph Memory Spike、Advanced Runner Spike | 真实使用压力增强 | 按成本、长篇召回、设定管理、runner 复杂度触发增强，不提前引入重依赖。 |
 | v1.0-beta | Commercial Hardening | 商业级/规模化 | 账号、权限、云端持久化、配额、审计日志、版权提示、部署与观测等面向外部用户长期使用。 |
 
@@ -31,7 +31,7 @@ Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了
 - v0.7-v0.7.5 完成的是短中篇产品化 MVP：普通用户可以通过 Web 完成导入/创世/锚定/干预/评审主流程。
 - v0.8.0-v0.8.5 完成的是长篇底座 MVP：长篇记忆与正史能力能落盘、检索、审计、隔离。
 - v0.8.6-v0.8.10 要做的是长篇产品化：把底座能力变成用户看得懂、修得动、能继续使用的工作台。
-- v0.9.0-alpha 已启动并完成章节导出子刀；完整完成后，长篇共创才算形成产品闭环，但仍需 v0.9.1+ 和 v1.0-beta 才能接近商业级。
+- v0.9.0-alpha 已启动并完成章节导出与创作闭环清单子刀；完整完成后，长篇共创才算形成产品闭环，但仍需 v0.9.1+ 和 v1.0-beta 才能接近商业级。
 
 ## 4. 后续排期原则
 
