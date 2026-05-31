@@ -1203,6 +1203,42 @@ def _creation_loop_evidence(
     return evidence
 
 
+def _creation_loop_closeout(completion: dict[str, Any]) -> dict[str, Any]:
+    can_close = bool(completion.get("can_mark_alpha_complete"))
+    evidence = [
+        {
+            "id": str(item.get("id") or ""),
+            "label": str(item.get("label") or ""),
+            "status": str(item.get("status") or ""),
+            "source": str(item.get("source") or ""),
+            "ref": str(item.get("ref") or ""),
+            "detail": str(item.get("detail") or ""),
+        }
+        for item in _as_list(completion.get("evidence"))
+        if isinstance(item, dict)
+    ]
+    blockers = [str(item) for item in _as_list(completion.get("blocking_labels"))]
+    return {
+        "kind": "creation_loop_alpha_closeout",
+        "status": "ready" if can_close else "not_ready",
+        "can_close_alpha": can_close,
+        "ready_count": int(completion.get("done_count") or 0),
+        "required_count": int(completion.get("total_count") or 0),
+        "remaining_blockers": blockers,
+        "evidence": evidence,
+        "summary": (
+            "v0.9.0-alpha 长篇共创闭环已满足收口验收条件。"
+            if can_close
+            else "v0.9.0-alpha 仍有闭环阻塞项，先补齐后再收口。"
+        ),
+        "next_step": (
+            "同步版本收口记录后，再评估 v0.9.1 的成本与稳定性触发条件。"
+            if can_close
+            else "优先处理 remaining_blockers 中的步骤，不跳到 v0.9.1。"
+        ),
+    }
+
+
 def _as_int(value: Any) -> int:
     if isinstance(value, bool):
         return 0
@@ -1516,6 +1552,7 @@ def _creation_loop_summary(
         selected=selected,
         post_run_audit=post_run_audit,
     )
+    closeout = _creation_loop_closeout(completion)
 
     next_steps: list[str] = []
     if recommended:
@@ -1542,6 +1579,7 @@ def _creation_loop_summary(
         "candidates": ranked_candidates[:6],
         "checklist": checklist,
         "completion": completion,
+        "closeout": closeout,
         "next_steps": next_steps,
     }
 

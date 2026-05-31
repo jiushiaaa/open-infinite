@@ -334,8 +334,9 @@ function CreationLoopPanel({
   const selected = loop.selected ?? null;
   const postAudit = loop.post_run_audit ?? null;
   const completion = loop.completion ?? null;
+  const closeout = loop.closeout ?? null;
   let loopStatus = loop.status === "ready" ? "可继续" : "待生成";
-  if (completion?.can_mark_alpha_complete) {
+  if (closeout?.can_close_alpha || completion?.can_mark_alpha_complete) {
     loopStatus = "可收口";
   }
   const [busy, setBusy] = useState(false);
@@ -496,6 +497,22 @@ function CreationLoopPanel({
               ))}
             </div>
           )}
+        </div>
+      )}
+      {closeout && (
+        <div className={`creation-loop__closeout is-${closeout.status}`}>
+          <div>
+            <p className="tiny muted">Alpha 收口</p>
+            <strong>{closeout.can_close_alpha ? "可收口" : "待补齐"}</strong>
+            <p>{closeout.summary}</p>
+          </div>
+          <span>
+            {closeout.ready_count}/{closeout.required_count}
+            {closeout.remaining_blockers.length > 0
+              ? ` · 阻塞：${closeout.remaining_blockers.slice(0, 3).join("、")}`
+              : " · 无阻塞"}
+          </span>
+          <p className="creation-loop__closeout-next">{closeout.next_step}</p>
         </div>
       )}
       {recommended ? (

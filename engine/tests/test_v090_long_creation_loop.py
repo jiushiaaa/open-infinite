@@ -509,6 +509,11 @@ def test_project_workspace_creation_loop_recommends_exportable_worldline(
     assert loop["completion"]["kind"] == "creation_loop_completion"
     assert loop["completion"]["status"] == "todo"
     assert "选择后审计" in loop["completion"]["blocking_labels"]
+    closeout = loop["closeout"]
+    assert closeout["kind"] == "creation_loop_alpha_closeout"
+    assert closeout["status"] == "not_ready"
+    assert closeout["can_close_alpha"] is False
+    assert "选择后审计" in closeout["remaining_blockers"]
     evidence = loop["completion"]["evidence"]
     assert [item["id"] for item in evidence] == [
         item["id"] for item in loop["checklist"]
@@ -741,15 +746,23 @@ def test_creation_loop_ready_state_marks_alpha_closeable(isolated_story_dirs):
         note="低风险世界线可进入 alpha 收口。",
     )
 
-    completion = indexer.get_project_workspace("export-story")["creation_loop"][
-        "completion"
-    ]
+    loop = indexer.get_project_workspace("export-story")["creation_loop"]
+    completion = loop["completion"]
+    closeout = loop["closeout"]
 
     assert completion["status"] == "ready"
     assert completion["done_count"] == completion["total_count"]
     assert completion["blocking_ids"] == []
     assert completion["actions"] == []
     assert completion["can_mark_alpha_complete"] is True
+    assert closeout["kind"] == "creation_loop_alpha_closeout"
+    assert closeout["status"] == "ready"
+    assert closeout["can_close_alpha"] is True
+    assert closeout["ready_count"] == closeout["required_count"]
+    assert closeout["remaining_blockers"] == []
+    assert [item["id"] for item in closeout["evidence"]] == [
+        item["id"] for item in loop["checklist"]
+    ]
 
 
 def test_http_worldline_selection_statuses(isolated_story_dirs):

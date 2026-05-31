@@ -407,6 +407,18 @@ export interface ProjectCreationLoopCompletion {
   can_mark_alpha_complete: boolean;
 }
 
+export interface ProjectCreationLoopCloseout {
+  kind: "creation_loop_alpha_closeout" | string;
+  status: "ready" | "not_ready" | string;
+  can_close_alpha: boolean;
+  ready_count: number;
+  required_count: number;
+  remaining_blockers: string[];
+  evidence: ProjectCreationLoopEvidence[];
+  summary: string;
+  next_step: string;
+}
+
 export interface ProjectCreationLoopEvidence {
   id: string;
   label: string;
@@ -437,6 +449,7 @@ export interface ProjectCreationLoop {
   candidates: ProjectCreationLoopCandidate[];
   checklist: ProjectCreationLoopChecklistItem[];
   completion?: ProjectCreationLoopCompletion;
+  closeout?: ProjectCreationLoopCloseout;
   next_steps: string[];
 }
 
