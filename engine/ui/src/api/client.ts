@@ -35,6 +35,7 @@ import type {
   RuntimeSettings,
   RuntimeSettingsPatch,
   ReplayAuditWorkspace,
+  ResumeContinueRequest,
   RunnerStateExecutionApplyReport,
   RunnerStateExecutionReport,
   RunnerStateExecutionRollbackReport,
@@ -177,6 +178,9 @@ export const api = {
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);
+  },
+  postJobResumeContinue(req: ResumeContinueRequest): Promise<JobSubmitResponse> {
+    return postJson("/api/jobs/resume-continue", req);
   },
   postJobImportNovel(req: ImportNovelRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/import-novel", req);

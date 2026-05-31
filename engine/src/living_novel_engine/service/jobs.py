@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Callable
 
-JOB_KINDS = ("intervention", "import_novel", "story_genesis")
+JOB_KINDS = ("intervention", "import_novel", "story_genesis", "resume_continue")
 
 # runner 接收一个进度回调 update(progress: int, stage: str)，返回结果 dict。
 ProgressFn = Callable[[int, str], None]

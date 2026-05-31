@@ -369,6 +369,8 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._handle_ingest_complete(path)
             if path == "/api/jobs/intervention":
                 return self._handle_job_intervention()
+            if path == "/api/jobs/resume-continue":
+                return self._handle_job_resume_continue()
             if path == "/api/jobs/import-novel":
                 return self._handle_job_import_novel()
             if path == "/api/jobs/story-genesis":
@@ -1354,6 +1356,60 @@ class BrowserHandler(BaseHTTPRequestHandler):
             }
 
         rec = JOBS.submit("intervention", run)
+        self._send_json({"job_id": rec.job_id, "status": rec.status}, status=202)
+
+    def _handle_job_resume_continue(self) -> None:
+        """v0.9.0-alpha：异步续写所选世界线到 linear 分支。"""
+        from living_novel_engine.browser import indexer
+        from living_novel_engine.service import (
+            JOBS,
+            default_mock,
+            default_rounds,
+            default_runner,
+            run_resume_continue,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        run_id = safe_id(str(body.get("run_id") or ""))
+        branch_id = safe_id(str(body.get("branch_id") or ""))
+        if run_id is None or branch_id is None:
+            return self._send_json({"error": "invalid run_id or branch_id"}, status=400)
+        try:
+            rounds = int(body["rounds"]) if "rounds" in body else default_rounds()
+        except (TypeError, ValueError):
+            return self._send_json({"error": "rounds 必须为整数"}, status=400)
+        mock = bool(body["mock"]) if "mock" in body else default_mock()
+        runner = str(body["runner_name"]) if body.get("runner_name") else default_runner()
+
+        def run(update):
+            update(15, "读取父世界线")
+            result = run_resume_continue(
+                run_id=run_id,
+                branch_id=branch_id,
+                rounds=rounds,
+                mock=mock,
+                runner_name=runner,
+            )
+            update(85, "刷新世界线")
+            tree = indexer.build_worldline_tree(story_slug=result.story_slug)
+            return {
+                "run_id": result.run_id,
+                "branch_id": result.branch_id,
+                "story_slug": result.story_slug,
+                "source_kind": result.source_kind,
+                "parent_run_id": result.parent_run_id,
+                "parent_branch_id": result.parent_branch_id,
+                "chapter_number": result.chapter_number,
+                "llm_mock": result.llm_mock,
+                "fallback_reason": result.fallback_reason,
+                "tree": tree,
+            }
+
+        rec = JOBS.submit("resume_continue", run)
         self._send_json({"job_id": rec.job_id, "status": rec.status}, status=202)
 
     def _handle_job_import_novel(self) -> None:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
@@ -11,6 +12,9 @@ from living_novel_engine.story_loader import load_story
 
 
 def _outputs_dir() -> Path:
+    env = os.environ.get("LNE_OUTPUTS_DIR")
+    if env:
+        return Path(env)
     return Path(__file__).resolve().parents[3] / "outputs"
 
 DEFAULT_SAMPLE_SLUG = "tianhuang-night"

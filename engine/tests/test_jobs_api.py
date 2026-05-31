@@ -149,6 +149,58 @@ class TestHttp:
         assert job["result"]["run_id"]
         assert job["result"]["primary_branch"]
 
+    def test_resume_continue_job_succeeds(self, running_server):
+        status, body = _post(
+            running_server,
+            "/api/jobs/intervention",
+            {
+                "story_slug": "tianhuang-night",
+                "target": "lin_wan_zhou",
+                "content": "希望林晚舟今夜慎行。",
+                "branches": 2,
+                "rounds": 1,
+                "mock": True,
+            },
+        )
+        assert status == 202
+        parent_job = _poll(running_server, body["job_id"])
+        assert parent_job["status"] == "succeeded"
+        parent_result = parent_job["result"]
+
+        status, body = _post(
+            running_server,
+            "/api/jobs/resume-continue",
+            {
+                "run_id": parent_result["run_id"],
+                "branch_id": parent_result["primary_branch"],
+                "rounds": 1,
+                "mock": True,
+            },
+        )
+        assert status == 202
+        job = _poll(running_server, body["job_id"])
+        assert job["status"] == "succeeded"
+        assert job["result"]["parent_run_id"] == parent_result["run_id"]
+        assert job["result"]["parent_branch_id"] == parent_result["primary_branch"]
+        assert job["result"]["branch_id"] == "linear"
+        assert job["result"]["run_id"]
+
+        branch_status, branch = _get(
+            running_server,
+            f"/api/runs/{job['result']['run_id']}/branches/linear",
+        )
+        assert branch_status == 200
+        assert branch["chapter_md"].strip()
+
+    def test_resume_continue_job_rejects_bad_ids(self, running_server):
+        status, body = _post(
+            running_server,
+            "/api/jobs/resume-continue",
+            {"run_id": "../outside", "branch_id": "branch_a", "mock": True},
+        )
+        assert status == 400
+        assert body["error"] == "invalid run_id or branch_id"
+
     def test_import_job_then_anchor(self, running_server):
         status, body = _post(
             running_server,

@@ -1283,6 +1283,29 @@ export interface InterventionResponse {
   tree: RunTreeNode[];
 }
 
+// ── POST /api/jobs/resume-continue ───────────────────────
+
+export interface ResumeContinueRequest {
+  run_id: string;
+  branch_id: string;
+  rounds?: number;
+  mock?: boolean;
+  runner_name?: string;
+}
+
+export interface ResumeContinueResponse {
+  run_id: string;
+  branch_id: string;
+  story_slug: string;
+  source_kind: SourceKind;
+  parent_run_id: string;
+  parent_branch_id: string;
+  chapter_number: number;
+  llm_mock: boolean;
+  fallback_reason: string | null;
+  tree: RunTreeNode[];
+}
+
 // ── /api/runs/<id>/branches/<id> ──────────────────────────
 
 export interface BranchDetail {

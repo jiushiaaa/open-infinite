@@ -57,6 +57,11 @@ from .runner_state_execution import (
     get_runner_state_execution_report,
     rollback_runner_state_execution,
 )
+from .resume_continue import (
+    ResumeContinueRequestError,
+    ResumeContinueServiceResult,
+    run_resume_continue,
+)
 from .import_novel import (
     ImportRequestError,
     ImportServiceResult,
@@ -128,6 +133,8 @@ __all__ = [
     "HoldoutReadOnlyError",
     "HoldoutRequestError",
     "ReplayRequestError",
+    "ResumeContinueRequestError",
+    "ResumeContinueServiceResult",
     "get_canon_replay_report",
     "get_canon_replay_range_report",
     "get_holdout",
@@ -160,6 +167,7 @@ __all__ = [
     "evaluate_runner_state_execution",
     "get_runner_state_execution_report",
     "rollback_runner_state_execution",
+    "run_resume_continue",
     "test_connectivity",
     "update_runtime_settings",
     "update_world_anchor",

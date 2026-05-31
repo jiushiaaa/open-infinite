@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { api } from "../api/client";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ApiError, api } from "../api/client";
+import { JobCancelled, pollJob } from "../api/jobs";
 import { useAsync } from "../hooks/useAsync";
 import { navigate } from "../routing";
 import type {
@@ -11,6 +12,7 @@ import type {
   ProjectCreationLoopCandidate,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
+  ResumeContinueResponse,
   RunTreeNode,
 } from "../api/types";
 import { ChapterReader } from "./ChapterReader";
@@ -86,6 +88,12 @@ export function WorkspacePage({ slug }: { slug: string }) {
     tree.reload();
   };
 
+  const handleResumeGenerated = (runId: string, branchId: string) => {
+    setSel({ runId, branchId });
+    tree.reload();
+    project.reload();
+  };
+
   return (
     <div className="workspace">
       <aside className="workspace__left">
@@ -117,6 +125,7 @@ export function WorkspacePage({ slug }: { slug: string }) {
             data={project.data}
             firstSelection={firstSelection}
             onSelectFirst={(next) => setSel(next)}
+            onResumeGenerated={handleResumeGenerated}
           />
         )}
         {!sel && !project.loading && !project.error && !project.data && (
@@ -164,10 +173,12 @@ function ProjectWorkspaceOverview({
   data,
   firstSelection,
   onSelectFirst,
+  onResumeGenerated,
 }: {
   data: ProjectWorkspace;
   firstSelection: Selection | null;
   onSelectFirst: (selection: Selection) => void;
+  onResumeGenerated: (runId: string, branchId: string) => void;
 }) {
   const risks = data.import_review?.quality_risks ?? [];
   const issueCount = data.audit.summary.issue_count ?? 0;
@@ -239,6 +250,7 @@ function ProjectWorkspaceOverview({
               branchId: candidate.branch_id,
             })
           }
+          onGenerated={onResumeGenerated}
         />
       )}
 
@@ -297,11 +309,57 @@ function ProjectWorkspaceSidePanel({ data }: { data: ProjectWorkspace }) {
 function CreationLoopPanel({
   loop,
   onOpen,
+  onGenerated,
 }: {
   loop: ProjectCreationLoop;
   onOpen: (candidate: ProjectCreationLoopCandidate) => void;
+  onGenerated: (runId: string, branchId: string) => void;
 }) {
   const recommended = loop.recommended;
+  const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [mock, setMock] = useState(true);
+  const stoppedRef = useRef(false);
+
+  useEffect(() => {
+    let alive = true;
+    api
+      .getRuntimeSettings()
+      .then((s) => alive && setMock(s.default_mock))
+      .catch(() => {});
+    return () => {
+      alive = false;
+      stoppedRef.current = true;
+    };
+  }, []);
+
+  async function resumeContinue(candidate: ProjectCreationLoopCandidate) {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    setStage("排队中…");
+    try {
+      const { job_id } = await api.postJobResumeContinue({
+        run_id: candidate.run_id,
+        branch_id: candidate.branch_id,
+        mock,
+      });
+      const result = await pollJob<ResumeContinueResponse>(
+        job_id,
+        (p) => setStage(p.stage ? `${p.stage}…` : "续写中…"),
+        () => stoppedRef.current,
+      );
+      if (!result.branch_id) throw new ApiError("续写成功但未返回分支", 0);
+      onGenerated(result.run_id, result.branch_id);
+    } catch (err) {
+      if (err instanceof JobCancelled) return;
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <section className="project-workspace__section creation-loop">
       <SectionTitle
@@ -328,19 +386,36 @@ function CreationLoopPanel({
               </div>
             )}
           </div>
-          <button
-            type="button"
-            className="workspace-btn workspace-btn--primary"
-            onClick={() => onOpen(recommended)}
-          >
-            打开世界线
-          </button>
+          <div className="creation-loop__actions">
+            <button
+              type="button"
+              className="workspace-btn"
+              onClick={() => onOpen(recommended)}
+              disabled={busy}
+            >
+              打开世界线
+            </button>
+            <button
+              type="button"
+              className="workspace-btn workspace-btn--primary"
+              onClick={() => resumeContinue(recommended)}
+              disabled={busy}
+            >
+              {busy ? "正在续写…" : "生成下一章"}
+            </button>
+          </div>
         </div>
       ) : (
         <EmptyState
           title="尚无候选世界线"
           hint="先从项目工作台发起基线或干预，生成可阅读分支。"
         />
+      )}
+
+      {(stage || error) && (
+        <div className={`creation-loop__status ${error ? "is-error" : ""}`}>
+          {error || stage}
+        </div>
       )}
 
       <div className="creation-loop__checklist">

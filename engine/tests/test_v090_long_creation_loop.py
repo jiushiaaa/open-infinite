@@ -11,7 +11,7 @@ import urllib.request
 import pytest
 
 from living_novel_engine.browser import indexer, server
-from living_novel_engine.service import import_novel_from_payload
+from living_novel_engine.service import import_novel_from_payload, run_intervention
 
 
 def _chapter_export_api():
@@ -23,6 +23,17 @@ def _chapter_export_api():
     except ImportError as exc:  # pragma: no cover - red phase assertion
         pytest.fail(f"缺少章节导出服务: {exc}")
     return ChapterExportRequestError, build_chapter_export
+
+
+def _resume_continue_api():
+    try:
+        from living_novel_engine.service import (
+            ResumeContinueRequestError,
+            run_resume_continue,
+        )
+    except ImportError as exc:  # pragma: no cover - red phase assertion
+        pytest.fail(f"缺少续章服务: {exc}")
+    return ResumeContinueRequestError, run_resume_continue
 
 
 def _write_branch(outputs, run_id: str = "run_v090_export", branch_id: str = "branch_a"):
@@ -233,3 +244,36 @@ def test_project_workspace_creation_loop_recommends_exportable_worldline(
     assert loop["checklist"][0]["status"] == "done"
     assert any(step["id"] == "chapter_export" for step in loop["checklist"])
     assert any("继续推荐世界线" in step for step in loop["next_steps"])
+
+
+def test_resume_continue_service_writes_linear_child_run(isolated_dirs, monkeypatch):
+    monkeypatch.setenv("LNE_MOCK", "1")
+    ResumeContinueRequestError, run_resume_continue = _resume_continue_api()
+
+    parent = run_intervention(
+        story_slug="tianhuang-night",
+        target="lin_wan_zhou",
+        content="愿你今夜慎行。",
+        branches=2,
+        rounds=1,
+        mock=True,
+    )
+
+    result = run_resume_continue(
+        run_id=parent.run_id,
+        branch_id=parent.branch_ids[0],
+        rounds=1,
+        mock=True,
+    )
+
+    assert result.parent_run_id == parent.run_id
+    assert result.parent_branch_id == parent.branch_ids[0]
+    assert result.branch_id == "linear"
+    assert result.story_slug == "tianhuang-night"
+    assert result.chapter_number >= 14
+    assert (result.run_dir / "meta.json").exists()
+    assert (result.run_dir / "linear" / "chapter.md").read_text(encoding="utf-8").strip()
+    assert not (result.run_dir / "intervention.json").exists()
+
+    with pytest.raises(ResumeContinueRequestError):
+        run_resume_continue(run_id="../outside", branch_id="branch_a", mock=True)
