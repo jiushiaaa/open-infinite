@@ -9,7 +9,9 @@ import urllib.error
 import urllib.request
 
 import pytest
+from click.testing import CliRunner
 
+from living_novel_engine.cli import main
 from living_novel_engine.browser import indexer, server
 from living_novel_engine.service import import_novel_from_payload, run_intervention, write_holdout
 
@@ -863,6 +865,66 @@ def test_http_creation_loop_closeout_exposes_blocker_actions(isolated_story_dirs
     finally:
         httpd.shutdown()
         httpd.server_close()
+
+
+def test_cli_creation_loop_closeout_json_reports_ready_state(isolated_story_dirs):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    _write_causal_diff(outputs, run_id, branch_id)
+    _write_clean_consistency_report(projects)
+    _write_replay_range(outputs, risk_level="low", missing_entities=[])
+    _, _, select_worldline = _worldline_selection_api()
+    select_worldline(
+        story_slug="export-story",
+        run_id=run_id,
+        branch_id=branch_id,
+        note="用于 CLI 收口验收。",
+    )
+
+    result = CliRunner().invoke(
+        main,
+        ["creation-loop-closeout", "export-story", "--json"],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["story_slug"] == "export-story"
+    assert payload["version"] == "v0.9.0-alpha"
+    assert payload["completion_status"] == "ready"
+    assert payload["actions"] == []
+    assert payload["closeout"]["status"] == "ready"
+    assert payload["closeout"]["remaining_blocker_ids"] == []
+
+
+def test_cli_creation_loop_closeout_require_ready_fails_on_blockers(
+    isolated_story_dirs,
+):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    _write_branch(outputs, with_judgement=False)
+
+    result = CliRunner().invoke(
+        main,
+        ["creation-loop-closeout", "export-story", "--require-ready"],
+    )
+
+    assert result.exit_code == 1
+    assert "v0.9.0-alpha 尚未收口" in result.output
+    assert "worldline_judgement" in result.output
+    assert "select_worldline" in result.output
 
 
 def test_http_worldline_selection_statuses(isolated_story_dirs):

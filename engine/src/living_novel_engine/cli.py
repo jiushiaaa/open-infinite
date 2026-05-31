@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -493,6 +494,66 @@ def validate_project_cmd(slug: str) -> None:
 
     if not vr.valid:
         raise SystemExit(1)
+
+
+@main.command("creation-loop-closeout")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+@click.option("--require-ready", is_flag=True, help="未达到 ready 时以退出码 1 失败")
+def creation_loop_closeout_cmd(
+    slug: str,
+    json_output: bool,
+    require_ready: bool,
+) -> None:
+    """验收 v0.9.0-alpha 长篇共创闭环收口状态。"""
+    from living_novel_engine.browser import indexer
+    from living_novel_engine.browser.validators import safe_id
+
+    safe_slug = safe_id(slug)
+    if not safe_slug:
+        raise click.ClickException("slug 非法")
+
+    try:
+        workspace = indexer.get_project_workspace(safe_slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    creation_loop = workspace.get("creation_loop") or {}
+    closeout = creation_loop.get("closeout") or {}
+    completion = creation_loop.get("completion") or {}
+    payload = {
+        "story_slug": safe_slug,
+        "version": creation_loop.get("version", "v0.9.0-alpha"),
+        "completion_status": completion.get("status", "unknown"),
+        "actions": completion.get("actions") or [],
+        "closeout": closeout,
+    }
+
+    if json_output:
+        click.echo(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        blocker_ids = closeout.get("remaining_blocker_ids") or []
+        blocker_labels = closeout.get("remaining_blockers") or []
+        actions = payload["actions"]
+        status_text = "可收口" if closeout.get("can_close_alpha") else "待补齐"
+        console.print(f"[bold]v0.9.0-alpha 创作闭环[/bold] {safe_slug}: {status_text}")
+        console.print(f"  completion_status: {payload['completion_status']}")
+        console.print(f"  closeout_status: {closeout.get('status', 'unknown')}")
+        if blocker_ids:
+            console.print(f"  remaining_blocker_ids: {', '.join(blocker_ids)}")
+        if blocker_labels:
+            console.print(f"  remaining_blockers: {'、'.join(blocker_labels)}")
+        if actions:
+            console.print("  actions:")
+            for action in actions:
+                action_id = str(action.get("id") or "")
+                label = str(action.get("label") or action_id)
+                console.print(f"    - {action_id}: {label}")
+        if closeout.get("next_step"):
+            console.print(f"  next_step: {closeout.get('next_step')}")
+
+    if require_ready and not closeout.get("can_close_alpha"):
+        raise click.ClickException("v0.9.0-alpha 尚未收口")
 
 
 @main.group("resume")
