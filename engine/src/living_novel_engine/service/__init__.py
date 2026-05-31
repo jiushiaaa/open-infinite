@@ -41,6 +41,7 @@ from .commercial_audit_log import (
     get_project_audit_log,
 )
 from .commercial_hardening import get_commercial_hardening_scope
+from .commercial_permissions import get_permission_matrix_draft
 from .diff_actions import (
     VALID_ACTIONS,
     DiffActionError,
@@ -161,6 +162,7 @@ __all__ = [
     "ProjectAuditLogRequestError",
     "get_project_audit_log",
     "get_commercial_hardening_scope",
+    "get_permission_matrix_draft",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
     "HoldoutRequestError",

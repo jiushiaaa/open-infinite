@@ -78,6 +78,7 @@
 | `completed/v0.9.4-advanced-runner-evaluation-spike.md` | v0.9.4 | Advanced Runner Evaluation Spike 收口说明、触发报告、runner probe、失败样例边界与下一步 |
 | `completed/v1.0-beta-commercial-hardening-scope-a.md` | v1.0-beta | Commercial Hardening Scope-A 收口说明、商业化七域范围复核、本地优先边界与下一步 |
 | `completed/v1.0-beta-commercial-audit-log-schema-b.md` | v1.0-beta | Commercial Audit Log Schema-B 收口说明、本地审计事件 schema、只读聚合与边界 |
+| `completed/v1.0-beta-permission-matrix-draft-c.md` | v1.0-beta | Permission Matrix Draft-C 收口说明、owner/editor/viewer 权限矩阵草案与未执行边界 |
 
 ## 4. article/ 论文资料
 

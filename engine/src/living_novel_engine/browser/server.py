@@ -206,6 +206,11 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
                 return self._send_json(get_commercial_hardening_scope())
 
+            if path == "/api/settings/permission-matrix":
+                from living_novel_engine.service import get_permission_matrix_draft
+
+                return self._send_json(get_permission_matrix_draft())
+
             if path.startswith("/api/stories/") and path.endswith("/health"):
                 from living_novel_engine.service import check_project_health
 

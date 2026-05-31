@@ -62,7 +62,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 已整体收口，见 `../docs/completed/v0.9.4-advanced-runner-evaluation-spike.md` |
 | v1.0-beta Scope-A | Commercial Hardening Scope：商业化七域范围复核、本地优先边界 | 已收口，见 `../docs/completed/v1.0-beta-commercial-hardening-scope-a.md` |
 | v1.0-beta Schema-B | Commercial Audit Log：本地项目审计日志 schema 与只读聚合 | 已收口，见 `../docs/completed/v1.0-beta-commercial-audit-log-schema-b.md` |
-| v1.0-beta Matrix-C | Permission Matrix Draft：owner/editor/viewer 权限矩阵草案 | 下一刀 |
+| v1.0-beta Matrix-C | Permission Matrix Draft：owner/editor/viewer 权限矩阵草案 | 已收口，见 `../docs/completed/v1.0-beta-permission-matrix-draft-c.md` |
+| v1.0-beta Copyright-D | Project Copyright Statement：项目级版权/来源声明 schema | 下一刀 |
 
 ### 产品化阶段说明
 
@@ -79,7 +80,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核，以及后续商业级加固 |
 
-**测试基线**：`pytest -q` → **650 passed**（2026-06-01，v1.0-beta Commercial Audit Log Schema-B 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **652 passed**（2026-06-01，v1.0-beta Permission Matrix Draft-C 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -430,6 +431,17 @@ copy .env.example .env
 - 坏 slug 返回 400，缺项目返回 404；损坏 JSONL 行降级为 warning。
 - 当前不接账号/权限系统、对象存储、数据库、队列、计费或不可篡改审计存储。
 
+### v1.0-beta Permission Matrix Draft-C（已收口）
+
+本版本已新增只读权限矩阵草案，不接认证系统、不执行权限拦截：
+
+- `GET /api/settings/permission-matrix`
+- 返回 `version=v1.0-beta-permission-matrix-draft-c`、`roles`、`resources`、`enforcement`、`deferred_actions` 和中文 `next_steps`。
+- 三类角色：`owner`、`editor`、`viewer`。
+- 覆盖项目工作台、设定轻编辑、世界线选择、生成动作、项目审计日志、章节导出与合集导出。
+- `enforcement.mode=not_enforced`，表示当前只是产品/API 设计草案，不代表服务端已接认证或权限拦截。
+- 延后项包括真实认证、请求级权限拦截和团队项目 ACL。
+
 ## 快速演示
 
 ```bash
@@ -671,4 +683,5 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.4 已整体收口） |
 | v1.0-beta Scope-A | 商业化范围复核：账号、权限、云端持久化、配额、审计、版权、部署观测七域只读报告（已收口） |
 | v1.0-beta Schema-B | 本地项目审计日志 schema 与只读聚合（已收口） |
-| v1.0-beta Matrix-C | owner/editor/viewer 权限矩阵草案 |
+| v1.0-beta Matrix-C | owner/editor/viewer 权限矩阵草案（已收口） |
+| v1.0-beta Copyright-D | 项目级版权/来源声明 schema |
