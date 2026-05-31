@@ -1223,6 +1223,7 @@ def _creation_loop_closeout(completion: dict[str, Any]) -> dict[str, Any]:
         for item in _as_list(completion.get("evidence"))
         if isinstance(item, dict)
     ]
+    blocker_ids = [str(item) for item in _as_list(completion.get("blocking_ids"))]
     blockers = [str(item) for item in _as_list(completion.get("blocking_labels"))]
     return {
         "kind": "creation_loop_alpha_closeout",
@@ -1230,6 +1231,7 @@ def _creation_loop_closeout(completion: dict[str, Any]) -> dict[str, Any]:
         "can_close_alpha": can_close,
         "ready_count": int(completion.get("done_count") or 0),
         "required_count": int(completion.get("total_count") or 0),
+        "remaining_blocker_ids": blocker_ids,
         "remaining_blockers": blockers,
         "evidence": evidence,
         "summary": (

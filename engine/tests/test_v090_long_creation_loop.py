@@ -513,6 +513,7 @@ def test_project_workspace_creation_loop_recommends_exportable_worldline(
     assert closeout["kind"] == "creation_loop_alpha_closeout"
     assert closeout["status"] == "not_ready"
     assert closeout["can_close_alpha"] is False
+    assert closeout["remaining_blocker_ids"] == loop["completion"]["blocking_ids"]
     assert "选择后审计" in closeout["remaining_blockers"]
     evidence = loop["completion"]["evidence"]
     assert [item["id"] for item in evidence] == [
@@ -765,6 +766,7 @@ def test_creation_loop_ready_state_marks_alpha_closeable(isolated_story_dirs):
     assert closeout["status"] == "ready"
     assert closeout["can_close_alpha"] is True
     assert closeout["ready_count"] == closeout["required_count"]
+    assert closeout["remaining_blocker_ids"] == []
     assert closeout["remaining_blockers"] == []
     assert [item["id"] for item in closeout["evidence"]] == [
         item["id"] for item in loop["checklist"]

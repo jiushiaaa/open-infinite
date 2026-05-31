@@ -413,6 +413,7 @@ export interface ProjectCreationLoopCloseout {
   can_close_alpha: boolean;
   ready_count: number;
   required_count: number;
+  remaining_blocker_ids: string[];
   remaining_blockers: string[];
   evidence: ProjectCreationLoopEvidence[];
   summary: string;
