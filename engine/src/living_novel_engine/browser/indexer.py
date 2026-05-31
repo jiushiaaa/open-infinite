@@ -364,6 +364,9 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
         branch_dir / "narrative_diagnostics.json"
     )
     emergence_nodes = _read_optional_json(run_dir / "emergence_nodes.json")
+    runner_state_execution_report = _read_optional_json(
+        run_dir / "runner_state_execution_report.json"
+    )
 
     run_summary = index_run(run_dir)
     child_runs: list[str] = []
@@ -398,6 +401,7 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
         "dynamic_action_registry": dynamic_action_registry,
         "narrative_diagnostics": narrative_diagnostics,
         "emergence_nodes": emergence_nodes,
+        "runner_state_execution_report": runner_state_execution_report,
         "multi_agent_trace": multi_agent_trace,
         "causal_diff": causal_diff,
         "child_runs": child_runs,

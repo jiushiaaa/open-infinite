@@ -34,6 +34,7 @@ import type {
   RuntimeSettings,
   RuntimeSettingsPatch,
   ReplayAuditWorkspace,
+  RunnerStateExecutionReport,
   StoryGenesisRequest,
   StoryGenesisResponse,
   StorySummary,
@@ -284,6 +285,18 @@ export const api = {
   },
   getEmergenceNodes(runId: string): Promise<EmergenceReport> {
     return getJson(`/api/runs/${encodeURIComponent(runId)}/emergence-nodes`);
+  },
+  // ── v0.8.10-A 状态执行评估 ─────────────────────────────
+  evaluateRunnerStateExecution(runId: string): Promise<RunnerStateExecutionReport> {
+    return postJson(
+      `/api/runs/${encodeURIComponent(runId)}/state-execution-evaluate`,
+      {},
+    );
+  },
+  getRunnerStateExecutionReport(runId: string): Promise<RunnerStateExecutionReport> {
+    return getJson(
+      `/api/runs/${encodeURIComponent(runId)}/state-execution-report`,
+    );
   },
 };
 

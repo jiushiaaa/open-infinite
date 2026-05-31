@@ -53,7 +53,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.7 | Resumable Ingest Jobs：服务端分片 session、断点续传/恢复、hash 校验 | 已收口 |
 | v0.8.8 | Long Project Workspace：长篇项目详情页与项目资产展示 | 已收口 |
 | v0.8.9 | Long Replay & Audit UI：长篇回放与一致性审计 UI | 已收口 |
-| v0.8.10-A/B | Runner State Execution：opt-in 状态执行层评估与最小 MVP | 下一刀 / 待做 |
+| v0.8.10-A | Runner State Execution Spike：opt-in 状态执行 dry-run 评估 | 已收口 |
+| v0.8.10-B | Runner State Execution MVP：最小 opt-in 状态写入与回滚 | 下一刀 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 待 v0.8 收束后开启 |
 | v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
@@ -76,7 +77,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 长篇共创主链路成立，但仍是 alpha |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **587 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **591 passed**（2026-05-31，v0.8.0-A 至 v0.8.5-A + ActDirector-A + Narrative Diagnostics-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases + Runtime Memory Consumption + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A Runner State Execution Spike 完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -125,6 +126,14 @@ outputs/run_xxx/emergence_nodes.json
 
 该文件从 `intervention.json`、`intervention_compilation.json`、`dynamic_action_registry.yaml`、分支 `causal_diff.json`、`worldline_judgement.json`、`narrative_diagnostics.json` 中汇总候选涌现节点，字段含 `node_type`、`score`、`source_artifacts`、`status` 与 `recommendation`。API：`POST /api/runs/<run_id>/emergence-nodes` 重新挖掘，`GET /api/runs/<run_id>/emergence-nodes` 读取报告；当前不做社区推荐或模板市场。
 
+v0.8.10-A Runner State Execution Spike 起，每次干预 run 可 opt-in 写入：
+
+```text
+outputs/run_xxx/runner_state_execution_report.json
+```
+
+该文件是状态执行层的 dry-run 评估报告，读取 `act_director_plan.json`、`dynamic_action_registry.yaml` 与 `emergence_nodes.json`，输出候选状态变化、gate 状态、阻断原因、warnings 与 MVP 前置清单。API：`POST /api/runs/<run_id>/state-execution-evaluate` 生成/覆盖评估，`GET /api/runs/<run_id>/state-execution-report` 读取报告；缺报告 404、损坏报告 400、缺必要 artifact 409。该报告不写 `state_snapshot.json`，不改 `run_scene` 默认行为，不自动应用 action/emergence 到真实状态。
+
 v0.8+ Discourse-aware Narrator-A 起，每个分支还会写入：
 
 ```text
@@ -133,7 +142,7 @@ outputs/run_xxx/branch_a/narrative_diagnostics.json
 
 该文件统计正文长度、句段、对话标记、转折标记、pacing、tension curve，并给出写后 warnings/suggestions；当前只做诊断，不重写 narrator。
 
-`GET /api/runs/<run_id>/branches/<branch_id>` 会 additive 返回这些解释性 artifact：`runtime_memory_context`、`act_director_plan`、`dynamic_action_registry`、`narrative_diagnostics`、`emergence_nodes`。这些字段仅供右侧只读解释层展示；缺失返回 `null`，损坏 JSON 返回 `{}`、损坏 YAML 返回 `null`，前端保持空态，不改变 `chapter.md` / `events.json` / `state_snapshot.json` / `multi_agent_trace.json` / `causal_diff.json` 既有契约。
+`GET /api/runs/<run_id>/branches/<branch_id>` 会 additive 返回这些解释性 artifact：`runtime_memory_context`、`act_director_plan`、`dynamic_action_registry`、`narrative_diagnostics`、`emergence_nodes`、`runner_state_execution_report`。这些字段仅供右侧只读解释层展示；缺失返回 `null`，损坏 JSON 返回 `{}`、损坏 YAML 返回 `null`，前端保持空态，不改变 `chapter.md` / `events.json` / `state_snapshot.json` / `multi_agent_trace.json` / `causal_diff.json` 既有契约。
 
 > 注意：`lne browse` 的旧浏览器仍保留为开发者/演示 viewer；面向普通用户的产品级前端已在 v0.7 落到 `engine/ui/`（React + Vite + TypeScript），负责导入、创世、锚定、干预、世界线浏览、设置与异步 Job。
 
@@ -500,7 +509,7 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.6.5 | 推演工程可靠性：generation_meta + trace 质量校验 + 有限重试 + token usage ✓ |
 | v0.7.1-A/B/C | Intervention Compiler + LLM 编译 + Causal Diff 数据地基 ✓ |
 | v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/completed/v0.7-product-web-app-ui-spec.md`） |
-| v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估 |
+| v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估与最小写入 |
 | v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 |
 | v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（按触发条件） |
 | v1.0-beta | 商业化加固：账号、权限、云端持久化、配额、审计、版权、部署观测 |

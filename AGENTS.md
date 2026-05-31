@@ -72,10 +72,11 @@
 - v0.8.7 Resumable Ingest Jobs 已收口。
 - v0.8.8 Long Project Workspace 已收口。
 - v0.8.9 Long Replay & Audit UI 已收口。
-- 当前后端验证基线：`587 passed`。
+- v0.8.10-A Runner State Execution Spike 已收口。
+- 当前后端验证基线：`591 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一版：`v0.8.10-A Runner State Execution Spike`，opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化，不改默认行为。
-- 后续排期：`v0.8.10-B Runner State Execution MVP` → `v0.9.0-alpha Long Novel Creation Loop` → `v0.9.1-v0.9.4` 触发式增强 → `v1.0-beta` 商业化加固。
+- 官方下一版：`v0.8.10-B Runner State Execution MVP`，在 dry-run 评估基础上做最小 opt-in 状态写入、回滚与审计边界。
+- 后续排期：`v0.9.0-alpha Long Novel Creation Loop` → `v0.9.1-v0.9.4` 触发式增强 → `v1.0-beta` 商业化加固。
 
 最近一次 Codex 迭代：
 
@@ -94,8 +95,9 @@
 - `GET /api/stories/<slug>/project-workspace` 已聚合导入检查、章节预览、分层记忆、正史账本、实体别名、检索命中、审计报告和下一步入口；前端 `WorkspacePage` 未选世界线时展示长篇项目资产页。
 - `POST /api/stories/<slug>/canon/replay-range` 已支持按章节范围批量 Canon Replay 并写 `canon_replay_range_report.json`；`GET /api/stories/<slug>/replay-audit` 已聚合 baseline、range replay、静态审计维度、实体别名摘要与下一步建议。
 - 前端「回放与审计」面板已支持单章/范围回放、风险维度、实体归一化审计、holdout/审计空态展示。
-- 仍未做云端多用户持久队列、对象存储、向量库、runner 消费 action/emergence 层并执行状态变化、运行后审计写回。
-- 当前仍属于 v0.8.x 收束期，不要直接跳 v0.9；v0.9.0-alpha 应在 v0.8.10 收口后再开启，且不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph。
+- 干预 run 可生成 `runner_state_execution_report.json` dry-run 评估，解释 action/emergence 是否能安全转成状态 delta；该报告不写 `state_snapshot.json`、不改 `run_scene` 默认行为。
+- 仍未做云端多用户持久队列、对象存储、向量库、runner 消费 action/emergence 层并真实执行状态变化、运行后审计写回。
+- 当前仍属于 v0.8.x 收束期，不要直接跳 v0.9；v0.9.0-alpha 应在 v0.8.10-B 收口后再开启，且不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph。
 
 ## 资料索引
 

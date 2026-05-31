@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-05-31（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI 均已收口；下一步进入 v0.8.10-A Runner State Execution Spike，并已排定 v0.9.0-alpha）
+> 版本：2026-05-31（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A Runner State Execution Spike 均已收口；下一步进入 v0.8.10-B Runner State Execution MVP，并已排定 v0.9.0-alpha）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/completed/v0.1-to-v0.8-version-audit.md`。
@@ -87,14 +87,16 @@ v0.8.8   Long Project Workspace  长篇项目资产页  已收口
     ↓
 v0.8.9   Long Replay & Audit UI  长篇回放与审计 UI  已收口
     ↓
-v0.8.10  Runner State Execution  opt-in 状态执行层评估  下一刀
+v0.8.10-A Runner State Execution Spike  opt-in 状态执行层评估  已收口
+    ↓
+v0.8.10-B Runner State Execution MVP    最小状态执行层        下一刀
     ↓
 Phase 5  社区与分享          远期
 ```
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**，以及 **v0.8.9 Long Replay & Audit UI**：长篇项目已支持项目资产页、章节范围回放、风险维度和实体归一化审计。当前后端基线为 **587 passed**，前端 build 通过。下一刀明确为 **v0.8.10-A Runner State Execution Spike**；先做 opt-in 状态执行评估，不改默认 `run_scene`。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A Runner State Execution Spike**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计和状态执行 dry-run 评估。当前后端基线为 **591 passed**，前端 build 通过。下一刀明确为 **v0.8.10-B Runner State Execution MVP**；只做 opt-in、可回滚的最小状态执行层，不改默认 `run_scene`。
 
 ## 2.1 阶段性质与产品化程度
 
@@ -161,7 +163,7 @@ Phase 5  社区与分享          远期
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **587 passed**（截至 2026-05-31，v0.8.9 Long Replay & Audit UI 后复验）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **591 passed**（截至 2026-05-31，v0.8.10-A Runner State Execution Spike 后复验）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1763,8 +1765,8 @@ v0.8.x Long Upload Productization 已让 txt/md/zip/epub 能通过浏览器分�
 | v0.8.7 | Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 刷新/中断后可恢复，不重复写坏项目 |
 | v0.8.8 | Long Project Workspace | 长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中、审计报告 | 已收口：上传后的项目成为可回看的创作资产 |
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度和实体归一化审计展示 | 已收口：用户能看到长篇偏移、冲突、伏笔风险 |
-| v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 下一刀：给 runner 状态执行层做可回退验证 |
-| v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | action/emergence 开始影响状态，但默认链路仍安全 |
+| v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 已收口：给 runner 状态执行层做可回退 dry-run 验证 |
+| v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 下一刀：action/emergence 开始 opt-in 影响状态，但默认链路仍安全 |
 
 > **v0.8.6 已落地（2026-05-31）**：`import_report.json` 升级为 additive `v0.8.6` 报告，新增来源信息、章节统计、章节片段、解析 warning、质量风险与建议动作；`get_story()` / `get_world_anchor()` additive 返回 `import_review`，报告缺失或损坏时从 `source/` 章节稳定降级为 `missing` / `damaged` 空态；前端世界锚定页新增「导入检查」区，帮助用户理解导入了什么、有什么风险、下一步做什么。坏 zip / epub / 空文件 / 章节过少会返回更明确的 400 或前端失败空态。已验证：新增 v0.8.6 测试 4 passed；导入相关回归 22 passed；完整后端 577 passed；前端 build 通过。
 
@@ -1774,9 +1776,11 @@ v0.8.x Long Upload Productization 已让 txt/md/zip/epub 能通过浏览器分�
 
 > **v0.8.9 已落地（2026-05-31）**：新增 `run_canon_replay_range()` 和 `canon_replay_range_report.json`，支持按章节范围批量回放并汇总平均分、风险等级、弱章、风险维度和实体审计。新增 `GET /api/stories/<slug>/replay-audit` 与 `POST /api/stories/<slug>/canon/replay-range`，聚合 baseline、range replay、静态审计维度、实体别名和下一步建议；slug/run/branch 均安全校验，错误降级为 400/404/409 或前端空态。前端「回放与审计」面板支持 holdout 状态、单章回放、章节范围回放、风险维度和实体归一化审计。已验证：新增 v0.8.9 测试 3 passed；完整后端 587 passed；前端 build 通过。
 
+> **v0.8.10-A 已落地（2026-05-31）**：新增 `runner_state_execution_report.json` dry-run 评估，读取动作计划、动作注册表与涌现节点，输出候选状态变化、gate 状态、阻断原因、warnings 与 MVP 前置清单。新增 `POST /api/runs/<run_id>/state-execution-evaluate` 与 `GET /api/runs/<run_id>/state-execution-report`；run id 安全校验，缺失报告 404、损坏报告 400、缺必要 artifact 409。前端右侧「机制档案」新增「状态执行评估」区，可生成/重评估报告并展示候选 delta、阻断和安全说明。已验证：新增 v0.8.10-A 测试 4 passed；完整后端 591 passed；前端 build 通过。该 Spike 不写 `state_snapshot.json`，不改 `run_scene` 默认行为。
+
 ### v0.9.0-alpha：Long Novel Creation Loop
 
-v0.9.0-alpha 不是当前下一刀。它应在 v0.8.10 收口后开启，目标是把长篇上传、记忆、分支运行、审计、世界线选择和导出串成完整产品闭环：
+v0.9.0-alpha 不是当前下一刀。它应在 v0.8.10-B 收口后开启，目标是把长篇上传、记忆、分支运行、审计、世界线选择和导出串成完整产品闭环：
 
 ```text
 上传原作/设定 -> 查看记忆与导入报告 -> 发起分支运行 -> 审计偏移 -> 选择世界线 -> 导出章节
@@ -1859,7 +1863,8 @@ v0.1.2 resume continue
   -> v0.8.7 Resumable Ingest Jobs（已收口：断点续传与恢复）
   -> v0.8.8 Long Project Workspace（已收口：长篇项目资产页）
   -> v0.8.9 Long Replay & Audit UI（已收口：长篇回放与审计 UI）
-  -> v0.8.10-A/B Runner State Execution（下一刀：状态执行层评估与 MVP）
+  -> v0.8.10-A Runner State Execution Spike（已收口：状态执行层 dry-run 评估）
+  -> v0.8.10-B Runner State Execution MVP（下一刀：最小 opt-in 状态写入）
   -> v0.9.0-alpha Long Novel Creation Loop（v0.8 收束后开启）
 ```
 
@@ -1906,8 +1911,8 @@ v0.1.2 resume continue
 | P8.7 | v0.8.7 Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 已收口 |
 | P8.8 | v0.8.8 Long Project Workspace | 长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告 | 已收口 |
 | P8.9 | v0.8.9 Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化 | 已收口 |
-| P8.10-A | v0.8.10-A Runner State Execution Spike | opt-in 评估动作计划/动作注册表/涌现节点是否可安全转成状态变化；不改默认行为 | 下一刀 |
-| P8.10-B | v0.8.10-B Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
+| P8.10-A | v0.8.10-A Runner State Execution Spike | opt-in 评估动作计划/动作注册表/涌现节点是否可安全转成状态变化；不改默认行为 | 已收口 |
+| P8.10-B | v0.8.10-B Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 下一刀 |
 | P9.0-alpha | v0.9.0-alpha Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 | 待 v0.8 收束后开启 |
 | P9.1 | v0.9.1 Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
 | P9.2 | v0.9.2 MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
@@ -2178,7 +2183,8 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.8.7 Resumable Ingest Jobs（已收口：断点续传与恢复）
   -> v0.8.8 Long Project Workspace（已收口：长篇项目资产页）
   -> v0.8.9 Long Replay & Audit UI（已收口：长篇回放与审计 UI）
-  -> v0.8.10-A/B Runner State Execution（下一刀：状态执行层评估与 MVP）
+  -> v0.8.10-A Runner State Execution Spike（已收口：状态执行层 dry-run 评估）
+  -> v0.8.10-B Runner State Execution MVP（下一刀：最小 opt-in 状态写入）
   -> v0.9.0-alpha Long Novel Creation Loop（长篇共创产品闭环）
   -> v0.9.1 Provider & Cost Gateway Lite（按成本/稳定性触发）
   -> v0.9.2 MasterSetting Workspace Lite（长篇项目页稳定后）

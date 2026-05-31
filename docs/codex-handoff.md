@@ -42,6 +42,7 @@
 - v0.8.7 Resumable Ingest Jobs
 - v0.8.8 Long Project Workspace
 - v0.8.9 Long Replay & Audit UI
+- v0.8.10-A Runner State Execution Spike
 
 最近一次 Codex 迭代：
 - v0.8.0-A：导入写 `source_raw/`、`import_report.json`，Web/job 支持 additive `long_mode`
@@ -62,11 +63,12 @@
 - v0.8.7 Resumable Ingest Jobs：新增本地持久化 ingest session，支持服务端分片 manifest、缺失分片查询、重复 chunk 幂等、sha256 校验、complete 后复用 import job；前端导入页改为 session 上传并用 localStorage 恢复缺失分片
 - v0.8.8 Long Project Workspace：新增项目级工作台 API，集中返回导入检查、章节预览、分层记忆、正史账本、实体别名、检索命中、审计报告和下一步入口；前端 WorkspacePage 未选世界线时展示长篇项目资产页
 - v0.8.9 Long Replay & Audit UI：新增章节范围 Canon Replay 报告、replay/audit 工作台 API 与前端「回放与审计」面板，支持单章/范围回放、风险维度、实体归一化审计和空态降级
-- 后端 python -m pytest -q 为 587 passed
+- v0.8.10-A Runner State Execution Spike：新增 dry-run 状态执行评估报告、HTTP API 与前端「状态执行评估」，解释 action/emergence 能否安全转成状态 delta；不写 `state_snapshot.json`，不改 `run_scene` 默认行为
+- 后端 python -m pytest -q 为 591 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 `v0.8.10-A Runner State Execution Spike`：opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化，不改默认行为。后续排期为 `v0.8.10-B Runner State Execution MVP`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 `v0.8.10-B Runner State Execution MVP`：在 dry-run 报告基础上，只对低风险白名单 delta 做 opt-in、可回滚的最小状态写入，并保留审计边界。后续排期为 `v0.9.0-alpha Long Novel Creation Loop`。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -87,11 +89,11 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `587 passed` |
+| 后端基线 | `591 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI |
-| 官方下一版 | `v0.8.10-A Runner State Execution Spike` |
-| 后续主线 | `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A Runner State Execution Spike |
+| 官方下一版 | `v0.8.10-B Runner State Execution MVP` |
+| 后续主线 | `v0.8.10-B` runner 最小状态执行 -> `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
 ## 阶段性质与产品化判断
 
@@ -220,7 +222,7 @@ React/Vite 产品级前端主闭环已完成：
 - runner 消费 action plan、dynamic action registry 或 emergence nodes，并执行状态变化
 - 运行后写回审计、runner 状态执行层
 
-下一刀建议：`v0.8.10-A Runner State Execution Spike`，opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；继续不改 `run_scene` 默认行为。
+下一刀建议：`v0.8.10-B Runner State Execution MVP`，基于 dry-run 结果只做低风险白名单状态 delta 的 opt-in 写入、回滚与审计边界；继续不改 `run_scene` 默认行为。
 
 ## v0.8.x Entity Aliases 收口摘要
 
@@ -275,6 +277,14 @@ React/Vite 产品级前端主闭环已完成：
 - React 「回放与审计」面板支持 holdout 状态、单章回放、章节范围回放、风险维度、实体归一化审计和下一步建议。
 - 完整验证：`python -m pytest -q` 587 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
 
+## v0.8.10-A Runner State Execution Spike 收口摘要
+
+- 新增 `runner_state_execution_report.json` dry-run 报告，读取动作计划、动作注册表和涌现节点，输出候选状态变化、gate 状态、阻断原因、warnings 与 MVP 前置清单。
+- 新增 `POST /api/runs/<run_id>/state-execution-evaluate` 与 `GET /api/runs/<run_id>/state-execution-report`；run id 安全校验，缺失报告 404、损坏报告 400、缺必要 artifact 409。
+- `GET /api/runs/<run_id>/branches/<branch_id>` additive 返回 `runner_state_execution_report`；React 「机制档案」新增「状态执行评估」区，可生成/重评估报告并展示候选 delta、阻断与安全说明。
+- 完整验证：`python -m pytest -q` 591 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
+- 明确边界：不写 `state_snapshot.json`，不改 `run_scene` 默认行为，不自动应用 action/emergence 到真实状态。
+
 ## v0.8.x Long Upload Productization 收口摘要
 
 - 后端 `import_novel_from_payload()` 新增 additive `upload` 入参：`filename/total_size/chunks[{index,data_b64}]`，支持 txt/md 文本拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节。
@@ -290,8 +300,8 @@ React/Vite 产品级前端主闭环已完成：
 | v0.8.7 | Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 已收口 |
 | v0.8.8 | Long Project Workspace | 长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告，支持从项目发起 baseline/intervention | 已收口 |
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度和实体归一化后的审计展示 | 已收口 |
-| v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 下一刀 |
-| v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
+| v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
+| v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 下一刀 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 待 v0.8 收束后开启 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后 |

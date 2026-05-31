@@ -1,10 +1,13 @@
+import { useEffect, useState } from "react";
 import type {
   BranchDetail,
   DynamicActionRegistry,
   EmergenceReport,
   NarrativeDiagnostics,
+  RunnerStateExecutionReport,
   RuntimeMemoryContext,
 } from "../api/types";
+import { ApiError, api } from "../api/client";
 import { EmptyState } from "./common/States";
 
 export function ArtifactPanel({ branch }: { branch: BranchDetail }) {
@@ -13,7 +16,8 @@ export function ArtifactPanel({ branch }: { branch: BranchDetail }) {
     hasObject(branch.act_director_plan) ||
     hasRegistry(branch.dynamic_action_registry) ||
     hasDiagnostics(branch.narrative_diagnostics) ||
-    hasEmergence(branch.emergence_nodes);
+    hasEmergence(branch.emergence_nodes) ||
+    hasStateExecution(branch.runner_state_execution_report);
 
   if (!hasAny) {
     return (
@@ -31,6 +35,10 @@ export function ArtifactPanel({ branch }: { branch: BranchDetail }) {
       <ActionRegistrySection registry={branch.dynamic_action_registry} />
       <NarrativeDiagnosticsSection diagnostics={branch.narrative_diagnostics} />
       <EmergenceSection report={branch.emergence_nodes} branchId={branch.branch_id} />
+      <StateExecutionSection
+        runId={branch.run_id}
+        initialReport={branch.runner_state_execution_report}
+      />
     </div>
   );
 }
@@ -237,6 +245,102 @@ function EmergenceSection({
   );
 }
 
+function StateExecutionSection({
+  runId,
+  initialReport,
+}: {
+  runId: string;
+  initialReport: RunnerStateExecutionReport | null | undefined;
+}) {
+  const [report, setReport] = useState(initialReport);
+  const [working, setWorking] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setReport(initialReport);
+    setError("");
+  }, [initialReport, runId]);
+
+  async function evaluate() {
+    setWorking(true);
+    setError("");
+    try {
+      setReport(await api.evaluateRunnerStateExecution(runId));
+    } catch (exc) {
+      setError(exc instanceof ApiError ? exc.message : "状态执行评估失败");
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  const hasReport = hasStateExecution(report);
+  const summary = report?.summary;
+  const candidates = report?.candidates || [];
+
+  return (
+    <section className="expl-section">
+      <h3 className="expl-section__title">状态执行评估</h3>
+      {!hasReport ? (
+        <>
+          <p className="muted tiny">
+            尚未生成 runner_state_execution_report.json。评估只做干运行，不写回状态。
+          </p>
+          <button className="btn btn--ghost" onClick={evaluate} disabled={working}>
+            {working ? "评估中..." : "生成评估"}
+          </button>
+        </>
+      ) : (
+        <>
+          <Row k="模式" v={report.mode === "dry_run" ? "干运行" : report.mode} />
+          <Row
+            k="候选"
+            v={`${summary?.candidate_count ?? candidates.length} 个 · 可执行 ${
+              summary?.executable_count ?? 0
+            } · 需复核 ${summary?.review_required_count ?? 0} · 阻断 ${
+              summary?.blocked_count ?? 0
+            }`}
+          />
+          <Row
+            k="安全"
+            v={
+              report.safety?.writes_state_snapshot
+                ? "会写状态"
+                : "不写 state_snapshot，只生成报告"
+            }
+          />
+          {candidates.slice(0, 4).map((candidate) => (
+            <div key={candidate.candidate_id} className="artifact-item">
+              <div className="artifact-item__title">
+                {candidate.character_name || candidate.character_id || "角色"}
+                {candidate.action_label ? ` · ${candidate.action_label}` : ""}
+              </div>
+              <div className="muted tiny">
+                {gateLabel(candidate.gate_status)}
+                {candidate.risk ? ` · 风险 ${riskLabel(candidate.risk)}` : ""}
+              </div>
+              {candidate.state_deltas.slice(0, 2).map((delta, index) => (
+                <div key={`${candidate.candidate_id}-${index}`} className="muted tiny">
+                  {delta.field}：{formatUnknown(delta.old_value)}
+                  {" -> "}
+                  {formatUnknown(delta.new_value)}
+                </div>
+              ))}
+              <InlineList label="阻断" items={candidate.blockers} />
+              <InlineList label="提示" items={candidate.warnings} />
+            </div>
+          ))}
+          <InlineList label="MVP 前置" items={report.safety?.required_before_mvp} />
+          <Warnings warnings={report.warnings} />
+          <button className="btn btn--ghost" onClick={evaluate} disabled={working}>
+            {working ? "评估中..." : "重新评估"}
+          </button>
+        </>
+      )}
+      {error && <div className="runtime-warning">{error}</div>}
+    </section>
+  );
+}
+
 function MissingSection({ title, hint }: { title: string; hint: string }) {
   return (
     <section className="expl-section">
@@ -308,6 +412,12 @@ function hasEmergence(
   return hasObject(value);
 }
 
+function hasStateExecution(
+  value: RunnerStateExecutionReport | null | undefined,
+): value is RunnerStateExecutionReport {
+  return hasObject(value);
+}
+
 function numText(value?: number) {
   return typeof value === "number" ? `${Number.isInteger(value) ? value : value.toFixed(2)}` : "0";
 }
@@ -347,4 +457,18 @@ function statusLabel(status: string) {
   if (status === "candidate") return "候选";
   if (status === "archive") return "归档";
   return status;
+}
+
+function gateLabel(status: string) {
+  if (status === "executable") return "可进入 MVP 白名单";
+  if (status === "review_required") return "需人工复核";
+  if (status === "blocked") return "已阻断";
+  return status;
+}
+
+function formatUnknown(value: unknown) {
+  if (Array.isArray(value)) return value.join("、") || "空";
+  if (typeof value === "string") return value || "空";
+  if (value == null) return "空";
+  return JSON.stringify(value);
 }

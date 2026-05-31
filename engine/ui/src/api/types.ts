@@ -970,6 +970,66 @@ export interface EmergenceReport {
   warnings: string[];
 }
 
+export type StateExecutionGateStatus =
+  | "executable"
+  | "review_required"
+  | "blocked";
+
+export interface RunnerStateDeltaPreview {
+  character_id: string;
+  field: string;
+  old_value: unknown;
+  new_value: unknown;
+  reason: string;
+}
+
+export interface RunnerStateExecutionCandidate {
+  candidate_id: string;
+  source_step_id: string;
+  branch_axis_id: string;
+  branch_id: string;
+  character_id: string;
+  character_name: string;
+  action_type: string;
+  action_label: string;
+  risk: GuardrailRisk | string;
+  visibility: string;
+  gate_status: StateExecutionGateStatus | string;
+  state_deltas: RunnerStateDeltaPreview[];
+  blockers: string[];
+  warnings: string[];
+  evidence: string[];
+  source_artifacts: string[];
+}
+
+export interface RunnerStateExecutionReport {
+  version: string;
+  kind: "runner_state_execution_spike";
+  mode: "dry_run" | string;
+  run_id: string;
+  story_slug: string;
+  source_artifacts: string[];
+  summary: {
+    candidate_count: number;
+    executable_count: number;
+    review_required_count: number;
+    blocked_count: number;
+    high_risk_count: number;
+    applied_count: number;
+  };
+  safety: {
+    default_run_scene_unchanged: boolean;
+    writes_state_snapshot: boolean;
+    writes_branch_artifacts: boolean;
+    apply_mode: string;
+    required_before_mvp: string[];
+  };
+  candidates: RunnerStateExecutionCandidate[];
+  emergence_summary: Record<string, unknown>;
+  warnings: string[];
+  created_at: string;
+}
+
 export interface NarrativeDiagnostics {
   version: string;
   kind: "narrative_diagnostics";
@@ -1114,6 +1174,7 @@ export interface BranchDetail {
   dynamic_action_registry?: DynamicActionRegistry | null;
   narrative_diagnostics?: NarrativeDiagnostics | null;
   emergence_nodes?: EmergenceReport | null;
+  runner_state_execution_report?: RunnerStateExecutionReport | null;
   multi_agent_trace: Record<string, unknown> | null;
   causal_diff: CausalDiffArtifact | null;
   child_runs: string[];

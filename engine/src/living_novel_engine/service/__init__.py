@@ -45,6 +45,12 @@ from .runtime_settings import (
     test_connectivity,
     update_runtime_settings,
 )
+from .runner_state_execution import (
+    RunnerStateExecutionConflict,
+    RunnerStateExecutionRequestError,
+    evaluate_runner_state_execution,
+    get_runner_state_execution_report,
+)
 from .import_novel import (
     ImportRequestError,
     ImportServiceResult,
@@ -128,6 +134,8 @@ __all__ = [
     "JobRecord",
     "JobStore",
     "RuntimeSettings",
+    "RunnerStateExecutionConflict",
+    "RunnerStateExecutionRequestError",
     "SettingsError",
     "CharacterProbe",
     "ProbeRequestError",
@@ -140,6 +148,8 @@ __all__ = [
     "default_rounds",
     "default_runner",
     "get_runtime_settings",
+    "evaluate_runner_state_execution",
+    "get_runner_state_execution_report",
     "test_connectivity",
     "update_runtime_settings",
     "update_world_anchor",

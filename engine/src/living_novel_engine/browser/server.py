@@ -200,6 +200,15 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid run_id"}, status=400)
                 return self._handle_emergence_nodes_get(rid)
 
+            if path.startswith("/api/runs/") and path.endswith(
+                "/state-execution-report"
+            ):
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/state-execution-report")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._handle_state_execution_get(rid)
+
             if (
                 path.startswith("/api/runs/")
                 and "/branches/" in path
@@ -295,6 +304,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if rid is None:
                     return self._send_json({"error": "invalid run_id"}, status=400)
                 return self._handle_emergence_nodes_run(rid)
+            if path.startswith("/api/runs/") and path.endswith(
+                "/state-execution-evaluate"
+            ):
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/state-execution-evaluate")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._handle_state_execution_run(rid)
             if (
                 path.startswith("/api/runs/")
                 and "/branches/" in path
@@ -986,6 +1003,39 @@ class BrowserHandler(BaseHTTPRequestHandler):
         except FileNotFoundError as exc:
             return self._send_json({"error": str(exc)}, status=404)
         except EmergenceMiningRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
+    def _handle_state_execution_run(self, run_id: str) -> None:
+        """v0.8.10-A：生成 opt-in dry-run 状态执行评估报告。"""
+        from living_novel_engine.service import (
+            RunnerStateExecutionConflict,
+            RunnerStateExecutionRequestError,
+            evaluate_runner_state_execution,
+        )
+
+        try:
+            report = evaluate_runner_state_execution(run_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except RunnerStateExecutionConflict as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        except RunnerStateExecutionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
+    def _handle_state_execution_get(self, run_id: str) -> None:
+        """v0.8.10-A：读取状态执行评估报告（不存在 404，损坏 400）。"""
+        from living_novel_engine.service import (
+            RunnerStateExecutionRequestError,
+            get_runner_state_execution_report,
+        )
+
+        try:
+            report = get_runner_state_execution_report(run_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except RunnerStateExecutionRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         self._send_json(report)
 

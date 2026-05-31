@@ -4,7 +4,7 @@
 
 ## 1. 一句话结论
 
-Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了 **长篇记忆与机制底座 MVP**。v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace 与 v0.8.9 Long Replay & Audit UI 已把导入检查、断点续传、项目资产页和回放审计 UI 收口；接下来的 v0.8.10 继续评估 runner 状态执行，把长篇底座收束成普通用户可复盘、可审计、可继续创作的产品工作流；v0.9.0-alpha 完成后，才算长篇共创产品闭环正式成立。
+Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了 **长篇记忆与机制底座 MVP**。v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI 与 v0.8.10-A Runner State Execution Spike 已把导入检查、断点续传、项目资产页、回放审计 UI 和状态执行 dry-run 评估收口；接下来的 v0.8.10-B 继续做最小 opt-in 状态写入，把长篇底座收束成普通用户可复盘、可审计、可继续创作的产品工作流；v0.9.0-alpha 完成后，才算长篇共创产品闭环正式成立。
 
 ## 2. 阶段归类表
 
@@ -36,6 +36,6 @@ Living Novel Engine 已完成 **短中篇可交互产品化 MVP**，并完成了
 ## 4. 后续排期原则
 
 1. 先完成用户路径，再引入重依赖：Zep、图数据库、OASIS、CAMEL、LangGraph 都不应抢在 v0.9.0-alpha 之前成为默认路线。
-2. 先只读解释，再状态执行：动作计划、动作注册表、叙事诊断、涌现节点先作为右侧只读解释层；只有 v0.8.10 评估通过后，才考虑 opt-in 状态执行。
+2. 先只读解释，再状态执行：动作计划、动作注册表、叙事诊断、涌现节点先作为右侧只读解释层；v0.8.10-A 已完成 dry-run 评估，v0.8.10-B 才考虑 opt-in 状态写入。
 3. 先本地 artifact 稳定，再商业化平台化：v1.0-beta 才处理账号、权限、云端存储、配额和观测等外部交付问题。
 4. 每次升级都保持 additive：不破坏 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 既有契约。
