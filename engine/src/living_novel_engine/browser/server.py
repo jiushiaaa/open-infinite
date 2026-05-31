@@ -115,6 +115,15 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(evaluate_graph_memory_trigger(slug))
 
+            if path.startswith("/api/stories/") and path.endswith("/retrieval-probes"):
+                from living_novel_engine.service import evaluate_retrieval_probes
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/retrieval-probes")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._send_json(evaluate_retrieval_probes(slug))
+
             if path.startswith("/api/stories/") and path.endswith(
                 "/creation-loop-closeout"
             ):

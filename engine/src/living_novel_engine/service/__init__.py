@@ -48,6 +48,7 @@ from .master_setting_update import (
     update_master_setting,
 )
 from .project_health import HealthReport, check_project_health
+from .retrieval_probe import evaluate_retrieval_probes
 from .runtime_settings import (
     RuntimeSettings,
     SettingsError,
@@ -219,6 +220,7 @@ __all__ = [
     "write_ingest_chunk",
     "get_emergence_nodes",
     "evaluate_graph_memory_trigger",
+    "evaluate_retrieval_probes",
     "mine_run_emergence",
     "VisualAssetPathError",
     "VisualAssetRequestError",

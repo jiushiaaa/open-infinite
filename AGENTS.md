@@ -104,9 +104,11 @@
 - v0.9.2 MasterSetting Workspace Frontend-D 已收口。
 - v0.9.2 MasterSetting Workspace Lite 已整体收口。
 - v0.9.3 Graph Memory Evaluation Trigger-A 已收口。
-- 当前后端验证基线：`635 passed`。
+- v0.9.3 Retrieval Probe-B 已收口。
+- v0.9.3 Graph Memory Evaluation Spike 已整体收口。
+- 当前后端验证基线：`638 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：`v0.9.3 Retrieval Probe-B`。
+- 官方下一刀：`v0.9.4 Advanced Runner Evaluation Trigger-A`。
 - 后续排期：`v0.9.1-v0.9.4` 触发式增强 → `v1.0-beta` 商业化加固。
 
 最近一次 Codex 迭代：
@@ -141,6 +143,7 @@
 - `v0.9.2 MasterSetting Workspace Frontend-D` 已在「设定工作台」新增最小写控件，支持编辑作品名、题材、世界规则、力量限制和禁用设定；保存后本地更新面板并刷新项目工作台。
 - `v0.9.2 MasterSetting Workspace Lite` 已整体收口，归档见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；下一步只复核 v0.9.3 图记忆触发条件，不默认接 Zep / 图数据库 / GraphRAG。
 - `v0.9.3 Graph Memory Evaluation Trigger-A` 已新增 `GET /api/stories/<slug>/graph-memory-evaluation`，只读判断当前项目是否满足图记忆评估触发条件；不接 Zep / 图数据库 / GraphRAG，不写 artifact。
+- `v0.9.3 Retrieval Probe-B` 已新增 `GET /api/stories/<slug>/retrieval-probes`，用现有 BM25 / canon ledger / entity aliases 复跑代表性查询并返回失败样例；v0.9.3 已整体收口，归档见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v0.9.1 开始也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。
 

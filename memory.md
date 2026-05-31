@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite 与 v0.9.2 MasterSetting Workspace Lite 已整体收口；v0.9.3 Graph Memory Evaluation Trigger-A 已完成，只做触发报告，不接图数据库；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 635 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite 与 v0.9.3 Graph Memory Evaluation Spike 已整体收口；当前 v0.9.3 只做触发报告与检索 probe，不接图数据库；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 638 passed，前端 build 通过）
 
 ---
 
@@ -102,8 +102,8 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `635 passed`（2026-06-01，v0.9.3 Graph Memory Evaluation Trigger-A 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一刀** | **v0.9.3 Retrieval Probe-B**（在不接 Zep/图数据库的前提下，补代表性查询评测样本，判断现有 BM25 / canon ledger / entity aliases 是否真的召回不足） |
+| **测试基线** | 后端 `638 passed`（2026-06-01，v0.9.3 Graph Memory Evaluation Spike 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一刀** | **v0.9.4 Advanced Runner Evaluation Trigger-A**（先复核 v0.8.10 状态执行层是否真的不足，不默认接 LangGraph / OASIS / CAMEL） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
 | **刚收口** | v0.9.0-alpha Low-risk Audit Closeout / Alpha Closure：低风险静态审计 info 不再阻断 ready，本地导入项目 `v090-alpha-proof` 已通过 `--require-ready --write-report` 写入 `creation_loop_alpha_closeout.json`。 |
 
@@ -111,7 +111,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 ## 3.1 v0.8 收束期版本编排
 
-当前已进入 **v0.9.3 Graph Memory Evaluation Spike** 的触发式复核阶段。Trigger-A 已新增只读触发报告：小样例/普通项目默认 `not_triggered`，只有 50+ 章或百万字项目叠加 canon ledger、entity aliases 或审计缺口时才建议进入图记忆评估；仍不默认引入 Zep、图数据库或 GraphRAG。
+当前已完成 **v0.9.3 Graph Memory Evaluation Spike** 的触发式复核：Trigger-A 给出规模/账本/别名/审计触发报告，Retrieval Probe-B 用现有 BM25、canon ledger 与 entity aliases 复跑代表性查询并收集失败样例。当前结论是不默认引入 Zep、图数据库或 GraphRAG；只有真实长篇 query 失败并证明文件型检索修复后仍不足时，才进入重依赖 spike。
 
 | 建议版本 | 名称 | 范围 | 状态 |
 | --- | --- | --- | --- |
@@ -124,7 +124,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 已整体收口：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Builtin Holdout Blocked Requirement / Closeout CLI / Closeout Record / Low-risk Audit Closeout / Checklist / Hint / Resume Job / Selection / Post-run Audit |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 已整体收口，见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md` |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 已整体收口，见 `docs/completed/v0.9.2-master-setting-workspace-lite.md` |
-| v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 进行中：Trigger-A 已完成触发报告；下一步 Retrieval Probe-B |
+| v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 已整体收口，见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md` |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
 | v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 待真实外部用户/团队长期使用 |
 
@@ -444,7 +444,7 @@ lne list-genres
 ✅ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（已整体收口，见 docs/completed/v0.9.0-alpha-long-creation-loop.md）
 ✅ v0.9.1   Provider & Cost Gateway Lite（已整体收口，见 docs/completed/v0.9.1-provider-cost-gateway-lite.md）
 → v0.9.2   MasterSetting Workspace Lite（已整体收口，见 docs/completed/v0.9.2-master-setting-workspace-lite.md）
-→ v0.9.3   Graph Memory Evaluation Spike（进行中：Trigger-A 已完成触发报告，下一步 Retrieval Probe-B）
+✅ v0.9.3   Graph Memory Evaluation Spike（已整体收口，见 docs/completed/v0.9.3-graph-memory-evaluation-spike.md）
 → v0.9.4   Advanced Runner Evaluation Spike（状态执行层不足时评估 LangGraph/OASIS/CAMEL）
 → v1.0-beta Commercial Hardening（真实外部用户/团队长期使用时）
 ```
@@ -478,7 +478,8 @@ lne list-genres
 - [x] **v0.6.3** trace 接入 browse 可视化（「Agent 轨迹」标签页 + 树角标）
 - [x] **v0.6.4** 自研 `multi_agent_llm` runner：通过 OpenAI-compatible API 调小模型输出 `MultiAgentTrace` JSON，不本地部署，不引入 Zep/OASIS/CAMEL（共享装配层 + 隐私加固 + 健壮回退）
 - [x] **v0.6.5** 推演工程可靠性：generation_meta（source/usage/重试/校验）+ trace 质量校验器 + 有限重试（`LNE_MULTI_AGENT_MAX_RETRIES`）+ token usage；fallback 策略；并发/精确成本计算留待 v0.8+
-- [ ] **v0.9.3 / v0.9.4 触发式评估** Zep / 图数据库 / GraphRAG（长篇记忆或 BM25/ledger 召回崩时）、OASIS / CAMEL / LangGraph 局部 runner（群体仿真或复杂状态流转明显增强时）
+- [x] **v0.9.3 Graph Memory Evaluation Spike**：触发报告 + 代表性检索 probe；当前不触发 Zep / 图数据库 / GraphRAG 接入
+- [ ] **v0.9.4 Advanced Runner Evaluation Spike**：OASIS / CAMEL / LangGraph 局部 runner 只在群体仿真或复杂状态流转明显增强时评估
 - [ ] 验收：同一场景 ≥5 角色参与推演；事件流仍被 contract/retrieval/browser 读取
 
 ### v0.7 产品级前端 ✅（九刀主闭环已完成）
@@ -1700,6 +1701,16 @@ lne list-genres
   - 新增 `service.graph_memory_evaluation.evaluate_graph_memory_trigger()`，只读检查导入规模、`memory/canon_ledger.jsonl`、`memory/entity_aliases.yaml` 与 `memory/consistency_report.json`。
   - 新增 `GET /api/stories/<slug>/graph-memory-evaluation`，slug 先走 `safe_id`；非法 slug 400，缺故事 404。
   - 返回 `status=not_triggered|monitor|triggered`、章节/字数/账本/别名/审计指标、触发原因、阈值和中文 next steps。
-- **测试/验证**：先写红灯测试确认服务入口缺失，补实现后 `tests/test_v093_graph_memory_trigger.py` 为 **3 passed**；完整门禁本刀提交前运行。
+- **测试/验证**：先写红灯测试确认服务入口缺失，补实现后 `tests/test_v093_graph_memory_trigger.py` 为 **3 passed**；完整门禁为后端 **635 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
 - **边界**：不接 Zep、图数据库、GraphRAG、embedding、向量库或 reranker；不写 artifact，不替换现有 BM25 / canon ledger / entity aliases，不改 runner。
 - **下一刀建议**：继续 v0.9.3 Retrieval Probe-B，补代表性查询评测样本和失败样例收集；只有评测证明召回不足，才进入真正图记忆 spike。
+
+### 2026-06-01 — v0.9.3 Graph Memory Evaluation Retrieval Probe-B / 收口
+
+- **做了什么**：
+  - 新增 `service.retrieval_probe.evaluate_retrieval_probes()`，从 canon ledger 与 entity aliases 自动生成代表性查询样本，并复用现有 `retrieve_context()` 检查期望 source、item 和实体是否命中。
+  - 新增 `GET /api/stories/<slug>/retrieval-probes`，slug 先走 `safe_id`；非法 slug 400，缺故事 404。
+  - 新增 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`，将 Trigger-A 与 Probe-B 收口为“当前不触发重依赖接入”的证据链。
+- **测试/验证**：先写红灯测试确认服务入口缺失，补实现后 `tests/test_v093_retrieval_probe.py` 为 **3 passed**；完整门禁为后端 **638 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
+- **边界**：不接 Zep、图数据库、GraphRAG、embedding、向量库或 reranker；不写新 run artifact，不替换 `retrieval_context.json` / `runtime_memory_context.json`，不改 runner。
+- **下一刀建议**：进入 v0.9.4 Advanced Runner Evaluation Trigger-A，先复核 v0.8.10 状态执行层是否真的不足；没有明确 runner 缺口时，不提前接 LangGraph、OASIS 或 CAMEL。
