@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已整体收口；v0.9.1 Provider & Cost Gateway Lite 已整体收口；v0.9.2 MasterSetting Workspace Summary-A 已完成，只读聚合 `master_setting.yaml`、人物状态、时间线、伏笔和章节摘要；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 627 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已整体收口；v0.9.1 Provider & Cost Gateway Lite 已整体收口；v0.9.2 MasterSetting Workspace Summary-A 与 Panel-B 已完成，项目工作台可只读展示 `master_setting.yaml`、人物状态、时间线、伏笔和章节摘要；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 627 passed，前端 build 通过）
 
 ---
 
@@ -103,7 +103,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | 项 | 值 |
 |----|-----|
 | **测试基线** | 后端 `627 passed`（2026-06-01，v0.9.2 MasterSetting Workspace Summary-A 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一刀** | **v0.9.2 MasterSetting Workspace Lite 后续子刀**（Summary-A 已完成只读聚合；下一步接前端面板或最小轻编辑，不做完整作者工作台） |
+| **官方下一刀** | **v0.9.2 MasterSetting Workspace Lite 后续子刀**（Summary-A/Panel-B 已完成只读聚合与前端展示；下一步评估最小轻编辑，不做完整作者工作台） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
 | **刚收口** | v0.9.0-alpha Low-risk Audit Closeout / Alpha Closure：低风险静态审计 info 不再阻断 ready，本地导入项目 `v090-alpha-proof` 已通过 `--require-ready --write-report` 写入 `creation_loop_alpha_closeout.json`。 |
 
@@ -111,7 +111,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 ## 3.1 v0.8 收束期版本编排
 
-当前已进入 **v0.9.2 MasterSetting Workspace Lite**。v0.9.0-alpha 与 v0.9.1 均已整体收口；v0.9.2 Summary-A 已先做项目工作台只读聚合，后续再接前端面板或最小轻编辑，不做完整作者工作台。
+当前已进入 **v0.9.2 MasterSetting Workspace Lite**。v0.9.0-alpha 与 v0.9.1 均已整体收口；v0.9.2 Summary-A/Panel-B 已先做项目工作台只读聚合与前端展示，后续再评估最小轻编辑，不做完整作者工作台。
 
 | 建议版本 | 名称 | 范围 | 状态 |
 | --- | --- | --- | --- |
@@ -123,7 +123,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 已整体收口：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Builtin Holdout Blocked Requirement / Closeout CLI / Closeout Record / Low-risk Audit Closeout / Checklist / Hint / Resume Job / Selection / Post-run Audit |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 已整体收口，见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md` |
-| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 进行中：Summary-A 已收口，下一步前端面板或轻编辑 |
+| v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 进行中：Summary-A/Panel-B 已收口，下一步最小轻编辑 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
 | v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 待真实外部用户/团队长期使用 |
@@ -443,7 +443,7 @@ lne list-genres
 → v0.8.10-B Runner State Execution MVP：最小 opt-in 状态写入（已收口）
 ✅ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（已整体收口，见 docs/completed/v0.9.0-alpha-long-creation-loop.md）
 ✅ v0.9.1   Provider & Cost Gateway Lite（已整体收口，见 docs/completed/v0.9.1-provider-cost-gateway-lite.md）
-→ v0.9.2   MasterSetting Workspace Lite（进行中：Summary-A 已收口，下一步前端面板或轻编辑）
+→ v0.9.2   MasterSetting Workspace Lite（进行中：Summary-A/Panel-B 已收口，下一步最小轻编辑）
 → v0.9.3   Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
 → v0.9.4   Advanced Runner Evaluation Spike（状态执行层不足时评估 LangGraph/OASIS/CAMEL）
 → v1.0-beta Commercial Hardening（真实外部用户/团队长期使用时）
@@ -1654,3 +1654,13 @@ lne list-genres
 - **测试/验证**：先写红灯测试确认缺少 `master_setting_workspace`，实现后 `tests/test_v088_long_project_workspace.py` 为 **4 passed**；完整后端 **627 passed**，前端 `pnpm run build` 通过。
 - **边界**：只读聚合，不写 artifact，不改导入结构，不改 runner，不做完整作者工作台。
 - **下一刀建议**：把 `master_setting_workspace` 接到长篇项目工作台前端，展示设定概览、人物状态、时间线、伏笔和章节摘要；之后再评估最小轻编辑。
+
+### 2026-06-01 — v0.9.2 MasterSetting Workspace Panel-B
+
+- **做了什么**：
+  - React 长篇项目工作台新增「设定工作台」只读面板，消费 `master_setting_workspace` 展示世界规则/限制/地点/势力、人物状态、时间线、伏笔线、章节摘要与后续建议。
+  - 右侧项目资产面板新增「设定状态」，帮助用户在未选世界线时确认设定资料是否 ready/missing/damaged。
+  - 对 `unknown` 结构化条目增加前端展示格式化，避免世界设定中对象/数组样例直接显示为英文占位或 `[object Object]`。
+- **测试/验证**：前端 `pnpm run build` 已通过；完整后端、前端构建、浏览器冒烟与 diff check 在本刀提交前运行。
+- **边界**：仍为只读展示，不写 `memory/` artifact，不做完整作者工作台，不改 runner。
+- **下一刀建议**：继续 v0.9.2 最小轻编辑，优先做只改 `master_setting.yaml` 的安全保存/校验/回滚；或若不急编辑，则进入 v0.9.3 触发条件复核。

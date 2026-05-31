@@ -14,6 +14,7 @@ import type {
   ProjectCreationLoopCandidate,
   ProjectCreationLoopEvidence,
   ProjectCreationLoopActionRequirement,
+  ProjectMasterSettingWorkspace,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
   ResumeContinueResponse,
@@ -268,6 +269,8 @@ function ProjectWorkspaceOverview({
         />
       )}
 
+      <MasterSettingPanel master={data.master_setting_workspace} />
+
       <section className="project-workspace__section">
         <SectionTitle title="章节片段" status={`${data.chapter_overview.playable_chapter_limit} 章可先读`} />
         {data.chapter_overview.previews.length === 0 ? (
@@ -305,6 +308,7 @@ function ProjectWorkspaceSidePanel({ data }: { data: ProjectWorkspace }) {
       <SideLine label="来源" value={sourceTypeLabel(data.source.type || data.source_kind)} />
       <SideLine label="章节" value={`${data.chapter_overview.total_chapters} 章`} />
       <SideLine label="记忆层" value={`${data.memory.layer_count} 层`} />
+      <SideLine label="设定状态" value={statusLabel(data.master_setting_workspace.status)} />
       <SideLine label="别名实体" value={`${data.entity_aliases.count} 个`} />
       <SideLine label="正史记录" value={`${data.canon_ledger.entry_count} 条`} />
       <SideLine label="检索命中" value={`${data.retrieval.hit_count} 条`} />
@@ -676,6 +680,157 @@ function CreationLoopPanel({
   );
 }
 
+function MasterSettingPanel({ master }: { master: ProjectMasterSettingWorkspace }) {
+  const summary = master.summary;
+  const metrics = [
+    { label: "世界规则", value: summary.world_rule_count },
+    { label: "人物", value: summary.character_count },
+    { label: "时间线", value: summary.timeline_event_count },
+    { label: "伏笔", value: summary.plot_thread_count },
+    { label: "章节摘要", value: summary.chapter_brief_count },
+  ];
+  const worldRules = unknownList(master.world.world_rules, 4);
+  const limits = unknownList(master.world.power_system_limits, 3);
+  const locations = unknownList(master.world.locations, 3);
+  const factions = unknownList(master.world.factions, 3);
+  const hasWorldFacts =
+    worldRules.length > 0 || limits.length > 0 || locations.length > 0 || factions.length > 0;
+
+  return (
+    <section className="project-workspace__section master-setting">
+      <SectionTitle
+        title="设定工作台"
+        status={`${statusLabel(master.status)} · ${
+          master.capabilities.read_only ? "只读" : "可编辑"
+        }`}
+      />
+      {master.warnings.length > 0 ? (
+        <div className="risk-strip">
+          {master.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      ) : (
+        <p className="project-workspace__ok">已聚合世界设定、人物状态、时间线和章节记忆。</p>
+      )}
+
+      <div className="master-setting__metrics">
+        {metrics.map((metric) => (
+          <div className="master-setting__metric" key={metric.label}>
+            <span>{metric.label}</span>
+            <strong>{metric.value}</strong>
+          </div>
+        ))}
+      </div>
+
+      <div className="master-setting__layout">
+        <article className="master-setting__block master-setting__block--wide">
+          <div className="master-setting__block-head">
+            <h3>{master.world.display_name || "世界设定"}</h3>
+            <span>{master.world.genre || "题材未标注"}</span>
+          </div>
+          {!hasWorldFacts ? (
+            <p className="muted tiny">暂无可展示的世界规则。</p>
+          ) : (
+            <div className="master-setting__facts">
+              <FactList label="规则" items={worldRules} empty="暂无规则" />
+              <FactList label="限制" items={limits} empty="暂无限制" />
+              <FactList label="地点" items={locations} empty="暂无地点" />
+              <FactList label="势力" items={factions} empty="暂无势力" />
+            </div>
+          )}
+        </article>
+
+        <article className="master-setting__block">
+          <SectionTitle title="人物状态" status={`${master.characters.length} 人`} />
+          {master.characters.length === 0 ? (
+            <p className="muted tiny">暂无人物状态样例。</p>
+          ) : (
+            <ul className="master-setting__list">
+              {master.characters.slice(0, 4).map((character) => (
+                <li key={character.character_id || character.name}>
+                  <strong>{character.name || character.character_id}</strong>
+                  <span>
+                    {character.narrative_role || "角色"} ·{" "}
+                    {character.current_state.location || "位置未明"} ·{" "}
+                    {character.current_state.emotion || "状态未明"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+
+        <article className="master-setting__block">
+          <SectionTitle title="时间线" status={`${master.timeline.event_count} 件`} />
+          {master.timeline.samples.length === 0 ? (
+            <p className="muted tiny">暂无时间线样例。</p>
+          ) : (
+            <ul className="master-setting__list">
+              {master.timeline.samples.slice(0, 3).map((event) => (
+                <li key={`${event.chapter ?? "x"}-${event.title}-${event.source_ref}`}>
+                  <strong>{event.chapter ? `第 ${event.chapter} 章` : "未标章节"}</strong>
+                  <span>{event.title || event.summary || "未记录事件"}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+
+        <article className="master-setting__block">
+          <SectionTitle title="伏笔线" status={`${master.plot_threads.thread_count} 条`} />
+          {master.plot_threads.active_threads.length === 0 ? (
+            <p className="muted tiny">暂无活跃伏笔。</p>
+          ) : (
+            <ul className="master-setting__list">
+              {master.plot_threads.active_threads.slice(0, 3).map((thread) => (
+                <li key={thread.id || thread.title}>
+                  <strong>{thread.status || "未标状态"}</strong>
+                  <span>{thread.title || thread.id}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+
+        <article className="master-setting__block">
+          <SectionTitle title="章节摘要" status={`${master.chapter_briefs.chapter_count} 章`} />
+          {master.chapter_briefs.samples.length === 0 ? (
+            <p className="muted tiny">暂无章节摘要。</p>
+          ) : (
+            <ul className="master-setting__list">
+              {master.chapter_briefs.samples.slice(0, 3).map((chapter) => (
+                <li key={`${chapter.chapter ?? "x"}-${chapter.title}-${chapter.source_ref}`}>
+                  <strong>{chapter.chapter ? `第 ${chapter.chapter} 章` : "未标章节"}</strong>
+                  <span>{chapter.summary || chapter.title || "未记录摘要"}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+      </div>
+
+      {master.next_steps.length > 0 && (
+        <div className="project-workspace__steps master-setting__steps">
+          {master.next_steps.slice(0, 4).map((step) => (
+            <span key={step}>{step}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">{master.capabilities.edit_note}</p>
+    </section>
+  );
+}
+
+function FactList({ label, items, empty }: { label: string; items: string[]; empty: string }) {
+  return (
+    <div className="master-setting__fact-list">
+      <strong>{label}</strong>
+      <span>{items.length > 0 ? items.join("、") : empty}</span>
+    </div>
+  );
+}
+
 function ProjectArtifactGrid({
   memory,
   ledger,
@@ -724,8 +879,8 @@ function ProjectArtifactGrid({
           <p className="muted tiny">{firstWarning(retrieval.warnings, "暂无检索命中。")}</p>
         ) : (
           <ul className="sample-list">
-            {retrieval.samples.slice(0, 4).map((hit) => (
-              <li key={`${hit.run_id}-${hit.branch_id}-${hit.source_ref}`}>
+            {retrieval.samples.slice(0, 4).map((hit, index) => (
+              <li key={`${hit.run_id}-${hit.branch_id}-${hit.source_ref || index}`}>
                 <strong>{hit.branch_id}</strong>
                 <span>{hit.preview || hit.source_ref || "未记录片段"}</span>
               </li>
@@ -830,6 +985,35 @@ function statusLabel(value: string): string {
     damaged: "需修复",
   };
   return map[value] ?? value;
+}
+
+function unknownList(items: unknown[], limit: number): string[] {
+  return items.map(unknownText).filter(Boolean).slice(0, limit);
+}
+
+function unknownText(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) {
+    return value.map(unknownText).filter(Boolean).slice(0, 3).join("、");
+  }
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const preferred = [
+      "name",
+      "title",
+      "label",
+      "rule",
+      "summary",
+      "description",
+      "value",
+    ];
+    const parts = preferred.map((key) => unknownText(record[key])).filter(Boolean);
+    if (parts.length > 0) return parts.slice(0, 2).join("：");
+    return Object.values(record).map(unknownText).filter(Boolean).slice(0, 2).join("：");
+  }
+  return "";
 }
 
 function stepStatusLabel(value: string): string {
