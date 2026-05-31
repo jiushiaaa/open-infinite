@@ -1009,6 +1009,132 @@ def _check_item(
     return {"id": item_id, "label": label, "status": status, "detail": detail}
 
 
+def _as_int(value: Any) -> int:
+    if isinstance(value, bool):
+        return 0
+    if isinstance(value, (int, float)):
+        return int(value)
+    return 0
+
+
+def _as_list(value: Any) -> list[Any]:
+    return value if isinstance(value, list) else []
+
+
+def _post_run_audit_summary(
+    *,
+    slug: str,
+    selected: dict[str, Any],
+    candidates: list[dict[str, Any]],
+    audit: dict[str, Any],
+) -> dict[str, Any]:
+    review_hash = f"#/anchor/{slug}"
+    if selected.get("status") != "ready":
+        return {
+            "status": "todo",
+            "selected_run_id": "",
+            "selected_branch_id": "",
+            "selected_label": "",
+            "summary": "先选择一条世界线，再核对审计与回放状态。",
+            "review_hash": review_hash,
+            "has_range_replay": False,
+            "risk_level": "unknown",
+            "static_issue_count": _as_int((audit.get("summary") or {}).get("issue_count")),
+            "risk_dimensions": [],
+            "missing_entities": [],
+            "next_actions": ["先在候选世界线中设为起点。"],
+        }
+
+    selected_run_id = str(selected.get("run_id") or "")
+    selected_branch_id = str(selected.get("branch_id") or "")
+    candidate = next(
+        (
+            item
+            for item in candidates
+            if item.get("run_id") == selected_run_id
+            and item.get("branch_id") == selected_branch_id
+        ),
+        None,
+    )
+    replay_ranges = _replay_range_reports(slug)
+    latest_range = replay_ranges[0] if replay_ranges else None
+    range_summary = (
+        latest_range.get("summary", {})
+        if isinstance(latest_range, dict) and latest_range
+        else {}
+    )
+    risk_level = str(
+        range_summary.get("risk_level")
+        or (audit.get("summary") or {}).get("risk_level")
+        or "unknown"
+    )
+    entity_audit = (
+        latest_range.get("entity_audit", {})
+        if isinstance(latest_range, dict) and latest_range
+        else {}
+    )
+    missing_entities = [
+        str(item) for item in _as_list(entity_audit.get("missing_entities"))
+    ][:8]
+    static_issue_count = _as_int((audit.get("summary") or {}).get("issue_count"))
+    has_judgement = bool(candidate and candidate.get("has_judgement"))
+    has_causal_diff = bool(candidate and candidate.get("has_causal_diff"))
+    has_range_replay = latest_range is not None
+
+    next_actions: list[str] = []
+    if not has_judgement:
+        next_actions.append("先运行世界线评审，确认这条线是否值得继续。")
+    if not has_causal_diff:
+        next_actions.append("先核对 Causal Diff，确认干预造成的偏移边界。")
+    if not has_range_replay:
+        next_actions.append("进入回放与审计，运行章节范围回放。")
+    if static_issue_count > 0 or risk_level in {"medium", "high"} or missing_entities:
+        next_actions.append("回放与审计中仍有风险，继续前先处理高影响项。")
+    if not next_actions:
+        next_actions.append("审计入口已补齐，可以继续生成下一章或导出留档。")
+
+    if candidate is None:
+        status = "warn"
+        summary = "已选世界线不在当前候选列表中，先重新打开项目工作台确认。"
+    elif not has_range_replay:
+        status = "todo"
+        summary = "已选世界线尚未完成范围回放，继续前建议先补审计。"
+    elif (
+        static_issue_count > 0
+        or risk_level in {"medium", "high"}
+        or missing_entities
+        or not has_judgement
+        or not has_causal_diff
+    ):
+        status = "warn"
+        summary = "已选世界线有审计提示，继续前建议先复盘风险。"
+    else:
+        status = "ready"
+        summary = "已选世界线的评审、Diff 与范围回放均可复盘。"
+
+    risk_dimensions = []
+    if isinstance(latest_range, dict):
+        for item in _as_list(latest_range.get("risk_dimensions"))[:5]:
+            if isinstance(item, dict):
+                risk_dimensions.append(item)
+
+    return {
+        "status": status,
+        "selected_run_id": selected_run_id,
+        "selected_branch_id": selected_branch_id,
+        "selected_label": str(selected.get("branch_label") or ""),
+        "summary": summary,
+        "review_hash": review_hash,
+        "has_range_replay": has_range_replay,
+        "risk_level": risk_level,
+        "static_issue_count": static_issue_count,
+        "risk_dimensions": risk_dimensions,
+        "missing_entities": missing_entities,
+        "range_replay": latest_range,
+        "next_actions": next_actions,
+    }
+
+
 def _creation_loop_summary(
     *,
     slug: str,
@@ -1095,6 +1221,12 @@ def _creation_loop_summary(
         reverse=True,
     )
     recommended = ranked_candidates[0] if ranked_candidates else None
+    post_run_audit = _post_run_audit_summary(
+        slug=slug,
+        selected=selected,
+        candidates=candidates,
+        audit=audit,
+    )
 
     if source_kind == "imported":
         review_status = str((import_review or {}).get("status") or "missing")
@@ -1149,6 +1281,18 @@ def _creation_loop_summary(
             ),
         ),
         _check_item(
+            item_id="post_run_audit",
+            label="选择后审计",
+            status=(
+                "done"
+                if post_run_audit["status"] == "ready"
+                else "todo"
+                if post_run_audit["status"] == "todo"
+                else "warn"
+            ),
+            detail=str(post_run_audit.get("summary") or ""),
+        ),
+        _check_item(
             item_id="chapter_export",
             label="导出当前章节",
             status="done" if has_export else "todo",
@@ -1169,12 +1313,15 @@ def _creation_loop_summary(
         next_steps.append("先从项目工作台发起基线或干预，生成至少一条世界线。")
     if audit_item_status != "done":
         next_steps.append("继续前建议查看回放与审计，确认没有高风险冲突。")
+    if post_run_audit["status"] != "ready":
+        next_steps.extend(post_run_audit.get("next_actions", [])[:2])
 
     return {
         "version": "v0.9.0-alpha",
         "status": "ready" if recommended else "empty",
         "recommended": recommended,
         "selected": selected if selected.get("status") == "ready" else None,
+        "post_run_audit": post_run_audit,
         "candidates": ranked_candidates[:6],
         "checklist": checklist,
         "next_steps": next_steps,

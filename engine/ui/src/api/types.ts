@@ -378,11 +378,28 @@ export interface ProjectCreationLoopChecklistItem {
   detail: string;
 }
 
+export interface ProjectCreationLoopPostRunAudit {
+  status: "ready" | "warn" | "todo" | string;
+  selected_run_id: string;
+  selected_branch_id: string;
+  selected_label: string;
+  summary: string;
+  review_hash: string;
+  has_range_replay: boolean;
+  risk_level: string;
+  static_issue_count: number;
+  risk_dimensions: Array<Record<string, unknown>>;
+  missing_entities: string[];
+  range_replay?: unknown;
+  next_actions: string[];
+}
+
 export interface ProjectCreationLoop {
   version: string;
   status: "ready" | "empty" | string;
   recommended: ProjectCreationLoopCandidate | null;
   selected?: ProjectCreationLoopSelection | null;
+  post_run_audit?: ProjectCreationLoopPostRunAudit;
   candidates: ProjectCreationLoopCandidate[];
   checklist: ProjectCreationLoopChecklistItem[];
   next_steps: string[];

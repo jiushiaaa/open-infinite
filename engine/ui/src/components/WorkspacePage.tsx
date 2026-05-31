@@ -330,6 +330,7 @@ function CreationLoopPanel({
 }) {
   const recommended = loop.recommended;
   const selected = loop.selected ?? null;
+  const postAudit = loop.post_run_audit ?? null;
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [stage, setStage] = useState("");
@@ -464,6 +465,40 @@ function CreationLoopPanel({
       {(stage || error) && (
         <div className={`creation-loop__status ${error ? "is-error" : ""}`}>
           {error || stage}
+        </div>
+      )}
+
+      {postAudit && (
+        <div className={`creation-loop__audit is-${postAudit.status}`}>
+          <div>
+            <p className="tiny muted">选择后审计</p>
+            <strong>{postAudit.selected_label || "尚未选择世界线"}</strong>
+            <p>{postAudit.summary}</p>
+          </div>
+          <div className="creation-loop__audit-metrics">
+            <span>静态风险 {postAudit.static_issue_count} 项</span>
+            <span>{postAudit.has_range_replay ? "已跑范围回放" : "未跑范围回放"}</span>
+            <span>{riskLevelLabel(postAudit.risk_level)}</span>
+          </div>
+          {postAudit.missing_entities.length > 0 && (
+            <p className="tiny muted">
+              缺失实体：{postAudit.missing_entities.slice(0, 4).join("、")}
+            </p>
+          )}
+          {postAudit.next_actions.length > 0 && (
+            <div className="creation-loop__audit-actions">
+              {postAudit.next_actions.slice(0, 2).map((action) => (
+                <span key={action}>{action}</span>
+              ))}
+            </div>
+          )}
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={() => navigate({ name: "anchor", slug: storySlug })}
+          >
+            查看回放与审计
+          </button>
         </div>
       )}
 
@@ -706,6 +741,16 @@ function severityLabel(value: string): string {
     info: "记",
   };
   return map[value] ?? (value || "记");
+}
+
+function riskLevelLabel(value: string): string {
+  const map: Record<string, string> = {
+    high: "高风险",
+    medium: "中风险",
+    low: "低风险",
+    unknown: "风险未知",
+  };
+  return map[value] ?? (value || "风险未知");
 }
 
 function firstWarning(warnings: string[], fallback: string): string {

@@ -105,6 +105,83 @@ def _write_branch(outputs, run_id: str = "run_v090_export", branch_id: str = "br
     return run_id, branch_id
 
 
+def _write_causal_diff(outputs, run_id: str, branch_id: str):
+    branch_dir = outputs / run_id / branch_id
+    (branch_dir / "causal_diff.json").write_text(
+        json.dumps(
+            {
+                "status": "ready",
+                "blocks": [
+                    {
+                        "id": "wind-bell",
+                        "title": "风鸣铃提前曝光",
+                        "risk": "medium",
+                    }
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_replay_range(outputs):
+    baseline_dir = outputs / "run_v090_baseline"
+    baseline_dir.mkdir()
+    (baseline_dir / "meta.json").write_text(
+        json.dumps(
+            {"story_slug": "export-story", "source_kind": "imported"},
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (baseline_dir / "baseline_report.json").write_text(
+        json.dumps(
+            {
+                "story_slug": "export-story",
+                "branch_id": "baseline",
+                "summary": "无干预基线已生成。",
+                "created_at": "2026-05-31T12:00:00Z",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (baseline_dir / "canon_replay_range_report.json").write_text(
+        json.dumps(
+            {
+                "chapter_range": {"start": 1, "end": 2},
+                "available_chapters": [1, 2, 3],
+                "summary": {
+                    "chapter_count": 2,
+                    "average_overall": 0.74,
+                    "risk_level": "medium",
+                    "weakest_chapter": 2,
+                    "warning_count": 1,
+                },
+                "risk_dimensions": [
+                    {
+                        "key": "entity_missing",
+                        "label": "实体缺失",
+                        "level": "medium",
+                        "detail": "风鸣铃在回放中缺失。",
+                    }
+                ],
+                "entity_audit": {
+                    "matched_entities": ["赵轩"],
+                    "missing_entities": ["风鸣铃"],
+                    "missing_entities_by_chapter": [
+                        {"chapter": 2, "entities": ["风鸣铃"]}
+                    ],
+                },
+                "created_at": "2026-05-31T12:01:00Z",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+
 def _chapters(n: int = 6) -> list[dict]:
     return [
         {
@@ -345,6 +422,42 @@ def test_worldline_selection_persists_into_creation_loop(isolated_story_dirs):
             run_id="../outside",
             branch_id=branch_id,
         )
+
+
+def test_creation_loop_surfaces_selected_worldline_post_run_audit(
+    isolated_story_dirs,
+):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    _write_causal_diff(outputs, run_id, branch_id)
+    _write_replay_range(outputs)
+    _, _, select_worldline = _worldline_selection_api()
+    select_worldline(
+        story_slug="export-story",
+        run_id=run_id,
+        branch_id=branch_id,
+        note="先围绕风鸣铃线继续。",
+    )
+
+    loop = indexer.get_project_workspace("export-story")["creation_loop"]
+    post_audit = loop["post_run_audit"]
+
+    assert post_audit["status"] == "warn"
+    assert post_audit["selected_run_id"] == run_id
+    assert post_audit["selected_branch_id"] == branch_id
+    assert post_audit["has_range_replay"] is True
+    assert post_audit["risk_level"] == "medium"
+    assert post_audit["missing_entities"] == ["风鸣铃"]
+    assert post_audit["review_hash"] == "#/anchor/export-story"
+    assert any("回放与审计" in action for action in post_audit["next_actions"])
+    assert any(item["id"] == "post_run_audit" for item in loop["checklist"])
 
 
 def test_http_worldline_selection_statuses(isolated_story_dirs):
