@@ -1041,8 +1041,8 @@ def _creation_loop_actions(
     recommended: dict[str, Any] | None,
     selected: dict[str, Any],
     post_run_audit: dict[str, Any],
-) -> list[dict[str, str]]:
-    actions: list[dict[str, str]] = []
+) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
     if recommended:
         run_id = str(recommended.get("run_id") or "")
         branch_id = str(recommended.get("branch_id") or "")
@@ -1077,18 +1077,66 @@ def _creation_loop_actions(
                 }
             )
     if post_run_audit.get("status") != "ready":
-        actions.append(
-            {
-                "id": "replay_audit",
-                "label": "查看回放与审计",
-                "status": "available",
-                "kind": "route",
-                "method": "NAVIGATE",
-                "route_hash": f"#/anchor/{slug}",
-                "detail": "补齐范围回放或复盘现有风险。",
-            }
+        replay_payload = (
+            _replay_range_quick_payload(slug)
+            if selected.get("status") == "ready"
+            and not post_run_audit.get("has_range_replay")
+            else None
         )
+        if replay_payload:
+            actions.append(
+                {
+                    "id": "run_replay_range",
+                    "label": "运行范围回放",
+                    "status": "available",
+                    "kind": "api",
+                    "method": "POST",
+                    "api_path": f"/api/stories/{slug}/canon/replay-range",
+                    "payload": replay_payload,
+                    "detail": "使用最新基线和已录入 holdout 直接补齐范围回放。",
+                }
+            )
+        else:
+            actions.append(
+                {
+                    "id": "replay_audit",
+                    "label": "查看回放与审计",
+                    "status": "available",
+                    "kind": "route",
+                    "method": "NAVIGATE",
+                    "route_hash": f"#/anchor/{slug}",
+                    "detail": "补齐范围回放或复盘现有风险。",
+                }
+            )
     return actions
+
+
+def _replay_range_quick_payload(slug: str) -> dict[str, Any] | None:
+    baselines = _baseline_run_summaries(slug)
+    if not baselines:
+        return None
+    try:
+        from living_novel_engine.service import get_holdout
+
+        holdout = get_holdout(slug, projects_dir=projects_dir())
+    except Exception:
+        return None
+    chapters = sorted(
+        {
+            int(chapter)
+            for chapter in (holdout.get("available_chapters") or [])
+            if isinstance(chapter, int) and chapter > 0
+        }
+    )
+    if not chapters:
+        return None
+    baseline = baselines[0]
+    return {
+        "baseline_run_id": str(baseline.get("run_id") or ""),
+        "baseline_branch_id": str(baseline.get("branch_id") or "baseline"),
+        "chapter_start": chapters[0],
+        "chapter_end": chapters[-1],
+    }
 
 
 def _creation_loop_evidence(

@@ -424,6 +424,7 @@ export interface ProjectCreationLoopAction {
   method: string;
   api_path?: string;
   route_hash?: string;
+  payload?: CanonReplayRangeRequest;
   detail: string;
 }
 

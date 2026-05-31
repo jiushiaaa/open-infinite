@@ -410,6 +410,25 @@ function CreationLoopPanel({
       await selectCandidate(recommended);
       return;
     }
+    if (action.id === "run_replay_range") {
+      if (!action.payload) {
+        setError("缺少范围回放参数。");
+        return;
+      }
+      setQuickAction(action.id);
+      setError(null);
+      setStage("正在运行范围回放…");
+      try {
+        await api.runCanonReplayRange(storySlug, action.payload);
+        setStage("范围回放已完成。");
+        onSelectionChanged();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setQuickAction(null);
+      }
+      return;
+    }
     if (action.id !== "worldline_judgement") return;
     setQuickAction(action.id);
     setError(null);

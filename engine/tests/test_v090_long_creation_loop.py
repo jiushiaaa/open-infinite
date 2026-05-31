@@ -11,7 +11,7 @@ import urllib.request
 import pytest
 
 from living_novel_engine.browser import indexer, server
-from living_novel_engine.service import import_novel_from_payload, run_intervention
+from living_novel_engine.service import import_novel_from_payload, run_intervention, write_holdout
 
 
 def _chapter_export_api():
@@ -187,6 +187,30 @@ def _write_replay_range(outputs):
                     ],
                 },
                 "created_at": "2026-05-31T12:01:00Z",
+            },
+            ensure_ascii=False,
+        ),
+            encoding="utf-8",
+        )
+
+
+def _write_baseline_run(outputs):
+    baseline_dir = outputs / "run_v090_baseline"
+    baseline_dir.mkdir()
+    (baseline_dir / "meta.json").write_text(
+        json.dumps(
+            {"story_slug": "export-story", "source_kind": "imported"},
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (baseline_dir / "baseline_report.json").write_text(
+        json.dumps(
+            {
+                "story_slug": "export-story",
+                "branch_id": "baseline",
+                "summary": "无干预基线已生成。",
+                "created_at": "2026-05-31T12:00:00Z",
             },
             ensure_ascii=False,
         ),
@@ -510,6 +534,45 @@ def test_creation_loop_completion_exposes_actions_for_blockers(
     )
     assert judgement_evidence["source"] == "api"
     assert judgement_evidence["ref"] == judgement["api_path"]
+
+
+def test_creation_loop_offers_replay_range_action_after_selection(
+    isolated_story_dirs,
+):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    _write_causal_diff(outputs, run_id, branch_id)
+    _write_baseline_run(outputs)
+    write_holdout(
+        "export-story",
+        chapters=[
+            {"chapter": 7, "title": "第七章 正史", "content": "赵轩追查风鸣铃。"},
+            {"chapter": 8, "title": "第八章 正史", "content": "风鸣铃牵出旧案。"},
+        ],
+        projects_dir=projects,
+    )
+    _, _, select_worldline = _worldline_selection_api()
+    select_worldline(story_slug="export-story", run_id=run_id, branch_id=branch_id)
+
+    loop = indexer.get_project_workspace("export-story")["creation_loop"]
+    actions = loop["completion"]["actions"]
+    replay = next(action for action in actions if action["id"] == "run_replay_range")
+
+    assert replay["method"] == "POST"
+    assert replay["api_path"] == "/api/stories/export-story/canon/replay-range"
+    assert replay["payload"] == {
+        "baseline_run_id": "run_v090_baseline",
+        "baseline_branch_id": "baseline",
+        "chapter_start": 7,
+        "chapter_end": 8,
+    }
 
 
 def test_resume_continue_service_writes_linear_child_run(isolated_dirs, monkeypatch):
