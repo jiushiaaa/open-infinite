@@ -163,7 +163,7 @@ v0.9.0-alpha Long Novel Creation Loop   长篇共创闭环        进行中：Ex
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **612 passed**（截至 2026-05-31，v0.9.0-alpha Creation Loop Closeout API Actions 子刀后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **612 passed**（截至 2026-05-31，v0.9.0-alpha Creation Loop Action Payloads 子刀后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1810,7 +1810,7 @@ v0.9.0-alpha 已启动。它应把长篇上传、记忆、分支运行、审计�
 
 > **v0.9.0-alpha Creation Loop Closeout API Actions 已落地（2026-05-31）**：`GET /api/stories/<slug>/creation-loop-closeout` 额外返回 `completion_status` 与 `actions`，ready 时 actions 为空，not_ready 时直接列出可执行/可跳转阻塞动作，便于自动化补齐评审、选择世界线或进入审计。该接口仍只读，不执行动作。已验证：v0.9.0-alpha 测试扩充至 15 passed；完整后端 612 passed；前端 build 通过。
 
-> **v0.9.0-alpha Creation Loop Action Payloads 已落地（2026-05-31）**：`select_worldline` action 现在携带 `run_id`、`branch_id`、`note` payload，可直接 POST 到选择接口；前端类型同步允许世界线选择 payload 与范围回放 payload。该子刀不自动执行动作、不代表用户确认。已验证：v0.9.0-alpha 测试保持 15 passed；完整后端 612 passed；前端 build 通过。
+> **v0.9.0-alpha Creation Loop Action Payloads 已落地（2026-05-31）**：`worldline_judgement` action 现在携带 `story_slug` payload，可直接 POST 到评审接口；`select_worldline` action 现在携带 `run_id`、`branch_id`、`note` payload，可直接 POST 到选择接口；前端类型同步允许世界线评审、世界线选择与范围回放 payload。该子刀不自动执行动作、不代表用户确认。已验证：v0.9.0-alpha 测试保持 15 passed；完整后端 612 passed；前端 build 通过。
 
 > **v0.9.0-alpha Creation Loop Checklist 已落地（2026-05-31）**：`GET /api/stories/<slug>/project-workspace` additive 返回 `creation_loop`，聚合候选世界线、推荐继续分支、导入/分支/评审/审计/导出五步清单和中文下一步。该字段只读扫描既有 run/branch artifact，不写新 artifact，不改 `run_scene` 默认行为。前端长篇项目工作台新增「创作闭环」区，可打开推荐世界线。已验证：v0.9.0-alpha 测试扩充至 4 passed；相邻工作台测试合计 7 passed；完整后端 599 passed；前端 build 通过。
 

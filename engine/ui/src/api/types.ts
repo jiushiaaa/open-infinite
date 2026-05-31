@@ -436,7 +436,7 @@ export interface ProjectCreationLoopAction {
   method: string;
   api_path?: string;
   route_hash?: string;
-  payload?: CanonReplayRangeRequest | WorldlineSelectionRequest;
+  payload?: CanonReplayRangeRequest | WorldlineSelectionRequest | WorldlineJudgementRequest;
   detail: string;
 }
 

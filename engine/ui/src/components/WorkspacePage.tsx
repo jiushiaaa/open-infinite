@@ -17,6 +17,7 @@ import type {
   ProjectWorkspaceRetrieval,
   ResumeContinueResponse,
   RunTreeNode,
+  WorldlineJudgementRequest,
 } from "../api/types";
 import { ChapterReader } from "./ChapterReader";
 import { RightPanel } from "./RightPanel";
@@ -440,9 +441,14 @@ function CreationLoopPanel({
     setError(null);
     setStage("正在生成世界线评审…");
     try {
-      await api.generateWorldlineJudgement(recommended.run_id, recommended.branch_id, {
-        story_slug: storySlug,
-      });
+      const payload = isWorldlineJudgementPayload(action.payload)
+        ? action.payload
+        : { story_slug: storySlug };
+      await api.generateWorldlineJudgement(
+        recommended.run_id,
+        recommended.branch_id,
+        payload,
+      );
       setStage("世界线评审已生成。");
       onSelectionChanged();
     } catch (err) {
@@ -840,6 +846,12 @@ function isCanonReplayRangePayload(
       "chapter_start" in payload &&
       "chapter_end" in payload,
   );
+}
+
+function isWorldlineJudgementPayload(
+  payload: ProjectCreationLoopAction["payload"],
+): payload is WorldlineJudgementRequest {
+  return Boolean(payload && "story_slug" in payload);
 }
 
 function memoryLayerLabel(value: string): string {

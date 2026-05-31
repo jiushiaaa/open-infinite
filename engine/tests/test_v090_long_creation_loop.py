@@ -560,6 +560,7 @@ def test_creation_loop_completion_exposes_actions_for_blockers(
     assert judgement["api_path"] == (
         f"/api/runs/{run_id}/branches/{branch_id}/worldline-judgement"
     )
+    assert judgement["payload"] == {"story_slug": "export-story"}
     assert selection["api_path"] == "/api/stories/export-story/selected-worldline"
     assert selection["payload"] == {
         "run_id": run_id,

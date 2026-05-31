@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `612 passed`（2026-05-31，v0.9.0-alpha Creation Loop Closeout API Actions 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **测试基线** | 后端 `612 passed`（2026-05-31，v0.9.0-alpha Creation Loop Action Payloads 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
 | **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop（进行中） → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.9.0-alpha Creation Loop Action Payloads：`select_worldline` action 带 run/branch payload，closeout actions 可直接驱动补阻塞。 |
+| **刚收口** | v0.9.0-alpha Creation Loop Action Payloads：`worldline_judgement` action 带 story payload，`select_worldline` action 带 run/branch payload，closeout actions 可直接驱动补阻塞。 |
 
 ---
 
@@ -1513,8 +1513,9 @@ lne list-genres
 
 - **做了什么**：
   - `completion.actions` 中的 `select_worldline` 现在带 `payload`：`run_id`、`branch_id`、`note`，调用者可直接 POST 到 `/api/stories/<slug>/selected-worldline`。
-  - 前端类型把 `ProjectCreationLoopAction.payload` 扩展为 `CanonReplayRangeRequest | WorldlineSelectionRequest`，兼容范围回放与设为起点两类动作。
-  - 该 payload 只描述建议动作，不自动选择世界线。
+  - `worldline_judgement` action 现在带 `payload`：`story_slug`，调用者可直接 POST 到 `/api/runs/<run_id>/branches/<branch_id>/worldline-judgement`。
+  - 前端类型把 `ProjectCreationLoopAction.payload` 扩展为 `CanonReplayRangeRequest | WorldlineSelectionRequest | WorldlineJudgementRequest`，兼容范围回放、设为起点和生成评审三类动作。
+  - 这些 payload 只描述建议动作，不自动选择世界线、不自动生成评审。
 - **测试**：先让 `tests/test_v090_long_creation_loop.py` 因缺少 `select_worldline.payload` 红灯，再补实现到 **15 passed**；完整后端 `python -m pytest -q` 为 **612 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **边界**：不改选择 API、不写 artifact、不代表用户已确认；仍需调用方显式 POST。
 - **下一刀建议**：继续补齐 closeout actions 中其他动作的可执行参数或对本地样例执行阻塞清单。

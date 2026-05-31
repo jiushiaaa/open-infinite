@@ -1057,6 +1057,7 @@ def _creation_loop_actions(
                     "api_path": (
                         f"/api/runs/{run_id}/branches/{branch_id}/worldline-judgement"
                     ),
+                    "payload": {"story_slug": slug},
                     "detail": "补齐推荐世界线的评审报告。",
                 }
             )
