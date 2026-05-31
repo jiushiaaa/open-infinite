@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已整体收口，新增 Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Builtin Holdout Blocked Requirement、Creation Loop Closeout CLI、Creation Loop Closeout Record、Low-risk Audit Closeout、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀；v0.9.1 Provider Gateway Summary-A、Provider Usage Summary-B、Provider Status Panel-C 与 Manual Price Estimate-D 已完成；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 626 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已整体收口，新增 Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Builtin Holdout Blocked Requirement、Creation Loop Closeout CLI、Creation Loop Closeout Record、Low-risk Audit Closeout、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀；v0.9.1 Provider Gateway Summary-A、Provider Usage Summary-B、Provider Status Panel-C、Manual Price Estimate-D 与 Route Matrix-E 已完成；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 626 passed，前端 build 通过）
 
 ---
 
@@ -102,8 +102,8 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `626 passed`（2026-06-01，v0.9.1 Manual Price Estimate-D 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一刀** | **v0.9.1 Provider & Cost Gateway Lite 后续子刀**（在已完成 provider 摘要、usage 聚合、设置抽屉展示和手动单价估算基础上，继续模型路由配置；不默认引入 Zep/图数据库/OASIS/CAMEL/LangGraph） |
+| **测试基线** | 后端 `626 passed`（2026-06-01，v0.9.1 Route Matrix-E 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一刀** | **v0.9.1 Provider & Cost Gateway Lite 收口核对**（provider 摘要、usage 聚合、设置抽屉展示、手动单价估算和路由矩阵已完成；下一步核对是否可整体收口，或补极小缺口） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
 | **刚收口** | v0.9.0-alpha Low-risk Audit Closeout / Alpha Closure：低风险静态审计 info 不再阻断 ready，本地导入项目 `v090-alpha-proof` 已通过 `--require-ready --write-report` 写入 `creation_loop_alpha_closeout.json`。 |
 
@@ -122,7 +122,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 已整体收口：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Builtin Holdout Blocked Requirement / Closeout CLI / Closeout Record / Low-risk Audit Closeout / Checklist / Hint / Resume Job / Selection / Post-run Audit |
-| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 进行中：Provider Gateway Summary-A / Provider Usage Summary-B / Provider Status Panel-C / Manual Price Estimate-D 已收口，后续继续路由配置 |
+| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 进行中：Provider Gateway Summary-A / Provider Usage Summary-B / Provider Status Panel-C / Manual Price Estimate-D / Route Matrix-E 已收口，下一步做整体收口核对 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
@@ -442,7 +442,7 @@ lne list-genres
 → v0.8.10-A Runner State Execution Spike：状态执行层 dry-run 评估（已收口）
 → v0.8.10-B Runner State Execution MVP：最小 opt-in 状态写入（已收口）
 ✅ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（已整体收口，见 docs/completed/v0.9.0-alpha-long-creation-loop.md）
-→ v0.9.1   Provider & Cost Gateway Lite（进行中：provider 摘要/usage 聚合/设置展示/手动估算已完成，下一步路由配置）
+→ v0.9.1   Provider & Cost Gateway Lite（进行中：provider 摘要/usage 聚合/设置展示/手动估算/路由矩阵已完成，下一步收口核对）
 → v0.9.2   MasterSetting Workspace Lite（长篇项目页稳定后）
 → v0.9.3   Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
 → v0.9.4   Advanced Runner Evaluation Spike（状态执行层不足时评估 LangGraph/OASIS/CAMEL）
@@ -1626,3 +1626,12 @@ lne list-genres
 - **测试/验证**：先让设置测试因缺少单价字段与估算红灯，再补实现到 **25 passed**；两个旧 HTTP bad-id 失败单独复跑通过；完整后端目标基线 **626 passed**；前端 `pnpm run build` 通过。
 - **边界**：不硬编码厂商价格，不联网查价，不写项目 artifact，不改变模型调用链；估算只供本机粗略参考。
 - **下一刀建议**：继续 v0.9.1 的模型路由配置，明确不同生成入口使用哪个 provider / runner。
+
+### 2026-06-01 — v0.9.1 Route Matrix-E
+
+- **做了什么**：
+  - `GET /api/settings/providers` 新增 `routes`，列出读者干预生成、主题创世、导入抽取、视觉资产生成四个入口当前对应的 provider、mode、runner 与 fallback。
+  - 设置抽屉「模型与用量状态」新增路由矩阵行，让用户看到每个入口走主文本模型、本地模拟、Seedream、占位图或关闭状态。
+- **测试/验证**：设置测试扩充 route 断言后仍为 **25 passed**；前端 `pnpm run build` 通过；完整后端目标基线仍为 **626 passed**。
+- **边界**：只读展示路由，不新增路由写入开关，不改变默认 mock / runner / Seedream 调用行为。
+- **下一刀建议**：核对 v0.9.1 是否已满足 docs 中的多 provider 配置、模型路由、成本/用量估算、失败回退与 Key 脱敏展示，若满足则做 v0.9.1 收口文档。

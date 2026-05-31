@@ -647,6 +647,14 @@ export interface ProviderGatewaySummary {
     fallback_policy: string;
   };
   providers: ProviderGatewayProvider[];
+  routes: Array<{
+    id: string;
+    label: string;
+    provider_id: string;
+    runner: string | null;
+    mode: string;
+    fallback: string;
+  }>;
   cost_policy: {
     currency: string;
     estimation_mode: string;

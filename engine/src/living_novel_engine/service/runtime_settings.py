@@ -182,6 +182,7 @@ def get_provider_gateway_summary() -> dict:
         visual_route = "seedream_visual"
     else:
         visual_route = "placeholder"
+    llm_provider_id = "primary_llm" if llm_route == "primary_llm" else "mock"
 
     warnings: list[dict[str, str]] = []
     if not settings.llm_api_key_present:
@@ -250,6 +251,40 @@ def get_provider_gateway_summary() -> dict:
                 "model": settings.seedream_model,
                 "fallback": "placeholder",
                 "usage_source": "visual_assets.json",
+            },
+        ],
+        "routes": [
+            {
+                "id": "intervention",
+                "label": "读者干预生成",
+                "provider_id": llm_provider_id,
+                "runner": settings.default_runner,
+                "mode": "provider" if llm_route == "primary_llm" else "mock",
+                "fallback": "mock",
+            },
+            {
+                "id": "story_genesis",
+                "label": "主题创世",
+                "provider_id": llm_provider_id,
+                "runner": None,
+                "mode": "provider" if llm_route == "primary_llm" else "mock",
+                "fallback": "mock",
+            },
+            {
+                "id": "import_extraction",
+                "label": "导入抽取",
+                "provider_id": llm_provider_id,
+                "runner": None,
+                "mode": "provider" if llm_route == "primary_llm" else "mock",
+                "fallback": "mock",
+            },
+            {
+                "id": "visual_assets",
+                "label": "视觉资产生成",
+                "provider_id": visual_route,
+                "runner": None,
+                "mode": visual_route,
+                "fallback": "placeholder",
             },
         ],
         "cost_policy": {

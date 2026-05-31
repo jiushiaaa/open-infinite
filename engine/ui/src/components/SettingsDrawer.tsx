@@ -429,6 +429,14 @@ function ProviderStatusPanel({
               </div>
             ))}
           </div>
+          <div className="settings__route-list">
+            {data.gateway.routes.map((route) => (
+              <div className="settings__route-row" key={route.id}>
+                <span>{route.label}</span>
+                <strong>{routeProviderLabel(route.provider_id, data.gateway)}</strong>
+              </div>
+            ))}
+          </div>
           <div className="settings__metric-row">
             <div>
               <span className="muted tiny">总计用量</span>
@@ -464,6 +472,15 @@ function ProviderStatusPanel({
       )}
     </section>
   );
+}
+
+function routeProviderLabel(providerId: string, gateway: ProviderGatewaySummary): string {
+  const provider = gateway.providers.find((item) => item.id === providerId);
+  if (provider) return provider.display_name;
+  if (providerId === "mock") return "本地模拟";
+  if (providerId === "placeholder") return "占位图";
+  if (providerId === "disabled") return "已关闭";
+  return providerId;
 }
 
 function formatTokens(value: number): string {

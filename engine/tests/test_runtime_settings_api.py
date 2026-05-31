@@ -144,6 +144,11 @@ class TestService:
         assert summary["routing"]["mode"] == "single_provider"
         assert summary["routing"]["llm_route"] == "mock"
         assert summary["cost_policy"]["estimation_mode"] == "usage_metadata_only"
+        routes = {route["id"]: route for route in summary["routes"]}
+        assert routes["intervention"]["provider_id"] == "mock"
+        assert routes["story_genesis"]["provider_id"] == "mock"
+        assert routes["import_extraction"]["provider_id"] == "mock"
+        assert routes["visual_assets"]["provider_id"] == "placeholder"
         assert "LLM_API_KEY" not in text
         assert "SEEDREAM_API_KEY" not in text
 
@@ -159,6 +164,11 @@ class TestService:
         text = json.dumps(summary, ensure_ascii=False)
         assert summary["routing"]["llm_route"] == "primary_llm"
         assert summary["routing"]["visual_route"] == "seedream_visual"
+        routes = {route["id"]: route for route in summary["routes"]}
+        assert routes["intervention"]["provider_id"] == "primary_llm"
+        assert routes["story_genesis"]["provider_id"] == "primary_llm"
+        assert routes["import_extraction"]["provider_id"] == "primary_llm"
+        assert routes["visual_assets"]["provider_id"] == "seedream_visual"
         assert "provider-secret" not in text
         assert "7788" in text
         assert "8899" in text

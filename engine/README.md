@@ -56,7 +56,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.10-A | Runner State Execution Spike：opt-in 状态执行 dry-run 评估 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP：最小 opt-in 状态写入与回滚 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 已整体收口，见 `../docs/completed/v0.9.0-alpha-long-creation-loop.md` |
-| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 进行中：provider 摘要、usage、设置展示、手动估算已收口 |
+| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 进行中：provider 摘要、usage、设置展示、手动估算、路由矩阵已收口 |
 | v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 待 50+ 章或百万字召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
@@ -77,7 +77,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **626 passed**（2026-06-01，v0.9.1 Manual Price Estimate-D 后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **626 passed**（2026-06-01，v0.9.1 Route Matrix-E 后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -353,12 +353,13 @@ copy .env.example .env
 
 第一刀已新增只读 provider/cost 摘要，不改变真实调用链：
 
-- `GET /api/settings/providers`：返回 `version=v0.9.1-provider-cost-lite`、`routing`、`providers`、`cost_policy` 与 `warnings`。
+- `GET /api/settings/providers`：返回 `version=v0.9.1-provider-cost-lite`、`routing`、`providers`、`routes`、`cost_policy` 与 `warnings`。
 - `GET /api/settings/provider-usage`：只读扫描 `intervention_compilation.json` 与 `multi_agent_trace.json` 的 `generation_meta.usage`，返回 token totals、by_provider、records、缺失 usage 计数和空成本估算；可用 `story_slug` 查询参数过滤，非法 slug 返回 400。
 - `providers` 当前包含主文本模型（OpenAI-compatible）与 Seedream 视觉模型，字段只展示 `configured`、`active`、`masked_key`、`base_url`、`model`、`fallback` 和 usage 来源。
+- `routes` 当前只读列出读者干预生成、主题创世、导入抽取、视觉资产生成四个入口的 provider、mode、runner 和 fallback；不新增写入开关。
 - `routing` 当前为 `single_provider`，未配置文本密钥或默认 mock 时走 `mock`；未配置/关闭视觉模型时走占位图。
 - `cost_policy` 当前只声明从 `generation_meta.usage` 读取 token 用量；手动填写每千输入/输出单价后会估算费用；更复杂路由留给后续 v0.9.1 子刀。
-- Web 设置抽屉新增「模型与用量状态」，展示 provider 启用状态、模型名、累计用量、输入/输出用量、缺失 usage 记录提示和 warning；保存设置或清除密钥后会刷新。
+- Web 设置抽屉新增「模型与用量状态」，展示 provider 启用状态、模型名、入口路由矩阵、累计用量、输入/输出用量、缺失 usage 记录提示和 warning；保存设置或清除密钥后会刷新。
 - Web 设置抽屉新增「成本估算」，手动填写每千输入/输出单价；不内置厂商价格。
 
 这些接口不创建客户端、不打网络、不落盘，也不返回明文 Key 或环境变量名。
@@ -601,5 +602,5 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/completed/v0.7-product-web-app-ui-spec.md`） |
 | v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估与最小写入 |
 | v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（已整体收口） |
-| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.1 进行中） |
+| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.1 进行中，下一步收口核对） |
 | v1.0-beta | 商业化加固：账号、权限、云端持久化、配额、审计、版权、部署观测 |
