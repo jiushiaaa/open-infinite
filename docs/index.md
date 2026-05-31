@@ -81,6 +81,7 @@
 | `completed/v1.0-beta-permission-matrix-draft-c.md` | v1.0-beta | Permission Matrix Draft-C 收口说明、owner/editor/viewer 权限矩阵草案与未执行边界 |
 | `completed/v1.0-beta-project-copyright-statement-d.md` | v1.0-beta | Project Copyright Statement-D 收口说明、项目级版权/来源声明 schema 与导出 rights basis |
 | `completed/v1.0-beta-quota-observability-lite-e.md` | v1.0-beta | Quota & Observability Lite-E 收口说明、本地配额/观测口径、usage 与 job 状态 |
+| `completed/v1.0-beta-local-deployment-readiness-f.md` | v1.0-beta | Local Deployment Readiness-F 收口说明、本地部署就绪、脱敏环境、静态资源与 API 冒烟 |
 
 ## 4. article/ 论文资料
 

@@ -227,6 +227,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid story_slug"}, status=400)
                 return self._send_json(get_quota_observability_lite(story_slug=story))
 
+            if path == "/api/settings/deployment-readiness":
+                from living_novel_engine.service import get_local_deployment_readiness
+
+                host, port = self.server.server_address[:2]
+                return self._send_json(
+                    get_local_deployment_readiness(api_host=str(host), api_port=int(port))
+                )
+
             if path == "/api/settings/commercial-hardening-scope":
                 from living_novel_engine.service import get_commercial_hardening_scope
 

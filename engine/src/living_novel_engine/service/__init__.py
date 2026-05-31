@@ -48,6 +48,7 @@ from .copyright_statement import (
     get_project_copyright_statement,
     write_project_copyright_statement,
 )
+from .deployment_readiness import get_local_deployment_readiness
 from .diff_actions import (
     VALID_ACTIONS,
     DiffActionError,
@@ -177,6 +178,7 @@ __all__ = [
     "ProjectCopyrightStatementRequestError",
     "get_project_copyright_statement",
     "write_project_copyright_statement",
+    "get_local_deployment_readiness",
     "QuotaObservabilityRequestError",
     "get_quota_observability_lite",
     "HoldoutExistsError",

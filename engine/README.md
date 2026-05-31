@@ -65,7 +65,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Matrix-C | Permission Matrix Draft：owner/editor/viewer 权限矩阵草案 | 已收口，见 `../docs/completed/v1.0-beta-permission-matrix-draft-c.md` |
 | v1.0-beta Copyright-D | Project Copyright Statement：项目级版权/来源声明 schema | 已收口，见 `../docs/completed/v1.0-beta-project-copyright-statement-d.md` |
 | v1.0-beta Quota-E | Quota & Observability Lite：本地配额与观测口径 | 已收口，见 `../docs/completed/v1.0-beta-quota-observability-lite-e.md` |
-| v1.0-beta Deploy-F | Local Deployment Readiness：本地部署就绪清单 | 下一刀 |
+| v1.0-beta Deploy-F | Local Deployment Readiness：本地部署就绪清单 | 已收口，见 `../docs/completed/v1.0-beta-local-deployment-readiness-f.md` |
 
 ### 产品化阶段说明
 
@@ -82,7 +82,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核，以及后续商业级加固 |
 
-**测试基线**：`pytest -q` → **661 passed**（2026-06-01，v1.0-beta Quota & Observability Lite-E 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **663 passed**（2026-06-01，v1.0-beta Local Deployment Readiness-F 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -477,6 +477,17 @@ copy .env.example .env
 - `usage` 复用 `generation_meta.usage` 汇总；`jobs` 只读当前进程内 `JobStore` 状态。
 - 当前不接真实计费、余额、账单、支付、云端监控、日志平台或告警系统。
 
+### v1.0-beta Local Deployment Readiness-F（已收口）
+
+本版本已新增本地部署就绪清单，不执行真实部署：
+
+- `GET /api/settings/deployment-readiness`
+- 返回 `version=v1.0-beta-local-deployment-readiness-f`、`readiness`、`environment`、`checks`、`api_smoke_plan`、`run_steps`、`verification_steps`、`observability`、`warnings` 和中文 `next_steps`。
+- `readiness.external_services_required=false`，表示本地启动不要求真实外部模型、云端对象存储、账号系统或计费系统。
+- `environment` 仅展示密钥是否存在与脱敏尾号，不返回明文密钥或环境变量名。
+- 静态资源或本地数据目录缺失时返回 `status=attention`，不抛 500。
+- 当前不接云端托管、对象存储、多用户账号、商业计费、外部监控、告警系统或自动部署脚本。
+
 ## 快速演示
 
 ```bash
@@ -721,4 +732,4 @@ outputs/run_<ts>_resume_intervene_linear/
 | v1.0-beta Matrix-C | owner/editor/viewer 权限矩阵草案（已收口） |
 | v1.0-beta Copyright-D | 项目级版权/来源声明 schema（已收口） |
 | v1.0-beta Quota-E | 本地配额与观测口径（已收口） |
-| v1.0-beta Deploy-F | 本地部署就绪清单（下一刀） |
+| v1.0-beta Deploy-F | 本地部署就绪清单（已收口） |

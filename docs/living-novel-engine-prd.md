@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D 与 v1.0-beta Quota & Observability Lite-E 已整体收口；后续进入 v1.0-beta Local Deployment Readiness-F |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E 与 v1.0-beta Local Deployment Readiness-F 已整体收口；后续 v1.0-beta 商业化加固需继续拆分 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -990,7 +990,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | v1.0-beta Matrix-C | Permission Matrix Draft | owner/editor/viewer 权限矩阵草案 | 已收口，见 `completed/v1.0-beta-permission-matrix-draft-c.md`；继续只读，不接认证系统、不拦截请求 |
 | v1.0-beta Copyright-D | Project Copyright Statement | 项目级版权/来源声明 schema | 已收口，见 `completed/v1.0-beta-project-copyright-statement-d.md`；继续不提供公开发布入口 |
 | v1.0-beta Quota-E | Quota & Observability Lite | 本地配额、用量、job 状态与观测摘要 | 已收口，见 `completed/v1.0-beta-quota-observability-lite-e.md`；不接真实计费系统或云端监控平台 |
-| v1.0-beta Deploy-F | Local Deployment Readiness | 本地部署健康检查、环境脱敏、静态资源/API 冒烟和运行步骤 | 下一刀；不接云端托管或多租户账号 |
+| v1.0-beta Deploy-F | Local Deployment Readiness | 本地部署健康检查、环境脱敏、静态资源/API 冒烟和运行步骤 | 已收口；不接云端托管或多租户账号 |
 
 明确不作为当前排期默认项：
 

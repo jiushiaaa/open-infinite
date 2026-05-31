@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D 与 v1.0-beta Quota & Observability Lite-E 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 661 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E 与 v1.0-beta Local Deployment Readiness-F 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 663 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `661 passed`（2026-06-01，v1.0-beta Quota & Observability Lite-E 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一刀** | **v1.0-beta Local Deployment Readiness-F**（整理本地部署前健康检查、脱敏环境、静态资源/API 冒烟和运行步骤） |
+| **测试基线** | 后端 `663 passed`（2026-06-01，v1.0-beta Local Deployment Readiness-F 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一刀** | v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统 |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强已收口 → v1.0-beta Commercial Hardening 本地优先加固 |
-| **刚收口** | v1.0-beta Quota & Observability Lite-E：新增本地配额/观测只读 API，汇总 usage、job 状态、软配额口径与观测缺口。 |
+| **刚收口** | v1.0-beta Local Deployment Readiness-F：新增本地部署就绪只读 API，汇总 HTTP 入口、静态资源、数据目录、脱敏环境、API 冒烟计划和运行/验证步骤。 |
 
 ---
 
@@ -131,7 +131,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v1.0-beta Matrix-C | Permission Matrix Draft | owner/editor/viewer 权限矩阵草案 | 已收口，见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md` |
 | v1.0-beta Copyright-D | Project Copyright Statement | 项目级版权/来源声明 schema | 已收口，见 `docs/completed/v1.0-beta-project-copyright-statement-d.md` |
 | v1.0-beta Quota-E | Quota & Observability Lite | 本地配额与观测口径 | 已收口，见 `docs/completed/v1.0-beta-quota-observability-lite-e.md` |
-| v1.0-beta Deploy-F | Local Deployment Readiness | 本地部署就绪清单 | 下一刀 |
+| v1.0-beta Deploy-F | Local Deployment Readiness | 本地部署就绪清单 | 已收口，见 `docs/completed/v1.0-beta-local-deployment-readiness-f.md` |
 
 ## 3.2 阶段性质归类
 
@@ -456,7 +456,8 @@ lne list-genres
 ✅ v1.0-beta Permission Matrix Draft-C（已收口，见 docs/completed/v1.0-beta-permission-matrix-draft-c.md）
 ✅ v1.0-beta Project Copyright Statement-D（已收口，见 docs/completed/v1.0-beta-project-copyright-statement-d.md）
 ✅ v1.0-beta Quota & Observability Lite-E（已收口，见 docs/completed/v1.0-beta-quota-observability-lite-e.md）
-→ v1.0-beta Local Deployment Readiness-F（下一刀：本地部署就绪清单）
+✅ v1.0-beta Local Deployment Readiness-F（已收口，见 docs/completed/v1.0-beta-local-deployment-readiness-f.md）
+→ v1.0-beta 后续商业化加固拆分（先明确下一刀边界，不直接云端化）
 ```
 
 ### v0.3.1 后续质量优化（非阻塞）
@@ -495,6 +496,7 @@ lne list-genres
 - [x] **v1.0-beta Permission Matrix Draft-C**：owner/editor/viewer 权限矩阵草案；当前不接认证、不拦截请求
 - [x] **v1.0-beta Project Copyright Statement-D**：项目级版权/来源声明 schema 与导出 `rights_basis`；当前不开放公开发布
 - [x] **v1.0-beta Quota & Observability Lite-E**：本地配额/观测只读报告；当前不执行硬配额、不接真实计费或云端监控
+- [x] **v1.0-beta Local Deployment Readiness-F**：本地部署就绪只读报告；覆盖 HTTP 入口、静态资源、数据目录、脱敏环境、API 冒烟计划和运行/验证步骤
 - [ ] 验收：同一场景 ≥5 角色参与推演；事件流仍被 contract/retrieval/browser 读取
 
 ### v0.7 产品级前端 ✅（九刀主闭环已完成）
@@ -1802,4 +1804,14 @@ lne list-genres
   - 新增 `docs/completed/v1.0-beta-quota-observability-lite-e.md`，归档本地配额/观测口径、边界和验证。
 - **测试/验证**：先写红灯测试确认 service/API 缺失，补实现后 `tests/test_v100_quota_observability.py` 为 **2 passed**；运行设置回归 `tests/test_runtime_settings_api.py tests/test_v100_quota_observability.py` 为 **29 passed**；完整门禁为后端 **661 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
 - **边界**：不执行硬配额，不阻断生成请求，不接真实计费、余额、账单、支付、云端监控、日志平台、告警系统或多租户账号；不读/回显密钥，不写 artifact。
-- **下一刀建议**：进入 `v1.0-beta Local Deployment Readiness-F`，整理本地部署前的健康检查、环境变量脱敏、静态资源/API 冒烟和 README 运行步骤，不直接接云端托管、多租户账号或商业计费。
+- **下一刀建议**：后续 `v1.0-beta Local Deployment Readiness-F` 已收口；v1.0-beta 后续商业化加固需继续拆成明确小刀，不直接接云端托管、多租户账号、对象存储或商业计费。
+
+### 2026-06-01 — v1.0-beta Local Deployment Readiness-F
+
+- **做了什么**：
+  - 新增 `service.deployment_readiness.get_local_deployment_readiness()`，只读汇总本地后端 HTTP 入口、前端静态资源、运行环境脱敏、本地数据目录、API 冒烟计划、运行步骤和验证步骤。
+  - 新增 `GET /api/settings/deployment-readiness`，返回当前本地服务入口、静态资源/目录状态、脱敏 key 状态、`external_services_required=false` 和本地观测入口。
+  - 新增 `docs/completed/v1.0-beta-local-deployment-readiness-f.md`，归档本地部署就绪清单、边界和验证。
+- **测试/验证**：先写红灯测试确认 service/API 缺失，补实现后 `tests/test_v100_deployment_readiness.py` 为 **2 passed**；运行设置/配额/部署邻近回归为 **31 passed**；完整门禁为后端 **663 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
+- **边界**：不接云端托管、对象存储、多用户账号、商业计费、外部监控、告警系统或自动部署脚本；不打网络、不落盘、不改 `run_scene`。
+- **下一刀建议**：v1.0-beta 后续商业化加固需要先拆出明确小刀；不要直接进入云端多租户、对象存储或计费系统的大重构。

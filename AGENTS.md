@@ -114,10 +114,11 @@
 - v1.0-beta Permission Matrix Draft-C 已收口。
 - v1.0-beta Project Copyright Statement-D 已收口。
 - v1.0-beta Quota & Observability Lite-E 已收口。
-- 当前后端验证基线：`661 passed`。
+- v1.0-beta Local Deployment Readiness-F 已收口。
+- 当前后端验证基线：`663 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：`v1.0-beta Local Deployment Readiness-F`。
-- 后续排期：`v1.0-beta` 本地优先商业化加固（版权声明、配额/观测），真实外部用户前不默认做云端多租户/计费系统。
+- 官方下一刀：v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统。
+- 后续排期：`v1.0-beta` 本地优先商业化加固，真实外部用户前不默认做云端多租户/计费系统。
 
 最近一次 Codex 迭代：
 
@@ -159,8 +160,9 @@
 - `v1.0-beta Permission Matrix Draft-C` 已新增 `GET /api/settings/permission-matrix`，只读列出 owner/editor/viewer 三角色与项目工作台、设定编辑、世界线选择、生成动作、审计日志、导出等资源权限；`enforcement.mode=not_enforced`，不接认证、不拦截请求，归档见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`。
 - `v1.0-beta Project Copyright Statement-D` 已新增 `GET/POST /api/stories/<slug>/copyright-statement`，本地写入 `memory/project_copyright_statement.json`，并让章节/合集导出 `share_guard.rights_basis` 消费项目级权利依据；继续不提供公开发布入口，归档见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`。
 - `v1.0-beta Quota & Observability Lite-E` 已新增 `GET /api/settings/quota-observability`，只读汇总 provider usage、内存 job 状态、软配额口径与观测缺口；`quota_policy.mode=not_enforced`，不接真实计费或云端监控，归档见 `docs/completed/v1.0-beta-quota-observability-lite-e.md`。
+- `v1.0-beta Local Deployment Readiness-F` 已新增 `GET /api/settings/deployment-readiness`，只读汇总本地 HTTP 入口、静态资源、数据目录、脱敏运行环境、API 冒烟计划、运行步骤和验证步骤；不打网络、不落盘、不接云端部署或计费系统，归档见 `docs/completed/v1.0-beta-local-deployment-readiness-f.md`。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
-- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。下一刀先做本地部署就绪清单。
+- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。后续商业化加固需要先拆成小刀再实现。
 
 ## 资料索引
 
