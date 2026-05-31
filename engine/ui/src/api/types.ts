@@ -354,6 +354,21 @@ export interface ProjectCreationLoopCandidate {
   state_overlay_applied: boolean;
   child_run_count: number;
   continue_hint: string;
+  is_selected?: boolean;
+}
+
+export interface ProjectCreationLoopSelection {
+  version: string;
+  kind: "selected_worldline" | string;
+  status: "ready" | string;
+  story_slug: string;
+  run_id: string;
+  branch_id: string;
+  branch_label: string;
+  chapter_chars: number;
+  export_api_path: string;
+  note: string;
+  selected_at: string;
 }
 
 export interface ProjectCreationLoopChecklistItem {
@@ -367,9 +382,20 @@ export interface ProjectCreationLoop {
   version: string;
   status: "ready" | "empty" | string;
   recommended: ProjectCreationLoopCandidate | null;
+  selected?: ProjectCreationLoopSelection | null;
   candidates: ProjectCreationLoopCandidate[];
   checklist: ProjectCreationLoopChecklistItem[];
   next_steps: string[];
+}
+
+export interface WorldlineSelectionRequest {
+  run_id: string;
+  branch_id: string;
+  note?: string;
+}
+
+export interface WorldlineSelectionResponse {
+  selection: ProjectCreationLoopSelection;
 }
 
 export interface ImportNovelResponse {

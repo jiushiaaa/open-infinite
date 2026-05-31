@@ -117,6 +117,11 @@ from .worldline_judge import (
     get_worldline_judgement,
     judge_worldline,
 )
+from .worldline_selection import (
+    WorldlineSelectionRequestError,
+    get_selected_worldline,
+    select_worldline,
+)
 
 __all__ = [
     "VALID_ACTIONS",
@@ -201,6 +206,9 @@ __all__ = [
     "get_visual_assets",
     "resolve_asset_path",
     "WorldlineJudgeRequestError",
+    "WorldlineSelectionRequestError",
     "get_worldline_judgement",
+    "get_selected_worldline",
     "judge_worldline",
+    "select_worldline",
 ]

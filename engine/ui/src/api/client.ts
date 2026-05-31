@@ -45,6 +45,8 @@ import type {
   VisualAssets,
   VisualAssetsGenerateRequest,
   WorldAnchor,
+  WorldlineSelectionRequest,
+  WorldlineSelectionResponse,
   WorldlineJudgement,
   WorldlineJudgementRequest,
 } from "./types";
@@ -122,6 +124,20 @@ export const api = {
   getProjectWorkspace(storySlug: string): Promise<ProjectWorkspace> {
     return getJson(
       `/api/stories/${encodeURIComponent(storySlug)}/project-workspace`,
+    );
+  },
+  getSelectedWorldline(storySlug: string): Promise<WorldlineSelectionResponse> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/selected-worldline`,
+    );
+  },
+  selectWorldline(
+    storySlug: string,
+    req: WorldlineSelectionRequest,
+  ): Promise<WorldlineSelectionResponse> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/selected-worldline`,
+      req,
     );
   },
   getProjectHealth(storySlug: string): Promise<ProjectHealth> {

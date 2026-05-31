@@ -94,6 +94,10 @@ export function WorkspacePage({ slug }: { slug: string }) {
     project.reload();
   };
 
+  const handleSelectionChanged = () => {
+    project.reload();
+  };
+
   return (
     <div className="workspace">
       <aside className="workspace__left">
@@ -126,6 +130,7 @@ export function WorkspacePage({ slug }: { slug: string }) {
             firstSelection={firstSelection}
             onSelectFirst={(next) => setSel(next)}
             onResumeGenerated={handleResumeGenerated}
+            onSelectionChanged={handleSelectionChanged}
           />
         )}
         {!sel && !project.loading && !project.error && !project.data && (
@@ -174,11 +179,13 @@ function ProjectWorkspaceOverview({
   firstSelection,
   onSelectFirst,
   onResumeGenerated,
+  onSelectionChanged,
 }: {
   data: ProjectWorkspace;
   firstSelection: Selection | null;
   onSelectFirst: (selection: Selection) => void;
   onResumeGenerated: (runId: string, branchId: string) => void;
+  onSelectionChanged: () => void;
 }) {
   const risks = data.import_review?.quality_risks ?? [];
   const issueCount = data.audit.summary.issue_count ?? 0;
@@ -243,6 +250,7 @@ function ProjectWorkspaceOverview({
 
       {data.creation_loop && (
         <CreationLoopPanel
+          storySlug={data.slug}
           loop={data.creation_loop}
           onOpen={(candidate) =>
             onSelectFirst({
@@ -251,6 +259,7 @@ function ProjectWorkspaceOverview({
             })
           }
           onGenerated={onResumeGenerated}
+          onSelectionChanged={onSelectionChanged}
         />
       )}
 
@@ -307,16 +316,22 @@ function ProjectWorkspaceSidePanel({ data }: { data: ProjectWorkspace }) {
 }
 
 function CreationLoopPanel({
+  storySlug,
   loop,
   onOpen,
   onGenerated,
+  onSelectionChanged,
 }: {
+  storySlug: string;
   loop: ProjectCreationLoop;
   onOpen: (candidate: ProjectCreationLoopCandidate) => void;
   onGenerated: (runId: string, branchId: string) => void;
+  onSelectionChanged: () => void;
 }) {
   const recommended = loop.recommended;
+  const selected = loop.selected ?? null;
   const [busy, setBusy] = useState(false);
+  const [selecting, setSelecting] = useState(false);
   const [stage, setStage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [mock, setMock] = useState(true);
@@ -360,6 +375,26 @@ function CreationLoopPanel({
     }
   }
 
+  async function selectCandidate(candidate: ProjectCreationLoopCandidate) {
+    if (busy || selecting) return;
+    setSelecting(true);
+    setError(null);
+    setStage("正在记录选择…");
+    try {
+      await api.selectWorldline(storySlug, {
+        run_id: candidate.run_id,
+        branch_id: candidate.branch_id,
+        note: "从创作闭环设为下一章起点",
+      });
+      setStage("已设为下一章起点。");
+      onSelectionChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSelecting(false);
+    }
+  }
+
   return (
     <section className="project-workspace__section creation-loop">
       <SectionTitle
@@ -385,6 +420,12 @@ function CreationLoopPanel({
                 <code>{recommended.continue_hint}</code>
               </div>
             )}
+            {selected && (
+              <div className="creation-loop__selected">
+                <span>已选起点</span>
+                <strong>{selected.branch_label}</strong>
+              </div>
+            )}
           </div>
           <div className="creation-loop__actions">
             <button
@@ -397,9 +438,17 @@ function CreationLoopPanel({
             </button>
             <button
               type="button"
+              className="workspace-btn"
+              onClick={() => selectCandidate(recommended)}
+              disabled={busy || selecting || recommended.is_selected}
+            >
+              {recommended.is_selected ? "已设为起点" : selecting ? "记录中…" : "设为起点"}
+            </button>
+            <button
+              type="button"
               className="workspace-btn workspace-btn--primary"
               onClick={() => resumeContinue(recommended)}
-              disabled={busy}
+              disabled={busy || selecting}
             >
               {busy ? "正在续写…" : "生成下一章"}
             </button>

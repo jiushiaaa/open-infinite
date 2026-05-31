@@ -104,6 +104,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(indexer.get_project_workspace(slug))
 
+            if path.startswith("/api/stories/") and path.endswith("/selected-worldline"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/selected-worldline")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_selected_worldline_get(slug)
+
             if path.startswith("/api/stories/") and path.endswith("/replay-audit"):
                 rest = path[len("/api/stories/") :]
                 slug = safe_id(rest[: -len("/replay-audit")].strip("/"))
@@ -375,6 +382,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._handle_job_import_novel()
             if path == "/api/jobs/story-genesis":
                 return self._handle_job_story_genesis()
+            if path.startswith("/api/stories/") and path.endswith(
+                "/selected-worldline"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/selected-worldline")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_selected_worldline_write(slug)
             self.send_error(404)
         except Exception as exc:
             self._send_json({"error": str(exc)}, status=500)
@@ -393,6 +408,50 @@ class BrowserHandler(BaseHTTPRequestHandler):
         except ChapterExportRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         self._send_json(export)
+
+    def _handle_selected_worldline_get(self, slug: str) -> None:
+        """v0.9.0-alpha：读取项目已选择的继续世界线。"""
+        from living_novel_engine.service import (
+            WorldlineSelectionRequestError,
+            get_selected_worldline,
+        )
+
+        try:
+            selection = get_selected_worldline(slug)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except WorldlineSelectionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json({"selection": selection})
+
+    def _handle_selected_worldline_write(self, slug: str) -> None:
+        """v0.9.0-alpha：持久化用户选择的继续世界线。"""
+        from living_novel_engine.service import (
+            WorldlineSelectionRequestError,
+            select_worldline,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+
+        run_id = safe_id(str(body.get("run_id") or ""))
+        branch_id = safe_id(str(body.get("branch_id") or ""))
+        if run_id is None or branch_id is None:
+            return self._send_json({"error": "invalid run_id or branch_id"}, status=400)
+        try:
+            selection = select_worldline(
+                story_slug=slug,
+                run_id=run_id,
+                branch_id=branch_id,
+                note=str(body.get("note") or ""),
+            )
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except WorldlineSelectionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json({"selection": selection})
 
     def _handle_intervention(self) -> None:
         """v0.7 Web Generate Loop：发起一次 intervene，复用 service.run_intervention。"""

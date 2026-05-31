@@ -239,6 +239,23 @@
   line-height: 1.5;
 }
 
+.creation-loop__selected {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.creation-loop__selected span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.creation-loop__selected strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
 .creation-loop__checklist {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -489,5 +506,9 @@
   }
   .creation-loop__command {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .creation-loop__selected {
+    align-items: flex-start;
+    display: grid;
   }
 }

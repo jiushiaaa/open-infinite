@@ -18,6 +18,7 @@ from living_novel_engine.import_novel.report import (
     summarize_import_report,
 )
 from living_novel_engine.samples import list_samples
+from living_novel_engine.service.worldline_selection import get_selected_worldline
 
 RunKind = Literal["intervene", "resume_continue", "resume_intervene", "unknown"]
 BRANCH_IDS = ("branch_a", "branch_b", "branch_c", "linear")
@@ -1012,12 +1013,17 @@ def _creation_loop_summary(
     *,
     slug: str,
     source_kind: str,
+    story_path: Path,
     import_review: dict[str, Any] | None,
     audit: dict[str, Any],
     runs: list[RunSummary],
 ) -> dict[str, Any]:
     """v0.9.0-alpha：项目级创作闭环清单，不写 artifact。"""
 
+    selected = get_selected_worldline(
+        slug,
+        project_dir=story_path if source_kind != "builtin" else None,
+    )
     child_counts: dict[tuple[str, str], int] = defaultdict(int)
     for run in runs:
         if run.parent_run_id and run.parent_branch:
@@ -1071,6 +1077,9 @@ def _creation_loop_summary(
                     "state_overlay_applied": bool(overlay),
                     "child_run_count": child_counts.get((run.run_id, branch.id), 0),
                     "continue_hint": continue_hint,
+                    "is_selected": selected.get("status") == "ready"
+                    and selected.get("run_id") == run.run_id
+                    and selected.get("branch_id") == branch.id,
                 }
             )
 
@@ -1165,6 +1174,7 @@ def _creation_loop_summary(
         "version": "v0.9.0-alpha",
         "status": "ready" if recommended else "empty",
         "recommended": recommended,
+        "selected": selected if selected.get("status") == "ready" else None,
         "candidates": ranked_candidates[:6],
         "checklist": checklist,
         "next_steps": next_steps,
@@ -1221,6 +1231,7 @@ def get_project_workspace(slug: str) -> dict[str, Any]:
         "creation_loop": _creation_loop_summary(
             slug=slug,
             source_kind=source_kind,
+            story_path=story_path,
             import_review=import_review,
             audit=audit,
             runs=runs,

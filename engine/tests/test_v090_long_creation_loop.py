@@ -36,6 +36,18 @@ def _resume_continue_api():
     return ResumeContinueRequestError, run_resume_continue
 
 
+def _worldline_selection_api():
+    try:
+        from living_novel_engine.service import (
+            WorldlineSelectionRequestError,
+            get_selected_worldline,
+            select_worldline,
+        )
+    except ImportError as exc:  # pragma: no cover - red phase assertion
+        pytest.fail(f"缺少世界线选择服务: {exc}")
+    return WorldlineSelectionRequestError, get_selected_worldline, select_worldline
+
+
 def _write_branch(outputs, run_id: str = "run_v090_export", branch_id: str = "branch_a"):
     run_dir = outputs / run_id
     branch_dir = run_dir / branch_id
@@ -115,6 +127,21 @@ def _free_port() -> int:
 def _get(port: int, path: str) -> tuple[int, dict]:
     try:
         with urllib.request.urlopen(f"http://127.0.0.1:{port}{path}", timeout=5) as resp:
+            return resp.status, json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        return e.code, json.loads(e.read().decode("utf-8"))
+
+
+def _post(port: int, path: str, payload: dict) -> tuple[int, dict]:
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        f"http://127.0.0.1:{port}{path}",
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
             return resp.status, json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         return e.code, json.loads(e.read().decode("utf-8"))
@@ -277,3 +304,84 @@ def test_resume_continue_service_writes_linear_child_run(isolated_dirs, monkeypa
 
     with pytest.raises(ResumeContinueRequestError):
         run_resume_continue(run_id="../outside", branch_id="branch_a", mock=True)
+
+
+def test_worldline_selection_persists_into_creation_loop(isolated_story_dirs):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    WorldlineSelectionRequestError, get_selected_worldline, select_worldline = (
+        _worldline_selection_api()
+    )
+
+    selection = select_worldline(
+        story_slug="export-story",
+        run_id=run_id,
+        branch_id=branch_id,
+        note="继续赵轩提前查证这条线。",
+    )
+
+    assert selection["status"] == "ready"
+    assert selection["run_id"] == run_id
+    assert selection["branch_id"] == branch_id
+    assert selection["branch_label"] == "提前查证"
+    assert "继续赵轩" in selection["note"]
+
+    stored = get_selected_worldline("export-story")
+    assert stored["run_id"] == run_id
+    workspace = indexer.get_project_workspace("export-story")
+    assert workspace["creation_loop"]["selected"]["run_id"] == run_id
+    assert workspace["creation_loop"]["selected"]["branch_id"] == branch_id
+
+    with pytest.raises(WorldlineSelectionRequestError):
+        select_worldline(
+            story_slug="export-story",
+            run_id="../outside",
+            branch_id=branch_id,
+        )
+
+
+def test_http_worldline_selection_statuses(isolated_story_dirs):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    port = _free_port()
+    httpd = server.start_browser_server("127.0.0.1", port, open_browser=False)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, body = _post(
+            port,
+            "/api/stories/export-story/selected-worldline",
+            {"run_id": run_id, "branch_id": branch_id, "note": "设为下一章起点"},
+        )
+        assert status == 200
+        assert body["selection"]["run_id"] == run_id
+        assert body["selection"]["branch_label"] == "提前查证"
+
+        get_status, selected = _get(port, "/api/stories/export-story/selected-worldline")
+        assert get_status == 200
+        assert selected["selection"]["branch_id"] == branch_id
+
+        bad_status, bad = _post(
+            port,
+            "/api/stories/export-story/selected-worldline",
+            {"run_id": "../outside", "branch_id": branch_id},
+        )
+        assert bad_status == 400
+        assert "run_id" in bad["error"]
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
