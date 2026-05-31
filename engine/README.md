@@ -60,7 +60,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 已整体收口，见 `../docs/completed/v0.9.2-master-setting-workspace-lite.md` |
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 已整体收口，见 `../docs/completed/v0.9.3-graph-memory-evaluation-spike.md` |
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 已整体收口，见 `../docs/completed/v0.9.4-advanced-runner-evaluation-spike.md` |
-| v1.0-beta | Commercial Hardening：账号、权限、云端持久化、配额、审计日志、版权提示、部署观测 | 待真实外部用户/团队长期使用 |
+| v1.0-beta Scope-A | Commercial Hardening Scope：商业化七域范围复核、本地优先边界 | 已收口，见 `../docs/completed/v1.0-beta-commercial-hardening-scope-a.md` |
+| v1.0-beta Schema-B | Commercial Audit Log：本地项目审计日志 schema 与只读聚合 | 下一刀 |
 
 ### 产品化阶段说明
 
@@ -75,9 +76,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核，以及后续商业级加固 |
 
-**测试基线**：`pytest -q` → **643 passed**（2026-06-01，v0.9.4 Advanced Runner Evaluation Spike 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **645 passed**（2026-06-01，v1.0-beta Commercial Hardening Scope-A 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -405,6 +406,18 @@ copy .env.example .env
 - 坏 run_id 返回 400，缺 run 返回 404。
 - 当前不接 LangGraph、OASIS、CAMEL；不写新 run artifact，不替换现有 runner，不改 `run_scene` 默认行为。
 
+### v1.0-beta Commercial Hardening Scope-A（已收口）
+
+本版本已新增只读商业化范围报告，不进入云端平台重构：
+
+- `GET /api/settings/commercial-hardening-scope`
+- 返回 `version=v1.0-beta-commercial-hardening-scope-a`、`status=scope_defined`、`stage=local_first_scope_review`。
+- 覆盖账号与项目空间、权限模型、云端持久化、配额与成本护栏、审计日志、版权与分享边界、部署与观测七个域。
+- 每个域返回当前覆盖、缺口、本地优先下一步、平台化下一步、风险等级与决策。
+- `deferred_actions` 明确多租户账号、云端对象存储和商业计费系统后置。
+- `ready_actions` 将下一步收束到本地审计日志 schema、权限矩阵草案和项目级版权/来源声明。
+- 该接口不读/回显密钥、不创建客户端、不打网络、不落盘，不改变既有 run/project artifact。
+
 ## 快速演示
 
 ```bash
@@ -644,4 +657,5 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估与最小写入 |
 | v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（已整体收口） |
 | v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.4 已整体收口） |
-| v1.0-beta | 商业化加固：账号、权限、云端持久化、配额、审计、版权、部署观测 |
+| v1.0-beta Scope-A | 商业化范围复核：账号、权限、云端持久化、配额、审计、版权、部署观测七域只读报告（已收口） |
+| v1.0-beta Schema-B | 本地项目审计日志 schema 与只读聚合 |

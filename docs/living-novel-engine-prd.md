@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike 与 v0.9.4 Advanced Runner Evaluation Spike 已整体收口；后续进入 v1.0-beta Commercial Hardening Scope-A |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike 与 v1.0-beta Commercial Hardening Scope-A 已整体收口；后续进入 v1.0-beta Commercial Audit Log Schema-B |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -985,7 +985,8 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 已整体收口，见 `completed/v0.9.2-master-setting-workspace-lite.md`；项目工作台已展示设定、人物、时间线、伏笔和章节摘要，并支持 `master_setting.yaml` 白名单后端保存与前端最小写控件 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 已整体收口，见 `completed/v0.9.3-graph-memory-evaluation-spike.md`；当前只保留触发报告、检索 probe 与失败样例收集，不进入重依赖实现 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner 是否值得接入 | 已整体收口，见 `completed/v0.9.4-advanced-runner-evaluation-spike.md`；当前只保留触发报告、runner probe 与失败样例收集，不进入重依赖实现 |
-| v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 需要给真实外部用户或团队长期使用 |
+| v1.0-beta Scope-A | Commercial Hardening Scope | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测范围复核 | 已收口，见 `completed/v1.0-beta-commercial-hardening-scope-a.md`；当前只保留只读范围报告，不进入云端多租户、对象存储或计费系统 |
+| v1.0-beta Schema-B | Commercial Audit Log | 本地项目审计日志 schema 与只读聚合 | 下一刀；作为商业化加固的本地优先第一项 |
 
 明确不作为当前排期默认项：
 

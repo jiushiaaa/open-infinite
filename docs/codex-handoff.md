@@ -80,6 +80,7 @@
 - v0.9.4 Advanced Runner Evaluation Trigger-A
 - v0.9.4 Advanced Runner Probe-B
 - v0.9.4 Advanced Runner Evaluation Spike
+- v1.0-beta Commercial Hardening Scope-A
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -137,16 +138,17 @@
 - v0.9.4 Advanced Runner Evaluation Trigger-A：新增只读 `GET /api/runs/<run_id>/advanced-runner-evaluation`，返回高级 runner 评估触发状态、指标、原因和下一步；不接 LangGraph / OASIS / CAMEL
 - v0.9.4 Advanced Runner Probe-B：新增只读 `GET /api/runs/<run_id>/advanced-runner-probes`，把状态执行、trace 质量与涌现节点拆成可复现 probe 并返回失败样例；不接 LangGraph / OASIS / CAMEL
 - v0.9.4 Advanced Runner Evaluation Spike：整体收口归档见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`
+- v1.0-beta Commercial Hardening Scope-A：新增只读 `GET /api/settings/commercial-hardening-scope`，整理账号/权限/云端持久化/配额/审计/版权/部署观测七域范围、当前覆盖、缺口、延后项和本地优先下一步；不读密钥、不打网络、不落盘、不接云端多租户或计费系统
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 643 passed
+- 后端 python -m pytest -q 为 645 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 `v1.0-beta Commercial Hardening Scope-A`：先复核商业化加固范围与本地优先边界，不要直接跳云端多用户持久队列、对象存储、多租户权限或付费系统。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 `v1.0-beta Commercial Audit Log Schema-B`：先做本地项目审计日志 schema 与只读聚合，不要直接跳云端多用户持久队列、对象存储、多租户权限或付费系统。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -167,11 +169,11 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `643 passed` |
+| 后端基线 | `645 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike |
-| 官方下一刀 | `v1.0-beta Commercial Hardening Scope-A` |
-| 后续主线 | `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A |
+| 官方下一刀 | `v1.0-beta Commercial Audit Log Schema-B` |
+| 后续主线 | `v1.0-beta` 本地优先商业化加固 -> 真实外部用户前再评估云端多租户/计费系统 |
 
 ## 阶段性质与产品化判断
 
@@ -186,7 +188,7 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 可读可验收，但不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座变成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost 已收口，后续 MasterSetting、图记忆/advanced runner 评估，以及商业级账号/权限/云端/观测 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估和商业化范围复核已收口；后续从本地审计日志、权限矩阵、版权声明继续商业化加固 |
 
 ## 资料位置
 
@@ -619,6 +621,16 @@ React/Vite 产品级前端主闭环已完成：
 - 边界：不接 LangGraph / OASIS / CAMEL，不写新 run artifact，不改 runner。
 - 验证：`tests/test_v094_advanced_runner_trigger.py` 5 passed；完整后端基线提升到 643 passed。
 
+## v1.0-beta Commercial Hardening Scope-A 收口摘要
+
+- 新增 `service.commercial_hardening.get_commercial_hardening_scope()`。
+- 新增 `GET /api/settings/commercial-hardening-scope`，返回 `v1.0-beta-commercial-hardening-scope-a` 只读范围报告。
+- 报告覆盖账号与项目空间、权限模型、云端持久化、配额与成本护栏、审计日志、版权与分享边界、部署与观测七个域。
+- 报告明确本地优先下一步、平台化下一步和延后项：多租户账号、云端对象存储、商业计费系统。
+- 收口归档见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`。
+- 边界：不读/回显密钥，不创建客户端，不打网络，不落盘，不改 runner 或既有 artifact。
+- 验证：`tests/test_runtime_settings_api.py` 27 passed；完整后端基线提升到 645 passed。
+
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
 - `browser.indexer.get_project_workspace()` 版本提升为 `v0.9.0-alpha`，additive 返回 `creation_loop`：`recommended`、`candidates`、五步 `checklist`、中文 `next_steps`。
@@ -678,7 +690,8 @@ React/Vite 产品级前端主闭环已完成：
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 已整体收口 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 已整体收口：当前不触发重依赖接入 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 已整体收口：当前不触发重依赖接入 |
-| v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 真实外部用户/团队长期使用时 |
+| v1.0-beta Scope-A | Commercial Hardening Scope | 商业化七域范围复核、本地优先边界、延后项 | 已收口 |
+| v1.0-beta Schema-B | Commercial Audit Log | 本地项目审计日志 schema 与只读聚合 | 下一刀 |
 
 ## 每次任务完成后的收口清单
 

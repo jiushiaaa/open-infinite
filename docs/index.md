@@ -76,6 +76,7 @@
 | `completed/v0.9.2-master-setting-workspace-lite.md` | v0.9.2 | MasterSetting Workspace Lite 收口说明、设定资产聚合、白名单轻编辑、前端最小写控件与边界 |
 | `completed/v0.9.3-graph-memory-evaluation-spike.md` | v0.9.3 | Graph Memory Evaluation Spike 收口说明、触发报告、检索 probe、失败样例边界与下一步 |
 | `completed/v0.9.4-advanced-runner-evaluation-spike.md` | v0.9.4 | Advanced Runner Evaluation Spike 收口说明、触发报告、runner probe、失败样例边界与下一步 |
+| `completed/v1.0-beta-commercial-hardening-scope-a.md` | v1.0-beta | Commercial Hardening Scope-A 收口说明、商业化七域范围复核、本地优先边界与下一步 |
 
 ## 4. article/ 论文资料
 

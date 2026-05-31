@@ -192,6 +192,11 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid story_slug"}, status=400)
                 return self._send_json(get_provider_usage_summary(story_slug=story))
 
+            if path == "/api/settings/commercial-hardening-scope":
+                from living_novel_engine.service import get_commercial_hardening_scope
+
+                return self._send_json(get_commercial_hardening_scope())
+
             if path.startswith("/api/stories/") and path.endswith("/health"):
                 from living_novel_engine.service import check_project_health
 

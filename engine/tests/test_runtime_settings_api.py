@@ -18,6 +18,7 @@ from living_novel_engine.service import (
     default_mock,
     default_rounds,
     default_runner,
+    get_commercial_hardening_scope,
     get_provider_gateway_summary,
     get_provider_usage_summary,
     get_runtime_settings,
@@ -172,6 +173,40 @@ class TestService:
         assert "provider-secret" not in text
         assert "7788" in text
         assert "8899" in text
+
+    def test_commercial_hardening_scope_is_local_first_and_secret_safe(self, iso_env):
+        update_runtime_settings(
+            {
+                "api_key": "sk-commercial-secret-7788",
+                "default_mock": False,
+                "seedream_api_key": "sd-commercial-secret-8899",
+            }
+        )
+
+        scope = get_commercial_hardening_scope()
+        text = json.dumps(scope, ensure_ascii=False)
+
+        assert scope["version"] == "v1.0-beta-commercial-hardening-scope-a"
+        assert scope["status"] == "scope_defined"
+        assert scope["stage"] == "local_first_scope_review"
+        assert scope["scope"]["implementation_mode"] == "read_only_scope_report"
+        domain_ids = {domain["id"] for domain in scope["domains"]}
+        assert {
+            "account_project_space",
+            "permission_model",
+            "cloud_persistence",
+            "quota_cost_guard",
+            "audit_log",
+            "copyright_share_guard",
+            "deployment_observability",
+        }.issubset(domain_ids)
+        deferred_ids = {item["id"] for item in scope["deferred_actions"]}
+        assert "multi_tenant_auth" in deferred_ids
+        assert "cloud_object_storage" in deferred_ids
+        assert "billing_system" in deferred_ids
+        assert "commercial-secret" not in text
+        assert "LLM_API_KEY" not in text
+        assert "SEEDREAM_API_KEY" not in text
 
     def test_provider_usage_summary_aggregates_existing_artifacts(
         self, iso_env, tmp_path, monkeypatch
@@ -330,6 +365,14 @@ class TestHttp:
             assert body["error"] == "invalid story_slug"
         else:
             raise AssertionError("bad story_slug should return 400")
+
+    def test_get_commercial_hardening_scope(self, running_server):
+        status, body = _get(running_server, "/api/settings/commercial-hardening-scope")
+        assert status == 200
+        assert body["version"] == "v1.0-beta-commercial-hardening-scope-a"
+        assert body["status"] == "scope_defined"
+        assert body["scope"]["implementation_mode"] == "read_only_scope_report"
+        assert any(domain["id"] == "audit_log" for domain in body["domains"])
 
     def test_post_update_no_plaintext(self, running_server):
         status, body = _post(

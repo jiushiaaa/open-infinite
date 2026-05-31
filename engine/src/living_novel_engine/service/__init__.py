@@ -36,6 +36,7 @@ from .chapter_export import (
     build_chapter_collection_export,
     build_chapter_export,
 )
+from .commercial_hardening import get_commercial_hardening_scope
 from .diff_actions import (
     VALID_ACTIONS,
     DiffActionError,
@@ -153,6 +154,7 @@ __all__ = [
     "get_baseline_report",
     "build_chapter_collection_export",
     "build_chapter_export",
+    "get_commercial_hardening_scope",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
     "HoldoutRequestError",
