@@ -11,6 +11,12 @@
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, var(--paper-raised), var(--paper));
 }
+.reader__topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
 .reader__titleline {
   display: flex;
   align-items: center;
@@ -46,6 +52,31 @@
 .reader__tab:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+.reader__export {
+  flex: 0 0 auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 7px 12px;
+  font-size: 13px;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.reader__export:hover:not(:disabled) {
+  border-color: var(--cinnabar);
+  background: var(--cinnabar-wash);
+}
+.reader__export:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.reader__export-note {
+  margin: var(--space-2) 0 0;
+  color: var(--ink-faint);
+}
+.reader__export-note.is-error {
+  color: var(--cinnabar);
 }
 
 .reader__au-note {
@@ -102,4 +133,15 @@
   background: var(--line-strong);
   margin: var(--space-5) auto;
   width: 40%;
+}
+
+@media (max-width: 720px) {
+  .reader__topline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reader__export {
+    width: fit-content;
+  }
 }

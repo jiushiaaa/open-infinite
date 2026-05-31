@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；下一刀进入 v0.9.0-alpha Long Novel Creation Loop；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 595 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 598 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `595 passed`（2026-05-31，v0.8.10-B Runner State Execution MVP 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节） |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.8.10-B Runner State Execution MVP：在 dry-run 报告基础上，显式确认后只把 low-risk/executable/白名单 delta 写入分支 `state_execution_overlay.json`，并写 run 级 apply/rollback 报告；原 `state_snapshot.json` 不被覆盖，`run_scene` 默认行为不变。 |
+| **测试基线** | 后端 `598 passed`（2026-05-31，v0.9.0-alpha Chapter Export 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export 子刀已收口） |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop（进行中） → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
+| **刚收口** | v0.9.0-alpha Chapter Export：新增只读 `build_chapter_export()` 与 `GET /api/runs/<run_id>/branches/<branch_id>/chapter-export`，前端阅读工作台可导出当前世界线章节 Markdown，包含来源说明、AI 生成说明、评审摘要；不写回 `chapter.md`，不改 `run_scene` 默认行为。 |
 
 ---
 
@@ -121,8 +121,8 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 已收口 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 下一刀 |
-| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Chapter Export 子刀已收口 |
+| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 整体收口后按成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
@@ -441,8 +441,8 @@ lne list-genres
 → v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI（已收口）
 → v0.8.10-A Runner State Execution Spike：状态执行层 dry-run 评估（已收口）
 → v0.8.10-B Runner State Execution MVP：最小 opt-in 状态写入（已收口）
-→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（下一刀）
-→ v0.9.1   Provider & Cost Gateway Lite（成本/稳定性触发）
+→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（进行中：Chapter Export 已收口）
+→ v0.9.1   Provider & Cost Gateway Lite（v0.9.0-alpha 整体收口后按成本/稳定性触发）
 → v0.9.2   MasterSetting Workspace Lite（长篇项目页稳定后）
 → v0.9.3   Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
 → v0.9.4   Advanced Runner Evaluation Spike（状态执行层不足时评估 LangGraph/OASIS/CAMEL）
@@ -1350,3 +1350,13 @@ lne list-genres
 - **测试**：`tests/test_v0810_runner_state_execution.py` 扩充至 8 passed；相邻机制/runner 契约回归 `31 passed`；完整后端 `python -m pytest -q` 为 **595 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **明确未做**：overlay 暂不驱动下一轮 runner 自动消费；运行后审计写回、LLM 语义 replay、向量库、云端队列和真实多用户权限仍留后续。
 - **下一刀建议**：进入 `v0.9.0-alpha Long Novel Creation Loop`，把上传/创建、项目资产、分支运行、审计、世界线选择和章节导出串成第一条长篇共创产品闭环。
+
+### 2026-05-31 — v0.9.0-alpha Chapter Export
+
+- **做了什么**：
+  - 新增 `service/chapter_export.py`：`build_chapter_export()` 只读读取所选 run/branch 的 `chapter.md`、`intervention.json`、`intervention_compilation.json`、`events.json`、`worldline_judgement.json`、`causal_diff.json` 与 `state_execution_overlay.json`，生成 Markdown 导出 payload。
+  - 新增 HTTP `GET /api/runs/<run_id>/branches/<branch_id>/chapter-export`；run/branch id 走 `safe_id`，坏 id 返回 400，缺章节返回 404；接口不写 artifact、不改 `chapter.md`、不改 `state_snapshot.json` 与 `run_scene` 默认行为。
+  - React 阅读工作台新增「导出章节」按钮，下载当前世界线 Markdown，内容包含导出信息、来源说明、AI 生成说明、世界线评审摘要和章节正文；无正文时禁用，失败显示中文错误。
+- **测试**：新增 `tests/test_v090_long_creation_loop.py`（3 passed：导出内容、坏 id/缺章节、HTTP 状态）；完整后端 `python -m pytest -q` 为 **598 passed**；前端 `pnpm run build` 通过。
+- **明确未做**：还未把 v0.9.0-alpha 整条路径标记为完成；尚未做“选择世界线”持久化、运行后审计写回、章节合集/多章导出、公开分享、版权工作流、provider/cost gateway。
+- **下一刀建议**：继续 v0.9.0-alpha，做“世界线选择/继续创作清单”子刀：把 Worldline Judge、Causal Diff 状态、Replay/Audit 与导出状态聚合成项目级 creation loop checklist，帮助用户决定继续哪条线。

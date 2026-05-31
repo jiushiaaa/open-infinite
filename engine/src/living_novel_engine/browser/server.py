@@ -223,6 +223,20 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     )
                 return self._handle_worldline_judgement_get(run_id, branch_id)
 
+            if (
+                path.startswith("/api/runs/")
+                and "/branches/" in path
+                and path.endswith("/chapter-export")
+            ):
+                run_id, branch_id = self._extract_run_branch_for_suffix(
+                    path, "/chapter-export"
+                )
+                if run_id is None or branch_id is None:
+                    return self._send_json(
+                        {"error": "invalid run_id or branch_id"}, status=400
+                    )
+                return self._handle_chapter_export_get(run_id, branch_id)
+
             if path.startswith("/api/runs/") and "/branches/" in path:
                 rest = path[len("/api/runs/") :]
                 run_id_raw, _, branch_part = rest.partition("/branches/")
@@ -362,6 +376,21 @@ class BrowserHandler(BaseHTTPRequestHandler):
             self.send_error(404)
         except Exception as exc:
             self._send_json({"error": str(exc)}, status=500)
+
+    def _handle_chapter_export_get(self, run_id: str, branch_id: str) -> None:
+        """v0.9.0-alpha：导出所选世界线章节为 Markdown payload。"""
+        from living_novel_engine.service import (
+            ChapterExportRequestError,
+            build_chapter_export,
+        )
+
+        try:
+            export = build_chapter_export(run_id=run_id, branch_id=branch_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except ChapterExportRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(export)
 
     def _handle_intervention(self) -> None:
         """v0.7 Web Generate Loop：发起一次 intervene，复用 service.run_intervention。"""

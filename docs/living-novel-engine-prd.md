@@ -6,14 +6,14 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；下一步 v0.9.0-alpha Long Novel Creation Loop |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已启动，Chapter Export 子刀已收口 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
 
 v0.1-v0.8 已完成能力与未做项总览见 [`completed/v0.1-to-v0.8-version-audit.md`](./completed/v0.1-to-v0.8-version-audit.md)。
 
-产品化阶段归类见 [`productization-phase-map.md`](./productization-phase-map.md)。当前 PRD 中的 “MVP” 默认不是单一含义：v0.7-v0.7.5 指短中篇产品化 MVP 已成立；v0.8.0-A-v0.8.5-A 指长篇引擎底座 MVP 已成立；v0.8.6-v0.8.10 是把长篇底座产品化为普通用户工作流；v0.9.0-alpha 完成后才算长篇共创产品闭环成立，但仍不是商业级平台。
+产品化阶段归类见 [`productization-phase-map.md`](./productization-phase-map.md)。当前 PRD 中的 “MVP” 默认不是单一含义：v0.7-v0.7.5 指短中篇产品化 MVP 已成立；v0.8.0-A-v0.8.5-A 指长篇引擎底座 MVP 已成立；v0.8.6-v0.8.10 是把长篇底座产品化为普通用户工作流；v0.9.0-alpha 已启动但尚未整体收口，完成后才算长篇共创产品闭环成立，且仍不是商业级平台。
 
 ## 2. 背景
 
@@ -830,11 +830,13 @@ v0.8 后半段不直接跳 v0.9，先把“上传成功”推进到“用户能�
 
 #### v0.9.0-alpha Long Novel Creation Loop
 
-v0.9.0-alpha 是下一步，目标是串起完整用户路径：
+v0.9.0-alpha 已启动，目标是串起完整用户路径：
 
 ```text
 上传原作/设定 -> 查看记忆与导入报告 -> 发起分支运行 -> 审计偏移 -> 选择世界线 -> 导出章节
 ```
+
+当前已完成第一子刀 **Chapter Export**：所选世界线可通过只读 API 和阅读区按钮导出 Markdown，导出内容包含来源说明、AI 生成说明、评审摘要与章节正文；不写回 `chapter.md`，不导出上传原作全文或 holdout 私有正文。v0.9.0-alpha 仍需继续完成世界线选择/继续创作清单、运行后审计写回、多章导出等产品闭环能力。
 
 #### v0.8.1 Hierarchical Memory
 
@@ -955,7 +957,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 
 | 版本 | 名称 | 范围 | 触发条件 |
 | --- | --- | --- | --- |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | v0.8.6-v0.8.10 已收束，下一刀进入 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | 已启动：Chapter Export 子刀已收口，整体闭环继续推进 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 真实用户开始频繁跑长任务，单 provider 成本或稳定性成为问题 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后，用户需要系统化维护设定，而不只是运行分支 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 50+ 章或百万字项目中 BM25/ledger 召回明显不足，审计频繁漏实体/关系 |

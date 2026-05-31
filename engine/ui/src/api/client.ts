@@ -9,6 +9,7 @@ import type {
   CanonReplayRangeReport,
   CanonReplayRangeRequest,
   CanonReplayRequest,
+  ChapterExport,
   CharacterProbe,
   ConnectivityResult,
   DiffActionRequest,
@@ -279,6 +280,11 @@ export const api = {
   ): Promise<WorldlineJudgement> {
     return getJson(
       `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/worldline-judgement`,
+    );
+  },
+  getChapterExport(runId: string, branchId: string): Promise<ChapterExport> {
+    return getJson(
+      `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/chapter-export`,
     );
   },
   // ── v0.8+ 涌现节点 ─────────────────────────────────────

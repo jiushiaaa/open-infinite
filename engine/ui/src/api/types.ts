@@ -887,6 +887,30 @@ export interface WorldlineJudgementRequest {
   story_slug?: string;
 }
 
+// ── v0.9.0-alpha 章节导出 ─────────────────────────────────
+
+export interface ChapterExport {
+  version: string;
+  kind: "chapter_export";
+  run_id: string;
+  branch_id: string;
+  story_slug: string;
+  filename: string;
+  content_type: string;
+  content_md: string;
+  metadata: {
+    source_kind: string;
+    branch_label: string;
+    judgement_recommendation: string;
+    judgement_overall?: number | null;
+    causal_diff_status?: string | null;
+    state_overlay_applied: boolean;
+    ai_notice: string;
+    source_notice: string;
+    exported_at: string;
+  };
+}
+
 // ── v0.8+ ActDirector / Dynamic Action / Emergence ───────
 
 export interface ActionPlanStep {

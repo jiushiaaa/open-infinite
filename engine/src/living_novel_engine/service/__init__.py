@@ -27,6 +27,10 @@ from .canon_replay import (
     run_canon_replay_range,
     write_holdout,
 )
+from .chapter_export import (
+    ChapterExportRequestError,
+    build_chapter_export,
+)
 from .diff_actions import (
     VALID_ACTIONS,
     DiffActionError,
@@ -116,8 +120,10 @@ __all__ = [
     "AnchorUpdateResult",
     "BaselineRequestError",
     "BaselineServiceResult",
+    "ChapterExportRequestError",
     "generate_baseline",
     "get_baseline_report",
+    "build_chapter_export",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
     "HoldoutRequestError",
