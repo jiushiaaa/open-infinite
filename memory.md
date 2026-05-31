@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 612 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Builtin Holdout Blocked Requirement、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 613 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `612 passed`（2026-05-31，v0.9.0-alpha Requirements UI Display 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口） |
+| **测试基线** | 后端 `613 passed`（2026-05-31，v0.9.0-alpha Builtin Holdout Blocked Requirement 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Builtin Holdout Blocked Requirement、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop（进行中） → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.9.0-alpha Requirements UI Display：前端「创作闭环」完成度区展示审计前置 requirements，用户不用猜为什么只能跳转审计页。 |
+| **刚收口** | v0.9.0-alpha Builtin Holdout Blocked Requirement：builtin 样例无法录入 holdout 时，`canon_holdout` requirement 标为 `blocked`。 |
 
 ---
 
@@ -121,7 +121,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 已收口 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Builtin Holdout Blocked Requirement / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 整体收口后按成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
@@ -441,7 +441,7 @@ lne list-genres
 → v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI（已收口）
 → v0.8.10-A Runner State Execution Spike：状态执行层 dry-run 评估（已收口）
 → v0.8.10-B Runner State Execution MVP：最小 opt-in 状态写入（已收口）
-→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（进行中：Chapter Export / Chapter Collection Export / Export Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Checklist / Continuation Hint / Resume Job / Selection / Post-run Audit 已收口）
+→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（进行中：Chapter Export / Chapter Collection Export / Export Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout API Actions / Action Payloads / Stable Blocker IDs / Replay Audit Action Requirements / Requirements UI Display / Builtin Holdout Blocked Requirement / Checklist / Continuation Hint / Resume Job / Selection / Post-run Audit 已收口）
 → v0.9.1   Provider & Cost Gateway Lite（v0.9.0-alpha 整体收口后按成本/稳定性触发）
 → v0.9.2   MasterSetting Workspace Lite（长篇项目页稳定后）
 → v0.9.3   Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
@@ -1548,3 +1548,12 @@ lne list-genres
   - CSS 保持 v0.7 工作台克制纸面风格，移动端左对齐。
 - **测试**：完整后端 `python -m pytest -q` 为 **612 passed**；前端 `pnpm run build` 通过；Vite 首页 HTTP 200；`git diff --check` 通过。
 - **边界**：只展示现有 API 字段，不新增按钮、不自动执行 action。
+
+### 2026-05-31 — v0.9.0-alpha Builtin Holdout Blocked Requirement
+
+- **做了什么**：
+  - `replay_audit.requirements` 在缺少 holdout 时会读取 story source kind。
+  - builtin 样例（如 `tianhuang-night`）无法录入 holdout 时，`canon_holdout.status` 从 `missing` 改为 `blocked`。
+  - detail 明确提示“内置样例只读，需导入长篇项目后录入 holdout 章节”。
+- **测试**：先让 `tests/test_v090_long_creation_loop.py` 因 builtin holdout 仍为 `missing` 红灯，再补实现到 **16 passed**；完整后端 `python -m pytest -q` 为 **613 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **边界**：不改变 imported 项目的 holdout 流程，不自动导入项目、不写 holdout。

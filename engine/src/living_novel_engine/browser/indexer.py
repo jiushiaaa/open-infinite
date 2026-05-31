@@ -1161,12 +1161,21 @@ def _replay_audit_requirements(
         except Exception:
             holdout_chapters = []
         if not holdout_chapters:
+            try:
+                _, source_kind = _resolve_story_path(slug)
+            except Exception:
+                source_kind = "imported"
+            holdout_blocked = source_kind == "builtin"
             requirements.append(
                 {
                     "id": "canon_holdout",
                     "label": "录入 holdout 章节",
-                    "status": "missing",
-                    "detail": "缺少可回放的 holdout 章节，暂不能自动运行范围回放。",
+                    "status": "blocked" if holdout_blocked else "missing",
+                    "detail": (
+                        "内置样例只读，需导入长篇项目后录入 holdout 章节。"
+                        if holdout_blocked
+                        else "缺少可回放的 holdout 章节，暂不能自动运行范围回放。"
+                    ),
                 }
             )
     if not requirements and post_run_audit.get("status") != "ready":

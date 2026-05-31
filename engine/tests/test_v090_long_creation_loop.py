@@ -620,6 +620,26 @@ def test_creation_loop_offers_replay_range_action_after_selection(
     }
 
 
+def test_replay_audit_requirement_marks_builtin_holdout_blocked(
+    isolated_story_dirs, monkeypatch
+):
+    monkeypatch.setattr(
+        indexer,
+        "_baseline_run_summaries",
+        lambda _slug: [{"run_id": "run_builtin_baseline", "branch_id": "baseline"}],
+    )
+
+    requirements = indexer._replay_audit_requirements(
+        slug="tianhuang-night",
+        selected={"status": "ready"},
+        post_run_audit={"has_range_replay": False},
+    )
+
+    holdout = next(item for item in requirements if item["id"] == "canon_holdout")
+    assert holdout["status"] == "blocked"
+    assert "内置样例只读" in holdout["detail"]
+
+
 def test_resume_continue_service_writes_linear_child_run(isolated_dirs, monkeypatch):
     monkeypatch.setenv("LNE_MOCK", "1")
     ResumeContinueRequestError, run_resume_continue = _resume_continue_api()
