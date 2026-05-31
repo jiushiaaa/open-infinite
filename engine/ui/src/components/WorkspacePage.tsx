@@ -331,6 +331,7 @@ function CreationLoopPanel({
   const recommended = loop.recommended;
   const selected = loop.selected ?? null;
   const postAudit = loop.post_run_audit ?? null;
+  const completion = loop.completion ?? null;
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [stage, setStage] = useState("");
@@ -402,6 +403,22 @@ function CreationLoopPanel({
         title="创作闭环"
         status={loop.status === "ready" ? "可继续" : "待生成"}
       />
+      {completion && (
+        <div className={`creation-loop__completion is-${completion.status}`}>
+          <div>
+            <p className="tiny muted">闭环完成度</p>
+            <strong>
+              {completion.done_count}/{completion.total_count}
+            </strong>
+            <p>{completion.summary}</p>
+          </div>
+          {completion.blocking_labels.length > 0 && (
+            <span>
+              待处理：{completion.blocking_labels.slice(0, 3).join("、")}
+            </span>
+          )}
+        </div>
+      )}
       {recommended ? (
         <div className="creation-loop__focus">
           <div>

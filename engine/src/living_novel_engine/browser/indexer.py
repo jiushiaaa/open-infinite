@@ -1009,6 +1009,32 @@ def _check_item(
     return {"id": item_id, "label": label, "status": status, "detail": detail}
 
 
+def _creation_loop_completion(checklist: list[dict[str, str]]) -> dict[str, Any]:
+    total_count = len(checklist)
+    done_count = sum(1 for item in checklist if item.get("status") == "done")
+    blocking_items = [item for item in checklist if item.get("status") != "done"]
+    has_todo = any(item.get("status") == "todo" for item in blocking_items)
+    if total_count == 0 or has_todo:
+        status = "todo"
+        summary = "长篇共创闭环尚未完成，先补齐阻塞步骤。"
+    elif blocking_items:
+        status = "warn"
+        summary = "长篇共创主链路已串起，但仍有风险项需要复盘。"
+    else:
+        status = "ready"
+        summary = "长篇共创闭环已具备 alpha 收口条件。"
+    return {
+        "kind": "creation_loop_completion",
+        "status": status,
+        "done_count": done_count,
+        "total_count": total_count,
+        "blocking_ids": [str(item.get("id") or "") for item in blocking_items],
+        "blocking_labels": [str(item.get("label") or "") for item in blocking_items],
+        "summary": summary,
+        "can_mark_alpha_complete": status == "ready",
+    }
+
+
 def _as_int(value: Any) -> int:
     if isinstance(value, bool):
         return 0
@@ -1298,7 +1324,18 @@ def _creation_loop_summary(
             status="done" if has_export else "todo",
             detail="至少一条世界线可导出章节。" if has_export else "生成章节后再导出。",
         ),
+        _check_item(
+            item_id="export_share_guard",
+            label="确认版权边界",
+            status="done" if has_export else "todo",
+            detail=(
+                "导出前会提示版权与分享边界。"
+                if has_export
+                else "生成可导出章节后再确认版权与分享边界。"
+            ),
+        ),
     ]
+    completion = _creation_loop_completion(checklist)
 
     next_steps: list[str] = []
     if recommended:
@@ -1324,6 +1361,7 @@ def _creation_loop_summary(
         "post_run_audit": post_run_audit,
         "candidates": ranked_candidates[:6],
         "checklist": checklist,
+        "completion": completion,
         "next_steps": next_steps,
     }
 

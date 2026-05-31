@@ -444,6 +444,10 @@ def test_project_workspace_creation_loop_recommends_exportable_worldline(
     assert loop["recommended"]["continue_hint"].startswith("lne resume continue")
     assert loop["checklist"][0]["status"] == "done"
     assert any(step["id"] == "chapter_export" for step in loop["checklist"])
+    assert any(step["id"] == "export_share_guard" for step in loop["checklist"])
+    assert loop["completion"]["kind"] == "creation_loop_completion"
+    assert loop["completion"]["status"] == "todo"
+    assert "选择后审计" in loop["completion"]["blocking_labels"]
     assert any("继续推荐世界线" in step for step in loop["next_steps"])
 
 
@@ -555,6 +559,11 @@ def test_creation_loop_surfaces_selected_worldline_post_run_audit(
     assert post_audit["review_hash"] == "#/anchor/export-story"
     assert any("回放与审计" in action for action in post_audit["next_actions"])
     assert any(item["id"] == "post_run_audit" for item in loop["checklist"])
+    completion = loop["completion"]
+    assert completion["status"] == "warn"
+    assert completion["done_count"] < completion["total_count"]
+    assert "选择后审计" in completion["blocking_labels"]
+    assert completion["can_mark_alpha_complete"] is False
 
 
 def test_http_worldline_selection_statuses(isolated_story_dirs):

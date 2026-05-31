@@ -394,6 +394,17 @@ export interface ProjectCreationLoopPostRunAudit {
   next_actions: string[];
 }
 
+export interface ProjectCreationLoopCompletion {
+  kind: "creation_loop_completion" | string;
+  status: "ready" | "warn" | "todo" | string;
+  done_count: number;
+  total_count: number;
+  blocking_ids: string[];
+  blocking_labels: string[];
+  summary: string;
+  can_mark_alpha_complete: boolean;
+}
+
 export interface ProjectCreationLoop {
   version: string;
   status: "ready" | "empty" | string;
@@ -402,6 +413,7 @@ export interface ProjectCreationLoop {
   post_run_audit?: ProjectCreationLoopPostRunAudit;
   candidates: ProjectCreationLoopCandidate[];
   checklist: ProjectCreationLoopChecklistItem[];
+  completion?: ProjectCreationLoopCompletion;
   next_steps: string[];
 }
 
