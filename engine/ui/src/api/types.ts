@@ -969,6 +969,17 @@ export interface WorldlineJudgementRequest {
 
 // ── v0.9.0-alpha 章节导出 ─────────────────────────────────
 
+export interface ExportShareGuard {
+  kind: "export_share_guard" | string;
+  status: string;
+  source_kind: string;
+  private_use_allowed: boolean;
+  public_share_allowed: boolean;
+  requires_rights_confirmation: boolean;
+  notice: string;
+  warnings: string[];
+}
+
 export interface ChapterExport {
   version: string;
   kind: "chapter_export";
@@ -978,6 +989,7 @@ export interface ChapterExport {
   filename: string;
   content_type: string;
   content_md: string;
+  share_guard: ExportShareGuard;
   metadata: {
     source_kind: string;
     branch_label: string;
@@ -1007,6 +1019,7 @@ export interface ChapterCollectionExport {
     branch_label: string;
   }>;
   warnings: string[];
+  share_guard: ExportShareGuard;
   metadata: {
     source_kind: string;
     ai_notice: string;

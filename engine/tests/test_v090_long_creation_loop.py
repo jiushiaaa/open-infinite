@@ -319,6 +319,9 @@ def test_chapter_export_contains_source_ai_notice_and_judgement(isolated_dirs):
     assert export["metadata"]["judgement_recommendation"] == "推荐继续"
     assert "AI 生成说明" in export["content_md"]
     assert "来源说明" in export["content_md"]
+    assert "版权与分享边界" in export["content_md"]
+    assert export["share_guard"]["public_share_allowed"] is False
+    assert export["share_guard"]["requires_rights_confirmation"] is True
     assert "赵轩在归云斋前停步" in export["content_md"]
 
 
@@ -363,7 +366,10 @@ def test_chapter_collection_export_orders_parent_and_child_chapters(isolated_dir
         "第八章 风声入卷"
     )
     assert "AI 生成说明" in export["content_md"]
+    assert "版权与分享边界" in export["content_md"]
     assert "不导出上传原作全文" in export["content_md"]
+    assert export["share_guard"]["public_share_allowed"] is False
+    assert export["share_guard"]["requires_rights_confirmation"] is True
 
 
 def test_http_chapter_export_statuses(running_server):

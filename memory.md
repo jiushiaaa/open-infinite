@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export、Chapter Collection Export、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 607 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop 已启动并完成 Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 607 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `607 passed`（2026-05-31，v0.9.0-alpha Chapter Collection Export 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export、Chapter Collection Export、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口） |
+| **测试基线** | 后端 `607 passed`（2026-05-31，v0.9.0-alpha Export Share Guard 子刀后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（已启动：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节；Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop（进行中） → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.9.0-alpha Chapter Collection Export：当前分支可沿 `meta.parent_run_id` / `meta.parent_branch` 父链导出连续章节合集，保持只读、不导出上传原文或 holdout 私有正文。 |
+| **刚收口** | v0.9.0-alpha Export Share Guard：单章导出与合集导出返回 `share_guard`，Markdown 写入版权/分享边界，前端下载前中文确认权利责任。 |
 
 ---
 
@@ -121,7 +121,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 已收口 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Export / Collection Export / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Export / Collection Export / Share Guard / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 整体收口后按成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
@@ -441,7 +441,7 @@ lne list-genres
 → v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI（已收口）
 → v0.8.10-A Runner State Execution Spike：状态执行层 dry-run 评估（已收口）
 → v0.8.10-B Runner State Execution MVP：最小 opt-in 状态写入（已收口）
-→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（进行中：Chapter Export / Chapter Collection Export / Checklist / Continuation Hint / Resume Job / Selection / Post-run Audit 已收口）
+→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（进行中：Chapter Export / Chapter Collection Export / Export Share Guard / Checklist / Continuation Hint / Resume Job / Selection / Post-run Audit 已收口）
 → v0.9.1   Provider & Cost Gateway Lite（v0.9.0-alpha 整体收口后按成本/稳定性触发）
 → v0.9.2   MasterSetting Workspace Lite（长篇项目页稳定后）
 → v0.9.3   Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
@@ -1418,3 +1418,13 @@ lne list-genres
 - **测试**：`tests/test_v090_long_creation_loop.py` 扩充到 10 passed；完整后端 `python -m pytest -q` 为 **607 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **边界**：仍未做公开分享/版权工作流、provider/cost gateway；运行后审计仍未写回正史账本或驱动下一轮 runner。
 - **下一刀建议**：继续 v0.9.0-alpha，做“导出版权/分享前检查”或“v0.9.0-alpha 闭环验收清单”小刀，不跳商业化重构。
+
+### 2026-05-31 — v0.9.0-alpha Export Share Guard
+
+- **做了什么**：
+  - 单章导出与合集导出新增 additive `share_guard`，返回私用允许、公开分享不默认放行、分享前需确认权利来源等机器可读边界。
+  - Markdown 导出新增「版权与分享边界」段落，强调仅本地个人评估、公开分享/发布/商用前需确认授权，不公开分发受保护原文或可替代原作阅读的内容。
+  - React 阅读区点击「导出章节」或「导出合集」时先弹出中文确认；取消则不生成下载文件。
+- **测试**：先让 `tests/test_v090_long_creation_loop.py` 因缺少 guard 红灯，再补实现到 10 passed；完整后端 `python -m pytest -q` 为 **607 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **边界**：不新增公开分享发布入口，不写 artifact，不改 runner；provider/cost gateway 和云端商业化能力仍后置。
+- **下一刀建议**：继续 v0.9.0-alpha，做“闭环验收清单/完成度判定”小刀，确认上传 -> 审计 -> 选择 -> 续写 -> 导出的用户路径是否可标记 alpha 收口。

@@ -39,7 +39,25 @@ export function ChapterReader({
     filename: string;
     content_type: string;
     content_md: string;
+    share_guard?: {
+      requires_rights_confirmation?: boolean;
+      notice?: string;
+      warnings?: string[];
+    };
   }) {
+    if (payload.share_guard?.requires_rights_confirmation) {
+      const warnings = payload.share_guard.warnings ?? [];
+      const confirmed = window.confirm(
+        [
+          payload.share_guard.notice || "请确认导出内容的版权与分享边界。",
+          ...warnings,
+        ].join("\n"),
+      );
+      if (!confirmed) {
+        setExportMsg("已取消导出，未生成下载文件。");
+        return false;
+      }
+    }
     const blob = new Blob([payload.content_md], {
       type: payload.content_type || "text/markdown;charset=utf-8",
     });
@@ -51,6 +69,7 @@ export function ChapterReader({
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+    return true;
   }
 
   async function handleExport() {
@@ -59,8 +78,9 @@ export function ChapterReader({
     setExportMsg(null);
     try {
       const payload = await api.getChapterExport(branch.run_id, branch.branch_id);
-      downloadMarkdown(payload);
-      setExportMsg("章节已生成下载文件，含来源与 AI 生成说明。");
+      if (downloadMarkdown(payload)) {
+        setExportMsg("章节已生成下载文件，含来源、AI 生成说明与版权提示。");
+      }
     } catch (err) {
       setExportErr(err instanceof Error ? err.message : "导出失败，请稍后重试。");
     } finally {
@@ -77,8 +97,9 @@ export function ChapterReader({
         branch.run_id,
         branch.branch_id,
       );
-      downloadMarkdown(payload);
-      setExportMsg(`合集已生成下载文件，共 ${payload.chapter_count} 节。`);
+      if (downloadMarkdown(payload)) {
+        setExportMsg(`合集已生成下载文件，共 ${payload.chapter_count} 节，含版权提示。`);
+      }
     } catch (err) {
       setExportErr(err instanceof Error ? err.message : "导出合集失败，请稍后重试。");
     } finally {

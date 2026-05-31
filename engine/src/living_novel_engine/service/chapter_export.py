@@ -49,6 +49,28 @@ def _branch_label(
     return theme or ("顺势续写" if branch_id == "linear" else branch_id)
 
 
+def _share_guard(source_kind: str) -> dict[str, Any]:
+    normalized = (source_kind or "unknown").lower()
+    source_warning = (
+        "来源包含用户上传或未知文本，默认不提供公开分享授权。"
+        if normalized not in {"builtin", "genesis"}
+        else "来源为内置样例或生成内容时，公开分享前仍需确认素材授权和平台规则。"
+    )
+    return {
+        "kind": "export_share_guard",
+        "status": "rights_confirmation_required",
+        "source_kind": source_kind or "unknown",
+        "private_use_allowed": True,
+        "public_share_allowed": False,
+        "requires_rights_confirmation": True,
+        "notice": "当前导出仅用于本地个人评估；公开分享、发布或商用前必须确认上传文本、生成内容和素材来源均已获得授权。",
+        "warnings": [
+            source_warning,
+            "不要冒充原作者，不要公开分发受保护原文或可替代原作阅读的内容。",
+        ],
+    }
+
+
 def build_chapter_export(
     *,
     run_id: str,
@@ -109,6 +131,7 @@ def build_chapter_export(
     source_notice = (
         "本次导出只包含所选世界线的生成章节与必要元数据，不导出上传原作全文或隐藏评估集正文。"
     )
+    share_guard = _share_guard(source_kind)
     safe_story_slug = safe_id(story_slug) or "story"
     filename = f"{safe_story_slug}_{rid}_{bid}_chapter.md"
     exported_at = datetime.now().isoformat(timespec="seconds")
@@ -142,6 +165,16 @@ def build_chapter_export(
             "",
             ai_notice,
             "",
+            "## 版权与分享边界",
+            "",
+            share_guard["notice"],
+            "",
+        ]
+    )
+    lines.extend(f"- {warning}" for warning in share_guard["warnings"])
+    lines.extend(
+        [
+            "",
             "## 章节正文",
             "",
             chapter_md.strip(),
@@ -158,6 +191,7 @@ def build_chapter_export(
         "filename": filename,
         "content_type": "text/markdown; charset=utf-8",
         "content_md": "\n".join(lines),
+        "share_guard": share_guard,
         "metadata": {
             "source_kind": source_kind,
             "branch_label": branch_label,
@@ -289,6 +323,7 @@ def build_chapter_collection_export(
     source_notice = (
         "本次合集只包含世界线父链中的生成章节与必要元数据，不导出上传原作全文或隐藏评估集正文。"
     )
+    share_guard = _share_guard(source_kind)
 
     lines = [
         f"# 导出合集：{items[-1]['branch_label'] if items else bid}",
@@ -316,8 +351,14 @@ def build_chapter_collection_export(
             "",
             ai_notice,
             "",
+            "## 版权与分享边界",
+            "",
+            share_guard["notice"],
+            "",
         ]
     )
+    lines.extend(f"- {warning}" for warning in share_guard["warnings"])
+    lines.append("")
     for idx, item in enumerate(items, start=1):
         lines.extend(
             [
@@ -349,6 +390,7 @@ def build_chapter_collection_export(
             for item in items
         ],
         "warnings": warnings,
+        "share_guard": share_guard,
         "metadata": {
             "source_kind": source_kind,
             "ai_notice": ai_notice,
