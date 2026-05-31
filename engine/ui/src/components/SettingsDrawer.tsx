@@ -1,5 +1,10 @@
 import { useState } from "react";
-import type { ConnectivityResult, RuntimeSettings } from "../api/types";
+import type {
+  ConnectivityResult,
+  ProviderGatewaySummary,
+  ProviderUsageSummary,
+  RuntimeSettings,
+} from "../api/types";
 import { ApiError, api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { ErrorState, Loading } from "./common/States";
@@ -69,6 +74,16 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [testing, setTesting] = useState(false);
   const [testRes, setTestRes] = useState<ConnectivityResult | null>(null);
+  const providerState = useAsync(
+    async () => {
+      const [gateway, usage] = await Promise.all([
+        api.getProviderGateway(),
+        api.getProviderUsage(),
+      ]);
+      return { gateway, usage };
+    },
+    [],
+  );
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
@@ -99,6 +114,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       setKeyInput("");
       setSdKeyInput("");
       setSavedMsg("设置已保存（仅本机生效）");
+      providerState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -113,6 +129,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       const updated = await api.updateRuntimeSettings({ api_key: "" });
       applyResult(updated);
       setSavedMsg("已清除密钥");
+      providerState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -202,6 +219,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
           )}
         </div>
       </section>
+
+      <ProviderStatusPanel
+        data={providerState.data}
+        loading={providerState.loading}
+        error={providerState.error}
+        onRetry={providerState.reload}
+      />
 
       <section className="settings__group">
         <h3 className="settings__group-title">默认运行参数</h3>
@@ -308,6 +332,90 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       </div>
     </div>
   );
+}
+
+function ProviderStatusPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: { gateway: ProviderGatewaySummary; usage: ProviderUsageSummary } | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">模型与用量状态</h3>
+      {loading && <p className="settings__note tiny muted">正在读取模型状态…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__status-list">
+            {data.gateway.providers.map((provider) => (
+              <div className="settings__status-row" key={provider.id}>
+                <div>
+                  <strong>{provider.display_name}</strong>
+                  <span className="muted tiny">{provider.model || "未设置模型"}</span>
+                </div>
+                <span
+                  className={`badge tiny ${
+                    provider.active
+                      ? "badge--jade"
+                      : provider.configured
+                        ? "badge--gold"
+                        : "badge--cinnabar"
+                  }`}
+                >
+                  {provider.active
+                    ? "使用中"
+                    : provider.configured
+                      ? "已配置未启用"
+                      : "未配置"}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">总计用量</span>
+              <strong>{formatTokens(data.usage.totals.total_tokens)}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">输入 / 输出</span>
+              <strong>
+                {formatTokens(data.usage.totals.prompt_tokens)} /{" "}
+                {formatTokens(data.usage.totals.completion_tokens)}
+              </strong>
+            </div>
+          </div>
+          <p className="settings__note tiny muted">
+            已读取 {data.usage.record_count} 条用量记录；
+            {data.usage.missing_usage_record_count > 0
+              ? `另有 ${data.usage.missing_usage_record_count} 条旧记录缺少用量。`
+              : "暂无缺失用量的记录。"}
+          </p>
+          {data.gateway.warnings.slice(0, 2).map((warning) => (
+            <p className="settings__note tiny muted" key={warning.code}>
+              {warning.message}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function formatTokens(value: number): string {
+  return Math.max(0, value).toLocaleString("zh-CN");
 }
 
 const RUNNER_LABEL: Record<string, string> = {

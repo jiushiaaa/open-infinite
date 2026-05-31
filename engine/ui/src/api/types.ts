@@ -621,6 +621,73 @@ export interface RuntimeSettingsPatch {
   visual_assets_enabled?: boolean;
 }
 
+export interface ProviderGatewayProvider {
+  id: string;
+  kind: string;
+  display_name: string;
+  configured: boolean;
+  active: boolean;
+  masked_key: string;
+  base_url: string;
+  model: string;
+  fallback: string;
+  usage_source: string;
+}
+
+export interface ProviderGatewaySummary {
+  version: string;
+  routing: {
+    mode: string;
+    llm_route: string;
+    visual_route: string;
+    fallback_policy: string;
+  };
+  providers: ProviderGatewayProvider[];
+  cost_policy: {
+    currency: string;
+    estimation_mode: string;
+    price_table_status: string;
+    estimated_total: number | null;
+    usage_fields: string[];
+    note: string;
+  };
+  warnings: Array<{ code: string; message: string }>;
+}
+
+export interface TokenUsageTotals {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
+export interface ProviderUsageRecord {
+  provider_id: string;
+  run_id: string;
+  branch_id: string | null;
+  artifact: string;
+  source?: string | null;
+  model_name?: string | null;
+  usage: TokenUsageTotals;
+}
+
+export interface ProviderUsageSummary {
+  version: string;
+  story_slug: string | null;
+  run_count: number;
+  record_count: number;
+  missing_usage_record_count: number;
+  totals: TokenUsageTotals;
+  by_provider: Array<{ provider_id: string; record_count: number } & TokenUsageTotals>;
+  records: ProviderUsageRecord[];
+  record_limit: number;
+  truncated: boolean;
+  cost_estimate: {
+    currency: string;
+    estimated_total: number | null;
+    reason: string;
+  };
+}
+
 // ── v0.7.3 视觉资产 ───────────────────────────────────────
 
 export type AssetStatus = "ready" | "failed" | "placeholder";

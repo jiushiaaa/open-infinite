@@ -56,7 +56,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.10-A | Runner State Execution Spike：opt-in 状态执行 dry-run 评估 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP：最小 opt-in 状态写入与回滚 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 已整体收口，见 `../docs/completed/v0.9.0-alpha-long-creation-loop.md` |
-| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 进行中：provider 摘要与 usage 聚合已收口 |
+| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 进行中：provider 摘要、usage 聚合与设置展示已收口 |
 | v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 待 50+ 章或百万字召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
@@ -358,6 +358,7 @@ copy .env.example .env
 - `providers` 当前包含主文本模型（OpenAI-compatible）与 Seedream 视觉模型，字段只展示 `configured`、`active`、`masked_key`、`base_url`、`model`、`fallback` 和 usage 来源。
 - `routing` 当前为 `single_provider`，未配置文本密钥或默认 mock 时走 `mock`；未配置/关闭视觉模型时走占位图。
 - `cost_policy` 当前只声明从 `generation_meta.usage` 读取 token 用量；精确价格表和更复杂路由留给后续 v0.9.1 子刀。
+- Web 设置抽屉新增「模型与用量状态」，展示 provider 启用状态、模型名、累计用量、输入/输出用量、缺失 usage 记录提示和 warning；保存设置或清除密钥后会刷新。
 
 这些接口不创建客户端、不打网络、不落盘，也不返回明文 Key 或环境变量名。
 

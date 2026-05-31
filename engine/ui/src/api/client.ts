@@ -27,6 +27,8 @@ import type {
   ImportNovelResponse,
   JobRecord,
   JobSubmitResponse,
+  ProviderGatewaySummary,
+  ProviderUsageSummary,
   ProjectWorkspace,
   ProjectHealth,
   InterventionRequest,
@@ -192,6 +194,12 @@ export const api = {
   },
   testConnectivity(mock = false): Promise<ConnectivityResult> {
     return postJson("/api/settings/runtime/test", { mock });
+  },
+  getProviderGateway(): Promise<ProviderGatewaySummary> {
+    return getJson("/api/settings/providers");
+  },
+  getProviderUsage(): Promise<ProviderUsageSummary> {
+    return getJson("/api/settings/provider-usage");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);
