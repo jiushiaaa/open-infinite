@@ -847,7 +847,7 @@ v0.9.0-alpha 已启动，目标是串起完整用户路径：
 - **Creation Loop Audit Quick Run**：当已选世界线缺少范围回放且存在 baseline/holdout 时，`completion.actions` 返回 `run_replay_range` payload；前端可直接运行范围回放并刷新工作台。
 - **Creation Loop Alpha Ready State**：补齐导入质量、候选世界线、评审、静态审计、选择后审计、章节导出和版权 guard 后，`can_mark_alpha_complete=true`；前端标题状态显示「可收口」。
 - **Creation Loop Alpha Closeout Report**：`creation_loop.closeout` 汇总 alpha 收口状态、剩余阻塞、判定依据和下一步建议；前端显示「Alpha 收口」面板。
-- **Creation Loop Closeout API**：`GET /api/stories/<slug>/creation-loop-closeout` 直接返回 `completion_status`、`actions` 与 `closeout`，供真实样例或导入项目做自动验收和阻塞补齐；`closeout.remaining_blocker_ids` 给出稳定阻塞项 id，`worldline_judgement` 与 `select_worldline` action 带可直接 POST 的 payload。
+- **Creation Loop Closeout API**：`GET /api/stories/<slug>/creation-loop-closeout` 直接返回 `completion_status`、`actions` 与 `closeout`，供真实样例或导入项目做自动验收和阻塞补齐；`closeout.remaining_blocker_ids` 给出稳定阻塞项 id，`worldline_judgement` 与 `select_worldline` action 带可直接 POST 的 payload，`replay_audit` action 带只读 requirements 说明缺少的审计前置条件。
 - **Creation Loop Checklist**：长篇项目工作台新增只读 `creation_loop`，展示推荐世界线、候选分支、导入/分支/评审/审计/导出五步清单和下一步提醒。
 - **Continuation Hint**：推荐世界线下展示 CLI 续写入口 `lne resume continue <run_id> --branch <branch_id> --mock`，作为 HTTP resume job 前的最小继续创作入口。
 - **Resume Continue HTTP Job**：推荐世界线可通过显式按钮触发 `/api/jobs/resume-continue`，沿父分支生成新的 `linear` 下一章并跳转阅读；不改 `run_scene` 默认行为。

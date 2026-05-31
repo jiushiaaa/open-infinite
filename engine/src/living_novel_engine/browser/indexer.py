@@ -1111,10 +1111,74 @@ def _creation_loop_actions(
                     "kind": "route",
                     "method": "NAVIGATE",
                     "route_hash": f"#/anchor/{slug}",
+                    "requirements": _replay_audit_requirements(
+                        slug=slug,
+                        selected=selected,
+                        post_run_audit=post_run_audit,
+                    ),
                     "detail": "补齐范围回放或复盘现有风险。",
                 }
             )
     return actions
+
+
+def _replay_audit_requirements(
+    *,
+    slug: str,
+    selected: dict[str, Any],
+    post_run_audit: dict[str, Any],
+) -> list[dict[str, str]]:
+    requirements: list[dict[str, str]] = []
+    if selected.get("status") != "ready":
+        requirements.append(
+            {
+                "id": "selected_worldline",
+                "label": "设为下一章起点",
+                "status": "missing",
+                "detail": "先选择一条候选世界线，才能围绕它做选择后审计。",
+            }
+        )
+    if not post_run_audit.get("has_range_replay"):
+        if not _baseline_run_summaries(slug):
+            requirements.append(
+                {
+                    "id": "baseline_run",
+                    "label": "生成基线分支",
+                    "status": "missing",
+                    "detail": "缺少 baseline run，暂不能自动运行章节范围回放。",
+                }
+            )
+        holdout_chapters: list[int] = []
+        try:
+            from living_novel_engine.service import get_holdout
+
+            holdout = get_holdout(slug, projects_dir=projects_dir())
+            holdout_chapters = [
+                int(chapter)
+                for chapter in (holdout.get("available_chapters") or [])
+                if isinstance(chapter, int) and chapter > 0
+            ]
+        except Exception:
+            holdout_chapters = []
+        if not holdout_chapters:
+            requirements.append(
+                {
+                    "id": "canon_holdout",
+                    "label": "录入 holdout 章节",
+                    "status": "missing",
+                    "detail": "缺少可回放的 holdout 章节，暂不能自动运行范围回放。",
+                }
+            )
+    if not requirements and post_run_audit.get("status") != "ready":
+        requirements.append(
+            {
+                "id": "review_replay_risk",
+                "label": "复盘回放风险",
+                "status": "required",
+                "detail": "范围回放已存在，但仍需复盘风险等级或缺失实体。",
+            }
+        )
+    return requirements
 
 
 def _replay_range_quick_payload(slug: str) -> dict[str, Any] | None:

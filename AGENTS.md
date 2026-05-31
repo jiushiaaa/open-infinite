@@ -113,7 +113,7 @@
 - 前端「回放与审计」面板已支持单章/范围回放、风险维度、实体归一化审计、holdout/审计空态展示。
 - 干预 run 可生成 `runner_state_execution_report.json` dry-run 评估，解释 action/emergence 是否能安全转成状态 delta；该报告不写 `state_snapshot.json`、不改 `run_scene` 默认行为。
 - 干预 run 可在显式确认后把 low-risk/executable/白名单 delta 写入分支 `state_execution_overlay.json`，并通过 `runner_state_execution_apply_report.json` / `runner_state_execution_rollback_report.json` 审计和回滚；原 `state_snapshot.json` 不被覆盖。
-- `v0.9.0-alpha` 已新增只读章节导出、父链章节合集导出、导出版权/分享 guard、创作闭环完成度判定、阻塞动作提示（含评审/设为起点 payload）、判定依据、审计快捷运行、alpha ready 状态、alpha closeout 报告与 closeout HTTP 验收接口（含阻塞动作清单和稳定 blocker id）、CLI 续写入口、显式 `POST /api/jobs/resume-continue`、`selected_worldline.json` 选择记录与选择后审计入口；推荐世界线可从前端生成评审、生成下一章，也可「设为起点」并在工作台读回审计状态、范围回放风险和缺失实体。
+- `v0.9.0-alpha` 已新增只读章节导出、父链章节合集导出、导出版权/分享 guard、创作闭环完成度判定、阻塞动作提示（含评审/设为起点 payload 与审计 requirements）、判定依据、审计快捷运行、alpha ready 状态、alpha closeout 报告与 closeout HTTP 验收接口（含阻塞动作清单和稳定 blocker id）、CLI 续写入口、显式 `POST /api/jobs/resume-continue`、`selected_worldline.json` 选择记录与选择后审计入口；推荐世界线可从前端生成评审、生成下一章，也可「设为起点」并在工作台读回审计状态、范围回放风险和缺失实体。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v0.9.0-alpha 仍在整体闭环推进中；但 v0.9.0-alpha 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph。
 

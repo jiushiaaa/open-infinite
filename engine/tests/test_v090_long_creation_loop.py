@@ -568,6 +568,9 @@ def test_creation_loop_completion_exposes_actions_for_blockers(
         "branch_id": branch_id,
         "note": "从创作闭环设为下一章起点",
     }
+    requirement_ids = [item["id"] for item in replay["requirements"]]
+    assert "selected_worldline" in requirement_ids
+    assert "baseline_run" in requirement_ids
     assert replay["route_hash"] == "#/anchor/export-story"
     judgement_evidence = next(
         item
