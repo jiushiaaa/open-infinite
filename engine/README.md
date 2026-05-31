@@ -56,7 +56,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.10-A | Runner State Execution Spike：opt-in 状态执行 dry-run 评估 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP：最小 opt-in 状态写入与回滚 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 已整体收口，见 `../docs/completed/v0.9.0-alpha-long-creation-loop.md` |
-| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 进行中：Provider Gateway Summary-A 已收口 |
+| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 进行中：provider 摘要与 usage 聚合已收口 |
 | v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 待 50+ 章或百万字召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
@@ -77,7 +77,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级加固 |
 
-**测试基线**：`pytest -q` → **620 passed**（2026-06-01，v0.9.1 Provider Gateway Summary-A 后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **624 passed**（2026-06-01，v0.9.1 Provider Usage Summary-B 后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -354,11 +354,12 @@ copy .env.example .env
 第一刀已新增只读 provider/cost 摘要，不改变真实调用链：
 
 - `GET /api/settings/providers`：返回 `version=v0.9.1-provider-cost-lite`、`routing`、`providers`、`cost_policy` 与 `warnings`。
+- `GET /api/settings/provider-usage`：只读扫描 `intervention_compilation.json` 与 `multi_agent_trace.json` 的 `generation_meta.usage`，返回 token totals、by_provider、records、缺失 usage 计数和空成本估算；可用 `story_slug` 查询参数过滤，非法 slug 返回 400。
 - `providers` 当前包含主文本模型（OpenAI-compatible）与 Seedream 视觉模型，字段只展示 `configured`、`active`、`masked_key`、`base_url`、`model`、`fallback` 和 usage 来源。
 - `routing` 当前为 `single_provider`，未配置文本密钥或默认 mock 时走 `mock`；未配置/关闭视觉模型时走占位图。
-- `cost_policy` 当前只声明从 `generation_meta.usage` 读取 token 用量；精确价格表、项目级成本汇总和更复杂路由留给后续 v0.9.1 子刀。
+- `cost_policy` 当前只声明从 `generation_meta.usage` 读取 token 用量；精确价格表和更复杂路由留给后续 v0.9.1 子刀。
 
-该接口不创建客户端、不打网络、不落盘，也不返回明文 Key 或环境变量名。
+这些接口不创建客户端、不打网络、不落盘，也不返回明文 Key 或环境变量名。
 
 ## 快速演示
 

@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop 已整体收口；v0.9.1 Provider Gateway Summary-A 已收口，下一刀继续 Provider & Cost Gateway Lite 的成本聚合/路由配置）
+> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop 已整体收口；v0.9.1 Provider Gateway Summary-A 与 Provider Usage Summary-B 已收口，下一刀继续 Provider & Cost Gateway Lite 的路由/价格配置或前端可视化）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/completed/v0.1-to-v0.8-version-audit.md`。
@@ -92,12 +92,12 @@ v0.8.10-A Runner State Execution Spike  opt-in 状态执行层评估  已收口
 v0.8.10-B Runner State Execution MVP    最小状态执行层        已收口
     ↓
 v0.9.0-alpha Long Novel Creation Loop   长篇共创闭环        已整体收口：详见 docs/completed/v0.9.0-alpha-long-creation-loop.md
-v0.9.1 Provider & Cost Gateway Lite        成本与稳定性增强      进行中：Provider Gateway Summary-A 已收口
+v0.9.1 Provider & Cost Gateway Lite        成本与稳定性增强      进行中：provider 摘要与 usage 聚合已收口
 ```
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **620 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider Gateway Summary-A 已收口**，下一刀继续 Provider & Cost Gateway Lite 的成本聚合/路由配置。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **624 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider Gateway Summary-A 与 Provider Usage Summary-B 已收口**，下一刀继续 Provider & Cost Gateway Lite 的路由/价格配置或前端可视化。
 
 ## 2.1 阶段性质与产品化程度
 
@@ -164,7 +164,7 @@ v0.9.1 Provider & Cost Gateway Lite        成本与稳定性增强      进行�
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **620 passed**（截至 2026-06-01，v0.9.1 Provider Gateway Summary-A 后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **624 passed**（截至 2026-06-01，v0.9.1 Provider Usage Summary-B 后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1841,6 +1841,8 @@ v0.9.0-alpha 已整体收口。它已把长篇上传、记忆、分支运行、�
 
 > **v0.9.1 Provider Gateway Summary-A 已落地（2026-06-01）**：新增 `service.runtime_settings.get_provider_gateway_summary()` 与只读 `GET /api/settings/providers`。接口返回 `v0.9.1-provider-cost-lite` 摘要：LLM/Seedream provider 列表、单 provider 路由状态、mock/占位图降级策略、成本观测口径和 warning。该子刀不创建客户端、不打网络、不落盘、不返回明文 Key 或环境变量名；测试 `tests/test_runtime_settings_api.py` 扩充到 19 passed，完整后端 620 passed，前端 build 通过。后续继续成本聚合、模型路由配置或设置页可视化。
 
+> **v0.9.1 Provider Usage Summary-B 已落地（2026-06-01）**：新增 `service.runtime_settings.get_provider_usage_summary(story_slug=None)` 与只读 `GET /api/settings/provider-usage`，扫描 `intervention_compilation.json` 与 `multi_agent_trace.json` 的 `generation_meta.usage`，汇总 totals、by_provider、records、缺失 usage meta 计数和空成本估算。`story_slug` 查询参数继续走 `safe_id`，非法值 400。该子刀不读 Key、不打网络、不写 artifact、不内置真实价格表；测试 `tests/test_runtime_settings_api.py` 扩充到 23 passed，完整后端 624 passed，前端 build 通过。后续继续模型路由/价格配置或前端可视化。
+
 ### Phase 5：社区与分享
 
 远期方向：
@@ -1969,7 +1971,7 @@ v0.1.2 resume continue
 | P8.10-A | v0.8.10-A Runner State Execution Spike | opt-in 评估动作计划/动作注册表/涌现节点是否可安全转成状态变化；不改默认行为 | 已收口 |
 | P8.10-B | v0.8.10-B Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
 | P9.0-alpha | v0.9.0-alpha Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 | 已整体收口 |
-| P9.1 | v0.9.1 Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 进行中：Provider Gateway Summary-A 已收口 |
+| P9.1 | v0.9.1 Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 进行中：Provider Gateway Summary-A / Provider Usage Summary-B 已收口 |
 | P9.2 | v0.9.2 MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
 | P9.3 | v0.9.3 Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
 | P9.4 | v0.9.4 Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
@@ -2241,7 +2243,7 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.8.10-A Runner State Execution Spike（已收口：状态执行层 dry-run 评估）
   -> v0.8.10-B Runner State Execution MVP（已收口：最小 opt-in 状态写入）
   -> v0.9.0-alpha Long Novel Creation Loop（已整体收口，见 docs/completed/v0.9.0-alpha-long-creation-loop.md）
-  -> v0.9.1 Provider & Cost Gateway Lite（进行中：Provider Gateway Summary-A 已收口，下一步成本聚合/路由配置）
+  -> v0.9.1 Provider & Cost Gateway Lite（进行中：provider 摘要/usage 聚合已收口，下一步路由/价格配置或前端可视化）
   -> v0.9.2 MasterSetting Workspace Lite（长篇项目页稳定后）
   -> v0.9.3 Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
   -> v0.9.4 Advanced Runner Evaluation Spike（状态执行层不足时评估 LangGraph/OASIS/CAMEL）

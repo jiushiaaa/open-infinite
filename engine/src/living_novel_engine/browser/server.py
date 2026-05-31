@@ -163,6 +163,15 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
                 return self._send_json(get_provider_gateway_summary())
 
+            if path == "/api/settings/provider-usage":
+                from living_novel_engine.service import get_provider_usage_summary
+
+                story_raw = _first_qs(qs, "story_slug")
+                story = safe_id(story_raw) if story_raw else None
+                if story_raw and story is None:
+                    return self._send_json({"error": "invalid story_slug"}, status=400)
+                return self._send_json(get_provider_usage_summary(story_slug=story))
+
             if path.startswith("/api/stories/") and path.endswith("/health"):
                 from living_novel_engine.service import check_project_health
 

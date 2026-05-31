@@ -64,6 +64,7 @@
 - v0.9.0-alpha Creation Loop Closeout Record
 - v0.9.0-alpha Low-risk Audit Closeout / Alpha Closure
 - v0.9.1 Provider Gateway Summary-A
+- v0.9.1 Provider Usage Summary-B
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -105,16 +106,17 @@
 - v0.9.0-alpha Creation Loop Closeout Record：`lne creation-loop-closeout <slug> --write-report` 仅在 ready 后写入 `creation_loop_alpha_closeout.json` 收口记录，未 ready 不落盘
 - v0.9.0-alpha Low-risk Audit Closeout / Alpha Closure：低风险静态审计 info 不再阻断 closeout；本地导入项目 `v090-alpha-proof` 已写入 closeout record，v0.9.0-alpha 整体收口
 - v0.9.1 Provider Gateway Summary-A：新增 `get_provider_gateway_summary()` 与只读 `GET /api/settings/providers`，返回脱敏 LLM/Seedream provider 列表、单 provider 路由、mock/占位图降级策略、成本观测口径和 warning；不创建客户端、不打网络、不落盘、不返回明文 Key
+- v0.9.1 Provider Usage Summary-B：新增 `get_provider_usage_summary()` 与只读 `GET /api/settings/provider-usage`，从 `intervention_compilation.json` / `multi_agent_trace.json` 聚合 `generation_meta.usage`，支持安全 `story_slug` 过滤，不内置真实价格表
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 620 passed
+- 后端 python -m pytest -q 为 624 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步继续 `v0.9.1 Provider & Cost Gateway Lite`：在已完成 provider 摘要、脱敏展示和降级状态的基础上，继续成本聚合、模型路由配置或前端可视化。`v0.9.0-alpha Long Novel Creation Loop` 已整体收口，证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`。v0.9.1 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步继续 `v0.9.1 Provider & Cost Gateway Lite`：在已完成 provider 摘要、脱敏展示、降级状态和 usage 聚合的基础上，继续模型路由配置、价格表配置或前端可视化。`v0.9.0-alpha Long Novel Creation Loop` 已整体收口，证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`。v0.9.1 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -135,10 +137,10 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `620 passed` |
+| 后端基线 | `624 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider Gateway Summary-A |
-| 官方下一刀 | `v0.9.1 Provider & Cost Gateway Lite` 后续成本聚合/路由配置 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider Gateway Summary-A、v0.9.1 Provider Usage Summary-B |
+| 官方下一刀 | `v0.9.1 Provider & Cost Gateway Lite` 后续路由/价格配置或前端可视化 |
 | 后续主线 | `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
 ## 阶段性质与产品化判断
@@ -481,6 +483,14 @@ React/Vite 产品级前端主闭环已完成：
 - 边界：不创建客户端、不打网络、不落盘、不返回明文 Key 或环境变量名；暂不内置真实价格表，不改 LLM/Seedream 调用链。
 - 完整验证：`python -m pytest -q` 620 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
 
+## v0.9.1 Provider Usage Summary-B 收口摘要
+
+- 新增 `service.runtime_settings.get_provider_usage_summary(story_slug=None)`，只读扫描已有 `generation_meta.usage`。
+- 新增 `GET /api/settings/provider-usage`，支持可选 `story_slug` 查询参数并经 `safe_id` 校验；非法 slug 返回 400。
+- 返回 `totals`、`by_provider`、前 50 条 usage record、缺失 usage 的 meta 计数和空成本估算（`price_table_not_configured`）。
+- 边界：不读取 Key、不打网络、不内置真实价格，不写入或修改 run artifact。
+- 完整验证：`python -m pytest -q` 624 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
+
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
 - `browser.indexer.get_project_workspace()` 版本提升为 `v0.9.0-alpha`，additive 返回 `creation_loop`：`recommended`、`candidates`、五步 `checklist`、中文 `next_steps`。
@@ -536,7 +546,7 @@ React/Vite 产品级前端主闭环已完成：
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 已整体收口 |
-| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 进行中：Provider Gateway Summary-A 已收口 |
+| v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 进行中：Provider Gateway Summary-A / Provider Usage Summary-B 已收口 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | BM25/ledger 召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | v0.8.10 状态执行层不足时触发 |

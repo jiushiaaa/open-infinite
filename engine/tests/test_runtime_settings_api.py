@@ -7,6 +7,7 @@ import socket
 import threading
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 import pytest
 
@@ -18,6 +19,7 @@ from living_novel_engine.service import (
     default_rounds,
     default_runner,
     get_provider_gateway_summary,
+    get_provider_usage_summary,
     get_runtime_settings,
     update_runtime_settings,
 )
@@ -49,6 +51,11 @@ def iso_env(monkeypatch):
 
 
 # ── service 层 ────────────────────────────────────────────
+
+
+def _write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
 
 class TestService:
@@ -140,6 +147,82 @@ class TestService:
         assert "7788" in text
         assert "8899" in text
 
+    def test_provider_usage_summary_aggregates_existing_artifacts(
+        self, iso_env, tmp_path, monkeypatch
+    ):
+        monkeypatch.setenv("LNE_OUTPUTS_DIR", str(tmp_path / "outputs"))
+        run_dir = tmp_path / "outputs" / "run_usage"
+        _write_json(
+            run_dir / "intervention.json",
+            {"story_slug": "story-a", "source_kind": "imported"},
+        )
+        _write_json(
+            run_dir / "intervention_compilation.json",
+            {
+                "generation_meta": {
+                    "source": "llm",
+                    "model_name": "compiler-model",
+                    "usage": {
+                        "prompt_tokens": 10,
+                        "completion_tokens": 5,
+                        "total_tokens": 15,
+                    },
+                }
+            },
+        )
+        _write_json(
+            run_dir / "branch_a" / "multi_agent_trace.json",
+            {
+                "turn_plans": [],
+                "generation_meta": {
+                    "source": "llm",
+                    "model_name": "trace-model",
+                    "usage": {
+                        "prompt_tokens": 20,
+                        "completion_tokens": 10,
+                        "total_tokens": 30,
+                    },
+                },
+            },
+        )
+        _write_json(
+            run_dir / "branch_b" / "multi_agent_trace.json",
+            {"turn_plans": [], "generation_meta": {"source": "fallback"}},
+        )
+
+        summary = get_provider_usage_summary(story_slug="story-a")
+
+        assert summary["version"] == "v0.9.1-provider-usage-lite"
+        assert summary["run_count"] == 1
+        assert summary["record_count"] == 2
+        assert summary["missing_usage_record_count"] == 1
+        assert summary["totals"]["prompt_tokens"] == 30
+        assert summary["totals"]["completion_tokens"] == 15
+        assert summary["totals"]["total_tokens"] == 45
+        assert summary["by_provider"][0]["provider_id"] == "primary_llm"
+        assert summary["by_provider"][0]["total_tokens"] == 45
+        assert summary["cost_estimate"]["estimated_total"] is None
+
+    def test_provider_usage_summary_filters_story_slug(self, iso_env, tmp_path, monkeypatch):
+        monkeypatch.setenv("LNE_OUTPUTS_DIR", str(tmp_path / "outputs"))
+        for slug, tokens in (("story-a", 11), ("story-b", 99)):
+            run_dir = tmp_path / "outputs" / f"run_{slug}"
+            _write_json(run_dir / "intervention.json", {"story_slug": slug})
+            _write_json(
+                run_dir / "intervention_compilation.json",
+                {
+                    "generation_meta": {
+                        "source": "llm",
+                        "usage": {"total_tokens": tokens},
+                    }
+                },
+            )
+
+        summary = get_provider_usage_summary(story_slug="story-a")
+
+        assert summary["run_count"] == 1
+        assert summary["totals"]["total_tokens"] == 11
+
 
 # ── HTTP ──────────────────────────────────────────────────
 
@@ -201,6 +284,22 @@ class TestHttp:
         assert body["version"] == "v0.9.1-provider-cost-lite"
         assert body["routing"]["mode"] == "single_provider"
         assert body["routing"]["llm_route"] == "mock"
+
+    def test_get_provider_usage(self, running_server):
+        status, body = _get(running_server, "/api/settings/provider-usage")
+        assert status == 200
+        assert body["version"] == "v0.9.1-provider-usage-lite"
+        assert body["totals"]["total_tokens"] == 0
+
+    def test_get_provider_usage_rejects_bad_story_slug(self, running_server):
+        try:
+            _get(running_server, "/api/settings/provider-usage?story_slug=../bad")
+        except urllib.error.HTTPError as exc:
+            assert exc.code == 400
+            body = json.loads(exc.read().decode("utf-8"))
+            assert body["error"] == "invalid story_slug"
+        else:
+            raise AssertionError("bad story_slug should return 400")
 
     def test_post_update_no_plaintext(self, running_server):
         status, body = _post(

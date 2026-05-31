@@ -7,9 +7,13 @@
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
+from living_novel_engine.browser.paths import outputs_dir
 from living_novel_engine.llm.client import LLMClient, LLMSettings
 from living_novel_engine.orchestrator import available_runners
 from living_novel_engine.visual_assets.seedream_client import (
@@ -235,6 +239,154 @@ def get_provider_gateway_summary() -> dict:
             "note": "当前只汇总 token 用量来源；精确价格表留给后续按 provider 配置。",
         },
         "warnings": warnings,
+    }
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, UnicodeDecodeError):
+        return {}
+
+
+def _run_story_slug(run_dir: Path) -> str:
+    for name in ("meta.json", "intervention.json", "baseline_report.json"):
+        data = _read_json(run_dir / name)
+        slug = data.get("story_slug") or data.get("sample_slug")
+        if slug:
+            return str(slug)
+    return "tianhuang-night"
+
+
+def _usage_value(usage: dict[str, Any], key: str) -> int:
+    try:
+        value = usage.get(key)
+        if value is None:
+            return 0
+        return max(0, int(value))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _normalize_usage(usage: dict[str, Any]) -> dict[str, int]:
+    prompt = _usage_value(usage, "prompt_tokens")
+    completion = _usage_value(usage, "completion_tokens")
+    total = _usage_value(usage, "total_tokens") or prompt + completion
+    return {
+        "prompt_tokens": prompt,
+        "completion_tokens": completion,
+        "total_tokens": total,
+    }
+
+
+def _usage_meta_records(run_dir: Path) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    compilation = _read_json(run_dir / "intervention_compilation.json")
+    meta = compilation.get("generation_meta")
+    if isinstance(meta, dict):
+        records.append(
+            {
+                "artifact": "intervention_compilation.json",
+                "branch_id": None,
+                "meta": meta,
+            }
+        )
+
+    try:
+        branch_dirs = [p for p in run_dir.iterdir() if p.is_dir()]
+    except OSError:
+        branch_dirs = []
+    for branch_dir in branch_dirs:
+        trace = _read_json(branch_dir / "multi_agent_trace.json")
+        meta = trace.get("generation_meta")
+        if not isinstance(meta, dict):
+            continue
+        records.append(
+            {
+                "artifact": "multi_agent_trace.json",
+                "branch_id": branch_dir.name,
+                "meta": meta,
+            }
+        )
+    return records
+
+
+def _empty_usage() -> dict[str, int]:
+    return {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+
+
+def get_provider_usage_summary(*, story_slug: str | None = None) -> dict:
+    """汇总已有 generation_meta.usage；不估价、不联网、不改 artifact。"""
+    root = outputs_dir()
+    totals = _empty_usage()
+    provider_totals: dict[str, dict[str, int]] = {"primary_llm": _empty_usage()}
+    records: list[dict[str, Any]] = []
+    missing_usage_record_count = 0
+    run_count = 0
+
+    try:
+        run_dirs = sorted(root.iterdir(), reverse=True) if root.exists() else []
+    except OSError:
+        run_dirs = []
+
+    for run_dir in run_dirs:
+        try:
+            if not run_dir.is_dir() or not run_dir.name.startswith("run_"):
+                continue
+        except OSError:
+            continue
+        run_slug = _run_story_slug(run_dir)
+        if story_slug and run_slug != story_slug:
+            continue
+        run_count += 1
+
+        for item in _usage_meta_records(run_dir):
+            meta = item["meta"]
+            usage = meta.get("usage")
+            if not isinstance(usage, dict):
+                missing_usage_record_count += 1
+                continue
+            normalized = _normalize_usage(usage)
+            for key, value in normalized.items():
+                totals[key] += value
+                provider_totals["primary_llm"][key] += value
+            records.append(
+                {
+                    "provider_id": "primary_llm",
+                    "run_id": run_dir.name,
+                    "branch_id": item["branch_id"],
+                    "artifact": item["artifact"],
+                    "source": meta.get("source"),
+                    "model_name": meta.get("model_name"),
+                    "usage": normalized,
+                }
+            )
+
+    by_provider = [
+        {
+            "provider_id": provider_id,
+            "record_count": sum(1 for r in records if r["provider_id"] == provider_id),
+            **usage,
+        }
+        for provider_id, usage in provider_totals.items()
+    ]
+
+    return {
+        "version": "v0.9.1-provider-usage-lite",
+        "story_slug": story_slug,
+        "run_count": run_count,
+        "record_count": len(records),
+        "missing_usage_record_count": missing_usage_record_count,
+        "totals": totals,
+        "by_provider": by_provider,
+        "records": records[:50],
+        "record_limit": 50,
+        "truncated": len(records) > 50,
+        "cost_estimate": {
+            "currency": "USD",
+            "estimated_total": None,
+            "reason": "price_table_not_configured",
+        },
     }
 
 
