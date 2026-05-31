@@ -9,6 +9,7 @@ import type {
   CanonReplayRangeReport,
   CanonReplayRangeRequest,
   CanonReplayRequest,
+  ChapterCollectionExport,
   ChapterExport,
   CharacterProbe,
   ConnectivityResult,
@@ -305,6 +306,14 @@ export const api = {
   getChapterExport(runId: string, branchId: string): Promise<ChapterExport> {
     return getJson(
       `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/chapter-export`,
+    );
+  },
+  getChapterCollectionExport(
+    runId: string,
+    branchId: string,
+  ): Promise<ChapterCollectionExport> {
+    return getJson(
+      `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/chapter-collection-export`,
     );
   },
   // ── v0.8+ 涌现节点 ─────────────────────────────────────

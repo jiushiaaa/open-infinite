@@ -244,6 +244,20 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     )
                 return self._handle_chapter_export_get(run_id, branch_id)
 
+            if (
+                path.startswith("/api/runs/")
+                and "/branches/" in path
+                and path.endswith("/chapter-collection-export")
+            ):
+                run_id, branch_id = self._extract_run_branch_for_suffix(
+                    path, "/chapter-collection-export"
+                )
+                if run_id is None or branch_id is None:
+                    return self._send_json(
+                        {"error": "invalid run_id or branch_id"}, status=400
+                    )
+                return self._handle_chapter_collection_export_get(run_id, branch_id)
+
             if path.startswith("/api/runs/") and "/branches/" in path:
                 rest = path[len("/api/runs/") :]
                 run_id_raw, _, branch_part = rest.partition("/branches/")
@@ -403,6 +417,25 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
         try:
             export = build_chapter_export(run_id=run_id, branch_id=branch_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except ChapterExportRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(export)
+
+    def _handle_chapter_collection_export_get(
+        self,
+        run_id: str,
+        branch_id: str,
+    ) -> None:
+        """v0.9.0-alpha：沿父链导出世界线章节合集。"""
+        from living_novel_engine.service import (
+            ChapterExportRequestError,
+            build_chapter_collection_export,
+        )
+
+        try:
+            export = build_chapter_collection_export(run_id=run_id, branch_id=branch_id)
         except FileNotFoundError as exc:
             return self._send_json({"error": str(exc)}, status=404)
         except ChapterExportRequestError as exc:

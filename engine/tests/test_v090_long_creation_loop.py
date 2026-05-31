@@ -19,10 +19,15 @@ def _chapter_export_api():
         from living_novel_engine.service import (
             ChapterExportRequestError,
             build_chapter_export,
+            build_chapter_collection_export,
         )
     except ImportError as exc:  # pragma: no cover - red phase assertion
         pytest.fail(f"缺少章节导出服务: {exc}")
-    return ChapterExportRequestError, build_chapter_export
+    return (
+        ChapterExportRequestError,
+        build_chapter_export,
+        build_chapter_collection_export,
+    )
 
 
 def _resume_continue_api():
@@ -182,6 +187,41 @@ def _write_replay_range(outputs):
     )
 
 
+def _write_child_continue_run(outputs, parent_run_id: str, parent_branch_id: str):
+    child_run_id = "run_v090_child"
+    run_dir = outputs / child_run_id
+    branch_dir = run_dir / "linear"
+    branch_dir.mkdir(parents=True)
+    (run_dir / "meta.json").write_text(
+        json.dumps(
+            {
+                "kind": "resume_continue",
+                "story_slug": "export-story",
+                "source_kind": "imported",
+                "parent_run_id": parent_run_id,
+                "parent_branch": parent_branch_id,
+                "current_chapter": 8,
+                "lineage": [parent_run_id, child_run_id],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (branch_dir / "events.json").write_text(
+        json.dumps({"theme": "顺势续写"}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    (branch_dir / "state_snapshot.json").write_text(
+        json.dumps({"characters": {"zhao_xuan": {"name": "赵轩"}}}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    (branch_dir / "chapter.md").write_text(
+        "# 第八章 风声入卷\n\n赵轩循着风鸣铃余音，写下第二条证词。",
+        encoding="utf-8",
+    )
+    return child_run_id, "linear"
+
+
 def _chapters(n: int = 6) -> list[dict]:
     return [
         {
@@ -261,7 +301,7 @@ def running_server(isolated_dirs):
 
 
 def test_chapter_export_contains_source_ai_notice_and_judgement(isolated_dirs):
-    _, build_chapter_export = _chapter_export_api()
+    _, build_chapter_export, _ = _chapter_export_api()
     run_id, branch_id = _write_branch(isolated_dirs)
 
     export = build_chapter_export(
@@ -283,7 +323,7 @@ def test_chapter_export_contains_source_ai_notice_and_judgement(isolated_dirs):
 
 
 def test_chapter_export_rejects_bad_id_and_missing_chapter(isolated_dirs):
-    ChapterExportRequestError, build_chapter_export = _chapter_export_api()
+    ChapterExportRequestError, build_chapter_export, _ = _chapter_export_api()
 
     with pytest.raises(ChapterExportRequestError):
         build_chapter_export(
@@ -298,6 +338,32 @@ def test_chapter_export_rejects_bad_id_and_missing_chapter(isolated_dirs):
             branch_id="branch_a",
             outputs_dir=isolated_dirs,
         )
+
+
+def test_chapter_collection_export_orders_parent_and_child_chapters(isolated_dirs):
+    _, _, build_chapter_collection_export = _chapter_export_api()
+    parent_run_id, parent_branch_id = _write_branch(isolated_dirs)
+    child_run_id, child_branch_id = _write_child_continue_run(
+        isolated_dirs,
+        parent_run_id,
+        parent_branch_id,
+    )
+
+    export = build_chapter_collection_export(
+        run_id=child_run_id,
+        branch_id=child_branch_id,
+        outputs_dir=isolated_dirs,
+    )
+
+    assert export["kind"] == "chapter_collection_export"
+    assert export["chapter_count"] == 2
+    assert export["chapters"][0]["run_id"] == parent_run_id
+    assert export["chapters"][1]["run_id"] == child_run_id
+    assert export["content_md"].find("第七章 风鸣旧案") < export["content_md"].find(
+        "第八章 风声入卷"
+    )
+    assert "AI 生成说明" in export["content_md"]
+    assert "不导出上传原作全文" in export["content_md"]
 
 
 def test_http_chapter_export_statuses(running_server):
@@ -319,6 +385,31 @@ def test_http_chapter_export_statuses(running_server):
     )
     assert missing_status == 404
     assert "章节不存在" in missing["error"]
+
+
+def test_http_chapter_collection_export_statuses(running_server):
+    port, outputs = running_server
+    parent_run_id, parent_branch_id = _write_branch(outputs)
+    child_run_id, child_branch_id = _write_child_continue_run(
+        outputs,
+        parent_run_id,
+        parent_branch_id,
+    )
+
+    status, body = _get(
+        port,
+        f"/api/runs/{child_run_id}/branches/{child_branch_id}/chapter-collection-export",
+    )
+    assert status == 200
+    assert body["kind"] == "chapter_collection_export"
+    assert body["chapter_count"] == 2
+
+    bad_status, bad = _get(
+        port,
+        "/api/runs/..%2Foutside/branches/branch_a/chapter-collection-export",
+    )
+    assert bad_status == 400
+    assert bad["error"] == "invalid run_id or branch_id"
 
 
 def test_project_workspace_creation_loop_recommends_exportable_worldline(

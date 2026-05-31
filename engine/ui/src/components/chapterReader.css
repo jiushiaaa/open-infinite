@@ -23,6 +23,13 @@
   gap: var(--space-3);
   flex-wrap: wrap;
 }
+.reader__export-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
 .reader__title {
   font-size: 22px;
 }
@@ -54,7 +61,6 @@
   cursor: not-allowed;
 }
 .reader__export {
-  flex: 0 0 auto;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
   background: var(--paper);
@@ -143,5 +149,9 @@
 
   .reader__export {
     width: fit-content;
+  }
+
+  .reader__export-actions {
+    justify-content: flex-start;
   }
 }

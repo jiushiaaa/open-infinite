@@ -170,3 +170,189 @@ def build_chapter_export(
             "exported_at": exported_at,
         },
     }
+
+
+def _story_source_for_run(run_dir: Path) -> tuple[str, str]:
+    intervention = _read_json(run_dir / "intervention.json")
+    meta = _read_json(run_dir / "meta.json")
+    story_slug = str(
+        intervention.get("story_slug")
+        or intervention.get("sample_slug")
+        or meta.get("story_slug")
+        or meta.get("sample_slug")
+        or "unknown-story"
+    )
+    source_kind = str(
+        intervention.get("source_kind") or meta.get("source_kind") or "unknown"
+    )
+    return story_slug, source_kind
+
+
+def _collection_item(
+    *,
+    run_id: str,
+    branch_id: str,
+    root: Path,
+) -> dict[str, Any]:
+    run_dir = root / run_id
+    branch_dir = run_dir / branch_id
+    chapter_path = branch_dir / "chapter.md"
+    if not chapter_path.exists():
+        raise FileNotFoundError(f"章节不存在: {run_id}/{branch_id}")
+    events = _read_json(branch_dir / "events.json")
+    compilation = _read_json(run_dir / "intervention_compilation.json")
+    theme = str(events.get("theme") or "")
+    return {
+        "run_id": run_id,
+        "branch_id": branch_id,
+        "branch_label": _branch_label(
+            branch_id=branch_id,
+            theme=theme,
+            compilation=compilation,
+        ),
+        "chapter_md": chapter_path.read_text(encoding="utf-8").strip(),
+    }
+
+
+def _parent_ref(run_dir: Path) -> tuple[str, str] | None:
+    meta = _read_json(run_dir / "meta.json")
+    parent_run_id = safe_id(str(meta.get("parent_run_id") or ""))
+    parent_branch_id = safe_id(str(meta.get("parent_branch") or ""))
+    if parent_run_id and parent_branch_id:
+        return parent_run_id, parent_branch_id
+    return None
+
+
+def build_chapter_collection_export(
+    *,
+    run_id: str,
+    branch_id: str,
+    outputs_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Build a Markdown collection along a run/branch parent chain.
+
+    The collection is read-only. It follows ``meta.parent_run_id`` /
+    ``meta.parent_branch`` backward, then renders chapters in chronological
+    order. Missing ancestors degrade to warnings after the requested branch has
+    been included.
+    """
+
+    rid = safe_id(run_id)
+    bid = safe_id(branch_id)
+    if rid is None or bid is None:
+        raise ChapterExportRequestError("invalid run_id or branch_id")
+
+    root = outputs_dir or default_outputs_dir()
+    current: tuple[str, str] | None = (rid, bid)
+    seen: set[tuple[str, str]] = set()
+    items: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    story_slug = "unknown-story"
+    source_kind = "unknown"
+
+    while current is not None and len(items) < 24:
+        cur_run_id, cur_branch_id = current
+        if current in seen:
+            warnings.append("检测到父链循环，合集已在安全位置截断。")
+            break
+        seen.add(current)
+        run_dir = root / cur_run_id
+        if not run_dir.is_dir():
+            if not items:
+                raise FileNotFoundError(f"运行不存在: {cur_run_id}")
+            warnings.append(f"父运行不存在，已停止回溯：{cur_run_id}")
+            break
+        try:
+            items.append(
+                _collection_item(
+                    run_id=cur_run_id,
+                    branch_id=cur_branch_id,
+                    root=root,
+                )
+            )
+        except FileNotFoundError:
+            if not items:
+                raise
+            warnings.append(f"父分支章节缺失，已停止回溯：{cur_run_id}/{cur_branch_id}")
+            break
+        story_slug, source_kind = _story_source_for_run(run_dir)
+        current = _parent_ref(run_dir)
+
+    items.reverse()
+    safe_story_slug = safe_id(story_slug) or "story"
+    filename = f"{safe_story_slug}_{rid}_{bid}_collection.md"
+    exported_at = datetime.now().isoformat(timespec="seconds")
+    ai_notice = (
+        "本合集包含 Living Novel Engine 沿所选世界线父链生成或推演的章节；"
+        "公开使用前请自行核对版权、事实与来源。"
+    )
+    source_notice = (
+        "本次合集只包含世界线父链中的生成章节与必要元数据，不导出上传原作全文或隐藏评估集正文。"
+    )
+
+    lines = [
+        f"# 导出合集：{items[-1]['branch_label'] if items else bid}",
+        "",
+        "## 导出信息",
+        "",
+        f"- 故事：`{story_slug}`",
+        f"- 起点：`{items[0]['run_id']}/{items[0]['branch_id']}`" if items else "",
+        f"- 终点：`{rid}/{bid}`",
+        f"- 来源类型：{source_kind}",
+        f"- 章节数：{len(items)}",
+        f"- 导出时间：{exported_at}",
+    ]
+    if warnings:
+        lines.extend(["", "## 导出提示", ""])
+        lines.extend(f"- {warning}" for warning in warnings)
+    lines.extend(
+        [
+            "",
+            "## 来源说明",
+            "",
+            source_notice,
+            "",
+            "## AI 生成说明",
+            "",
+            ai_notice,
+            "",
+        ]
+    )
+    for idx, item in enumerate(items, start=1):
+        lines.extend(
+            [
+                f"## 第 {idx} 节 · {item['branch_label']}",
+                "",
+                f"> 来源：`{item['run_id']}/{item['branch_id']}`",
+                "",
+                item["chapter_md"],
+                "",
+            ]
+        )
+
+    return {
+        "version": "v0.9.0-alpha",
+        "kind": "chapter_collection_export",
+        "run_id": rid,
+        "branch_id": bid,
+        "story_slug": story_slug,
+        "filename": filename,
+        "content_type": "text/markdown; charset=utf-8",
+        "content_md": "\n".join(line for line in lines if line is not None),
+        "chapter_count": len(items),
+        "chapters": [
+            {
+                "run_id": item["run_id"],
+                "branch_id": item["branch_id"],
+                "branch_label": item["branch_label"],
+            }
+            for item in items
+        ],
+        "warnings": warnings,
+        "metadata": {
+            "source_kind": source_kind,
+            "ai_notice": ai_notice,
+            "source_notice": source_notice,
+            "exported_at": exported_at,
+        },
+    }

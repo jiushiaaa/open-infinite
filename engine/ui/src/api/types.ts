@@ -991,6 +991,30 @@ export interface ChapterExport {
   };
 }
 
+export interface ChapterCollectionExport {
+  version: string;
+  kind: "chapter_collection_export";
+  run_id: string;
+  branch_id: string;
+  story_slug: string;
+  filename: string;
+  content_type: string;
+  content_md: string;
+  chapter_count: number;
+  chapters: Array<{
+    run_id: string;
+    branch_id: string;
+    branch_label: string;
+  }>;
+  warnings: string[];
+  metadata: {
+    source_kind: string;
+    ai_notice: string;
+    source_notice: string;
+    exported_at: string;
+  };
+}
+
 // ── v0.8+ ActDirector / Dynamic Action / Emergence ───────
 
 export interface ActionPlanStep {

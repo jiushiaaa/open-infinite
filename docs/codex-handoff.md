@@ -45,6 +45,7 @@
 - v0.8.10-A Runner State Execution Spike
 - v0.8.10-B Runner State Execution MVP
 - v0.9.0-alpha Chapter Export
+- v0.9.0-alpha Chapter Collection Export
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -73,16 +74,17 @@
 - v0.8.10-A Runner State Execution Spike：新增 dry-run 状态执行评估报告、HTTP API 与前端「状态执行评估」，解释 action/emergence 能否安全转成状态 delta；不写 `state_snapshot.json`，不改 `run_scene` 默认行为
 - v0.8.10-B Runner State Execution MVP：新增显式确认的状态 overlay 应用/回滚，low-risk 白名单 delta 写 `state_execution_overlay.json`，原 `state_snapshot.json` 不被覆盖
 - v0.9.0-alpha Chapter Export：新增只读章节导出服务、HTTP API 与前端「导出章节」入口，导出 Markdown 包含来源说明、AI 生成说明、评审摘要和章节正文
+- v0.9.0-alpha Chapter Collection Export：新增父链章节合集导出服务、HTTP API 与前端「导出合集」入口，按 `parent_run_id` / `parent_branch` 串联生成章节且不导出上传原文
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 605 passed
+- 后端 python -m pytest -q 为 607 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步继续推进 `v0.9.0-alpha Long Novel Creation Loop`：Chapter Export、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口，仍需把多章节导出、分享/版权边界等剩余产品闭环补齐。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步继续推进 `v0.9.0-alpha Long Novel Creation Loop`：Chapter Export、Chapter Collection Export、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口，仍需把分享/版权边界等剩余产品闭环补齐。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -103,9 +105,9 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `605 passed` |
+| 后端基线 | `607 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Chapter Export、v0.9.0-alpha Creation Loop Checklist、v0.9.0-alpha Continuation Hint、v0.9.0-alpha Resume Continue HTTP Job、v0.9.0-alpha Worldline Selection Persistence、v0.9.0-alpha Post-run Audit Entry |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Chapter Export、v0.9.0-alpha Chapter Collection Export、v0.9.0-alpha Creation Loop Checklist、v0.9.0-alpha Continuation Hint、v0.9.0-alpha Resume Continue HTTP Job、v0.9.0-alpha Worldline Selection Persistence、v0.9.0-alpha Post-run Audit Entry |
 | 官方下一版 | `v0.9.0-alpha Long Novel Creation Loop`（进行中） |
 | 后续主线 | `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
@@ -121,7 +123,7 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | v0.8.0-A-v0.8.5-A | 长篇引擎底座 MVP | 长篇 memory/canon/retrieval/audit/holdout 成立 |
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 可读可验收，但不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座变成上传、检查、管理、审计、回放、继续创作工作流 |
-| v0.9.0-alpha | 长篇产品闭环 | 进行中：Chapter Export / Checklist / Continuation Hint / Resume Continue HTTP Job / Worldline Selection Persistence / Post-run Audit Entry 已走通，完整主链路仍是 alpha |
+| v0.9.0-alpha | 长篇产品闭环 | 进行中：Chapter Export / Chapter Collection Export / Checklist / Continuation Hint / Resume Continue HTTP Job / Worldline Selection Persistence / Post-run Audit Entry 已走通，完整主链路仍是 alpha |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估，以及商业级账号/权限/云端/观测 |
 
 ## 资料位置
@@ -315,6 +317,13 @@ React/Vite 产品级前端主闭环已完成：
 - 明确边界：不写回 `chapter.md`，不改 `run_scene` 默认行为，不导出上传原作全文或 holdout 私有正文。
 - 完整验证：`python -m pytest -q` 598 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
 
+## v0.9.0-alpha Chapter Collection Export 收口摘要
+
+- 新增 `build_chapter_collection_export()` 与 `GET /api/runs/<run_id>/branches/<branch_id>/chapter-collection-export`，沿 `meta.parent_run_id` / `meta.parent_branch` 回溯父链并按时间顺序生成 Markdown 合集。
+- React 阅读区新增「导出合集」按钮，与「导出章节」并列；成功提示会展示合集章节数，失败显示局部中文错误。
+- 明确边界：合集只读，不写 artifact，不改 `run_scene` 默认行为，不导出上传原作全文或 holdout 私有正文；父链缺失时安全截断并返回 warning。
+- 完整验证：`python -m pytest -q` 607 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
+
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
 - `browser.indexer.get_project_workspace()` 版本提升为 `v0.9.0-alpha`，additive 返回 `creation_loop`：`recommended`、`candidates`、五步 `checklist`、中文 `next_steps`。
@@ -369,7 +378,7 @@ React/Vite 产品级前端主闭环已完成：
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度和实体归一化后的审计展示 | 已收口 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Chapter Export / Checklist / Continuation Hint / Resume Continue HTTP Job / Worldline Selection Persistence / Post-run Audit Entry 已收口 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 进行中：Chapter Export / Chapter Collection Export / Checklist / Continuation Hint / Resume Continue HTTP Job / Worldline Selection Persistence / Post-run Audit Entry 已收口 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | BM25/ledger 召回不足时触发 |

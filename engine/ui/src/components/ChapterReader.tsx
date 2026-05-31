@@ -20,6 +20,7 @@ export function ChapterReader({
 }) {
   const [tab, setTab] = useState<Tab>("prose");
   const [exporting, setExporting] = useState(false);
+  const [collectionExporting, setCollectionExporting] = useState(false);
   const [exportMsg, setExportMsg] = useState<string | null>(null);
   const [exportErr, setExportErr] = useState<string | null>(null);
 
@@ -34,28 +35,54 @@ export function ChapterReader({
     branch.causal_diff?.lineage_type ?? disp.lineageType ?? compilation?.lineage_type;
   const isAu = isAlternateNovel(auLineage);
 
+  function downloadMarkdown(payload: {
+    filename: string;
+    content_type: string;
+    content_md: string;
+  }) {
+    const blob = new Blob([payload.content_md], {
+      type: payload.content_type || "text/markdown;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = payload.filename || `${branch.run_id}_${branch.branch_id}.md`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   async function handleExport() {
     setExporting(true);
     setExportErr(null);
     setExportMsg(null);
     try {
       const payload = await api.getChapterExport(branch.run_id, branch.branch_id);
-      const blob = new Blob([payload.content_md], {
-        type: payload.content_type || "text/markdown;charset=utf-8",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = payload.filename || `${branch.run_id}_${branch.branch_id}.md`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      downloadMarkdown(payload);
       setExportMsg("章节已生成下载文件，含来源与 AI 生成说明。");
     } catch (err) {
       setExportErr(err instanceof Error ? err.message : "导出失败，请稍后重试。");
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function handleCollectionExport() {
+    setCollectionExporting(true);
+    setExportErr(null);
+    setExportMsg(null);
+    try {
+      const payload = await api.getChapterCollectionExport(
+        branch.run_id,
+        branch.branch_id,
+      );
+      downloadMarkdown(payload);
+      setExportMsg(`合集已生成下载文件，共 ${payload.chapter_count} 节。`);
+    } catch (err) {
+      setExportErr(err instanceof Error ? err.message : "导出合集失败，请稍后重试。");
+    } finally {
+      setCollectionExporting(false);
     }
   }
 
@@ -74,19 +101,34 @@ export function ChapterReader({
               </span>
             )}
           </div>
-          <button
-            type="button"
-            className="reader__export"
-            onClick={handleExport}
-            disabled={exporting || !branch.chapter_md?.trim()}
-            title={
-              branch.chapter_md?.trim()
-                ? "导出当前世界线章节"
-                : "该分支暂无正文可导出"
-            }
-          >
-            {exporting ? "导出中…" : "导出章节"}
-          </button>
+          <div className="reader__export-actions">
+            <button
+              type="button"
+              className="reader__export"
+              onClick={handleCollectionExport}
+              disabled={collectionExporting || exporting || !branch.chapter_md?.trim()}
+              title={
+                branch.chapter_md?.trim()
+                  ? "沿父链导出连续章节合集"
+                  : "该分支暂无正文可导出"
+              }
+            >
+              {collectionExporting ? "导出中…" : "导出合集"}
+            </button>
+            <button
+              type="button"
+              className="reader__export"
+              onClick={handleExport}
+              disabled={exporting || collectionExporting || !branch.chapter_md?.trim()}
+              title={
+                branch.chapter_md?.trim()
+                  ? "导出当前世界线章节"
+                  : "该分支暂无正文可导出"
+              }
+            >
+              {exporting ? "导出中…" : "导出章节"}
+            </button>
+          </div>
         </div>
         <div className="reader__tabs">
           <button

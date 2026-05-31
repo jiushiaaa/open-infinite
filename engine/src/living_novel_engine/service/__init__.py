@@ -29,6 +29,7 @@ from .canon_replay import (
 )
 from .chapter_export import (
     ChapterExportRequestError,
+    build_chapter_collection_export,
     build_chapter_export,
 )
 from .diff_actions import (
@@ -133,6 +134,7 @@ __all__ = [
     "ChapterExportRequestError",
     "generate_baseline",
     "get_baseline_report",
+    "build_chapter_collection_export",
     "build_chapter_export",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
