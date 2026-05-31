@@ -232,6 +232,103 @@ export interface ImportReview {
   chapter_previews: ImportChapterPreview[];
 }
 
+export interface ProjectWorkspaceLayer {
+  name: string;
+  path: string;
+  count: number;
+}
+
+export interface ProjectWorkspaceMemory {
+  status: "ready" | "missing" | "damaged" | string;
+  version: string;
+  created_at?: string;
+  layer_count: number;
+  layers: ProjectWorkspaceLayer[];
+  warnings: string[];
+}
+
+export interface ProjectWorkspaceCanonLedger {
+  status: "ready" | "missing" | "damaged" | string;
+  entry_count: number;
+  type_counts: Record<string, number>;
+  samples: Array<{
+    id: string;
+    type: string;
+    chapter?: number | null;
+    source_ref: string;
+    statement: string;
+  }>;
+  warnings: string[];
+}
+
+export interface ProjectWorkspaceRetrieval {
+  status: "ready" | "missing" | string;
+  hit_count: number;
+  samples: Array<{
+    run_id: string;
+    branch_id: string;
+    source?: string;
+    source_ref?: string;
+    score?: number | null;
+    preview: string;
+  }>;
+  warnings: string[];
+}
+
+export interface ProjectWorkspaceAudit {
+  status: "ready" | "missing" | "damaged" | string;
+  version: string;
+  created_at?: string;
+  summary: {
+    issue_count: number;
+    risk_level?: string;
+    entity_alias_count?: number;
+  };
+  issues: Array<{
+    category: string;
+    kind: string;
+    severity: string;
+    detail: string;
+    evidence: string;
+  }>;
+  repair_suggestions: string[];
+  warnings: string[];
+}
+
+export interface ProjectWorkspace {
+  version: string;
+  slug: string;
+  source_kind: SourceKind;
+  display_name: string;
+  source: {
+    type?: string;
+    name?: string;
+    file_count?: number;
+    filenames?: string[];
+  };
+  chapter_overview: {
+    total_chapters: number;
+    total_characters: number;
+    playable_chapter_limit: number;
+    partial_ready: boolean;
+    previews: ImportChapterPreview[];
+  };
+  import_review: ImportReview | null;
+  memory: ProjectWorkspaceMemory;
+  canon_ledger: ProjectWorkspaceCanonLedger;
+  entity_aliases: EntityAliasSummary;
+  retrieval: ProjectWorkspaceRetrieval;
+  audit: ProjectWorkspaceAudit;
+  run_count: number;
+  actions: {
+    anchor_hash: string;
+    workspace_hash: string;
+    can_start_baseline: boolean;
+    can_start_intervention: boolean;
+    next_steps: string[];
+  };
+}
+
 export interface ImportNovelResponse {
   story_slug: string;
   display_name: string;

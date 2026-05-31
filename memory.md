@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs 已完成；下一刀进入 v0.8.8 Long Project Workspace；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 581 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace 已完成；下一刀进入 v0.8.9 Long Replay & Audit UI；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 584 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `581 passed`（2026-05-31，v0.8.7 Resumable Ingest Jobs 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.8.8 Long Project Workspace**（长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告） |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs 已收口 → v0.8.8 Long Project Workspace → v0.8.9 Long Replay & Audit UI → v0.8.10 Runner State Execution A/B → v0.9.0-alpha Long Novel Creation Loop → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.8.7 Resumable Ingest Jobs：新增持久化 ingest session，支持服务端分片 manifest、刷新后查询缺失分片、重复 chunk 幂等、chunk/full-file sha256 校验、缺片 409、坏 session 400/404；前端导入页改为 session 上传并用 localStorage 恢复缺失分片，complete 后复用既有 import job。 |
+| **测试基线** | 后端 `584 passed`（2026-05-31，v0.8.8 Long Project Workspace 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.8.9 Long Replay & Audit UI**（长篇 Canon Replay / Consistency Audit 前端产品化） |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace 已收口 → v0.8.9 Long Replay & Audit UI → v0.8.10 Runner State Execution A/B → v0.9.0-alpha Long Novel Creation Loop → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
+| **刚收口** | v0.8.8 Long Project Workspace：新增项目级工作台 API 与前端总览页，集中展示导入检查、章节片段、分层记忆、正史账本、实体别名、检索命中、一致性审计和世界锚定/继续阅读入口；缺失或损坏报告降级为空态。 |
 
 ---
 
@@ -117,8 +117,8 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | --- | --- | --- | --- |
 | v0.8.6 | Long Import Review | 导入报告细化、章节列表/正文片段预览、导入质量空态、坏 zip/epub/空文件/章节过少等错误态收束 | 已收口 |
 | v0.8.7 | Resumable Ingest Jobs | 真正服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 已收口 |
-| v0.8.8 | Long Project Workspace | 长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中、审计报告，并能从项目发起 baseline/intervention | 下一刀 |
-| v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 待做 |
+| v0.8.8 | Long Project Workspace | 长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中、审计报告，并能从项目发起 baseline/intervention | 已收口 |
+| v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 下一刀 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 待做 |
 | v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 待 v0.8 收束后开启 |
@@ -437,8 +437,8 @@ lne list-genres
 → v0.8.x   Entity aliases / runtime memory consumption / 前端 artifact 面板 / 长篇上传产品化已收口
 → v0.8.6   Long Import Review：导入报告细化 + 章节预览 + 质量/失败空态（已收口）
 → v0.8.7   Resumable Ingest Jobs：断点续传与恢复（已收口）
-→ v0.8.8   Long Project Workspace：长篇项目资产页（下一刀）
-→ v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI
+→ v0.8.8   Long Project Workspace：长篇项目资产页（已收口）
+→ v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI（下一刀）
 → v0.8.10  Runner State Execution：状态执行层评估与 MVP
 → v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环
 → v0.9.1   Provider & Cost Gateway Lite（成本/稳定性触发）
@@ -1308,3 +1308,13 @@ lne list-genres
 - **测试**：新增 `tests/test_v087_resumable_ingest_jobs.py`（4 passed）；导入/job 回归 `28 passed`；完整后端 `python -m pytest -q` 为 **581 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **明确未做**：云端多用户持久队列、对象存储、跨设备恢复、分片并发上传、前端 session 列表管理、epub spine 精排、长篇项目资产页。
 - **下一刀建议**：进入 `v0.8.8 Long Project Workspace`，做长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中与审计报告，并提供从项目发起 baseline/intervention 的入口。
+
+### 2026-05-31 — v0.8.8 Long Project Workspace
+
+- **做了什么**：
+  - 新增 `browser.indexer.get_project_workspace()` 与 `GET /api/stories/<slug>/project-workspace`，把导入检查、章节预览、分层记忆 manifest、`canon_ledger.jsonl`、`entity_aliases.yaml`、最近运行检索命中和 `consistency_report.json` 聚合成项目级只读工作台数据。
+  - 章节、记忆、正史账本、审计报告缺失或损坏时返回 `missing` / `damaged` 空态和中文 warning，不抛 500；HTTP slug 继续走 `safe_id`，非法 slug 返回 400，缺失项目返回 404。
+  - React `WorkspacePage` 在未选择世界线时展示长篇项目工作台：项目指标、导入风险、下一步建议、章节片段、分层记忆、正史样例、检索命中、审计风险和世界锚定/继续阅读入口；选中世界线后保留原阅读、右侧机制档案与干预体验。
+- **测试**：新增 `tests/test_v088_long_project_workspace.py`（3 passed）；完整后端 `python -m pytest -q` 为 **584 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **明确未做**：长篇 Canon Replay / Consistency Audit 的专门 UI、章节范围 replay、运行后审计写回、runner 状态执行层。
+- **下一刀建议**：进入 `v0.8.9 Long Replay & Audit UI`，把长篇 Canon Replay 与 Consistency Audit 做成可按章节范围、风险维度、实体别名归一化查看的前端工作流。

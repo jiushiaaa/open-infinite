@@ -23,6 +23,7 @@ import type {
   ImportNovelResponse,
   JobRecord,
   JobSubmitResponse,
+  ProjectWorkspace,
   ProjectHealth,
   InterventionRequest,
   InterventionResponse,
@@ -109,6 +110,11 @@ export const api = {
   },
   getWorldAnchor(storySlug: string): Promise<WorldAnchor> {
     return getJson(`/api/stories/${encodeURIComponent(storySlug)}/anchor`);
+  },
+  getProjectWorkspace(storySlug: string): Promise<ProjectWorkspace> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/project-workspace`,
+    );
   },
   getProjectHealth(storySlug: string): Promise<ProjectHealth> {
     return getJson(`/api/stories/${encodeURIComponent(storySlug)}/health`);

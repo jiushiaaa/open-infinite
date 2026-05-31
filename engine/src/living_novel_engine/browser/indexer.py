@@ -746,6 +746,269 @@ def _import_review(story_path: Path) -> dict[str, Any]:
     }
 
 
+def _read_json_with_status(path: Path) -> tuple[str, dict[str, Any]]:
+    if not path.exists():
+        return "missing", {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return "damaged", {}
+    return ("ready", data) if isinstance(data, dict) else ("damaged", {})
+
+
+def _memory_summary(story_path: Path) -> dict[str, Any]:
+    status, manifest = _read_json_with_status(
+        story_path / "memory" / "memory_manifest.json"
+    )
+    if status != "ready":
+        warning = (
+            "分层记忆清单缺失。"
+            if status == "missing"
+            else "分层记忆清单无法解析。"
+        )
+        return {
+            "status": status,
+            "version": "",
+            "layer_count": 0,
+            "layers": [],
+            "warnings": [warning],
+        }
+
+    raw_layers = manifest.get("layers", {}) or {}
+    layers = []
+    if isinstance(raw_layers, dict):
+        for name, raw in raw_layers.items():
+            if not isinstance(raw, dict):
+                continue
+            layers.append(
+                {
+                    "name": name,
+                    "path": raw.get("path", ""),
+                    "count": int(raw.get("count") or 0),
+                }
+            )
+    return {
+        "status": "ready",
+        "version": manifest.get("version", ""),
+        "created_at": manifest.get("created_at", ""),
+        "layer_count": len(layers),
+        "layers": layers,
+        "warnings": [],
+    }
+
+
+def _canon_ledger_summary(story_path: Path) -> dict[str, Any]:
+    path = story_path / "memory" / "canon_ledger.jsonl"
+    if not path.exists():
+        return {
+            "status": "missing",
+            "entry_count": 0,
+            "type_counts": {},
+            "samples": [],
+            "warnings": ["正史账本缺失。"],
+        }
+
+    records: list[dict[str, Any]] = []
+    type_counts: dict[str, int] = defaultdict(int)
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            record = json.loads(line)
+            if not isinstance(record, dict):
+                continue
+            records.append(record)
+            type_counts[str(record.get("type") or "unknown")] += 1
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return {
+            "status": "damaged",
+            "entry_count": 0,
+            "type_counts": {},
+            "samples": [],
+            "warnings": ["正史账本无法解析，已停止展示样例。"],
+        }
+
+    samples = [
+        {
+            "id": r.get("id", ""),
+            "type": r.get("type", ""),
+            "chapter": r.get("chapter"),
+            "source_ref": r.get("source_ref", ""),
+            "statement": str(r.get("statement") or "")[:160],
+        }
+        for r in records[:6]
+    ]
+    return {
+        "status": "ready",
+        "entry_count": len(records),
+        "type_counts": dict(sorted(type_counts.items())),
+        "samples": samples,
+        "warnings": [],
+    }
+
+
+def _audit_summary(story_path: Path) -> dict[str, Any]:
+    status, report = _read_json_with_status(
+        story_path / "memory" / "consistency_report.json"
+    )
+    if status != "ready":
+        warning = (
+            "一致性审计报告缺失。"
+            if status == "missing"
+            else "一致性审计报告无法解析。"
+        )
+        return {
+            "status": status,
+            "version": "",
+            "summary": {"issue_count": 0, "risk_level": "unknown"},
+            "issues": [],
+            "repair_suggestions": [],
+            "warnings": [warning],
+        }
+
+    issue_groups = [
+        "persona_drift",
+        "timeline_conflicts",
+        "resource_conflicts",
+        "contract_violations",
+        "forgotten_threads",
+    ]
+    issues: list[dict[str, Any]] = []
+    for group in issue_groups:
+        raw_items = report.get(group, []) or []
+        if not isinstance(raw_items, list):
+            continue
+        for item in raw_items:
+            if not isinstance(item, dict):
+                continue
+            issues.append(
+                {
+                    "category": group,
+                    "kind": item.get("kind", ""),
+                    "severity": item.get("severity", ""),
+                    "detail": item.get("detail", ""),
+                    "evidence": item.get("evidence", ""),
+                }
+            )
+
+    return {
+        "status": "ready",
+        "version": report.get("version", ""),
+        "created_at": report.get("created_at", ""),
+        "summary": report.get("summary", {"issue_count": len(issues)}),
+        "issues": issues[:10],
+        "repair_suggestions": list(report.get("repair_suggestions", []) or []),
+        "warnings": [],
+    }
+
+
+def _retrieval_summary(slug: str) -> dict[str, Any]:
+    hits: list[dict[str, Any]] = []
+    total = 0
+    for run in list_runs(story_slug=slug)[:20]:
+        for branch in run.branches:
+            total += int(branch.retrieval_count or 0)
+            if branch.retrieval_count <= 0:
+                continue
+            data = _read_optional_json(
+                outputs_dir() / run.run_id / branch.id / "retrieval_context.json"
+            )
+            items = data.get("items", []) if isinstance(data, dict) else []
+            if not isinstance(items, list):
+                continue
+            for item in items[:3]:
+                if not isinstance(item, dict):
+                    continue
+                hits.append(
+                    {
+                        "run_id": run.run_id,
+                        "branch_id": branch.id,
+                        "source": item.get("source", ""),
+                        "source_ref": item.get("source_ref", ""),
+                        "score": item.get("score"),
+                        "preview": str(
+                            item.get("text")
+                            or item.get("statement")
+                            or item.get("summary")
+                            or ""
+                        )[:160],
+                    }
+                )
+                if len(hits) >= 8:
+                    break
+            if len(hits) >= 8:
+                break
+        if len(hits) >= 8:
+            break
+
+    return {
+        "status": "ready" if total else "missing",
+        "hit_count": total,
+        "samples": hits,
+        "warnings": [] if total else ["尚无运行检索命中；先发起基线或干预后再查看。"],
+    }
+
+
+def get_project_workspace(slug: str) -> dict[str, Any]:
+    """v0.8.8 长篇项目工作台：汇总导入、记忆、正史、审计与运行入口。"""
+
+    story_path, source_kind = _resolve_story_path(slug)
+    world = _read_yaml(story_path / "world.yaml") or {}
+    import_review = _import_review(story_path) if source_kind == "imported" else None
+    previews = (
+        list(import_review.get("chapter_previews", []) or [])
+        if import_review
+        else _source_chapter_previews(story_path)
+    )
+    review_summary = import_review.get("summary", {}) if import_review else {}
+
+    return {
+        "version": "v0.8.8",
+        "slug": slug,
+        "source_kind": source_kind,
+        "display_name": world.get("display_name") or world.get("title") or slug,
+        "source": (review_summary.get("source") or {"type": source_kind})
+        if isinstance(review_summary, dict)
+        else {"type": source_kind},
+        "chapter_overview": {
+            "total_chapters": int(review_summary.get("total_chapters") or len(previews))
+            if isinstance(review_summary, dict)
+            else len(previews),
+            "total_characters": int(review_summary.get("total_characters") or 0)
+            if isinstance(review_summary, dict)
+            else 0,
+            "playable_chapter_limit": int(
+                review_summary.get("playable_chapter_limit") or len(previews)
+            )
+            if isinstance(review_summary, dict)
+            else len(previews),
+            "partial_ready": bool(review_summary.get("partial_ready", False))
+            if isinstance(review_summary, dict)
+            else False,
+            "previews": previews,
+        },
+        "import_review": import_review,
+        "memory": _memory_summary(story_path),
+        "canon_ledger": _canon_ledger_summary(story_path),
+        "entity_aliases": _entity_alias_summary(story_path),
+        "retrieval": _retrieval_summary(slug),
+        "audit": _audit_summary(story_path),
+        "run_count": len(list_runs(story_slug=slug)),
+        "actions": {
+            "anchor_hash": f"#/anchor/{slug}",
+            "workspace_hash": f"#/workspace/{slug}",
+            "can_start_baseline": True,
+            "can_start_intervention": True,
+            "next_steps": [
+                "先核对章节与导入风险。",
+                "再进入世界锚定页检查角色、规则与开放伏笔。",
+                "确认无误后生成无干预基线，或选择世界线发起干预。",
+            ],
+        },
+    }
+
+
 def get_world_anchor(slug: str) -> dict[str, Any]:
     """v0.7 第四刀：世界锚定页数据（world/characters/contract/threads/summaries）。
 

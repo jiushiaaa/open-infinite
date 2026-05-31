@@ -40,6 +40,7 @@
 - v0.8.x Long Upload Productization
 - v0.8.6 Long Import Review
 - v0.8.7 Resumable Ingest Jobs
+- v0.8.8 Long Project Workspace
 
 最近一次 Codex 迭代：
 - v0.8.0-A：导入写 `source_raw/`、`import_report.json`，Web/job 支持 additive `long_mode`
@@ -58,11 +59,12 @@
 - v0.8.x Long Upload Productization：导入页支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条和失败空态；后端 `upload` 分片 payload 解析后复用既有导入流水线
 - v0.8.6 Long Import Review：`import_report.json` 新增来源、章节统计、章节片段、解析 warning、质量风险和建议动作；`get_story()` / `get_world_anchor()` additive 返回 `import_review`，报告缺失或损坏稳定降级为 missing/damaged 空态；前端世界锚定页新增「导入检查」
 - v0.8.7 Resumable Ingest Jobs：新增本地持久化 ingest session，支持服务端分片 manifest、缺失分片查询、重复 chunk 幂等、sha256 校验、complete 后复用 import job；前端导入页改为 session 上传并用 localStorage 恢复缺失分片
-- 后端 python -m pytest -q 为 581 passed
+- v0.8.8 Long Project Workspace：新增项目级工作台 API，集中返回导入检查、章节预览、分层记忆、正史账本、实体别名、检索命中、审计报告和下一步入口；前端 WorkspacePage 未选世界线时展示长篇项目资产页
+- 后端 python -m pytest -q 为 584 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步进入 `v0.8.8 Long Project Workspace`：先做长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中和审计报告。后续排期为 `v0.8.9 Long Replay & Audit UI`、`v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步进入 `v0.8.9 Long Replay & Audit UI`：把长篇 Canon Replay / Consistency Audit 做成前端产品流，支持章节范围、风险维度和实体归一化后的审计展示。后续排期为 `v0.8.10-A/B Runner State Execution`，再进入 `v0.9.0-alpha Long Novel Creation Loop`。`v0.9.0-alpha` 不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些重依赖分别后移到 `v0.9.3` / `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -83,11 +85,11 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `581 passed` |
+| 后端基线 | `584 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs |
-| 官方下一版 | `v0.8.8 Long Project Workspace` |
-| 后续主线 | `v0.8.8` 长篇项目页 -> `v0.8.9` replay/audit UI -> `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace |
+| 官方下一版 | `v0.8.9 Long Replay & Audit UI` |
+| 后续主线 | `v0.8.9` replay/audit UI -> `v0.8.10-A/B` runner 状态执行评估 -> `v0.9.0-alpha` 长篇创作闭环 -> `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
 ## 阶段性质与产品化判断
 
@@ -216,7 +218,7 @@ React/Vite 产品级前端主闭环已完成：
 - runner 消费 action plan、dynamic action registry 或 emergence nodes，并执行状态变化
 - 运行后写回审计、长篇 holdout 批量评估 UI
 
-下一刀建议：`v0.8.8 Long Project Workspace`，优先把章节、记忆、正史账本、实体别名、检索命中和审计报告集中成可回看的长篇项目资产页；runner 状态执行层评估仍顺延为 `v0.8.10-A/B`。
+下一刀建议：`v0.8.9 Long Replay & Audit UI`，优先把长篇 Canon Replay 与 Consistency Audit 做成章节范围、风险维度和实体归一化可读的前端工作流；runner 状态执行层评估仍顺延为 `v0.8.10-A/B`。
 
 ## v0.8.x Entity Aliases 收口摘要
 
@@ -257,6 +259,13 @@ React/Vite 产品级前端主闭环已完成：
 - React 导入页改为 session 上传：localStorage 保存 session id，刷新后 GET session，只补传缺失分片，逐片 sha256，完成后轮询既有 job。
 - 完整验证：`python -m pytest -q` 581 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
 
+## v0.8.8 Long Project Workspace 收口摘要
+
+- 新增 `GET /api/stories/<slug>/project-workspace`，服务端聚合导入检查、章节预览、分层记忆、正史账本、实体别名、检索命中、静态审计和下一步入口；所有新增字段 additive。
+- 缺失/损坏的 `memory_manifest.json`、`canon_ledger.jsonl`、`consistency_report.json` 降级为 `missing` / `damaged` 空态；非法 slug 400，缺失项目 404。
+- React `WorkspacePage` 在未选世界线时展示长篇项目资产页；选中世界线后保留原阅读、右侧机制档案与干预体验。
+- 完整验证：`python -m pytest -q` 584 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
+
 ## v0.8.x Long Upload Productization 收口摘要
 
 - 后端 `import_novel_from_payload()` 新增 additive `upload` 入参：`filename/total_size/chunks[{index,data_b64}]`，支持 txt/md 文本拆章、zip 内 txt/md 章节、epub 内 html/xhtml 章节。
@@ -270,8 +279,8 @@ React/Vite 产品级前端主闭环已完成：
 | --- | --- | --- | --- |
 | v0.8.6 | Long Import Review | 导入报告细化、章节列表/正文片段预览、导入质量空态、坏 zip/epub/空文件/章节过少等错误态收束 | 已收口 |
 | v0.8.7 | Resumable Ingest Jobs | 服务端分片 session、断点续传/恢复、hash 校验、重复 chunk 幂等、过期清理 | 已收口 |
-| v0.8.8 | Long Project Workspace | 长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告，支持从项目发起 baseline/intervention | 下一刀 |
-| v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度和实体归一化后的审计展示 | 待做 |
+| v0.8.8 | Long Project Workspace | 长篇项目详情页：章节、记忆、正史账本、实体别名、检索命中、审计报告，支持从项目发起 baseline/intervention | 已收口 |
+| v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度和实体归一化后的审计展示 | 下一刀 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估动作计划、动作注册表、涌现节点是否能安全转成状态变化；不改默认行为 | 待做 |
 | v0.8.10-B | Runner State Execution MVP | Spike 可行后做最小状态执行层，保持 artifact/API additive 与可回退 | 待定 |
 | v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 待 v0.8 收束后开启 |

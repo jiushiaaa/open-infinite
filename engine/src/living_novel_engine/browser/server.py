@@ -97,6 +97,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     {"stories": [asdict(s) for s in indexer.list_stories()]}
                 )
 
+            if path.startswith("/api/stories/") and path.endswith("/project-workspace"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/project-workspace")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._send_json(indexer.get_project_workspace(slug))
+
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 rest = path[len("/api/stories/") :]
                 slug = safe_id(rest[: -len("/anchor")].strip("/"))
