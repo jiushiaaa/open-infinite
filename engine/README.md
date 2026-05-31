@@ -56,8 +56,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8.10-A | Runner State Execution Spike：opt-in 状态执行 dry-run 评估 | 已收口 |
 | v0.8.10-B | Runner State Execution MVP：最小 opt-in 状态写入与回滚 | 已收口 |
 | v0.9.0-alpha | Long Novel Creation Loop：上传、记忆、分支运行、审计、选择世界线、导出 | 已整体收口，见 `../docs/completed/v0.9.0-alpha-long-creation-loop.md` |
-| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 进行中：provider 摘要、usage、设置展示、手动估算、路由矩阵已收口 |
-| v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 待长篇项目页稳定后 |
+| v0.9.1 | Provider & Cost Gateway Lite：多 provider 配置、模型路由、成本/用量估算、失败回退 | 已整体收口 |
+| v0.9.2 | MasterSetting Workspace Lite：项目级设定/人物/时间线/道具/伏笔/章节摘要工作台 | 官方下一刀 |
 | v0.9.3 | Graph Memory Evaluation Spike：评估 Zep / 图数据库 / GraphRAG 是否增强现有 ledger 检索 | 待 50+ 章或百万字召回不足时触发 |
 | v0.9.4 | Advanced Runner Evaluation Spike：评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 待 v0.8.10 状态执行层不足时触发 |
 | v1.0-beta | Commercial Hardening：账号、权限、云端持久化、配额、审计日志、版权提示、部署观测 | 待真实外部用户/团队长期使用 |
@@ -349,7 +349,7 @@ copy .env.example .env
 
 **未配置 `LLM_API_KEY` 时，CLI 会自动启用 mock**，无需加 `--mock` 即可跑通端到端 demo。
 
-### v0.9.1 Provider & Cost Gateway Lite（进行中）
+### v0.9.1 Provider & Cost Gateway Lite（已整体收口）
 
 第一刀已新增只读 provider/cost 摘要，不改变真实调用链：
 
@@ -358,9 +358,10 @@ copy .env.example .env
 - `providers` 当前包含主文本模型（OpenAI-compatible）与 Seedream 视觉模型，字段只展示 `configured`、`active`、`masked_key`、`base_url`、`model`、`fallback` 和 usage 来源。
 - `routes` 当前只读列出读者干预生成、主题创世、导入抽取、视觉资产生成四个入口的 provider、mode、runner 和 fallback；不新增写入开关。
 - `routing` 当前为 `single_provider`，未配置文本密钥或默认 mock 时走 `mock`；未配置/关闭视觉模型时走占位图。
-- `cost_policy` 当前只声明从 `generation_meta.usage` 读取 token 用量；手动填写每千输入/输出单价后会估算费用；更复杂路由留给后续 v0.9.1 子刀。
+- `cost_policy` 当前只声明从 `generation_meta.usage` 读取 token 用量；手动填写每千输入/输出单价后会估算费用。
 - Web 设置抽屉新增「模型与用量状态」，展示 provider 启用状态、模型名、入口路由矩阵、累计用量、输入/输出用量、缺失 usage 记录提示和 warning；保存设置或清除密钥后会刷新。
 - Web 设置抽屉新增「成本估算」，手动填写每千输入/输出单价；不内置厂商价格。
+- v0.9.1 收口说明见 [v0.9.1-provider-cost-gateway-lite.md](../docs/completed/v0.9.1-provider-cost-gateway-lite.md)。
 
 这些接口不创建客户端、不打网络、不落盘，也不返回明文 Key 或环境变量名。
 
@@ -602,5 +603,5 @@ outputs/run_<ts>_resume_intervene_linear/
 | v0.7 | 产品级 React/Vite Web App（普通用户入口，见 `../docs/completed/v0.7-product-web-app-ui-spec.md`） |
 | v0.8.6-v0.8.10 | 长篇导入报告、断点续传、项目页、回放审计 UI、runner 状态执行层评估与最小写入 |
 | v0.9.0-alpha | 长篇共创闭环：上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出（已整体收口） |
-| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.1 进行中，下一步收口核对） |
+| v0.9.1-v0.9.4 | provider/cost、MasterSetting Lite、Graph Memory spike、Advanced Runner spike（v0.9.1 已收口，下一步 v0.9.2） |
 | v1.0-beta | 商业化加固：账号、权限、云端持久化、配额、审计、版权、部署观测 |

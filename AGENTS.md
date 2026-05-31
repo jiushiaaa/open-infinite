@@ -97,9 +97,10 @@
 - v0.9.1 Provider Status Panel-C 已收口。
 - v0.9.1 Manual Price Estimate-D 已收口。
 - v0.9.1 Route Matrix-E 已收口。
+- v0.9.1 Provider & Cost Gateway Lite 已整体收口。
 - 当前后端验证基线：`626 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：`v0.9.1 Provider & Cost Gateway Lite` 收口核对。
+- 官方下一刀：`v0.9.2 MasterSetting Workspace Lite`。
 - 后续排期：`v0.9.1-v0.9.4` 触发式增强 → `v1.0-beta` 商业化加固。
 
 最近一次 Codex 迭代：
@@ -127,6 +128,7 @@
 - `v0.9.1 Provider Status Panel-C` 已在设置抽屉展示模型状态与累计用量；保存设置或清除密钥后会刷新，只读不写价格/路由策略。
 - `v0.9.1 Manual Price Estimate-D` 已支持手动配置每千输入/输出单价并按 usage 粗估费用；不硬编码厂商价格、不联网查价。
 - `v0.9.1 Route Matrix-E` 已在 `GET /api/settings/providers` 返回读者干预、主题创世、导入抽取、视觉资产四个入口的只读 provider / mode / runner / fallback，并在设置抽屉展示；不新增路由写入开关、不改默认调用链。
+- `v0.9.1 Provider & Cost Gateway Lite` 已整体收口，归档见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v0.9.1 开始也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。
 

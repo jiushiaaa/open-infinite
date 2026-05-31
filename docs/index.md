@@ -72,6 +72,7 @@
 | `completed/v0.6.5-multi-agent-reliability.md` | v0.6.5 | 多 Agent 推演可靠性、trace 质量校验、重试和 token usage |
 | `completed/v0.7-product-web-app-ui-spec.md` | v0.7 | 产品级 Web App 的信息架构、视觉风格、组件边界和增量能力 |
 | `completed/v0.9.0-alpha-long-creation-loop.md` | v0.9.0-alpha | 长篇共创闭环收口说明、closeout proof、边界与下一步 |
+| `completed/v0.9.1-provider-cost-gateway-lite.md` | v0.9.1 | Provider/Cost Lite 收口说明、脱敏 provider 状态、usage 汇总、成本估算与路由矩阵 |
 
 ## 4. article/ 论文资料
 
