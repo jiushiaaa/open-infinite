@@ -403,6 +403,13 @@ React/Vite 产品级前端主闭环已完成：
 - 边界：只读提示动作，不自动执行，不写 artifact，不代表用户选择。
 - 完整验证：`python -m pytest -q` 612 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
 
+## v0.9.0-alpha Creation Loop Action Payloads 收口摘要
+
+- `select_worldline` action 现在携带 `payload`：`run_id`、`branch_id`、`note`。
+- 前端类型允许 `ProjectCreationLoopAction.payload` 为范围回放 payload 或世界线选择 payload。
+- 边界：payload 只是建议动作参数；不自动执行、不代表用户确认。
+- 完整验证：`python -m pytest -q` 612 passed；`cd engine/ui && pnpm run build` 通过；`git diff --check` 通过。
+
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
 - `browser.indexer.get_project_workspace()` 版本提升为 `v0.9.0-alpha`，additive 返回 `creation_loop`：`recommended`、`candidates`、五步 `checklist`、中文 `next_steps`。

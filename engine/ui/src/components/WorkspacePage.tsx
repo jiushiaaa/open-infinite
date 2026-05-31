@@ -8,6 +8,7 @@ import type {
   ProjectWorkspace,
   ProjectWorkspaceAudit,
   ProjectWorkspaceCanonLedger,
+  CanonReplayRangeRequest,
   ProjectCreationLoop,
   ProjectCreationLoopAction,
   ProjectCreationLoopCandidate,
@@ -416,7 +417,7 @@ function CreationLoopPanel({
       return;
     }
     if (action.id === "run_replay_range") {
-      if (!action.payload) {
+      if (!isCanonReplayRangePayload(action.payload)) {
         setError("缺少范围回放参数。");
         return;
       }
@@ -828,6 +829,17 @@ function evidenceSourceLabel(item: ProjectCreationLoopEvidence): string {
     state: "当前状态",
   };
   return map[item.source] ?? "当前依据";
+}
+
+function isCanonReplayRangePayload(
+  payload: ProjectCreationLoopAction["payload"],
+): payload is CanonReplayRangeRequest {
+  return Boolean(
+    payload &&
+      "baseline_run_id" in payload &&
+      "chapter_start" in payload &&
+      "chapter_end" in payload,
+  );
 }
 
 function memoryLayerLabel(value: string): string {

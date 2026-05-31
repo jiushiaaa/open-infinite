@@ -561,6 +561,11 @@ def test_creation_loop_completion_exposes_actions_for_blockers(
         f"/api/runs/{run_id}/branches/{branch_id}/worldline-judgement"
     )
     assert selection["api_path"] == "/api/stories/export-story/selected-worldline"
+    assert selection["payload"] == {
+        "run_id": run_id,
+        "branch_id": branch_id,
+        "note": "从创作闭环设为下一章起点",
+    }
     assert replay["route_hash"] == "#/anchor/export-story"
     judgement_evidence = next(
         item

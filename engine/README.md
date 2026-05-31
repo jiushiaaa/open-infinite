@@ -174,7 +174,7 @@ GET /api/stories/<slug>/project-workspace
 GET /api/stories/<slug>/creation-loop-closeout
 ```
 
-返回 JSON 包含 `story_slug`、`version`、`completion_status`、`actions` 和 `closeout`。该接口复用项目工作台的只读判定，slug 走安全校验，非法 slug 返回 400；它不写 artifact、不执行动作，也不是发布按钮。
+返回 JSON 包含 `story_slug`、`version`、`completion_status`、`actions` 和 `closeout`。该接口复用项目工作台的只读判定，slug 走安全校验，非法 slug 返回 400；它不写 artifact、不执行动作，也不是发布按钮。`select_worldline` action 会携带可直接 POST 的 `payload`（`run_id`、`branch_id`、`note`），范围回放 action 会携带既有 replay range payload。
 
 前端还会显示 `creation_loop.recommended.continue_hint` 作为 CLI 续写入口，例如 `lne resume continue <run_id> --branch <branch_id> --mock`。v0.9.0-alpha Resume Continue HTTP Job 起，项目工作台也可通过显式按钮触发：
 

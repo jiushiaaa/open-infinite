@@ -1073,6 +1073,11 @@ def _creation_loop_actions(
                     "kind": "api",
                     "method": "POST",
                     "api_path": f"/api/stories/{slug}/selected-worldline",
+                    "payload": {
+                        "run_id": run_id,
+                        "branch_id": branch_id,
+                        "note": "从创作闭环设为下一章起点",
+                    },
                     "detail": "把推荐世界线记录为后续续写起点。",
                 }
             )

@@ -1810,6 +1810,8 @@ v0.9.0-alpha 已启动。它应把长篇上传、记忆、分支运行、审计�
 
 > **v0.9.0-alpha Creation Loop Closeout API Actions 已落地（2026-05-31）**：`GET /api/stories/<slug>/creation-loop-closeout` 额外返回 `completion_status` 与 `actions`，ready 时 actions 为空，not_ready 时直接列出可执行/可跳转阻塞动作，便于自动化补齐评审、选择世界线或进入审计。该接口仍只读，不执行动作。已验证：v0.9.0-alpha 测试扩充至 15 passed；完整后端 612 passed；前端 build 通过。
 
+> **v0.9.0-alpha Creation Loop Action Payloads 已落地（2026-05-31）**：`select_worldline` action 现在携带 `run_id`、`branch_id`、`note` payload，可直接 POST 到选择接口；前端类型同步允许世界线选择 payload 与范围回放 payload。该子刀不自动执行动作、不代表用户确认。已验证：v0.9.0-alpha 测试保持 15 passed；完整后端 612 passed；前端 build 通过。
+
 > **v0.9.0-alpha Creation Loop Checklist 已落地（2026-05-31）**：`GET /api/stories/<slug>/project-workspace` additive 返回 `creation_loop`，聚合候选世界线、推荐继续分支、导入/分支/评审/审计/导出五步清单和中文下一步。该字段只读扫描既有 run/branch artifact，不写新 artifact，不改 `run_scene` 默认行为。前端长篇项目工作台新增「创作闭环」区，可打开推荐世界线。已验证：v0.9.0-alpha 测试扩充至 4 passed；相邻工作台测试合计 7 passed；完整后端 599 passed；前端 build 通过。
 
 > **v0.9.0-alpha Continuation Hint 已落地（2026-05-31）**：前端「创作闭环」推荐世界线下展示 `creation_loop.recommended.continue_hint`，把推荐分支接到 CLI `lne resume continue <run_id> --branch <branch_id> --mock` 续写入口。该子刀不新增 HTTP job、不写 artifact、不改 `run_scene` 默认行为。已验证：完整后端 599 passed；前端 build 通过。
