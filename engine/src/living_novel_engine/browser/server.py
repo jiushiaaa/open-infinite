@@ -235,6 +235,11 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     get_local_deployment_readiness(api_host=str(host), api_port=int(port))
                 )
 
+            if path == "/api/settings/cloud-persistence-boundary":
+                from living_novel_engine.service import get_cloud_persistence_boundary
+
+                return self._send_json(get_cloud_persistence_boundary())
+
             if path == "/api/settings/commercial-hardening-scope":
                 from living_novel_engine.service import get_commercial_hardening_scope
 

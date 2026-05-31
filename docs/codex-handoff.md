@@ -86,6 +86,7 @@
 - v1.0-beta Project Copyright Statement-D
 - v1.0-beta Quota & Observability Lite-E
 - v1.0-beta Local Deployment Readiness-F
+- v1.0-beta Cloud Persistence Boundary-G
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -149,16 +150,17 @@
 - v1.0-beta Project Copyright Statement-D：新增 `GET/POST /api/stories/<slug>/copyright-statement`，本地写入 `memory/project_copyright_statement.json`；导出 `share_guard.rights_basis` 引用项目级声明，继续不开放公开发布入口
 - v1.0-beta Quota & Observability Lite-E：新增只读 `GET /api/settings/quota-observability`，汇总 provider usage、内存 job 状态、软配额口径和观测缺口；`quota_policy.mode=not_enforced`
 - v1.0-beta Local Deployment Readiness-F：新增只读 `GET /api/settings/deployment-readiness`，汇总本地 HTTP 入口、静态资源、脱敏环境、数据目录、API 冒烟计划和运行/验证步骤；`external_services_required=false`
+- v1.0-beta Cloud Persistence Boundary-G：新增只读 `GET /api/settings/cloud-persistence-boundary`，映射本地 artifact 到未来平台资源、保留规则和迁移边界；`migration.mode=not_started`，不接对象存储、数据库或持久队列
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 663 passed
+- 后端 python -m pytest -q 为 665 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 Deploy-F 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围。不要直接接云端托管、多租户账号、对象存储或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 Cloud-G 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围。不要直接接云端托管、多租户账号、对象存储或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -179,9 +181,9 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `663 passed` |
+| 后端基线 | `665 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G |
 | 官方下一刀 | v1.0-beta 后续商业化加固需继续拆分；不要直接云端化 |
 | 后续主线 | `v1.0-beta` 本地优先商业化加固 -> 真实外部用户前再评估云端多租户/计费系统 |
 
@@ -198,7 +200,7 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 可读可验收，但不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座变成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地审计 schema、权限矩阵草案、项目级版权声明和本地配额/观测已收口；后续从本地部署就绪继续商业化加固 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地审计 schema、权限矩阵草案、项目级版权声明、本地配额/观测、部署就绪和云端持久化边界已收口；后续继续本地优先商业化加固 |
 
 ## 资料位置
 
@@ -691,6 +693,16 @@ React/Vite 产品级前端主闭环已完成：
 - 边界：不接云端托管、对象存储、多用户账号、商业计费、外部监控、告警系统或自动部署脚本；不打网络、不落盘、不改 `run_scene`。
 - 验证：`tests/test_v100_deployment_readiness.py` 2 passed；运行设置/配额/部署邻近回归 31 passed；完整后端基线提升到 663 passed。
 
+## v1.0-beta Cloud Persistence Boundary-G 收口摘要
+
+- 新增 `service.cloud_persistence_boundary.get_cloud_persistence_boundary()`。
+- 新增只读 `GET /api/settings/cloud-persistence-boundary`。
+- 报告映射 `projects/`、`outputs/`、`_ingest_sessions/` 相关 artifact 到未来平台资源，并补充项目删除、分片过期、审计追加和 holdout 私有隔离保留规则。
+- `migration.mode=not_started`、`external_services_required=false`；本地 inventory 不返回绝对路径，不暴露密钥名或密钥值。
+- 收口归档见 `docs/completed/v1.0-beta-cloud-persistence-boundary-g.md`。
+- 边界：不接对象存储、数据库、持久队列、跨设备恢复、云端账号或团队空间；不上传文件、不迁移数据、不写 artifact、不改 `run_scene`。
+- 验证：`tests/test_v100_cloud_persistence_boundary.py` 2 passed；商业化相邻回归 33 passed；完整后端基线提升到 665 passed。
+
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
 - `browser.indexer.get_project_workspace()` 版本提升为 `v0.9.0-alpha`，additive 返回 `creation_loop`：`recommended`、`candidates`、五步 `checklist`、中文 `next_steps`。
@@ -756,6 +768,7 @@ React/Vite 产品级前端主闭环已完成：
 | v1.0-beta Copyright-D | Project Copyright Statement | 项目级版权/来源声明 schema | 已收口 |
 | v1.0-beta Quota-E | Quota & Observability Lite | 本地配额、用量、job 状态与观测摘要 | 已收口 |
 | v1.0-beta Deploy-F | Local Deployment Readiness | 健康检查、环境脱敏、静态资源/API 冒烟和运行步骤 | 已收口 |
+| v1.0-beta Cloud-G | Cloud Persistence Boundary | 本地 artifact 到未来平台资源的映射、保留规则和迁移边界 | 已收口 |
 
 ## 每次任务完成后的收口清单
 
