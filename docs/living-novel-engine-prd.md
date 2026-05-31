@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H 与 v1.0-beta Audit Log Append Policy-I 已整体收口；后续 v1.0-beta 商业化加固需继续拆分 |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I 与 v1.0-beta Project Retention Policy-J 已整体收口；后续 v1.0-beta 商业化加固需继续拆分 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -986,7 +986,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 已整体收口，见 `completed/v0.9.3-graph-memory-evaluation-spike.md`；当前只保留触发报告、检索 probe 与失败样例收集，不进入重依赖实现 |
 | v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner 是否值得接入 | 已整体收口，见 `completed/v0.9.4-advanced-runner-evaluation-spike.md`；当前只保留触发报告、runner probe 与失败样例收集，不进入重依赖实现 |
 | v1.0-beta Scope-A | Commercial Hardening Scope | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测范围复核 | 已收口，见 `completed/v1.0-beta-commercial-hardening-scope-a.md`；当前只保留只读范围报告，不进入云端多租户、对象存储或计费系统 |
-| v1.0-beta Schema-B | Commercial Audit Log | 本地项目审计日志 schema 与只读聚合 | 已收口，见 `completed/v1.0-beta-commercial-audit-log-schema-b.md`；当前只读聚合，不让写操作追加日志 |
+| v1.0-beta Schema-B | Commercial Audit Log | 本地项目审计日志 schema 与只读聚合 | 已收口，见 `completed/v1.0-beta-commercial-audit-log-schema-b.md`；追加写入口已在 Audit-I 收口 |
 | v1.0-beta Matrix-C | Permission Matrix Draft | owner/editor/viewer 权限矩阵草案 | 已收口，见 `completed/v1.0-beta-permission-matrix-draft-c.md`；继续只读，不接认证系统、不拦截请求 |
 | v1.0-beta Copyright-D | Project Copyright Statement | 项目级版权/来源声明 schema | 已收口，见 `completed/v1.0-beta-project-copyright-statement-d.md`；继续不提供公开发布入口 |
 | v1.0-beta Quota-E | Quota & Observability Lite | 本地配额、用量、job 状态与观测摘要 | 已收口，见 `completed/v1.0-beta-quota-observability-lite-e.md`；不接真实计费系统或云端监控平台 |
@@ -994,6 +994,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | v1.0-beta Cloud-G | Cloud Persistence Boundary | 本地 artifact 到未来平台资源的映射、保留规则和迁移边界 | 已收口；不接对象存储、数据库或持久队列 |
 | v1.0-beta Account-H | Account Project Space Boundary | 本地账号语义、项目空间清单和未来团队归属边界 | 已收口；不接真实认证、团队空间或请求级 ACL |
 | v1.0-beta Audit-I | Audit Log Append Policy | 本地项目审计日志白名单追加策略 | 已收口；不接云端不可篡改审计存储或真实账号 |
+| v1.0-beta Retention-J | Project Retention Policy | 本地项目删除/保留策略 artifact 与 API | 已收口；不实际删除文件、不接对象存储或数据库 |
 
 明确不作为当前排期默认项：
 

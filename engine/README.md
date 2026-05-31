@@ -69,6 +69,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Cloud-G | Cloud Persistence Boundary：云端持久化迁移边界 | 已收口，见 `../docs/completed/v1.0-beta-cloud-persistence-boundary-g.md` |
 | v1.0-beta Account-H | Account Project Space Boundary：账号与项目空间边界 | 已收口，见 `../docs/completed/v1.0-beta-account-project-space-boundary-h.md` |
 | v1.0-beta Audit-I | Audit Log Append Policy：本地审计日志追加策略 | 已收口，见 `../docs/completed/v1.0-beta-audit-log-append-policy-i.md` |
+| v1.0-beta Retention-J | Project Retention Policy：项目删除/保留策略 | 已收口，见 `../docs/completed/v1.0-beta-project-retention-policy-j.md` |
 
 ### 产品化阶段说明
 
@@ -83,9 +84,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界和审计追加策略 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略和项目保留策略 |
 
-**测试基线**：`pytest -q` → **673 passed**（2026-06-01，v1.0-beta Audit Log Append Policy-I 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **680 passed**（2026-06-01，v1.0-beta Project Retention Policy-J 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -436,7 +437,7 @@ copy .env.example .env
 
 ### v1.0-beta Commercial Audit Log Schema-B（已收口）
 
-本版本已新增本地项目审计日志 schema 与只读聚合，不让写操作追加日志：
+本版本已新增本地项目审计日志 schema 与只读聚合；追加写入口已在 v1.0-beta Audit-I 单独收口：
 
 - `GET /api/stories/<slug>/audit-log`
 - 返回 `version=v1.0-beta-commercial-audit-log-schema-b`、`schema`、`summary`、`events`、`warnings` 和中文 `next_steps`。
@@ -523,6 +524,17 @@ copy .env.example .env
 - 坏 payload 返回 400，缺项目返回 404，内置样例只读返回 409。
 - `metadata` 会丢弃疑似密钥字段或密钥值，并在响应 `warnings` 中说明。
 - `GET /api/stories/<slug>/audit-log` 继续聚合追加后的 JSONL 行；权限矩阵草案同步标记审计日志为 `read + append`，但仍不执行真实认证。
+
+### v1.0-beta Project Retention Policy-J（已收口）
+
+本版本已新增项目删除/保留策略，不执行真实删除：
+
+- `GET /api/stories/<slug>/retention-policy`
+- `POST /api/stories/<slug>/retention-policy`
+- 本地写入 `memory/project_retention_policy.json`，字段覆盖项目、上传原文、生成产物、holdout、审计日志和 ingest 分片的保留口径。
+- 写入策略后追加 `retention_policy_reviewed` 审计事件到 `memory/project_audit_log.jsonl`。
+- 坏 slug 返回 400，缺项目返回 404，内置样例只读返回 409。
+- 当前不实际删除项目目录、上传原文、生成产物、holdout 或审计日志；不接对象存储、数据库、持久队列、真实账号或团队空间。
 
 ## 快速演示
 
@@ -772,3 +784,4 @@ outputs/run_<ts>_resume_intervene_linear/
 | v1.0-beta Cloud-G | 云端持久化迁移边界（已收口） |
 | v1.0-beta Account-H | 账号与项目空间边界（已收口） |
 | v1.0-beta Audit-I | 本地审计日志追加策略（已收口） |
+| v1.0-beta Retention-J | 项目删除/保留策略（已收口） |

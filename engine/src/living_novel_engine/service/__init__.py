@@ -69,6 +69,12 @@ from .master_setting_update import (
     update_master_setting,
 )
 from .project_health import HealthReport, check_project_health
+from .project_retention_policy import (
+    ProjectRetentionPolicyConflictError,
+    ProjectRetentionPolicyRequestError,
+    get_project_retention_policy,
+    write_project_retention_policy,
+)
 from .quota_observability import (
     QuotaObservabilityRequestError,
     get_quota_observability_lite,
@@ -187,6 +193,10 @@ __all__ = [
     "get_project_copyright_statement",
     "write_project_copyright_statement",
     "get_local_deployment_readiness",
+    "ProjectRetentionPolicyConflictError",
+    "ProjectRetentionPolicyRequestError",
+    "get_project_retention_policy",
+    "write_project_retention_policy",
     "QuotaObservabilityRequestError",
     "get_quota_observability_lite",
     "HoldoutExistsError",

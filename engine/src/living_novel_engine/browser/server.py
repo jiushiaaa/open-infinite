@@ -131,6 +131,25 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": str(exc)}, status=400)
 
             if path.startswith("/api/stories/") and path.endswith(
+                "/retention-policy"
+            ):
+                from living_novel_engine.service import (
+                    ProjectRetentionPolicyRequestError,
+                    get_project_retention_policy,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/retention-policy")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_project_retention_policy(slug))
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+                except ProjectRetentionPolicyRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
+            if path.startswith("/api/stories/") and path.endswith(
                 "/graph-memory-evaluation"
             ):
                 from living_novel_engine.service import evaluate_graph_memory_trigger
@@ -534,6 +553,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_copyright_statement_write(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/retention-policy"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/retention-policy")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_retention_policy_write(slug)
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 return self._handle_anchor_update(path)
             if path == "/api/settings/runtime":
@@ -655,6 +682,28 @@ class BrowserHandler(BaseHTTPRequestHandler):
         except ProjectCopyrightStatementConflictError as exc:
             return self._send_json({"error": str(exc)}, status=409)
         except ProjectCopyrightStatementRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
+    def _handle_retention_policy_write(self, slug: str) -> None:
+        """v1.0-beta：写入项目删除/保留策略。"""
+        from living_novel_engine.service import (
+            ProjectRetentionPolicyConflictError,
+            ProjectRetentionPolicyRequestError,
+            write_project_retention_policy,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+        try:
+            report = write_project_retention_policy(slug, body)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except ProjectRetentionPolicyConflictError as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        except ProjectRetentionPolicyRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         self._send_json(report)
 
