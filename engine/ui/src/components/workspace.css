@@ -220,6 +220,21 @@
   max-width: 320px;
 }
 
+.creation-loop__requirements {
+  display: grid;
+  gap: 4px;
+  max-width: 240px;
+  text-align: right;
+}
+
+.creation-loop__requirements p {
+  margin: 0;
+}
+
+.creation-loop__requirements span {
+  max-width: none;
+}
+
 .creation-loop__evidence {
   display: grid;
   gap: 4px;
@@ -672,6 +687,7 @@
     margin-top: 10px;
     max-width: none;
   }
+  .creation-loop__requirements,
   .creation-loop__evidence {
     margin-top: 10px;
     max-width: none;

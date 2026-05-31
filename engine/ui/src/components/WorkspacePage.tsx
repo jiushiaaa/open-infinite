@@ -13,6 +13,7 @@ import type {
   ProjectCreationLoopAction,
   ProjectCreationLoopCandidate,
   ProjectCreationLoopEvidence,
+  ProjectCreationLoopActionRequirement,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
   ResumeContinueResponse,
@@ -341,6 +342,9 @@ function CreationLoopPanel({
   if (closeout?.can_close_alpha || completion?.can_mark_alpha_complete) {
     loopStatus = "可收口";
   }
+  const actionRequirements = completion
+    ? collectActionRequirements(completion.actions)
+    : [];
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [quickAction, setQuickAction] = useState<string | null>(null);
@@ -491,6 +495,16 @@ function CreationLoopPanel({
                 >
                   {quickAction === action.id ? "处理中…" : action.label}
                 </button>
+              ))}
+            </div>
+          )}
+          {actionRequirements.length > 0 && (
+            <div className="creation-loop__requirements">
+              <p className="tiny muted">审计前置</p>
+              {actionRequirements.slice(0, 3).map((item) => (
+                <span key={item.id} title={item.detail}>
+                  {item.label}
+                </span>
               ))}
             </div>
           )}
@@ -852,6 +866,21 @@ function isWorldlineJudgementPayload(
   payload: ProjectCreationLoopAction["payload"],
 ): payload is WorldlineJudgementRequest {
   return Boolean(payload && "story_slug" in payload);
+}
+
+function collectActionRequirements(
+  actions: ProjectCreationLoopAction[],
+): ProjectCreationLoopActionRequirement[] {
+  const seen = new Set<string>();
+  const items: ProjectCreationLoopActionRequirement[] = [];
+  for (const action of actions) {
+    for (const requirement of action.requirements ?? []) {
+      if (seen.has(requirement.id)) continue;
+      seen.add(requirement.id);
+      items.push(requirement);
+    }
+  }
+  return items;
 }
 
 function memoryLayerLabel(value: string): string {
