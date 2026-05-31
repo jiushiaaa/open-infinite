@@ -158,6 +158,11 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
                 return self._send_json(get_runtime_settings().as_dict())
 
+            if path == "/api/settings/providers":
+                from living_novel_engine.service import get_provider_gateway_summary
+
+                return self._send_json(get_provider_gateway_summary())
+
             if path.startswith("/api/stories/") and path.endswith("/health"):
                 from living_novel_engine.service import check_project_health
 

@@ -142,6 +142,102 @@ def get_runtime_settings() -> RuntimeSettings:
     )
 
 
+def get_provider_gateway_summary() -> dict:
+    """v0.9.1 Provider & Cost Gateway Lite：只读、脱敏的 provider 摘要。
+
+    本函数不创建客户端、不做网络请求、不落盘；它只是把当前运行设置解释成
+    provider 列表、路由状态、降级策略和成本观测口径，供 Web/CLI 后续复用。
+    """
+    settings = get_runtime_settings()
+    llm_route = (
+        "primary_llm"
+        if settings.llm_api_key_present and not settings.default_mock
+        else "mock"
+    )
+    if not settings.visual_assets_enabled:
+        visual_route = "disabled"
+    elif settings.seedream_key_present:
+        visual_route = "seedream_visual"
+    else:
+        visual_route = "placeholder"
+
+    warnings: list[dict[str, str]] = []
+    if not settings.llm_api_key_present:
+        warnings.append(
+            {
+                "code": "llm_key_missing",
+                "message": "文本模型未配置密钥，默认走本地 mock 降级。",
+            }
+        )
+    elif settings.default_mock:
+        warnings.append(
+            {
+                "code": "llm_mock_enabled",
+                "message": "文本模型已配置密钥，但当前默认启用 mock。",
+            }
+        )
+
+    if not settings.visual_assets_enabled:
+        warnings.append(
+            {
+                "code": "visual_assets_disabled",
+                "message": "视觉资产生成已关闭，前端会展示占位图。",
+            }
+        )
+    elif not settings.seedream_key_present:
+        warnings.append(
+            {
+                "code": "seedream_key_missing",
+                "message": "视觉模型未配置密钥，生成失败时会展示占位图。",
+            }
+        )
+
+    return {
+        "version": "v0.9.1-provider-cost-lite",
+        "routing": {
+            "mode": "single_provider",
+            "llm_route": llm_route,
+            "visual_route": visual_route,
+            "fallback_policy": "未配置、mock 或调用失败时降级为本地 mock/占位结果。",
+        },
+        "providers": [
+            {
+                "id": "primary_llm",
+                "kind": "llm",
+                "display_name": "主文本模型",
+                "configured": settings.llm_api_key_present,
+                "active": llm_route == "primary_llm",
+                "masked_key": settings.masked_key,
+                "base_url": settings.llm_base_url,
+                "model": settings.llm_model_name,
+                "fallback": "mock",
+                "usage_source": "generation_meta.usage",
+            },
+            {
+                "id": "seedream_visual",
+                "kind": "image",
+                "display_name": "视觉资产模型",
+                "configured": settings.seedream_key_present,
+                "active": visual_route == "seedream_visual",
+                "masked_key": settings.seedream_masked_key,
+                "base_url": settings.seedream_base_url,
+                "model": settings.seedream_model,
+                "fallback": "placeholder",
+                "usage_source": "visual_assets.json",
+            },
+        ],
+        "cost_policy": {
+            "currency": "USD",
+            "estimation_mode": "usage_metadata_only",
+            "price_table_status": "not_configured",
+            "estimated_total": None,
+            "usage_fields": ["prompt_tokens", "completion_tokens", "total_tokens"],
+            "note": "当前只汇总 token 用量来源；精确价格表留给后续按 provider 配置。",
+        },
+        "warnings": warnings,
+    }
+
+
 def update_runtime_settings(patch: dict) -> RuntimeSettings:
     """按白名单写入进程环境变量；不落盘。返回更新后的设置。
 

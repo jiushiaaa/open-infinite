@@ -17,6 +17,7 @@ from living_novel_engine.service import (
     default_mock,
     default_rounds,
     default_runner,
+    get_provider_gateway_summary,
     get_runtime_settings,
     update_runtime_settings,
 )
@@ -113,6 +114,32 @@ class TestService:
     def test_connectivity_mock(self, iso_env):
         assert connectivity_check(mock=True)["available"] is True
 
+    def test_provider_gateway_defaults_do_not_expose_keys(self, iso_env):
+        summary = get_provider_gateway_summary()
+        text = json.dumps(summary, ensure_ascii=False)
+        assert summary["version"] == "v0.9.1-provider-cost-lite"
+        assert summary["routing"]["mode"] == "single_provider"
+        assert summary["routing"]["llm_route"] == "mock"
+        assert summary["cost_policy"]["estimation_mode"] == "usage_metadata_only"
+        assert "LLM_API_KEY" not in text
+        assert "SEEDREAM_API_KEY" not in text
+
+    def test_provider_gateway_masks_configured_keys(self, iso_env):
+        update_runtime_settings(
+            {
+                "api_key": "sk-provider-secret-7788",
+                "default_mock": False,
+                "seedream_api_key": "sd-provider-secret-8899",
+            }
+        )
+        summary = get_provider_gateway_summary()
+        text = json.dumps(summary, ensure_ascii=False)
+        assert summary["routing"]["llm_route"] == "primary_llm"
+        assert summary["routing"]["visual_route"] == "seedream_visual"
+        assert "provider-secret" not in text
+        assert "7788" in text
+        assert "8899" in text
+
 
 # ── HTTP ──────────────────────────────────────────────────
 
@@ -167,6 +194,13 @@ class TestHttp:
         assert status == 200
         assert body["llm_api_key_present"] is False
         assert "available_runners" in body
+
+    def test_get_provider_gateway(self, running_server):
+        status, body = _get(running_server, "/api/settings/providers")
+        assert status == 200
+        assert body["version"] == "v0.9.1-provider-cost-lite"
+        assert body["routing"]["mode"] == "single_provider"
+        assert body["routing"]["llm_route"] == "mock"
 
     def test_post_update_no_plaintext(self, running_server):
         status, body = _post(

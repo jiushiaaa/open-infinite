@@ -92,9 +92,10 @@
 - v0.9.0-alpha Creation Loop Closeout CLI 已收口。
 - v0.9.0-alpha Creation Loop Closeout Record 已收口。
 - v0.9.0-alpha Low-risk Audit Closeout 已收口，整体 Long Novel Creation Loop 已收口。
-- 当前后端验证基线：`617 passed`。
+- v0.9.1 Provider Gateway Summary-A 已收口。
+- 当前后端验证基线：`620 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一版：`v0.9.1 Provider & Cost Gateway Lite`。
+- 官方下一刀：`v0.9.1 Provider & Cost Gateway Lite` 后续成本聚合/路由配置。
 - 后续排期：`v0.9.1-v0.9.4` 触发式增强 → `v1.0-beta` 商业化加固。
 
 最近一次 Codex 迭代：
@@ -117,6 +118,7 @@
 - 干预 run 可生成 `runner_state_execution_report.json` dry-run 评估，解释 action/emergence 是否能安全转成状态 delta；该报告不写 `state_snapshot.json`、不改 `run_scene` 默认行为。
 - 干预 run 可在显式确认后把 low-risk/executable/白名单 delta 写入分支 `state_execution_overlay.json`，并通过 `runner_state_execution_apply_report.json` / `runner_state_execution_rollback_report.json` 审计和回滚；原 `state_snapshot.json` 不被覆盖。
 - `v0.9.0-alpha` 已整体收口：只读章节导出、父链章节合集导出、导出版权/分享 guard、创作闭环完成度判定、阻塞动作提示（含评审/设为起点 payload 与审计 requirements）、判定依据、审计快捷运行、alpha ready 状态、alpha closeout 报告、closeout HTTP 验收接口（含阻塞动作清单和稳定 blocker id）与 `lne creation-loop-closeout` 本地验收命令均已落地；CLI 可在 ready 后用 `--write-report` 写入 `creation_loop_alpha_closeout.json` 收口记录，未 ready 不落盘。低风险静态审计 info 不再阻断 closeout，中高风险仍阻断。CLI 续写入口、显式 `POST /api/jobs/resume-continue`、`selected_worldline.json` 选择记录与选择后审计入口已接入；推荐世界线可从前端生成评审、生成下一章，也可「设为起点」并在工作台读回审计状态、范围回放风险、缺失实体和审计前置条件；builtin 样例无法录入 holdout 时会明确标为 blocked。
+- `v0.9.1 Provider Gateway Summary-A` 已新增只读 `GET /api/settings/providers`，返回脱敏 provider 列表、单 provider 路由状态、mock/占位图降级策略、成本观测口径和 warning；不打网络、不落盘、不返回明文 Key。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v0.9.1 开始也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。
 
