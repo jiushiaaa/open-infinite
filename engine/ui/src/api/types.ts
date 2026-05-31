@@ -1030,6 +1030,70 @@ export interface RunnerStateExecutionReport {
   created_at: string;
 }
 
+export interface StateExecutionOverlay {
+  version: string;
+  kind: "state_execution_overlay";
+  mode: "overlay" | string;
+  run_id: string;
+  branch_id: string;
+  base_snapshot: string;
+  applied_candidate_ids: string[];
+  state_deltas: RunnerStateDeltaPreview[];
+  state_overlay: Record<string, unknown>;
+  rollback: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface RunnerStateExecutionApplyReport {
+  version: string;
+  kind: "runner_state_execution_apply";
+  mode: "overlay" | string;
+  run_id: string;
+  story_slug: string;
+  status: "applied" | "rolled_back" | string;
+  summary: {
+    candidate_count: number;
+    applied_count: number;
+    skipped_count: number;
+    overlay_count: number;
+  };
+  safety: {
+    default_run_scene_unchanged: boolean;
+    mutates_state_snapshot: boolean;
+    writes_branch_artifacts: boolean;
+    rollback_available: boolean;
+    apply_mode: string;
+  };
+  branch_overlays: Array<{
+    branch_id: string;
+    path: string;
+    applied_candidate_ids: string[];
+    delta_count: number;
+  }>;
+  skipped_candidates: Array<{
+    candidate_id: string;
+    reason: string;
+  }>;
+  created_at: string;
+  rolled_back_at?: string;
+}
+
+export interface RunnerStateExecutionRollbackReport {
+  version: string;
+  kind: "runner_state_execution_rollback";
+  mode: "overlay" | string;
+  run_id: string;
+  summary: {
+    removed_overlay_count: number;
+  };
+  removed_artifacts: string[];
+  safety: {
+    default_run_scene_unchanged: boolean;
+    mutates_state_snapshot: boolean;
+  };
+  created_at: string;
+}
+
 export interface NarrativeDiagnostics {
   version: string;
   kind: "narrative_diagnostics";
@@ -1175,6 +1239,9 @@ export interface BranchDetail {
   narrative_diagnostics?: NarrativeDiagnostics | null;
   emergence_nodes?: EmergenceReport | null;
   runner_state_execution_report?: RunnerStateExecutionReport | null;
+  runner_state_execution_apply_report?: RunnerStateExecutionApplyReport | null;
+  runner_state_execution_rollback_report?: RunnerStateExecutionRollbackReport | null;
+  state_execution_overlay?: StateExecutionOverlay | null;
   multi_agent_trace: Record<string, unknown> | null;
   causal_diff: CausalDiffArtifact | null;
   child_runs: string[];

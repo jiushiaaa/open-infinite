@@ -4,8 +4,11 @@ import type {
   DynamicActionRegistry,
   EmergenceReport,
   NarrativeDiagnostics,
+  RunnerStateExecutionApplyReport,
   RunnerStateExecutionReport,
+  RunnerStateExecutionRollbackReport,
   RuntimeMemoryContext,
+  StateExecutionOverlay,
 } from "../api/types";
 import { ApiError, api } from "../api/client";
 import { EmptyState } from "./common/States";
@@ -17,7 +20,9 @@ export function ArtifactPanel({ branch }: { branch: BranchDetail }) {
     hasRegistry(branch.dynamic_action_registry) ||
     hasDiagnostics(branch.narrative_diagnostics) ||
     hasEmergence(branch.emergence_nodes) ||
-    hasStateExecution(branch.runner_state_execution_report);
+    hasStateExecution(branch.runner_state_execution_report) ||
+    hasObject(branch.runner_state_execution_apply_report) ||
+    hasObject(branch.state_execution_overlay);
 
   if (!hasAny) {
     return (
@@ -38,6 +43,9 @@ export function ArtifactPanel({ branch }: { branch: BranchDetail }) {
       <StateExecutionSection
         runId={branch.run_id}
         initialReport={branch.runner_state_execution_report}
+        initialApplyReport={branch.runner_state_execution_apply_report}
+        initialRollbackReport={branch.runner_state_execution_rollback_report}
+        initialOverlay={branch.state_execution_overlay}
       />
     </div>
   );
@@ -248,18 +256,30 @@ function EmergenceSection({
 function StateExecutionSection({
   runId,
   initialReport,
+  initialApplyReport,
+  initialRollbackReport,
+  initialOverlay,
 }: {
   runId: string;
   initialReport: RunnerStateExecutionReport | null | undefined;
+  initialApplyReport: RunnerStateExecutionApplyReport | null | undefined;
+  initialRollbackReport: RunnerStateExecutionRollbackReport | null | undefined;
+  initialOverlay: StateExecutionOverlay | null | undefined;
 }) {
   const [report, setReport] = useState(initialReport);
+  const [applyReport, setApplyReport] = useState(initialApplyReport);
+  const [rollbackReport, setRollbackReport] = useState(initialRollbackReport);
+  const [overlay, setOverlay] = useState(initialOverlay);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setReport(initialReport);
+    setApplyReport(initialApplyReport);
+    setRollbackReport(initialRollbackReport);
+    setOverlay(initialOverlay);
     setError("");
-  }, [initialReport, runId]);
+  }, [initialApplyReport, initialOverlay, initialReport, initialRollbackReport, runId]);
 
   async function evaluate() {
     setWorking(true);
@@ -273,9 +293,44 @@ function StateExecutionSection({
     }
   }
 
+  async function applyOverlay() {
+    setWorking(true);
+    setError("");
+    try {
+      const applied = await api.applyRunnerStateExecution(runId);
+      setApplyReport(applied);
+      setRollbackReport(undefined);
+    } catch (exc) {
+      setError(exc instanceof ApiError ? exc.message : "状态应用失败");
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  async function rollbackOverlay() {
+    setWorking(true);
+    setError("");
+    try {
+      const rolledBack = await api.rollbackRunnerStateExecution(runId);
+      setRollbackReport(rolledBack);
+      setOverlay(undefined);
+      setApplyReport((prev) => prev ? { ...prev, status: "rolled_back" } : prev);
+    } catch (exc) {
+      setError(exc instanceof ApiError ? exc.message : "状态回滚失败");
+    } finally {
+      setWorking(false);
+    }
+  }
+
   const hasReport = hasStateExecution(report);
   const summary = report?.summary;
   const candidates = report?.candidates || [];
+  const eligibleCount = candidates.filter(
+    (candidate) => candidate.gate_status === "executable" && candidate.risk === "low",
+  ).length;
+  const appliedCount = applyReport?.summary?.applied_count ?? 0;
+  const overlayDeltaCount = overlay?.state_deltas?.length ?? 0;
+  const isApplied = applyReport?.status === "applied" && appliedCount > 0;
 
   return (
     <section className="expl-section">
@@ -330,10 +385,56 @@ function StateExecutionSection({
             </div>
           ))}
           <InlineList label="MVP 前置" items={report.safety?.required_before_mvp} />
+          {applyReport && (
+            <>
+              <Row
+                k="应用"
+                v={
+                  applyReport.status === "rolled_back"
+                    ? `已回滚 · 原应用 ${appliedCount} 项`
+                    : `已写 overlay ${applyReport.summary.overlay_count} 处 · ${appliedCount} 项`
+                }
+              />
+              <InlineList
+                label="略过"
+                items={applyReport.skipped_candidates?.slice(0, 4).map(
+                  (item) => `${item.candidate_id}：${item.reason}`,
+                )}
+              />
+            </>
+          )}
+          {overlay && (
+            <Row
+              k="覆盖层"
+              v={`${overlay.branch_id} · ${overlayDeltaCount} 条状态变化，可回滚`}
+            />
+          )}
+          {rollbackReport && (
+            <Row
+              k="回滚"
+              v={`已移除 ${rollbackReport.summary.removed_overlay_count} 个覆盖层`}
+            />
+          )}
           <Warnings warnings={report.warnings} />
-          <button className="btn btn--ghost" onClick={evaluate} disabled={working}>
-            {working ? "评估中..." : "重新评估"}
-          </button>
+          <div className="actions-row">
+            <button className="btn btn--ghost" onClick={evaluate} disabled={working}>
+              {working ? "处理中..." : "重新评估"}
+            </button>
+            <button
+              className="btn btn--primary"
+              onClick={applyOverlay}
+              disabled={working || eligibleCount <= 0 || isApplied}
+            >
+              {isApplied ? "已应用覆盖层" : "应用低风险状态"}
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={rollbackOverlay}
+              disabled={working || !isApplied}
+            >
+              回滚覆盖层
+            </button>
+          </div>
         </>
       )}
       {error && <div className="runtime-warning">{error}</div>}

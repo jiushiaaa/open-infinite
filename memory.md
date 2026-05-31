@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A Runner State Execution Spike 已完成；下一刀进入 v0.8.10-B Runner State Execution MVP；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 591 passed，前端 build 通过）
+> **最后更新**：2026-05-31（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；下一刀进入 v0.9.0-alpha Long Novel Creation Loop；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 595 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `591 passed`（2026-05-31，v0.8.10-A Runner State Execution Spike 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一版** | **v0.8.10-B Runner State Execution MVP**（在 Spike 报告基础上做最小 opt-in 状态写入、回滚与审计边界） |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution Spike 已收口 → v0.8.10-B Runner State Execution MVP → v0.9.0-alpha Long Novel Creation Loop → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
-| **刚收口** | v0.8.10-A Runner State Execution Spike：新增 opt-in 状态执行 dry-run 评估报告、HTTP API 与右侧「机制档案」展示，评估动作计划/动作注册表/涌现节点能否安全转成状态变化，但不写 `state_snapshot.json`、不改 `run_scene` 默认行为。 |
+| **测试基线** | 后端 `595 passed`（2026-05-31，v0.8.10-B Runner State Execution MVP 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一版** | **v0.9.0-alpha Long Novel Creation Loop**（上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节） |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
+| **刚收口** | v0.8.10-B Runner State Execution MVP：在 dry-run 报告基础上，显式确认后只把 low-risk/executable/白名单 delta 写入分支 `state_execution_overlay.json`，并写 run 级 apply/rollback 报告；原 `state_snapshot.json` 不被覆盖，`run_scene` 默认行为不变。 |
 
 ---
 
@@ -120,8 +120,8 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.8.8 | Long Project Workspace | 长篇项目详情页，集中展示章节、记忆、正史账本、实体别名、检索命中、审计报告，并能从项目发起 baseline/intervention | 已收口 |
 | v0.8.9 | Long Replay & Audit UI | 长篇 Canon Replay / Consistency Audit 前端产品化，支持章节范围、风险维度、实体归一化后的审计结果展示 | 已收口 |
 | v0.8.10-A | Runner State Execution Spike | opt-in 评估 runner 只读消费后的下一步：动作计划/动作注册表/涌现节点是否能安全转成状态变化；不改默认行为 | 已收口 |
-| v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 下一刀 |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 待 v0.8 收束后开启 |
+| v0.8.10-B | Runner State Execution MVP | 若 Spike 验证可行，再做最小状态执行层，保持 artifact/API additive 与可回退 | 已收口 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出，形成完整长篇共创产品闭环 | 下一刀 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 待 v0.9.0-alpha 后按成本/稳定性触发 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 待长篇项目页稳定后 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 待 50+ 章或百万字项目召回不足时触发 |
@@ -440,8 +440,8 @@ lne list-genres
 → v0.8.8   Long Project Workspace：长篇项目资产页（已收口）
 → v0.8.9   Long Replay & Audit UI：长篇回放与审计 UI（已收口）
 → v0.8.10-A Runner State Execution Spike：状态执行层 dry-run 评估（已收口）
-→ v0.8.10-B Runner State Execution MVP：最小 opt-in 状态写入（下一刀）
-→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环
+→ v0.8.10-B Runner State Execution MVP：最小 opt-in 状态写入（已收口）
+→ v0.9.0-alpha Long Novel Creation Loop：长篇共创产品闭环（下一刀）
 → v0.9.1   Provider & Cost Gateway Lite（成本/稳定性触发）
 → v0.9.2   MasterSetting Workspace Lite（长篇项目页稳定后）
 → v0.9.3   Graph Memory Evaluation Spike（BM25/ledger 召回不足时评估 Zep/图数据库）
@@ -1339,3 +1339,14 @@ lne list-genres
 - **测试**：新增 `tests/test_v0810_runner_state_execution.py`（4 passed）；相关机制回归 `15 passed`；默认 runner 契约回归 `12 passed`；完整后端 `python -m pytest -q` 为 **591 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **明确未做**：不写 `state_snapshot.json`，不改变 `run_scene` 默认行为，不把 action/emergence 自动应用到真实状态；运行后审计写回、LLM 语义 replay、向量库和云端队列仍留后续。
 - **下一刀建议**：进入 `v0.8.10-B Runner State Execution MVP`，仅在 opt-in 下把白名单、低风险 dry-run delta 最小写入可回滚状态层，并补审计/回滚/冲突测试。
+
+### 2026-05-31 — v0.8.10-B Runner State Execution MVP
+
+- **做了什么**：
+  - 新增 `apply_runner_state_execution()`：必须 `confirm=True` 才会从 dry-run 报告里挑选 `executable`、`low` risk、白名单字段的 delta，按分支写入 `state_execution_overlay.json`。
+  - 新增 `rollback_runner_state_execution()`：移除 overlay 并写 `runner_state_execution_rollback_report.json`，同时把 apply 报告标记为 `rolled_back`；原 `state_snapshot.json` 不被覆盖。
+  - 新增 HTTP 接口 `POST /api/runs/<run_id>/state-execution-apply` 与 `POST /api/runs/<run_id>/state-execution-rollback`；未确认 400，缺评估/应用报告 404，无可应用候选 409，坏 id 400。
+  - `get_branch()` additive 返回 `state_execution_overlay`、`runner_state_execution_apply_report`、`runner_state_execution_rollback_report`；前端「状态执行评估」区新增应用低风险状态与回滚覆盖层按钮。
+- **测试**：`tests/test_v0810_runner_state_execution.py` 扩充至 8 passed；相邻机制/runner 契约回归 `31 passed`；完整后端 `python -m pytest -q` 为 **595 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
+- **明确未做**：overlay 暂不驱动下一轮 runner 自动消费；运行后审计写回、LLM 语义 replay、向量库、云端队列和真实多用户权限仍留后续。
+- **下一刀建议**：进入 `v0.9.0-alpha Long Novel Creation Loop`，把上传/创建、项目资产、分支运行、审计、世界线选择和章节导出串成第一条长篇共创产品闭环。

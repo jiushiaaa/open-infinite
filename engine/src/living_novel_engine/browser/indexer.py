@@ -367,6 +367,15 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
     runner_state_execution_report = _read_optional_json(
         run_dir / "runner_state_execution_report.json"
     )
+    runner_state_execution_apply_report = _read_optional_json(
+        run_dir / "runner_state_execution_apply_report.json"
+    )
+    runner_state_execution_rollback_report = _read_optional_json(
+        run_dir / "runner_state_execution_rollback_report.json"
+    )
+    state_execution_overlay = _read_optional_json(
+        branch_dir / "state_execution_overlay.json"
+    )
 
     run_summary = index_run(run_dir)
     child_runs: list[str] = []
@@ -402,6 +411,9 @@ def get_branch(run_id: str, branch_id: str) -> dict[str, Any]:
         "narrative_diagnostics": narrative_diagnostics,
         "emergence_nodes": emergence_nodes,
         "runner_state_execution_report": runner_state_execution_report,
+        "runner_state_execution_apply_report": runner_state_execution_apply_report,
+        "runner_state_execution_rollback_report": runner_state_execution_rollback_report,
+        "state_execution_overlay": state_execution_overlay,
         "multi_agent_trace": multi_agent_trace,
         "causal_diff": causal_diff,
         "child_runs": child_runs,

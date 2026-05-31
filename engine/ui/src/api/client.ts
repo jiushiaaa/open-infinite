@@ -34,7 +34,9 @@ import type {
   RuntimeSettings,
   RuntimeSettingsPatch,
   ReplayAuditWorkspace,
+  RunnerStateExecutionApplyReport,
   RunnerStateExecutionReport,
+  RunnerStateExecutionRollbackReport,
   StoryGenesisRequest,
   StoryGenesisResponse,
   StorySummary,
@@ -296,6 +298,18 @@ export const api = {
   getRunnerStateExecutionReport(runId: string): Promise<RunnerStateExecutionReport> {
     return getJson(
       `/api/runs/${encodeURIComponent(runId)}/state-execution-report`,
+    );
+  },
+  applyRunnerStateExecution(runId: string): Promise<RunnerStateExecutionApplyReport> {
+    return postJson(
+      `/api/runs/${encodeURIComponent(runId)}/state-execution-apply`,
+      { confirm: true },
+    );
+  },
+  rollbackRunnerStateExecution(runId: string): Promise<RunnerStateExecutionRollbackReport> {
+    return postJson(
+      `/api/runs/${encodeURIComponent(runId)}/state-execution-rollback`,
+      { confirm: true },
     );
   },
 };

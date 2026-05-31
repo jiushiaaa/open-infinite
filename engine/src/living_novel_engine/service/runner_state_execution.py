@@ -7,6 +7,7 @@ artifacts and writes a new additive report; it never mutates branch
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 from datetime import datetime
@@ -17,7 +18,17 @@ import yaml
 
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _REPORT_NAME = "runner_state_execution_report.json"
+_APPLY_REPORT_NAME = "runner_state_execution_apply_report.json"
+_ROLLBACK_REPORT_NAME = "runner_state_execution_rollback_report.json"
+_OVERLAY_NAME = "state_execution_overlay.json"
 _VERSION = "v0.8.10-a"
+_APPLY_VERSION = "v0.8.10-b"
+_ALLOWED_DELTA_FIELDS = {
+    "characters.emotion",
+    "characters.resources",
+    "scene_flags.pending_pressure_actions",
+    "scene_flags.rejected_or_translated_rules",
+}
 
 
 class RunnerStateExecutionRequestError(ValueError):
@@ -345,3 +356,223 @@ def get_runner_state_execution_report(
     if not isinstance(data, dict):
         raise RunnerStateExecutionRequestError(f"状态执行评估报告不是对象: {rid}")
     return data
+
+
+def _eligible_candidate(candidate: dict[str, Any]) -> tuple[bool, str]:
+    if candidate.get("gate_status") != "executable":
+        return False, "非 executable gate"
+    if str(candidate.get("risk") or "low") != "low":
+        return False, "仅允许 low risk 候选"
+    deltas = candidate.get("state_deltas")
+    if not isinstance(deltas, list) or not deltas:
+        return False, "没有状态 delta"
+    for delta in deltas:
+        if not isinstance(delta, dict):
+            return False, "delta 格式错误"
+        if str(delta.get("field") or "") not in _ALLOWED_DELTA_FIELDS:
+            return False, "delta 字段不在白名单"
+    return True, ""
+
+
+def _apply_delta_to_overlay(snapshot: dict[str, Any], delta: dict[str, Any]) -> None:
+    field = str(delta.get("field") or "")
+    new_value = delta.get("new_value")
+    character_id = str(delta.get("character_id") or "")
+    if field.startswith("characters."):
+        attr = field.split(".", 1)[1]
+        characters = snapshot.setdefault("characters", {})
+        if not isinstance(characters, dict) or not character_id:
+            return
+        character = characters.setdefault(character_id, {})
+        if isinstance(character, dict):
+            character[attr] = new_value
+        return
+    if field.startswith("scene_flags."):
+        attr = field.split(".", 1)[1]
+        flags = snapshot.setdefault("scene_flags", {})
+        if isinstance(flags, dict):
+            flags[attr] = new_value
+
+
+def _write_branch_overlay(
+    *,
+    run_id: str,
+    branch_dir: Path,
+    branch_id: str,
+    candidates: list[dict[str, Any]],
+) -> dict[str, Any]:
+    base_snapshot = _read_json(branch_dir / "state_snapshot.json", "状态快照")
+    overlay_snapshot = copy.deepcopy(base_snapshot)
+    deltas: list[dict[str, Any]] = []
+    candidate_ids: list[str] = []
+    for candidate in candidates:
+        candidate_ids.append(str(candidate.get("candidate_id") or ""))
+        for delta in candidate.get("state_deltas") or []:
+            if isinstance(delta, dict):
+                deltas.append(delta)
+                _apply_delta_to_overlay(overlay_snapshot, delta)
+    payload = {
+        "version": _APPLY_VERSION,
+        "kind": "state_execution_overlay",
+        "mode": "overlay",
+        "run_id": run_id,
+        "branch_id": branch_id,
+        "base_snapshot": "state_snapshot.json",
+        "applied_candidate_ids": candidate_ids,
+        "state_deltas": deltas,
+        "state_overlay": overlay_snapshot,
+        "rollback": {
+            "remove_artifact": _OVERLAY_NAME,
+            "mutates_state_snapshot": False,
+        },
+        "created_at": datetime.now().isoformat(),
+    }
+    (branch_dir / _OVERLAY_NAME).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return payload
+
+
+def apply_runner_state_execution(
+    run_id: str,
+    *,
+    confirm: bool = False,
+    candidate_ids: list[str] | None = None,
+    outputs_dir: Path | None = None,
+) -> dict[str, Any]:
+    """v0.8.10-B：显式 opt-in 地把低风险候选写入可回滚 overlay。"""
+
+    if not confirm:
+        raise RunnerStateExecutionRequestError("应用状态执行需要 confirm=True 明确确认")
+    rid = _validate_identifier(run_id, "run_id")
+    run_dir = _outputs_root(outputs_dir) / rid
+    if not run_dir.is_dir():
+        raise FileNotFoundError(f"run 不存在: {rid}")
+    dry_report = get_runner_state_execution_report(rid, outputs_dir=outputs_dir)
+    selected = set(candidate_ids or [])
+    branch_candidates: dict[str, list[dict[str, Any]]] = {}
+    skipped: list[dict[str, str]] = []
+    for candidate in dry_report.get("candidates") or []:
+        if not isinstance(candidate, dict):
+            continue
+        cid = str(candidate.get("candidate_id") or "")
+        if selected and cid not in selected:
+            skipped.append({"candidate_id": cid, "reason": "未选择"})
+            continue
+        ok, reason = _eligible_candidate(candidate)
+        if not ok:
+            skipped.append({"candidate_id": cid, "reason": reason})
+            continue
+        branch_id = _validate_identifier(str(candidate.get("branch_id") or ""), "branch_id")
+        branch_dir = run_dir / branch_id
+        if not branch_dir.is_dir():
+            skipped.append({"candidate_id": cid, "reason": "目标分支不存在"})
+            continue
+        branch_candidates.setdefault(branch_id, []).append(candidate)
+
+    if not branch_candidates:
+        raise RunnerStateExecutionConflict("没有可应用的低风险状态候选")
+
+    overlays = [
+        _write_branch_overlay(
+            run_id=rid,
+            branch_dir=run_dir / branch_id,
+            branch_id=branch_id,
+            candidates=candidates,
+        )
+        for branch_id, candidates in sorted(branch_candidates.items())
+    ]
+    applied_count = sum(len(item["applied_candidate_ids"]) for item in overlays)
+    payload = {
+        "version": _APPLY_VERSION,
+        "kind": "runner_state_execution_apply",
+        "mode": "overlay",
+        "run_id": rid,
+        "story_slug": dry_report.get("story_slug", ""),
+        "status": "applied",
+        "summary": {
+            "candidate_count": len(dry_report.get("candidates") or []),
+            "applied_count": applied_count,
+            "skipped_count": len(skipped),
+            "overlay_count": len(overlays),
+        },
+        "safety": {
+            "default_run_scene_unchanged": True,
+            "mutates_state_snapshot": False,
+            "writes_branch_artifacts": True,
+            "rollback_available": True,
+            "apply_mode": "overlay_only",
+        },
+        "branch_overlays": [
+            {
+                "branch_id": overlay["branch_id"],
+                "path": f"{overlay['branch_id']}/{_OVERLAY_NAME}",
+                "applied_candidate_ids": overlay["applied_candidate_ids"],
+                "delta_count": len(overlay["state_deltas"]),
+            }
+            for overlay in overlays
+        ],
+        "skipped_candidates": skipped,
+        "created_at": datetime.now().isoformat(),
+    }
+    (run_dir / _APPLY_REPORT_NAME).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return payload
+
+
+def rollback_runner_state_execution(
+    run_id: str,
+    *,
+    confirm: bool = False,
+    outputs_dir: Path | None = None,
+) -> dict[str, Any]:
+    """移除 v0.8.10-B 写入的 overlay；不触碰原始 state_snapshot。"""
+
+    if not confirm:
+        raise RunnerStateExecutionRequestError("回滚状态执行需要 confirm=True 明确确认")
+    rid = _validate_identifier(run_id, "run_id")
+    run_dir = _outputs_root(outputs_dir) / rid
+    if not run_dir.is_dir():
+        raise FileNotFoundError(f"run 不存在: {rid}")
+    apply_report_path = run_dir / _APPLY_REPORT_NAME
+    if not apply_report_path.exists():
+        raise FileNotFoundError(f"状态执行应用报告不存在: {rid}")
+    apply_report = _read_json(apply_report_path, "状态执行应用报告")
+    removed: list[str] = []
+    for item in apply_report.get("branch_overlays") or []:
+        if not isinstance(item, dict):
+            continue
+        branch_id = _validate_identifier(str(item.get("branch_id") or ""), "branch_id")
+        overlay_path = run_dir / branch_id / _OVERLAY_NAME
+        if overlay_path.exists():
+            overlay_path.unlink()
+            removed.append(f"{branch_id}/{_OVERLAY_NAME}")
+    apply_report["status"] = "rolled_back"
+    apply_report["rolled_back_at"] = datetime.now().isoformat()
+    apply_report_path.write_text(
+        json.dumps(apply_report, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    payload = {
+        "version": _APPLY_VERSION,
+        "kind": "runner_state_execution_rollback",
+        "mode": "overlay",
+        "run_id": rid,
+        "summary": {
+            "removed_overlay_count": len(removed),
+        },
+        "removed_artifacts": removed,
+        "safety": {
+            "default_run_scene_unchanged": True,
+            "mutates_state_snapshot": False,
+        },
+        "created_at": datetime.now().isoformat(),
+    }
+    (run_dir / _ROLLBACK_REPORT_NAME).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return payload

@@ -14,8 +14,10 @@ import urllib.request
 
 from living_novel_engine.browser import indexer, server
 from living_novel_engine.service import (
+    apply_runner_state_execution,
     evaluate_runner_state_execution,
     get_runner_state_execution_report,
+    rollback_runner_state_execution,
     run_intervention,
 )
 
@@ -194,6 +196,181 @@ def test_state_execution_http_evaluate_get_and_status_codes(tmp_path, monkeypatc
         status, missing = _get(port, "/api/runs/missing_run/state-execution-report")
         assert status == 404
         assert "不存在" in missing["error"]
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+
+def test_state_execution_mvp_applies_low_risk_overlay_and_preserves_snapshot(
+    tmp_path, monkeypatch
+):
+    outputs, result = _run_basic_intervention(
+        tmp_path,
+        monkeypatch,
+        "告诉林晚舟竹林里有埋伏，让她先查证退魂铃",
+    )
+    evaluate_runner_state_execution(result.run_id, outputs_dir=outputs)
+    branch_snapshot_path = outputs / result.run_id / "branch_a" / "state_snapshot.json"
+    before = json.loads(branch_snapshot_path.read_text(encoding="utf-8"))
+
+    apply_report = apply_runner_state_execution(
+        result.run_id,
+        confirm=True,
+        outputs_dir=outputs,
+    )
+    after = json.loads(branch_snapshot_path.read_text(encoding="utf-8"))
+    overlay_path = outputs / result.run_id / "branch_a" / "state_execution_overlay.json"
+    overlay = json.loads(overlay_path.read_text(encoding="utf-8"))
+
+    assert apply_report["kind"] == "runner_state_execution_apply"
+    assert apply_report["mode"] == "overlay"
+    assert apply_report["summary"]["applied_count"] >= 1
+    assert apply_report["safety"]["default_run_scene_unchanged"] is True
+    assert apply_report["safety"]["mutates_state_snapshot"] is False
+    assert apply_report["safety"]["rollback_available"] is True
+    assert before == after
+    assert overlay["kind"] == "state_execution_overlay"
+    assert overlay["branch_id"] == "branch_a"
+    assert overlay["state_overlay"] != before
+    assert any(delta["field"] == "characters.emotion" for delta in overlay["state_deltas"])
+
+    monkeypatch.setenv("LNE_OUTPUTS_DIR", str(outputs))
+    detail = indexer.get_branch(result.run_id, "branch_a")
+    assert detail["state_execution_overlay"]["kind"] == "state_execution_overlay"
+    assert detail["runner_state_execution_apply_report"]["summary"]["applied_count"] >= 1
+
+
+def test_state_execution_mvp_requires_confirm_and_blocks_unsafe_candidates(
+    tmp_path, monkeypatch
+):
+    outputs, result = _run_basic_intervention(
+        tmp_path,
+        monkeypatch,
+        "让林晚舟获得现代系统和无限子弹手枪",
+    )
+    evaluate_runner_state_execution(result.run_id, outputs_dir=outputs)
+
+    try:
+        apply_runner_state_execution(result.run_id, outputs_dir=outputs)
+    except Exception as exc:
+        assert "confirm" in str(exc) or "确认" in str(exc)
+    else:  # pragma: no cover - defensive, test must fail if implicit apply works
+        raise AssertionError("apply must require explicit confirm=True")
+
+    try:
+        apply_runner_state_execution(result.run_id, confirm=True, outputs_dir=outputs)
+    except Exception as exc:
+        assert "可应用" in str(exc) or "eligible" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("unsafe alternate candidates must not be applied")
+
+    assert not (outputs / result.run_id / "branch_a" / "state_execution_overlay.json").exists()
+
+
+def test_state_execution_mvp_rollback_removes_overlay_without_mutating_snapshot(
+    tmp_path, monkeypatch
+):
+    outputs, result = _run_basic_intervention(
+        tmp_path,
+        monkeypatch,
+        "告诉林晚舟竹林里有埋伏，让她先查证退魂铃",
+    )
+    evaluate_runner_state_execution(result.run_id, outputs_dir=outputs)
+    branch_snapshot_path = outputs / result.run_id / "branch_a" / "state_snapshot.json"
+    before = json.loads(branch_snapshot_path.read_text(encoding="utf-8"))
+    apply_runner_state_execution(result.run_id, confirm=True, outputs_dir=outputs)
+
+    rollback = rollback_runner_state_execution(
+        result.run_id,
+        confirm=True,
+        outputs_dir=outputs,
+    )
+    after = json.loads(branch_snapshot_path.read_text(encoding="utf-8"))
+
+    assert rollback["kind"] == "runner_state_execution_rollback"
+    assert rollback["summary"]["removed_overlay_count"] >= 1
+    assert before == after
+    assert not (outputs / result.run_id / "branch_a" / "state_execution_overlay.json").exists()
+    assert (outputs / result.run_id / "runner_state_execution_rollback_report.json").exists()
+
+
+def test_state_execution_mvp_http_apply_rollback_and_status_codes(
+    tmp_path, monkeypatch
+):
+    projects = tmp_path / "projects"
+    outputs = tmp_path / "outputs"
+    projects.mkdir()
+    outputs.mkdir()
+    monkeypatch.setenv("LNE_PROJECTS_DIR", str(projects))
+    monkeypatch.setenv("LNE_OUTPUTS_DIR", str(outputs))
+    monkeypatch.setenv("LLM_API_KEY", "")
+    monkeypatch.setenv("SEEDREAM_API_KEY", "")
+
+    port = _free_port()
+    httpd = server.start_browser_server("127.0.0.1", port, open_browser=False)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, body = _post(
+            port,
+            "/api/interventions",
+            {
+                "story_slug": "tianhuang-night",
+                "target": "lin_wan_zhou",
+                "content": "告诉林晚舟竹林里有埋伏",
+                "mock": True,
+                "rounds": 1,
+            },
+        )
+        assert status == 200
+        run_id = body["run_id"]
+
+        status, missing = _post(
+            port,
+            f"/api/runs/{run_id}/state-execution-apply",
+            {"confirm": True},
+        )
+        assert status == 404
+        assert "评估报告" in missing["error"]
+
+        _post(port, f"/api/runs/{run_id}/state-execution-evaluate", {})
+
+        status, unconfirmed = _post(
+            port,
+            f"/api/runs/{run_id}/state-execution-apply",
+            {},
+        )
+        assert status == 400
+        assert "确认" in unconfirmed["error"]
+
+        status, apply_report = _post(
+            port,
+            f"/api/runs/{run_id}/state-execution-apply",
+            {"confirm": True},
+        )
+        assert status == 200
+        assert apply_report["kind"] == "runner_state_execution_apply"
+        assert apply_report["summary"]["applied_count"] >= 1
+
+        status, detail = _get(port, f"/api/runs/{run_id}/branches/branch_a")
+        assert status == 200
+        assert detail["state_execution_overlay"]["kind"] == "state_execution_overlay"
+
+        status, bad = _post(
+            port,
+            "/api/runs/bad..id/state-execution-rollback",
+            {"confirm": True},
+        )
+        assert status == 400
+        assert "invalid" in bad["error"]
+
+        status, rollback = _post(
+            port,
+            f"/api/runs/{run_id}/state-execution-rollback",
+            {"confirm": True},
+        )
+        assert status == 200
+        assert rollback["summary"]["removed_overlay_count"] >= 1
     finally:
         httpd.shutdown()
         httpd.server_close()

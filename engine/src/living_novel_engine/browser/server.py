@@ -312,6 +312,22 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if rid is None:
                     return self._send_json({"error": "invalid run_id"}, status=400)
                 return self._handle_state_execution_run(rid)
+            if path.startswith("/api/runs/") and path.endswith(
+                "/state-execution-apply"
+            ):
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/state-execution-apply")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._handle_state_execution_apply(rid)
+            if path.startswith("/api/runs/") and path.endswith(
+                "/state-execution-rollback"
+            ):
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/state-execution-rollback")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._handle_state_execution_rollback(rid)
             if (
                 path.startswith("/api/runs/")
                 and "/branches/" in path
@@ -1033,6 +1049,59 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
         try:
             report = get_runner_state_execution_report(run_id)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except RunnerStateExecutionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
+    def _handle_state_execution_apply(self, run_id: str) -> None:
+        """v0.8.10-B：显式确认后写入可回滚的状态 overlay。"""
+        from living_novel_engine.service import (
+            RunnerStateExecutionConflict,
+            RunnerStateExecutionRequestError,
+            apply_runner_state_execution,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+        candidate_ids = body.get("candidate_ids") if isinstance(body, dict) else None
+        if candidate_ids is not None and not isinstance(candidate_ids, list):
+            return self._send_json({"error": "candidate_ids 必须是数组"}, status=400)
+        try:
+            report = apply_runner_state_execution(
+                run_id,
+                confirm=bool(body.get("confirm")) if isinstance(body, dict) else False,
+                candidate_ids=[
+                    str(item) for item in candidate_ids
+                ] if isinstance(candidate_ids, list) else None,
+            )
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except RunnerStateExecutionConflict as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        except RunnerStateExecutionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
+    def _handle_state_execution_rollback(self, run_id: str) -> None:
+        """v0.8.10-B：移除状态 overlay，原 state_snapshot 不变。"""
+        from living_novel_engine.service import (
+            RunnerStateExecutionRequestError,
+            rollback_runner_state_execution,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+        try:
+            report = rollback_runner_state_execution(
+                run_id,
+                confirm=bool(body.get("confirm")) if isinstance(body, dict) else False,
+            )
         except FileNotFoundError as exc:
             return self._send_json({"error": str(exc)}, status=404)
         except RunnerStateExecutionRequestError as exc:

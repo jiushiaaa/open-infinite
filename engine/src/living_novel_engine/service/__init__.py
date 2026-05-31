@@ -48,8 +48,10 @@ from .runtime_settings import (
 from .runner_state_execution import (
     RunnerStateExecutionConflict,
     RunnerStateExecutionRequestError,
+    apply_runner_state_execution,
     evaluate_runner_state_execution,
     get_runner_state_execution_report,
+    rollback_runner_state_execution,
 )
 from .import_novel import (
     ImportRequestError,
@@ -148,8 +150,10 @@ __all__ = [
     "default_rounds",
     "default_runner",
     "get_runtime_settings",
+    "apply_runner_state_execution",
     "evaluate_runner_state_execution",
     "get_runner_state_execution_report",
+    "rollback_runner_state_execution",
     "test_connectivity",
     "update_runtime_settings",
     "update_world_anchor",

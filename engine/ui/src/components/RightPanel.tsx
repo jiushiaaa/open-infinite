@@ -28,7 +28,9 @@ export function RightPanel({
     !!branch.dynamic_action_registry ||
     !!branch.narrative_diagnostics ||
     !!branch.emergence_nodes ||
-    !!branch.runner_state_execution_report;
+    !!branch.runner_state_execution_report ||
+    !!branch.runner_state_execution_apply_report ||
+    !!branch.state_execution_overlay;
 
   const tabs: { id: Tab; label: string; dot?: boolean }[] = [
     { id: "artifacts", label: "机制档案", dot: hasArtifacts },
