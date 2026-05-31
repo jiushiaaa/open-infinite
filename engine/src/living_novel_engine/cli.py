@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 
 import click
@@ -496,14 +497,40 @@ def validate_project_cmd(slug: str) -> None:
         raise SystemExit(1)
 
 
+def _write_creation_loop_closeout_report(slug: str, payload: dict) -> Path:
+    from living_novel_engine.browser.paths import projects_dir
+
+    project_dir = projects_dir() / slug
+    if not project_dir.is_dir():
+        raise click.ClickException("只有导入项目可写入 alpha 收口报告")
+
+    record = {
+        "kind": "creation_loop_alpha_closeout_record",
+        "version": payload.get("version", "v0.9.0-alpha"),
+        "story_slug": slug,
+        "created_at": datetime.now().isoformat(),
+        "completion_status": payload.get("completion_status", "unknown"),
+        "actions": payload.get("actions") or [],
+        "closeout": payload.get("closeout") or {},
+    }
+    report_path = project_dir / "creation_loop_alpha_closeout.json"
+    report_path.write_text(
+        json.dumps(record, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return report_path
+
+
 @main.command("creation-loop-closeout")
 @click.argument("slug")
 @click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
 @click.option("--require-ready", is_flag=True, help="未达到 ready 时以退出码 1 失败")
+@click.option("--write-report", is_flag=True, help="ready 后写入 alpha 收口报告")
 def creation_loop_closeout_cmd(
     slug: str,
     json_output: bool,
     require_ready: bool,
+    write_report: bool,
 ) -> None:
     """验收 v0.9.0-alpha 长篇共创闭环收口状态。"""
     from living_novel_engine.browser import indexer
@@ -528,6 +555,10 @@ def creation_loop_closeout_cmd(
         "actions": completion.get("actions") or [],
         "closeout": closeout,
     }
+    report_path: Path | None = None
+    if write_report and closeout.get("can_close_alpha"):
+        report_path = _write_creation_loop_closeout_report(safe_slug, payload)
+        payload["closeout_report_path"] = str(report_path)
 
     if json_output:
         click.echo(json.dumps(payload, ensure_ascii=False, indent=2))
@@ -551,6 +582,11 @@ def creation_loop_closeout_cmd(
                 console.print(f"    - {action_id}: {label}")
         if closeout.get("next_step"):
             console.print(f"  next_step: {closeout.get('next_step')}")
+        if report_path:
+            console.print(f"  closeout_report: {report_path}")
+
+    if write_report and not closeout.get("can_close_alpha"):
+        raise click.ClickException("v0.9.0-alpha 尚未收口，未写入收口报告")
 
     if require_ready and not closeout.get("can_close_alpha"):
         raise click.ClickException("v0.9.0-alpha 尚未收口")

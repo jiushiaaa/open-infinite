@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已启动，Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Builtin Holdout Blocked Requirement、Creation Loop Closeout CLI、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口 |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop 已启动，Chapter Export、Chapter Collection Export、Export Share Guard、Creation Loop Completion Gate、Creation Loop Action Hints、Creation Loop Readiness Evidence、Creation Loop Audit Quick Run、Creation Loop Alpha Ready State、Creation Loop Alpha Closeout Report、Creation Loop Closeout API、Closeout API Actions、Action Payloads、Stable Blocker IDs、Replay Audit Action Requirements、Requirements UI Display、Builtin Holdout Blocked Requirement、Creation Loop Closeout CLI、Creation Loop Closeout Record、Creation Loop Checklist、Continuation Hint、Resume Continue HTTP Job、Worldline Selection Persistence 与 Post-run Audit Entry 子刀已收口 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -851,13 +851,14 @@ v0.9.0-alpha 已启动，目标是串起完整用户路径：
 - **Requirements UI Display**：前端「创作闭环」完成度区会展示 action requirements 的中文前置条件，解释为什么当前只能跳转审计页或需要先补起点、baseline、holdout。
 - **Builtin Holdout Blocked Requirement**：内置样例无法录入 holdout 时，`canon_holdout` requirement 标为 `blocked` 并提示需导入长篇项目后录入 holdout，避免把只读样例误判为普通缺失。
 - **Creation Loop Closeout CLI**：`lne creation-loop-closeout <slug>` 可本地验收 closeout 状态，`--json` 输出与 HTTP 同构 payload，`--require-ready` 在未 ready 时失败，用于导入项目 alpha 收口闸门。
+- **Creation Loop Closeout Record**：`lne creation-loop-closeout <slug> --write-report` 仅在 ready 后写入项目级 `creation_loop_alpha_closeout.json`，记录 closeout 依据；未 ready 或 builtin 样例不落盘。
 - **Creation Loop Checklist**：长篇项目工作台新增只读 `creation_loop`，展示推荐世界线、候选分支、导入/分支/评审/审计/导出五步清单和下一步提醒。
 - **Continuation Hint**：推荐世界线下展示 CLI 续写入口 `lne resume continue <run_id> --branch <branch_id> --mock`，作为 HTTP resume job 前的最小继续创作入口。
 - **Resume Continue HTTP Job**：推荐世界线可通过显式按钮触发 `/api/jobs/resume-continue`，沿父分支生成新的 `linear` 下一章并跳转阅读；不改 `run_scene` 默认行为。
 - **Worldline Selection Persistence**：用户可把推荐或候选世界线「设为起点」，写入 `selected_worldline.json` 并在 `creation_loop.selected` 中读回。
 - **Post-run Audit Entry**：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态一致性审计、范围回放风险、缺失实体和下一步审计入口。
 
-v0.9.0-alpha 仍需用真实样例或导入项目通过 closeout HTTP 验收接口或 `lne creation-loop-closeout --require-ready` 跑到 `creation_loop.closeout.status=ready` 后再做版本收口声明；公开分享发布、provider/cost gateway 不在当前 alpha 小刀内。运行后审计目前是只读入口，尚未写回正史账本或驱动下一轮 runner。
+v0.9.0-alpha 仍需用真实样例或导入项目通过 closeout HTTP 验收接口或 `lne creation-loop-closeout --require-ready --write-report` 跑到 `creation_loop.closeout.status=ready` 并写入 `creation_loop_alpha_closeout.json` 后再做版本收口声明；公开分享发布、provider/cost gateway 不在当前 alpha 小刀内。运行后审计目前是只读入口，尚未写回正史账本或驱动下一轮 runner。
 
 #### v0.8.1 Hierarchical Memory
 
@@ -978,7 +979,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 
 | 版本 | 名称 | 范围 | 触发条件 |
 | --- | --- | --- | --- |
-| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | 已启动：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout CLI / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口，整体闭环继续推进 |
+| v0.9.0-alpha | Long Novel Creation Loop | 上传 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出章节，形成第一条长篇共创闭环 | 已启动：Export / Collection Export / Share Guard / Completion Gate / Action Hints / Readiness Evidence / Audit Quick Run / Alpha Ready State / Alpha Closeout Report / Closeout API / Closeout CLI / Closeout Record / Checklist / Hint / Resume Job / Selection / Post-run Audit 子刀已收口，整体闭环继续推进 |
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 真实用户开始频繁跑长任务，单 provider 成本或稳定性成为问题 |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 长篇项目页稳定后，用户需要系统化维护设定，而不只是运行分支 |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否替换或增强现有 `canon_ledger` + BM25 + entity aliases | 50+ 章或百万字项目中 BM25/ledger 召回明显不足，审计频繁漏实体/关系 |

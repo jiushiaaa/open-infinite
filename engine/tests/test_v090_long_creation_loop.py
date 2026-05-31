@@ -903,6 +903,44 @@ def test_cli_creation_loop_closeout_json_reports_ready_state(isolated_story_dirs
     assert payload["closeout"]["remaining_blocker_ids"] == []
 
 
+def test_cli_creation_loop_closeout_write_report_persists_ready_record(
+    isolated_story_dirs,
+):
+    projects, outputs = isolated_story_dirs
+    import_novel_from_payload(
+        name="export-story",
+        chapters=_chapters(6),
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    run_id, branch_id = _write_branch(outputs)
+    _write_causal_diff(outputs, run_id, branch_id)
+    _write_clean_consistency_report(projects)
+    _write_replay_range(outputs, risk_level="low", missing_entities=[])
+    _, _, select_worldline = _worldline_selection_api()
+    select_worldline(
+        story_slug="export-story",
+        run_id=run_id,
+        branch_id=branch_id,
+        note="写入 alpha 收口记录。",
+    )
+
+    result = CliRunner().invoke(
+        main,
+        ["creation-loop-closeout", "export-story", "--write-report"],
+    )
+
+    assert result.exit_code == 0, result.output
+    report_path = projects / "export-story" / "creation_loop_alpha_closeout.json"
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["kind"] == "creation_loop_alpha_closeout_record"
+    assert payload["story_slug"] == "export-story"
+    assert payload["completion_status"] == "ready"
+    assert payload["closeout"]["status"] == "ready"
+    assert payload["closeout"]["can_close_alpha"] is True
+
+
 def test_cli_creation_loop_closeout_require_ready_fails_on_blockers(
     isolated_story_dirs,
 ):
@@ -918,13 +956,15 @@ def test_cli_creation_loop_closeout_require_ready_fails_on_blockers(
 
     result = CliRunner().invoke(
         main,
-        ["creation-loop-closeout", "export-story", "--require-ready"],
+        ["creation-loop-closeout", "export-story", "--require-ready", "--write-report"],
     )
 
     assert result.exit_code == 1
     assert "v0.9.0-alpha 尚未收口" in result.output
     assert "worldline_judgement" in result.output
     assert "select_worldline" in result.output
+    report_path = projects / "export-story" / "creation_loop_alpha_closeout.json"
+    assert not report_path.exists()
 
 
 def test_http_worldline_selection_statuses(isolated_story_dirs):
