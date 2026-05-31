@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite 与 v0.9.3 Graph Memory Evaluation Spike 已整体收口；v0.9.4 Advanced Runner Evaluation Trigger-A 已完成，下一步 Probe-B）
+> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike 与 v0.9.4 Advanced Runner Evaluation Spike 已整体收口；下一步 v1.0-beta Commercial Hardening Scope-A）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/completed/v0.1-to-v0.8-version-audit.md`。
@@ -95,12 +95,12 @@ v0.9.0-alpha Long Novel Creation Loop   长篇共创闭环        已整体收�
 v0.9.1 Provider & Cost Gateway Lite        成本与稳定性增强      已整体收口：详见 docs/completed/v0.9.1-provider-cost-gateway-lite.md
 v0.9.2 MasterSetting Workspace Lite        项目设定轻工作台      已整体收口：详见 docs/completed/v0.9.2-master-setting-workspace-lite.md
 v0.9.3 Graph Memory Evaluation Spike       图记忆评估             已整体收口：触发报告 + Retrieval Probe-B
-v0.9.4 Advanced Runner Evaluation Spike    高级 runner 评估       进行中：Trigger-A 已完成，下一步 Probe-B
+v0.9.4 Advanced Runner Evaluation Spike    高级 runner 评估       已整体收口：触发报告 + Probe-B
 ```
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **641 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider & Cost Gateway Lite 已整体收口**，完整证明见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；**v0.9.2 MasterSetting Workspace Lite 已整体收口**，完整证明见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；**v0.9.3 Graph Memory Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`；**v0.9.4 Advanced Runner Evaluation Trigger-A 已完成**，当前不接 LangGraph/OASIS/CAMEL。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **643 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider & Cost Gateway Lite 已整体收口**，完整证明见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；**v0.9.2 MasterSetting Workspace Lite 已整体收口**，完整证明见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；**v0.9.3 Graph Memory Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`；**v0.9.4 Advanced Runner Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`；当前不接 LangGraph/OASIS/CAMEL。
 
 ## 2.1 阶段性质与产品化程度
 
@@ -116,7 +116,7 @@ v0.9.4 Advanced Runner Evaluation Spike    高级 runner 评估       进行中�
 | v0.8+ A-slices | ActDirector、Narrator diagnostics、Action Registry、Emergence、Aliases、Runtime Memory | 机制接缝与解释层 MVP | A-slice 已可验收，但默认不代表强状态执行或复杂 runner。 |
 | v0.8.6-v0.8.10 | 导入检查、断点任务、项目页、审计 UI、runner 状态执行评估 | 长篇产品化收束 | 把长篇底座变成用户可理解、可修复、可继续创作的工作流。 |
 | v0.9.0-alpha | Long Novel Creation Loop | 长篇产品化闭环成立 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record。 |
-| v0.9.1-v0.9.4 | Provider/Cost、MasterSetting、Graph Memory、Advanced Runner | 真实使用压力增强 | v0.9.1、v0.9.2 与 v0.9.3 已整体收口；v0.9.4 Trigger-A 已完成，下一步 Probe-B，不提前重依赖。 |
+| v0.9.1-v0.9.4 | Provider/Cost、MasterSetting、Graph Memory、Advanced Runner | 真实使用压力增强 | v0.9.1-v0.9.4 已整体收口；下一步进入 v1.0-beta Scope-A，但不提前做云端大重构。 |
 | v1.0-beta | Commercial Hardening | 商业级/规模化 | 账号、权限、云端持久化、配额、审计、版权、部署观测。 |
 
 因此，“已经完成 MVP”需要带限定语：v0.7 已完成短中篇产品化 MVP，v0.8.0-A 至 v0.8.5-A 已完成长篇底座 MVP；v0.8.6-v0.8.10 是长篇产品化收束，v0.9.0-alpha 才是长篇共创产品闭环成立。
@@ -167,7 +167,7 @@ v0.9.4 Advanced Runner Evaluation Spike    高级 runner 评估       进行中�
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **641 passed**（截至 2026-06-01，v0.9.4 Advanced Runner Evaluation Trigger-A 后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **643 passed**（截至 2026-06-01，v0.9.4 Advanced Runner Evaluation Spike 收口后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1870,6 +1870,8 @@ v0.9.0-alpha 已整体收口。它已把长篇上传、记忆、分支运行、�
 
 > **v0.9.4 Advanced Runner Evaluation Trigger-A 已落地（2026-06-01）**：新增 `evaluate_advanced_runner_trigger()` 与 `GET /api/runs/<run_id>/advanced-runner-evaluation`，只读检查 `runner_state_execution_report.json`、分支 `multi_agent_trace.json` 与 `emergence_nodes.json`，返回 `not_triggered` / `insufficient_data` / `triggered`、状态执行候选 backlog、trace warning、私域复杂度、high-value emergence、触发原因和中文 next steps。非法 run_id 返回 400，缺 run 404。该子刀不接 LangGraph、OASIS、CAMEL，不写 artifact，不替换现有 runner，不改 `run_scene`。
 
+> **v0.9.4 Advanced Runner Probe-B / Spike 已整体收口（2026-06-01）**：新增 `evaluate_advanced_runner_probes()` 与 `GET /api/runs/<run_id>/advanced-runner-probes`，把状态执行候选、trace 质量与涌现节点拆成可复现 probe，返回 `pass` / `weak` / `insufficient_data`、命中数、失败样例和中文建议。复杂 run 会收集 `state_execution_backlog`、`trace_repair_warnings`、`high_value_emergence` 等失败样例。收口归档见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`。该版本仍不接 LangGraph、OASIS、CAMEL，不写新 run artifact，不改 runner。
+
 ### Phase 5：社区与分享
 
 远期方向：
@@ -2001,7 +2003,7 @@ v0.1.2 resume continue
 | P9.1 | v0.9.1 Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 已整体收口 |
 | P9.2 | v0.9.2 MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 已整体收口 |
 | P9.3 | v0.9.3 Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 已整体收口 |
-| P9.4 | v0.9.4 Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 进行中：Trigger-A 已完成；下一步 Probe-B |
+| P9.4 | v0.9.4 Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 已整体收口 |
 | P10 | v1.0-beta Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 待真实外部用户/团队长期使用 |
 
 ## 8. 近期详细任务清单
@@ -2273,7 +2275,7 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v0.9.1 Provider & Cost Gateway Lite（已整体收口，见 docs/completed/v0.9.1-provider-cost-gateway-lite.md）
   -> v0.9.2 MasterSetting Workspace Lite（已整体收口，见 docs/completed/v0.9.2-master-setting-workspace-lite.md）
   -> v0.9.3 Graph Memory Evaluation Spike（已整体收口：触发报告 + Retrieval Probe-B）
-  -> v0.9.4 Advanced Runner Evaluation Spike（进行中：Trigger-A 已完成触发报告，下一步 Probe-B）
+  -> v0.9.4 Advanced Runner Evaluation Spike（已整体收口：触发报告 + Probe-B）
   -> v1.0-beta Commercial Hardening（真实外部用户/团队长期使用时）
 ```
 

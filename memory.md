@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite 与 v0.9.3 Graph Memory Evaluation Spike 已整体收口；v0.9.4 Advanced Runner Evaluation Trigger-A 已完成，只做触发报告，不接 LangGraph/OASIS/CAMEL；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 641 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike 与 v0.9.4 Advanced Runner Evaluation Spike 已整体收口；当前不接图数据库、LangGraph、OASIS 或 CAMEL；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 643 passed，前端 build 通过）
 
 ---
 
@@ -102,8 +102,8 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `641 passed`（2026-06-01，v0.9.4 Advanced Runner Evaluation Trigger-A 后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一刀** | **v0.9.4 Advanced Runner Probe-B**（补代表性复杂 run 样例和失败样例收集，不默认接 LangGraph / OASIS / CAMEL） |
+| **测试基线** | 后端 `643 passed`（2026-06-01，v0.9.4 Advanced Runner Evaluation Spike 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一刀** | **v1.0-beta Commercial Hardening Scope-A**（先复核商业化加固范围，不直接上云端多租户大重构） |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强 → v1.0-beta Commercial Hardening |
 | **刚收口** | v0.9.0-alpha Low-risk Audit Closeout / Alpha Closure：低风险静态审计 info 不再阻断 ready，本地导入项目 `v090-alpha-proof` 已通过 `--require-ready --write-report` 写入 `creation_loop_alpha_closeout.json`。 |
 
@@ -125,7 +125,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v0.9.1 | Provider & Cost Gateway Lite | 多 provider 配置、模型路由、成本/用量估算、失败回退、Key 脱敏展示 | 已整体收口，见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md` |
 | v0.9.2 | MasterSetting Workspace Lite | 项目级世界设定、人物、时间线、道具、伏笔、章节摘要的只读/轻编辑工作台 | 已整体收口，见 `docs/completed/v0.9.2-master-setting-workspace-lite.md` |
 | v0.9.3 | Graph Memory Evaluation Spike | 评估 Zep / 图数据库 / GraphRAG 是否增强 `canon_ledger` + BM25 + entity aliases | 已整体收口，见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md` |
-| v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 进行中：Trigger-A 已完成触发报告；下一步 Probe-B |
+| v0.9.4 | Advanced Runner Evaluation Spike | 评估 LangGraph 局部 runner、OASIS/CAMEL 可选 runner | 已整体收口，见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md` |
 | v1.0-beta | Commercial Hardening | 账号/项目空间、权限、云端持久化、配额、审计日志、版权提示、部署与观测 | 待真实外部用户/团队长期使用 |
 
 ## 3.2 阶段性质归类
@@ -445,7 +445,7 @@ lne list-genres
 ✅ v0.9.1   Provider & Cost Gateway Lite（已整体收口，见 docs/completed/v0.9.1-provider-cost-gateway-lite.md）
 → v0.9.2   MasterSetting Workspace Lite（已整体收口，见 docs/completed/v0.9.2-master-setting-workspace-lite.md）
 ✅ v0.9.3   Graph Memory Evaluation Spike（已整体收口，见 docs/completed/v0.9.3-graph-memory-evaluation-spike.md）
-→ v0.9.4   Advanced Runner Evaluation Spike（进行中：Trigger-A 已完成触发报告，下一步 Probe-B）
+✅ v0.9.4   Advanced Runner Evaluation Spike（已整体收口，见 docs/completed/v0.9.4-advanced-runner-evaluation-spike.md）
 → v1.0-beta Commercial Hardening（真实外部用户/团队长期使用时）
 ```
 
@@ -479,7 +479,7 @@ lne list-genres
 - [x] **v0.6.4** 自研 `multi_agent_llm` runner：通过 OpenAI-compatible API 调小模型输出 `MultiAgentTrace` JSON，不本地部署，不引入 Zep/OASIS/CAMEL（共享装配层 + 隐私加固 + 健壮回退）
 - [x] **v0.6.5** 推演工程可靠性：generation_meta（source/usage/重试/校验）+ trace 质量校验器 + 有限重试（`LNE_MULTI_AGENT_MAX_RETRIES`）+ token usage；fallback 策略；并发/精确成本计算留待 v0.8+
 - [x] **v0.9.3 Graph Memory Evaluation Spike**：触发报告 + 代表性检索 probe；当前不触发 Zep / 图数据库 / GraphRAG 接入
-- [ ] **v0.9.4 Advanced Runner Evaluation Spike**：OASIS / CAMEL / LangGraph 局部 runner 只在群体仿真或复杂状态流转明显增强时评估
+- [x] **v0.9.4 Advanced Runner Evaluation Spike**：触发报告 + 代表性 runner probe；当前不触发 LangGraph / OASIS / CAMEL 接入
 - [ ] 验收：同一场景 ≥5 角色参与推演；事件流仍被 contract/retrieval/browser 读取
 
 ### v0.7 产品级前端 ✅（九刀主闭环已完成）
@@ -1724,3 +1724,13 @@ lne list-genres
 - **测试/验证**：先写红灯测试确认服务入口缺失，补实现后 `tests/test_v094_advanced_runner_trigger.py` 为 **3 passed**；完整门禁为后端 **641 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
 - **边界**：不接 LangGraph、OASIS、CAMEL；不写 artifact，不替换现有 runner，不改 `run_scene` 默认行为或既有 run artifact 契约。
 - **下一刀建议**：继续 v0.9.4 Advanced Runner Probe-B，补代表性复杂 run 样例和失败样例；只有真实复杂状态流转证明自研 runner 不足时，才进入 LangGraph/OASIS/CAMEL spike。
+
+### 2026-06-01 — v0.9.4 Advanced Runner Probe-B / 收口
+
+- **做了什么**：
+  - 新增 `evaluate_advanced_runner_probes()` 与 `GET /api/runs/<run_id>/advanced-runner-probes`，把状态执行候选、trace 质量、涌现节点拆成可复现 probe。
+  - 复杂 run 会收集 `state_execution_backlog`、`trace_repair_warnings`、`high_value_emergence` 等失败样例；简单 run 返回 `pass`。
+  - 新增 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`，将 Trigger-A 与 Probe-B 收口为“当前不触发高级 runner 重依赖接入”的证据链。
+- **测试/验证**：`tests/test_v094_advanced_runner_trigger.py` 扩充为 **5 passed**；完整门禁为后端 **643 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
+- **边界**：不接 LangGraph、OASIS、CAMEL；不写 artifact，不替换现有 runner，不改 `run_scene` 默认行为或既有 run artifact 契约。
+- **下一刀建议**：进入 v1.0-beta Commercial Hardening Scope-A，先做范围复核和本地优先的商业化边界整理；不要直接跳云端多用户持久队列、对象存储、多租户权限或付费系统。

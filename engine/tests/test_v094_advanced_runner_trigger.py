@@ -11,7 +11,10 @@ import urllib.request
 import pytest
 
 from living_novel_engine.browser import server
-from living_novel_engine.service import evaluate_advanced_runner_trigger
+from living_novel_engine.service import (
+    evaluate_advanced_runner_probes,
+    evaluate_advanced_runner_trigger,
+)
 
 
 def _write_json(path, payload):
@@ -112,6 +115,33 @@ def test_advanced_runner_trigger_complex_run_triggers(tmp_path):
     assert any("LangGraph" in step for step in report["next_steps"])
 
 
+def test_advanced_runner_probes_pass_simple_run(tmp_path):
+    outputs = tmp_path / "outputs"
+    _make_run(outputs, "run_probe_simple")
+
+    report = evaluate_advanced_runner_probes("run_probe_simple", outputs_dir=outputs)
+
+    assert report["version"] == "v0.9.4"
+    assert report["status"] == "pass"
+    assert report["metrics"]["sample_count"] >= 2
+    assert report["failure_samples"] == []
+    assert all(sample["hit"] is True for sample in report["probes"])
+
+
+def test_advanced_runner_probes_collect_complex_failure_samples(tmp_path):
+    outputs = tmp_path / "outputs"
+    _make_run(outputs, "run_probe_complex", complex_case=True)
+
+    report = evaluate_advanced_runner_probes("run_probe_complex", outputs_dir=outputs)
+
+    assert report["status"] == "weak"
+    assert report["metrics"]["failure_count"] >= 2
+    reasons = {sample["reason"] for sample in report["failure_samples"]}
+    assert "state_execution_backlog" in reasons
+    assert "trace_repair_warnings" in reasons
+    assert any("OASIS" in step or "LangGraph" in step for step in report["next_steps"])
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))
@@ -155,3 +185,11 @@ def test_advanced_runner_trigger_http_statuses(running_server):
 
     missing_status, _missing = _get(port, "/api/runs/missing/advanced-runner-evaluation")
     assert missing_status == 404
+
+    probe_status, probe_body = _get(port, "/api/runs/run_http/advanced-runner-probes")
+    assert probe_status == 200
+    assert probe_body["status"] == "pass"
+
+    bad_probe_status, bad_probe = _get(port, "/api/runs/bad..id/advanced-runner-probes")
+    assert bad_probe_status == 400
+    assert bad_probe["error"] == "invalid run_id"

@@ -284,6 +284,17 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid run_id"}, status=400)
                 return self._send_json(evaluate_advanced_runner_trigger(rid))
 
+            if path.startswith("/api/runs/") and path.endswith(
+                "/advanced-runner-probes"
+            ):
+                from living_novel_engine.service import evaluate_advanced_runner_probes
+
+                rest = path[len("/api/runs/") :]
+                rid = safe_id(rest[: -len("/advanced-runner-probes")].strip("/"))
+                if rid is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                return self._send_json(evaluate_advanced_runner_probes(rid))
+
             if (
                 path.startswith("/api/runs/")
                 and "/branches/" in path

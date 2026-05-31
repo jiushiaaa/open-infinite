@@ -66,6 +66,47 @@ def evaluate_advanced_runner_trigger(
     }
 
 
+def evaluate_advanced_runner_probes(
+    run_id: str, *, outputs_dir: Path | None = None
+) -> dict[str, Any]:
+    """Collect deterministic failure samples before any advanced runner spike."""
+    trigger = evaluate_advanced_runner_trigger(run_id, outputs_dir=outputs_dir)
+    metrics = trigger["metrics"]
+    probes = [
+        probe
+        for probe in (
+            _state_execution_probe(metrics),
+            _trace_warning_probe(metrics),
+            _emergence_probe(metrics),
+        )
+        if probe is not None
+    ]
+    failure_samples = [probe for probe in probes if not probe["hit"]]
+    status = (
+        "insufficient_data"
+        if not probes
+        else "weak"
+        if failure_samples
+        else "pass"
+    )
+    return {
+        "version": _VERSION,
+        "run_id": trigger["run_id"],
+        "status": status,
+        "summary": _probe_summary(status),
+        "metrics": {
+            "sample_count": len(probes),
+            "hit_count": len(probes) - len(failure_samples),
+            "failure_count": len(failure_samples),
+        },
+        "probes": probes,
+        "failure_samples": failure_samples,
+        "next_steps": _probe_next_steps(status),
+        "boundaries": trigger["boundaries"],
+        "source_artifacts": trigger["source_artifacts"],
+    }
+
+
 def _validate_identifier(value: str | None) -> str:
     ident = (value or "").strip()
     if not ident or ".." in ident or not _SAFE_ID_RE.match(ident):
@@ -228,6 +269,108 @@ def _next_steps(status: str) -> list[str]:
     return [
         "继续使用当前 SceneRunner 与状态执行 overlay。",
         "只有复杂状态流转或群体仿真失败样例增加时，再进入 advanced runner spike。",
+    ]
+
+
+def _state_execution_probe(metrics: dict[str, Any]) -> dict[str, Any] | None:
+    if metrics["state_execution_status"] == "missing":
+        return None
+    unresolved = (
+        metrics["state_execution_review_required_count"]
+        + metrics["state_execution_blocked_count"]
+    )
+    executable = metrics["state_execution_executable_count"]
+    backlog = (
+        metrics["state_execution_candidate_count"] >= 6 and unresolved > executable
+    )
+    high_risk = metrics["state_execution_high_risk_count"] > 0
+    hit = not backlog and not high_risk
+    reason = ""
+    if backlog:
+        reason = "state_execution_backlog"
+    elif high_risk:
+        reason = "high_risk_actions"
+    return {
+        "probe_id": "state_execution_backlog",
+        "subject": "状态执行候选",
+        "hit": hit,
+        "reason": reason,
+        "observed": {
+            "candidate_count": metrics["state_execution_candidate_count"],
+            "executable_count": executable,
+            "review_required_count": metrics["state_execution_review_required_count"],
+            "blocked_count": metrics["state_execution_blocked_count"],
+            "high_risk_count": metrics["state_execution_high_risk_count"],
+        },
+    }
+
+
+def _trace_warning_probe(metrics: dict[str, Any]) -> dict[str, Any] | None:
+    if metrics["multi_agent_trace_count"] == 0:
+        return None
+    hit = (
+        metrics["trace_warning_count"] < 2
+        and metrics["trace_repaired_count"] == 0
+        and metrics["trace_hard_fail_count"] == 0
+    )
+    return {
+        "probe_id": "trace_repair_warnings",
+        "subject": "多 Agent trace 质量",
+        "hit": hit,
+        "reason": "" if hit else "trace_repair_warnings",
+        "observed": {
+            "trace_count": metrics["multi_agent_trace_count"],
+            "turn_plan_count": metrics["turn_plan_count"],
+            "warning_count": metrics["trace_warning_count"],
+            "repaired_count": metrics["trace_repaired_count"],
+            "hard_fail_count": metrics["trace_hard_fail_count"],
+            "private_complexity": (
+                metrics["private_knowledge_count"]
+                + metrics["misunderstanding_count"]
+            ),
+        },
+    }
+
+
+def _emergence_probe(metrics: dict[str, Any]) -> dict[str, Any] | None:
+    if metrics["emergence_status"] == "missing":
+        return None
+    hit = metrics["high_value_emergence_count"] == 0
+    return {
+        "probe_id": "high_value_emergence",
+        "subject": "涌现节点复杂度",
+        "hit": hit,
+        "reason": "" if hit else "high_value_emergence",
+        "observed": {
+            "node_count": metrics["emergence_node_count"],
+            "high_value_count": metrics["high_value_emergence_count"],
+        },
+    }
+
+
+def _probe_summary(status: str) -> str:
+    if status == "weak":
+        return "代表性 runner probe 已收集到复杂状态或 trace 失败样例，先复核自研 runner 能否修复。"
+    if status == "insufficient_data":
+        return "代表性 runner probe 样本不足，尚不能判断是否需要高级 runner。"
+    return "代表性 runner probe 暂未暴露高级 runner 缺口，继续使用当前自研 runner。"
+
+
+def _probe_next_steps(status: str) -> list[str]:
+    if status == "weak":
+        return [
+            "先按失败样例修复状态执行候选、trace warning 或高价值涌现解释。",
+            "若修复后仍需要多轮裁判、反思/重试或共识流，再评估 LangGraph。",
+            "若失败样例来自群体仿真环境需求，再评估 OASIS / CAMEL。",
+        ]
+    if status == "insufficient_data":
+        return [
+            "先生成 runner_state_execution_report.json、multi_agent_trace.json 或 emergence_nodes.json。",
+            "不要在样本不足时直接引入 LangGraph / OASIS / CAMEL。",
+        ]
+    return [
+        "继续使用当前 SceneRunner、multi_agent_trace 与状态执行 overlay。",
+        "积累真实复杂 run 失败样例后再复跑 advanced runner probes。",
     ]
 
 
