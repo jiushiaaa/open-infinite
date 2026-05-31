@@ -18,7 +18,7 @@ Living Novel Engine 已完成 **短中篇可交互产品化 MVP**、**长篇记�
 | v0.8+ A-slices | ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A | 机制接缝与解释层 MVP | 这些 A-slice 是可读、可验收、可解释的最小闭环；默认不代表已经进入强状态执行或复杂 runner。 |
 | v0.8.6-v0.8.10 | Long Import Review、Resumable Jobs、Long Workspace、Replay/Audit UI、Runner State Execution | 长篇产品化收束 | 已把长篇底座变成清晰的上传、检查、管理、审计、回放、状态覆盖与继续创作前置流程。 |
 | v0.9.0-alpha | Long Novel Creation Loop | 长篇产品化闭环成立 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record；仍是 alpha，不等于商业级。 |
-| v0.9.1-v0.9.4 | Provider/Cost、MasterSetting Lite、Graph Memory Spike、Advanced Runner Spike | 真实使用压力增强 | v0.9.1 与 v0.9.2 已整体收口；下一步复核 v0.9.3 图记忆触发条件，再按长篇召回、设定管理、runner 复杂度触发增强，不提前引入重依赖。 |
+| v0.9.1-v0.9.4 | Provider/Cost、MasterSetting Lite、Graph Memory Spike、Advanced Runner Spike | 真实使用压力增强 | v0.9.1 与 v0.9.2 已整体收口；v0.9.3 Trigger-A 已完成只读触发报告，下一步 Retrieval Probe-B，再按长篇召回、设定管理、runner 复杂度触发增强，不提前引入重依赖。 |
 | v1.0-beta | Commercial Hardening | 商业级/规模化 | 账号、权限、云端持久化、配额、审计日志、版权提示、部署与观测等面向外部用户长期使用。 |
 
 ## 3. A-slice、MVP 与完整产品能力

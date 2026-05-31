@@ -74,6 +74,7 @@
 - v0.9.2 MasterSetting Workspace Edit-C
 - v0.9.2 MasterSetting Workspace Frontend-D
 - v0.9.2 MasterSetting Workspace Lite
+- v0.9.3 Graph Memory Evaluation Trigger-A
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -125,16 +126,17 @@
 - v0.9.2 MasterSetting Workspace Edit-C：新增 `POST /api/stories/<slug>/master-setting`，仅白名单编辑 `master_setting.yaml` 的 display/genre/rules/limits/forbidden，保存前备份、保存后写报告；缺故事 404，损坏/缺失设定 409，非法 payload 400
 - v0.9.2 MasterSetting Workspace Frontend-D：长篇项目工作台「设定工作台」新增最小写控件，可编辑作品名、题材、世界规则、力量限制、禁用设定；保存后本地更新面板并刷新项目工作台
 - v0.9.2 MasterSetting Workspace Lite：整体收口归档见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`
+- v0.9.3 Graph Memory Evaluation Trigger-A：新增只读 `GET /api/stories/<slug>/graph-memory-evaluation`，返回图记忆评估触发状态、指标、原因和下一步；不接 Zep / 图数据库 / GraphRAG
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 632 passed
+- 后端 python -m pytest -q 为 635 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步继续 `v0.9.3 Graph Memory Evaluation Spike` 触发条件复核：v0.9.2 MasterSetting Workspace Lite 已整体收口。只有 50+ 章或百万字项目中 BM25 / canon ledger / entity aliases 召回明显不足，或一致性审计频繁漏实体/关系时，才进入 Zep / 图数据库 / GraphRAG 评估；OASIS / CAMEL / LangGraph 仍后移到 `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步继续 `v0.9.3 Retrieval Probe-B`：Trigger-A 已能给出项目是否触发图记忆评估，但还缺代表性查询评测样本。请先用现有 BM25 / canon ledger / entity aliases 做可复现 probe，不要默认引入 Zep / 图数据库 / GraphRAG。OASIS / CAMEL / LangGraph 仍后移到 `v0.9.4` spike。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -155,10 +157,10 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `632 passed` |
+| 后端基线 | `635 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite |
-| 官方下一刀 | `v0.9.3 Graph Memory Evaluation Spike` 触发条件复核 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Trigger-A |
+| 官方下一刀 | `v0.9.3 Retrieval Probe-B` |
 | 后续主线 | `v0.9.1-v0.9.4` 触发式增强 -> `v1.0-beta` 商业化加固 |
 
 ## 阶段性质与产品化判断
@@ -572,6 +574,14 @@ React/Vite 产品级前端主闭环已完成：
 - 四个子刀已覆盖只读聚合、前端展示、后端白名单轻编辑、前端最小写控件、保存备份与保存报告。
 - 边界：不做完整作者工作台、不编辑人物/时间线/伏笔/章节摘要、不同步 `world.yaml`、不引入图数据库或云端协作。
 - 下一步：进入 v0.9.3 Graph Memory Evaluation Spike 的触发条件复核；当前不能默认引入 Zep / 图数据库 / GraphRAG。
+
+## v0.9.3 Graph Memory Evaluation Trigger-A 收口摘要
+
+- 新增 `service.graph_memory_evaluation.evaluate_graph_memory_trigger()`。
+- 新增 `GET /api/stories/<slug>/graph-memory-evaluation`，slug 走 `safe_id`；非法 slug 400，缺故事 404。
+- 报告只读检查章节数、总字数、canon ledger、entity aliases 和 consistency report，返回 `not_triggered` / `monitor` / `triggered`。
+- 边界：不接 Zep / 图数据库 / GraphRAG / embedding / 向量库 / reranker，不写 artifact，不替换现有 BM25/ledger/aliases。
+- 验证：`tests/test_v093_graph_memory_trigger.py` 3 passed；完整后端基线提升到 635 passed。
 
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 

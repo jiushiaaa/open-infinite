@@ -38,6 +38,7 @@ from .diff_actions import (
     DiffNotFoundError,
     apply_diff_action,
 )
+from .graph_memory_evaluation import evaluate_graph_memory_trigger
 from .jobs import JOBS, JOB_KINDS, JobRecord, JobStore
 from .master_setting_update import (
     MasterSettingConflictError,
@@ -217,6 +218,7 @@ __all__ = [
     "run_intervention",
     "write_ingest_chunk",
     "get_emergence_nodes",
+    "evaluate_graph_memory_trigger",
     "mine_run_emergence",
     "VisualAssetPathError",
     "VisualAssetRequestError",
