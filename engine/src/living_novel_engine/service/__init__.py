@@ -79,6 +79,7 @@ from .master_setting_update import (
     MasterSettingUpdateResult,
     update_master_setting,
 )
+from .model_configuration import get_model_configuration_summary
 from .project_health import HealthReport, check_project_health
 from .project_retention_policy import (
     ProjectRetentionPolicyConflictError,
@@ -273,6 +274,7 @@ __all__ = [
     "get_provider_gateway_summary",
     "get_provider_usage_summary",
     "get_runtime_settings",
+    "get_model_configuration_summary",
     "apply_runner_state_execution",
     "evaluate_runner_state_execution",
     "get_runner_state_execution_report",

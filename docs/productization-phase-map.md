@@ -8,6 +8,8 @@ Living Novel Engine 已完成 **短中篇可交互产品化 MVP**、**长篇记�
 
 ## 2. 阶段归类表
 
+当前用户侧优先级已调整：短期暂停继续推进商业化/计费实现，先把本地模型配置、长篇创作闭环、本地验证体验打磨到可公开试用；发行路径（本地 clone、Release 安装包、服务器在线体验）进入后置排期，详见 [`distribution-phase-plan.md`](./distribution-phase-plan.md)。
+
 | 阶段 | 阶段性质 | 产品化程度 | 当前判断 |
 | --- | --- | --- | --- |
 | v0.1-v0.3 | CLI、导入、检索、状态与续章底座 | 技术 MVP | 证明 “文本 -> 状态 -> 干预 -> 分叉 -> 续章” 能跑通；主要面向开发者和验证，不是完整产品。 |
@@ -40,5 +42,6 @@ Living Novel Engine 已完成 **短中篇可交互产品化 MVP**、**长篇记�
 
 1. 先完成用户路径，再引入重依赖：Zep、图数据库、OASIS、CAMEL、LangGraph 都不应抢在 v0.9.0-alpha 之前成为默认路线。
 2. 先只读解释，再状态执行：动作计划、动作注册表、叙事诊断、涌现节点先作为右侧只读解释层；v0.8.10-A 已完成 dry-run 评估，v0.8.10-B 已完成 opt-in overlay 写入和回滚。
-3. 先本地 artifact 稳定，再商业化平台化：v1.0-beta 才处理账号、权限、云端存储、配额和观测等外部交付问题。
-4. 每次升级都保持 additive：不破坏 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 既有契约。
+3. 先本地产品稳定，再做发行分发：本地 clone 路径稳定后，再做 Windows/macOS 一键运行包和腾讯云在线体验。
+4. 商业化/计费暂缓：真实计费、支付、余额、发票、webhook 不进入当前优先级；后续如恢复商业化，再重新拆小刀。
+5. 每次升级都保持 additive：不破坏 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 既有契约。

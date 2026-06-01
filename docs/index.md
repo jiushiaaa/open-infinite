@@ -56,6 +56,7 @@
 | `living-novel-engine-prd.md` | 主 PRD | 产品定位、用户流程、核心能力、版本级需求入口 |
 | `living-novel-engine-iteration-plan.md` | 主路线图 | v0.1-v0.9+ 的迭代顺序、阶段状态、下一步路线 |
 | `productization-phase-map.md` | 阶段归类 | 统一解释技术 MVP、短中篇产品化 MVP、长篇底座、长篇产品化、商业化加固的边界 |
+| `distribution-phase-plan.md` | 发行路径 | 本地 clone、GitHub Release 安装包、服务器在线体验三条后置使用路径 |
 | `completed/` | 收口归档 | 已收口版本 PRD、Release Note、工程协议、UI spec 与版本审计，供追溯和必要时引用 |
 
 ## 3. completed/ 收口归档
@@ -100,6 +101,7 @@
 | `completed/v1.0-beta-object-storage-boundary-checklist-v.md` | v1.0-beta | Object Storage Boundary Checklist-V 收口说明、对象存储边界只读清单 |
 | `completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md` | v1.0-beta | Quota Enforcement Boundary Checklist-W 收口说明、配额执行边界只读清单 |
 | `completed/v1.0-beta-billing-adapter-boundary-checklist-x.md` | v1.0-beta | Billing Adapter Boundary Checklist-X 收口说明、计费 adapter 边界只读清单 |
+| `completed/v1.0-local-model-configuration-ux.md` | v1.0-local | Model Configuration UX 收口说明、设置页模型配置状态和计费 UI 暂停边界 |
 
 ## 4. article/ 论文资料
 

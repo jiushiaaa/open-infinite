@@ -100,6 +100,7 @@ MVP 不做：
 - 3D 可视化世界
 - 全自动长篇连载生成
 - 未授权商业小说公开续写分发
+- 当前阶段不做真实计费、支付、余额、发票或 webhook；先保证本地模型配置和创作闭环可用
 
 ## 6. 核心概念
 
@@ -768,6 +769,7 @@ MVP 支持：
 - `lne browse` 保留为开发者只读 viewer；产品前端承担真正用户体验
 - 不要求用户复制 CLI 命令
 - 已接入 Causal Diff 确立 / 抹除 / 回滚 artifact 状态、运行设置面板、异步 Job 进度轮询
+- 设置页已新增模型配置状态：用户可看到文本模型、视觉模型、默认推演和密钥边界是否就绪；计费与价格估算 UI 暂缓
 - 后续只做小 polish：创世徽标、真实 LLM smoke checklist、推荐下一步文案、错误态统一
 - 视觉方向必须保持古风纸面 / 中文小说编辑器 / 克制系统感，不做纯赛博极客风
 
@@ -859,7 +861,17 @@ v0.9.0-alpha 已整体收口，已经串起完整用户路径：
 - **Worldline Selection Persistence**：用户可把推荐或候选世界线「设为起点」，写入 `selected_worldline.json` 并在 `creation_loop.selected` 中读回。
 - **Post-run Audit Entry**：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态一致性审计、范围回放风险、缺失实体和下一步审计入口。
 
-v0.9.0-alpha 已通过本地导入项目 `v090-alpha-proof` 写入 `creation_loop_alpha_closeout.json` 完成 alpha 收口声明；公开分享发布、provider/cost gateway 不在该版本内。运行后审计目前是只读入口，尚未写回正史账本或驱动下一轮 runner。
+v0.9.0-alpha 已通过本地导入项目 `v090-alpha-proof` 写入 `creation_loop_alpha_closeout.json` 完成 alpha 收口声明；公开分享发布不在该版本内。v0.9.1-v0.9.4 已完成 provider/cost、MasterSetting、图记忆评估和高级 runner 评估；当前最新用户规划是先暂停继续商业化/计费实现，把本地模型配置体验和本地产品验证做稳。运行后审计目前是只读入口，尚未写回正史账本或驱动下一轮 runner。
+
+#### 后置发行路径
+
+本地产品稳定后再进入发行分发阶段，详见 `docs/distribution-phase-plan.md`：
+
+- 本地 clone + README 配环境，面向技术用户和早期体验者。
+- GitHub Release 安装包，未来提供 Windows/macOS 一键运行入口。
+- 服务器在线体验，待用户购买腾讯云 2 核 4G 服务器后再做单机部署和线上入口。
+
+当前阶段不做安装包、自动部署脚本或线上多用户系统。
 
 #### v0.8.1 Hierarchical Memory
 

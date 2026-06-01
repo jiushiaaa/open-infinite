@@ -37,6 +37,7 @@ import type {
   QuotaEnforcementBoundaryChecklist,
   ReleasePreflightChecklist,
   RightsApprovalChecklist,
+  ModelConfigurationSummary,
   ProviderGatewaySummary,
   ProviderUsageSummary,
   CommercialStatusOverview,
@@ -235,6 +236,9 @@ export const api = {
   },
   getProviderUsage(): Promise<ProviderUsageSummary> {
     return getJson("/api/settings/provider-usage");
+  },
+  getModelConfiguration(): Promise<ModelConfigurationSummary> {
+    return getJson("/api/settings/model-configuration");
   },
   getCommercialStatusOverview(): Promise<CommercialStatusOverview> {
     return getJson("/api/settings/commercial-status-overview");

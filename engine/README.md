@@ -84,6 +84,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta ObjectStorage-V | Object Storage Boundary Checklist：对象存储边界只读清单 | 已收口，见 `../docs/completed/v1.0-beta-object-storage-boundary-checklist-v.md` |
 | v1.0-beta QuotaEnforce-W | Quota Enforcement Boundary Checklist：配额执行边界只读清单 | 已收口，见 `../docs/completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md` |
 | v1.0-beta BillingBoundary-X | Billing Adapter Boundary Checklist：计费 adapter 边界只读清单 | 已收口，见 `../docs/completed/v1.0-beta-billing-adapter-boundary-checklist-x.md` |
+| v1.0-local ModelConfig-Y | Model Configuration UX：设置页模型配置状态与计费 UI 暂停 | 已收口，见 `../docs/completed/v1.0-local-model-configuration-ux.md` |
 
 ### 产品化阶段说明
 
@@ -98,9 +99,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、发布前检查、版权审批准备度、部署观测清单、认证边界、对象存储边界、配额执行边界和计费 adapter 边界 |
+| v0.9.1-v1.0-beta | 增强与本地加固 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、发布前检查、版权审批准备度、部署观测清单、认证边界、对象存储边界、配额执行边界、计费 adapter 边界与本地模型配置状态；商业化/计费继续实现按用户规划暂缓 |
 
-**测试基线**：`pytest -q` → **708 passed**（2026-06-01，v1.0-beta Billing Adapter Boundary Checklist-X 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **710 passed**（2026-06-01，v1.0-local Model Configuration UX 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -392,7 +393,7 @@ copy .env.example .env
 - `routing` 当前为 `single_provider`，未配置文本密钥或默认 mock 时走 `mock`；未配置/关闭视觉模型时走占位图。
 - `cost_policy` 当前只声明从 `generation_meta.usage` 读取 token 用量；手动填写每千输入/输出单价后会估算费用。
 - Web 设置抽屉新增「模型与用量状态」，展示 provider 启用状态、模型名、入口路由矩阵、累计用量、输入/输出用量、缺失 usage 记录提示和 warning；保存设置或清除密钥后会刷新。
-- Web 设置抽屉新增「成本估算」，手动填写每千输入/输出单价；不内置厂商价格。
+- 当前 Web 设置抽屉不再展示「成本估算」输入，用户侧只看 token 用量；真实计费和价格估算后置。
 - v0.9.1 收口说明见 [v0.9.1-provider-cost-gateway-lite.md](../docs/completed/v0.9.1-provider-cost-gateway-lite.md)。
 
 这些接口不创建客户端、不打网络、不落盘，也不返回明文 Key 或环境变量名。
@@ -687,8 +688,21 @@ copy .env.example .env
 
 - `GET /api/settings/billing-adapter-boundary` 返回 `version=v1.0-beta-billing-adapter-boundary-checklist-x`、`summary`、`checks`、`warnings` 与 `next_steps`。
 - 清单聚合 provider usage、成本估算、配额执行边界、认证边界、计费身份、支付 provider adapter、发票退款轨迹和计费写入边界。
-- 设置抽屉新增「计费边界」只读区，展示已具备/需留意数量、计费写入状态、前 6 条检查项和下一步。
+- 该只读 API 保留；按用户当前规划，设置抽屉已撤下「计费边界」可见区，避免计费内容占用本地模型配置主体验。
 - 当前只读定义计费 adapter 前置边界，不创建 customer/subscription/checkout/webhook，不写余额、账单、套餐、欠费、发票、退款或支付状态，不打外网、不读取明文密钥；不改变 `run_scene`。
+
+### v1.0-local Model Configuration UX（已收口）
+
+本版本把设置页重新收拢到本地用户最需要的模型配置状态：
+
+- `GET /api/settings/model-configuration` 返回 `version=v1.0-local-model-configuration-ux`、`summary`、`sections`、`warnings` 与 `next_steps`。
+- `sections` 覆盖文本模型、连接测试、默认推演、视觉模型、密钥边界。
+- 设置抽屉新增「模型配置状态」，展示当前是本地模拟还是真实模型、文本/视觉模型是否就绪、下一步配置建议。
+- 保存设置或清除文本模型密钥后刷新模型配置状态和 provider 状态。
+- 用量区保留 token 统计，但不展示计费或价格估算。
+- 当前不接真实认证、真实计费、真实配额拦截、安装包或服务器部署；不在前端存储或回显 API Key 明文。
+
+发行路径已排入 [`docs/distribution-phase-plan.md`](../docs/distribution-phase-plan.md)：本地 clone、GitHub Release 安装包、服务器在线体验均等本地产品稳定后再启动。
 
 ## 快速演示
 

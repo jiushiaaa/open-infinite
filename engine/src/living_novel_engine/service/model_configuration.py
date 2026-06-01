@@ -1,0 +1,140 @@
+"""只读模型配置摘要，供设置页解释当前本机模型状态。"""
+
+from __future__ import annotations
+
+from .runtime_settings import get_runtime_settings
+
+
+def _section(
+    *,
+    id: str,
+    label: str,
+    status: str,
+    status_label: str,
+    evidence: str,
+    next_step: str,
+) -> dict[str, str]:
+    return {
+        "id": id,
+        "label": label,
+        "status": status,
+        "status_label": status_label,
+        "evidence": evidence,
+        "next_step": next_step,
+    }
+
+
+def get_model_configuration_summary() -> dict:
+    """返回脱敏、只读的模型配置摘要；不做网络探测，不写环境或文件。"""
+    settings = get_runtime_settings()
+
+    if settings.llm_api_key_present and not settings.default_mock:
+        text_status = "ready"
+        text_label = "已接入"
+        text_evidence = f"{settings.llm_model_name} · {settings.masked_key}"
+        text_next = "可直接使用真实文本模型生成；必要时点击测试连接确认可达。"
+    elif settings.llm_api_key_present:
+        text_status = "attention"
+        text_label = "已配置但模拟中"
+        text_evidence = f"{settings.llm_model_name} · {settings.masked_key}"
+        text_next = "关闭“默认用模拟生成”后，新的生成才会调用真实文本模型。"
+    else:
+        text_status = "attention"
+        text_label = "未配置"
+        text_evidence = f"{settings.llm_model_name} · 当前走本地模拟"
+        text_next = "填入 API 密钥、接口地址和模型名称后，再测试连接。"
+
+    if not settings.visual_assets_enabled:
+        visual_status = "ready"
+        visual_label = "已关闭"
+        visual_evidence = "视觉资产生成关闭，文字主流程不受影响。"
+        visual_next = "需要封面、头像或场景图时再启用视觉资产生成。"
+    elif settings.seedream_key_present:
+        visual_status = "ready"
+        visual_label = "已配置"
+        visual_evidence = f"{settings.seedream_model} · {settings.seedream_masked_key}"
+        visual_next = "视觉资产可在项目页按需生成；失败时仍会降级为占位图。"
+    else:
+        visual_status = "attention"
+        visual_label = "占位降级"
+        visual_evidence = f"{settings.seedream_model} · 未配置密钥"
+        visual_next = "不需要图片时可保持现状；需要真实图像时填入 Seedream 密钥。"
+
+    warnings: list[str] = []
+    if not settings.llm_api_key_present:
+        warnings.append("文本模型未配置密钥，当前默认使用本地模拟生成。")
+    elif settings.default_mock:
+        warnings.append("文本模型已配置，但默认仍启用模拟生成。")
+    if settings.visual_assets_enabled and not settings.seedream_key_present:
+        warnings.append("视觉资产未配置密钥，生成失败时会展示占位图。")
+
+    sections = [
+        _section(
+            id="text_model",
+            label="文本模型",
+            status=text_status,
+            status_label=text_label,
+            evidence=text_evidence,
+            next_step=text_next,
+        ),
+        _section(
+            id="connection_test",
+            label="连接测试",
+            status="ready",
+            status_label="可测试",
+            evidence="设置页提供一次轻量连通性检查；mock 模式不会触发外网。",
+            next_step="保存设置后点击“测试连接”，确认接口地址、密钥和模型名可用。",
+        ),
+        _section(
+            id="default_runner",
+            label="默认推演",
+            status="ready",
+            status_label="已设置",
+            evidence=(
+                f"{settings.default_runner} · {settings.default_rounds} 轮 · "
+                f"{'模拟' if settings.default_mock else '真实模型'}"
+            ),
+            next_step="需要更细的多角色推演时再切换 runner；默认行为不改 run_scene。",
+        ),
+        _section(
+            id="visual_model",
+            label="视觉模型",
+            status=visual_status,
+            status_label=visual_label,
+            evidence=visual_evidence,
+            next_step=visual_next,
+        ),
+        _section(
+            id="secret_boundary",
+            label="密钥边界",
+            status="ready",
+            status_label="仅脱敏展示",
+            evidence="设置只写当前本机进程，页面只显示尾号，不返回明文密钥。",
+            next_step="部署到服务器前再补正式的密钥托管和多用户隔离。",
+        ),
+    ]
+
+    ready_count = sum(1 for item in sections if item["status"] == "ready")
+    attention_count = len(sections) - ready_count
+
+    return {
+        "version": "v1.0-local-model-configuration-ux",
+        "mode": "read_only_model_configuration_summary",
+        "status": "ready" if attention_count == 0 else "attention",
+        "summary": {
+            "llm_configured": settings.llm_api_key_present,
+            "mock_enabled": settings.default_mock,
+            "visual_configured": settings.seedream_key_present,
+            "visual_enabled": settings.visual_assets_enabled,
+            "connectivity_check_available": True,
+            "plaintext_key_returned": False,
+            "ready_count": ready_count,
+            "attention_count": attention_count,
+        },
+        "sections": sections,
+        "warnings": warnings,
+        "next_steps": [
+            "先让文本模型配置可用，再继续长篇创作闭环本地验证。",
+            "安装包和线上体验入口放到本地产品稳定后的分发阶段推进。",
+        ],
+    }

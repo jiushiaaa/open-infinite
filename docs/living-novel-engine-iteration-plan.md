@@ -120,6 +120,7 @@ v1.0-beta Auth Boundary Checklist-U         认证边界只读清单       已�
 v1.0-beta Object Storage Boundary Checklist-V 对象存储边界清单 已收口：详见 docs/completed/v1.0-beta-object-storage-boundary-checklist-v.md
 v1.0-beta Quota Enforcement Boundary Checklist-W 配额执行边界清单 已收口：详见 docs/completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md
 v1.0-beta Billing Adapter Boundary Checklist-X 计费 adapter 边界清单 已收口：详见 docs/completed/v1.0-beta-billing-adapter-boundary-checklist-x.md
+v1.0-local Model Configuration UX             本地模型配置体验      已收口：详见 docs/completed/v1.0-local-model-configuration-ux.md
 ```
 
 当前最重要的判断：
@@ -2123,6 +2124,8 @@ v0.1.2 resume continue
 | P10-V | v1.0-beta Object Storage Boundary Checklist | 设置页对象存储边界只读清单 | 已收口 |
 | P10-W | v1.0-beta Quota Enforcement Boundary Checklist | 设置页配额执行边界只读清单 | 已收口 |
 | P10-X | v1.0-beta Billing Adapter Boundary Checklist | 设置页计费 adapter 边界只读清单 | 已收口 |
+| P10-Y | v1.0-local Model Configuration UX | 设置页模型配置状态、计费 UI 暂停、本地模型配置优先 | 已收口 |
+| D0 | Distribution Phase Plan | 本地 clone、GitHub Release 安装包、服务器在线体验三条使用路径排期 | 已排期，等本地产品稳定后启动 |
 
 ## 8. 近期详细任务清单
 
@@ -2418,7 +2421,8 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v1.0-beta Object Storage Boundary Checklist-V（已收口：对象存储边界只读清单）
   -> v1.0-beta Quota Enforcement Boundary Checklist-W（已收口：配额执行边界只读清单）
   -> v1.0-beta Billing Adapter Boundary Checklist-X（已收口：计费 adapter 边界只读清单）
-  -> v1.0-beta 后续商业化加固拆分（先明确下一刀边界）
+  -> v1.0-local Model Configuration UX（已收口：模型配置状态与计费 UI 暂停）
+  -> 暂停继续商业化/计费实现，后续等本地产品稳定后进入发行路径 D0-D5
 ```
 
 WenShape 解决“长篇上下文怎么不崩”，webnovel-writer 解决“故事合约和网文味”，MiroFish 解决“角色群体怎么自己动起来”，eastworld 解决“互动媒体 Agent 如何做动作、情绪查询和玩家护栏”的参考问题；四篇论文分别补上“用户涌现、意图调度、叙事质量、动作落地”的理论底座。Living Novel Engine 自己要牢牢抓住的，是它们都没有真正覆盖的核心：

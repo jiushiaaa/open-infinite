@@ -251,6 +251,11 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
                 return self._send_json(get_runtime_settings().as_dict())
 
+            if path == "/api/settings/model-configuration":
+                from living_novel_engine.service import get_model_configuration_summary
+
+                return self._send_json(get_model_configuration_summary())
+
             if path == "/api/settings/providers":
                 from living_novel_engine.service import get_provider_gateway_summary
 

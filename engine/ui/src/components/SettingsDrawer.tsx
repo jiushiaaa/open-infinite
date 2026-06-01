@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type {
   AuthBoundaryChecklist,
-  BillingAdapterBoundaryChecklist,
   ConnectivityResult,
   CommercialStatusOverview,
   DeploymentObservabilityChecklist,
   LocalSmokeChecklist,
+  ModelConfigurationSummary,
   ObjectStorageBoundaryChecklist,
   QuotaEnforcementBoundaryChecklist,
   ReleasePreflightChecklist,
@@ -69,8 +69,6 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const [mock, setMock] = useState(settings.default_mock);
   const [rounds, setRounds] = useState(settings.default_rounds);
   const [runner, setRunner] = useState(settings.default_runner);
-  const [inputCost, setInputCost] = useState(settings.llm_input_cost_per_1k);
-  const [outputCost, setOutputCost] = useState(settings.llm_output_cost_per_1k);
 
   const [sdKeyInput, setSdKeyInput] = useState("");
   const [sdPresent, setSdPresent] = useState(settings.seedream_key_present);
@@ -84,6 +82,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [testing, setTesting] = useState(false);
   const [testRes, setTestRes] = useState<ConnectivityResult | null>(null);
+  const modelConfigState = useAsync(() => api.getModelConfiguration(), []);
   const providerState = useAsync(
     async () => {
       const [gateway, usage] = await Promise.all([
@@ -101,15 +100,12 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const authBoundaryState = useAsync(() => api.getAuthBoundary(), []);
   const objectStorageState = useAsync(() => api.getObjectStorageBoundary(), []);
   const quotaEnforcementState = useAsync(() => api.getQuotaEnforcementBoundary(), []);
-  const billingBoundaryState = useAsync(() => api.getBillingAdapterBoundary(), []);
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
     setMasked(s.masked_key);
     setSdPresent(s.seedream_key_present);
     setSdMasked(s.seedream_masked_key);
-    setInputCost(s.llm_input_cost_per_1k);
-    setOutputCost(s.llm_output_cost_per_1k);
   }
 
   async function save() {
@@ -126,8 +122,6 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         seedream_base_url: sdBase.trim(),
         seedream_model: sdModel.trim(),
         visual_assets_enabled: visualEnabled,
-        llm_input_cost_per_1k: Math.max(0, inputCost || 0),
-        llm_output_cost_per_1k: Math.max(0, outputCost || 0),
         ...(keyInput.trim() ? { api_key: keyInput.trim() } : {}),
         ...(sdKeyInput.trim() ? { seedream_api_key: sdKeyInput.trim() } : {}),
       };
@@ -136,13 +130,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       setKeyInput("");
       setSdKeyInput("");
       setSavedMsg("设置已保存（仅本机生效）");
+      modelConfigState.reload();
       providerState.reload();
       commercialState.reload();
       deploymentObsState.reload();
       authBoundaryState.reload();
       objectStorageState.reload();
       quotaEnforcementState.reload();
-      billingBoundaryState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -157,13 +151,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       const updated = await api.updateRuntimeSettings({ api_key: "" });
       applyResult(updated);
       setSavedMsg("已清除密钥");
+      modelConfigState.reload();
       providerState.reload();
       commercialState.reload();
       deploymentObsState.reload();
       authBoundaryState.reload();
       objectStorageState.reload();
       quotaEnforcementState.reload();
-      billingBoundaryState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -254,6 +248,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         </div>
       </section>
 
+      <ModelConfigurationPanel
+        data={modelConfigState.data}
+        loading={modelConfigState.loading}
+        error={modelConfigState.error}
+        onRetry={modelConfigState.reload}
+      />
+
       <ProviderStatusPanel
         data={providerState.data}
         loading={providerState.loading}
@@ -309,52 +310,6 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         error={quotaEnforcementState.error}
         onRetry={quotaEnforcementState.reload}
       />
-
-      <BillingAdapterBoundaryPanel
-        data={billingBoundaryState.data}
-        loading={billingBoundaryState.loading}
-        error={billingBoundaryState.error}
-        onRetry={billingBoundaryState.reload}
-      />
-
-      <section className="settings__group">
-        <h3 className="settings__group-title">成本估算</h3>
-        <div className="settings__metric-row">
-          <div className="settings__field">
-            <label className="settings__label" htmlFor="set-input-cost">
-              每千输入单价
-            </label>
-            <input
-              id="set-input-cost"
-              className="settings__input"
-              type="number"
-              min={0}
-              step={0.000001}
-              value={inputCost}
-              onChange={(e) => setInputCost(Number(e.target.value))}
-              disabled={saving}
-            />
-          </div>
-          <div className="settings__field">
-            <label className="settings__label" htmlFor="set-output-cost">
-              每千输出单价
-            </label>
-            <input
-              id="set-output-cost"
-              className="settings__input"
-              type="number"
-              min={0}
-              step={0.000001}
-              value={outputCost}
-              onChange={(e) => setOutputCost(Number(e.target.value))}
-              disabled={saving}
-            />
-          </div>
-        </div>
-        <p className="settings__note tiny muted">
-          单价由你手动填写，仅用于本机估算；留空或 0 时只显示用量，不估算费用。
-        </p>
-      </section>
 
       <section className="settings__group">
         <h3 className="settings__group-title">默认运行参数</h3>
@@ -509,6 +464,73 @@ function LocalSmokeChecklistPanel({
           {data.run_steps.slice(0, 2).map((step) => (
             <p className="settings__note tiny muted" key={step}>
               {step}
+            </p>
+          ))}
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function ModelConfigurationPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: ModelConfigurationSummary | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">模型配置状态</h3>
+      {loading && <p className="settings__note tiny muted">正在读取模型配置状态…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">已就绪</span>
+              <strong>
+                {data.summary.ready_count} /{" "}
+                {data.summary.ready_count + data.summary.attention_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">当前模式</span>
+              <strong>{data.summary.mock_enabled ? "本地模拟" : "真实模型"}</strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.sections.map((section) => (
+              <div className="settings__status-row" key={section.id}>
+                <div>
+                  <strong>{section.label}</strong>
+                  <span className="muted tiny">{section.evidence}</span>
+                </div>
+                <span className={`badge tiny ${modelConfigBadgeClass(section.status)}`}>
+                  {section.status_label}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.warnings.slice(0, 2).map((warning) => (
+            <p className="settings__note tiny muted" key={warning}>
+              {warning}
             </p>
           ))}
           {data.next_steps.slice(0, 1).map((step) => (
@@ -920,76 +942,14 @@ function QuotaEnforcementBoundaryPanel({
   );
 }
 
-function BillingAdapterBoundaryPanel({
-  data,
-  loading,
-  error,
-  onRetry,
-}: {
-  data: BillingAdapterBoundaryChecklist | null;
-  loading: boolean;
-  error: string | null;
-  onRetry: () => void;
-}) {
-  return (
-    <section className="settings__group">
-      <h3 className="settings__group-title">计费边界</h3>
-      {loading && <p className="settings__note tiny muted">正在读取计费边界…</p>}
-      {error && (
-        <div className="settings__inline-error">
-          <span>{error}</span>
-          <button className="btn btn--ghost tiny" onClick={onRetry}>
-            重试
-          </button>
-        </div>
-      )}
-      {data && (
-        <>
-          <div className="settings__metric-row">
-            <div>
-              <span className="muted tiny">已具备</span>
-              <strong>
-                {data.summary.ready_count} / {data.summary.check_count}
-              </strong>
-            </div>
-            <div>
-              <span className="muted tiny">计费写入</span>
-              <strong>{data.summary.billing_writes_enabled ? "已启用" : "未启用"}</strong>
-            </div>
-          </div>
-          <div className="settings__status-list">
-            {data.checks.slice(0, 6).map((check) => (
-              <div className="settings__status-row" key={check.id}>
-                <div>
-                  <strong>{check.label}</strong>
-                  <span className="muted tiny">{check.evidence}</span>
-                </div>
-                <span className={`badge tiny ${commercialBadgeClass(check.status)}`}>
-                  {check.status_label}
-                </span>
-              </div>
-            ))}
-          </div>
-          {data.next_steps.slice(0, 1).map((step) => (
-            <p className="settings__note tiny muted" key={step}>
-              {step}
-            </p>
-          ))}
-          {data.warnings.slice(0, 1).map((warning) => (
-            <p className="settings__note tiny muted" key={warning}>
-              {warning}
-            </p>
-          ))}
-        </>
-      )}
-    </section>
-  );
-}
-
 function commercialBadgeClass(status: string): string {
   if (status === "ready") return "badge--jade";
   if (status === "deferred") return "badge--cinnabar";
   return "badge--gold";
+}
+
+function modelConfigBadgeClass(status: string): string {
+  return status === "ready" ? "badge--jade" : "badge--gold";
 }
 
 function ProviderStatusPanel({
@@ -1070,11 +1030,7 @@ function ProviderStatusPanel({
               : "暂无缺失用量的记录。"}
           </p>
           <p className="settings__note tiny muted">
-            {data.usage.cost_estimate.estimated_total === null
-              ? "尚未填写单价，当前只统计用量。"
-              : `按手动单价估算约 ${formatCost(
-                  data.usage.cost_estimate.estimated_total,
-                )} 美元。`}
+            当前只统计本地生成用量，暂不展示计费或价格估算。
           </p>
           {data.gateway.warnings.slice(0, 2).map((warning) => (
             <p className="settings__note tiny muted" key={warning.code}>
@@ -1098,13 +1054,6 @@ function routeProviderLabel(providerId: string, gateway: ProviderGatewaySummary)
 
 function formatTokens(value: number): string {
   return Math.max(0, value).toLocaleString("zh-CN");
-}
-
-function formatCost(value: number): string {
-  return Math.max(0, value).toLocaleString("zh-CN", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 6,
-  });
 }
 
 const RUNNER_LABEL: Record<string, string> = {

@@ -800,6 +800,34 @@ export interface ProviderUsageSummary {
   };
 }
 
+export interface ModelConfigurationSection {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | string;
+  status_label: string;
+  evidence: string;
+  next_step: string;
+}
+
+export interface ModelConfigurationSummary {
+  version: string;
+  mode: string;
+  status: "ready" | "attention" | string;
+  summary: {
+    llm_configured: boolean;
+    mock_enabled: boolean;
+    visual_configured: boolean;
+    visual_enabled: boolean;
+    connectivity_check_available: boolean;
+    plaintext_key_returned: boolean;
+    ready_count: number;
+    attention_count: number;
+  };
+  sections: ModelConfigurationSection[];
+  warnings: string[];
+  next_steps: string[];
+}
+
 export interface CommercialStatusDomain {
   id: string;
   label: string;
