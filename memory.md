@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R、v1.0-beta Rights Approval Checklist-S、v1.0-beta Deployment Observability Checklist-T、v1.0-beta Auth Boundary Checklist-U、v1.0-beta Object Storage Boundary Checklist-V 与 v1.0-beta Quota Enforcement Boundary Checklist-W 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、真实对象存储、真实认证或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 706 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R、v1.0-beta Rights Approval Checklist-S、v1.0-beta Deployment Observability Checklist-T、v1.0-beta Auth Boundary Checklist-U、v1.0-beta Object Storage Boundary Checklist-V、v1.0-beta Quota Enforcement Boundary Checklist-W 与 v1.0-beta Billing Adapter Boundary Checklist-X 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、真实对象存储、真实认证或真实计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 708 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `706 passed`（2026-06-01，v1.0-beta Quota Enforcement Boundary Checklist-W 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一刀** | v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统 |
+| **测试基线** | 后端 `708 passed`（2026-06-01，v1.0-beta Billing Adapter Boundary Checklist-X 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一刀** | v1.0-beta 后续商业化加固仍需继续拆分；不要直接跳云端多租户、对象存储、真实认证或真实计费系统 |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强已收口 → v1.0-beta Commercial Hardening 本地优先加固 |
-| **刚收口** | v1.0-beta Quota Enforcement Boundary Checklist-W：设置抽屉只读展示配额执行边界清单。 |
+| **刚收口** | v1.0-beta Billing Adapter Boundary Checklist-X：设置抽屉只读展示计费 adapter 边界清单。 |
 
 ---
 
@@ -149,6 +149,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v1.0-beta AuthBoundary-U | Auth Boundary Checklist | 认证边界只读清单 | 已收口，见 `docs/completed/v1.0-beta-auth-boundary-checklist-u.md` |
 | v1.0-beta ObjectStorage-V | Object Storage Boundary Checklist | 对象存储边界只读清单 | 已收口，见 `docs/completed/v1.0-beta-object-storage-boundary-checklist-v.md` |
 | v1.0-beta QuotaEnforce-W | Quota Enforcement Boundary Checklist | 配额执行边界只读清单 | 已收口，见 `docs/completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md` |
+| v1.0-beta BillingBoundary-X | Billing Adapter Boundary Checklist | 计费 adapter 边界只读清单 | 已收口，见 `docs/completed/v1.0-beta-billing-adapter-boundary-checklist-x.md` |
 
 ## 3.2 阶段性质归类
 
@@ -2050,3 +2051,15 @@ lne list-genres
 - **测试/验证**：先写红灯测试确认缺少 `get_quota_enforcement_boundary_checklist`，补实现后 focused 为 **2 passed**；配额/认证/部署观测相邻回归为 **9 passed**；前端 `pnpm run build` 通过；完整门禁为后端 **706 passed**，`git diff --check` 通过。
 - **边界**：只读定义配额执行前置边界，不拦截生成/导入/导出/视觉生成请求，不写 quota state，不接真实计费、余额、账单、支付、云端监控或告警系统；不改变 `run_scene`。
 - **下一刀建议**：继续 v1.0-beta 本地优先商业化加固，可拆计费 adapter 边界或真实配额 guardrail 前置清单；不要直接进入云端多租户、真实对象存储或商业计费系统。
+
+### 2026-06-01 — v1.0-beta Billing Adapter Boundary Checklist-X
+
+- **做了什么**：
+  - 新增 `get_billing_adapter_boundary_checklist()` 与 `GET /api/settings/billing-adapter-boundary`。
+  - 清单聚合 provider usage / 成本估算、配额执行边界、认证边界、计费身份、支付 provider adapter、发票退款轨迹和计费写入边界。
+  - 设置抽屉新增「计费边界」只读区，展示已具备/需留意数量、计费写入状态、前 6 条检查项和中文下一步。
+  - 输出明确 `adapter_implemented=false`、`billing_writes_enabled=false` 与 `external_billing_required=false`，不包含明文密钥或环境变量名。
+  - 新增 `docs/completed/v1.0-beta-billing-adapter-boundary-checklist-x.md`，归档 UI/API、边界和验证。
+- **测试/验证**：先写红灯测试确认缺少 `get_billing_adapter_boundary_checklist`，补实现后 focused 为 **2 passed**；计费/配额/认证/部署观测相邻回归为 **35 passed**；前端 `pnpm run build` 通过；完整门禁为后端 **708 passed**，`git diff --check` 通过。
+- **边界**：只读定义计费 adapter 前置边界，不创建 customer/subscription/checkout/webhook，不写余额、账单、套餐、欠费、发票、退款或支付状态，不打外网、不读取明文密钥；不改变 `run_scene`。
+- **下一刀建议**：继续 v1.0-beta 本地优先商业化加固，可拆真实硬配额 guardrail 前置清单、webhook/idempotency 边界或认证执行前置清单；不要直接进入云端多租户、真实对象存储、真实认证或商业计费系统。

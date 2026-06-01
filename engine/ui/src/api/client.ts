@@ -2,6 +2,7 @@ import type {
   AnchorPatch,
   AnchorUpdateResponse,
   AuthBoundaryChecklist,
+  BillingAdapterBoundaryChecklist,
   BaselineGenerateRequest,
   BaselineGenerateResponse,
   BaselineReport,
@@ -255,6 +256,9 @@ export const api = {
   },
   getQuotaEnforcementBoundary(): Promise<QuotaEnforcementBoundaryChecklist> {
     return getJson("/api/settings/quota-enforcement-boundary");
+  },
+  getBillingAdapterBoundary(): Promise<BillingAdapterBoundaryChecklist> {
+    return getJson("/api/settings/billing-adapter-boundary");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);

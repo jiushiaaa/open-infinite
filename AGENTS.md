@@ -132,9 +132,10 @@
 - v1.0-beta Auth Boundary Checklist-U 已收口。
 - v1.0-beta Object Storage Boundary Checklist-V 已收口。
 - v1.0-beta Quota Enforcement Boundary Checklist-W 已收口。
-- 当前后端验证基线：`706 passed`。
+- v1.0-beta Billing Adapter Boundary Checklist-X 已收口。
+- 当前后端验证基线：`708 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、真实对象存储或计费系统。
+- 官方下一刀：v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、真实对象存储、真实认证或真实计费系统。
 - 后续排期：`v1.0-beta` 本地优先商业化加固，真实外部用户前不默认做云端多租户/计费系统。
 
 最近一次 Codex 迭代：
@@ -195,6 +196,7 @@
 - `v1.0-beta Auth Boundary Checklist-U` 已新增 `GET /api/settings/auth-boundary`，设置抽屉只读展示认证边界清单，聚合账号/项目空间、权限矩阵、请求级 ACL 缺口、项目空间映射和部署观测边界；不创建用户、不接登录 provider、不执行 ACL，归档见 `docs/completed/v1.0-beta-auth-boundary-checklist-u.md`。
 - `v1.0-beta Object Storage Boundary Checklist-V` 已新增 `GET /api/settings/object-storage-boundary`，设置抽屉只读展示对象存储边界清单，聚合本地 artifact 盘点、资源映射、原文/holdout 私有隔离、保留策略输入、身份绑定和部署护栏；不创建 bucket、不上传文件、不写远端状态，归档见 `docs/completed/v1.0-beta-object-storage-boundary-checklist-v.md`。
 - `v1.0-beta Quota Enforcement Boundary Checklist-W` 已新增 `GET /api/settings/quota-enforcement-boundary`，设置抽屉只读展示配额执行边界清单，聚合配额观测、usage metadata、内存 job、认证边界和部署观测；不拦截生成请求、不写 quota state、不接真实账单，归档见 `docs/completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md`。
+- `v1.0-beta Billing Adapter Boundary Checklist-X` 已新增 `GET /api/settings/billing-adapter-boundary`，设置抽屉只读展示计费 adapter 边界清单，聚合 provider usage、成本估算、配额执行边界、认证边界、计费身份、支付 provider adapter、发票退款轨迹和计费写入边界；不创建账单、不写余额、不调用支付 provider，归档见 `docs/completed/v1.0-beta-billing-adapter-boundary-checklist-x.md`。
 - 仍未做云端多用户持久队列、真实对象存储 adapter、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。后续商业化加固需要先拆成小刀再实现。
 

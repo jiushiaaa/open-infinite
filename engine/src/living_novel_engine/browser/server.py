@@ -380,6 +380,18 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     )
                 )
 
+            if path == "/api/settings/billing-adapter-boundary":
+                from living_novel_engine.service import (
+                    get_billing_adapter_boundary_checklist,
+                )
+
+                host, port = self.server.server_address[:2]
+                return self._send_json(
+                    get_billing_adapter_boundary_checklist(
+                        api_host=str(host), api_port=int(port)
+                    )
+                )
+
             if path == "/api/settings/commercial-hardening-scope":
                 from living_novel_engine.service import get_commercial_hardening_scope
 

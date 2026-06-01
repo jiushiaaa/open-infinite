@@ -99,6 +99,7 @@
 | `completed/v1.0-beta-auth-boundary-checklist-u.md` | v1.0-beta | Auth Boundary Checklist-U 收口说明、认证边界只读清单 |
 | `completed/v1.0-beta-object-storage-boundary-checklist-v.md` | v1.0-beta | Object Storage Boundary Checklist-V 收口说明、对象存储边界只读清单 |
 | `completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md` | v1.0-beta | Quota Enforcement Boundary Checklist-W 收口说明、配额执行边界只读清单 |
+| `completed/v1.0-beta-billing-adapter-boundary-checklist-x.md` | v1.0-beta | Billing Adapter Boundary Checklist-X 收口说明、计费 adapter 边界只读清单 |
 
 ## 4. article/ 论文资料
 
