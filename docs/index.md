@@ -87,6 +87,7 @@
 | `completed/v1.0-beta-audit-log-append-policy-i.md` | v1.0-beta | Audit Log Append Policy-I 收口说明、本地项目审计日志白名单追加策略 |
 | `completed/v1.0-beta-project-retention-policy-j.md` | v1.0-beta | Project Retention Policy-J 收口说明、本地项目删除/保留策略 artifact 与 API |
 | `completed/v1.0-beta-copyright-audit-hook-k.md` | v1.0-beta | Copyright Audit Hook-K 收口说明、版权/来源声明写操作接入本地审计日志 |
+| `completed/v1.0-beta-master-setting-audit-hook-l.md` | v1.0-beta | MasterSetting Audit Hook-L 收口说明、设定轻编辑写操作接入本地审计日志 |
 
 ## 4. article/ 论文资料
 

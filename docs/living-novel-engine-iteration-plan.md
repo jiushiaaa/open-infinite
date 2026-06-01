@@ -1,6 +1,6 @@
 # Living Novel Engine 产品迭代计划
 
-> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J 与 v1.0-beta Copyright Audit Hook-K 已整体收口；后续 v1.0-beta 商业化加固需继续拆分）
+> 版本：2026-06-01（v0.7 Product Web App 九刀 + v0.7.2 Agent Interaction + v0.7.3 Visual Asset Generation + v0.7.4 Baseline & Canon Replay + v0.7.5 Worldline Judge + v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 均已收口；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K 与 v1.0-beta MasterSetting Audit Hook-L 已整体收口；后续 v1.0-beta 商业化加固需继续拆分）
 > 范围：对齐 PRD v0.1-v0.8、仓库根目录 Roadmap、`engine/` 全版本实况。  
 > 核心原则：WenShape / webnovel-writer 的可复用资产已吸收至 engine（genre_templates、数据结构概念），外部项目源码目录已删除。后续新能力集中在 `engine/` 编排层和自研 UI/API 层。
 > v0.1-v0.8 已完成能力与未做项总览见 `docs/completed/v0.1-to-v0.8-version-audit.md`。
@@ -107,11 +107,12 @@ v1.0-beta Account Project Space Boundary-H  账号与项目空间边界     已�
 v1.0-beta Audit Log Append Policy-I         审计日志追加策略       已收口：详见 docs/completed/v1.0-beta-audit-log-append-policy-i.md
 v1.0-beta Project Retention Policy-J        项目删除/保留策略      已收口：详见 docs/completed/v1.0-beta-project-retention-policy-j.md
 v1.0-beta Copyright Audit Hook-K            版权声明写入审计钩子   已收口：详见 docs/completed/v1.0-beta-copyright-audit-hook-k.md
+v1.0-beta MasterSetting Audit Hook-L        设定轻编辑审计钩子     已收口：详见 docs/completed/v1.0-beta-master-setting-audit-hook-l.md
 ```
 
 当前最重要的判断：
 
-> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **681 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider & Cost Gateway Lite 已整体收口**，完整证明见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；**v0.9.2 MasterSetting Workspace Lite 已整体收口**，完整证明见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；**v0.9.3 Graph Memory Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`；**v0.9.4 Advanced Runner Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`；**v1.0-beta Commercial Hardening Scope-A 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`；**v1.0-beta Commercial Audit Log Schema-B 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`；**v1.0-beta Permission Matrix Draft-C 已收口**，完整证明见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`；**v1.0-beta Project Copyright Statement-D 已收口**，完整证明见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`；**v1.0-beta Quota & Observability Lite-E 已收口**，完整证明见 `docs/completed/v1.0-beta-quota-observability-lite-e.md`；**v1.0-beta Local Deployment Readiness-F 已收口**，完整证明见 `docs/completed/v1.0-beta-local-deployment-readiness-f.md`；**v1.0-beta Cloud Persistence Boundary-G 已收口**，完整证明见 `docs/completed/v1.0-beta-cloud-persistence-boundary-g.md`；**v1.0-beta Account Project Space Boundary-H 已收口**，完整证明见 `docs/completed/v1.0-beta-account-project-space-boundary-h.md`；**v1.0-beta Audit Log Append Policy-I 已收口**，完整证明见 `docs/completed/v1.0-beta-audit-log-append-policy-i.md`；**v1.0-beta Project Retention Policy-J 已收口**，完整证明见 `docs/completed/v1.0-beta-project-retention-policy-j.md`；**v1.0-beta Copyright Audit Hook-K 已收口**，完整证明见 `docs/completed/v1.0-beta-copyright-audit-hook-k.md`。当前不接 LangGraph/OASIS/CAMEL，也不直接进入云端多租户、对象存储、认证或计费系统。
+> v0.7 Product Web App 九刀已把普通用户主闭环跑通；v0.7.2 至 v0.7.5 已完成 Agent Interaction、Visual Asset Generation、Baseline & Canon Replay、Worldline Judge。v0.8 已完成 Long Novel Memory artifact 底座、四个 v0.8+ 机制底座、`memory/entity_aliases.yaml` / entity resolution 第一刀、`runtime_memory_context.json` 运行时只读消费第一刀、右侧「机制档案」统一 artifact 解释层、txt/md/zip/epub 长篇上传产品化、**v0.8.6 Long Import Review**、**v0.8.7 Resumable Ingest Jobs**、**v0.8.8 Long Project Workspace**、**v0.8.9 Long Replay & Audit UI**，以及 **v0.8.10-A/B Runner State Execution**：长篇项目已支持项目资产页、章节范围回放、风险维度、实体归一化审计、状态执行 dry-run 评估和显式 opt-in 的状态 overlay 写入/回滚。当前后端基线为 **682 passed**，前端 build 通过。**v0.9.0-alpha Long Novel Creation Loop 已整体收口**，完整证明见 `docs/completed/v0.9.0-alpha-long-creation-loop.md`；**v0.9.1 Provider & Cost Gateway Lite 已整体收口**，完整证明见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`；**v0.9.2 MasterSetting Workspace Lite 已整体收口**，完整证明见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；**v0.9.3 Graph Memory Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`；**v0.9.4 Advanced Runner Evaluation Spike 已整体收口**，完整证明见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`；**v1.0-beta Commercial Hardening Scope-A 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`；**v1.0-beta Commercial Audit Log Schema-B 已收口**，完整证明见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`；**v1.0-beta Permission Matrix Draft-C 已收口**，完整证明见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`；**v1.0-beta Project Copyright Statement-D 已收口**，完整证明见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`；**v1.0-beta Quota & Observability Lite-E 已收口**，完整证明见 `docs/completed/v1.0-beta-quota-observability-lite-e.md`；**v1.0-beta Local Deployment Readiness-F 已收口**，完整证明见 `docs/completed/v1.0-beta-local-deployment-readiness-f.md`；**v1.0-beta Cloud Persistence Boundary-G 已收口**，完整证明见 `docs/completed/v1.0-beta-cloud-persistence-boundary-g.md`；**v1.0-beta Account Project Space Boundary-H 已收口**，完整证明见 `docs/completed/v1.0-beta-account-project-space-boundary-h.md`；**v1.0-beta Audit Log Append Policy-I 已收口**，完整证明见 `docs/completed/v1.0-beta-audit-log-append-policy-i.md`；**v1.0-beta Project Retention Policy-J 已收口**，完整证明见 `docs/completed/v1.0-beta-project-retention-policy-j.md`；**v1.0-beta Copyright Audit Hook-K 已收口**，完整证明见 `docs/completed/v1.0-beta-copyright-audit-hook-k.md`；**v1.0-beta MasterSetting Audit Hook-L 已收口**，完整证明见 `docs/completed/v1.0-beta-master-setting-audit-hook-l.md`。当前不接 LangGraph/OASIS/CAMEL，也不直接进入云端多租户、对象存储、认证或计费系统。
 
 ## 2.1 阶段性质与产品化程度
 
@@ -139,6 +140,7 @@ v1.0-beta Copyright Audit Hook-K            版权声明写入审计钩子   已
 | v1.0-beta Audit-I | Audit Log Append Policy | 审计日志追加策略 | 已收口：本地 `project_audit_log.jsonl` 白名单追加写入。 |
 | v1.0-beta Retention-J | Project Retention Policy | 项目删除/保留策略 | 已收口：本地项目保留策略 artifact 与审计事件。 |
 | v1.0-beta Audit Hook-K | Copyright Audit Hook | 版权声明写入审计钩子 | 已收口：版权/来源声明保存后追加 `rights_reviewed` 审计事件。 |
+| v1.0-beta Audit Hook-L | MasterSetting Audit Hook | 设定轻编辑审计钩子 | 已收口：设定轻编辑保存后追加 `master_setting_updated` 审计事件。 |
 
 因此，“已经完成 MVP”需要带限定语：v0.7 已完成短中篇产品化 MVP，v0.8.0-A 至 v0.8.5-A 已完成长篇底座 MVP；v0.8.6-v0.8.10 是长篇产品化收束，v0.9.0-alpha 才是长篇共创产品闭环成立。
 
@@ -188,7 +190,7 @@ v1.0-beta Copyright Audit Hook-K            版权声明写入审计钩子   已
 | v0.1.2 | `run_20260528_155153_c3275c_continue_branch_a` | 从 `branch_a` 无新干预续写 `linear/` |
 | v0.1.3 | `run_20260528_171207_94a6b9_resume_intervene_linear` | 从续章 `linear` 再干预，生成第十五章三分叉 |
 
-**测试基线**：`cd engine && python -m pytest -q` → **681 passed**（截至 2026-06-01，v1.0-beta Copyright Audit Hook-K 收口后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
+**测试基线**：`cd engine && python -m pytest -q` → **682 passed**（截至 2026-06-01，v1.0-beta MasterSetting Audit Hook-L 收口后完整回归通过）；`cd engine/ui && pnpm run build` 通过。
 
 当前用户可演示的闭环：
 
@@ -1915,6 +1917,8 @@ v0.9.0-alpha 已整体收口。它已把长篇上传、记忆、分支运行、�
 
 > **v1.0-beta Copyright Audit Hook-K 已收口（2026-06-01）**：`write_project_copyright_statement()` 在成功写入 `memory/project_copyright_statement.json` 后追加 `rights_reviewed` 审计事件，`GET /api/stories/<slug>/audit-log` 继续聚合该关键写操作。该刀不改变版权声明 API 行为、不接真实账号或云端不可篡改存储，只验证关键产品写操作接入本地审计日志的最小路径。收口归档见 `docs/completed/v1.0-beta-copyright-audit-hook-k.md`。后续继续拆分 v1.0-beta 商业化加固小刀。
 
+> **v1.0-beta MasterSetting Audit Hook-L 已收口（2026-06-01）**：`update_master_setting()` 在成功写入 `memory/master_setting.yaml` 与 `memory/master_setting_update_report.json` 后追加 `master_setting_updated` 审计事件，`GET /api/stories/<slug>/audit-log` 继续聚合该关键写操作。该刀不改变设定轻编辑 API 行为、不接真实账号或云端不可篡改存储，只验证第二个关键产品写操作接入本地审计日志的最小路径。收口归档见 `docs/completed/v1.0-beta-master-setting-audit-hook-l.md`。后续继续拆分 v1.0-beta 商业化加固小刀。
+
 ### Phase 5：社区与分享
 
 远期方向：
@@ -2058,6 +2062,7 @@ v0.1.2 resume continue
 | P10-I | v1.0-beta Audit Log Append Policy | 本地项目审计日志白名单追加策略 | 已收口 |
 | P10-J | v1.0-beta Project Retention Policy | 本地项目删除/保留策略 artifact 与 API | 已收口 |
 | P10-K | v1.0-beta Copyright Audit Hook | 版权/来源声明写入接入本地审计日志 | 已收口 |
+| P10-L | v1.0-beta MasterSetting Audit Hook | 设定轻编辑写入接入本地审计日志 | 已收口 |
 
 ## 8. 近期详细任务清单
 
@@ -2340,6 +2345,7 @@ v0.7.1 Intervention Compiler（自由输入转抽象干预 + 动态分支轴，�
   -> v1.0-beta Audit Log Append Policy-I（已收口：审计日志追加策略）
   -> v1.0-beta Project Retention Policy-J（已收口：项目删除/保留策略）
   -> v1.0-beta Copyright Audit Hook-K（已收口：版权声明写入审计钩子）
+  -> v1.0-beta MasterSetting Audit Hook-L（已收口：设定轻编辑审计钩子）
   -> v1.0-beta 后续商业化加固拆分（先明确下一刀边界）
 ```
 

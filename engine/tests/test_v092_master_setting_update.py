@@ -15,6 +15,7 @@ from living_novel_engine.browser import server
 from living_novel_engine.service import (
     MasterSettingConflictError,
     MasterSettingUpdateError,
+    get_project_audit_log,
     import_novel_from_payload,
     update_master_setting,
 )
@@ -81,6 +82,28 @@ def test_update_master_setting_writes_backup_and_report(tmp_path):
     assert report["status"] == "saved"
     assert report["changed"] == result.changed
     assert report["backup"].endswith("/memory/master_setting.yaml")
+
+
+def test_update_master_setting_appends_audit_event(tmp_path):
+    _make_project(tmp_path, "master-audit")
+
+    update_master_setting("master-audit", _patch(), projects_dir=tmp_path)
+    audit = get_project_audit_log("master-audit", projects_dir=tmp_path)
+
+    event = next(
+        event
+        for event in audit["events"]
+        if event["action"] == "master_setting_updated"
+        and event["artifact"] == "memory/project_audit_log.jsonl"
+    )
+    assert event["metadata"]["artifact_path"] == "memory/master_setting.yaml"
+    assert event["metadata"]["changed"] == [
+        "display_name",
+        "genre",
+        "world_rules",
+        "power_system_limits",
+        "forbidden_additions",
+    ]
 
 
 def test_update_master_setting_rejects_uneditable_payload(tmp_path):

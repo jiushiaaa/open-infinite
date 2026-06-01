@@ -1,8 +1,8 @@
 """v1.0-beta Commercial Audit Log Schema-B.
 
-This slice defines a local project audit event schema and returns a read-only
-timeline synthesized from existing project artifacts. It does not write the
-future project_audit_log.jsonl yet.
+This module defines a local project audit event schema, returns a timeline
+synthesized from existing project artifacts, and supports safe local JSONL
+append events for explicitly approved actions.
 """
 
 from __future__ import annotations
@@ -22,6 +22,7 @@ _STORAGE = "memory/project_audit_log.jsonl"
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _APPEND_ACTIONS = {
     "manual_note",
+    "master_setting_updated",
     "rights_reviewed",
     "retention_policy_reviewed",
     "project_space_reviewed",

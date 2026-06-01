@@ -16,6 +16,7 @@ from typing import Any
 import yaml
 
 from living_novel_engine.import_novel.writer import _write_yaml
+from living_novel_engine.service.commercial_audit_log import append_project_audit_log_event
 from living_novel_engine.service.project_health import resolve_story_path
 
 
@@ -162,6 +163,22 @@ def update_master_setting(
     report_path = _report_path(project_dir)
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    append_project_audit_log_event(
+        slug,
+        {
+            "action": "master_setting_updated",
+            "label": "保存设定轻编辑",
+            "summary": "已更新项目设定轻编辑。",
+            "actor_type": "user",
+            "severity": "info",
+            "metadata": {
+                "artifact_path": "memory/master_setting.yaml",
+                "report_path": "memory/master_setting_update_report.json",
+                "changed": changed,
+            },
+        },
+        projects_dir=projects_dir,
     )
 
     return MasterSettingUpdateResult(
