@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type {
+  AuthBoundaryChecklist,
   ConnectivityResult,
   CommercialStatusOverview,
   DeploymentObservabilityChecklist,
@@ -94,6 +95,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const smokeState = useAsync(() => api.getLocalSmokeChecklist(), []);
   const preflightState = useAsync(() => api.getReleasePreflight(), []);
   const deploymentObsState = useAsync(() => api.getDeploymentObservability(), []);
+  const authBoundaryState = useAsync(() => api.getAuthBoundary(), []);
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
@@ -131,6 +133,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       providerState.reload();
       commercialState.reload();
       deploymentObsState.reload();
+      authBoundaryState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -148,6 +151,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       providerState.reload();
       commercialState.reload();
       deploymentObsState.reload();
+      authBoundaryState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -271,6 +275,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         loading={deploymentObsState.loading}
         error={deploymentObsState.error}
         onRetry={deploymentObsState.reload}
+      />
+
+      <AuthBoundaryPanel
+        data={authBoundaryState.data}
+        loading={authBoundaryState.loading}
+        error={authBoundaryState.error}
+        onRetry={authBoundaryState.reload}
       />
 
       <section className="settings__group">
@@ -658,6 +669,72 @@ function DeploymentObservabilityPanel({
                 </div>
                 <span className={`badge tiny ${commercialBadgeClass(signal.status)}`}>
                   {signal.status_label}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+          {data.warnings.slice(0, 1).map((warning) => (
+            <p className="settings__note tiny muted" key={warning}>
+              {warning}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function AuthBoundaryPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: AuthBoundaryChecklist | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">认证边界清单</h3>
+      {loading && <p className="settings__note tiny muted">正在读取认证边界…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">已具备</span>
+              <strong>
+                {data.summary.ready_count} / {data.summary.checkpoint_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">认证执行</span>
+              <strong>{data.summary.auth_enforced ? "已启用" : "未启用"}</strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.checkpoints.map((checkpoint) => (
+              <div className="settings__status-row" key={checkpoint.id}>
+                <div>
+                  <strong>{checkpoint.label}</strong>
+                  <span className="muted tiny">{checkpoint.evidence}</span>
+                </div>
+                <span className={`badge tiny ${commercialBadgeClass(checkpoint.status)}`}>
+                  {checkpoint.status_label}
                 </span>
               </div>
             ))}

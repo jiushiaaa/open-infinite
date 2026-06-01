@@ -80,6 +80,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Preflight-R | Release Preflight Checklist：发布前只读检查清单 | 已收口，见 `../docs/completed/v1.0-beta-release-preflight-checklist-r.md` |
 | v1.0-beta Rights-S | Rights Approval Checklist：项目版权审批准备度清单 | 已收口，见 `../docs/completed/v1.0-beta-rights-approval-checklist-s.md` |
 | v1.0-beta Observe-T | Deployment Observability Checklist：部署观测只读清单 | 已收口，见 `../docs/completed/v1.0-beta-deployment-observability-checklist-t.md` |
+| v1.0-beta Auth-U | Auth Boundary Checklist：认证边界只读清单 | 已收口，见 `../docs/completed/v1.0-beta-auth-boundary-checklist-u.md` |
 
 ### 产品化阶段说明
 
@@ -96,7 +97,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、发布前检查、版权审批准备度和部署观测清单 |
 
-**测试基线**：`pytest -q` → **700 passed**（2026-06-01，v1.0-beta Deployment Observability Checklist-T 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **702 passed**（2026-06-01，v1.0-beta Auth Boundary Checklist-U 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -649,6 +650,15 @@ copy .env.example .env
 - 设置抽屉新增「部署观测清单」只读区，展示已具备/需留意数量、云端观测状态、前 6 条信号和下一步。
 - 可选 `story_slug` 仍走安全校验；非法参数返回 400，缺项目返回 404。
 - 当前只读聚合本地观测证据，不 tail 日志、不写 artifact、不打外网、不接云端观测、对象存储、持久队列、真实认证或计费；不改变 `run_scene`。
+
+### v1.0-beta Auth Boundary Checklist-U（已收口）
+
+本版本已把认证接入边界放进设置页：
+
+- `GET /api/settings/auth-boundary` 返回 `version=v1.0-beta-auth-boundary-checklist-u`、`summary`、`checkpoints`、`warnings` 与 `next_steps`。
+- 清单聚合账号/项目空间边界、权限矩阵草案、请求级 ACL 缺口、项目空间映射和部署观测边界。
+- 设置抽屉新增「认证边界清单」只读区，展示已具备/需留意数量、认证执行状态、检查项和下一步。
+- 当前只读定义认证接入边界，不创建用户、不接登录 provider、不执行 ACL、不写 artifact、不打外网、不接云端多租户或计费；不改变 `run_scene`。
 
 ## 快速演示
 

@@ -1,6 +1,7 @@
 import type {
   AnchorPatch,
   AnchorUpdateResponse,
+  AuthBoundaryChecklist,
   BaselineGenerateRequest,
   BaselineGenerateResponse,
   BaselineReport,
@@ -243,6 +244,9 @@ export const api = {
   },
   getDeploymentObservability(): Promise<DeploymentObservabilityChecklist> {
     return getJson("/api/settings/deployment-observability");
+  },
+  getAuthBoundary(): Promise<AuthBoundaryChecklist> {
+    return getJson("/api/settings/auth-boundary");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);

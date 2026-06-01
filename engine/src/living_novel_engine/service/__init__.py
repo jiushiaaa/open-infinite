@@ -13,6 +13,7 @@ from .advanced_runner_evaluation import (
     evaluate_advanced_runner_probes,
     evaluate_advanced_runner_trigger,
 )
+from .auth_boundary import get_auth_boundary_checklist
 from .baseline import (
     BaselineRequestError,
     BaselineServiceResult,
@@ -190,6 +191,7 @@ __all__ = [
     "AnchorUpdateResult",
     "evaluate_advanced_runner_probes",
     "evaluate_advanced_runner_trigger",
+    "get_auth_boundary_checklist",
     "BaselineRequestError",
     "BaselineServiceResult",
     "ChapterExportRequestError",
