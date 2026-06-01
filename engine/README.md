@@ -75,6 +75,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Audit Hook-M | Worldline Selection Audit Hook：世界线选择审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-worldline-selection-audit-hook-m.md` |
 | v1.0-beta Audit Hook-N | State Execution Audit Hook：状态执行审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-state-execution-audit-hook-n.md` |
 | v1.0-beta Status-O | Commercial Status Overview：设置页商业化状态总览 | 已收口，见 `../docs/completed/v1.0-beta-commercial-status-overview-o.md` |
+| v1.0-beta Audit UI-P | Audit Log UI & Export：项目审计日志展示与 Markdown 导出 | 已收口，见 `../docs/completed/v1.0-beta-audit-log-ui-export-p.md` |
 
 ### 产品化阶段说明
 
@@ -91,7 +92,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略和关键写操作审计钩子 |
 
-**测试基线**：`pytest -q` → **685 passed**（2026-06-01，v1.0-beta Commercial Status Overview-O 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **688 passed**（2026-06-01，v1.0-beta Audit Log UI & Export-P 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -594,6 +595,16 @@ copy .env.example .env
 - 设置抽屉新增「商业化状态总览」只读区，展示已就绪、需留意、平台化暂缓的域数量和逐域状态。
 - 接口只返回摘要证据，不返回明文 Key 或环境变量名，不创建模型客户端、不打外网、不写 artifact。
 - 当前不执行真实认证、权限拦截、云端迁移、对象存储或计费；不改变 `run_scene`。
+
+### v1.0-beta Audit Log UI & Export-P（已收口）
+
+本版本已把本地项目审计日志推到项目工作台可见，并提供只读 Markdown 导出：
+
+- `GET /api/stories/<slug>/audit-log/export` 返回 `version=v1.0-beta-audit-log-ui-export-p`、`filename`、`content_type`、`content_md`、`metadata`、`share_guard` 与原始安全审计摘要。
+- 导出内容包含项目摘要、事件时间线、warning 与分享边界提示；事件 `metadata` 不进入 Markdown，避免手工 JSONL 残留敏感字段被导出。
+- 项目工作台新增「项目审计日志」区，展示事件数、来源产物、最近事件、warning、下一步，并支持「导出 Markdown」。
+- 导出前会用中文确认审计日志分享边界；该能力仅用于本地复盘，不代表公开发布、版权审批或不可篡改审计证明。
+- 当前不接真实账号、请求级 ACL、云端不可篡改审计存储、对象存储、数据库或计费；不改变 `run_scene`。
 
 ## 快速演示
 

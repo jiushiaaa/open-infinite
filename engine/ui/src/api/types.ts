@@ -825,6 +825,53 @@ export interface CommercialStatusOverview {
   next_steps: string[];
 }
 
+export interface ProjectAuditLogEvent {
+  event_id: string;
+  action: string;
+  label: string;
+  actor_type: string;
+  scope: string;
+  artifact: string;
+  created_at: string;
+  severity: string;
+  summary: string;
+  metadata: Record<string, unknown>;
+}
+
+export interface ProjectAuditLog {
+  version: string;
+  status: "ready" | "empty" | string;
+  story_slug: string;
+  source_kind: SourceKind;
+  summary: {
+    event_count: number;
+    source_count: number;
+    action_counts: Record<string, number>;
+  };
+  events: ProjectAuditLogEvent[];
+  warnings: Array<{ code: string; message: string }>;
+  next_steps: string[];
+}
+
+export interface ProjectAuditLogExport {
+  version: string;
+  kind: "project_audit_log_export" | string;
+  status: string;
+  story_slug: string;
+  source_kind: SourceKind;
+  filename: string;
+  content_type: string;
+  content_md: string;
+  metadata: {
+    event_count: number;
+    source_count: number;
+    exported_at: string;
+  };
+  share_guard: ExportShareGuard;
+  audit_log: ProjectAuditLog;
+  next_steps: string[];
+}
+
 // ── v0.7.3 视觉资产 ───────────────────────────────────────
 
 export type AssetStatus = "ready" | "failed" | "placeholder";

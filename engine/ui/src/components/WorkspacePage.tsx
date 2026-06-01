@@ -15,6 +15,8 @@ import type {
   ProjectCreationLoopEvidence,
   ProjectCreationLoopActionRequirement,
   MasterSettingPatch,
+  ProjectAuditLog,
+  ProjectAuditLogEvent,
   ProjectMasterSettingWorkspace,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
@@ -276,6 +278,8 @@ function ProjectWorkspaceOverview({
         onSaved={onSelectionChanged}
       />
 
+      <ProjectAuditLogPanel storySlug={data.slug} />
+
       <section className="project-workspace__section">
         <SectionTitle title="章节片段" status={`${data.chapter_overview.playable_chapter_limit} 章可先读`} />
         {data.chapter_overview.previews.length === 0 ? (
@@ -304,6 +308,156 @@ function ProjectWorkspaceOverview({
       />
     </div>
   );
+}
+
+function ProjectAuditLogPanel({ storySlug }: { storySlug: string }) {
+  const audit = useAsync(() => api.getProjectAuditLog(storySlug), [storySlug]);
+  const [exporting, setExporting] = useState(false);
+  const [exportMsg, setExportMsg] = useState<string | null>(null);
+  const [exportErr, setExportErr] = useState<string | null>(null);
+  const report = audit.data;
+  const events = report?.events ?? [];
+  const warnings = report?.warnings ?? [];
+
+  function downloadMarkdown(payload: {
+    filename: string;
+    content_type: string;
+    content_md: string;
+    share_guard?: {
+      requires_rights_confirmation?: boolean;
+      notice?: string;
+      warnings?: string[];
+    };
+  }) {
+    if (payload.share_guard?.requires_rights_confirmation) {
+      const confirmed = window.confirm(
+        [
+          payload.share_guard.notice || "请确认审计日志的分享边界。",
+          ...(payload.share_guard.warnings ?? []),
+        ].join("\n"),
+      );
+      if (!confirmed) {
+        setExportMsg("已取消导出，未生成下载文件。");
+        return false;
+      }
+    }
+    const blob = new Blob([payload.content_md], {
+      type: payload.content_type || "text/markdown;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = payload.filename || `${storySlug}-audit-log.md`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    return true;
+  }
+
+  async function handleExport() {
+    setExporting(true);
+    setExportErr(null);
+    setExportMsg(null);
+    try {
+      const payload = await api.getProjectAuditLogExport(storySlug);
+      if (downloadMarkdown(payload)) {
+        setExportMsg(
+          `审计日志已生成下载文件，共 ${payload.metadata.event_count} 条事件。`,
+        );
+      }
+    } catch (err) {
+      setExportErr(err instanceof Error ? err.message : "导出审计日志失败。");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  return (
+    <section className="project-workspace__section audit-log">
+      <SectionTitle
+        title="项目审计日志"
+        status={
+          audit.loading
+            ? "读取中"
+            : report
+              ? `${report.summary.event_count} 条`
+              : "未读取"
+        }
+      />
+      {audit.loading && <Loading label="正在读取审计时间线…" />}
+      {audit.error && <ErrorState message={audit.error} onRetry={audit.reload} />}
+      {!audit.loading && !audit.error && report && (
+        <>
+          <div className="audit-log__toolbar">
+            <div>
+              <p className="tiny muted">本地项目时间线</p>
+              <strong>{auditStatusText(report)}</strong>
+              <span>
+                {report.summary.source_count} 个来源产物 ·{" "}
+                {Object.keys(report.summary.action_counts).length} 类动作
+              </span>
+            </div>
+            <button
+              type="button"
+              className="workspace-btn"
+              onClick={handleExport}
+              disabled={exporting}
+            >
+              {exporting ? "导出中…" : "导出 Markdown"}
+            </button>
+          </div>
+          {warnings.length > 0 && (
+            <div className="risk-strip audit-log__warnings">
+              {warnings.slice(0, 3).map((warning) => (
+                <span key={`${warning.code}-${warning.message}`}>
+                  {warning.message || warning.code}
+                </span>
+              ))}
+            </div>
+          )}
+          {exportMsg && <p className="project-workspace__ok">{exportMsg}</p>}
+          {exportErr && <p className="master-setting__error">{exportErr}</p>}
+          {events.length === 0 ? (
+            <EmptyState title="暂无审计事件" hint="关键写操作完成后会追加到本地审计日志。" />
+          ) : (
+            <ul className="audit-log__list">
+              {events.slice(-6).reverse().map((event) => (
+                <AuditLogEventItem event={event} key={event.event_id} />
+              ))}
+            </ul>
+          )}
+          {report.next_steps.length > 0 && (
+            <div className="project-workspace__steps audit-log__steps">
+              {report.next_steps.slice(0, 3).map((step) => (
+                <span key={step}>{step}</span>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+function AuditLogEventItem({ event }: { event: ProjectAuditLogEvent }) {
+  return (
+    <li>
+      <div>
+        <strong>{auditActionLabel(event.action, event.label)}</strong>
+        <span>{event.summary || event.label}</span>
+      </div>
+      <div>
+        <span>{event.created_at || "未记录时间"}</span>
+        <em>{severityLabel(event.severity)}</em>
+      </div>
+    </li>
+  );
+}
+
+function auditStatusText(report: ProjectAuditLog): string {
+  if (report.status === "empty") return "尚无事件";
+  return "已聚合审计事件";
 }
 
 function ProjectWorkspaceSidePanel({ data }: { data: ProjectWorkspace }) {
@@ -1286,6 +1440,23 @@ function severityLabel(value: string): string {
     info: "记",
   };
   return map[value] ?? (value || "记");
+}
+
+function auditActionLabel(action: string, fallback: string): string {
+  const map: Record<string, string> = {
+    import_review_generated: "导入检查",
+    worldline_selected: "选择世界线",
+    state_execution_applied: "应用状态覆盖",
+    state_execution_rolled_back: "回滚状态覆盖",
+    master_setting_updated: "设定更新",
+    creation_loop_closed: "闭环收口",
+    manual_note: "人工备注",
+    rights_reviewed: "版权声明",
+    retention_policy_reviewed: "保留策略",
+    project_space_reviewed: "项目空间",
+    audit_reviewed: "审计复核",
+  };
+  return map[action] ?? fallback ?? action;
 }
 
 function riskLevelLabel(value: string): string {

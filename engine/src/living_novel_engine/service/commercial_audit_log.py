@@ -14,10 +14,13 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+import yaml
+
 from living_novel_engine.service.project_health import resolve_story_path
 
 _VERSION = "v1.0-beta-commercial-audit-log-schema-b"
 _APPEND_VERSION = "v1.0-beta-audit-log-append-policy-i"
+_EXPORT_VERSION = "v1.0-beta-audit-log-ui-export-p"
 _STORAGE = "memory/project_audit_log.jsonl"
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _APPEND_ACTIONS = {
@@ -55,6 +58,14 @@ def _read_json(path: Path) -> dict[str, Any] | None:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _read_yaml(path: Path) -> dict[str, Any] | None:
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError, UnicodeDecodeError):
         return None
     return data if isinstance(data, dict) else None
 
@@ -311,6 +322,119 @@ def get_project_audit_log(
             "后续写操作逐步追加 project_audit_log.jsonl，而不是覆盖既有 artifact。",
             "权限矩阵接入前，先用该只读时间线核对项目关键动作。",
             "云端不可篡改审计存储留到真实外部用户阶段。",
+        ],
+    }
+
+
+def _project_display_name(project_dir: Path, fallback: str) -> str:
+    world = _read_yaml(project_dir / "world.yaml") or {}
+    value = str(world.get("display_name") or fallback).strip()
+    return value[:80] or fallback
+
+
+def _md_cell(value: Any) -> str:
+    text = str(value or "").replace("\r", " ").replace("\n", " ").strip()
+    return text.replace("|", "｜")[:240]
+
+
+def export_project_audit_log(
+    story_slug: str,
+    *,
+    projects_dir: Path | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Return a local Markdown export for the project audit timeline.
+
+    The export is derived from the safe timeline view and deliberately omits
+    event metadata so a damaged or hand-edited JSONL line cannot leak secrets.
+    """
+
+    slug = _validate_slug(story_slug)
+    project_dir, source_kind = resolve_story_path(slug, projects_dir)
+    audit_log = get_project_audit_log(slug, projects_dir=projects_dir)
+    exported_at = (now or datetime.now()).isoformat(timespec="seconds")
+    display_name = _project_display_name(project_dir, slug)
+    events = list(audit_log.get("events") or [])
+
+    lines = [
+        f"# 项目审计日志：{display_name}",
+        "",
+        "> 本导出用于本地复盘项目关键动作；公开分享前仍需人工核对版权、隐私与项目边界。",
+        "",
+        "## 摘要",
+        "",
+        f"- 项目：{display_name}",
+        f"- Slug：{slug}",
+        f"- 来源：{source_kind}",
+        f"- 事件数：{audit_log['summary']['event_count']}",
+        f"- 来源产物数：{audit_log['summary']['source_count']}",
+        f"- 导出时间：{exported_at}",
+        "",
+        "## 时间线",
+        "",
+    ]
+    if not events:
+        lines.append("暂无审计事件。")
+    else:
+        lines.extend(
+            [
+                "| 时间 | 动作 | 标签 | 等级 | 摘要 | 产物 |",
+                "| --- | --- | --- | --- | --- | --- |",
+            ]
+        )
+        for event in events:
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        _md_cell(event.get("created_at") or "未记录"),
+                        _md_cell(event.get("action")),
+                        _md_cell(event.get("label")),
+                        _md_cell(event.get("severity")),
+                        _md_cell(event.get("summary")),
+                        _md_cell(event.get("artifact")),
+                    ]
+                )
+                + " |"
+            )
+
+    if audit_log.get("warnings"):
+        lines.extend(["", "## 警告", ""])
+        for warning in audit_log["warnings"]:
+            lines.append(f"- {_md_cell(warning.get('message') or warning.get('code'))}")
+
+    content_md = "\n".join(lines).strip() + "\n"
+    return {
+        "version": _EXPORT_VERSION,
+        "kind": "project_audit_log_export",
+        "status": "ready",
+        "story_slug": slug,
+        "source_kind": source_kind,
+        "filename": f"{slug}-audit-log.md",
+        "content_type": "text/markdown; charset=utf-8",
+        "content_md": content_md,
+        "metadata": {
+            "event_count": audit_log["summary"]["event_count"],
+            "source_count": audit_log["summary"]["source_count"],
+            "exported_at": exported_at,
+        },
+        "share_guard": {
+            "kind": "audit_log_export_guard",
+            "status": "local_review_required",
+            "private_use_allowed": True,
+            "public_share_allowed": False,
+            "requires_rights_confirmation": True,
+            "notice": "审计日志可能包含项目操作上下文；公开分享前需人工核对版权、隐私和团队边界。",
+            "warnings": [
+                "本地导出不是不可篡改审计证明。",
+                "真实外部用户阶段仍需接入账号、权限和平台级审计存储。",
+            ],
+        },
+        "audit_log": audit_log,
+        "next_steps": [
+            "在项目工作台中复盘审计时间线，再按需下载 Markdown 留档。",
+            "公开分享或商业交付前，仍需人工核对版权声明和敏感信息。",
+            "不可篡改审计与云端导出留到真实外部用户阶段。",
         ],
     }
 

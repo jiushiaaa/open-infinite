@@ -41,6 +41,7 @@ from .commercial_audit_log import (
     ProjectAuditLogConflictError,
     ProjectAuditLogRequestError,
     append_project_audit_log_event,
+    export_project_audit_log,
     get_project_audit_log,
 )
 from .commercial_hardening import get_commercial_hardening_scope
@@ -185,6 +186,7 @@ __all__ = [
     "ProjectAuditLogConflictError",
     "ProjectAuditLogRequestError",
     "append_project_audit_log_event",
+    "export_project_audit_log",
     "get_project_audit_log",
     "get_commercial_hardening_scope",
     "get_permission_matrix_draft",

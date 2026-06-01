@@ -104,6 +104,15 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(indexer.get_project_workspace(slug))
 
+            if path.startswith("/api/stories/") and path.endswith("/audit-log/export"):
+                from living_novel_engine.service import export_project_audit_log
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/audit-log/export")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._send_json(export_project_audit_log(slug))
+
             if path.startswith("/api/stories/") and path.endswith("/audit-log"):
                 from living_novel_engine.service import get_project_audit_log
 

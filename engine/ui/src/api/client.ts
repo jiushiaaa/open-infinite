@@ -32,6 +32,8 @@ import type {
   ProviderGatewaySummary,
   ProviderUsageSummary,
   CommercialStatusOverview,
+  ProjectAuditLog,
+  ProjectAuditLogExport,
   ProjectWorkspace,
   ProjectHealth,
   InterventionRequest,
@@ -130,6 +132,14 @@ export const api = {
   getProjectWorkspace(storySlug: string): Promise<ProjectWorkspace> {
     return getJson(
       `/api/stories/${encodeURIComponent(storySlug)}/project-workspace`,
+    );
+  },
+  getProjectAuditLog(storySlug: string): Promise<ProjectAuditLog> {
+    return getJson(`/api/stories/${encodeURIComponent(storySlug)}/audit-log`);
+  },
+  getProjectAuditLogExport(storySlug: string): Promise<ProjectAuditLogExport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/audit-log/export`,
     );
   },
   getSelectedWorldline(storySlug: string): Promise<WorldlineSelectionResponse> {

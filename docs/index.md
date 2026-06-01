@@ -91,6 +91,7 @@
 | `completed/v1.0-beta-worldline-selection-audit-hook-m.md` | v1.0-beta | Worldline Selection Audit Hook-M 收口说明、世界线选择写操作接入本地审计日志 |
 | `completed/v1.0-beta-state-execution-audit-hook-n.md` | v1.0-beta | State Execution Audit Hook-N 收口说明、状态执行 apply/rollback 接入本地审计日志 |
 | `completed/v1.0-beta-commercial-status-overview-o.md` | v1.0-beta | Commercial Status Overview-O 收口说明、设置页商业化状态总览 |
+| `completed/v1.0-beta-audit-log-ui-export-p.md` | v1.0-beta | Audit Log UI & Export-P 收口说明、项目工作台审计时间线和 Markdown 导出 |
 
 ## 4. article/ 论文资料
 
