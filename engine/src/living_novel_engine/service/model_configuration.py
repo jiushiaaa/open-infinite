@@ -24,6 +24,74 @@ def _section(
     }
 
 
+def _text_model_presets() -> list[dict[str, object]]:
+    return [
+        {
+            "id": "openai_compatible",
+            "label": "OpenAI 兼容",
+            "base_url": "https://api.openai.com/v1",
+            "model_name": "gpt-4o-mini",
+            "api_key_help": "填入对应平台的文本模型密钥。",
+            "editable": False,
+        },
+        {
+            "id": "deepseek",
+            "label": "DeepSeek",
+            "base_url": "https://api.deepseek.com/v1",
+            "model_name": "deepseek-chat",
+            "api_key_help": "填入 DeepSeek 控制台创建的密钥。",
+            "editable": False,
+        },
+        {
+            "id": "qwen",
+            "label": "通义千问",
+            "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "model_name": "qwen-plus",
+            "api_key_help": "填入阿里云百炼控制台创建的密钥。",
+            "editable": False,
+        },
+        {
+            "id": "volcengine_ark",
+            "label": "火山方舟",
+            "base_url": "https://ark.cn-beijing.volces.com/api/v3",
+            "model_name": "doubao-seed-1-6",
+            "api_key_help": "填入火山方舟控制台创建的密钥。",
+            "editable": False,
+        },
+        {
+            "id": "custom",
+            "label": "自定义接口",
+            "base_url": "",
+            "model_name": "",
+            "api_key_help": "手动填写兼容 OpenAI Chat Completions 的接口地址、模型名和密钥。",
+            "editable": True,
+        },
+    ]
+
+
+def _visual_model_presets() -> list[dict[str, object]]:
+    return [
+        {
+            "id": "seedream_lite",
+            "label": "Seedream 5.0 Lite",
+            "base_url": "https://ark.cn-beijing.volces.com",
+            "model_name": "seedream-5-0-lite",
+            "enabled": True,
+            "api_key_help": "填入火山方舟视觉模型密钥；不需要图片时可关闭。",
+            "editable": False,
+        },
+        {
+            "id": "visual_disabled",
+            "label": "关闭视觉资产",
+            "base_url": "",
+            "model_name": "",
+            "enabled": False,
+            "api_key_help": "只保留文字主流程，封面、头像和场景图使用占位图。",
+            "editable": True,
+        },
+    ]
+
+
 def get_model_configuration_summary() -> dict:
     """返回脱敏、只读的模型配置摘要；不做网络探测，不写环境或文件。"""
     settings = get_runtime_settings()
@@ -132,6 +200,14 @@ def get_model_configuration_summary() -> dict:
             "attention_count": attention_count,
         },
         "sections": sections,
+        "text_model_presets": _text_model_presets(),
+        "visual_model_presets": _visual_model_presets(),
+        "form_guidance": {
+            "save_scope": "process_only",
+            "plaintext_key_returned": False,
+            "connection_test_note": "只有用户点击测试连接时才会发起轻量模型请求；mock 测试不打外网。",
+            "secret_boundary": "当前设置仅写入本机运行中的引擎进程，页面只显示脱敏尾号。",
+        },
         "warnings": warnings,
         "next_steps": [
             "先让文本模型配置可用，再继续长篇创作闭环本地验证。",

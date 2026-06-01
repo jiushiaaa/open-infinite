@@ -102,6 +102,7 @@
 | `completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md` | v1.0-beta | Quota Enforcement Boundary Checklist-W 收口说明、配额执行边界只读清单 |
 | `completed/v1.0-beta-billing-adapter-boundary-checklist-x.md` | v1.0-beta | Billing Adapter Boundary Checklist-X 收口说明、计费 adapter 边界只读清单 |
 | `completed/v1.0-local-model-configuration-ux.md` | v1.0-local | Model Configuration UX 收口说明、设置页模型配置状态和计费 UI 暂停边界 |
+| `completed/v1.0-local-run-scripts.md` | v1.0-local | Local Run Scripts 收口说明、Windows/macOS 本地一键启动脚本与边界 |
 
 ## 4. article/ 论文资料
 

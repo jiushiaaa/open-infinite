@@ -85,6 +85,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta QuotaEnforce-W | Quota Enforcement Boundary Checklist：配额执行边界只读清单 | 已收口，见 `../docs/completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md` |
 | v1.0-beta BillingBoundary-X | Billing Adapter Boundary Checklist：计费 adapter 边界只读清单 | 已收口，见 `../docs/completed/v1.0-beta-billing-adapter-boundary-checklist-x.md` |
 | v1.0-local ModelConfig-Y | Model Configuration UX：设置页模型配置状态与计费 UI 暂停 | 已收口，见 `../docs/completed/v1.0-local-model-configuration-ux.md` |
+| v1.0-local RunScripts | Local Run Scripts：Windows/macOS 本地一键运行脚本 | 已收口，见 `../docs/completed/v1.0-local-run-scripts.md` |
 
 ### 产品化阶段说明
 
@@ -99,9 +100,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与本地加固 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、发布前检查、版权审批准备度、部署观测清单、认证边界、对象存储边界、配额执行边界、计费 adapter 边界与本地模型配置状态；商业化/计费继续实现按用户规划暂缓 |
+| v0.9.1-v1.0-beta | 增强与本地加固 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、发布前检查、版权审批准备度、部署观测清单、认证边界、对象存储边界、配额执行边界、计费 adapter 边界、本地模型配置状态与本地一键运行脚本；商业化/计费继续实现按用户规划暂缓 |
 
-**测试基线**：`pytest -q` → **710 passed**（2026-06-01，v1.0-local Model Configuration UX 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **713 passed**（2026-06-01，v1.0-local Model Configuration UX + Local Run Scripts 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -696,13 +697,42 @@ copy .env.example .env
 本版本把设置页重新收拢到本地用户最需要的模型配置状态：
 
 - `GET /api/settings/model-configuration` 返回 `version=v1.0-local-model-configuration-ux`、`summary`、`sections`、`warnings` 与 `next_steps`。
-- `sections` 覆盖文本模型、连接测试、默认推演、视觉模型、密钥边界。
+- `sections` 覆盖文本模型、连接测试、默认推演、视觉模型、密钥边界；同时返回 `text_model_presets`、`visual_model_presets` 与 `form_guidance`。
+- 设置抽屉新增「常用接口模板」和「视觉模型模板」，可帮用户填写 OpenAI 兼容、DeepSeek、通义千问、火山方舟、Seedream 等常见接口的地址和模型名。
 - 设置抽屉新增「模型配置状态」，展示当前是本地模拟还是真实模型、文本/视觉模型是否就绪、下一步配置建议。
-- 保存设置或清除文本模型密钥后刷新模型配置状态和 provider 状态。
+- 保存设置、清除文本模型密钥或清除视觉模型密钥后刷新模型配置状态和 provider 状态。
 - 用量区保留 token 统计，但不展示计费或价格估算。
 - 当前不接真实认证、真实计费、真实配额拦截、安装包或服务器部署；不在前端存储或回显 API Key 明文。
 
 发行路径已排入 [`docs/distribution-phase-plan.md`](../docs/distribution-phase-plan.md)：本地 clone、GitHub Release 安装包、服务器在线体验均等本地产品稳定后再启动。
+
+### v1.0-local Local Run Scripts（已收口）
+
+仓库根目录新增本地一键运行脚本，面向 clone 仓库后的本机体验：
+
+```powershell
+# Windows
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start-local.ps1
+```
+
+```bash
+# macOS / Linux
+bash scripts/start-local.sh
+```
+
+脚本会检查 Python、Node.js 与 pnpm，创建 `engine/.venv`，安装后端与前端依赖，启动后端 `lne browse` 服务和 Vite 前端，并打开 `http://127.0.0.1:5173/`。日志写入 `.local-run/`。
+
+轻量自检：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start-local.ps1 -CheckOnly -NoBrowser
+```
+
+```bash
+bash scripts/start-local.sh --check-only --no-browser
+```
+
+该脚本不内置 Python/Node runtime，不读取或打印用户模型密钥；后续 GitHub Release 安装包仍按 `docs/distribution-phase-plan.md` 的 D2/D3 再拆分。
 
 ## 快速演示
 

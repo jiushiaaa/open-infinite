@@ -105,6 +105,7 @@
 - v1.0-beta Quota Enforcement Boundary Checklist-W
 - v1.0-beta Billing Adapter Boundary Checklist-X
 - v1.0-local Model Configuration UX
+- v1.0-local Local Run Scripts
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -187,17 +188,19 @@
 - v1.0-beta Quota Enforcement Boundary Checklist-W：新增 `GET /api/settings/quota-enforcement-boundary`，设置抽屉只读展示配额执行边界清单；不拦截生成请求、不写 quota state、不接真实账单
 - v1.0-beta Billing Adapter Boundary Checklist-X：新增 `GET /api/settings/billing-adapter-boundary`，设置抽屉只读展示计费 adapter 边界清单；不创建账单、不写余额、不调用支付 provider
 - v1.0-local Model Configuration UX：新增 `GET /api/settings/model-configuration`，设置抽屉展示「模型配置状态」，并按用户当前规划撤下计费可见区与成本估算 UI；不接真实计费、不存明文 Key
+- v1.0-local Model Configuration UI：模型配置接口新增文本/视觉模型模板和表单边界说明；设置抽屉新增常用接口模板、真实文本模型开关、视觉模型模板和视觉密钥清除按钮。
+- v1.0-local Local Run Scripts：新增 `scripts/start-local.ps1` 与 `scripts/start-local.sh`，clone 仓库后可检查依赖、安装后端/前端依赖并启动后端与 Vite 前端；不内置 runtime，不读取或打印模型密钥。
 - Distribution Phase Plan：新增 `docs/distribution-phase-plan.md`，把本地 clone、GitHub Release 安装包、服务器在线体验三条使用路径排到本地产品稳定之后
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 710 passed
+- 后端 python -m pytest -q 为 713 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 Billing Adapter Boundary Checklist-X 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围，优先考虑真实硬配额 guardrail 前置清单、webhook/idempotency 边界或认证执行前置清单。不要直接接云端托管、多租户账号、真实对象存储、真实认证或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+按用户要求，真实用户模型配置 UI 与本地一键运行脚本完成后暂停，不继续自动开新刀。下一次继续前应先等用户本地试用反馈；如用户确认产品本地体验稳定，再进入 GitHub Release 安装包、腾讯云 2c4g 单机部署或对应发行路径。不要直接接云端托管、多租户账号、真实对象存储、真实认证或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -218,11 +221,11 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `710 passed` |
+| 后端基线 | `713 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R、v1.0-beta Rights Approval Checklist-S、v1.0-beta Deployment Observability Checklist-T、v1.0-beta Auth Boundary Checklist-U、v1.0-beta Object Storage Boundary Checklist-V、v1.0-beta Quota Enforcement Boundary Checklist-W、v1.0-beta Billing Adapter Boundary Checklist-X、v1.0-local Model Configuration UX |
-| 官方下一刀 | 按用户当前规划暂停商业化/计费继续实现；先做本地模型配置体验与本地产品验证 |
-| 后续主线 | 本地产品稳定 -> Distribution-D0/D1/D2（本地 clone、Release 安装包、服务器在线体验）；云端多租户/计费系统后置 |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R、v1.0-beta Rights Approval Checklist-S、v1.0-beta Deployment Observability Checklist-T、v1.0-beta Auth Boundary Checklist-U、v1.0-beta Object Storage Boundary Checklist-V、v1.0-beta Quota Enforcement Boundary Checklist-W、v1.0-beta Billing Adapter Boundary Checklist-X、v1.0-local Model Configuration UX、v1.0-local Local Run Scripts |
+| 官方下一刀 | 暂停；等待用户本地试用反馈 |
+| 后续主线 | 用户本地试用确认稳定后，再进入 GitHub Release 安装包、腾讯云单机部署或对应发行路径；云端多租户/计费系统后置 |
 
 ## 阶段性质与产品化判断
 
@@ -907,13 +910,22 @@ React/Vite 产品级前端主闭环已完成：
 ## v1.0-local Model Configuration UX 收口摘要
 
 - 新增 `get_model_configuration_summary()` 与 `GET /api/settings/model-configuration`。
-- 设置抽屉新增「模型配置状态」，展示文本模型、连接测试、默认推演、视觉模型和密钥边界。
-- 保存设置或清除文本模型密钥后刷新模型配置状态；用量区保留 token 统计，不展示计费或价格估算。
+- 模型配置摘要新增文本/视觉模型模板和表单边界说明，覆盖 OpenAI 兼容、DeepSeek、通义千问、火山方舟、Seedream 和自定义接口。
+- 设置抽屉新增「常用接口模板」「使用真实文本模型生成」「视觉模型模板」和视觉密钥清除按钮；「模型配置状态」继续展示文本模型、连接测试、默认推演、视觉模型和密钥边界。
+- 保存设置、清除文本模型密钥或清除视觉模型密钥后刷新模型配置状态；用量区保留 token 统计，不展示计费或价格估算。
 - 按用户当前规划，商业化/计费继续实现暂停；设置抽屉撤下「计费边界」可见区和成本估算输入，但保留既有只读 API 兼容测试与文档。
 - 发行路径已进入 `docs/distribution-phase-plan.md`：本地 clone、GitHub Release 安装包、服务器在线体验三条路径均后置到本地产品稳定后。
 - 收口归档见 `docs/completed/v1.0-local-model-configuration-ux.md`。
-- 验证：`tests/test_v100_model_configuration_summary.py` 新增 service/HTTP 测试；focused + 运行设置相邻回归 29 passed；完整后端基线提升到 710 passed；前端 build 通过；`git diff --check` 通过。
+- 验证：`tests/test_v100_model_configuration_summary.py` 新增 service/HTTP 测试；`tests/test_local_run_scripts.py` 新增脚本静态验收；focused 为 5 passed；完整后端基线提升到 713 passed；前端 build 通过；本地 HTTP smoke 通过；`git diff --check` 通过。
 - 边界：不改 `run_scene`，不接真实认证、真实计费、真实配额拦截、安装包或服务器部署；不存储或回显明文 Key。
+
+## v1.0-local Local Run Scripts 收口摘要
+
+- 新增 `scripts/start-local.ps1` 与 `scripts/start-local.sh`。
+- 脚本检查 Python、Node.js 与 pnpm，创建 `engine/.venv`，安装后端/前端依赖，启动后端 `lne browse` 服务和 Vite 前端，并打开 `http://127.0.0.1:5173/`。
+- Windows `.ps1` 保持 ASCII，兼容 Windows PowerShell 5.1；`powershell ... -CheckOnly -NoBrowser` 与 `pwsh ... -CheckOnly -NoBrowser` 均通过。
+- 收口归档见 `docs/completed/v1.0-local-run-scripts.md`。
+- 边界：不是安装包，不内置 Python/Node runtime，不读取/写入/打印用户模型密钥，不接云端部署、认证、对象存储或计费系统。
 
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
@@ -999,7 +1011,8 @@ React/Vite 产品级前端主闭环已完成：
 | v1.0-beta QuotaEnforce-W | Quota Enforcement Boundary Checklist | 设置页配额执行边界只读清单 | 已收口 |
 | v1.0-beta BillingBoundary-X | Billing Adapter Boundary Checklist | 设置页计费 adapter 边界只读清单 | 已收口 |
 | v1.0-local ModelConfig-Y | Model Configuration UX | 设置页模型配置状态、计费 UI 暂停、本地模型配置优先 | 已收口 |
-| Distribution-D0 | Distribution Phase Plan | 本地 clone、GitHub Release 安装包、服务器在线体验三条路径排期 | 已排期，等本地产品稳定后启动 |
+| Distribution-D0 | Distribution Phase Plan | 本地 clone、GitHub Release 安装包、服务器在线体验三条路径排期 | 已排期 |
+| Distribution-D1 | Local Run Scripts | Windows/macOS 本地一键运行脚本 | 已收口；安装包和内置 runtime 后置 |
 
 ## 每次任务完成后的收口清单
 

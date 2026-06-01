@@ -1,6 +1,6 @@
 # Living Novel Engine 发行路径计划
 
-> 状态：排期文档。当前不开始做安装包、自动部署或线上多用户实现；等本地产品闭环稳定、用户本地验证通过后再进入本阶段。
+> 状态：本地运行脚本第一刀已落地；安装包、自动部署和线上多用户实现仍后置，等本地产品闭环稳定、用户本地验证通过后再进入。
 
 ## 1. 目标
 
@@ -9,7 +9,7 @@
 | 使用方式 | 面向用户 | 当前状态 | 进入条件 |
 | --- | --- | --- | --- |
 | 本地 clone + 配环境 | 技术用户、早期体验者 | 现有路径 | README、设置页模型配置和本地 smoke 足够清晰 |
-| GitHub Release 安装包 | 不想手动配置 Python/Node 的普通用户 | 后置排期 | 本地产品大体稳定、无大迭代、安装脚本可重复验证 |
+| GitHub Release 安装包 | 不想手动配置 Python/Node 的普通用户 | 后置排期；已有本地启动脚本底座 | 本地产品大体稳定、无大迭代、安装脚本可重复验证 |
 | 服务器在线体验 | 不想 clone 或下载安装的用户 | 后置排期 | 本地版本稳定、服务器资源已购买、认证与数据边界明确 |
 
 ## 2. 本地 Clone 路径
@@ -22,6 +22,34 @@
 4. 本地启动后端与前端，完成导入、创作、审计、导出闭环。
 
 当前优先级是让这条路径足够稳：模型配置状态要清楚、错误态不白屏、本地 smoke 能指导用户自查。
+
+### 2.1 本地一键运行脚本
+
+当前已新增两条脚本路径，面向 clone 仓库后的本地启动：
+
+```powershell
+# Windows
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start-local.ps1
+```
+
+```bash
+# macOS / Linux
+bash scripts/start-local.sh
+```
+
+脚本会检查 Python、Node 与 pnpm，创建 `engine/.venv`，安装后端 package 与前端依赖，启动后端 `lne browse` 服务和 Vite 前端，并打开 `http://127.0.0.1:5173/`。日志写入 `.local-run/`。
+
+可用于自检的轻量命令：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start-local.ps1 -CheckOnly -NoBrowser
+```
+
+```bash
+bash scripts/start-local.sh --check-only --no-browser
+```
+
+这不是 GitHub Release 安装包，也不内置 Python/Node runtime；D2/D3 再处理更干净环境下的依赖 bootstrap 与打包形态。
 
 ## 3. Release 安装包路径
 
@@ -53,7 +81,7 @@
 
 | 顺序 | 名称 | 范围 | 验证 |
 | --- | --- | --- | --- |
-| D1 | Local Run Script | `scripts/dev` 级一键启动，Windows/macOS 分别可运行 | 本机启动后端、前端、HTTP smoke |
+| D1 | Local Run Script | `scripts/start-local.ps1` 与 `scripts/start-local.sh` 一键启动后端和前端 | 已落地；Windows check-only 已验证，完整启动需本机 HTTP smoke |
 | D2 | Dependency Bootstrap | 自动检查并安装 Python/Node/pnpm 依赖 | 干净环境或半干净环境重复执行 |
 | D3 | Release Packager Spike | 评估 `.exe`、`.app/.dmg`、压缩包三种形式 | GitHub Release 草包本地安装 |
 | D4 | Tencent Cloud Deploy Guide | 2c4g 单机部署脚本与文档 | 云端后端/前端健康检查 |

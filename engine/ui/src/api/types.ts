@@ -809,6 +809,16 @@ export interface ModelConfigurationSection {
   next_step: string;
 }
 
+export interface ModelConfigurationPreset {
+  id: string;
+  label: string;
+  base_url: string;
+  model_name: string;
+  api_key_help: string;
+  editable: boolean;
+  enabled?: boolean;
+}
+
 export interface ModelConfigurationSummary {
   version: string;
   mode: string;
@@ -824,6 +834,14 @@ export interface ModelConfigurationSummary {
     attention_count: number;
   };
   sections: ModelConfigurationSection[];
+  text_model_presets: ModelConfigurationPreset[];
+  visual_model_presets: ModelConfigurationPreset[];
+  form_guidance: {
+    save_scope: string;
+    plaintext_key_returned: boolean;
+    connection_test_note: string;
+    secret_boundary: string;
+  };
   warnings: string[];
   next_steps: string[];
 }

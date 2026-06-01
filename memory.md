@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R、v1.0-beta Rights Approval Checklist-S、v1.0-beta Deployment Observability Checklist-T、v1.0-beta Auth Boundary Checklist-U、v1.0-beta Object Storage Boundary Checklist-V、v1.0-beta Quota Enforcement Boundary Checklist-W、v1.0-beta Billing Adapter Boundary Checklist-X 与 v1.0-local Model Configuration UX 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、真实对象存储、真实认证或真实计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 710 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R、v1.0-beta Rights Approval Checklist-S、v1.0-beta Deployment Observability Checklist-T、v1.0-beta Auth Boundary Checklist-U、v1.0-beta Object Storage Boundary Checklist-V、v1.0-beta Quota Enforcement Boundary Checklist-W、v1.0-beta Billing Adapter Boundary Checklist-X、v1.0-local Model Configuration UX 与 v1.0-local Local Run Scripts 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、真实对象存储、真实认证或真实计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 713 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `710 passed`（2026-06-01，v1.0-local Model Configuration UX 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
-| **官方下一刀** | 当前按用户要求暂停商业化/计费继续实现；先完成本地模型配置体验与本地产品验证 |
-| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强已收口 → v1.0-beta 本地优先加固 X 已收口 → v1.0-local Model Configuration UX 已收口 → 本地产品稳定后进入发行路径 D0-D5 |
-| **刚收口** | v1.0-local Model Configuration UX：设置抽屉新增模型配置状态，撤下当前不需要的计费可见区与成本估算 UI。 |
+| **测试基线** | 后端 `713 passed`（2026-06-01，v1.0-local Model Configuration UX + Local Run Scripts 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **官方下一刀** | 当前按用户要求完成真实用户模型配置 UI 与本地一键运行脚本后暂停，不继续开新任务 |
+| **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强已收口 → v1.0-beta 本地优先加固 X 已收口 → v1.0-local Model Configuration UX 与 Local Run Scripts 已收口 → 等用户本地试用反馈后再排安装包/服务器发行路径 |
+| **刚收口** | 真实用户模型配置 UI：模板填充、真实模型开关、视觉模型模板和密钥清除；本地一键运行脚本：Windows/macOS 启动后端与前端。 |
 
 ---
 
@@ -2075,3 +2075,14 @@ lne list-genres
 - **测试/验证**：先写红灯测试确认缺少 `get_model_configuration_summary` 与 HTTP endpoint；补实现后 focused 为 **2 passed**，运行设置相邻回归合计 **29 passed**；后端完整回归 **710 passed**；前端 `pnpm run build` 通过；`git diff --check` 通过。
 - **边界**：不改 `run_scene` 默认行为；不新增真实认证、真实计费、真实配额拦截、线上多用户或安装包实现；不在前端存储或回显 API Key 明文。
 - **暂停说明**：按用户要求，本刀完成、验证、提交推送后暂停继续目标任务；后续不再自动开商业化/计费下一刀。
+
+### 2026-06-01 — v1.0-local Model Configuration UI + Local Run Scripts
+
+- **做了什么**：
+  - `GET /api/settings/model-configuration` additive 返回 `text_model_presets`、`visual_model_presets` 与 `form_guidance`，覆盖 OpenAI 兼容、DeepSeek、通义千问、火山方舟、Seedream 和自定义接口模板；仍不返回明文 Key 或环境变量名。
+  - 设置抽屉新增「常用接口模板」「使用真实文本模型生成」「视觉模型模板」和视觉密钥清除按钮，用户可以在页面里配置自己的文本/视觉模型。
+  - 新增 `scripts/start-local.ps1` 与 `scripts/start-local.sh`，支持检查依赖、创建 `engine/.venv`、安装后端/前端依赖、启动后端 `lne browse` 与 Vite 前端并打开本地入口。
+  - 新增 `docs/completed/v1.0-local-run-scripts.md`，并同步 `distribution-phase-plan.md`、README、UI spec、PRD、阶段图与路线图；安装包和服务器在线体验继续后置。
+- **测试/验证**：focused 为 **5 passed**；后端完整回归 **713 passed**；前端 `pnpm run build` 通过；本地 HTTP smoke 通过（Vite 首页 200，模型配置 API 返回 5 个文本模板、2 个视觉模板、`save_scope=process_only`、`plaintext_key_returned=false`）。Windows `powershell ... scripts\start-local.ps1 -CheckOnly -NoBrowser` 与 `pwsh ... -CheckOnly -NoBrowser` 均通过；macOS shell 脚本在当前 Windows 环境因 WSL 不可用无法执行 `bash -n`，由静态测试覆盖脚本内容和密钥边界；`git diff --check` 通过。
+- **边界**：不改 `run_scene` 默认行为；不内置 Python/Node runtime；不生成 Release 安装包；不接腾讯云部署、真实认证、对象存储或计费；脚本不读取、写入或打印用户模型密钥。
+- **暂停说明**：这两件事完成、验证、提交推送后暂停，不继续开新刀。

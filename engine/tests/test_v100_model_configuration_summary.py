@@ -42,6 +42,33 @@ def test_model_configuration_summary_is_secret_safe_and_actionable(monkeypatch):
     assert "SEEDREAM_API_KEY" not in text
 
 
+def test_model_configuration_summary_exposes_user_configuration_presets(monkeypatch):
+    monkeypatch.setenv("LLM_API_KEY", "sk-model-config-secret-7788")
+    monkeypatch.setenv("SEEDREAM_API_KEY", "sd-model-config-secret-8899")
+    monkeypatch.setenv("LNE_MOCK", "1")
+
+    from living_novel_engine.service import get_model_configuration_summary
+
+    report = get_model_configuration_summary()
+    text = json.dumps(report, ensure_ascii=False)
+
+    text_presets = {preset["id"]: preset for preset in report["text_model_presets"]}
+    visual_presets = {preset["id"]: preset for preset in report["visual_model_presets"]}
+
+    assert {"openai_compatible", "deepseek", "qwen", "volcengine_ark", "custom"}.issubset(
+        text_presets
+    )
+    assert text_presets["deepseek"]["base_url"].startswith("https://")
+    assert text_presets["custom"]["editable"] is True
+    assert {"seedream_lite", "visual_disabled"}.issubset(visual_presets)
+    assert visual_presets["visual_disabled"]["enabled"] is False
+    assert report["form_guidance"]["save_scope"] == "process_only"
+    assert report["form_guidance"]["plaintext_key_returned"] is False
+    assert "model-config-secret" not in text
+    assert "LLM_API_KEY" not in text
+    assert "SEEDREAM_API_KEY" not in text
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))

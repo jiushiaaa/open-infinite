@@ -133,10 +133,12 @@
 - v1.0-beta Object Storage Boundary Checklist-V 已收口。
 - v1.0-beta Quota Enforcement Boundary Checklist-W 已收口。
 - v1.0-beta Billing Adapter Boundary Checklist-X 已收口。
-- 当前后端验证基线：`708 passed`。
+- v1.0-local Model Configuration UX 已收口。
+- v1.0-local Local Run Scripts 已收口。
+- 当前后端验证基线：`713 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、真实对象存储、真实认证或真实计费系统。
-- 后续排期：`v1.0-beta` 本地优先商业化加固，真实外部用户前不默认做云端多租户/计费系统。
+- 官方下一刀：按用户要求，真实用户模型配置 UI 与本地一键运行脚本完成后暂停；等待用户本地试用反馈。
+- 后续排期：本地体验稳定后再进入 GitHub Release 安装包、腾讯云单机部署或对应发行路径；真实外部用户前不默认做云端多租户/计费系统。
 
 最近一次 Codex 迭代：
 
@@ -197,8 +199,10 @@
 - `v1.0-beta Object Storage Boundary Checklist-V` 已新增 `GET /api/settings/object-storage-boundary`，设置抽屉只读展示对象存储边界清单，聚合本地 artifact 盘点、资源映射、原文/holdout 私有隔离、保留策略输入、身份绑定和部署护栏；不创建 bucket、不上传文件、不写远端状态，归档见 `docs/completed/v1.0-beta-object-storage-boundary-checklist-v.md`。
 - `v1.0-beta Quota Enforcement Boundary Checklist-W` 已新增 `GET /api/settings/quota-enforcement-boundary`，设置抽屉只读展示配额执行边界清单，聚合配额观测、usage metadata、内存 job、认证边界和部署观测；不拦截生成请求、不写 quota state、不接真实账单，归档见 `docs/completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md`。
 - `v1.0-beta Billing Adapter Boundary Checklist-X` 已新增 `GET /api/settings/billing-adapter-boundary`，设置抽屉只读展示计费 adapter 边界清单，聚合 provider usage、成本估算、配额执行边界、认证边界、计费身份、支付 provider adapter、发票退款轨迹和计费写入边界；不创建账单、不写余额、不调用支付 provider，归档见 `docs/completed/v1.0-beta-billing-adapter-boundary-checklist-x.md`。
+- `v1.0-local Model Configuration UX` 已新增模型配置摘要、文本/视觉模型模板、设置抽屉真实模型开关和视觉密钥清除按钮；不存储或回显明文 Key，归档见 `docs/completed/v1.0-local-model-configuration-ux.md`。
+- `v1.0-local Local Run Scripts` 已新增 `scripts/start-local.ps1` 与 `scripts/start-local.sh`，clone 仓库后可检查/安装依赖并启动后端与 Vite 前端；不内置 runtime、不读取或打印模型密钥，归档见 `docs/completed/v1.0-local-run-scripts.md`。
 - 仍未做云端多用户持久队列、真实对象存储 adapter、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
-- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。后续商业化加固需要先拆成小刀再实现。
+- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。当前已按用户要求暂停继续新刀，等待本地试用反馈。
 
 ## 资料索引
 

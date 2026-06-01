@@ -5,6 +5,7 @@ import type {
   CommercialStatusOverview,
   DeploymentObservabilityChecklist,
   LocalSmokeChecklist,
+  ModelConfigurationPreset,
   ModelConfigurationSummary,
   ObjectStorageBoundaryChecklist,
   QuotaEnforcementBoundaryChecklist,
@@ -100,12 +101,41 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const authBoundaryState = useAsync(() => api.getAuthBoundary(), []);
   const objectStorageState = useAsync(() => api.getObjectStorageBoundary(), []);
   const quotaEnforcementState = useAsync(() => api.getQuotaEnforcementBoundary(), []);
+  const textModelPresets: ModelConfigurationPreset[] =
+    modelConfigState.data?.text_model_presets ?? [];
+  const visualModelPresets: ModelConfigurationPreset[] =
+    modelConfigState.data?.visual_model_presets ?? [];
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
     setMasked(s.masked_key);
     setSdPresent(s.seedream_key_present);
     setSdMasked(s.seedream_masked_key);
+  }
+
+  function reloadConfigurationPanels() {
+    modelConfigState.reload();
+    providerState.reload();
+    commercialState.reload();
+    deploymentObsState.reload();
+    authBoundaryState.reload();
+    objectStorageState.reload();
+    quotaEnforcementState.reload();
+  }
+
+  function applyTextPreset(presetId: string) {
+    const preset = textModelPresets.find((item) => item.id === presetId);
+    if (!preset || preset.id === "custom") return;
+    setBaseUrl(preset.base_url);
+    setModel(preset.model_name);
+  }
+
+  function applyVisualPreset(presetId: string) {
+    const preset = visualModelPresets.find((item) => item.id === presetId);
+    if (!preset) return;
+    setVisualEnabled(preset.enabled !== false);
+    if (preset.base_url) setSdBase(preset.base_url);
+    if (preset.model_name) setSdModel(preset.model_name);
   }
 
   async function save() {
@@ -130,13 +160,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       setKeyInput("");
       setSdKeyInput("");
       setSavedMsg("设置已保存（仅本机生效）");
-      modelConfigState.reload();
-      providerState.reload();
-      commercialState.reload();
-      deploymentObsState.reload();
-      authBoundaryState.reload();
-      objectStorageState.reload();
-      quotaEnforcementState.reload();
+      reloadConfigurationPanels();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -151,13 +175,22 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       const updated = await api.updateRuntimeSettings({ api_key: "" });
       applyResult(updated);
       setSavedMsg("已清除密钥");
-      modelConfigState.reload();
-      providerState.reload();
-      commercialState.reload();
-      deploymentObsState.reload();
-      authBoundaryState.reload();
-      objectStorageState.reload();
-      quotaEnforcementState.reload();
+      reloadConfigurationPanels();
+    } catch (err) {
+      setSaveErr(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function clearSeedreamKey() {
+    setSaving(true);
+    setSaveErr(null);
+    try {
+      const updated = await api.updateRuntimeSettings({ seedream_api_key: "" });
+      applyResult(updated);
+      setSavedMsg("已清除视觉模型密钥");
+      reloadConfigurationPanels();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -181,6 +214,30 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
     <div className="settings__form">
       <section className="settings__group">
         <h3 className="settings__group-title">模型连接</h3>
+        {textModelPresets.length > 0 && (
+          <div className="settings__field">
+            <label className="settings__label" htmlFor="set-text-preset">
+              常用接口模板
+            </label>
+            <select
+              id="set-text-preset"
+              className="settings__input"
+              defaultValue=""
+              onChange={(e) => applyTextPreset(e.target.value)}
+              disabled={saving}
+            >
+              <option value="">选择后自动填写接口地址和模型名</option>
+              {textModelPresets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.label}
+                </option>
+              ))}
+            </select>
+            <p className="settings__note tiny muted">
+              模板只填接口地址和模型名，密钥仍需你自己输入；页面不会回显明文。
+            </p>
+          </div>
+        )}
         <div className="settings__field">
           <label className="settings__label" htmlFor="set-key">
             API 密钥
@@ -212,6 +269,18 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
             密钥只保存在本机引擎进程中，不会写入文件，也不会回传明文。
           </p>
         </div>
+        <label className="settings__toggle">
+          <input
+            type="checkbox"
+            checked={!mock}
+            onChange={(e) => setMock(!e.target.checked)}
+            disabled={saving}
+          />
+          <span>使用真实文本模型生成</span>
+        </label>
+        <p className="settings__note tiny muted">
+          未勾选时继续使用本地模拟，适合先体验流程；勾选后后续生成会尝试调用上方模型。
+        </p>
         <div className="settings__field">
           <label className="settings__label" htmlFor="set-base">接口地址</label>
           <input
@@ -313,15 +382,6 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
 
       <section className="settings__group">
         <h3 className="settings__group-title">默认运行参数</h3>
-        <label className="settings__toggle">
-          <input
-            type="checkbox"
-            checked={mock}
-            onChange={(e) => setMock(e.target.checked)}
-            disabled={saving}
-          />
-          <span>默认用模拟生成（不消耗模型额度，适合先体验）</span>
-        </label>
         <div className="settings__field">
           <label className="settings__label" htmlFor="set-rounds">默认推演轮数（1–12）</label>
           <input
@@ -355,6 +415,27 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
 
       <section className="settings__group">
         <h3 className="settings__group-title">视觉资产（Seedream）</h3>
+        {visualModelPresets.length > 0 && (
+          <div className="settings__field">
+            <label className="settings__label" htmlFor="set-visual-preset">
+              视觉模型模板
+            </label>
+            <select
+              id="set-visual-preset"
+              className="settings__input"
+              defaultValue=""
+              onChange={(e) => applyVisualPreset(e.target.value)}
+              disabled={saving}
+            >
+              <option value="">选择视觉资产模式</option>
+              {visualModelPresets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <label className="settings__toggle">
           <input
             type="checkbox"
@@ -371,15 +452,26 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
               {sdPresent ? `已配置 ${sdMasked}` : "未配置"}
             </span>
           </label>
-          <input
-            id="set-sd-key"
-            className="settings__input"
-            type="password"
-            placeholder={sdPresent ? "如需更换，输入新密钥" : "粘贴 Seedream API 密钥"}
-            value={sdKeyInput}
-            onChange={(e) => setSdKeyInput(e.target.value)}
-            disabled={saving}
-          />
+          <div className="settings__key-row">
+            <input
+              id="set-sd-key"
+              className="settings__input"
+              type="password"
+              placeholder={sdPresent ? "如需更换，输入新密钥" : "粘贴 Seedream API 密钥"}
+              value={sdKeyInput}
+              onChange={(e) => setSdKeyInput(e.target.value)}
+              disabled={saving}
+            />
+            {sdPresent && (
+              <button
+                className="btn btn--ghost tiny"
+                onClick={clearSeedreamKey}
+                disabled={saving}
+              >
+                清除
+              </button>
+            )}
+          </div>
           <p className="settings__note tiny muted">
             未配置时仍可使用，封面与头像会以古风占位呈现，不影响文字主流程。
           </p>
