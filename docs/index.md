@@ -89,6 +89,7 @@
 | `completed/v1.0-beta-copyright-audit-hook-k.md` | v1.0-beta | Copyright Audit Hook-K 收口说明、版权/来源声明写操作接入本地审计日志 |
 | `completed/v1.0-beta-master-setting-audit-hook-l.md` | v1.0-beta | MasterSetting Audit Hook-L 收口说明、设定轻编辑写操作接入本地审计日志 |
 | `completed/v1.0-beta-worldline-selection-audit-hook-m.md` | v1.0-beta | Worldline Selection Audit Hook-M 收口说明、世界线选择写操作接入本地审计日志 |
+| `completed/v1.0-beta-state-execution-audit-hook-n.md` | v1.0-beta | State Execution Audit Hook-N 收口说明、状态执行 apply/rollback 接入本地审计日志 |
 
 ## 4. article/ 论文资料
 

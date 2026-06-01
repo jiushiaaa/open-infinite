@@ -4,7 +4,7 @@
 
 ## 1. 一句话结论
 
-Living Novel Engine 已完成 **短中篇可交互产品化 MVP**、**长篇记忆与机制底座 MVP**，并已把 **v0.9.0-alpha Long Novel Creation Loop** 收口为第一条长篇共创产品闭环。v0.8.6-v0.8.10 已把导入检查、断点续传、项目资产页、回放审计 UI、状态执行 dry-run 评估和可回滚 overlay 写入收口；v0.9.0-alpha 已把章节导出、父链合集导出、版权/分享 guard、闭环完成度、阻塞动作、判定依据、审计快捷运行、alpha closeout 报告、HTTP/CLI closeout 验收、ready 后 `creation_loop_alpha_closeout.json` 收口记录、推荐世界线、显式续写 job、起点持久化与选择后审计串成闭环。v0.9.1 Provider & Cost Gateway Lite 已整体收口，完成只读 provider 摘要、脱敏展示、降级策略、成本观测口径、usage 聚合、设置页展示、手动单价估算与只读路由矩阵；v0.9.2 MasterSetting Workspace Lite 已整体收口，完成只读聚合、工作台展示、后端白名单轻编辑与前端最小写控件；v0.9.3 Graph Memory Evaluation Spike 已整体收口，完成图记忆触发报告、代表性检索 probe 和失败样例收集，当前不触发重依赖接入；v0.9.4 Advanced Runner Evaluation Spike 已整体收口，完成高级 runner 触发报告、代表性 runner probe 和失败样例收集，当前不接 LangGraph/OASIS/CAMEL；v1.0-beta Commercial Hardening Scope-A 已收口，完成商业化七域范围复核和本地优先边界说明；v1.0-beta Commercial Audit Log Schema-B 已收口，完成本地项目审计日志 schema 与既有 artifact 只读聚合；v1.0-beta Permission Matrix Draft-C 已收口，完成 owner/editor/viewer 权限矩阵草案；v1.0-beta Project Copyright Statement-D 已收口，完成项目级版权/来源声明 schema 与导出 `rights_basis`；v1.0-beta Quota & Observability Lite-E 已收口，完成本地配额/观测口径；v1.0-beta Local Deployment Readiness-F 已收口，完成本地部署就绪清单；v1.0-beta Cloud Persistence Boundary-G 已收口，完成本地 artifact 到未来平台资源的迁移边界；v1.0-beta Account Project Space Boundary-H 已收口，完成本地账号语义、项目空间清单和未来团队归属边界；v1.0-beta Audit Log Append Policy-I 已收口，完成本地审计日志白名单追加策略；v1.0-beta Project Retention Policy-J 已收口，完成本地项目删除/保留策略；v1.0-beta Copyright Audit Hook-K 已收口，完成版权/来源声明写入审计钩子；v1.0-beta MasterSetting Audit Hook-L 已收口，完成设定轻编辑写入审计钩子；v1.0-beta Worldline Selection Audit Hook-M 已收口，完成世界线选择写入审计钩子。当前不接云端多租户、对象存储、真实认证或计费系统。
+Living Novel Engine 已完成 **短中篇可交互产品化 MVP**、**长篇记忆与机制底座 MVP**，并已把 **v0.9.0-alpha Long Novel Creation Loop** 收口为第一条长篇共创产品闭环。v0.8.6-v0.8.10 已把导入检查、断点续传、项目资产页、回放审计 UI、状态执行 dry-run 评估和可回滚 overlay 写入收口；v0.9.0-alpha 已把章节导出、父链合集导出、版权/分享 guard、闭环完成度、阻塞动作、判定依据、审计快捷运行、alpha closeout 报告、HTTP/CLI closeout 验收、ready 后 `creation_loop_alpha_closeout.json` 收口记录、推荐世界线、显式续写 job、起点持久化与选择后审计串成闭环。v0.9.1 Provider & Cost Gateway Lite 已整体收口，完成只读 provider 摘要、脱敏展示、降级策略、成本观测口径、usage 聚合、设置页展示、手动单价估算与只读路由矩阵；v0.9.2 MasterSetting Workspace Lite 已整体收口，完成只读聚合、工作台展示、后端白名单轻编辑与前端最小写控件；v0.9.3 Graph Memory Evaluation Spike 已整体收口，完成图记忆触发报告、代表性检索 probe 和失败样例收集，当前不触发重依赖接入；v0.9.4 Advanced Runner Evaluation Spike 已整体收口，完成高级 runner 触发报告、代表性 runner probe 和失败样例收集，当前不接 LangGraph/OASIS/CAMEL；v1.0-beta Commercial Hardening Scope-A 已收口，完成商业化七域范围复核和本地优先边界说明；v1.0-beta Commercial Audit Log Schema-B 已收口，完成本地项目审计日志 schema 与既有 artifact 只读聚合；v1.0-beta Permission Matrix Draft-C 已收口，完成 owner/editor/viewer 权限矩阵草案；v1.0-beta Project Copyright Statement-D 已收口，完成项目级版权/来源声明 schema 与导出 `rights_basis`；v1.0-beta Quota & Observability Lite-E 已收口，完成本地配额/观测口径；v1.0-beta Local Deployment Readiness-F 已收口，完成本地部署就绪清单；v1.0-beta Cloud Persistence Boundary-G 已收口，完成本地 artifact 到未来平台资源的迁移边界；v1.0-beta Account Project Space Boundary-H 已收口，完成本地账号语义、项目空间清单和未来团队归属边界；v1.0-beta Audit Log Append Policy-I 已收口，完成本地审计日志白名单追加策略；v1.0-beta Project Retention Policy-J 已收口，完成本地项目删除/保留策略；v1.0-beta Copyright Audit Hook-K 已收口，完成版权/来源声明写入审计钩子；v1.0-beta MasterSetting Audit Hook-L 已收口，完成设定轻编辑写入审计钩子；v1.0-beta Worldline Selection Audit Hook-M 已收口，完成世界线选择写入审计钩子；v1.0-beta State Execution Audit Hook-N 已收口，完成状态 overlay apply/rollback 写入审计钩子。当前不接云端多租户、对象存储、真实认证或计费系统。
 
 ## 2. 阶段归类表
 
@@ -22,7 +22,7 @@ Living Novel Engine 已完成 **短中篇可交互产品化 MVP**、**长篇记�
 | v1.0-beta Scope-A | Commercial Hardening Scope | 商业化范围复核 | 已收口：七域只读 scope report，明确本地优先边界和平台化延后项。 |
 | v1.0-beta Schema-B | Commercial Audit Log | 商业化本地审计底座 | 已收口：定义 `project_audit_log.jsonl` schema，并从既有 artifact 只读聚合项目审计时间线。 |
 | v1.0-beta Matrix-C | Permission Matrix Draft | 权限模型草案 | 已收口：owner/editor/viewer 三角色与关键资源权限矩阵，只读不执行。 |
-| v1.0-beta Retention-J+ | Commercial Hardening | 商业级/规模化 | 项目删除/保留策略、版权声明写入审计钩子、设定轻编辑审计钩子和世界线选择审计钩子已收口；后续真实认证、对象存储 adapter、配额执行、更多关键写操作审计接入、版权审批和部署观测仍需继续拆成小刀加固。 |
+| v1.0-beta Retention-J+ | Commercial Hardening | 商业级/规模化 | 项目删除/保留策略、版权声明写入审计钩子、设定轻编辑审计钩子、世界线选择审计钩子和状态执行审计钩子已收口；后续真实认证、对象存储 adapter、配额执行、更多关键写操作审计接入、版权审批和部署观测仍需继续拆成小刀加固。 |
 
 ## 3. A-slice、MVP 与完整产品能力
 
@@ -34,7 +34,7 @@ Living Novel Engine 已完成 **短中篇可交互产品化 MVP**、**长篇记�
 - v0.7-v0.7.5 完成的是短中篇产品化 MVP：普通用户可以通过 Web 完成导入/创世/锚定/干预/评审主流程。
 - v0.8.0-v0.8.5 完成的是长篇底座 MVP：长篇记忆与正史能力能落盘、检索、审计、隔离。
 - v0.8.6-v0.8.10 要做的是长篇产品化：把底座能力变成用户看得懂、修得动、能继续使用的工作台。
-- v0.9.0-alpha 已整体收口，长篇共创形成 alpha 产品闭环；v0.9.1 provider/cost、v0.9.2 MasterSetting Lite、v0.9.3 Graph Memory Evaluation、v0.9.4 Advanced Runner Evaluation、v1.0-beta Scope-A、Schema-B、Matrix-C、Copyright-D、Quota-E、Deploy-F、Cloud-G、Account-H、Audit-I、Retention-J、Copyright Audit Hook-K、MasterSetting Audit Hook-L 与 Worldline Selection Audit Hook-M 已整体收口，但仍需继续拆分真实认证、对象存储 adapter、更多关键写操作审计接入等能力才接近商业级。
+- v0.9.0-alpha 已整体收口，长篇共创形成 alpha 产品闭环；v0.9.1 provider/cost、v0.9.2 MasterSetting Lite、v0.9.3 Graph Memory Evaluation、v0.9.4 Advanced Runner Evaluation、v1.0-beta Scope-A、Schema-B、Matrix-C、Copyright-D、Quota-E、Deploy-F、Cloud-G、Account-H、Audit-I、Retention-J、Copyright Audit Hook-K、MasterSetting Audit Hook-L、Worldline Selection Audit Hook-M 与 State Execution Audit Hook-N 已整体收口，但仍需继续拆分真实认证、对象存储 adapter、更多关键写操作审计接入等能力才接近商业级。
 
 ## 4. 后续排期原则
 

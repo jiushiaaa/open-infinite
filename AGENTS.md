@@ -122,7 +122,8 @@
 - v1.0-beta Copyright Audit Hook-K 已收口。
 - v1.0-beta MasterSetting Audit Hook-L 已收口。
 - v1.0-beta Worldline Selection Audit Hook-M 已收口。
-- 当前后端验证基线：`682 passed`。
+- v1.0-beta State Execution Audit Hook-N 已收口。
+- 当前后端验证基线：`683 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
 - 官方下一刀：v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统。
 - 后续排期：`v1.0-beta` 本地优先商业化加固，真实外部用户前不默认做云端多租户/计费系统。
@@ -175,6 +176,7 @@
 - `v1.0-beta Copyright Audit Hook-K` 已让 `write_project_copyright_statement()` 成功保存后追加 `rights_reviewed` 审计事件；不接真实账号或云端不可篡改审计存储，归档见 `docs/completed/v1.0-beta-copyright-audit-hook-k.md`。
 - `v1.0-beta MasterSetting Audit Hook-L` 已让 `update_master_setting()` 成功保存后追加 `master_setting_updated` 审计事件；不接真实账号或云端不可篡改审计存储，归档见 `docs/completed/v1.0-beta-master-setting-audit-hook-l.md`。
 - `v1.0-beta Worldline Selection Audit Hook-M` 已让 `select_worldline()` 成功保存后追加 `worldline_selected` 审计事件；builtin 样例选择保持原有 outputs 记录语义，归档见 `docs/completed/v1.0-beta-worldline-selection-audit-hook-m.md`。
+- `v1.0-beta State Execution Audit Hook-N` 已让状态 overlay apply/rollback 成功后追加 `state_execution_applied` / `state_execution_rolled_back` 审计事件；不改变 overlay 执行规则，归档见 `docs/completed/v1.0-beta-state-execution-audit-hook-n.md`。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。后续商业化加固需要先拆成小刀再实现。
 

@@ -89,7 +89,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略和关键写操作审计钩子 |
 
-**测试基线**：`pytest -q` → **682 passed**（2026-06-01，v1.0-beta Worldline Selection Audit Hook-M 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **683 passed**（2026-06-01，v1.0-beta State Execution Audit Hook-N 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -523,7 +523,7 @@ copy .env.example .env
 
 - `POST /api/stories/<slug>/audit-log/events`
 - 写入固定为 `memory/project_audit_log.jsonl`，采用追加 JSONL，不覆盖既有 artifact。
-- 只允许白名单动作：`manual_note`、`master_setting_updated`、`rights_reviewed`、`retention_policy_reviewed`、`project_space_reviewed`、`audit_reviewed`、`worldline_selected`。
+- 只允许白名单动作：`manual_note`、`master_setting_updated`、`rights_reviewed`、`retention_policy_reviewed`、`project_space_reviewed`、`audit_reviewed`、`worldline_selected`、`state_execution_applied`、`state_execution_rolled_back`。
 - 坏 payload 返回 400，缺项目返回 404，内置样例只读返回 409。
 - `metadata` 会丢弃疑似密钥字段或密钥值，并在响应 `warnings` 中说明。
 - `GET /api/stories/<slug>/audit-log` 继续聚合追加后的 JSONL 行；权限矩阵草案同步标记审计日志为 `read + append`，但仍不执行真实认证。
@@ -570,6 +570,18 @@ copy .env.example .env
 - `GET /api/stories/<slug>/audit-log` 会继续聚合该事件。
 - 内置样例仍保持既有 `outputs/story_selections/` 记录语义，审计日志追加冲突会降级跳过。
 - 当前不接真实账号、团队空间、认证 provider、云端不可篡改审计存储、对象存储、数据库或队列。
+
+### v1.0-beta State Execution Audit Hook-N（已收口）
+
+本版本已把状态执行 overlay apply/rollback 写操作接入本地项目审计日志：
+
+- `apply_runner_state_execution()` 在成功写入 `state_execution_overlay.json` 与 `runner_state_execution_apply_report.json` 后追加 `state_execution_applied` 审计事件。
+- `rollback_runner_state_execution()` 在成功写入 `runner_state_execution_rollback_report.json` 后追加 `state_execution_rolled_back` 审计事件。
+- 审计事件写入导入项目的 `memory/project_audit_log.jsonl`，并带上 `artifact_path`、`run_id` 与状态执行计数。
+- 审计追加白名单新增 `state_execution_applied` 与 `state_execution_rolled_back`。
+- `GET /api/stories/<slug>/audit-log` 会继续聚合这些事件。
+- 内置样例保持既有状态执行语义，审计日志追加冲突会降级跳过。
+- 当前不改变状态执行候选筛选、overlay 写入/回滚规则或 `run_scene` 默认行为；不接真实账号、团队空间、认证 provider、云端不可篡改审计存储、对象存储、数据库或队列。
 
 ## 快速演示
 

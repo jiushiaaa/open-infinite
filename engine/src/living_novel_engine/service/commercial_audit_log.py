@@ -28,6 +28,8 @@ _APPEND_ACTIONS = {
     "project_space_reviewed",
     "audit_reviewed",
     "worldline_selected",
+    "state_execution_applied",
+    "state_execution_rolled_back",
 }
 _APPEND_SEVERITIES = {"info", "warning", "action_required"}
 _ACTOR_TYPES = {"user", "system"}
@@ -249,6 +251,8 @@ def _schema() -> dict[str, Any]:
         "known_actions": [
             "import_review_generated",
             "worldline_selected",
+            "state_execution_applied",
+            "state_execution_rolled_back",
             "master_setting_updated",
             "creation_loop_closed",
             "manual_note",

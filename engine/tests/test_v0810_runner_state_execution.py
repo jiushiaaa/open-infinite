@@ -16,7 +16,9 @@ from living_novel_engine.browser import indexer, server
 from living_novel_engine.service import (
     apply_runner_state_execution,
     evaluate_runner_state_execution,
+    get_project_audit_log,
     get_runner_state_execution_report,
+    import_novel_from_payload,
     rollback_runner_state_execution,
     run_intervention,
 )
@@ -36,6 +38,38 @@ def _run_basic_intervention(tmp_path, monkeypatch, content: str):
         rounds=1,
     )
     return outputs, result
+
+
+def _run_imported_intervention(tmp_path, monkeypatch, content: str):
+    projects = tmp_path / "projects"
+    outputs = tmp_path / "outputs"
+    projects.mkdir()
+    outputs.mkdir()
+    monkeypatch.setenv("LNE_PROJECTS_DIR", str(projects))
+    monkeypatch.setenv("LNE_OUTPUTS_DIR", str(outputs))
+    monkeypatch.setenv("LLM_API_KEY", "")
+    monkeypatch.setenv("SEEDREAM_API_KEY", "")
+    import_novel_from_payload(
+        name="state-audit",
+        chapters=[
+            {
+                "filename": f"chapter_{i:03d}.md",
+                "content": f"第{i}章 风鸣铃疑云\n赵轩在归云斋追查风鸣铃线索，第 {i} 次记录角色动机。",
+            }
+            for i in range(1, 7)
+        ],
+        mock=True,
+        long_mode=True,
+        projects_dir=projects,
+    )
+    result = run_intervention(
+        story_slug="state-audit",
+        target="zhao_xuan",
+        content=content,
+        mock=True,
+        rounds=1,
+    )
+    return projects, outputs, result
 
 
 def test_state_execution_spike_writes_dry_run_report_without_mutating_snapshots(
@@ -292,6 +326,37 @@ def test_state_execution_mvp_rollback_removes_overlay_without_mutating_snapshot(
     assert before == after
     assert not (outputs / result.run_id / "branch_a" / "state_execution_overlay.json").exists()
     assert (outputs / result.run_id / "runner_state_execution_rollback_report.json").exists()
+
+
+def test_state_execution_mvp_appends_project_audit_events(tmp_path, monkeypatch):
+    projects, outputs, result = _run_imported_intervention(
+        tmp_path,
+        monkeypatch,
+        "让赵轩提前核对风鸣铃线索，并把可疑地点记入册页",
+    )
+    evaluate_runner_state_execution(result.run_id, outputs_dir=outputs)
+
+    apply_runner_state_execution(result.run_id, confirm=True, outputs_dir=outputs)
+    audit = get_project_audit_log("state-audit", projects_dir=projects)
+    applied = next(
+        event
+        for event in audit["events"]
+        if event["action"] == "state_execution_applied"
+        and event["artifact"] == "memory/project_audit_log.jsonl"
+    )
+    assert applied["metadata"]["run_id"] == result.run_id
+    assert applied["metadata"]["applied_count"] >= 1
+
+    rollback_runner_state_execution(result.run_id, confirm=True, outputs_dir=outputs)
+    audit = get_project_audit_log("state-audit", projects_dir=projects)
+    rolled_back = next(
+        event
+        for event in audit["events"]
+        if event["action"] == "state_execution_rolled_back"
+        and event["artifact"] == "memory/project_audit_log.jsonl"
+    )
+    assert rolled_back["metadata"]["run_id"] == result.run_id
+    assert rolled_back["metadata"]["removed_overlay_count"] >= 1
 
 
 def test_state_execution_mvp_http_apply_rollback_and_status_codes(

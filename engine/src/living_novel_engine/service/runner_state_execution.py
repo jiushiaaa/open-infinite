@@ -16,6 +16,12 @@ from typing import Any
 
 import yaml
 
+from living_novel_engine.service.commercial_audit_log import (
+    ProjectAuditLogConflictError,
+    ProjectAuditLogRequestError,
+    append_project_audit_log_event,
+)
+
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _REPORT_NAME = "runner_state_execution_report.json"
 _APPLY_REPORT_NAME = "runner_state_execution_apply_report.json"
@@ -54,6 +60,15 @@ def _outputs_root(outputs_dir: Path | None) -> Path:
     from living_novel_engine.browser.paths import outputs_dir as default_outputs_dir
 
     return default_outputs_dir()
+
+
+def _append_state_execution_audit(story_slug: str, payload: dict[str, Any]) -> None:
+    if not story_slug:
+        return
+    try:
+        append_project_audit_log_event(story_slug, payload)
+    except (ProjectAuditLogConflictError, ProjectAuditLogRequestError, FileNotFoundError):
+        return
 
 
 def _read_json(path: Path, label: str) -> dict[str, Any]:
@@ -520,6 +535,22 @@ def apply_runner_state_execution(
         json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+    _append_state_execution_audit(
+        str(payload.get("story_slug") or ""),
+        {
+            "action": "state_execution_applied",
+            "label": "应用状态执行覆盖",
+            "summary": "已将低风险状态候选写入可回滚覆盖层。",
+            "actor_type": "user",
+            "severity": "info",
+            "metadata": {
+                "artifact_path": _APPLY_REPORT_NAME,
+                "run_id": rid,
+                "applied_count": applied_count,
+                "overlay_count": len(overlays),
+            },
+        },
+    )
     return payload
 
 
@@ -574,5 +605,20 @@ def rollback_runner_state_execution(
     (run_dir / _ROLLBACK_REPORT_NAME).write_text(
         json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
+    )
+    _append_state_execution_audit(
+        str(apply_report.get("story_slug") or ""),
+        {
+            "action": "state_execution_rolled_back",
+            "label": "回滚状态执行覆盖",
+            "summary": "已移除状态执行覆盖层。",
+            "actor_type": "user",
+            "severity": "info",
+            "metadata": {
+                "artifact_path": _ROLLBACK_REPORT_NAME,
+                "run_id": rid,
+                "removed_overlay_count": len(removed),
+            },
+        },
     )
     return payload
