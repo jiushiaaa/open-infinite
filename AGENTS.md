@@ -10,7 +10,7 @@
 
 ## 会话开始必读
 
-只要任务与 未终章、`engine/`、版本路线、产品 UI、API、测试或文档有关，开始动手前先阅读并对齐：
+只要任务与未终章、`engine/`、版本路线、产品 UI、API、测试或文档有关，开始动手前先阅读并对齐：
 
 - `memory.md`
 - `docs/living-novel-engine-iteration-plan.md`
