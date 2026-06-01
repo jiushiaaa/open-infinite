@@ -5,6 +5,7 @@ import type {
   CommercialStatusOverview,
   DeploymentObservabilityChecklist,
   LocalSmokeChecklist,
+  ObjectStorageBoundaryChecklist,
   ReleasePreflightChecklist,
   ProviderGatewaySummary,
   ProviderUsageSummary,
@@ -96,6 +97,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const preflightState = useAsync(() => api.getReleasePreflight(), []);
   const deploymentObsState = useAsync(() => api.getDeploymentObservability(), []);
   const authBoundaryState = useAsync(() => api.getAuthBoundary(), []);
+  const objectStorageState = useAsync(() => api.getObjectStorageBoundary(), []);
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
@@ -134,6 +136,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       commercialState.reload();
       deploymentObsState.reload();
       authBoundaryState.reload();
+      objectStorageState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -152,6 +155,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       commercialState.reload();
       deploymentObsState.reload();
       authBoundaryState.reload();
+      objectStorageState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -282,6 +286,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         loading={authBoundaryState.loading}
         error={authBoundaryState.error}
         onRetry={authBoundaryState.reload}
+      />
+
+      <ObjectStorageBoundaryPanel
+        data={objectStorageState.data}
+        loading={objectStorageState.loading}
+        error={objectStorageState.error}
+        onRetry={objectStorageState.reload}
       />
 
       <section className="settings__group">
@@ -735,6 +746,72 @@ function AuthBoundaryPanel({
                 </div>
                 <span className={`badge tiny ${commercialBadgeClass(checkpoint.status)}`}>
                   {checkpoint.status_label}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+          {data.warnings.slice(0, 1).map((warning) => (
+            <p className="settings__note tiny muted" key={warning}>
+              {warning}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function ObjectStorageBoundaryPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: ObjectStorageBoundaryChecklist | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">对象存储边界</h3>
+      {loading && <p className="settings__note tiny muted">正在读取对象存储边界…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">已具备</span>
+              <strong>
+                {data.summary.ready_count} / {data.summary.check_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">远端写入</span>
+              <strong>{data.summary.remote_writes_enabled ? "已启用" : "未启用"}</strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.checks.slice(0, 6).map((check) => (
+              <div className="settings__status-row" key={check.id}>
+                <div>
+                  <strong>{check.label}</strong>
+                  <span className="muted tiny">{check.evidence}</span>
+                </div>
+                <span className={`badge tiny ${commercialBadgeClass(check.status)}`}>
+                  {check.status_label}
                 </span>
               </div>
             ))}

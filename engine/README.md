@@ -81,6 +81,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Rights-S | Rights Approval Checklist：项目版权审批准备度清单 | 已收口，见 `../docs/completed/v1.0-beta-rights-approval-checklist-s.md` |
 | v1.0-beta Observe-T | Deployment Observability Checklist：部署观测只读清单 | 已收口，见 `../docs/completed/v1.0-beta-deployment-observability-checklist-t.md` |
 | v1.0-beta Auth-U | Auth Boundary Checklist：认证边界只读清单 | 已收口，见 `../docs/completed/v1.0-beta-auth-boundary-checklist-u.md` |
+| v1.0-beta ObjectStorage-V | Object Storage Boundary Checklist：对象存储边界只读清单 | 已收口，见 `../docs/completed/v1.0-beta-object-storage-boundary-checklist-v.md` |
 
 ### 产品化阶段说明
 
@@ -95,9 +96,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、发布前检查、版权审批准备度和部署观测清单 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、发布前检查、版权审批准备度、部署观测清单、认证边界和对象存储边界 |
 
-**测试基线**：`pytest -q` → **702 passed**（2026-06-01，v1.0-beta Auth Boundary Checklist-U 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **704 passed**（2026-06-01，v1.0-beta Object Storage Boundary Checklist-V 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -659,6 +660,15 @@ copy .env.example .env
 - 清单聚合账号/项目空间边界、权限矩阵草案、请求级 ACL 缺口、项目空间映射和部署观测边界。
 - 设置抽屉新增「认证边界清单」只读区，展示已具备/需留意数量、认证执行状态、检查项和下一步。
 - 当前只读定义认证接入边界，不创建用户、不接登录 provider、不执行 ACL、不写 artifact、不打外网、不接云端多租户或计费；不改变 `run_scene`。
+
+### v1.0-beta Object Storage Boundary Checklist-V（已收口）
+
+本版本已把对象存储 adapter 前置边界放进设置页：
+
+- `GET /api/settings/object-storage-boundary` 返回 `version=v1.0-beta-object-storage-boundary-checklist-v`、`summary`、`checks`、`warnings` 与 `next_steps`。
+- 清单聚合本地 artifact 盘点、资源映射、原文/holdout 私有隔离、项目保留策略输入、身份绑定和本地部署护栏。
+- 设置抽屉新增「对象存储边界」只读区，展示已具备/需留意数量、远端写入状态、前 6 条检查项和下一步。
+- 当前只读定义对象存储 adapter 前置边界，不创建 bucket、不生成签名 URL、不上传文件、不写 artifact、不打外网、不接真实对象存储、数据库、持久队列或计费；不改变 `run_scene`。
 
 ## 快速演示
 

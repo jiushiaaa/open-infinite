@@ -1003,6 +1003,33 @@ export interface AuthBoundaryChecklist {
   next_steps: string[];
 }
 
+export interface ObjectStorageBoundaryCheck {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | string;
+  status_label: string;
+  evidence: string;
+  source_endpoint: string;
+  next_step: string;
+}
+
+export interface ObjectStorageBoundaryChecklist {
+  version: string;
+  mode: string;
+  status: "ready" | "attention" | string;
+  summary: {
+    check_count: number;
+    ready_count: number;
+    attention_count: number;
+    adapter_implemented: boolean;
+    remote_writes_enabled: boolean;
+    external_services_required: boolean;
+  };
+  checks: ObjectStorageBoundaryCheck[];
+  warnings: string[];
+  next_steps: string[];
+}
+
 // ── v0.7.3 视觉资产 ───────────────────────────────────────
 
 export type AssetStatus = "ready" | "failed" | "placeholder";

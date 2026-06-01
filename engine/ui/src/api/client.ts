@@ -32,6 +32,7 @@ import type {
   MasterSettingUpdateResponse,
   DeploymentObservabilityChecklist,
   LocalSmokeChecklist,
+  ObjectStorageBoundaryChecklist,
   ReleasePreflightChecklist,
   RightsApprovalChecklist,
   ProviderGatewaySummary,
@@ -247,6 +248,9 @@ export const api = {
   },
   getAuthBoundary(): Promise<AuthBoundaryChecklist> {
     return getJson("/api/settings/auth-boundary");
+  },
+  getObjectStorageBoundary(): Promise<ObjectStorageBoundaryChecklist> {
+    return getJson("/api/settings/object-storage-boundary");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);

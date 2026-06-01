@@ -89,6 +89,7 @@ from .quota_observability import (
     QuotaObservabilityRequestError,
     get_quota_observability_lite,
 )
+from .object_storage_boundary import get_object_storage_boundary_checklist
 from .release_preflight import (
     ReleasePreflightRequestError,
     get_release_preflight_checklist,
@@ -223,6 +224,7 @@ __all__ = [
     "write_project_retention_policy",
     "QuotaObservabilityRequestError",
     "get_quota_observability_lite",
+    "get_object_storage_boundary_checklist",
     "ReleasePreflightRequestError",
     "get_release_preflight_checklist",
     "RightsApprovalRequestError",
