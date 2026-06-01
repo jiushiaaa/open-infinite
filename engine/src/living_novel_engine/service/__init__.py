@@ -84,6 +84,10 @@ from .quota_observability import (
     QuotaObservabilityRequestError,
     get_quota_observability_lite,
 )
+from .release_preflight import (
+    ReleasePreflightRequestError,
+    get_release_preflight_checklist,
+)
 from .retrieval_probe import evaluate_retrieval_probes
 from .runtime_settings import (
     RuntimeSettings,
@@ -207,6 +211,8 @@ __all__ = [
     "write_project_retention_policy",
     "QuotaObservabilityRequestError",
     "get_quota_observability_lite",
+    "ReleasePreflightRequestError",
+    "get_release_preflight_checklist",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
     "HoldoutRequestError",

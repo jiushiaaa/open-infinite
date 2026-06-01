@@ -3,6 +3,7 @@ import type {
   ConnectivityResult,
   CommercialStatusOverview,
   LocalSmokeChecklist,
+  ReleasePreflightChecklist,
   ProviderGatewaySummary,
   ProviderUsageSummary,
   RuntimeSettings,
@@ -90,6 +91,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   );
   const commercialState = useAsync(() => api.getCommercialStatusOverview(), []);
   const smokeState = useAsync(() => api.getLocalSmokeChecklist(), []);
+  const preflightState = useAsync(() => api.getReleasePreflight(), []);
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
@@ -251,6 +253,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         loading={smokeState.loading}
         error={smokeState.error}
         onRetry={smokeState.reload}
+      />
+
+      <ReleasePreflightPanel
+        data={preflightState.data}
+        loading={preflightState.loading}
+        error={preflightState.error}
+        onRetry={preflightState.reload}
       />
 
       <section className="settings__group">
@@ -511,6 +520,72 @@ function CommercialStatusPanel({
             ))}
           </div>
           {data.next_steps.slice(0, 2).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+          {data.warnings.slice(0, 1).map((warning) => (
+            <p className="settings__note tiny muted" key={warning}>
+              {warning}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function ReleasePreflightPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: ReleasePreflightChecklist | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">发布前检查</h3>
+      {loading && <p className="settings__note tiny muted">正在读取发布前检查…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">已具备</span>
+              <strong>
+                {data.summary.ready_count} / {data.summary.checkpoint_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">需留意</span>
+              <strong>{data.summary.attention_count}</strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.checkpoints.slice(0, 6).map((checkpoint) => (
+              <div className="settings__status-row" key={checkpoint.id}>
+                <div>
+                  <strong>{checkpoint.label}</strong>
+                  <span className="muted tiny">{checkpoint.evidence}</span>
+                </div>
+                <span className={`badge tiny ${commercialBadgeClass(checkpoint.status)}`}>
+                  {checkpoint.status_label}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.next_steps.slice(0, 1).map((step) => (
             <p className="settings__note tiny muted" key={step}>
               {step}
             </p>

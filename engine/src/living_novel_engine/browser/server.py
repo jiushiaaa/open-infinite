@@ -273,6 +273,30 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     )
                 )
 
+            if path == "/api/settings/release-preflight":
+                from living_novel_engine.service import (
+                    ReleasePreflightRequestError,
+                    get_release_preflight_checklist,
+                )
+
+                story_raw = _first_qs(qs, "story_slug")
+                story = safe_id(story_raw) if story_raw else None
+                if story_raw and story is None:
+                    return self._send_json({"error": "invalid story_slug"}, status=400)
+                host, port = self.server.server_address[:2]
+                try:
+                    return self._send_json(
+                        get_release_preflight_checklist(
+                            story_slug=story,
+                            api_host=str(host),
+                            api_port=int(port),
+                        )
+                    )
+                except ReleasePreflightRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
             if path == "/api/settings/cloud-persistence-boundary":
                 from living_novel_engine.service import get_cloud_persistence_boundary
 

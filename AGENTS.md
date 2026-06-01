@@ -126,7 +126,8 @@
 - v1.0-beta Commercial Status Overview-O 已收口。
 - v1.0-beta Audit Log UI & Export-P 已收口。
 - v1.0-beta Settings Local Smoke Checklist-Q 已收口。
-- 当前后端验证基线：`690 passed`。
+- v1.0-beta Release Preflight Checklist-R 已收口。
+- 当前后端验证基线：`693 passed`。
 - 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
 - 官方下一刀：v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统。
 - 后续排期：`v1.0-beta` 本地优先商业化加固，真实外部用户前不默认做云端多租户/计费系统。
@@ -183,6 +184,7 @@
 - `v1.0-beta Commercial Status Overview-O` 已新增 `GET /api/settings/commercial-status-overview`，设置抽屉只读展示商业化状态总览；不接真实认证、云端迁移、对象存储或计费系统，归档见 `docs/completed/v1.0-beta-commercial-status-overview-o.md`。
 - `v1.0-beta Audit Log UI & Export-P` 已新增 `GET /api/stories/<slug>/audit-log/export`，项目工作台只读展示本地审计时间线并支持 Markdown 导出；导出不包含 metadata 明文、不代表不可篡改审计证明，归档见 `docs/completed/v1.0-beta-audit-log-ui-export-p.md`。
 - `v1.0-beta Settings Local Smoke Checklist-Q` 已新增 `GET /api/settings/local-smoke-checklist`，设置抽屉只读展示本地后端、设置页、项目工作台与审计导出的冒烟路径；不执行请求、不打外网、不接真实部署系统，归档见 `docs/completed/v1.0-beta-settings-local-smoke-checklist-q.md`。
+- `v1.0-beta Release Preflight Checklist-R` 已新增 `GET /api/settings/release-preflight`，设置抽屉只读展示发布前检查，聚合本地部署、冒烟、商业状态、权限草案、版权/保留/审计入口；不执行真实发布、不打外网、不接云端部署系统，归档见 `docs/completed/v1.0-beta-release-preflight-checklist-r.md`。
 - 仍未做云端多用户持久队列、对象存储、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
 - v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。后续商业化加固需要先拆成小刀再实现。
 

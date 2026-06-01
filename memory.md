@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P 与 v1.0-beta Settings Local Smoke Checklist-Q 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、对象存储、真实认证或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 690 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q 与 v1.0-beta Release Preflight Checklist-R 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、对象存储、真实认证或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 693 passed，前端 build 通过）
 
 ---
 
@@ -102,7 +102,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `690 passed`（2026-06-01，v1.0-beta Settings Local Smoke Checklist-Q 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **测试基线** | 后端 `693 passed`（2026-06-01，v1.0-beta Release Preflight Checklist-R 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
 | **官方下一刀** | v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统 |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强已收口 → v1.0-beta Commercial Hardening 本地优先加固 |
 | **刚收口** | v1.0-beta Settings Local Smoke Checklist-Q：设置抽屉只读展示本地冒烟清单。 |
@@ -143,6 +143,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v1.0-beta CommercialStatus-O | Commercial Status Overview | 设置页商业化状态总览 | 已收口，见 `docs/completed/v1.0-beta-commercial-status-overview-o.md` |
 | v1.0-beta AuditLogUI-P | Audit Log UI & Export | 审计日志展示与导出 | 已收口，见 `docs/completed/v1.0-beta-audit-log-ui-export-p.md` |
 | v1.0-beta SettingsSmoke-Q | Settings Local Smoke Checklist | 设置页本地冒烟清单 | 已收口，见 `docs/completed/v1.0-beta-settings-local-smoke-checklist-q.md` |
+| v1.0-beta ReleasePreflight-R | Release Preflight Checklist | 发布前只读检查清单 | 已收口，见 `docs/completed/v1.0-beta-release-preflight-checklist-r.md` |
 
 ## 3.2 阶段性质归类
 
@@ -1971,4 +1972,16 @@ lne list-genres
   - 新增 `docs/completed/v1.0-beta-settings-local-smoke-checklist-q.md`，归档 UI/API、边界和验证。
 - **测试/验证**：先写红灯测试确认缺少 `get_settings_local_smoke_checklist`，补实现后 focused 为 **2 passed**；设置/商业化相邻回归为 **33 passed**；前端 `pnpm run build` 通过；完整门禁为后端 **690 passed**，`git diff --check` 通过。
 - **边界**：不接真实部署、认证、对象存储、云端观测或计费；不改变 `run_scene`。
-- **下一刀建议**：继续 v1.0-beta 本地优先商业化加固，可继续拆版权审批、部署观测或最小发布前检查；不要直接进入云端多租户、对象存储或商业计费系统。
+- **下一刀建议**：Release Preflight Checklist-R 已收口；后续继续 v1.0-beta 本地优先商业化加固，可继续拆版权审批或部署观测；不要直接进入云端多租户、对象存储或商业计费系统。
+
+### 2026-06-01 — v1.0-beta Release Preflight Checklist-R
+
+- **做了什么**：
+  - 新增 `get_release_preflight_checklist()` 与 `GET /api/settings/release-preflight`。
+  - 设置抽屉新增「发布前检查」只读区，展示已具备/需留意数量和前 6 条检查项。
+  - 清单聚合本地部署就绪、本地冒烟、商业化状态总览、权限矩阵草案，以及项目级版权声明、保留策略和审计导出入口。
+  - 未传 `story_slug` 时，项目级项降级为“选择具体项目后核对”；非法 `story_slug` 返回 400。
+  - 新增 `docs/completed/v1.0-beta-release-preflight-checklist-r.md`，归档 UI/API、边界和验证。
+- **测试/验证**：先写红灯测试确认缺少 `get_release_preflight_checklist`，补实现后 focused 为 **3 passed**；设置/商业化相邻回归为 **29 passed**；前端 `pnpm run build` 通过；完整门禁为后端 **693 passed**，`git diff --check` 通过。
+- **边界**：不执行真实发布、不主动打请求、不写 artifact、不打外网、不读取或展示明文密钥；不接真实认证、对象存储、云端观测、不可篡改审计或计费；不改变 `run_scene`。
+- **下一刀建议**：继续 v1.0-beta 本地优先商业化加固，可继续拆版权审批或部署观测；不要直接进入云端多租户、对象存储或商业计费系统。

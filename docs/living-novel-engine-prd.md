@@ -6,7 +6,7 @@
 | --- | --- |
 | 产品名称 | Living Novel Engine |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P 与 v1.0-beta Settings Local Smoke Checklist-Q 已整体收口；后续 v1.0-beta 商业化加固需继续拆分 |
+| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q 与 v1.0-beta Release Preflight Checklist-R 已整体收口；后续 v1.0-beta 商业化加固需继续拆分 |
 | 阶段 | MVP 可交互产品原型 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -1002,6 +1002,7 @@ v0.9 不再定义成“重依赖商业化增强”的大包。v0.9 先服务长�
 | v1.0-beta Status-O | Commercial Status Overview | 设置页商业化状态总览 | 已收口；只读展示本地商业化状态，不执行认证/云端/计费 |
 | v1.0-beta Audit UI-P | Audit Log UI & Export | 项目工作台审计时间线展示与 Markdown 导出 | 已收口；导出不含事件 metadata，不代表不可篡改审计证明 |
 | v1.0-beta Smoke-Q | Settings Local Smoke Checklist | 设置页本地冒烟清单 | 已收口；只生成 checklist，不主动打请求、不接真实部署系统 |
+| v1.0-beta Preflight-R | Release Preflight Checklist | 发布前只读检查清单 | 已收口；只读聚合本地证据，不执行真实发布、不接云端部署系统 |
 
 明确不作为当前排期默认项：
 

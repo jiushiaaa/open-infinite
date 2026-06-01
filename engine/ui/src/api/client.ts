@@ -30,6 +30,7 @@ import type {
   MasterSettingPatch,
   MasterSettingUpdateResponse,
   LocalSmokeChecklist,
+  ReleasePreflightChecklist,
   ProviderGatewaySummary,
   ProviderUsageSummary,
   CommercialStatusOverview,
@@ -229,6 +230,9 @@ export const api = {
   },
   getLocalSmokeChecklist(): Promise<LocalSmokeChecklist> {
     return getJson("/api/settings/local-smoke-checklist");
+  },
+  getReleasePreflight(): Promise<ReleasePreflightChecklist> {
+    return getJson("/api/settings/release-preflight");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);

@@ -77,6 +77,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Status-O | Commercial Status Overview：设置页商业化状态总览 | 已收口，见 `../docs/completed/v1.0-beta-commercial-status-overview-o.md` |
 | v1.0-beta Audit UI-P | Audit Log UI & Export：项目审计日志展示与 Markdown 导出 | 已收口，见 `../docs/completed/v1.0-beta-audit-log-ui-export-p.md` |
 | v1.0-beta Smoke-Q | Settings Local Smoke Checklist：设置页本地冒烟清单 | 已收口，见 `../docs/completed/v1.0-beta-settings-local-smoke-checklist-q.md` |
+| v1.0-beta Preflight-R | Release Preflight Checklist：发布前只读检查清单 | 已收口，见 `../docs/completed/v1.0-beta-release-preflight-checklist-r.md` |
 
 ### 产品化阶段说明
 
@@ -91,9 +92,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略和关键写操作审计钩子 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子和发布前检查 |
 
-**测试基线**：`pytest -q` → **690 passed**（2026-06-01，v1.0-beta Settings Local Smoke Checklist-Q 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **693 passed**（2026-06-01，v1.0-beta Release Preflight Checklist-R 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -616,6 +617,16 @@ copy .env.example .env
 - 设置抽屉新增「本地冒烟清单」只读区，展示待核对路径数、外部服务需求、前 6 条路径和运行步骤。
 - 该接口只生成 checklist，不主动执行 HTTP 请求、不绑定端口、不落盘、不打外网、不读取或展示明文密钥。
 - 当前不接真实部署、认证、对象存储、云端观测或计费；不改变 `run_scene`。
+
+### v1.0-beta Release Preflight Checklist-R（已收口）
+
+本版本已把发布前最小核对项放进设置页：
+
+- `GET /api/settings/release-preflight` 返回 `version=v1.0-beta-release-preflight-checklist-r`、`summary`、`checkpoints`、`warnings` 与 `next_steps`。
+- 检查清单聚合本地部署就绪、本地冒烟、商业化状态总览、权限矩阵草案，以及项目级版权声明、保留策略和审计导出入口。
+- 设置抽屉新增「发布前检查」只读区，展示已具备/需留意数量和前 6 条检查项。
+- 该接口只读聚合本地证据，不执行真实发布、不主动打请求、不写 artifact、不读取或展示明文密钥。
+- 当前不接真实认证、对象存储、云端观测或计费；不改变 `run_scene`。
 
 ## 快速演示
 
