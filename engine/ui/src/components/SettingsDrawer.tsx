@@ -2,6 +2,7 @@ import { useState } from "react";
 import type {
   ConnectivityResult,
   CommercialStatusOverview,
+  DeploymentObservabilityChecklist,
   LocalSmokeChecklist,
   ReleasePreflightChecklist,
   ProviderGatewaySummary,
@@ -92,6 +93,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const commercialState = useAsync(() => api.getCommercialStatusOverview(), []);
   const smokeState = useAsync(() => api.getLocalSmokeChecklist(), []);
   const preflightState = useAsync(() => api.getReleasePreflight(), []);
+  const deploymentObsState = useAsync(() => api.getDeploymentObservability(), []);
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
@@ -128,6 +130,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       setSavedMsg("设置已保存（仅本机生效）");
       providerState.reload();
       commercialState.reload();
+      deploymentObsState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -144,6 +147,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       setSavedMsg("已清除密钥");
       providerState.reload();
       commercialState.reload();
+      deploymentObsState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -260,6 +264,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         loading={preflightState.loading}
         error={preflightState.error}
         onRetry={preflightState.reload}
+      />
+
+      <DeploymentObservabilityPanel
+        data={deploymentObsState.data}
+        loading={deploymentObsState.loading}
+        error={deploymentObsState.error}
+        onRetry={deploymentObsState.reload}
       />
 
       <section className="settings__group">
@@ -581,6 +592,72 @@ function ReleasePreflightPanel({
                 </div>
                 <span className={`badge tiny ${commercialBadgeClass(checkpoint.status)}`}>
                   {checkpoint.status_label}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+          {data.warnings.slice(0, 1).map((warning) => (
+            <p className="settings__note tiny muted" key={warning}>
+              {warning}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function DeploymentObservabilityPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: DeploymentObservabilityChecklist | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">部署观测清单</h3>
+      {loading && <p className="settings__note tiny muted">正在读取部署观测清单…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">已具备</span>
+              <strong>
+                {data.summary.ready_count} / {data.summary.signal_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">云端观测</span>
+              <strong>{data.summary.cloud_monitoring_enabled ? "已接入" : "未接入"}</strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.signals.slice(0, 6).map((signal) => (
+              <div className="settings__status-row" key={signal.id}>
+                <div>
+                  <strong>{signal.label}</strong>
+                  <span className="muted tiny">{signal.evidence}</span>
+                </div>
+                <span className={`badge tiny ${commercialBadgeClass(signal.status)}`}>
+                  {signal.status_label}
                 </span>
               </div>
             ))}

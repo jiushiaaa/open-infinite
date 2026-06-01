@@ -58,6 +58,10 @@ from .deployment_readiness import (
     get_local_deployment_readiness,
     get_settings_local_smoke_checklist,
 )
+from .deployment_observability import (
+    DeploymentObservabilityRequestError,
+    get_deployment_observability_checklist,
+)
 from .diff_actions import (
     VALID_ACTIONS,
     DiffActionError,
@@ -209,6 +213,8 @@ __all__ = [
     "write_project_copyright_statement",
     "get_local_deployment_readiness",
     "get_settings_local_smoke_checklist",
+    "DeploymentObservabilityRequestError",
+    "get_deployment_observability_checklist",
     "ProjectRetentionPolicyConflictError",
     "ProjectRetentionPolicyRequestError",
     "get_project_retention_policy",

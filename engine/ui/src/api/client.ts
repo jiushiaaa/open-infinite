@@ -29,6 +29,7 @@ import type {
   JobSubmitResponse,
   MasterSettingPatch,
   MasterSettingUpdateResponse,
+  DeploymentObservabilityChecklist,
   LocalSmokeChecklist,
   ReleasePreflightChecklist,
   RightsApprovalChecklist,
@@ -239,6 +240,9 @@ export const api = {
   },
   getReleasePreflight(): Promise<ReleasePreflightChecklist> {
     return getJson("/api/settings/release-preflight");
+  },
+  getDeploymentObservability(): Promise<DeploymentObservabilityChecklist> {
+    return getJson("/api/settings/deployment-observability");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);
