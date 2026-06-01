@@ -90,6 +90,7 @@ from .quota_observability import (
     get_quota_observability_lite,
 )
 from .object_storage_boundary import get_object_storage_boundary_checklist
+from .quota_enforcement_boundary import get_quota_enforcement_boundary_checklist
 from .release_preflight import (
     ReleasePreflightRequestError,
     get_release_preflight_checklist,
@@ -225,6 +226,7 @@ __all__ = [
     "QuotaObservabilityRequestError",
     "get_quota_observability_lite",
     "get_object_storage_boundary_checklist",
+    "get_quota_enforcement_boundary_checklist",
     "ReleasePreflightRequestError",
     "get_release_preflight_checklist",
     "RightsApprovalRequestError",

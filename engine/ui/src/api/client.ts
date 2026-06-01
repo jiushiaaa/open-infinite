@@ -33,6 +33,7 @@ import type {
   DeploymentObservabilityChecklist,
   LocalSmokeChecklist,
   ObjectStorageBoundaryChecklist,
+  QuotaEnforcementBoundaryChecklist,
   ReleasePreflightChecklist,
   RightsApprovalChecklist,
   ProviderGatewaySummary,
@@ -251,6 +252,9 @@ export const api = {
   },
   getObjectStorageBoundary(): Promise<ObjectStorageBoundaryChecklist> {
     return getJson("/api/settings/object-storage-boundary");
+  },
+  getQuotaEnforcementBoundary(): Promise<QuotaEnforcementBoundaryChecklist> {
+    return getJson("/api/settings/quota-enforcement-boundary");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);

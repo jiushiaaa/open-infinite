@@ -6,6 +6,7 @@ import type {
   DeploymentObservabilityChecklist,
   LocalSmokeChecklist,
   ObjectStorageBoundaryChecklist,
+  QuotaEnforcementBoundaryChecklist,
   ReleasePreflightChecklist,
   ProviderGatewaySummary,
   ProviderUsageSummary,
@@ -98,6 +99,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const deploymentObsState = useAsync(() => api.getDeploymentObservability(), []);
   const authBoundaryState = useAsync(() => api.getAuthBoundary(), []);
   const objectStorageState = useAsync(() => api.getObjectStorageBoundary(), []);
+  const quotaEnforcementState = useAsync(() => api.getQuotaEnforcementBoundary(), []);
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
@@ -137,6 +139,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       deploymentObsState.reload();
       authBoundaryState.reload();
       objectStorageState.reload();
+      quotaEnforcementState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -156,6 +159,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
       deploymentObsState.reload();
       authBoundaryState.reload();
       objectStorageState.reload();
+      quotaEnforcementState.reload();
     } catch (err) {
       setSaveErr(err instanceof ApiError ? err.message : String(err));
     } finally {
@@ -293,6 +297,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         loading={objectStorageState.loading}
         error={objectStorageState.error}
         onRetry={objectStorageState.reload}
+      />
+
+      <QuotaEnforcementBoundaryPanel
+        data={quotaEnforcementState.data}
+        loading={quotaEnforcementState.loading}
+        error={quotaEnforcementState.error}
+        onRetry={quotaEnforcementState.reload}
       />
 
       <section className="settings__group">
@@ -801,6 +812,72 @@ function ObjectStorageBoundaryPanel({
             <div>
               <span className="muted tiny">远端写入</span>
               <strong>{data.summary.remote_writes_enabled ? "已启用" : "未启用"}</strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.checks.slice(0, 6).map((check) => (
+              <div className="settings__status-row" key={check.id}>
+                <div>
+                  <strong>{check.label}</strong>
+                  <span className="muted tiny">{check.evidence}</span>
+                </div>
+                <span className={`badge tiny ${commercialBadgeClass(check.status)}`}>
+                  {check.status_label}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+          {data.warnings.slice(0, 1).map((warning) => (
+            <p className="settings__note tiny muted" key={warning}>
+              {warning}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function QuotaEnforcementBoundaryPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: QuotaEnforcementBoundaryChecklist | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">配额执行边界</h3>
+      {loading && <p className="settings__note tiny muted">正在读取配额执行边界…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">已具备</span>
+              <strong>
+                {data.summary.ready_count} / {data.summary.check_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">硬配额</span>
+              <strong>{data.summary.hard_limits_enabled ? "已启用" : "未启用"}</strong>
             </div>
           </div>
           <div className="settings__status-list">

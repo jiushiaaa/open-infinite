@@ -1030,6 +1030,33 @@ export interface ObjectStorageBoundaryChecklist {
   next_steps: string[];
 }
 
+export interface QuotaEnforcementBoundaryCheck {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | string;
+  status_label: string;
+  evidence: string;
+  source_endpoint: string;
+  next_step: string;
+}
+
+export interface QuotaEnforcementBoundaryChecklist {
+  version: string;
+  mode: string;
+  status: "ready" | "attention" | string;
+  summary: {
+    check_count: number;
+    ready_count: number;
+    attention_count: number;
+    enforcement_enabled: boolean;
+    hard_limits_enabled: boolean;
+    external_billing_required: boolean;
+  };
+  checks: QuotaEnforcementBoundaryCheck[];
+  warnings: string[];
+  next_steps: string[];
+}
+
 // ── v0.7.3 视觉资产 ───────────────────────────────────────
 
 export type AssetStatus = "ready" | "failed" | "placeholder";
