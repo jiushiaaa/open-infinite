@@ -1,21 +1,22 @@
-# Living Novel Engine PRD
+# 未终章 PRD
 
 ## 1. 文档信息
 
 | 字段 | 内容 |
 | --- | --- |
-| 产品名称 | Living Novel Engine |
+| 产品名称 | 未终章 |
+| 英文名称 | Unfinale |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + Frontend Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已验收；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R、v1.0-beta Rights Approval Checklist-S、v1.0-beta Deployment Observability Checklist-T、v1.0-beta Auth Boundary Checklist-U、v1.0-beta Object Storage Boundary Checklist-V、v1.0-beta Quota Enforcement Boundary Checklist-W 与 v1.0-beta Billing Adapter Boundary Checklist-X 已整体收口；后续 v1.0-beta 商业化加固需继续拆分 |
-| 阶段 | MVP 可交互产品原型 |
+| 当前版本 | v0.7 短中篇产品化 MVP、v0.8 长篇底座与产品化工作台、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；最新事实以 `../memory.md` 为准 |
+| 阶段 | 本地优先 alpha/beta 试用准备；等待用户本地试用反馈 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
 
-v0.1-v0.8 已完成能力与未做项总览见 [`completed/v0.1-to-v0.8-version-audit.md`](./completed/v0.1-to-v0.8-version-audit.md)。
+v0.1-v0.8 历史审计快照见 [`completed/v0.1-to-v0.8-version-audit.md`](./completed/v0.1-to-v0.8-version-audit.md)；该文档已标注当时未做项的后续状态，不承担当前待办来源。
 
 产品化阶段归类见 [`productization-phase-map.md`](./productization-phase-map.md)。当前 PRD 中的 “MVP” 默认不是单一含义：v0.7-v0.7.5 指短中篇产品化 MVP 已成立；v0.8.0-A-v0.8.5-A 指长篇引擎底座 MVP 已成立；v0.8.6-v0.8.10 是把长篇底座产品化为普通用户工作流；v0.9.0-alpha 已整体收口为长篇共创 alpha 产品闭环，但仍不是商业级平台。
 
-2026-06-01 补充：当前已优先完成真实用户模型配置 UI 与本地一键运行脚本；商业化/计费继续实现暂停，Release 安装包和服务器在线体验进入后置发行路径。
+2026-06-01 补充：当前已优先完成真实用户模型配置 UI 与本地一键运行脚本；商业化/计费继续实现暂停，Release 安装包和服务器在线体验进入后置发行路径。完整历史变更见 [`project-changelog.md`](./project-changelog.md)。
 
 ## 2. 背景
 
@@ -31,11 +32,11 @@ v0.1-v0.8 已完成能力与未做项总览见 [`completed/v0.1-to-v0.8-version-
 
 ### 3.1 一句话定位
 
-不是读小说，而是进入一部正在活着的小说。
+不是读小说，而是进入一部仍未终结、可以继续分叉的故事世界。
 
 ### 3.2 产品定义
 
-Living Novel Engine 是一个 AI 驱动的活体小说引擎。它将用户导入的文本解析为可运行的故事世界，通过角色 Agent、多世界线状态、读者干预和叙事渲染，生成属于每个读者自己的动态小说体验。
+未终章（Unfinale）是一个 AI 驱动的故事世界运行时。它将用户导入的文本解析为可运行的故事世界，通过角色 Agent、多世界线状态、读者干预和叙事渲染，生成属于每个读者自己的动态小说体验。
 
 产品不应要求用户必须先上传小说。正式入口应支持三种创建方式：
 
@@ -45,7 +46,7 @@ Living Novel Engine 是一个 AI 驱动的活体小说引擎。它将用户导�
 
 ### 3.3 产品差异
 
-| 类型 | 核心方式 | 局限 | Living Novel Engine 的差异 |
+| 类型 | 核心方式 | 局限 | 未终章的差异 |
 | --- | --- | --- | --- |
 | 传统小说 | 作者写死剧情 | 读者只能阅读 | 读者可观察和干预世界 |
 | 互动小说 | 选择预设分支 | 自由度低，分支成本高 | 用户输入变量，世界自行消化 |
@@ -107,7 +108,7 @@ MVP 不做：
 
 ## 6. 核心概念
 
-### 6.1 活体小说世界
+### 6.1 可运行故事世界
 
 小说不再只是章节文本，而是由世界规则、角色状态、时间线、伏笔、关系和读者干预共同组成的动态系统。
 

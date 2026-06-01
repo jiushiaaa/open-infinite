@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">未终章 icon</title>
+  <desc id="desc">An open page whose final lines branch into alternate worldlines.</desc>
+  <rect width="96" height="96" rx="22" fill="#F8F1E4"/>
+  <path d="M24 25c14 0 22 4 25 14v34c-6-8-15-11-25-11V25Z" fill="none" stroke="#4A4740" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M49 39c4-8 12-13 23-14v37c-10 0-18 3-23 11V39Z" fill="none" stroke="#4A4740" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M25 66c10 0 18 2 24 8m23-8c-10 0-18 2-23 8" fill="none" stroke="#B9A36B" stroke-width="2" stroke-linecap="round"/>
+  <path d="M55 41c7 0 9-9 17-9m-17 12c9 2 13 8 22 7m-21-4c6 8 9 15 18 18" fill="none" stroke="#78856F" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="73" cy="32" r="5" fill="#A84638"/>
+  <circle cx="78" cy="51" r="3.5" fill="#F8F1E4" stroke="#B9A36B" stroke-width="2.5"/>
+  <circle cx="74" cy="65" r="3.5" fill="#F8F1E4" stroke="#B9A36B" stroke-width="2.5"/>
+  <path d="M63 22l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z" fill="#C5A85B"/>
+</svg>

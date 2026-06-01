@@ -1,4 +1,4 @@
-# 活体小说引擎 · v0.7 Product Web App（前端骨架）
+# 未终章 · v0.7 Product Web App（前端骨架）
 
 古风纸面阅读工作台。第一刀打通**只读链路**：故事入口 → 阅读工作台 → 选择 run/branch
 → 展示 chapter / state / retrieval / agent trace / intervention_compilation / causal_diff。

@@ -1,16 +1,16 @@
-# Living Novel Engine Agent Instructions
+# 未终章 Agent Instructions
 
 本文件是 Codex / 其他代码 Agent 进入 `D:\AI\open-infinite` 时的项目级约定。若系统级指令与本文件冲突，以系统级指令为准；若项目文档互相冲突，以 `memory.md` 的最新收口状态为准。
 
 ## 用户背景
 
-用户在湖州云梯科技担任 AI 产品经理实习，主要负责 AI 课堂和 AI 作文业务；同时以个人开发者身份探索 AI 叙事项目。当前仓库 `D:\AI\open-infinite` 的核心项目是 **Living Novel Engine**，代码集中在 `engine/`。
+用户以个人开发者身份探索 AI 叙事项目。当前仓库 `D:\AI\open-infinite` 的核心项目是 **未终章（Unfinale）**，代码集中在 `engine/`。技术缩写、Python 包、CLI 和环境变量前缀仍沿用 LNE / `living_novel_engine`，不要在代码层面机械改名。
 
 默认使用中文沟通。用户偏好：先读项目事实和现有代码，再做判断；不要靠聊天摘要臆测；实现要闭环到测试和文档同步。
 
 ## 会话开始必读
 
-只要任务与 Living Novel Engine、`engine/`、版本路线、产品 UI、API、测试或文档有关，开始动手前先阅读并对齐：
+只要任务与 未终章、`engine/`、版本路线、产品 UI、API、测试或文档有关，开始动手前先阅读并对齐：
 
 - `memory.md`
 - `docs/living-novel-engine-iteration-plan.md`
@@ -22,7 +22,8 @@
 
 读取重点：
 
-- `memory.md`：当前状态、测试基线、已知缺口、变更日志
+- `memory.md`：当前状态、测试基线、已知缺口、文档索引
+- `docs/project-changelog.md`：完整历史变更日志；仅在追溯版本过程或补历史记录时读取，避免新会话入口过重
 - `docs/living-novel-engine-iteration-plan.md`：版本路线和下一刀范围
 - `docs/productization-phase-map.md`：技术 MVP、产品化 MVP、长篇产品化、商业化加固的阶段归类
 - `docs/living-novel-engine-prd.md`：产品定位和用户流程
@@ -52,157 +53,30 @@
 
 ## 当前版本状态
 
-截至 2026-05-31：
+截至 2026-06-01，当前收口状态以 `memory.md` 为准；本文件只保留 Agent 决策所需的高层摘要：
 
-- v0.7 Product Web App 九刀已收口。
-- v0.7.2 Agent Interaction 已收口。
-- v0.7.3 Visual Asset Generation 已收口。
-- v0.7.4 Baseline & Canon Replay 已收口，并经 Codex 兜底补安全边界。
-- v0.7.5 Worldline Judge 已收口。
-- v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座已收口。
-- v0.8+ ActDirector-A planning artifact 已收口。
-- v0.8+ Discourse-aware Narrator-A diagnostics artifact 已收口。
-- v0.8+ Dynamic Action Registry-A 已收口。
-- v0.8+ Emergence Mining-A 已收口。
-- v0.8.x Entity Aliases / Entity Resolution 已收口。
-- v0.8.x Runtime Memory Consumption-A 已收口。
-- v0.8.x Frontend Artifact Panel 已收口。
-- v0.8.x Long Upload Productization 已收口。
-- v0.8.6 Long Import Review 已收口。
-- v0.8.7 Resumable Ingest Jobs 已收口。
-- v0.8.8 Long Project Workspace 已收口。
-- v0.8.9 Long Replay & Audit UI 已收口。
-- v0.8.10-A Runner State Execution Spike 已收口。
-- v0.8.10-B Runner State Execution MVP 已收口。
-- v0.9.0-alpha Chapter Export 已收口。
-- v0.9.0-alpha Creation Loop Checklist 已收口。
-- v0.9.0-alpha Continuation Hint 已收口。
-- v0.9.0-alpha Resume Continue HTTP Job 已收口。
-- v0.9.0-alpha Worldline Selection Persistence 已收口。
-- v0.9.0-alpha Post-run Audit Entry 已收口。
-- v0.9.0-alpha Chapter Collection Export 已收口。
-- v0.9.0-alpha Export Share Guard 已收口。
-- v0.9.0-alpha Creation Loop Completion Gate 已收口。
-- v0.9.0-alpha Creation Loop Action Hints 已收口。
-- v0.9.0-alpha Creation Loop Readiness Evidence 已收口。
-- v0.9.0-alpha Creation Loop Audit Quick Run 已收口。
-- v0.9.0-alpha Creation Loop Alpha Ready State 已收口。
-- v0.9.0-alpha Creation Loop Alpha Closeout Report 已收口。
-- v0.9.0-alpha Creation Loop Closeout API 已收口。
-- v0.9.0-alpha Creation Loop Closeout CLI 已收口。
-- v0.9.0-alpha Creation Loop Closeout Record 已收口。
-- v0.9.0-alpha Low-risk Audit Closeout 已收口，整体 Long Novel Creation Loop 已收口。
-- v0.9.1 Provider Gateway Summary-A 已收口。
-- v0.9.1 Provider Usage Summary-B 已收口。
-- v0.9.1 Provider Status Panel-C 已收口。
-- v0.9.1 Manual Price Estimate-D 已收口。
-- v0.9.1 Route Matrix-E 已收口。
-- v0.9.1 Provider & Cost Gateway Lite 已整体收口。
-- v0.9.2 MasterSetting Workspace Summary-A 已收口。
-- v0.9.2 MasterSetting Workspace Panel-B 已收口。
-- v0.9.2 MasterSetting Workspace Edit-C 已收口。
-- v0.9.2 MasterSetting Workspace Frontend-D 已收口。
-- v0.9.2 MasterSetting Workspace Lite 已整体收口。
-- v0.9.3 Graph Memory Evaluation Trigger-A 已收口。
-- v0.9.3 Retrieval Probe-B 已收口。
-- v0.9.3 Graph Memory Evaluation Spike 已整体收口。
-- v0.9.4 Advanced Runner Evaluation Trigger-A 已收口。
-- v0.9.4 Advanced Runner Probe-B 已收口。
-- v0.9.4 Advanced Runner Evaluation Spike 已整体收口。
-- v1.0-beta Commercial Hardening Scope-A 已收口。
-- v1.0-beta Commercial Audit Log Schema-B 已收口。
-- v1.0-beta Permission Matrix Draft-C 已收口。
-- v1.0-beta Project Copyright Statement-D 已收口。
-- v1.0-beta Quota & Observability Lite-E 已收口。
-- v1.0-beta Local Deployment Readiness-F 已收口。
-- v1.0-beta Cloud Persistence Boundary-G 已收口。
-- v1.0-beta Account Project Space Boundary-H 已收口。
-- v1.0-beta Audit Log Append Policy-I 已收口。
-- v1.0-beta Project Retention Policy-J 已收口。
-- v1.0-beta Copyright Audit Hook-K 已收口。
-- v1.0-beta MasterSetting Audit Hook-L 已收口。
-- v1.0-beta Worldline Selection Audit Hook-M 已收口。
-- v1.0-beta State Execution Audit Hook-N 已收口。
-- v1.0-beta Commercial Status Overview-O 已收口。
-- v1.0-beta Audit Log UI & Export-P 已收口。
-- v1.0-beta Settings Local Smoke Checklist-Q 已收口。
-- v1.0-beta Release Preflight Checklist-R 已收口。
-- v1.0-beta Rights Approval Checklist-S 已收口。
-- v1.0-beta Deployment Observability Checklist-T 已收口。
-- v1.0-beta Auth Boundary Checklist-U 已收口。
-- v1.0-beta Object Storage Boundary Checklist-V 已收口。
-- v1.0-beta Quota Enforcement Boundary Checklist-W 已收口。
-- v1.0-beta Billing Adapter Boundary Checklist-X 已收口。
-- v1.0-local Model Configuration UX 已收口。
-- v1.0-local Local Run Scripts 已收口。
-- 当前后端验证基线：`713 passed`。
-- 当前前端验证基线：`cd engine/ui && pnpm run build` 通过。
-- 官方下一刀：按用户要求，真实用户模型配置 UI 与本地一键运行脚本完成后暂停；等待用户本地试用反馈。
-- 后续排期：本地体验稳定后再进入 GitHub Release 安装包、腾讯云单机部署或对应发行路径；真实外部用户前不默认做云端多租户/计费系统。
+| 阶段 | 当前状态 |
+| --- | --- |
+| v0.7 | 短中篇产品化 Web App、Agent Interaction、Visual Asset、Baseline/Canon Replay、Worldline Judge 均已收口 |
+| v0.8 | 长篇导入、分层记忆、正史账本、混合检索、审计、ActDirector、Narrator diagnostics、Dynamic Action Registry、Emergence Mining、Entity Alias、Runtime Memory Consumption、Artifact Panel、Long Upload Productization 均已收口 |
+| v0.9.0-alpha | Long Novel Creation Loop 已整体收口，覆盖续写、世界线选择、审计、章节/合集导出、closeout API/CLI/record |
+| v0.9.1-v0.9.4 | Provider/Cost、MasterSetting Workspace、Graph Memory Evaluation Spike、Advanced Runner Evaluation Spike 均已收口 |
+| v1.0-beta | 本地优先商业化边界从 Scope-A 到 Billing Adapter Boundary-X 均已收口 |
+| v1.0-local | Model Configuration UX 与 Local Run Scripts 已收口 |
 
-最近一次 Codex 迭代：
+当前验证基线：后端 `cd engine && python -m pytest -q` 为 `713 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
-- 长篇导入写入 `source_raw/`、`import_report.json`、`memory/`、`canon_ledger.jsonl`、`consistency_report.json`。
-- `canon_ledger` 已接入 BM25 检索 artifact，source 为 `canon_ledger`。
-- 正史 holdout 已写 `canon/visibility_manifest.json`，明确 `runtime_visible` / `holdout_private` 隔离。
-- 干预 run 会写 `act_director_plan.json`，但该计划暂不驱动 runner。
-- 分支会写 `narrative_diagnostics.json`，但诊断暂不反馈到 narrator。
-- 干预 run 会写 `dynamic_action_registry.yaml` 与 `emergence_nodes.json`，但暂不执行状态变化、不做推荐系统。
-- 干预、baseline 与 CLI resume 会通过既有 `retrieved_context` 参数只读消费 memory/alias/ledger 安全子集，并写分支 `runtime_memory_context.json`。
-- 前端右侧「机制档案」已统一只读展示运行记忆、动作计划、动作注册表、叙事诊断、涌现节点。
-- 前端导入页已支持 txt/md/zip/epub 文件选择、浏览器端分片、job 进度条与失败空态；后端 upload payload 会解析分片并复用既有导入流水线。
-- `import_report.json` 已升级为 v0.8.6 导入检查报告，包含来源、章节统计、章节片段、解析 warning、质量风险和建议动作；`get_story()` / `get_world_anchor()` 返回 `import_review`，报告缺失或损坏会降级为空态。
-- 前端世界锚定页已新增「导入检查」，展示来源、章节数、正文片段、风险提示和下一步建议；坏 zip / epub / 空文件 / 章节过少错误态已收束为明确 400 或前端失败空态。
-- 前端导入页已接入服务端 ingest session：可查询缺失分片、重复 chunk 幂等、hash 校验、localStorage 恢复续传，complete 后复用既有 import job。
-- `GET /api/stories/<slug>/project-workspace` 已聚合导入检查、章节预览、分层记忆、正史账本、实体别名、检索命中、审计报告和下一步入口；前端 `WorkspacePage` 未选世界线时展示长篇项目资产页。
-- `POST /api/stories/<slug>/canon/replay-range` 已支持按章节范围批量 Canon Replay 并写 `canon_replay_range_report.json`；`GET /api/stories/<slug>/replay-audit` 已聚合 baseline、range replay、静态审计维度、实体别名摘要与下一步建议。
-- 前端「回放与审计」面板已支持单章/范围回放、风险维度、实体归一化审计、holdout/审计空态展示。
-- 干预 run 可生成 `runner_state_execution_report.json` dry-run 评估，解释 action/emergence 是否能安全转成状态 delta；该报告不写 `state_snapshot.json`、不改 `run_scene` 默认行为。
-- 干预 run 可在显式确认后把 low-risk/executable/白名单 delta 写入分支 `state_execution_overlay.json`，并通过 `runner_state_execution_apply_report.json` / `runner_state_execution_rollback_report.json` 审计和回滚；原 `state_snapshot.json` 不被覆盖。
-- `v0.9.0-alpha` 已整体收口：只读章节导出、父链章节合集导出、导出版权/分享 guard、创作闭环完成度判定、阻塞动作提示（含评审/设为起点 payload 与审计 requirements）、判定依据、审计快捷运行、alpha ready 状态、alpha closeout 报告、closeout HTTP 验收接口（含阻塞动作清单和稳定 blocker id）与 `lne creation-loop-closeout` 本地验收命令均已落地；CLI 可在 ready 后用 `--write-report` 写入 `creation_loop_alpha_closeout.json` 收口记录，未 ready 不落盘。低风险静态审计 info 不再阻断 closeout，中高风险仍阻断。CLI 续写入口、显式 `POST /api/jobs/resume-continue`、`selected_worldline.json` 选择记录与选择后审计入口已接入；推荐世界线可从前端生成评审、生成下一章，也可「设为起点」并在工作台读回审计状态、范围回放风险、缺失实体和审计前置条件；builtin 样例无法录入 holdout 时会明确标为 blocked。
-- `v0.9.1 Provider Gateway Summary-A` 已新增只读 `GET /api/settings/providers`，返回脱敏 provider 列表、单 provider 路由状态、mock/占位图降级策略、成本观测口径和 warning；不打网络、不落盘、不返回明文 Key。
-- `v0.9.1 Provider Usage Summary-B` 已新增只读 `GET /api/settings/provider-usage`，从 `intervention_compilation.json` / `multi_agent_trace.json` 汇总 `generation_meta.usage`，支持安全 `story_slug` 过滤；不内置真实价格表。
-- `v0.9.1 Provider Status Panel-C` 已在设置抽屉展示模型状态与累计用量；保存设置或清除密钥后会刷新，只读不写价格/路由策略。
-- `v0.9.1 Manual Price Estimate-D` 已支持手动配置每千输入/输出单价并按 usage 粗估费用；不硬编码厂商价格、不联网查价。
-- `v0.9.1 Route Matrix-E` 已在 `GET /api/settings/providers` 返回读者干预、主题创世、导入抽取、视觉资产四个入口的只读 provider / mode / runner / fallback，并在设置抽屉展示；不新增路由写入开关、不改默认调用链。
-- `v0.9.1 Provider & Cost Gateway Lite` 已整体收口，归档见 `docs/completed/v0.9.1-provider-cost-gateway-lite.md`。
-- `v0.9.2 MasterSetting Workspace Summary-A` 已在项目工作台 payload 中新增只读 `master_setting_workspace`，聚合 `master_setting.yaml`、人物状态、时间线、伏笔和章节摘要；损坏/缺失 artifact 降级为空态或 damaged，不写文件。
-- `v0.9.2 MasterSetting Workspace Panel-B` 已在长篇项目工作台新增「设定工作台」只读面板，展示世界规则、人物状态、时间线、伏笔线、章节摘要和后续建议；右侧项目资产面板显示设定状态。
-- `v0.9.2 MasterSetting Workspace Edit-C` 已新增 `POST /api/stories/<slug>/master-setting`，仅白名单编辑 `master_setting.yaml` 的 display/genre/rules/limits/forbidden，保存前备份、保存后写报告；损坏/缺失设定返回 409。
-- `v0.9.2 MasterSetting Workspace Frontend-D` 已在「设定工作台」新增最小写控件，支持编辑作品名、题材、世界规则、力量限制和禁用设定；保存后本地更新面板并刷新项目工作台。
-- `v0.9.2 MasterSetting Workspace Lite` 已整体收口，归档见 `docs/completed/v0.9.2-master-setting-workspace-lite.md`；下一步只复核 v0.9.3 图记忆触发条件，不默认接 Zep / 图数据库 / GraphRAG。
-- `v0.9.3 Graph Memory Evaluation Trigger-A` 已新增 `GET /api/stories/<slug>/graph-memory-evaluation`，只读判断当前项目是否满足图记忆评估触发条件；不接 Zep / 图数据库 / GraphRAG，不写 artifact。
-- `v0.9.3 Retrieval Probe-B` 已新增 `GET /api/stories/<slug>/retrieval-probes`，用现有 BM25 / canon ledger / entity aliases 复跑代表性查询并返回失败样例；v0.9.3 已整体收口，归档见 `docs/completed/v0.9.3-graph-memory-evaluation-spike.md`。
-- `v0.9.4 Advanced Runner Evaluation Trigger-A` 已新增 `GET /api/runs/<run_id>/advanced-runner-evaluation`，只读判断当前 run 是否满足高级 runner 评估触发条件；不接 LangGraph / OASIS / CAMEL，不写 artifact。
-- `v0.9.4 Advanced Runner Probe-B` 已新增 `GET /api/runs/<run_id>/advanced-runner-probes`，收集状态执行、trace 与涌现节点失败样例；v0.9.4 已整体收口，归档见 `docs/completed/v0.9.4-advanced-runner-evaluation-spike.md`。
-- `v1.0-beta Commercial Hardening Scope-A` 已新增 `GET /api/settings/commercial-hardening-scope`，只读整理账号/权限/云端持久化/配额/审计/版权/部署观测的当前覆盖、缺口、延后项和本地优先下一步；不读密钥、不打网络、不落盘、不接云端多租户或计费系统，归档见 `docs/completed/v1.0-beta-commercial-hardening-scope-a.md`。
-- `v1.0-beta Commercial Audit Log Schema-B` 已新增 `GET /api/stories/<slug>/audit-log`，只读聚合导入检查、世界线选择、设定轻编辑、creation loop closeout 与现有 `memory/project_audit_log.jsonl` 行；坏 JSONL 行降级 warning，不写日志，归档见 `docs/completed/v1.0-beta-commercial-audit-log-schema-b.md`。
-- `v1.0-beta Permission Matrix Draft-C` 已新增 `GET /api/settings/permission-matrix`，只读列出 owner/editor/viewer 三角色与项目工作台、设定编辑、世界线选择、生成动作、审计日志、导出等资源权限；`enforcement.mode=not_enforced`，不接认证、不拦截请求，归档见 `docs/completed/v1.0-beta-permission-matrix-draft-c.md`。
-- `v1.0-beta Project Copyright Statement-D` 已新增 `GET/POST /api/stories/<slug>/copyright-statement`，本地写入 `memory/project_copyright_statement.json`，并让章节/合集导出 `share_guard.rights_basis` 消费项目级权利依据；继续不提供公开发布入口，归档见 `docs/completed/v1.0-beta-project-copyright-statement-d.md`。
-- `v1.0-beta Quota & Observability Lite-E` 已新增 `GET /api/settings/quota-observability`，只读汇总 provider usage、内存 job 状态、软配额口径与观测缺口；`quota_policy.mode=not_enforced`，不接真实计费或云端监控，归档见 `docs/completed/v1.0-beta-quota-observability-lite-e.md`。
-- `v1.0-beta Local Deployment Readiness-F` 已新增 `GET /api/settings/deployment-readiness`，只读汇总本地 HTTP 入口、静态资源、数据目录、脱敏运行环境、API 冒烟计划、运行步骤和验证步骤；不打网络、不落盘、不接云端部署或计费系统，归档见 `docs/completed/v1.0-beta-local-deployment-readiness-f.md`。
-- `v1.0-beta Cloud Persistence Boundary-G` 已新增 `GET /api/settings/cloud-persistence-boundary`，只读映射本地 artifact 到未来平台资源、保留规则和迁移边界；不上传文件、不接对象存储/数据库/队列，归档见 `docs/completed/v1.0-beta-cloud-persistence-boundary-g.md`。
-- `v1.0-beta Account Project Space Boundary-H` 已新增 `GET /api/settings/account-project-space-boundary`，只读定义本地账号语义、项目空间清单和未来团队归属迁移边界；不接认证、团队空间或 ACL，归档见 `docs/completed/v1.0-beta-account-project-space-boundary-h.md`。
-- `v1.0-beta Audit Log Append Policy-I` 已新增 `POST /api/stories/<slug>/audit-log/events`，白名单追加本地 `memory/project_audit_log.jsonl` 审计事件；坏 payload 400、缺项目 404、内置样例 409，不接云端不可篡改审计存储，归档见 `docs/completed/v1.0-beta-audit-log-append-policy-i.md`。
-- `v1.0-beta Project Retention Policy-J` 已新增 `GET/POST /api/stories/<slug>/retention-policy`，本地写入 `memory/project_retention_policy.json` 并追加 `retention_policy_reviewed` 审计事件；不实际删除项目、不接对象存储/数据库/队列，归档见 `docs/completed/v1.0-beta-project-retention-policy-j.md`。
-- `v1.0-beta Copyright Audit Hook-K` 已让 `write_project_copyright_statement()` 成功保存后追加 `rights_reviewed` 审计事件；不接真实账号或云端不可篡改审计存储，归档见 `docs/completed/v1.0-beta-copyright-audit-hook-k.md`。
-- `v1.0-beta MasterSetting Audit Hook-L` 已让 `update_master_setting()` 成功保存后追加 `master_setting_updated` 审计事件；不接真实账号或云端不可篡改审计存储，归档见 `docs/completed/v1.0-beta-master-setting-audit-hook-l.md`。
-- `v1.0-beta Worldline Selection Audit Hook-M` 已让 `select_worldline()` 成功保存后追加 `worldline_selected` 审计事件；builtin 样例选择保持原有 outputs 记录语义，归档见 `docs/completed/v1.0-beta-worldline-selection-audit-hook-m.md`。
-- `v1.0-beta State Execution Audit Hook-N` 已让状态 overlay apply/rollback 成功后追加 `state_execution_applied` / `state_execution_rolled_back` 审计事件；不改变 overlay 执行规则，归档见 `docs/completed/v1.0-beta-state-execution-audit-hook-n.md`。
-- `v1.0-beta Commercial Status Overview-O` 已新增 `GET /api/settings/commercial-status-overview`，设置抽屉只读展示商业化状态总览；不接真实认证、云端迁移、对象存储或计费系统，归档见 `docs/completed/v1.0-beta-commercial-status-overview-o.md`。
-- `v1.0-beta Audit Log UI & Export-P` 已新增 `GET /api/stories/<slug>/audit-log/export`，项目工作台只读展示本地审计时间线并支持 Markdown 导出；导出不包含 metadata 明文、不代表不可篡改审计证明，归档见 `docs/completed/v1.0-beta-audit-log-ui-export-p.md`。
-- `v1.0-beta Settings Local Smoke Checklist-Q` 已新增 `GET /api/settings/local-smoke-checklist`，设置抽屉只读展示本地后端、设置页、项目工作台与审计导出的冒烟路径；不执行请求、不打外网、不接真实部署系统，归档见 `docs/completed/v1.0-beta-settings-local-smoke-checklist-q.md`。
-- `v1.0-beta Release Preflight Checklist-R` 已新增 `GET /api/settings/release-preflight`，设置抽屉只读展示发布前检查，聚合本地部署、冒烟、商业状态、权限草案、版权/保留/审计入口；不执行真实发布、不打外网、不接云端部署系统，归档见 `docs/completed/v1.0-beta-release-preflight-checklist-r.md`。
-- `v1.0-beta Rights Approval Checklist-S` 已新增 `GET /api/stories/<slug>/rights-approval-checklist`，项目工作台只读展示版权审批准备度，聚合项目版权/来源声明、授权确认、local export 许可、`rights_reviewed` 审计事件和公开发布保护；不执行真实审批、不开放公开发布、不打外网，归档见 `docs/completed/v1.0-beta-rights-approval-checklist-s.md`。
-- `v1.0-beta Deployment Observability Checklist-T` 已新增 `GET /api/settings/deployment-observability`，设置抽屉只读展示部署观测清单，聚合本地部署、冒烟、配额用量、内存 job、项目审计、版权审批和发布前检查；不 tail 日志、不打外网、不接云端观测，归档见 `docs/completed/v1.0-beta-deployment-observability-checklist-t.md`。
-- `v1.0-beta Auth Boundary Checklist-U` 已新增 `GET /api/settings/auth-boundary`，设置抽屉只读展示认证边界清单，聚合账号/项目空间、权限矩阵、请求级 ACL 缺口、项目空间映射和部署观测边界；不创建用户、不接登录 provider、不执行 ACL，归档见 `docs/completed/v1.0-beta-auth-boundary-checklist-u.md`。
-- `v1.0-beta Object Storage Boundary Checklist-V` 已新增 `GET /api/settings/object-storage-boundary`，设置抽屉只读展示对象存储边界清单，聚合本地 artifact 盘点、资源映射、原文/holdout 私有隔离、保留策略输入、身份绑定和部署护栏；不创建 bucket、不上传文件、不写远端状态，归档见 `docs/completed/v1.0-beta-object-storage-boundary-checklist-v.md`。
-- `v1.0-beta Quota Enforcement Boundary Checklist-W` 已新增 `GET /api/settings/quota-enforcement-boundary`，设置抽屉只读展示配额执行边界清单，聚合配额观测、usage metadata、内存 job、认证边界和部署观测；不拦截生成请求、不写 quota state、不接真实账单，归档见 `docs/completed/v1.0-beta-quota-enforcement-boundary-checklist-w.md`。
-- `v1.0-beta Billing Adapter Boundary Checklist-X` 已新增 `GET /api/settings/billing-adapter-boundary`，设置抽屉只读展示计费 adapter 边界清单，聚合 provider usage、成本估算、配额执行边界、认证边界、计费身份、支付 provider adapter、发票退款轨迹和计费写入边界；不创建账单、不写余额、不调用支付 provider，归档见 `docs/completed/v1.0-beta-billing-adapter-boundary-checklist-x.md`。
-- `v1.0-local Model Configuration UX` 已新增模型配置摘要、文本/视觉模型模板、设置抽屉真实模型开关和视觉密钥清除按钮；不存储或回显明文 Key，归档见 `docs/completed/v1.0-local-model-configuration-ux.md`。
-- `v1.0-local Local Run Scripts` 已新增 `scripts/start-local.ps1` 与 `scripts/start-local.sh`，clone 仓库后可检查/安装依赖并启动后端与 Vite 前端；不内置 runtime、不读取或打印模型密钥，归档见 `docs/completed/v1.0-local-run-scripts.md`。
-- 仍未做云端多用户持久队列、真实对象存储 adapter、向量库、overlay 驱动下一轮 runner 自动消费、运行后审计写入正史账本。
-- v1.0-beta 后续也不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些仍按 v0.9.3 / v0.9.4 触发式 spike 处理。当前已按用户要求暂停继续新刀，等待本地试用反馈。
+官方下一步：按用户要求，真实用户模型配置 UI 与本地一键运行脚本完成后暂停，等待用户本地试用反馈。后续排期仅在用户确认后进入 GitHub Release 安装包、内置 runtime、腾讯云/服务器在线体验等发行路径；真实外部用户前不默认做云端多租户、对象存储、认证或计费系统。
+
+### 当前边界备忘
+
+- 长篇导入已写入 `source_raw/`、`import_report.json`、`memory/`、`canon_ledger.jsonl`、`consistency_report.json`。
+- `canon_ledger`、entity aliases 与 runtime memory 已进入只读检索/展示链路；正史 holdout 通过 `canon/visibility_manifest.json` 隔离。
+- 干预 run 会写 `act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`，但这些机制产物暂不自动驱动 runner。
+- 状态执行 overlay 可显式 apply/rollback，但不覆盖 `state_snapshot.json`，也不自动喂回下一轮 runner。
+- 设置页已有脱敏 provider 状态、usage、route matrix、模型配置和本地运行脚本；不读取或打印明文密钥。
+- 仍未做：云端多用户持久队列、真实对象存储 adapter、向量库/GraphRAG、overlay 自动消费、运行后审计写入正史账本。
+- v1.0-beta 后续不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些按 v0.9.3 / v0.9.4 的触发式 spike 处理。
 
 ## 资料索引
 
@@ -210,8 +84,9 @@
 - 参考论文 PDF 与论文解读报告存储在 `D:\AI\open-infinite\docs\article`，其中报告在 `D:\AI\open-infinite\docs\article\reports`。
 - 参考开源项目存储在 `D:\AI\open-infinite\Reference_projects`，仅作设计参考和取舍分析，默认不直接复制源码、不引入依赖。
 - `docs` 资料导航见 `D:\AI\open-infinite\docs\index.md`，用于快速定位 PRD、专项版本文档、论文报告和研究资料。
+- 完整历史变更日志见 `D:\AI\open-infinite\docs\project-changelog.md`，仅在追溯过程或追加历史记录时读取。
 - 当前主 PRD 入口是 `D:\AI\open-infinite\docs\living-novel-engine-prd.md`；专项 PRD、UI spec 和历史版本说明放在 `docs\completed`。
-- v0.1-v0.8 已完成能力与未做项总览见 `D:\AI\open-infinite\docs\completed\v0.1-to-v0.8-version-audit.md`。
+- v0.1-v0.8 历史审计快照见 `D:\AI\open-infinite\docs\completed\v0.1-to-v0.8-version-audit.md`；该文档不承担当前待办来源。
 
 ## 开发流程
 
@@ -221,7 +96,7 @@
 2. 用现有模式实现，保持改动局部。
 3. 补 service / API / 前端类型和 UI 测试，测试规模随风险调整。
 4. 跑验证命令。
-5. 同步 `memory.md` 变更日志；必要时同步迭代计划、README、UI spec。
+5. 同步 `memory.md` 当前状态；若有历史记录需要追加，同步 `docs/project-changelog.md`；必要时同步迭代计划、README、UI spec。
 
 常用验证：
 

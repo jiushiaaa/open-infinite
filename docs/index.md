@@ -1,4 +1,4 @@
-# Living Novel Engine Docs Index
+# 未终章 Docs Index
 
 > 用途：说明 `docs/` 下各类文档的位置、职责和推荐读取顺序。进入项目时仍以根目录 `AGENTS.md` 与 `memory.md` 作为第一入口；本文件负责把 `docs/` 资料库串起来。
 
@@ -7,7 +7,7 @@
 | 路径 | 作用 | 什么时候读 |
 | --- | --- | --- |
 | `../AGENTS.md` | Agent 项目级规则、硬约束、会话开始必读清单 | 每个新 Codex/Agent 会话先读 |
-| `../memory.md` | 当前事实收口、版本状态、测试基线、变更日志 | 判断“现在做到哪了”和“下一刀是什么”时先读 |
+| `../memory.md` | 当前事实收口、版本状态、测试基线、历史变更日志索引 | 判断“现在做到哪了”和“下一刀是什么”时先读 |
 | `../engine/README.md` | CLI/API/产物结构/验收命令 | 改代码、跑 demo、确认 artifact 契约时读 |
 
 ## 1. 推荐读取顺序
@@ -42,7 +42,7 @@
 ### 做论文能力或参考项目吸收
 
 1. `article/reports/` 下对应论文研读报告
-2. `research/open-source-essence-absorption.md`
+2. `completed/open-source-essence-absorption.md`
 3. `living-novel-engine-iteration-plan.md`
 4. `../memory.md`
 
@@ -51,10 +51,12 @@
 | 路径 | 类型 | 作用 |
 | --- | --- | --- |
 | `index.md` | 导航 | 当前文件，说明文档地图和读取顺序 |
-| `codex-handoff.md` | 接力包 | 新开 Codex 窗口时的最小上下文、已完成版本、下一刀建议和开发约束 |
+| `codex-handoff.md` | 接力包 | 新开 Codex 窗口时的最小上下文、当前暂停点和开发约束 |
 | `codex-migration-guide.md` | 迁移说明 | `.cursor/rules`、`.cursor/skills` 与 Codex skills/plugins 的迁移关系 |
+| `project-changelog.md` | 历史日志 | 从 `memory.md` 迁出的完整变更日志，供追溯版本过程和历史验收记录 |
+| `brand/` | 品牌资产 | 未终章 / Unfinale 的 SVG 标识、图标和 imagegen 概念稿 |
 | `living-novel-engine-prd.md` | 主 PRD | 产品定位、用户流程、核心能力、版本级需求入口 |
-| `living-novel-engine-iteration-plan.md` | 主路线图 | v0.1-v0.9+ 的迭代顺序、阶段状态、下一步路线 |
+| `living-novel-engine-iteration-plan.md` | 主路线图 | 当前阶段状态、暂停点、真实未做项和后续候选路线 |
 | `productization-phase-map.md` | 阶段归类 | 统一解释技术 MVP、短中篇产品化 MVP、长篇底座、长篇产品化、商业化加固的边界 |
 | `distribution-phase-plan.md` | 发行路径 | 本地 clone、GitHub Release 安装包、服务器在线体验三条后置使用路径 |
 | `completed/` | 收口归档 | 已收口版本 PRD、Release Note、工程协议、UI spec 与版本审计，供追溯和必要时引用 |
@@ -65,19 +67,24 @@
 
 | 路径 | 阶段 | 作用 |
 | --- | --- | --- |
-| `completed/v0.1-to-v0.8-version-audit.md` | v0.1-v0.8 | 已完成能力、产物边界、未做项和下一步建议 |
+| `completed/README.md` | 目录索引 | `completed/` 分组导航、后续状态口径和仍然后置的主边界 |
+| `completed/v0.1-to-v0.8-version-audit.md` | v0.1-v0.8 | v0.8 时点历史审计快照；已标注当时未做项在 v1.0 前后的后续状态 |
+| `completed/codex-handoff-legacy-2026-06-01.md` | 接力归档 | `codex-handoff.md` 瘦身前的长接力稿，供追溯历史上下文 |
+| `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md` | 路线图归档 | `living-novel-engine-iteration-plan.md` 瘦身前的完整逐刀实施清单 |
+| `completed/open-source-essence-absorption.md` | v0.2.2 | WenShape / webnovel-writer 的可吸收能力、已复制资产、许可证边界和明确不做项 |
 | `completed/v0.2-import-novel-mvp.md` | v0.2 | 导入已有小说的最小闭环设计、命令面和成功标准 |
 | `completed/v0.4-worldline-browser-release.md` | v0.4 | 只读世界线浏览器的 Release Note、功能矩阵和复现验收链路 |
 | `completed/v0.6.1-multi-agent-runner-protocol.md` | v0.6.1 | Multi-Agent Runner Protocol 的数据结构、输出契约和边界 |
 | `completed/v0.6.4-multi-agent-llm-runner.md` | v0.6.4 | `multi_agent_llm` runner 的架构、隐私加固、回退和用法 |
 | `completed/v0.6.5-multi-agent-reliability.md` | v0.6.5 | 多 Agent 推演可靠性、trace 质量校验、重试和 token usage |
 | `completed/v0.7-product-web-app-ui-spec.md` | v0.7 | 产品级 Web App 的信息架构、视觉风格、组件边界和增量能力 |
-| `completed/v0.9.0-alpha-long-creation-loop.md` | v0.9.0-alpha | 长篇共创闭环收口说明、closeout proof、边界与下一步 |
+| `completed/v0.9-to-v1.0-product-ui-addenda.md` | v0.9-v1.0 | 从 v0.7 UI spec 拆出的后续产品 UI 增量：长篇闭环、Provider/Cost、MasterSetting、商业化边界和本地模型配置 |
+| `completed/v0.9.0-alpha-long-creation-loop.md` | v0.9.0-alpha | 长篇共创闭环收口说明、closeout proof、边界与后续状态 |
 | `completed/v0.9.1-provider-cost-gateway-lite.md` | v0.9.1 | Provider/Cost Lite 收口说明、脱敏 provider 状态、usage 汇总、成本估算与路由矩阵 |
 | `completed/v0.9.2-master-setting-workspace-lite.md` | v0.9.2 | MasterSetting Workspace Lite 收口说明、设定资产聚合、白名单轻编辑、前端最小写控件与边界 |
-| `completed/v0.9.3-graph-memory-evaluation-spike.md` | v0.9.3 | Graph Memory Evaluation Spike 收口说明、触发报告、检索 probe、失败样例边界与下一步 |
-| `completed/v0.9.4-advanced-runner-evaluation-spike.md` | v0.9.4 | Advanced Runner Evaluation Spike 收口说明、触发报告、runner probe、失败样例边界与下一步 |
-| `completed/v1.0-beta-commercial-hardening-scope-a.md` | v1.0-beta | Commercial Hardening Scope-A 收口说明、商业化七域范围复核、本地优先边界与下一步 |
+| `completed/v0.9.3-graph-memory-evaluation-spike.md` | v0.9.3 | Graph Memory Evaluation Spike 收口说明、触发报告、检索 probe、失败样例边界与后续状态 |
+| `completed/v0.9.4-advanced-runner-evaluation-spike.md` | v0.9.4 | Advanced Runner Evaluation Spike 收口说明、触发报告、runner probe、失败样例边界与后续状态 |
+| `completed/v1.0-beta-commercial-hardening-scope-a.md` | v1.0-beta | Commercial Hardening Scope-A 收口说明、商业化七域范围复核、本地优先边界与后续状态 |
 | `completed/v1.0-beta-commercial-audit-log-schema-b.md` | v1.0-beta | Commercial Audit Log Schema-B 收口说明、本地审计事件 schema、只读聚合与边界 |
 | `completed/v1.0-beta-permission-matrix-draft-c.md` | v1.0-beta | Permission Matrix Draft-C 收口说明、owner/editor/viewer 权限矩阵草案与未执行边界 |
 | `completed/v1.0-beta-project-copyright-statement-d.md` | v1.0-beta | Project Copyright Statement-D 收口说明、项目级版权/来源声明 schema 与导出 rights basis |
@@ -126,16 +133,10 @@
 | `article/reports/2407.13248v2-human-level-narratives-report.md` | Story Arc、Turning Points、叙事质量评估 |
 | `article/reports/2505.03547v1-story2game-report.md` | Preconditions、Effects、Dynamic Action Generation |
 
-## 5. research/ 参考项目吸收
-
-| 路径 | 作用 |
-| --- | --- |
-| `research/open-source-essence-absorption.md` | 记录 WenShape / webnovel-writer 的可吸收能力、已复制资产、许可证边界和明确不做项 |
-
-## 6. 维护约定
+## 5. 维护约定
 
 - 新增仍在跟进的主线文档可留在 `docs/` 根部；已收口版本专项文档归档到 `completed/`，并在本文件登记。
 - 新增论文原文放 `article/`，论文解读放 `article/reports/`，不要只放 PDF 不写报告。
-- 新增参考项目分析放 `research/`，并写清“吸收什么 / 不做什么 / 是否复制资产 / 许可证边界”。
-- `AGENTS.md` 和 `memory.md` 保持在根目录：前者是 Agent 入口规则，后者是当前事实收口。
-- 完成版本后同步顺序建议为：`memory.md` -> `living-novel-engine-iteration-plan.md` -> 相关 PRD/UI spec/README -> `codex-handoff.md` -> 本文件。
+- 新增参考项目分析若仍在调研，可先放 `article/reports/` 或临时草稿；完成吸收决策后归档到 `completed/`，并写清“吸收什么 / 不做什么 / 是否复制资产 / 许可证边界”。
+- `AGENTS.md` 和 `memory.md` 保持在根目录：前者是 Agent 入口规则，后者是当前事实收口；完整历史变更日志放在 `project-changelog.md`。
+- 完成版本后同步顺序建议为：`memory.md` 当前状态 -> `project-changelog.md` 历史记录（如需追加） -> `living-novel-engine-iteration-plan.md` -> 相关 PRD/UI spec/README -> `codex-handoff.md` -> 本文件。

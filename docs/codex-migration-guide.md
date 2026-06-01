@@ -9,21 +9,22 @@
 核心内容已迁移到：
 
 - `AGENTS.md`：项目级硬规则、会话开始必读、开发约束、验证命令
-- `docs/codex-handoff.md`：新窗口接力包、当前版本状态、下一刀建议
-- `memory.md`：长期项目记忆和变更日志
+- `docs/codex-handoff.md`：新窗口接力包、当前版本状态、暂停点和开发约束
+- `memory.md`：当前项目事实、路线、边界和入口索引
+- `docs/project-changelog.md`：从 `memory.md` 迁出的完整历史变更日志
 
 Cursor rule 的要点：
 
 - LNE 相关任务开始时必须读四文档，不只读 `memory.md`
 - 文档事实优先级明确
-- 任务完成后同步 `memory.md`
+- 任务完成后同步 `memory.md` 当前状态；如需追加历史记录，写入 `docs/project-changelog.md`
 - 版本路线和测试基线要以项目文档为准
 
 Codex 侧等价做法：
 
 1. 新窗口先读 `AGENTS.md` 和 `docs/codex-handoff.md`
 2. 再读 `memory.md`、迭代计划、PRD、UI spec、README
-3. 实现后跑测试并更新 `memory.md`
+3. 实现后跑测试，更新 `memory.md` 当前状态；如需追加历史记录，更新 `docs/project-changelog.md`
 
 ## Cursor skills 迁移策略
 
@@ -77,7 +78,8 @@ Codex 侧等价做法：
 迁移原则：
 
 - 项目规则放 `AGENTS.md`
-- 长期状态放 `memory.md`
+- 当前事实和路线边界放 `memory.md`
+- 完整历史变更日志放 `docs/project-changelog.md`
 - 新窗口接力放 `docs/codex-handoff.md`
 - 通用技能不复制
 - 项目专属重复流程再考虑 Codex skill
@@ -87,5 +89,4 @@ Codex 侧等价做法：
 1. 打开 `D:\AI\open-infinite`
 2. 发送 `docs/codex-handoff.md` 中的第一条消息建议
 3. 等 Codex 读完文档和代码后，再让它执行 v0.7.5
-4. 每完成一刀，要求它更新 `memory.md` 并给出验证结果
-
+4. 每完成一刀，要求它更新 `memory.md` 当前状态、必要时追加 `docs/project-changelog.md`，并给出验证结果

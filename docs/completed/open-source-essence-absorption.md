@@ -1,6 +1,7 @@
 # Open-Source Essence Absorption Report
 
-> v0.2.2 — Living Novel Engine 从 WenShape 和 webnovel-writer 中吸收可复用资产的归档记录。
+> v0.2.2 — 未终章 从 WenShape 和 webnovel-writer 中吸收可复用资产的归档记录。
+> 2026-06-01 后续状态：本文保留 v0.2.2 的来源吸收记录。后续 v0.3-v0.8 已完成 facts / summaries / story_contract 检索链、分层记忆、长篇导入、实体别名、正史账本和运行记忆消费；v0.9.1 已完成 Provider & Cost Gateway Lite，v0.9.2 已完成 MasterSetting Workspace Lite。向量库、embedding、reranker 仍保持触发式评估，不作为当前默认路线。
 
 ---
 
@@ -55,16 +56,16 @@
 
 ---
 
-## 5. 后续版本继续使用计划
+## 5. 后续版本继续使用计划（历史计划与后续状态）
 
 | 版本 | 使用方式 |
 |------|---------|
-| **v0.3.0** | facts.jsonl + summaries + story_contract 结合 BM25 lite 注入 narrator / character_agent |
-| **v0.3.1** | 扩展 summaries 为 ChapterBrief 轻量版；加入 VolumeBrief 层 |
-| **v0.4.2** | UI 展示 v0.3 检索命中的事实、记忆、合约约束 |
-| **v0.5** | story_contract 扩展为 override ledger，支持干预记忆持久化 |
-| **v0.6** | 评估 MiroFish / OASIS 或自研多 Agent runner |
-| **v0.6+** | 按规模化需求补向量库、embedding、reranker、多 provider gateway、完整 MasterSetting 工作台 |
+| **v0.3.0** | 已完成：facts.jsonl + summaries + story_contract 结合 BM25 lite 注入 narrator / character_agent |
+| **v0.3.1** | 已完成：ChapterBrief / VolumeBrief 轻量版进入检索链 |
+| **v0.4.2** | 已完成：browse 展示 v0.3 检索命中的事实、记忆、合约约束 |
+| **v0.5** | 已完成：第四面墙 awareness 与干预记忆账本；story contract 继续作为约束来源之一 |
+| **v0.6** | 已完成：自研 `SceneRunner` adapter、multi-agent stub / LLM runner / trace 可视化与可靠性；MiroFish / OASIS / CAMEL / LangGraph 保持参考与触发式评估 |
+| **v0.6+** | 已部分完成：v0.9.1 多 provider / 成本 Lite、v0.9.2 MasterSetting Workspace Lite；向量库、embedding、reranker 仍后置到召回不足时评估 |
 
 ---
 
