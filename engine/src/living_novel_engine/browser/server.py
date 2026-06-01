@@ -263,6 +263,16 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     get_local_deployment_readiness(api_host=str(host), api_port=int(port))
                 )
 
+            if path == "/api/settings/local-smoke-checklist":
+                from living_novel_engine.service import get_settings_local_smoke_checklist
+
+                host, port = self.server.server_address[:2]
+                return self._send_json(
+                    get_settings_local_smoke_checklist(
+                        api_host=str(host), api_port=int(port)
+                    )
+                )
+
             if path == "/api/settings/cloud-persistence-boundary":
                 from living_novel_engine.service import get_cloud_persistence_boundary
 

@@ -54,7 +54,10 @@ from .copyright_statement import (
     get_project_copyright_statement,
     write_project_copyright_statement,
 )
-from .deployment_readiness import get_local_deployment_readiness
+from .deployment_readiness import (
+    get_local_deployment_readiness,
+    get_settings_local_smoke_checklist,
+)
 from .diff_actions import (
     VALID_ACTIONS,
     DiffActionError,
@@ -197,6 +200,7 @@ __all__ = [
     "get_project_copyright_statement",
     "write_project_copyright_statement",
     "get_local_deployment_readiness",
+    "get_settings_local_smoke_checklist",
     "ProjectRetentionPolicyConflictError",
     "ProjectRetentionPolicyRequestError",
     "get_project_retention_policy",

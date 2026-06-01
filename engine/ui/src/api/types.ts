@@ -872,6 +872,31 @@ export interface ProjectAuditLogExport {
   next_steps: string[];
 }
 
+export interface LocalSmokeChecklistItem {
+  id: string;
+  label: string;
+  method: string;
+  path: string;
+  expected: string;
+  status: "ready_to_run" | string;
+  example_url: string;
+}
+
+export interface LocalSmokeChecklist {
+  version: string;
+  status: "ready" | "attention" | string;
+  mode: string;
+  summary: {
+    check_count: number;
+    ready_to_run_count: number;
+    external_services_required: boolean;
+  };
+  checks: LocalSmokeChecklistItem[];
+  run_steps: string[];
+  warnings: string[];
+  next_steps: string[];
+}
+
 // ── v0.7.3 视觉资产 ───────────────────────────────────────
 
 export type AssetStatus = "ready" | "failed" | "placeholder";

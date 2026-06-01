@@ -29,6 +29,7 @@ import type {
   JobSubmitResponse,
   MasterSettingPatch,
   MasterSettingUpdateResponse,
+  LocalSmokeChecklist,
   ProviderGatewaySummary,
   ProviderUsageSummary,
   CommercialStatusOverview,
@@ -225,6 +226,9 @@ export const api = {
   },
   getCommercialStatusOverview(): Promise<CommercialStatusOverview> {
     return getJson("/api/settings/commercial-status-overview");
+  },
+  getLocalSmokeChecklist(): Promise<LocalSmokeChecklist> {
+    return getJson("/api/settings/local-smoke-checklist");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);

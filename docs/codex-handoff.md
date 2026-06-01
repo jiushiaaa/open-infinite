@@ -96,6 +96,7 @@
 - v1.0-beta State Execution Audit Hook-N
 - v1.0-beta Commercial Status Overview-O
 - v1.0-beta Audit Log UI & Export-P
+- v1.0-beta Settings Local Smoke Checklist-Q
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -169,6 +170,7 @@
 - v1.0-beta State Execution Audit Hook-N：状态 overlay apply/rollback 成功后追加 `state_execution_applied` / `state_execution_rolled_back` 审计事件；不改变状态执行规则，不接真实账号或云端不可篡改审计存储
 - v1.0-beta Commercial Status Overview-O：新增 `GET /api/settings/commercial-status-overview`，设置抽屉只读展示商业化状态总览；不接真实认证、云端迁移、对象存储或计费系统
 - v1.0-beta Audit Log UI & Export-P：新增 `GET /api/stories/<slug>/audit-log/export`，项目工作台只读展示审计时间线并支持 Markdown 导出；导出不包含事件 metadata，不接云端不可篡改审计存储
+- v1.0-beta Settings Local Smoke Checklist-Q：新增 `GET /api/settings/local-smoke-checklist`，设置抽屉只读展示本地冒烟路径；只生成 checklist，不主动执行请求、不打外网
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
@@ -178,7 +180,7 @@
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 Audit Log UI & Export-P 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围。不要直接接云端托管、多租户账号、对象存储或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 Settings Local Smoke Checklist-Q 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围。不要直接接云端托管、多租户账号、对象存储或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -199,9 +201,9 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `688 passed` |
+| 后端基线 | `690 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q |
 | 官方下一刀 | v1.0-beta 后续商业化加固需继续拆分；不要直接云端化 |
 | 后续主线 | `v1.0-beta` 本地优先商业化加固 -> 真实外部用户前再评估云端多租户/计费系统 |
 
@@ -810,6 +812,16 @@ React/Vite 产品级前端主闭环已完成：
 - 收口归档见 `docs/completed/v1.0-beta-audit-log-ui-export-p.md`。
 - 边界：不写新 artifact，不提供公开分享、版权审批、真实账号、请求级 ACL、云端不可篡改审计存储、对象存储或计费；不改 `run_scene`。
 - 验证：`tests/test_v100_audit_log_ui_export.py` 新增 service/HTTP 测试；邻近回归 16 passed；前端 build 通过；完整后端基线提升到 688 passed。
+
+## v1.0-beta Settings Local Smoke Checklist-Q 收口摘要
+
+- 新增 `get_settings_local_smoke_checklist()` 与 `GET /api/settings/local-smoke-checklist`。
+- 设置抽屉新增「本地冒烟清单」只读区，展示待核对路径数、外部服务需求、前 6 条本地核对路径和运行步骤。
+- 清单覆盖首页、故事列表、运行设置、provider、用量、配额观测、本地部署就绪、商业化状态总览、项目工作台和审计日志导出。
+- 接口只生成 checklist，不主动执行 HTTP 请求、不绑定端口、不落盘、不打外网、不读取或展示明文密钥。
+- 收口归档见 `docs/completed/v1.0-beta-settings-local-smoke-checklist-q.md`。
+- 边界：不接真实部署、认证、对象存储、云端观测或计费；不改 `run_scene`。
+- 验证：`tests/test_v100_settings_local_smoke_checklist.py` 新增 service/HTTP 测试；设置/商业化邻近回归 33 passed；前端 build 通过；完整后端基线提升到 690 passed。
 
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 

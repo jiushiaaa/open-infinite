@@ -2,6 +2,7 @@ import { useState } from "react";
 import type {
   ConnectivityResult,
   CommercialStatusOverview,
+  LocalSmokeChecklist,
   ProviderGatewaySummary,
   ProviderUsageSummary,
   RuntimeSettings,
@@ -88,6 +89,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
     [],
   );
   const commercialState = useAsync(() => api.getCommercialStatusOverview(), []);
+  const smokeState = useAsync(() => api.getLocalSmokeChecklist(), []);
 
   function applyResult(s: RuntimeSettings) {
     setPresent(s.llm_api_key_present);
@@ -244,6 +246,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         onRetry={commercialState.reload}
       />
 
+      <LocalSmokeChecklistPanel
+        data={smokeState.data}
+        loading={smokeState.loading}
+        error={smokeState.error}
+        onRetry={smokeState.reload}
+      />
+
       <section className="settings__group">
         <h3 className="settings__group-title">成本估算</h3>
         <div className="settings__metric-row">
@@ -387,6 +396,65 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         </button>
       </div>
     </div>
+  );
+}
+
+function LocalSmokeChecklistPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: LocalSmokeChecklist | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">本地冒烟清单</h3>
+      {loading && <p className="settings__note tiny muted">正在读取本地冒烟清单…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">待核对路径</span>
+              <strong>{data.summary.check_count}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">外部服务</span>
+              <strong>{data.summary.external_services_required ? "需要" : "不需要"}</strong>
+            </div>
+          </div>
+          <div className="settings__route-list settings__route-list--smoke">
+            {data.checks.slice(0, 6).map((check) => (
+              <div className="settings__route-row" key={check.id}>
+                <span>{check.label}</span>
+                <strong title={check.expected}>{check.path}</strong>
+              </div>
+            ))}
+          </div>
+          {data.run_steps.slice(0, 2).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
   );
 }
 

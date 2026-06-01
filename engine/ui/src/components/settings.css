@@ -143,6 +143,13 @@
   font-size: 13px;
   text-align: right;
 }
+.settings__route-list--smoke .settings__route-row {
+  align-items: flex-start;
+}
+.settings__route-list--smoke .settings__route-row strong {
+  max-width: 230px;
+  overflow-wrap: anywhere;
+}
 .settings__metric-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

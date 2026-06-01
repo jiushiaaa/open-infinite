@@ -157,7 +157,7 @@ def get_commercial_status_overview(
             status="ready",
             evidence="项目审计 JSONL、版权声明、保留策略与关键写操作审计钩子已建立。",
             source_endpoint="GET /api/stories/<slug>/audit-log",
-            next_step="后续可补审计日志 UI、导出聚合和版权审批流程。",
+            next_step="后续可继续拆版权审批、部署观测或最小发布前检查。",
         ),
     ]
     counts = {
@@ -184,7 +184,7 @@ def get_commercial_status_overview(
         ],
         "next_steps": [
             "继续以设置页商业化状态总览作为本地 beta 检查入口。",
-            "后续可做审计日志 UI/导出聚合，仍保持 additive artifact 契约。",
+            "后续可继续拆版权审批、部署观测或最小发布前检查，仍保持 additive artifact 契约。",
             "真实外部用户前再评估账号、对象存储、不可篡改审计和计费系统。",
         ],
     }

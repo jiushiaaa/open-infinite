@@ -92,6 +92,7 @@
 | `completed/v1.0-beta-state-execution-audit-hook-n.md` | v1.0-beta | State Execution Audit Hook-N 收口说明、状态执行 apply/rollback 接入本地审计日志 |
 | `completed/v1.0-beta-commercial-status-overview-o.md` | v1.0-beta | Commercial Status Overview-O 收口说明、设置页商业化状态总览 |
 | `completed/v1.0-beta-audit-log-ui-export-p.md` | v1.0-beta | Audit Log UI & Export-P 收口说明、项目工作台审计时间线和 Markdown 导出 |
+| `completed/v1.0-beta-settings-local-smoke-checklist-q.md` | v1.0-beta | Settings Local Smoke Checklist-Q 收口说明、设置页本地冒烟清单 |
 
 ## 4. article/ 论文资料
 
