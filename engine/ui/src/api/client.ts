@@ -31,6 +31,7 @@ import type {
   MasterSettingUpdateResponse,
   LocalSmokeChecklist,
   ReleasePreflightChecklist,
+  RightsApprovalChecklist,
   ProviderGatewaySummary,
   ProviderUsageSummary,
   CommercialStatusOverview,
@@ -142,6 +143,11 @@ export const api = {
   getProjectAuditLogExport(storySlug: string): Promise<ProjectAuditLogExport> {
     return getJson(
       `/api/stories/${encodeURIComponent(storySlug)}/audit-log/export`,
+    );
+  },
+  getRightsApprovalChecklist(storySlug: string): Promise<RightsApprovalChecklist> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/rights-approval-checklist`,
     );
   },
   getSelectedWorldline(storySlug: string): Promise<WorldlineSelectionResponse> {

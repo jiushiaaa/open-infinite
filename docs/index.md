@@ -94,6 +94,7 @@
 | `completed/v1.0-beta-audit-log-ui-export-p.md` | v1.0-beta | Audit Log UI & Export-P 收口说明、项目工作台审计时间线和 Markdown 导出 |
 | `completed/v1.0-beta-settings-local-smoke-checklist-q.md` | v1.0-beta | Settings Local Smoke Checklist-Q 收口说明、设置页本地冒烟清单 |
 | `completed/v1.0-beta-release-preflight-checklist-r.md` | v1.0-beta | Release Preflight Checklist-R 收口说明、发布前只读检查清单 |
+| `completed/v1.0-beta-rights-approval-checklist-s.md` | v1.0-beta | Rights Approval Checklist-S 收口说明、项目版权审批准备度只读检查 |
 
 ## 4. article/ 论文资料
 

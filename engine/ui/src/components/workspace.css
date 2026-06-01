@@ -812,6 +812,56 @@
   font-size: 12px;
 }
 
+.audit-log__rights {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255, 252, 242, 0.68);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.audit-log__rights-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.audit-log__rights p,
+.audit-log__rights strong {
+  display: block;
+  margin: 0;
+}
+
+.audit-log__rights strong {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.audit-log__rights-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.audit-log__rights-list span {
+  border: 1px solid rgba(109, 88, 55, 0.16);
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.audit-log__rights-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 .audit-log__warnings {
   margin-bottom: 10px;
 }

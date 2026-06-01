@@ -20,6 +20,7 @@ import type {
   ProjectMasterSettingWorkspace,
   ProjectWorkspaceMemory,
   ProjectWorkspaceRetrieval,
+  RightsApprovalChecklist,
   ResumeContinueResponse,
   RunTreeNode,
   WorldlineJudgementRequest,
@@ -312,6 +313,7 @@ function ProjectWorkspaceOverview({
 
 function ProjectAuditLogPanel({ storySlug }: { storySlug: string }) {
   const audit = useAsync(() => api.getProjectAuditLog(storySlug), [storySlug]);
+  const rights = useAsync(() => api.getRightsApprovalChecklist(storySlug), [storySlug]);
   const [exporting, setExporting] = useState(false);
   const [exportMsg, setExportMsg] = useState<string | null>(null);
   const [exportErr, setExportErr] = useState<string | null>(null);
@@ -389,6 +391,12 @@ function ProjectAuditLogPanel({ storySlug }: { storySlug: string }) {
       {audit.error && <ErrorState message={audit.error} onRetry={audit.reload} />}
       {!audit.loading && !audit.error && report && (
         <>
+          <RightsApprovalPanel
+            data={rights.data}
+            loading={rights.loading}
+            error={rights.error}
+            onRetry={rights.reload}
+          />
           <div className="audit-log__toolbar">
             <div>
               <p className="tiny muted">本地项目时间线</p>
@@ -437,6 +445,56 @@ function ProjectAuditLogPanel({ storySlug }: { storySlug: string }) {
         </>
       )}
     </section>
+  );
+}
+
+function RightsApprovalPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: RightsApprovalChecklist | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  const summary = data?.summary;
+  const statusText = loading
+    ? "读取中"
+    : summary
+      ? `${summary.ready_count} / ${summary.checkpoint_count} 已具备`
+      : "未读取";
+
+  return (
+    <div className="audit-log__rights">
+      <div className="audit-log__rights-head">
+        <div>
+          <p className="tiny muted">版权审批检查</p>
+          <strong>{statusText}</strong>
+        </div>
+        {error && (
+          <button type="button" className="workspace-btn workspace-btn--ghost" onClick={onRetry}>
+            重试
+          </button>
+        )}
+      </div>
+      {error && <p className="master-setting__error">{error}</p>}
+      {data && (
+        <>
+          <div className="audit-log__rights-list">
+            {data.checkpoints.slice(0, 4).map((checkpoint) => (
+              <span key={checkpoint.id}>
+                {checkpoint.label}：{checkpoint.status_label}
+              </span>
+            ))}
+          </div>
+          {data.next_steps[0] && (
+            <p className="audit-log__rights-note">{data.next_steps[0]}</p>
+          )}
+        </>
+      )}
+    </div>
   );
 }
 

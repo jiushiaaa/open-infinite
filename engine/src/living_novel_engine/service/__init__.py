@@ -88,6 +88,10 @@ from .release_preflight import (
     ReleasePreflightRequestError,
     get_release_preflight_checklist,
 )
+from .rights_approval import (
+    RightsApprovalRequestError,
+    get_rights_approval_checklist,
+)
 from .retrieval_probe import evaluate_retrieval_probes
 from .runtime_settings import (
     RuntimeSettings,
@@ -213,6 +217,8 @@ __all__ = [
     "get_quota_observability_lite",
     "ReleasePreflightRequestError",
     "get_release_preflight_checklist",
+    "RightsApprovalRequestError",
+    "get_rights_approval_checklist",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
     "HoldoutRequestError",

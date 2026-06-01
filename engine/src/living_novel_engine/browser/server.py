@@ -113,6 +113,25 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(export_project_audit_log(slug))
 
+            if path.startswith("/api/stories/") and path.endswith(
+                "/rights-approval-checklist"
+            ):
+                from living_novel_engine.service import (
+                    RightsApprovalRequestError,
+                    get_rights_approval_checklist,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/rights-approval-checklist")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_rights_approval_checklist(slug))
+                except RightsApprovalRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
             if path.startswith("/api/stories/") and path.endswith("/audit-log"):
                 from living_novel_engine.service import get_project_audit_log
 

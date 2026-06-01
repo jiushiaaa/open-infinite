@@ -98,6 +98,7 @@
 - v1.0-beta Audit Log UI & Export-P
 - v1.0-beta Settings Local Smoke Checklist-Q
 - v1.0-beta Release Preflight Checklist-R
+- v1.0-beta Rights Approval Checklist-S
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -173,16 +174,17 @@
 - v1.0-beta Audit Log UI & Export-P：新增 `GET /api/stories/<slug>/audit-log/export`，项目工作台只读展示审计时间线并支持 Markdown 导出；导出不包含事件 metadata，不接云端不可篡改审计存储
 - v1.0-beta Settings Local Smoke Checklist-Q：新增 `GET /api/settings/local-smoke-checklist`，设置抽屉只读展示本地冒烟路径；只生成 checklist，不主动执行请求、不打外网
 - v1.0-beta Release Preflight Checklist-R：新增 `GET /api/settings/release-preflight`，设置抽屉只读展示发布前检查；只读聚合本地证据，不执行真实发布、不打外网
+- v1.0-beta Rights Approval Checklist-S：新增 `GET /api/stories/<slug>/rights-approval-checklist`，项目工作台只读展示版权审批准备度；不执行真实审批、不开放公开发布、不打外网
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
 - v0.9.0-alpha Worldline Selection Persistence：新增 `selected_worldline.json`、`GET/POST /api/stories/<slug>/selected-worldline` 与前端「设为起点」，工作台可读回已选世界线
 - v0.9.0-alpha Post-run Audit Entry：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态审计、范围回放风险、缺失实体与回放审计入口；只读、不写正史账本、不驱动 runner
-- 后端 python -m pytest -q 为 693 passed
+- 后端 python -m pytest -q 为 697 passed
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 Release Preflight Checklist-R 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围。不要直接接云端托管、多租户账号、对象存储或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 Rights Approval Checklist-S 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围。不要直接接云端托管、多租户账号、对象存储或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -203,9 +205,9 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 
 | 项 | 状态 |
 | --- | --- |
-| 后端基线 | `693 passed` |
+| 后端基线 | `697 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N、v1.0-beta Commercial Status Overview-O、v1.0-beta Audit Log UI & Export-P、v1.0-beta Settings Local Smoke Checklist-Q、v1.0-beta Release Preflight Checklist-R、v1.0-beta Rights Approval Checklist-S |
 | 官方下一刀 | v1.0-beta 后续商业化加固需继续拆分；不要直接云端化 |
 | 后续主线 | `v1.0-beta` 本地优先商业化加固 -> 真实外部用户前再评估云端多租户/计费系统 |
 
@@ -222,7 +224,7 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 可读可验收，但不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座变成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地审计 schema、权限矩阵草案、项目级版权声明、本地配额/观测、部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子和设置页商业化状态总览已收口；后续继续本地优先商业化加固 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地审计 schema、权限矩阵草案、项目级版权声明、本地配额/观测、部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、设置页商业化状态总览、本地冒烟、发布前检查和版权审批准备度已收口；后续继续本地优先商业化加固 |
 
 ## 资料位置
 
@@ -834,6 +836,15 @@ React/Vite 产品级前端主闭环已完成：
 - 收口归档见 `docs/completed/v1.0-beta-release-preflight-checklist-r.md`。
 - 边界：不执行真实发布、不主动打请求、不写 artifact、不打外网、不接真实认证、对象存储、云端观测或计费；不改 `run_scene`。
 - 验证：`tests/test_v100_release_preflight_checklist.py` 新增 service/HTTP 测试；设置/商业化邻近回归 29 passed；前端 build 通过；完整后端基线提升到 693 passed。
+
+## v1.0-beta Rights Approval Checklist-S 收口摘要
+
+- 新增 `get_rights_approval_checklist()` 与 `GET /api/stories/<slug>/rights-approval-checklist`。
+- 长篇项目工作台「项目审计日志」区新增「版权审批检查」只读面板，展示已具备/需留意数量、前 4 条检查项和下一步。
+- 清单聚合项目版权/来源声明、授权确认、local export 许可、`rights_reviewed` 审计事件和公开发布保护项。
+- 收口归档见 `docs/completed/v1.0-beta-rights-approval-checklist-s.md`。
+- 边界：不执行真实审批、不开放公开发布、不写 artifact、不打外网、不接真实认证、对象存储、云端不可篡改审计或计费；不改 `run_scene`。
+- 验证：`tests/test_v100_rights_approval_checklist.py` 新增 service/HTTP 测试；版权/审计邻近回归 15 passed；前端 build 通过；完整后端基线提升到 697 passed。
 
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 

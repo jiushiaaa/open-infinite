@@ -78,6 +78,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Audit UI-P | Audit Log UI & Export：项目审计日志展示与 Markdown 导出 | 已收口，见 `../docs/completed/v1.0-beta-audit-log-ui-export-p.md` |
 | v1.0-beta Smoke-Q | Settings Local Smoke Checklist：设置页本地冒烟清单 | 已收口，见 `../docs/completed/v1.0-beta-settings-local-smoke-checklist-q.md` |
 | v1.0-beta Preflight-R | Release Preflight Checklist：发布前只读检查清单 | 已收口，见 `../docs/completed/v1.0-beta-release-preflight-checklist-r.md` |
+| v1.0-beta Rights-S | Rights Approval Checklist：项目版权审批准备度清单 | 已收口，见 `../docs/completed/v1.0-beta-rights-approval-checklist-s.md` |
 
 ### 产品化阶段说明
 
@@ -92,9 +93,9 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.8+ A-slices | 机制接缝与解释层 MVP | action、diagnostics、registry、emergence、aliases、runtime memory 已可解释，不默认强执行 |
 | v0.8.6-v0.8.10 | 长篇产品化收束 | 把长篇底座做成上传、检查、管理、审计、回放、继续创作工作流 |
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子和发布前检查 |
+| v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略、关键写操作审计钩子、发布前检查和版权审批准备度 |
 
-**测试基线**：`pytest -q` → **693 passed**（2026-06-01，v1.0-beta Release Preflight Checklist-R 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **697 passed**（2026-06-01，v1.0-beta Rights Approval Checklist-S 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -627,6 +628,16 @@ copy .env.example .env
 - 设置抽屉新增「发布前检查」只读区，展示已具备/需留意数量和前 6 条检查项。
 - 该接口只读聚合本地证据，不执行真实发布、不主动打请求、不写 artifact、不读取或展示明文密钥。
 - 当前不接真实认证、对象存储、云端观测或计费；不改变 `run_scene`。
+
+### v1.0-beta Rights Approval Checklist-S（已收口）
+
+本版本已把项目级版权审批准备度放进长篇项目工作台：
+
+- `GET /api/stories/<slug>/rights-approval-checklist` 返回 `version=v1.0-beta-rights-approval-checklist-s`、`summary`、`checkpoints`、`warnings` 与 `next_steps`。
+- 清单聚合项目版权/来源声明、授权确认、local export 许可、`rights_reviewed` 审计事件和公开发布保护项。
+- 长篇项目工作台「项目审计日志」区新增「版权审批检查」只读面板，展示已具备/需留意数量、检查项状态和下一步。
+- `story_slug` 仍走安全校验；非法 slug 返回 400，缺项目返回 404。
+- 当前只读检查准备度，不执行真实审批、不开放公开发布、不写 artifact、不打外网、不接真实认证、对象存储、云端不可篡改审计或计费；不改变 `run_scene`。
 
 ## 快速演示
 

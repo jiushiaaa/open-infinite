@@ -872,6 +872,33 @@ export interface ProjectAuditLogExport {
   next_steps: string[];
 }
 
+export interface RightsApprovalCheckpoint {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | string;
+  status_label: string;
+  evidence: string;
+  next_step: string;
+}
+
+export interface RightsApprovalChecklist {
+  version: string;
+  mode: string;
+  status: "ready" | "attention" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  summary: {
+    checkpoint_count: number;
+    ready_count: number;
+    attention_count: number;
+    public_publish_enabled: boolean;
+    requires_export_confirmation: boolean;
+  };
+  checkpoints: RightsApprovalCheckpoint[];
+  warnings: string[];
+  next_steps: string[];
+}
+
 export interface LocalSmokeChecklistItem {
   id: string;
   label: string;
