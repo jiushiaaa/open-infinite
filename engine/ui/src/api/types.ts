@@ -800,6 +800,31 @@ export interface ProviderUsageSummary {
   };
 }
 
+export interface CommercialStatusDomain {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | "deferred" | string;
+  status_label: string;
+  evidence: string;
+  source_endpoint: string;
+  next_step: string;
+}
+
+export interface CommercialStatusOverview {
+  version: string;
+  mode: string;
+  overall_status: "ready" | "attention" | string;
+  summary: {
+    total_domains: number;
+    ready_domains: number;
+    attention_domains: number;
+    deferred_domains: number;
+  };
+  domains: CommercialStatusDomain[];
+  warnings: string[];
+  next_steps: string[];
+}
+
 // ── v0.7.3 视觉资产 ───────────────────────────────────────
 
 export type AssetStatus = "ready" | "failed" | "placeholder";

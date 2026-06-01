@@ -31,6 +31,7 @@ import type {
   MasterSettingUpdateResponse,
   ProviderGatewaySummary,
   ProviderUsageSummary,
+  CommercialStatusOverview,
   ProjectWorkspace,
   ProjectHealth,
   InterventionRequest,
@@ -211,6 +212,9 @@ export const api = {
   },
   getProviderUsage(): Promise<ProviderUsageSummary> {
     return getJson("/api/settings/provider-usage");
+  },
+  getCommercialStatusOverview(): Promise<CommercialStatusOverview> {
+    return getJson("/api/settings/commercial-status-overview");
   },
   postJobIntervention(req: InterventionRequest): Promise<JobSubmitResponse> {
     return postJson("/api/jobs/intervention", req);

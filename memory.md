@@ -2,7 +2,7 @@
 
 > **用途**：供 Cursor / 多会话 Agent 快速恢复上下文，避免遗忘已完成工作与路线。  
 > **维护约定**：每完成一次有意义的开发/设计/验收任务后，在本文件末尾 **「变更日志」** 追加一条记录，并视情况更新「当前状态」「已知缺口」「下一步」。  
-> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M 与 v1.0-beta State Execution Audit Hook-N 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、对象存储、真实认证或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 683 passed，前端 build 通过）
+> **最后更新**：2026-06-01（v0.8.0-A 至 v0.8.5-A Long Novel Memory 底座 + ActDirector-A + Discourse-aware Narrator-A + Dynamic Action Registry-A + Emergence Mining-A + Entity Aliases / Entity Resolution + Runtime Memory Consumption-A + 前端 Artifact Panel + Long Upload Productization + v0.8.6 Long Import Review + v0.8.7 Resumable Ingest Jobs + v0.8.8 Long Project Workspace + v0.8.9 Long Replay & Audit UI + v0.8.10-A/B Runner State Execution 已完成；v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M、v1.0-beta State Execution Audit Hook-N 与 v1.0-beta Commercial Status Overview-O 已整体收口；当前不接图数据库、LangGraph、OASIS、CAMEL、云端多租户、对象存储、真实认证或计费系统；docs 根目录已收束为活文档，已收口版本文档归档到 `docs/completed/`；后端 685 passed，前端 build 通过）
 
 ---
 
@@ -102,10 +102,10 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 
 | 项 | 值 |
 |----|-----|
-| **测试基线** | 后端 `683 passed`（2026-06-01，v1.0-beta State Execution Audit Hook-N 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
+| **测试基线** | 后端 `685 passed`（2026-06-01，v1.0-beta Commercial Status Overview-O 收口后完整回归通过）；前端 `engine/ui` typecheck + vite build 通过 |
 | **官方下一刀** | v1.0-beta 后续商业化加固需继续拆分；不要直接跳云端多租户、对象存储或计费系统 |
 | **后续路线** | v0.8 Long Novel Memory 与 v0.8+ 行动/叙事/涌现 A-slices 已收口 → v0.8.x Entity Aliases / Runtime Memory Consumption / Artifact Panel / Long Upload Productization / Long Import Review / Resumable Ingest Jobs / Long Project Workspace / Long Replay & Audit UI / Runner State Execution A/B 已收口 → v0.9.0-alpha Long Novel Creation Loop 已整体收口 → v0.9.1-v0.9.4 触发式增强已收口 → v1.0-beta Commercial Hardening 本地优先加固 |
-| **刚收口** | v1.0-beta State Execution Audit Hook-N：状态 overlay apply/rollback 后自动追加状态执行本地审计事件。 |
+| **刚收口** | v1.0-beta Commercial Status Overview-O：设置页只读展示本地商业化状态总览。 |
 
 ---
 
@@ -140,6 +140,7 @@ python -m living_novel_engine.cli browse   # v0.4 世界线浏览器
 | v1.0-beta MasterSettingAudit-L | MasterSetting Audit Hook | 设定轻编辑审计接入 | 已收口，见 `docs/completed/v1.0-beta-master-setting-audit-hook-l.md` |
 | v1.0-beta WorldlineSelectionAudit-M | Worldline Selection Audit Hook | 世界线选择审计接入 | 已收口，见 `docs/completed/v1.0-beta-worldline-selection-audit-hook-m.md` |
 | v1.0-beta StateExecutionAudit-N | State Execution Audit Hook | 状态执行审计接入 | 已收口，见 `docs/completed/v1.0-beta-state-execution-audit-hook-n.md` |
+| v1.0-beta CommercialStatus-O | Commercial Status Overview | 设置页商业化状态总览 | 已收口，见 `docs/completed/v1.0-beta-commercial-status-overview-o.md` |
 
 ## 3.2 阶段性质归类
 
@@ -473,6 +474,7 @@ lne list-genres
 ✅ v1.0-beta MasterSetting Audit Hook-L（已收口，见 docs/completed/v1.0-beta-master-setting-audit-hook-l.md）
 ✅ v1.0-beta Worldline Selection Audit Hook-M（已收口，见 docs/completed/v1.0-beta-worldline-selection-audit-hook-m.md）
 ✅ v1.0-beta State Execution Audit Hook-N（已收口，见 docs/completed/v1.0-beta-state-execution-audit-hook-n.md）
+✅ v1.0-beta Commercial Status Overview-O（已收口，见 docs/completed/v1.0-beta-commercial-status-overview-o.md）
 → v1.0-beta 后续商业化加固拆分（先明确下一刀边界，不直接云端化）
 ```
 
@@ -521,6 +523,7 @@ lne list-genres
 - [x] **v1.0-beta MasterSetting Audit Hook-L**：设定轻编辑写操作接入本地审计日志；当前不接真实账号或不可篡改审计存储
 - [x] **v1.0-beta Worldline Selection Audit Hook-M**：世界线选择写操作接入本地审计日志；builtin 样例选择仍保持 outputs 记录语义
 - [x] **v1.0-beta State Execution Audit Hook-N**：状态 overlay apply/rollback 写操作接入本地审计日志；当前不改变状态执行规则
+- [x] **v1.0-beta Commercial Status Overview-O**：设置页商业化状态总览；当前只读展示，不执行认证/云端/计费
 - [ ] 验收：同一场景 ≥5 角色参与推演；事件流仍被 contract/retrieval/browser 读取
 
 ### v0.7 产品级前端 ✅（九刀主闭环已完成）
@@ -1926,4 +1929,16 @@ lne list-genres
   - 新增 `docs/completed/v1.0-beta-state-execution-audit-hook-n.md`，归档审计 hook、边界和验证。
 - **测试/验证**：先写红灯测试确认缺少 JSONL 状态执行事件，补实现后 focused 为 **1 passed**；状态执行/审计/追加策略相邻回归为 **20 passed**；完整门禁为后端 **683 passed**，前端 `pnpm run build` 通过，`git diff --check` 通过。
 - **边界**：不接真实账号、团队空间、认证 provider、请求级 ACL、云端不可篡改审计存储、对象存储、数据库或队列；不改变状态执行 eligibility、候选筛选、overlay 写入和回滚规则；不让 overlay 自动驱动下一轮 runner，不改 `run_scene`。
-- **下一刀建议**：继续 v1.0-beta 本地优先商业化加固，可做设置页商业化状态总览或审计日志 UI/导出聚合；不要直接进入云端多租户、对象存储或商业计费系统。
+- **下一刀建议**：Commercial Status Overview-O 已收口；后续继续 v1.0-beta 本地优先商业化加固，可做审计日志 UI/导出聚合或设置页本地 smoke checklist；不要直接进入云端多租户、对象存储或商业计费系统。
+
+### 2026-06-01 — v1.0-beta Commercial Status Overview-O
+
+- **做了什么**：
+  - 新增 `get_commercial_status_overview()` 与 `GET /api/settings/commercial-status-overview`。
+  - 设置抽屉新增「商业化状态总览」只读区，展示本地已就绪、需留意、平台化暂缓数量和逐域状态。
+  - 总览聚合商业化范围、provider/cost、配额观测、权限矩阵、账号/项目空间、云端持久化、本地部署、审计与版权边界。
+  - 接口只返回摘要证据，不返回明文 Key 或环境变量名，不写 artifact、不创建模型客户端、不打外网。
+  - 新增 `docs/completed/v1.0-beta-commercial-status-overview-o.md`，归档 UI/API、边界和验证。
+- **测试/验证**：先写红灯测试确认缺少 `get_commercial_status_overview`，补实现后 focused 为 **2 passed**；设置/商业化相邻回归为 **35 passed**；前端 `pnpm run build` 通过；本地后端 + Vite HTTP 冒烟通过；完整门禁为后端 **685 passed**，`git diff --check` 通过。
+- **边界**：不接真实账号、团队空间、认证 provider、请求级 ACL、云端迁移、对象存储、数据库、队列或计费系统；不改变 provider 路由、默认 mock、状态执行规则或 `run_scene`。
+- **下一刀建议**：继续 v1.0-beta 本地优先商业化加固，可做审计日志 UI/导出聚合，或补设置页本地 smoke checklist；不要直接进入云端多租户、对象存储或商业计费系统。

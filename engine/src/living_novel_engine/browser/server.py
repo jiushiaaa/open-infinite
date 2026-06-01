@@ -269,6 +269,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
                 return self._send_json(get_commercial_hardening_scope())
 
+            if path == "/api/settings/commercial-status-overview":
+                from living_novel_engine.service import get_commercial_status_overview
+
+                host, port = self.server.server_address[:2]
+                return self._send_json(
+                    get_commercial_status_overview(api_host=str(host), api_port=int(port))
+                )
+
             if path == "/api/settings/permission-matrix":
                 from living_novel_engine.service import get_permission_matrix_draft
 

@@ -45,6 +45,7 @@ from .commercial_audit_log import (
 )
 from .commercial_hardening import get_commercial_hardening_scope
 from .commercial_permissions import get_permission_matrix_draft
+from .commercial_status_overview import get_commercial_status_overview
 from .cloud_persistence_boundary import get_cloud_persistence_boundary
 from .copyright_statement import (
     ProjectCopyrightStatementConflictError,
@@ -187,6 +188,7 @@ __all__ = [
     "get_project_audit_log",
     "get_commercial_hardening_scope",
     "get_permission_matrix_draft",
+    "get_commercial_status_overview",
     "get_cloud_persistence_boundary",
     "ProjectCopyrightStatementConflictError",
     "ProjectCopyrightStatementRequestError",

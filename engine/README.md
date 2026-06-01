@@ -73,6 +73,8 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Audit Hook-K | Copyright Audit Hook：版权声明写入审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-copyright-audit-hook-k.md` |
 | v1.0-beta Audit Hook-L | MasterSetting Audit Hook：设定轻编辑审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-master-setting-audit-hook-l.md` |
 | v1.0-beta Audit Hook-M | Worldline Selection Audit Hook：世界线选择审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-worldline-selection-audit-hook-m.md` |
+| v1.0-beta Audit Hook-N | State Execution Audit Hook：状态执行审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-state-execution-audit-hook-n.md` |
+| v1.0-beta Status-O | Commercial Status Overview：设置页商业化状态总览 | 已收口，见 `../docs/completed/v1.0-beta-commercial-status-overview-o.md` |
 
 ### 产品化阶段说明
 
@@ -89,7 +91,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略和关键写操作审计钩子 |
 
-**测试基线**：`pytest -q` → **683 passed**（2026-06-01，v1.0-beta State Execution Audit Hook-N 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **685 passed**（2026-06-01，v1.0-beta Commercial Status Overview-O 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -582,6 +584,16 @@ copy .env.example .env
 - `GET /api/stories/<slug>/audit-log` 会继续聚合这些事件。
 - 内置样例保持既有状态执行语义，审计日志追加冲突会降级跳过。
 - 当前不改变状态执行候选筛选、overlay 写入/回滚规则或 `run_scene` 默认行为；不接真实账号、团队空间、认证 provider、云端不可篡改审计存储、对象存储、数据库或队列。
+
+### v1.0-beta Commercial Status Overview-O（已收口）
+
+本版本已把本地优先商业化状态压成设置页可读总览：
+
+- `GET /api/settings/commercial-status-overview` 返回 `version`、`mode`、`overall_status`、`summary`、`domains`、`warnings` 与 `next_steps`。
+- 总览聚合商业化范围、provider/cost、配额观测、权限矩阵、账号/项目空间、云端持久化、本地部署、审计与版权边界。
+- 设置抽屉新增「商业化状态总览」只读区，展示已就绪、需留意、平台化暂缓的域数量和逐域状态。
+- 接口只返回摘要证据，不返回明文 Key 或环境变量名，不创建模型客户端、不打外网、不写 artifact。
+- 当前不执行真实认证、权限拦截、云端迁移、对象存储或计费；不改变 `run_scene`。
 
 ## 快速演示
 
