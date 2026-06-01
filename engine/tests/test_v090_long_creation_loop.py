@@ -13,7 +13,12 @@ from click.testing import CliRunner
 
 from living_novel_engine.cli import main
 from living_novel_engine.browser import indexer, server
-from living_novel_engine.service import import_novel_from_payload, run_intervention, write_holdout
+from living_novel_engine.service import (
+    get_project_audit_log,
+    import_novel_from_payload,
+    run_intervention,
+    write_holdout,
+)
 
 
 def _chapter_export_api():
@@ -734,6 +739,16 @@ def test_worldline_selection_persists_into_creation_loop(isolated_story_dirs):
     workspace = indexer.get_project_workspace("export-story")
     assert workspace["creation_loop"]["selected"]["run_id"] == run_id
     assert workspace["creation_loop"]["selected"]["branch_id"] == branch_id
+    audit = get_project_audit_log("export-story", projects_dir=projects)
+    audit_event = next(
+        event
+        for event in audit["events"]
+        if event["action"] == "worldline_selected"
+        and event["artifact"] == "memory/project_audit_log.jsonl"
+    )
+    assert audit_event["metadata"]["artifact_path"] == "selected_worldline.json"
+    assert audit_event["metadata"]["run_id"] == run_id
+    assert audit_event["metadata"]["branch_id"] == branch_id
 
     with pytest.raises(WorldlineSelectionRequestError):
         select_worldline(

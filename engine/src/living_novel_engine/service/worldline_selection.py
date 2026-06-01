@@ -9,6 +9,10 @@ from pathlib import Path
 from typing import Any
 
 from living_novel_engine.browser.paths import outputs_dir
+from living_novel_engine.service.commercial_audit_log import (
+    ProjectAuditLogConflictError,
+    append_project_audit_log_event,
+)
 from living_novel_engine.story_loader import load_story
 
 _SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
@@ -148,4 +152,23 @@ def select_worldline(
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(selection, ensure_ascii=False, indent=2), encoding="utf-8")
+    try:
+        append_project_audit_log_event(
+            slug,
+            {
+                "action": "worldline_selected",
+                "label": "选择继续世界线",
+                "summary": "已将世界线设为下一章起点。",
+                "actor_type": "user",
+                "severity": "info",
+                "metadata": {
+                    "artifact_path": "selected_worldline.json",
+                    "run_id": rid,
+                    "branch_id": bid,
+                    "branch_label": selection["branch_label"],
+                },
+            },
+        )
+    except ProjectAuditLogConflictError:
+        pass
     return selection

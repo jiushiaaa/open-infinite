@@ -27,6 +27,7 @@ _APPEND_ACTIONS = {
     "retention_policy_reviewed",
     "project_space_reviewed",
     "audit_reviewed",
+    "worldline_selected",
 }
 _APPEND_SEVERITIES = {"info", "warning", "action_required"}
 _ACTOR_TYPES = {"user", "system"}

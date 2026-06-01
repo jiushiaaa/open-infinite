@@ -72,6 +72,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v1.0-beta Retention-J | Project Retention Policy：项目删除/保留策略 | 已收口，见 `../docs/completed/v1.0-beta-project-retention-policy-j.md` |
 | v1.0-beta Audit Hook-K | Copyright Audit Hook：版权声明写入审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-copyright-audit-hook-k.md` |
 | v1.0-beta Audit Hook-L | MasterSetting Audit Hook：设定轻编辑审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-master-setting-audit-hook-l.md` |
+| v1.0-beta Audit Hook-M | Worldline Selection Audit Hook：世界线选择审计钩子 | 已收口，见 `../docs/completed/v1.0-beta-worldline-selection-audit-hook-m.md` |
 
 ### 产品化阶段说明
 
@@ -88,7 +89,7 @@ Phase 0 交付一个 **CLI 编排引擎**：内置原创样例世界，用户施
 | v0.9.0-alpha | 长篇产品闭环 | 已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
 | v0.9.1-v1.0-beta | 增强与商业化 | provider/cost、MasterSetting、图记忆/advanced runner 评估、商业化范围复核、本地部署就绪、云端持久化边界、账号/项目空间边界、审计追加策略、项目保留策略和关键写操作审计钩子 |
 
-**测试基线**：`pytest -q` → **682 passed**（2026-06-01，v1.0-beta MasterSetting Audit Hook-L 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
+**测试基线**：`pytest -q` → **682 passed**（2026-06-01，v1.0-beta Worldline Selection Audit Hook-M 收口后完整回归通过）；`engine/ui` 执行 `pnpm run build` 通过。
 
 ### Run 分支产物
 
@@ -522,7 +523,7 @@ copy .env.example .env
 
 - `POST /api/stories/<slug>/audit-log/events`
 - 写入固定为 `memory/project_audit_log.jsonl`，采用追加 JSONL，不覆盖既有 artifact。
-- 只允许白名单动作：`manual_note`、`master_setting_updated`、`rights_reviewed`、`retention_policy_reviewed`、`project_space_reviewed`、`audit_reviewed`。
+- 只允许白名单动作：`manual_note`、`master_setting_updated`、`rights_reviewed`、`retention_policy_reviewed`、`project_space_reviewed`、`audit_reviewed`、`worldline_selected`。
 - 坏 payload 返回 400，缺项目返回 404，内置样例只读返回 409。
 - `metadata` 会丢弃疑似密钥字段或密钥值，并在响应 `warnings` 中说明。
 - `GET /api/stories/<slug>/audit-log` 继续聚合追加后的 JSONL 行；权限矩阵草案同步标记审计日志为 `read + append`，但仍不执行真实认证。
@@ -557,6 +558,17 @@ copy .env.example .env
 - 审计追加白名单新增 `master_setting_updated`。
 - `GET /api/stories/<slug>/audit-log` 会继续聚合该事件。
 - 现有 `POST /api/stories/<slug>/master-setting` 错误语义保持不变。
+- 当前不接真实账号、团队空间、认证 provider、云端不可篡改审计存储、对象存储、数据库或队列。
+
+### v1.0-beta Worldline Selection Audit Hook-M（已收口）
+
+本版本已把世界线选择写操作接入本地项目审计日志：
+
+- `select_worldline()` 在成功写入 `selected_worldline.json` 后追加 `worldline_selected` 审计事件。
+- 审计事件写入导入项目的 `memory/project_audit_log.jsonl`，并带上 `artifact_path`、`run_id`、`branch_id` 与 `branch_label`。
+- 审计追加白名单新增 `worldline_selected`。
+- `GET /api/stories/<slug>/audit-log` 会继续聚合该事件。
+- 内置样例仍保持既有 `outputs/story_selections/` 记录语义，审计日志追加冲突会降级跳过。
 - 当前不接真实账号、团队空间、认证 provider、云端不可篡改审计存储、对象存储、数据库或队列。
 
 ## 快速演示
@@ -810,3 +822,4 @@ outputs/run_<ts>_resume_intervene_linear/
 | v1.0-beta Retention-J | 项目删除/保留策略（已收口） |
 | v1.0-beta Audit Hook-K | 版权声明写入审计钩子（已收口） |
 | v1.0-beta Audit Hook-L | 设定轻编辑审计钩子（已收口） |
+| v1.0-beta Audit Hook-M | 世界线选择审计钩子（已收口） |

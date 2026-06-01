@@ -92,6 +92,7 @@
 - v1.0-beta Project Retention Policy-J
 - v1.0-beta Copyright Audit Hook-K
 - v1.0-beta MasterSetting Audit Hook-L
+- v1.0-beta Worldline Selection Audit Hook-M
 - v0.9.0-alpha Creation Loop Checklist
 - v0.9.0-alpha Continuation Hint
 - v0.9.0-alpha Resume Continue HTTP Job
@@ -161,6 +162,7 @@
 - v1.0-beta Project Retention Policy-J：新增 `GET/POST /api/stories/<slug>/retention-policy`，本地写入 `memory/project_retention_policy.json` 并追加 `retention_policy_reviewed` 审计事件；不实际删除文件、不接对象存储/数据库/队列
 - v1.0-beta Copyright Audit Hook-K：`write_project_copyright_statement()` 成功写入 `memory/project_copyright_statement.json` 后追加 `rights_reviewed` 审计事件；不改变版权声明 API 行为，不接真实账号或云端不可篡改审计存储
 - v1.0-beta MasterSetting Audit Hook-L：`update_master_setting()` 成功写入 `memory/master_setting.yaml` 与 `memory/master_setting_update_report.json` 后追加 `master_setting_updated` 审计事件；不改变设定编辑 API 行为，不接真实账号或云端不可篡改审计存储
+- v1.0-beta Worldline Selection Audit Hook-M：`select_worldline()` 成功写入 `selected_worldline.json` 后追加 `worldline_selected` 审计事件；builtin 样例选择仍保持 outputs 记录语义，不接真实账号或云端不可篡改审计存储
 - v0.9.0-alpha Creation Loop Checklist：项目工作台 additive 返回 `creation_loop`，前端展示推荐世界线、五步清单与下一步提醒；不写 artifact，不改 `run_scene`
 - v0.9.0-alpha Continuation Hint：前端在推荐世界线下展示 `continue_hint` CLI 续写入口
 - v0.9.0-alpha Resume Continue HTTP Job：新增 `run_resume_continue()` 与 `POST /api/jobs/resume-continue`，前端可显式生成下一章并跳到新 run 的 `linear` 分支；不改 `run_scene` 默认行为
@@ -170,7 +172,7 @@
 - 前端 cd engine/ui && pnpm run build 通过
 - git diff --check 无 whitespace error
 
-下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 MasterSetting Audit Hook-L 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围。不要直接接云端托管、多租户账号、对象存储或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
+下一步仍在 `v1.0-beta` 本地优先商业化加固内，但 Worldline Selection Audit Hook-M 之后没有更细官方小刀；继续前请先按 `memory.md`、主迭代计划和本文件拆出明确、可验证、可回滚的小范围。不要直接接云端托管、多租户账号、对象存储或商业计费。Zep / 图数据库 / GraphRAG 已在 v0.9.3 保持为“不触发重依赖接入，等待真实失败样例”；LangGraph / OASIS / CAMEL 已在 v0.9.4 保持为“不触发重依赖接入，等待真实复杂 run 失败样例”。请先读项目文档和现有代码，再判断具体实现；如果要改代码，遵守：
 - 不改 run_scene 默认行为
 - 不改 chapter.md/events.json/state_snapshot.json/multi_agent_trace.json/causal_diff.json 既有契约
 - 新 artifact/API 字段 additive
@@ -193,7 +195,7 @@ Living Novel Engine 是 `D:\AI\open-infinite\engine` 下的活体小说运行时
 | --- | --- |
 | 后端基线 | `682 passed` |
 | 前端基线 | `pnpm run build` 通过 |
-| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L |
+| 当前已收口 | v0.7 Product Web App、v0.7.2、v0.7.3、v0.7.4、v0.7.5、v0.8.0-A 至 v0.8.5-A、ActDirector-A、Discourse-aware Narrator-A、Dynamic Action Registry-A、Emergence Mining-A、Entity Aliases、Runtime Memory Consumption-A、Frontend Artifact Panel、Long Upload Productization、v0.8.6 Long Import Review、v0.8.7 Resumable Ingest Jobs、v0.8.8 Long Project Workspace、v0.8.9 Long Replay & Audit UI、v0.8.10-A/B Runner State Execution、v0.9.0-alpha Long Novel Creation Loop、v0.9.1 Provider & Cost Gateway Lite、v0.9.2 MasterSetting Workspace Lite、v0.9.3 Graph Memory Evaluation Spike、v0.9.4 Advanced Runner Evaluation Spike、v1.0-beta Commercial Hardening Scope-A、v1.0-beta Commercial Audit Log Schema-B、v1.0-beta Permission Matrix Draft-C、v1.0-beta Project Copyright Statement-D、v1.0-beta Quota & Observability Lite-E、v1.0-beta Local Deployment Readiness-F、v1.0-beta Cloud Persistence Boundary-G、v1.0-beta Account Project Space Boundary-H、v1.0-beta Audit Log Append Policy-I、v1.0-beta Project Retention Policy-J、v1.0-beta Copyright Audit Hook-K、v1.0-beta MasterSetting Audit Hook-L、v1.0-beta Worldline Selection Audit Hook-M |
 | 官方下一刀 | v1.0-beta 后续商业化加固需继续拆分；不要直接云端化 |
 | 后续主线 | `v1.0-beta` 本地优先商业化加固 -> 真实外部用户前再评估云端多租户/计费系统 |
 
@@ -762,6 +764,16 @@ React/Vite 产品级前端主闭环已完成：
 - 边界：不改变设定轻编辑 API 错误语义；不接真实账号、团队空间、认证 provider、请求级 ACL、云端不可篡改审计存储、对象存储、数据库或队列；不改 `run_scene`。
 - 验证：`tests/test_v092_master_setting_update.py` 新增审计钩子测试；邻近回归 19 passed；完整后端基线提升到 682 passed。
 
+## v1.0-beta Worldline Selection Audit Hook-M 收口摘要
+
+- `select_worldline()` 成功写入 `selected_worldline.json` 后追加 `worldline_selected` 审计事件。
+- 审计事件写入导入项目的 `memory/project_audit_log.jsonl`，并带上 `artifact_path=selected_worldline.json`、`run_id`、`branch_id` 与 `branch_label`。
+- 审计追加白名单新增 `worldline_selected`。
+- builtin 样例仍保持既有 `outputs/story_selections/` 记录语义，审计追加冲突会降级跳过。
+- 收口归档见 `docs/completed/v1.0-beta-worldline-selection-audit-hook-m.md`。
+- 边界：不改变世界线选择 API 错误语义；不接真实账号、团队空间、认证 provider、请求级 ACL、云端不可篡改审计存储、对象存储、数据库或队列；不改 `run_scene`。
+- 验证：`tests/test_v090_long_creation_loop.py` 增强世界线选择审计断言；邻近回归 31 passed；完整后端基线保持 682 passed。
+
 ## v0.9.0-alpha Creation Loop Checklist 收口摘要
 
 - `browser.indexer.get_project_workspace()` 版本提升为 `v0.9.0-alpha`，additive 返回 `creation_loop`：`recommended`、`candidates`、五步 `checklist`、中文 `next_steps`。
@@ -833,6 +845,7 @@ React/Vite 产品级前端主闭环已完成：
 | v1.0-beta Retention-J | Project Retention Policy | 本地项目删除/保留策略 artifact 与 API | 已收口 |
 | v1.0-beta Audit Hook-K | Copyright Audit Hook | 版权/来源声明写入接入本地审计日志 | 已收口 |
 | v1.0-beta Audit Hook-L | MasterSetting Audit Hook | 设定轻编辑写入接入本地审计日志 | 已收口 |
+| v1.0-beta Audit Hook-M | Worldline Selection Audit Hook | 世界线选择写入接入本地审计日志 | 已收口 |
 
 ## 每次任务完成后的收口清单
 
