@@ -150,6 +150,8 @@
 | `completed/graph-memory-provider-spike-opt-in-decision-ledger-preview-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP 收口说明、决策账本预览 API、CLI 与项目工作台 |
 | `completed/graph-memory-provider-spike-opt-in-final-readiness-summary-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Final Readiness Summary MVP 收口说明、最终就绪摘要 API、CLI 与项目工作台 |
 | `completed/graph-memory-provider-spike-opt-in-human-signoff-schema-draft-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP 收口说明、人工签收 schema 草案 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-opt-in-config-and-adapter-slices-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Config Draft、Local Provider Contract、Single Fixture Dry-run Harness 与 Mock-compatible Adapter 四刀收口说明 |
+| `completed/graph-memory-provider-spike-manual-mock-adapter-review-mvp.md` | 后续增强 | Graph Memory Provider Spike Manual Mock Adapter Review 人工复核包与合规检查收口说明 |
 
 ## 4. article/ 论文资料
 

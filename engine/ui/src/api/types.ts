@@ -2844,6 +2844,429 @@ export interface GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport {
   next_steps: string[];
 }
 
+export interface GraphMemoryProviderSpikeOptInConfigEntry {
+  id: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_schema_section_id: string;
+  fixture_id: string;
+  eval_id: string;
+  config_key: string;
+  config_format: string;
+  storage_policy: string;
+  save_allowed: boolean;
+  config_saved: boolean;
+  plaintext_key_required: boolean;
+  plaintext_key_returned: boolean;
+  real_provider_config_allowed: boolean;
+  mock_compatible: boolean;
+  field_mapping_count: number;
+  required_signoff_count: number;
+  draft_values: Record<string, unknown>;
+  field_mappings: GraphMemoryProviderSpikeOptInConfigFieldMapping[];
+}
+
+export interface GraphMemoryProviderSpikeOptInConfigFieldMapping {
+  id: string;
+  provider_id: string;
+  field: string;
+  label: string;
+  source_schema_field_id: string;
+  source_decision_ledger_row_id: string;
+  target_config_path: string;
+  required: boolean;
+  saved: boolean;
+  storage_policy: string;
+}
+
+export interface GraphMemoryProviderSpikeOptInConfigDraftReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_opt_in_config_draft" | string;
+  status:
+    | "ready_for_opt_in_config_draft"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_human_signoff_schema_status: string;
+    source_schema_draft_status: string;
+    status: string;
+    provider_count: number;
+    config_entry_count: number;
+    field_mapping_count: number;
+    writes_artifacts: boolean;
+    config_saved: boolean;
+    signoff_saved: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  config_draft: {
+    id: string;
+    status: string;
+    ready: boolean;
+    draft_version: string;
+    config_entry_count: number;
+    field_mapping_count: number;
+    save_allowed: boolean;
+    config_saved: boolean;
+    mock_compatible: boolean;
+    real_provider_config_allowed: boolean;
+    reason: string;
+  };
+  adapter_boundary: {
+    id: string;
+    status: string;
+    provider_count: number;
+    mock_adapter_allowed: boolean;
+    real_provider_adapter_allowed: boolean;
+    external_service_calls_allowed: boolean;
+    plaintext_key_allowed: boolean;
+    writes_artifacts: boolean;
+    allowed_modes: string[];
+    blocked_modes: string[];
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    config_entry_count: number;
+  };
+  config_entries: GraphMemoryProviderSpikeOptInConfigEntry[];
+  field_mappings: GraphMemoryProviderSpikeOptInConfigFieldMapping[];
+  draft_materials: string[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeLocalProviderContractItem {
+  id: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_config_entry_id: string;
+  fixture_id: string;
+  eval_id: string;
+  contract_version: string;
+  adapter_mode: string;
+  mock_adapter_required: boolean;
+  real_provider_calls_allowed: boolean;
+  plaintext_key_allowed: boolean;
+  writes_artifacts: boolean;
+  implements_methods: string[];
+  input_schema: Record<string, string>;
+  output_schema: Record<string, string>;
+}
+
+export interface GraphMemoryProviderSpikeAdapterBoundary {
+  id: string;
+  provider_id: string;
+  service_target: string;
+  allowed_mode: string;
+  blocked_modes: string[];
+  plaintext_key_allowed: boolean;
+  external_network_allowed: boolean;
+  writes_artifacts: boolean;
+  real_provider_adapter_allowed: boolean;
+}
+
+export interface GraphMemoryProviderSpikeContractMethod {
+  name: string;
+  description: string;
+  external_services_required: boolean;
+}
+
+export interface GraphMemoryProviderSpikeLocalProviderContractReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_local_provider_contract" | string;
+  status:
+    | "ready_for_local_provider_contract"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_config_draft_status: string;
+    status: string;
+    provider_contract_count: number;
+    adapter_boundary_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    real_provider_adapter_allowed: boolean;
+    plaintext_key_returned: boolean;
+  };
+  local_provider_contract: {
+    id: string;
+    status: string;
+    ready: boolean;
+    contract_version: string;
+    provider_contract_count: number;
+    real_provider_adapter_allowed: boolean;
+    mock_only: boolean;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    provider_contract_count: number;
+  };
+  provider_contracts: GraphMemoryProviderSpikeLocalProviderContractItem[];
+  adapter_boundaries: GraphMemoryProviderSpikeAdapterBoundary[];
+  contract_methods: GraphMemoryProviderSpikeContractMethod[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeFixtureHarness {
+  id: string;
+  provider_id: string;
+  service_target: string;
+  source_contract_id: string;
+  fixture_id: string;
+  eval_id: string;
+  execution_mode: string;
+  mock_execution_allowed: boolean;
+  real_provider_execution_allowed: boolean;
+  writes_artifacts: boolean;
+  input_payload: Record<string, string>;
+  expected_result_schema: Record<string, string>;
+  validation_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeSingleFixtureDryRunHarnessReport {
+  version: string;
+  mode:
+    | "read_only_graph_memory_provider_spike_single_fixture_dry_run_harness"
+    | string;
+  status:
+    | "ready_for_single_fixture_dry_run_harness"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_local_provider_contract_status: string;
+    status: string;
+    fixture_harness_count: number;
+    mock_execution_allowed: boolean;
+    real_provider_execution_allowed: boolean;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    plaintext_key_returned: boolean;
+  };
+  dry_run_harness: {
+    id: string;
+    status: string;
+    ready: boolean;
+    mock_execution_allowed: boolean;
+    real_provider_execution_allowed: boolean;
+    fixture_harness_count: number;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    fixture_harness_count: number;
+  };
+  fixture_harnesses: GraphMemoryProviderSpikeFixtureHarness[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeMockCompatibleAdapterSpec {
+  id: string;
+  provider_id: string;
+  service_target: string;
+  source_fixture_harness_id: string;
+  adapter_mode: string;
+  implements_contract_methods: string[];
+  fixture_bindings: string[];
+  mock_result_template: Record<string, unknown>;
+  real_provider_calls_allowed: boolean;
+  external_network_allowed: boolean;
+  plaintext_key_allowed: boolean;
+  writes_artifacts: boolean;
+}
+
+export interface GraphMemoryProviderSpikeMockCompatibleAdapterReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_mock_compatible_adapter" | string;
+  status:
+    | "ready_for_mock_compatible_adapter"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_single_fixture_harness_status: string;
+    status: string;
+    adapter_count: number;
+    mock_adapter_ready: boolean;
+    real_provider_adapter_allowed: boolean;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    plaintext_key_returned: boolean;
+  };
+  mock_compatible_adapter: {
+    id: string;
+    status: string;
+    ready: boolean;
+    adapter_count: number;
+    mock_adapter_ready: boolean;
+    real_provider_adapter_allowed: boolean;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    adapter_count: number;
+  };
+  adapter_specs: GraphMemoryProviderSpikeMockCompatibleAdapterSpec[];
+  validation_cases: Array<Record<string, unknown>>;
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeManualMockAdapterReviewRow {
+  id: string;
+  provider_id: string;
+  service_target: string;
+  source_adapter_spec_id: string;
+  source_fixture_harness_id: string;
+  adapter_mode: string;
+  review_status: string;
+  risk_level: string;
+  required_methods: string[];
+  missing_methods: string[];
+  fixture_bindings: string[];
+  review_prompts: string[];
+  real_provider_calls_allowed: boolean;
+  external_network_allowed: boolean;
+  plaintext_key_allowed: boolean;
+  writes_artifacts: boolean;
+  manual_decision_saved: boolean;
+}
+
+export interface GraphMemoryProviderSpikeManualMockAdapterComplianceCheck {
+  id: string;
+  provider_id: string;
+  service_target: string;
+  check: string;
+  status: string;
+  external_services_required: boolean;
+  real_provider_adapter_allowed: boolean;
+  reason: string;
+}
+
+export interface GraphMemoryProviderSpikeManualMockAdapterReviewReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_manual_mock_adapter_review" | string;
+  status:
+    | "ready_for_manual_mock_adapter_review"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_mock_adapter_status: string;
+    status: string;
+    review_row_count: number;
+    compliance_check_count: number;
+    blocked_check_count: number;
+    writes_artifacts: boolean;
+    manual_decision_saved: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_adapter_allowed: boolean;
+    plaintext_key_returned: boolean;
+    pause_after_this_slice: boolean;
+  };
+  manual_mock_adapter_review: {
+    id: string;
+    status: string;
+    ready: boolean;
+    review_row_count: number;
+    compliance_check_count: number;
+    blocked_check_count: number;
+    save_allowed: boolean;
+    manual_decision_saved: boolean;
+    real_provider_adapter_allowed: boolean;
+    pause_after_this_slice: boolean;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    review_row_count: number;
+  };
+  review_rows: GraphMemoryProviderSpikeManualMockAdapterReviewRow[];
+  compliance_checks: GraphMemoryProviderSpikeManualMockAdapterComplianceCheck[];
+  review_materials: string[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
 export interface RetrievalFailureSample {
   id: string;
   created_at: string;

@@ -166,6 +166,26 @@ from .graph_memory_provider_spike_opt_in_human_signoff_schema_draft import (
     GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftRequestError,
     get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft,
 )
+from .graph_memory_provider_spike_opt_in_config_draft import (
+    GraphMemoryProviderSpikeOptInConfigDraftRequestError,
+    get_graph_memory_provider_spike_opt_in_config_draft,
+)
+from .graph_memory_provider_spike_local_provider_contract import (
+    GraphMemoryProviderSpikeLocalProviderContractRequestError,
+    get_graph_memory_provider_spike_local_provider_contract,
+)
+from .graph_memory_provider_spike_single_fixture_dry_run_harness import (
+    GraphMemoryProviderSpikeSingleFixtureDryRunHarnessRequestError,
+    get_graph_memory_provider_spike_single_fixture_dry_run_harness,
+)
+from .graph_memory_provider_spike_mock_compatible_adapter import (
+    GraphMemoryProviderSpikeMockCompatibleAdapterRequestError,
+    get_graph_memory_provider_spike_mock_compatible_adapter,
+)
+from .graph_memory_provider_spike_manual_mock_adapter_review import (
+    GraphMemoryProviderSpikeManualMockAdapterReviewRequestError,
+    get_graph_memory_provider_spike_manual_mock_adapter_review,
+)
 from .jobs import JOBS, JOB_KINDS, JobRecord, JobStore
 from .master_setting_update import (
     MasterSettingConflictError,
@@ -506,6 +526,16 @@ __all__ = [
     "get_graph_memory_provider_spike_opt_in_final_readiness_summary",
     "GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftRequestError",
     "get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft",
+    "GraphMemoryProviderSpikeOptInConfigDraftRequestError",
+    "get_graph_memory_provider_spike_opt_in_config_draft",
+    "GraphMemoryProviderSpikeLocalProviderContractRequestError",
+    "get_graph_memory_provider_spike_local_provider_contract",
+    "GraphMemoryProviderSpikeSingleFixtureDryRunHarnessRequestError",
+    "get_graph_memory_provider_spike_single_fixture_dry_run_harness",
+    "GraphMemoryProviderSpikeMockCompatibleAdapterRequestError",
+    "get_graph_memory_provider_spike_mock_compatible_adapter",
+    "GraphMemoryProviderSpikeManualMockAdapterReviewRequestError",
+    "get_graph_memory_provider_spike_manual_mock_adapter_review",
     "evaluate_retrieval_probes",
     "RetrievalFailureSampleConflictError",
     "RetrievalFailureSampleRequestError",

@@ -1409,3 +1409,62 @@
   - 不改 `run_scene` 默认行为，不接生产向量库、GraphRAG、Zep、外部 embedding provider 或 reranker。
 - **下一刀建议**：`Graph Memory Provider Spike Opt-in Config Draft MVP`，基于签收 schema 草案只读生成本地 opt-in 配置草案、字段映射和 adapter 边界；继续不保存配置、不读取明文 Key、不创建真实 provider 配置。
 
+### 2026-06-03 — Graph Memory Provider Spike Opt-in Config and Adapter Slices MVP
+
+- **做了什么**：
+  - 新增 `get_graph_memory_provider_spike_opt_in_config_draft()`，基于 human signoff schema draft 生成只读 opt-in 配置草案、字段映射和 adapter 边界。
+  - 新增 `get_graph_memory_provider_spike_local_provider_contract()`，基于配置草案生成本地 provider contract、adapter boundary 和 mock-only 方法约束。
+  - 新增 `get_graph_memory_provider_spike_single_fixture_dry_run_harness()`，基于本地 contract 生成单 fixture dry-run harness；只允许 `local_mock_only`。
+  - 新增 `get_graph_memory_provider_spike_mock_compatible_adapter()`，基于 dry-run harness 生成 mock-compatible adapter 规格、方法要求和 validation cases。
+  - 新增四个 API：`graph-memory-provider-spike-opt-in-config-draft`、`graph-memory-provider-spike-local-provider-contract`、`graph-memory-provider-spike-single-fixture-dry-run-harness`、`graph-memory-provider-spike-mock-compatible-adapter`。
+  - 新增四个 CLI：`lne memory graph-opt-in-config-draft`、`graph-local-provider-contract`、`graph-single-fixture-dry-run-harness`、`graph-mock-compatible-adapter`。
+  - 项目工作台新增四个只读面板；OpenAPI / Typed Client contract 新增四个 endpoint 和 client method。
+  - 新增 `docs/completed/graph-memory-provider-spike-opt-in-config-and-adapter-slices-mvp.md`，并同步 memory、路线图、阶段图、PRD、README、handoff、docs index、completed index 与后续增强清单。
+- **测试/验证**：
+  - RED：新增 focused tests 后，service、HTTP、CLI 入口缺失导致 **5 failed**。
+  - GREEN：`python -m pytest tests/test_graph_memory_provider_spike_opt_in_config_and_adapter_slices.py tests/test_api_contract.py -q` -> **8 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 后端完整门禁：第二次 `cd engine && python -m pytest -q` -> **868 passed**；第一次全量出现两个旧 HTTP 测试 socket timeout，两个 focused 复跑均通过，第二次全量未复现。
+- **边界**：
+  - 不保存配置、不保存签收值、不写项目 artifact。
+  - 不读取、不返回、不记录明文 Key。
+  - 不创建真实 provider 配置或真实 adapter，不调用外部服务。
+  - 不接生产向量库、GraphRAG、Zep、外部 embedding provider、reranker 或真实 LLM。
+  - 不改 `run_scene` 默认行为，不替换 BM25、canon ledger、entity aliases 或 retrieval_context。
+- **下一刀建议**：`Graph Memory Provider Spike Manual Mock Adapter Review MVP`，基于 mock-compatible adapter 规格做人工复核包与合规检查；继续不保存真实配置、不读取明文 Key、不创建真实 provider 配置。
+
+### 2026-06-03 — CLI / Frontend Product Boundary Documentation
+
+- **做了什么**：
+  - 将产品入口边界固化到 `memory.md`、`AGENTS.md`、`engine/README.md`、路线图、阶段图、PRD、handoff 和后续增强清单：前端是产品入口，API 是能力层，CLI 是工程外壳。
+  - 明确导入、配置、创作、干预、评审、导出、样本采集和 Graph Memory 证据查看等用户级能力必须优先通过 Web UI + API 完成。
+  - 将 CLI 定位为开发者、本地服务启动、自动化验收、批处理、JSON 输出和无人值守复跑的薄封装，不承载独立业务规则，也不作为普通用户唯一入口。
+- **测试/验证**：
+  - 文档-only 更新；运行 `git diff --check`。
+- **边界**：
+  - 不改代码、不改 API 契约、不改 `run_scene` 默认行为。
+  - 不移除现有 CLI；只调整后续产品/工程分工和文档口径。
+
+### 2026-06-03 — Graph Memory Provider Spike Manual Mock Adapter Review MVP
+
+- **做了什么**：
+  - 新增 `get_graph_memory_provider_spike_manual_mock_adapter_review()`，基于 mock-compatible adapter 规格生成只读人工复核包。
+  - 新增 `GET /api/stories/<slug>/graph-memory-provider-spike-manual-mock-adapter-review`，坏 slug 返回 400，缺项目返回 404。
+  - 新增 `lne memory graph-manual-mock-adapter-review <slug> --json`，用于命令行查看复核包。
+  - 项目工作台新增「Graph 记忆 Provider Spike Manual Mock Adapter Review」面板，展示复核行、合规检查、阻断计数、暂停建议和边界说明。
+  - 本地 API contract / typed client 新增 `getGraphMemoryProviderSpikeManualMockAdapterReview`，OpenAPI skeleton endpoint count 更新为 66、path count 更新为 65、typed client method count 更新为 65。
+  - 新增 `docs/completed/graph-memory-provider-spike-manual-mock-adapter-review-mvp.md`，并同步 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、路线图、阶段图、PRD、README、docs index、completed index 与后续增强清单。
+- **测试/验证**：
+  - RED：新增 API contract 断言后，缺新 path / typed client method 导致 `tests/test_api_contract.py` **2 failed / 1 passed**。
+  - GREEN：`python -m pytest tests/test_api_contract.py -q` -> **3 passed**。
+  - Focused：`python -m pytest tests/test_graph_memory_provider_spike_manual_mock_adapter_review.py -q` -> **4 passed**。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过。
+  - 完整门禁：`cd engine && python -m pytest -q` -> **872 passed**；`git diff --check` 通过，仅有 Windows CRLF 提示。
+- **边界**：
+  - 只读生成 manual mock adapter review，不保存人工复核结论。
+  - 不创建真实 provider adapter 或真实 provider 配置，不写项目 artifact。
+  - 不读取、不返回、不记录明文 Key。
+  - 不调用 GraphRAG、Zep、图数据库、向量库、reranker、embedding provider 或真实 LLM。
+  - 不改 `run_scene` 默认行为，不替换 BM25、canon ledger、entity aliases 或 retrieval_context。
+- **暂停点**：按用户要求，本刀完成后暂停继续开发；恢复时先由用户明确下一步。
+

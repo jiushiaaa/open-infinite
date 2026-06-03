@@ -54,6 +54,11 @@ import type {
   GraphMemoryProviderSpikeOptInDecisionLedgerPreviewReport,
   GraphMemoryProviderSpikeOptInFinalReadinessSummaryReport,
   GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport,
+  GraphMemoryProviderSpikeOptInConfigDraftReport,
+  GraphMemoryProviderSpikeLocalProviderContractReport,
+  GraphMemoryProviderSpikeSingleFixtureDryRunHarnessReport,
+  GraphMemoryProviderSpikeMockCompatibleAdapterReport,
+  GraphMemoryProviderSpikeManualMockAdapterReviewReport,
   HoldoutManifest,
   HoldoutWriteRequest,
   IngestChunkRequest,
@@ -346,6 +351,41 @@ export const api = {
   ): Promise<GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport> {
     return getJson(
       `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-human-signoff-schema-draft`,
+    );
+  },
+  getGraphMemoryProviderSpikeOptInConfigDraft(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeOptInConfigDraftReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-config-draft`,
+    );
+  },
+  getGraphMemoryProviderSpikeLocalProviderContract(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeLocalProviderContractReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-local-provider-contract`,
+    );
+  },
+  getGraphMemoryProviderSpikeSingleFixtureDryRunHarness(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeSingleFixtureDryRunHarnessReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-single-fixture-dry-run-harness`,
+    );
+  },
+  getGraphMemoryProviderSpikeMockCompatibleAdapter(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeMockCompatibleAdapterReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-mock-compatible-adapter`,
+    );
+  },
+  getGraphMemoryProviderSpikeManualMockAdapterReview(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeManualMockAdapterReviewReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-manual-mock-adapter-review`,
     );
   },
   getEmbeddingEvaluationSamples(storySlug: string): Promise<EmbeddingEvaluationSamplesReport> {

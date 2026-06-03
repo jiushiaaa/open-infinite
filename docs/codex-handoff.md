@@ -17,6 +17,7 @@
 - engine/README.md
 
 当前项目是 未终章（Unfinale），核心代码在 engine/；技术缩写、包名、CLI 和环境变量前缀仍沿用 LNE / `living_novel_engine`。
+产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑。
 请不要只靠这段摘要；读完文档和相关代码后，再继续下一步。
 ```
 
@@ -80,12 +81,19 @@
 | Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP | 后续增强第三十八刀已收口，service/API/CLI/项目工作台可只读展示决策账本预览、待签收字段占位、阻塞行和真实 provider 继续禁止边界 |
 | Graph Memory Provider Spike Opt-in Final Readiness Summary MVP | 后续增强第三十九刀已收口，service/API/CLI/项目工作台可只读展示最终就绪摘要、未签收字段、阻塞原因和真实 provider 继续禁止边界 |
 | Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP | 后续增强第四十刀已收口，service/API/CLI/项目工作台可只读展示人工签收 schema 草案、字段定义、校验规则和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in Config Draft MVP | 后续增强第四十一刀已收口，service/API/CLI/项目工作台可只读展示本地 opt-in 配置草案、字段映射和 adapter 边界 |
+| Graph Memory Provider Spike Local Provider Contract / Adapter Boundary MVP | 后续增强第四十二刀已收口，service/API/CLI/项目工作台可只读展示本地 provider contract、adapter boundary 和 mock-only 方法约束 |
+| Graph Memory Provider Spike Single Fixture Dry-run Harness MVP | 后续增强第四十三刀已收口，service/API/CLI/项目工作台可只读展示单 fixture dry-run harness |
+| Graph Memory Provider Spike Mock-compatible Adapter MVP | 后续增强第四十四刀已收口，service/API/CLI/项目工作台可只读展示 mock-compatible adapter 规格、方法要求和 validation cases |
+| Graph Memory Provider Spike Manual Mock Adapter Review MVP | 后续增强第四十五刀已收口，service/API/CLI/项目工作台可只读展示 mock adapter 人工复核包、合规检查、阻断项和本刀后暂停建议 |
 
-验证基线：后端 `cd engine && python -m pytest -q` 为 `863 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+验证基线：后端 `cd engine && python -m pytest -q` 为 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+
+产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳。导入、配置、创作、干预、评审、导出、样本采集、Graph Memory 证据查看等用户级能力应优先通过 Web UI + API 完成；CLI 仅作为开发者、本地服务启动、自动化验收、批处理、JSON 输出和无人值守复跑的薄封装。
 
 ## 当前自主迭代点
 
-用户已授权进入后续增强自主迭代。真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP、Projection Health MVP、Reader Panel / Adversarial Revision Lab MVP、Prompt Budget Pack MVP、LLM Profile Assignment MVP、Cards Workspace MVP、OpenAPI / Typed Client MVP、Bundled Release Readiness MVP、Embedding / Vector Retrieval Readiness Probe MVP、Embedding Evaluation Samples MVP、Retrieval Failure Sample Authoring MVP、Memory CLI MVP、Retrieval Sample Export Pack MVP、Embedding Mock Evaluation Report MVP、Retrieval Sample Replay Report MVP、Retrieval Sample Migration Pack MVP、Cross Project Retrieval Samples Index MVP、Retrieval Samples Trend Snapshot MVP、GraphRAG / Zep Trigger Evidence MVP、Graph Memory Spike Design Pack MVP、Graph Memory Shadow Compare Pack MVP、Graph Memory Shadow Case Matrix MVP、Graph Memory Provider Boundary Matrix MVP、Graph Memory Offline Shadow Replay Plan MVP、Graph Memory Offline Shadow Replay Report MVP、Graph Memory Provider Spike Fixture Pack MVP、Graph Memory Provider Spike Readiness Gate MVP、Graph Memory Provider Spike Runbook MVP、Graph Memory Provider Spike Dry-run Result Template MVP、Graph Memory Provider Spike Mock Result Report MVP、Graph Memory Provider Spike Review Gate MVP、Graph Memory Provider Spike Manual Approval Pack MVP、Graph Memory Provider Spike Manual Approval Evidence Checklist MVP、Graph Memory Provider Spike Opt-in Evidence Snapshot MVP、Graph Memory Provider Spike Opt-in No-go Matrix MVP、Graph Memory Provider Spike Opt-in Operator Checklist MVP、Graph Memory Provider Spike Opt-in Review Packet MVP、Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP、Graph Memory Provider Spike Opt-in Final Readiness Summary MVP 和 Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP 已完成。下一次继续时建议推进 `Graph Memory Provider Spike Opt-in Config Draft MVP`。
+用户已授权进入后续增强自主迭代。真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已完成。本刀后按用户要求暂停继续开发；下一次继续时先确认用户选择，不自动进入真实 provider。
 
 可选后续方向只有在用户确认后再进入：
 
@@ -102,6 +110,7 @@
 - 新 artifact、API 字段、前端读取字段默认 additive。
 - 后端 HTTP-facing identifier 必须安全校验；非法输入返回明确 400/404/409 或前端空态。
 - 前端产品文案默认中文，不出现英文占位词。
+- 用户级能力不应只有 CLI 入口；新增普通用户需要理解或操作的功能时，先补 Web UI + API，再按自动化需要补 CLI 薄封装。
 - 不泄漏 API Key；设置页和日志只能展示脱敏尾号。
 - 测试要隔离环境，避免误打真实 LLM/Seedream 外网。
 
@@ -118,7 +127,7 @@
 - Cards Workspace 已形成世界卡、角色卡、风格卡只读入口；独立卡片 artifact、版本化和批量编辑仍后置。
 - OpenAPI / Typed Client 已形成只读 API contract、OpenAPI skeleton 和前端 typed client 映射；字段级 schema、自动生成 client 和外部集成契约仍后置。
 - Bundled Release / Desktop Packaging 已形成只读发行准备评估；安装包、桌面壳、内置 runtime、签名和自动升级仍后置。
-- Embedding / 向量库尚未接入；召回压力 probe、本地失败样本 mock 对照、工作台样本采集、Memory CLI、只读导出包、mock 对照报告、replay case report、migration pack、跨项目索引、趋势快照、GraphRAG/Zep/Temporal Memory 触发证据、spike design pack、shadow compare pack、case matrix、provider boundary matrix、offline shadow replay plan/report、provider spike fixture pack、readiness gate、runbook、result template、mock result report、review gate、manual approval pack、approval evidence checklist、opt-in evidence snapshot、opt-in no-go matrix、opt-in operator checklist、opt-in review packet、opt-in decision ledger preview、opt-in final readiness summary 和 human signoff schema draft 已完成；下一步只做 provider spike opt-in config draft，不直接接外部服务。
+- Embedding / 向量库尚未接入；召回压力 probe、本地失败样本 mock 对照、工作台样本采集、Memory CLI、只读导出包、mock 对照报告、replay case report、migration pack、跨项目索引、趋势快照、GraphRAG/Zep/Temporal Memory 触发证据、spike design pack、shadow compare pack、case matrix、provider boundary matrix、offline shadow replay plan/report、provider spike fixture pack、readiness gate、runbook、result template、mock result report、review gate、manual approval pack、approval evidence checklist、opt-in evidence snapshot、opt-in no-go matrix、opt-in operator checklist、opt-in review packet、opt-in decision ledger preview、opt-in final readiness summary、human signoff schema draft、config draft、local provider contract、single fixture dry-run harness、mock-compatible adapter 和 manual mock adapter review 已完成；当前按用户要求暂停，不直接接外部服务。
 - 云端多用户持久队列、真实对象存储 adapter、真实认证、真实计费仍未做。
 - 向量库 / embedding / GraphRAG 只在 BM25/ledger/alias probe、向量就绪探针与样本对照证明不足时再评估。
 

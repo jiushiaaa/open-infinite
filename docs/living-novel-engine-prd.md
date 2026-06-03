@@ -7,7 +7,7 @@
 | 产品名称 | 未终章 |
 | 英文名称 | Unfinale |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.7 短中篇产品化 MVP、v0.8 长篇底座与产品化工作台、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本、Runtime Preflight MVP、Projection Health MVP、Reader Panel / Adversarial Revision Lab MVP、Prompt Budget Pack MVP、LLM Profile Assignment MVP、Cards Workspace MVP、OpenAPI / Typed Client MVP、Bundled Release Readiness MVP、Embedding / Vector Retrieval Readiness Probe MVP、Embedding Evaluation Samples MVP、Retrieval Failure Sample Authoring MVP、Memory CLI MVP、Retrieval Sample Export Pack MVP、Embedding Mock Evaluation Report MVP、Retrieval Sample Replay Report MVP、Retrieval Sample Migration Pack MVP、Cross Project Retrieval Samples Index MVP、Retrieval Samples Trend Snapshot MVP、GraphRAG / Zep Trigger Evidence MVP、Graph Memory Spike Design Pack MVP、Graph Memory Shadow Compare Pack MVP、Graph Memory Shadow Case Matrix MVP、Graph Memory Provider Boundary Matrix MVP、Graph Memory Offline Shadow Replay Plan MVP、Graph Memory Offline Shadow Replay Report MVP、Graph Memory Provider Spike Fixture Pack MVP、Graph Memory Provider Spike Readiness Gate MVP、Graph Memory Provider Spike Runbook MVP、Graph Memory Provider Spike Dry-run Result Template MVP、Graph Memory Provider Spike Mock Result Report MVP、Graph Memory Provider Spike Review Gate MVP、Graph Memory Provider Spike Manual Approval Pack MVP、Graph Memory Provider Spike Manual Approval Evidence Checklist MVP、Graph Memory Provider Spike Opt-in Evidence Snapshot MVP、Graph Memory Provider Spike Opt-in No-go Matrix MVP、Graph Memory Provider Spike Opt-in Operator Checklist MVP、Graph Memory Provider Spike Opt-in Review Packet MVP、Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP、Graph Memory Provider Spike Opt-in Final Readiness Summary MVP、Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP 均已收口；最新事实以 `../memory.md` 为准 |
+| 当前版本 | v0.7 短中篇产品化 MVP、v0.8 长篇底座与产品化工作台、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本、后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀均已收口；最新事实以 `../memory.md` 为准 |
 | 阶段 | 本地优先 alpha/beta 试用准备 + 后续增强自主迭代 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
@@ -16,7 +16,7 @@ v0.1-v0.8 历史审计快照见 [`completed/v0.1-to-v0.8-version-audit.md`](./co
 
 产品化阶段归类见 [`productization-phase-map.md`](./productization-phase-map.md)。当前 PRD 中的 “MVP” 默认不是单一含义：v0.7-v0.7.5 指短中篇产品化 MVP 已成立；v0.8.0-A-v0.8.5-A 指长篇引擎底座 MVP 已成立；v0.8.6-v0.8.10 是把长篇底座产品化为普通用户工作流；v0.9.0-alpha 已整体收口为长篇共创 alpha 产品闭环，但仍不是商业级平台。
 
-2026-06-03 补充：当前已优先完成真实用户模型配置 UI、本地一键运行脚本、运行前体检、生成后投影健康、确定性读者评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、趋势快照、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Case 矩阵、Graph 记忆 Provider 边界、离线 Replay 计划、离线 Replay 报告、Provider Spike 前置包、Readiness Gate、Runbook、Result Template、Mock Result Report、Review Gate、Manual Approval Pack、Approval Evidence Checklist、Opt-in Evidence Snapshot、Opt-in No-go Matrix、Opt-in Operator Checklist、Opt-in Review Packet、Opt-in Decision Ledger Preview、Opt-in Final Readiness Summary 和 Human Signoff Schema Draft；商业化/计费继续实现暂停，Release 安装包和服务器在线体验进入后置发行路径。完整历史变更见 [`project-changelog.md`](./project-changelog.md)。
+2026-06-03 补充：当前已优先完成真实用户模型配置 UI、本地一键运行脚本、运行前体检、生成后投影健康、确定性读者评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、趋势快照、GraphRAG/Zep 触发证据，以及 Graph Memory provider spike 从设计包到 Manual Mock Adapter Review 的只读证据链；商业化/计费继续实现暂停，Release 安装包和服务器在线体验进入后置发行路径。完整历史变更见 [`project-changelog.md`](./project-changelog.md)。
 
 ## 2. 背景
 
@@ -772,6 +772,7 @@ MVP 支持：
 - 已复用现有引擎与 browser API，不重写核心推演逻辑
 - `lne browse` 保留为开发者只读 viewer；产品前端承担真正用户体验
 - 不要求用户复制 CLI 命令
+- 产品入口边界已固定：前端是产品，API 是能力层，CLI 是工程外壳；导入、配置、创作、干预、评审、导出、样本采集和 Graph Memory 证据查看等用户级能力不应只有 CLI 入口
 - 已接入 Causal Diff 确立 / 抹除 / 回滚 artifact 状态、运行设置面板、异步 Job 进度轮询
 - 设置页已新增模型配置状态：用户可看到文本模型、视觉模型、默认推演和密钥边界是否就绪；计费与价格估算 UI 暂缓
 - 后续只做小 polish：创世徽标、真实 LLM smoke checklist、推荐下一步文案、错误态统一
@@ -865,7 +866,7 @@ v0.9.0-alpha 已整体收口，已经串起完整用户路径：
 - **Worldline Selection Persistence**：用户可把推荐或候选世界线「设为起点」，写入 `selected_worldline.json` 并在 `creation_loop.selected` 中读回。
 - **Post-run Audit Entry**：`creation_loop.post_run_audit` 围绕已选世界线展示评审、Causal Diff、静态一致性审计、范围回放风险、缺失实体和下一步审计入口。
 
-v0.9.0-alpha 已通过本地导入项目 `v090-alpha-proof` 写入 `creation_loop_alpha_closeout.json` 完成 alpha 收口声明；公开分享发布不在该版本内。v0.9.1-v0.9.4 已完成 provider/cost、MasterSetting、图记忆评估和高级 runner 评估；v1.0-local 与后续增强已把本地模型配置、一键启动、运行前体检、投影健康、读者评审、上下文预算包、任务模型画像、设定卡片、API 契约、发行准备、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、趋势快照、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Case 矩阵、Graph 记忆 Provider 边界、离线 Replay 计划/报告、Provider Spike 前置包、Readiness Gate、Runbook、Result Template、Mock Result Report、Review Gate、Manual Approval Pack、Approval Evidence Checklist、Opt-in Evidence Snapshot、Opt-in No-go Matrix、Opt-in Operator Checklist、Opt-in Review Packet、Opt-in Decision Ledger Preview、Opt-in Final Readiness Summary 和 Human Signoff Schema Draft 补成只读/本地解释、采集与评测证据层。运行后审计目前仍是只读入口，尚未写回正史账本或驱动下一轮 runner。
+v0.9.0-alpha 已通过本地导入项目 `v090-alpha-proof` 写入 `creation_loop_alpha_closeout.json` 完成 alpha 收口声明；公开分享发布不在该版本内。v0.9.1-v0.9.4 已完成 provider/cost、MasterSetting、图记忆评估和高级 runner 评估；v1.0-local 与后续增强已把本地模型配置、一键启动、运行前体检、投影健康、读者评审、上下文预算包、任务模型画像、设定卡片、API 契约、发行准备、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目索引、趋势快照，以及 Graph Memory provider spike 到 Manual Mock Adapter Review 的只读证据层补齐。运行后审计目前仍是只读入口，尚未写回正史账本或驱动下一轮 runner。
 
 #### 后置发行路径
 
@@ -970,6 +971,10 @@ Prompt 预算：
 2026-06-03 十续补：Graph Memory Provider Spike Opt-in Final Readiness Summary MVP 已收口，`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-final-readiness-summary` 和 `lne memory graph-opt-in-final-readiness-summary <slug> --json` 基于 opt-in decision ledger preview 输出只读最终就绪摘要、未签收字段、阻塞原因和真实 provider 继续禁止边界；该摘要不保存签收、不写决策账本、不创建真实 provider 配置、不写项目 artifact、不调用外部服务、不读取明文 Key。
 
 2026-06-03 十一续补：Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP 已收口，`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-human-signoff-schema-draft` 和 `lne memory graph-opt-in-human-signoff-schema <slug> --json` 基于 final readiness summary 输出只读人工签收 schema 草案、字段定义、校验规则和真实 provider 继续禁止边界；该草案不保存签名、不保存字段值、不创建真实 provider 配置、不写项目 artifact、不调用外部服务、不读取明文 Key。
+
+2026-06-03 十二续补：Graph Memory Provider Spike Opt-in Config Draft、Local Provider Contract / Adapter Boundary、Single Fixture Dry-run Harness 与 Mock-compatible Adapter MVP 已收口，新增对应 service/API/CLI/项目工作台只读面板，沿 `human signoff schema -> config draft -> local contract -> dry-run harness -> mock adapter` 派生本地配置草案、字段映射、adapter 边界、单 fixture mock harness 和 adapter 规格；全链路不保存真实配置、不读取明文 Key、不创建真实 provider adapter、不调用外部服务。
+
+2026-06-03 十三续补：Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口，`GET /api/stories/<slug>/graph-memory-provider-spike-manual-mock-adapter-review` 和 `lne memory graph-manual-mock-adapter-review <slug> --json` 基于 mock-compatible adapter 规格输出只读人工复核包、per-adapter review rows、合规检查、阻断项、复核材料和“本刀后暂停”建议；该复核包不保存人工结论、不创建真实 provider adapter、不写项目 artifact、不调用外部服务、不读取明文 Key。
 
 当前已完成 v0.8.x entity aliases 第一刀：导入时生成 `memory/entity_aliases.yaml`，从角色、地点、势力和 canon ledger entities 形成 deterministic alias skeleton；检索读取 alias map，对 query 与 corpus 做轻量别名扩展，命中项可返回 `resolved_entities`；一致性报告记录 `entity_alias_count`；世界锚定页只读展示别名状态。暂不做 LLM/NER 抽取、人工别名编辑或跨 run 写回。
 

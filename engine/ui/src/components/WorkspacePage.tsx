@@ -34,6 +34,11 @@ import type {
   GraphMemoryProviderSpikeOptInDecisionLedgerPreviewReport,
   GraphMemoryProviderSpikeOptInFinalReadinessSummaryReport,
   GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport,
+  GraphMemoryProviderSpikeOptInConfigDraftReport,
+  GraphMemoryProviderSpikeLocalProviderContractReport,
+  GraphMemoryProviderSpikeSingleFixtureDryRunHarnessReport,
+  GraphMemoryProviderSpikeMockCompatibleAdapterReport,
+  GraphMemoryProviderSpikeManualMockAdapterReviewReport,
   CanonReplayRangeRequest,
   ProjectCreationLoop,
   ProjectCreationLoopAction,
@@ -337,6 +342,16 @@ function ProjectWorkspaceOverview({
       <GraphMemoryProviderSpikeOptInFinalReadinessSummaryPanel storySlug={data.slug} />
 
       <GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeOptInConfigDraftPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeLocalProviderContractPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeSingleFixtureDryRunHarnessPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeMockCompatibleAdapterPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeManualMockAdapterReviewPanel storySlug={data.slug} />
 
       <EmbeddingEvaluationSamplesPanel storySlug={data.slug} />
 
@@ -3336,6 +3351,512 @@ function GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftView({
   );
 }
 
+function GraphMemoryProviderSpikeOptInConfigDraftPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const configState = useAsync(
+    () => api.getGraphMemoryProviderSpikeOptInConfigDraft(storySlug),
+    [storySlug],
+  );
+  const report = configState.data;
+  const statusText = configState.loading
+    ? "读取中"
+    : report
+      ? graphProviderConfigDraftStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Opt-in 配置草案" status={statusText} />
+      {configState.loading && <Loading label="正在整理 opt-in 配置草案…" />}
+      {configState.error && <ErrorState message={configState.error} onRetry={configState.reload} />}
+      {!configState.loading && !configState.error && report && (
+        <GraphMemoryProviderSpikeOptInConfigDraftView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInConfigDraftView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeOptInConfigDraftReport;
+}) {
+  const entries = report.config_entries ?? [];
+  const firstEntry = entries[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>配置草案</span>
+          <strong>{graphProviderConfigDraftStatusLabel(report.config_draft.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>配置项</span>
+          <strong>{report.summary.config_entry_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>字段映射</span>
+          <strong>{report.summary.field_mapping_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>保存配置</span>
+          <strong>{report.config_draft.save_allowed ? "允许" : "禁止"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.config_draft.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {entries.length > 0 && (
+        <div className="audit-log__rights-list">
+          {entries.slice(0, 3).map((entry) => (
+            <span key={entry.id}>
+              {entry.service_target}：{entry.config_key} ·{" "}
+              {entry.storage_policy === "not_saved" ? "不保存" : entry.storage_policy}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstEntry && (
+        <ul className="sample-list">
+          {firstEntry.field_mappings.slice(0, 5).map((field) => (
+            <li key={field.id}>
+              <strong>{field.label}</strong>
+              <span>
+                {field.required ? "必填" : "可选"} · {field.target_config_path}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderConfigDraftStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeLocalProviderContractPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const contractState = useAsync(
+    () => api.getGraphMemoryProviderSpikeLocalProviderContract(storySlug),
+    [storySlug],
+  );
+  const report = contractState.data;
+  const statusText = contractState.loading
+    ? "读取中"
+    : report
+      ? graphProviderLocalContractStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike 本地 Provider Contract" status={statusText} />
+      {contractState.loading && <Loading label="正在整理本地 provider contract…" />}
+      {contractState.error && (
+        <ErrorState message={contractState.error} onRetry={contractState.reload} />
+      )}
+      {!contractState.loading && !contractState.error && report && (
+        <GraphMemoryProviderSpikeLocalProviderContractView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeLocalProviderContractView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeLocalProviderContractReport;
+}) {
+  const contracts = report.provider_contracts ?? [];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>Contract</span>
+          <strong>
+            {graphProviderLocalContractStatusLabel(report.local_provider_contract.status)}
+          </strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>Provider</span>
+          <strong>{report.summary.provider_contract_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>Adapter 边界</span>
+          <strong>{report.summary.adapter_boundary_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实 Adapter</span>
+          <strong>
+            {report.local_provider_contract.real_provider_adapter_allowed ? "允许" : "禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.local_provider_contract.reason}</p>
+
+      {contracts.length > 0 && (
+        <div className="audit-log__rights-list">
+          {contracts.slice(0, 3).map((contract) => (
+            <span key={contract.id}>
+              {contract.service_target}：{contract.adapter_mode} · 方法{" "}
+              {contract.implements_methods.length}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {report.contract_methods.length > 0 && (
+        <ul className="sample-list">
+          {report.contract_methods.map((method) => (
+            <li key={method.name}>
+              <strong>{method.name}</strong>
+              <span>{method.description}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderLocalContractStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeSingleFixtureDryRunHarnessPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const harnessState = useAsync(
+    () => api.getGraphMemoryProviderSpikeSingleFixtureDryRunHarness(storySlug),
+    [storySlug],
+  );
+  const report = harnessState.data;
+  const statusText = harnessState.loading
+    ? "读取中"
+    : report
+      ? graphProviderDryRunHarnessStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike 单 Fixture Dry-run Harness" status={statusText} />
+      {harnessState.loading && <Loading label="正在整理单 fixture dry-run harness…" />}
+      {harnessState.error && (
+        <ErrorState message={harnessState.error} onRetry={harnessState.reload} />
+      )}
+      {!harnessState.loading && !harnessState.error && report && (
+        <GraphMemoryProviderSpikeSingleFixtureDryRunHarnessView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeSingleFixtureDryRunHarnessView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeSingleFixtureDryRunHarnessReport;
+}) {
+  const harnesses = report.fixture_harnesses ?? [];
+  const firstHarness = harnesses[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>Harness</span>
+          <strong>{graphProviderDryRunHarnessStatusLabel(report.dry_run_harness.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>Fixture</span>
+          <strong>{report.summary.fixture_harness_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>Mock 执行</span>
+          <strong>{report.summary.mock_execution_allowed ? "允许" : "暂缓"}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实执行</span>
+          <strong>
+            {report.summary.real_provider_execution_allowed ? "允许" : "禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.dry_run_harness.reason}</p>
+
+      {harnesses.length > 0 && (
+        <div className="audit-log__rights-list">
+          {harnesses.slice(0, 3).map((harness) => (
+            <span key={harness.id}>
+              {harness.service_target}：{harness.execution_mode} ·{" "}
+              {harness.fixture_id || "无 fixture"}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstHarness && (
+        <ul className="sample-list">
+          {firstHarness.validation_steps.map((step) => (
+            <li key={step}>
+              <strong>{step}</strong>
+              <span>本地 mock 校验步骤</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderDryRunHarnessStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeMockCompatibleAdapterPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const adapterState = useAsync(
+    () => api.getGraphMemoryProviderSpikeMockCompatibleAdapter(storySlug),
+    [storySlug],
+  );
+  const report = adapterState.data;
+  const statusText = adapterState.loading
+    ? "读取中"
+    : report
+      ? graphProviderMockAdapterStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Mock-compatible Adapter" status={statusText} />
+      {adapterState.loading && <Loading label="正在整理 mock-compatible adapter…" />}
+      {adapterState.error && (
+        <ErrorState message={adapterState.error} onRetry={adapterState.reload} />
+      )}
+      {!adapterState.loading && !adapterState.error && report && (
+        <GraphMemoryProviderSpikeMockCompatibleAdapterView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeMockCompatibleAdapterView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeMockCompatibleAdapterReport;
+}) {
+  const specs = report.adapter_specs ?? [];
+  const firstSpec = specs[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>Adapter</span>
+          <strong>
+            {graphProviderMockAdapterStatusLabel(report.mock_compatible_adapter.status)}
+          </strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>规格</span>
+          <strong>{report.summary.adapter_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>Mock 就绪</span>
+          <strong>{report.summary.mock_adapter_ready ? "就绪" : "暂缓"}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实 Adapter</span>
+          <strong>
+            {report.summary.real_provider_adapter_allowed ? "允许" : "禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.mock_compatible_adapter.reason}</p>
+
+      {specs.length > 0 && (
+        <div className="audit-log__rights-list">
+          {specs.slice(0, 3).map((spec) => (
+            <span key={spec.id}>
+              {spec.service_target}：{spec.adapter_mode} · 方法{" "}
+              {spec.implements_contract_methods.length}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstSpec && (
+        <ul className="sample-list">
+          {firstSpec.implements_contract_methods.map((method) => (
+            <li key={method}>
+              <strong>{method}</strong>
+              <span>mock-compatible adapter 必须实现</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderMockAdapterStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeManualMockAdapterReviewPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const reviewState = useAsync(
+    () => api.getGraphMemoryProviderSpikeManualMockAdapterReview(storySlug),
+    [storySlug],
+  );
+  const report = reviewState.data;
+  const statusText = reviewState.loading
+    ? "读取中"
+    : report
+      ? graphProviderManualMockReviewStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Manual Mock Adapter Review" status={statusText} />
+      {reviewState.loading && <Loading label="正在整理 mock adapter 人工复核包…" />}
+      {reviewState.error && (
+        <ErrorState message={reviewState.error} onRetry={reviewState.reload} />
+      )}
+      {!reviewState.loading && !reviewState.error && report && (
+        <GraphMemoryProviderSpikeManualMockAdapterReviewView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeManualMockAdapterReviewView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeManualMockAdapterReviewReport;
+}) {
+  const rows = report.review_rows ?? [];
+  const checks = report.compliance_checks ?? [];
+  const firstRow = rows[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>复核包</span>
+          <strong>
+            {graphProviderManualMockReviewStatusLabel(
+              report.manual_mock_adapter_review.status,
+            )}
+          </strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>复核行</span>
+          <strong>{report.summary.review_row_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>合规检查</span>
+          <strong>{report.summary.compliance_check_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>本刀后</span>
+          <strong>{report.summary.pause_after_this_slice ? "暂停" : "暂缓"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.manual_mock_adapter_review.reason}</p>
+
+      {rows.length > 0 && (
+        <div className="audit-log__rights-list">
+          {rows.slice(0, 3).map((row) => (
+            <span key={row.id}>
+              {row.service_target}：{row.review_status} ·{" "}
+              {row.real_provider_calls_allowed ? "允许真实调用" : "禁止真实调用"}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstRow && (
+        <ul className="sample-list">
+          {firstRow.review_prompts.map((prompt) => (
+            <li key={prompt}>
+              <strong>{prompt}</strong>
+              <span>人工复核项</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {checks.length > 0 && (
+        <div className="project-workspace__steps">
+          <span>
+            阻断检查：{report.summary.blocked_check_count} / {checks.length}
+          </span>
+          <span>{checks[0].reason}</span>
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderManualMockReviewStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      <p className="master-setting__note">
+        {report.boundaries[4] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
 function EmbeddingEvaluationSamplesPanel({ storySlug }: { storySlug: string }) {
   const samplesState = useAsync(
     () => api.getEmbeddingEvaluationSamples(storySlug),
@@ -5255,6 +5776,67 @@ function graphProviderHumanSignoffSchemaStatusLabel(value: string): string {
     deferred: "暂缓",
   };
   return map[value] ?? graphProviderFinalReadinessStatusLabel(value);
+}
+
+function graphProviderConfigDraftStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_opt_in_config_draft: "配置草案就绪",
+    opt_in_config_draft_ready: "配置草案就绪",
+    opt_in_config_draft_ready_real_provider_still_blocked: "仍禁止真实配置",
+    adapter_boundary_draft_ready: "边界草案就绪",
+    blocked: "已阻塞",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderHumanSignoffSchemaStatusLabel(value);
+}
+
+function graphProviderLocalContractStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_local_provider_contract: "本地 Contract 就绪",
+    local_provider_contract_ready: "本地 Contract 就绪",
+    local_provider_contract_ready_real_provider_still_blocked: "仍禁止真实 Adapter",
+    blocked: "已阻塞",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderConfigDraftStatusLabel(value);
+}
+
+function graphProviderDryRunHarnessStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_single_fixture_dry_run_harness: "Dry-run Harness 就绪",
+    single_fixture_harness_ready: "Dry-run Harness 就绪",
+    single_fixture_harness_ready_real_provider_still_blocked: "仍禁止真实执行",
+    blocked: "已阻塞",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderLocalContractStatusLabel(value);
+}
+
+function graphProviderMockAdapterStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_mock_compatible_adapter: "Mock Adapter 就绪",
+    mock_adapter_ready: "Mock Adapter 就绪",
+    mock_compatible_adapter_ready_real_provider_still_blocked: "仍禁止真实 Adapter",
+    blocked: "已阻塞",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderDryRunHarnessStatusLabel(value);
+}
+
+function graphProviderManualMockReviewStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_manual_mock_adapter_review: "人工复核就绪",
+    manual_mock_adapter_review_ready: "人工复核就绪",
+    manual_mock_adapter_review_ready_pause_after_this_slice: "复核后暂停",
+    blocked: "已阻塞",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderMockAdapterStatusLabel(value);
 }
 
 function embeddingSamplesStatusLabel(value: string): string {

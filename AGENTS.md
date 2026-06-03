@@ -47,6 +47,7 @@
 - 失败要降级为明确的 400/404/409 或前端空态，不白屏、不 500。
 - 前端产品文案默认中文；不要出现英文占位词。
 - 视觉风格保持 v0.7 的古风纸面、克制系统感，不做营销落地页。
+- 产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳。导入、配置、创作、干预、评审、导出、样本采集、Graph Memory 证据查看等用户级能力必须优先通过 Web UI + API 完成；CLI 只服务开发者、本地服务启动、自动化验收、批处理、JSON 输出和无人值守复跑，不承载独立业务规则。
 - `Reference_projects/` 与外部项目只作参考，不直接复制源码或引入依赖，除非用户明确要求。
 - 不泄漏 API Key；设置页或日志只能展示脱敏尾号。
 - 用户在 `.env` 中可能已经配置真实 `SEEDREAM_API_KEY` / `LLM_API_KEY`。测试要隔离环境，避免误打真实外网。
@@ -103,10 +104,15 @@
 | Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP | 后续增强第三十八刀已收口，service/API/CLI/项目工作台可只读展示决策账本预览、待签收字段占位、阻塞行和真实 provider 继续禁止边界 |
 | Graph Memory Provider Spike Opt-in Final Readiness Summary MVP | 后续增强第三十九刀已收口，service/API/CLI/项目工作台可只读展示最终就绪摘要、未签收字段、阻塞原因和真实 provider 继续禁止边界 |
 | Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP | 后续增强第四十刀已收口，service/API/CLI/项目工作台可只读展示人工签收 schema 草案、字段定义、校验规则和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in Config Draft MVP | 后续增强第四十一刀已收口，service/API/CLI/项目工作台可只读展示本地 opt-in 配置草案、字段映射和 adapter 边界 |
+| Graph Memory Provider Spike Local Provider Contract / Adapter Boundary MVP | 后续增强第四十二刀已收口，service/API/CLI/项目工作台可只读展示本地 provider contract、adapter boundary 和 mock-only 方法约束 |
+| Graph Memory Provider Spike Single Fixture Dry-run Harness MVP | 后续增强第四十三刀已收口，service/API/CLI/项目工作台可只读展示单 fixture dry-run harness |
+| Graph Memory Provider Spike Mock-compatible Adapter MVP | 后续增强第四十四刀已收口，service/API/CLI/项目工作台可只读展示 mock-compatible adapter 规格、方法要求和 validation cases |
+| Graph Memory Provider Spike Manual Mock Adapter Review MVP | 后续增强第四十五刀已收口，service/API/CLI/项目工作台可只读展示 mock adapter 人工复核包、合规检查、阻断项和本刀后暂停建议 |
 
-当前验证基线：后端 `cd engine && python -m pytest -q` 为 `863 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+当前验证基线：后端 `cd engine && python -m pytest -q` 为 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
-官方下一步：Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP 已收口；下一刀建议进入 `Graph Memory Provider Spike Opt-in Config Draft MVP`，基于签收 schema 草案只读生成本地 opt-in 配置草案、字段映射和 adapter 边界，继续不保存配置、不读取明文 Key、不创建真实 provider 配置、不直接接生产向量库、GraphRAG、Zep 或外部 embedding provider。真实外部用户前不默认做云端多租户、对象存储、认证或计费系统。
+官方下一步：Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口；按用户要求本刀后暂停继续开发。恢复时先确认用户选择，不自动接真实 provider、生产向量库、GraphRAG、Zep、外部 embedding provider、云端多租户、对象存储、认证或计费系统。
 
 ### 当前边界备忘
 
@@ -114,7 +120,7 @@
 - `canon_ledger`、entity aliases 与 runtime memory 已进入只读检索/展示链路；正史 holdout 通过 `canon/visibility_manifest.json` 隔离。
 - 干预 run 会写 `act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`，但这些机制产物暂不自动驱动 runner。
 - 状态执行 overlay 可显式 apply/rollback，但不覆盖 `state_snapshot.json`，也不自动喂回下一轮 runner。
-- 设置页已有脱敏 provider 状态、usage、route matrix、模型配置、任务模型画像、本地 API 契约、发行准备、跨项目样本索引、样本趋势快照和本地运行脚本；项目工作台已有运行前体检、设定卡片、向量检索就绪探针、embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Case 矩阵、Graph 记忆 Provider 边界、Graph 记忆离线 replay 计划/报告、Provider Spike 前置包、就绪门禁、Runbook、结果模板、Mock 结果报告、复核门禁、人工审批包、审批证据核对表、opt-in 证据、no-go 矩阵、operator checklist、review packet、decision ledger preview、final readiness summary 和 human signoff schema draft；分支右栏已有投影健康、读者评审和上下文包；不读取或打印明文密钥。
+- 设置页已有脱敏 provider 状态、usage、route matrix、模型配置、任务模型画像、本地 API 契约、发行准备、跨项目样本索引、样本趋势快照和本地运行脚本；项目工作台已有运行前体检、设定卡片、向量检索就绪探针、embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Case 矩阵、Graph 记忆 Provider 边界、Graph 记忆离线 replay 计划/报告、Provider Spike 前置包、就绪门禁、Runbook、结果模板、Mock 结果报告、复核门禁、人工审批包、审批证据核对表、opt-in 证据、no-go 矩阵、operator checklist、review packet、decision ledger preview、final readiness summary、human signoff schema draft、config draft、local provider contract、single fixture dry-run harness、mock-compatible adapter 和 manual mock adapter review；分支右栏已有投影健康、读者评审和上下文包；不读取或打印明文密钥。
 - 仍未做：云端多用户持久队列、真实对象存储 adapter、生产向量库/GraphRAG/Zep、overlay 自动消费、运行后审计写入正史账本。
 - v1.0-beta 后续不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些按 v0.9.3 / v0.9.4 的触发式 spike 处理。
 

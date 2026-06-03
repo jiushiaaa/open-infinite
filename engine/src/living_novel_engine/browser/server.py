@@ -742,6 +742,124 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 except FileNotFoundError as exc:
                     return self._send_json({"error": str(exc)}, status=404)
 
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-opt-in-config-draft"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeOptInConfigDraftRequestError,
+                    get_graph_memory_provider_spike_opt_in_config_draft,
+                )
+
+                suffix = "/graph-memory-provider-spike-opt-in-config-draft"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_opt_in_config_draft(slug)
+                    )
+                except GraphMemoryProviderSpikeOptInConfigDraftRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-local-provider-contract"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeLocalProviderContractRequestError,
+                    get_graph_memory_provider_spike_local_provider_contract,
+                )
+
+                suffix = "/graph-memory-provider-spike-local-provider-contract"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_local_provider_contract(slug)
+                    )
+                except GraphMemoryProviderSpikeLocalProviderContractRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-single-fixture-dry-run-harness"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeSingleFixtureDryRunHarnessRequestError,
+                    get_graph_memory_provider_spike_single_fixture_dry_run_harness,
+                )
+
+                suffix = (
+                    "/graph-memory-provider-spike-single-fixture-dry-run-harness"
+                )
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_single_fixture_dry_run_harness(
+                            slug
+                        )
+                    )
+                except (
+                    GraphMemoryProviderSpikeSingleFixtureDryRunHarnessRequestError
+                ) as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-mock-compatible-adapter"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeMockCompatibleAdapterRequestError,
+                    get_graph_memory_provider_spike_mock_compatible_adapter,
+                )
+
+                suffix = "/graph-memory-provider-spike-mock-compatible-adapter"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_mock_compatible_adapter(slug)
+                    )
+                except GraphMemoryProviderSpikeMockCompatibleAdapterRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-manual-mock-adapter-review"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeManualMockAdapterReviewRequestError,
+                    get_graph_memory_provider_spike_manual_mock_adapter_review,
+                )
+
+                suffix = "/graph-memory-provider-spike-manual-mock-adapter-review"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_manual_mock_adapter_review(
+                            slug
+                        )
+                    )
+                except GraphMemoryProviderSpikeManualMockAdapterReviewRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
             if path.startswith("/api/stories/") and path.endswith("/retrieval-probes"):
                 from living_novel_engine.service import evaluate_retrieval_probes
 

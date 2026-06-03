@@ -1383,6 +1383,141 @@ def memory_graph_opt_in_human_signoff_schema_cmd(
     click.echo(str(report.get("content_json") or ""))
 
 
+@memory_group.command("graph-opt-in-config-draft")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_opt_in_config_draft_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike opt-in 配置草案，不保存配置。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeOptInConfigDraftRequestError,
+        get_graph_memory_provider_spike_opt_in_config_draft,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_opt_in_config_draft(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeOptInConfigDraftRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-local-provider-contract")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_local_provider_contract_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike 本地 provider contract，不接外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeLocalProviderContractRequestError,
+        get_graph_memory_provider_spike_local_provider_contract,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_local_provider_contract(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeLocalProviderContractRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-single-fixture-dry-run-harness")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_single_fixture_dry_run_harness_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike 单 fixture dry-run harness，仅本地 mock。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeSingleFixtureDryRunHarnessRequestError,
+        get_graph_memory_provider_spike_single_fixture_dry_run_harness,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_single_fixture_dry_run_harness(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeSingleFixtureDryRunHarnessRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-mock-compatible-adapter")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_mock_compatible_adapter_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike mock-compatible adapter 规格。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeMockCompatibleAdapterRequestError,
+        get_graph_memory_provider_spike_mock_compatible_adapter,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_mock_compatible_adapter(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeMockCompatibleAdapterRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-manual-mock-adapter-review")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_manual_mock_adapter_review_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike mock adapter 人工复核包。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeManualMockAdapterReviewRequestError,
+        get_graph_memory_provider_spike_manual_mock_adapter_review,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_manual_mock_adapter_review(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeManualMockAdapterReviewRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
 @main.group("resume")
 def resume_group() -> None:
     """沿已选世界线续写（v0.1.2+）"""

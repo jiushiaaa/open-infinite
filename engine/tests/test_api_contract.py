@@ -55,14 +55,19 @@ def test_api_contract_describes_core_openapi_paths(monkeypatch):
         "/api/stories/{slug}/graph-memory-provider-spike-opt-in-decision-ledger-preview",
         "/api/stories/{slug}/graph-memory-provider-spike-opt-in-final-readiness-summary",
         "/api/stories/{slug}/graph-memory-provider-spike-opt-in-human-signoff-schema-draft",
+        "/api/stories/{slug}/graph-memory-provider-spike-opt-in-config-draft",
+        "/api/stories/{slug}/graph-memory-provider-spike-local-provider-contract",
+        "/api/stories/{slug}/graph-memory-provider-spike-single-fixture-dry-run-harness",
+        "/api/stories/{slug}/graph-memory-provider-spike-mock-compatible-adapter",
+        "/api/stories/{slug}/graph-memory-provider-spike-manual-mock-adapter-review",
         "/api/settings/llm-profile-assignment",
         "/api/settings/retrieval-samples-trend-snapshot",
         "/api/runs/{run_id}/branches/{branch_id}/prompt-budget-pack",
     ):
         assert path in paths
         assert "get" in paths[path]
-    assert report["summary"]["endpoint_count"] == 61
-    assert report["summary"]["openapi_path_count"] == 60
+    assert report["summary"]["endpoint_count"] == 66
+    assert report["summary"]["openapi_path_count"] == 65
 
 
 def test_api_contract_maps_typed_client_without_leaking_secrets(monkeypatch):
@@ -105,11 +110,16 @@ def test_api_contract_maps_typed_client_without_leaking_secrets(monkeypatch):
         "getGraphMemoryProviderSpikeOptInDecisionLedgerPreview",
         "getGraphMemoryProviderSpikeOptInFinalReadinessSummary",
         "getGraphMemoryProviderSpikeOptInHumanSignoffSchemaDraft",
+        "getGraphMemoryProviderSpikeOptInConfigDraft",
+        "getGraphMemoryProviderSpikeLocalProviderContract",
+        "getGraphMemoryProviderSpikeSingleFixtureDryRunHarness",
+        "getGraphMemoryProviderSpikeMockCompatibleAdapter",
+        "getGraphMemoryProviderSpikeManualMockAdapterReview",
         "getLLMProfileAssignment",
         "getRetrievalSamplesTrendSnapshot",
         "getPromptBudgetPack",
     }.issubset(client_methods)
-    assert report["summary"]["typed_client_method_count"] == 60
+    assert report["summary"]["typed_client_method_count"] == 65
     assert client_methods["getCardsWorkspace"]["response_type"] == "CardsWorkspaceReport"
     assert (
         client_methods["getVectorRetrievalReadiness"]["response_type"]
