@@ -40,12 +40,52 @@
 | v0.9.1-v0.9.4 | Provider/Cost、MasterSetting、Graph Memory Evaluation、Advanced Runner Evaluation 均已收口 |
 | v1.0-beta | 本地优先商业化边界从 Scope-A 到 Billing Adapter Boundary-X 均已收口 |
 | v1.0-local | Model Configuration UX 与 Local Run Scripts 已收口 |
+| Runtime Preflight MVP | 后续增强第一刀已收口，创作前只读聚合关键运行证据 |
+| Projection Health MVP | 后续增强第二刀已收口，生成后只读聚合分支投影健康证据 |
+| Reader Panel / Adversarial Revision Lab MVP | 后续增强第三刀已收口，确定性读者评审与修订 brief |
+| Prompt Budget Pack MVP | 后续增强第四刀已收口，检索上下文预算包与压缩解释 |
+| LLM Profile Assignment MVP | 后续增强第五刀已收口，设置页只读展示任务级模型画像、温度、预算和降级策略 |
+| Cards Workspace MVP | 后续增强第六刀已收口，项目工作台只读展示世界卡、角色卡、风格卡设定资产 |
+| OpenAPI / Typed Client MVP | 后续增强第七刀已收口，设置页只读展示本地 API 契约、OpenAPI skeleton 与 typed client 映射 |
+| Bundled Release Readiness MVP | 后续增强第八刀已收口，设置页只读展示本地发行与桌面打包准备度 |
+| Embedding / Vector Retrieval Readiness Probe MVP | 后续增强第九刀已收口，项目工作台只读展示 BM25、账本、别名、失败样本与向量检索触发证据 |
+| Embedding Evaluation Samples MVP | 后续增强第十刀已收口，项目工作台只读评估失败样本、BM25 命中与 mock semantic oracle 差异 |
+| Retrieval Failure Sample Authoring MVP | 后续增强第十一刀已收口，项目工作台可安全追加本地检索失败样本并刷新 embedding 样本评估 |
+| Memory CLI MVP | 后续增强第十二刀已收口，命令行可追加、复跑和检查本地检索失败样本 |
+| Retrieval Sample Export Pack MVP | 后续增强第十三刀已收口，service/API/UI/CLI 可只读导出失败样本 Markdown/manifest |
+| Embedding Mock Evaluation Report MVP | 后续增强第十四刀已收口，service/API/UI/CLI 可只读生成 BM25 vs mock semantic oracle 对照报告 |
+| Retrieval Sample Replay Report MVP | 后续增强第十五刀已收口，service/API/UI/CLI 可只读复跑失败样本并输出 case report |
+| Retrieval Sample Migration Pack MVP | 后续增强第十六刀已收口，service/API/UI/CLI 可只读整理稳定 retrieval eval records 与 manifest |
+| Cross Project Retrieval Samples Index MVP | 后续增强第十七刀已收口，service/API/CLI/设置页可只读汇总跨项目 retrieval eval records |
+| Retrieval Samples Trend Snapshot MVP | 后续增强第十八刀已收口，service/API/CLI/设置页可只读输出样本覆盖、词面缺口、空样本项目和重型检索触发暂缓信号 |
+| GraphRAG / Zep Trigger Evidence MVP | 后续增强第十九刀已收口，service/API/CLI/项目工作台可只读聚合图记忆触发、retrieval probe、样本趋势和关系/因果/状态证据 |
+| Graph Memory Spike Design Pack MVP | 后续增强第二十刀已收口，service/API/CLI/项目工作台可只读展示 GraphRAG/Zep/Temporal Memory 设计包、验收门槛和 no-go 条件 |
+| Graph Memory Shadow Compare Pack MVP | 后续增强第二十一刀已收口，service/API/CLI/项目工作台可只读展示 GraphRAG/Zep/Temporal Memory 候选层 shadow 对照、样本案例、验收结果和 no-go 条件 |
+| Graph Memory Shadow Case Matrix MVP | 后续增强第二十二刀已收口，service/API/CLI/项目工作台可只读展示 eval case x 候选层矩阵、本地证据、缺口、收益/风险和 no-go 条件 |
+| Graph Memory Provider Boundary Matrix MVP | 后续增强第二十三刀已收口，service/API/CLI/项目工作台可只读展示 GraphRAG/Zep/Temporal Memory 的 opt-in provider 边界、成本、隐私、回滚和验收要求 |
+| Graph Memory Offline Shadow Replay Plan MVP | 后续增强第二十四刀已收口，service/API/CLI/项目工作台可只读展示高收益 case 的离线 replay 输入、验收、回滚、人工复核和 no-go 条件 |
+| Graph Memory Offline Shadow Replay Report MVP | 后续增强第二十五刀已收口，service/API/CLI/项目工作台可只读展示 mock replay 结果、候选收益、失败降级和人工复核结论 |
+| Graph Memory Provider Spike Fixture Pack MVP | 后续增强第二十六刀已收口，service/API/CLI/项目工作台可只读展示单 provider、单项目、单 fixture 的 dry-run 前置包、成本/隐私/回滚 checklist、人工验收和 no-go 条件 |
+| Graph Memory Provider Spike Readiness Gate MVP | 后续增强第二十七刀已收口，service/API/CLI/项目工作台可只读展示 provider spike readiness gate、人工复核项、no-go 和暂缓原因 |
+| Graph Memory Provider Spike Runbook MVP | 后续增强第二十八刀已收口，service/API/CLI/项目工作台可只读展示人工 opt-in dry-run SOP、验收/回滚/暂停条件和证据引用 |
+| Graph Memory Provider Spike Dry-run Result Template MVP | 后续增强第二十九刀已收口，service/API/CLI/项目工作台可只读展示人工 dry-run 结果记录模板、对比字段、暂停/升级判定和证据引用 |
+| Graph Memory Provider Spike Mock Result Report MVP | 后续增强第三十刀已收口，service/API/CLI/项目工作台可只读展示 mock 填充结果、收益/风险判定、人工复核摘要和暂停/升级建议 |
+| Graph Memory Provider Spike Review Gate MVP | 后续增强第三十一刀已收口，service/API/CLI/项目工作台可只读展示人工复核 gate、provider review rows、no-go 摘要和下一步分流 |
+| Graph Memory Provider Spike Manual Approval Pack MVP | 后续增强第三十二刀已收口，service/API/CLI/项目工作台可只读展示人工审批包、风险签收、回滚确认、opt-in 材料和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Manual Approval Evidence Checklist MVP | 后续增强第三十三刀已收口，service/API/CLI/项目工作台可只读展示审批证据核对表、待签收项、材料缺口、回滚材料缺口和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in Evidence Snapshot MVP | 后续增强第三十四刀已收口，service/API/CLI/项目工作台可只读展示 opt-in 证据快照、阻塞项摘要、签收待办和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in No-go Matrix MVP | 后续增强第三十五刀已收口，service/API/CLI/项目工作台可只读展示 no-go 分类矩阵、阻塞类别、签收/材料/回滚缺口分布和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in Operator Checklist MVP | 后续增强第三十六刀已收口，service/API/CLI/项目工作台可只读展示人工操作 checklist、暂停/升级判断、证据核对顺序和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in Review Packet MVP | 后续增强第三十七刀已收口，service/API/CLI/项目工作台可只读展示人工复核包、证据顺序、暂停材料、升级材料和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP | 后续增强第三十八刀已收口，service/API/CLI/项目工作台可只读展示决策账本预览、待签收字段占位、阻塞行和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in Final Readiness Summary MVP | 后续增强第三十九刀已收口，service/API/CLI/项目工作台可只读展示最终就绪摘要、未签收字段、阻塞原因和真实 provider 继续禁止边界 |
+| Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP | 后续增强第四十刀已收口，service/API/CLI/项目工作台可只读展示人工签收 schema 草案、字段定义、校验规则和真实 provider 继续禁止边界 |
 
-验证基线：后端 `cd engine && python -m pytest -q` 为 `713 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+验证基线：后端 `cd engine && python -m pytest -q` 为 `863 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
-## 当前暂停点
+## 当前自主迭代点
 
-按用户要求，真实用户模型配置 UI 与本地一键运行脚本完成后暂停，不继续自动开新刀。下一次继续前先等用户本地试用反馈。
+用户已授权进入后续增强自主迭代。真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP、Projection Health MVP、Reader Panel / Adversarial Revision Lab MVP、Prompt Budget Pack MVP、LLM Profile Assignment MVP、Cards Workspace MVP、OpenAPI / Typed Client MVP、Bundled Release Readiness MVP、Embedding / Vector Retrieval Readiness Probe MVP、Embedding Evaluation Samples MVP、Retrieval Failure Sample Authoring MVP、Memory CLI MVP、Retrieval Sample Export Pack MVP、Embedding Mock Evaluation Report MVP、Retrieval Sample Replay Report MVP、Retrieval Sample Migration Pack MVP、Cross Project Retrieval Samples Index MVP、Retrieval Samples Trend Snapshot MVP、GraphRAG / Zep Trigger Evidence MVP、Graph Memory Spike Design Pack MVP、Graph Memory Shadow Compare Pack MVP、Graph Memory Shadow Case Matrix MVP、Graph Memory Provider Boundary Matrix MVP、Graph Memory Offline Shadow Replay Plan MVP、Graph Memory Offline Shadow Replay Report MVP、Graph Memory Provider Spike Fixture Pack MVP、Graph Memory Provider Spike Readiness Gate MVP、Graph Memory Provider Spike Runbook MVP、Graph Memory Provider Spike Dry-run Result Template MVP、Graph Memory Provider Spike Mock Result Report MVP、Graph Memory Provider Spike Review Gate MVP、Graph Memory Provider Spike Manual Approval Pack MVP、Graph Memory Provider Spike Manual Approval Evidence Checklist MVP、Graph Memory Provider Spike Opt-in Evidence Snapshot MVP、Graph Memory Provider Spike Opt-in No-go Matrix MVP、Graph Memory Provider Spike Opt-in Operator Checklist MVP、Graph Memory Provider Spike Opt-in Review Packet MVP、Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP、Graph Memory Provider Spike Opt-in Final Readiness Summary MVP 和 Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP 已完成。下一次继续时建议推进 `Graph Memory Provider Spike Opt-in Config Draft MVP`。
 
 可选后续方向只有在用户确认后再进入：
 
@@ -71,8 +111,16 @@
 - `contract_audit` 主链路仍偏静态，未成为运行时强约束。
 - `state_execution_overlay.json` 不自动喂回下一轮 runner。
 - 运行后审计未写入正史账本。
+- Projection Health MVP 已形成独立只读健康报告/API/UI；真正 Chapter Commit 写后真源仍后置为 opt-in。
+- Reader Panel / Adversarial Revision Lab deterministic/mockable MVP 已有；自动改写、Elo 对比、voice fingerprint 仍后置。
+- Prompt Budget Pack 已形成独立只读预算包/压缩报告；真正接入 prompt 编排或 reranker 仍后置。
+- LLM Profile Assignment 已形成只读任务画像；opt-in profile 保存、版本化和真实模型实验仍后置。
+- Cards Workspace 已形成世界卡、角色卡、风格卡只读入口；独立卡片 artifact、版本化和批量编辑仍后置。
+- OpenAPI / Typed Client 已形成只读 API contract、OpenAPI skeleton 和前端 typed client 映射；字段级 schema、自动生成 client 和外部集成契约仍后置。
+- Bundled Release / Desktop Packaging 已形成只读发行准备评估；安装包、桌面壳、内置 runtime、签名和自动升级仍后置。
+- Embedding / 向量库尚未接入；召回压力 probe、本地失败样本 mock 对照、工作台样本采集、Memory CLI、只读导出包、mock 对照报告、replay case report、migration pack、跨项目索引、趋势快照、GraphRAG/Zep/Temporal Memory 触发证据、spike design pack、shadow compare pack、case matrix、provider boundary matrix、offline shadow replay plan/report、provider spike fixture pack、readiness gate、runbook、result template、mock result report、review gate、manual approval pack、approval evidence checklist、opt-in evidence snapshot、opt-in no-go matrix、opt-in operator checklist、opt-in review packet、opt-in decision ledger preview、opt-in final readiness summary 和 human signoff schema draft 已完成；下一步只做 provider spike opt-in config draft，不直接接外部服务。
 - 云端多用户持久队列、真实对象存储 adapter、真实认证、真实计费仍未做。
-- 向量库 / embedding / GraphRAG 只在 BM25/ledger/alias probe 证明不足时再评估。
+- 向量库 / embedding / GraphRAG 只在 BM25/ledger/alias probe、向量就绪探针与样本对照证明不足时再评估。
 
 ## 文档同步规则
 

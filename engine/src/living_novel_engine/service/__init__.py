@@ -13,8 +13,14 @@ from .advanced_runner_evaluation import (
     evaluate_advanced_runner_probes,
     evaluate_advanced_runner_trigger,
 )
+from .api_contract import get_api_contract
 from .auth_boundary import get_auth_boundary_checklist
 from .billing_adapter_boundary import get_billing_adapter_boundary_checklist
+from .bundled_release_readiness import get_bundled_release_readiness
+from .cross_project_retrieval_samples_index import (
+    get_cross_project_retrieval_samples_index,
+)
+from .retrieval_samples_trend_snapshot import get_retrieval_samples_trend_snapshot
 from .baseline import (
     BaselineRequestError,
     BaselineServiceResult,
@@ -33,6 +39,7 @@ from .canon_replay import (
     run_canon_replay_range,
     write_holdout,
 )
+from .cards_workspace import CardsWorkspaceRequestError, get_cards_workspace
 from .chapter_export import (
     ChapterExportRequestError,
     build_chapter_collection_export,
@@ -71,6 +78,94 @@ from .diff_actions import (
     apply_diff_action,
 )
 from .graph_memory_evaluation import evaluate_graph_memory_trigger
+from .graph_memory_trigger_evidence import (
+    GraphMemoryTriggerEvidenceRequestError,
+    get_graph_memory_trigger_evidence,
+)
+from .graph_memory_spike_design_pack import (
+    GraphMemorySpikeDesignPackRequestError,
+    get_graph_memory_spike_design_pack,
+)
+from .graph_memory_shadow_compare_pack import (
+    GraphMemoryShadowComparePackRequestError,
+    get_graph_memory_shadow_compare_pack,
+)
+from .graph_memory_shadow_case_matrix import (
+    GraphMemoryShadowCaseMatrixRequestError,
+    get_graph_memory_shadow_case_matrix,
+)
+from .graph_memory_provider_boundary_matrix import (
+    GraphMemoryProviderBoundaryMatrixRequestError,
+    get_graph_memory_provider_boundary_matrix,
+)
+from .graph_memory_offline_shadow_replay_plan import (
+    GraphMemoryOfflineShadowReplayPlanRequestError,
+    get_graph_memory_offline_shadow_replay_plan,
+)
+from .graph_memory_offline_shadow_replay_report import (
+    GraphMemoryOfflineShadowReplayReportRequestError,
+    get_graph_memory_offline_shadow_replay_report,
+)
+from .graph_memory_provider_spike_fixture_pack import (
+    GraphMemoryProviderSpikeFixturePackRequestError,
+    get_graph_memory_provider_spike_fixture_pack,
+)
+from .graph_memory_provider_spike_readiness_gate import (
+    GraphMemoryProviderSpikeReadinessGateRequestError,
+    get_graph_memory_provider_spike_readiness_gate,
+)
+from .graph_memory_provider_spike_runbook import (
+    GraphMemoryProviderSpikeRunbookRequestError,
+    get_graph_memory_provider_spike_runbook,
+)
+from .graph_memory_provider_spike_dry_run_result_template import (
+    GraphMemoryProviderSpikeDryRunResultTemplateRequestError,
+    get_graph_memory_provider_spike_dry_run_result_template,
+)
+from .graph_memory_provider_spike_mock_result_report import (
+    GraphMemoryProviderSpikeMockResultReportRequestError,
+    get_graph_memory_provider_spike_mock_result_report,
+)
+from .graph_memory_provider_spike_review_gate import (
+    GraphMemoryProviderSpikeReviewGateRequestError,
+    get_graph_memory_provider_spike_review_gate,
+)
+from .graph_memory_provider_spike_manual_approval_pack import (
+    GraphMemoryProviderSpikeManualApprovalPackRequestError,
+    get_graph_memory_provider_spike_manual_approval_pack,
+)
+from .graph_memory_provider_spike_manual_approval_evidence_checklist import (
+    GraphMemoryProviderSpikeManualApprovalEvidenceChecklistRequestError,
+    get_graph_memory_provider_spike_manual_approval_evidence_checklist,
+)
+from .graph_memory_provider_spike_opt_in_evidence_snapshot import (
+    GraphMemoryProviderSpikeOptInEvidenceSnapshotRequestError,
+    get_graph_memory_provider_spike_opt_in_evidence_snapshot,
+)
+from .graph_memory_provider_spike_opt_in_no_go_matrix import (
+    GraphMemoryProviderSpikeOptInNoGoMatrixRequestError,
+    get_graph_memory_provider_spike_opt_in_no_go_matrix,
+)
+from .graph_memory_provider_spike_opt_in_operator_checklist import (
+    GraphMemoryProviderSpikeOptInOperatorChecklistRequestError,
+    get_graph_memory_provider_spike_opt_in_operator_checklist,
+)
+from .graph_memory_provider_spike_opt_in_review_packet import (
+    GraphMemoryProviderSpikeOptInReviewPacketRequestError,
+    get_graph_memory_provider_spike_opt_in_review_packet,
+)
+from .graph_memory_provider_spike_opt_in_decision_ledger_preview import (
+    GraphMemoryProviderSpikeOptInDecisionLedgerPreviewRequestError,
+    get_graph_memory_provider_spike_opt_in_decision_ledger_preview,
+)
+from .graph_memory_provider_spike_opt_in_final_readiness_summary import (
+    GraphMemoryProviderSpikeOptInFinalReadinessSummaryRequestError,
+    get_graph_memory_provider_spike_opt_in_final_readiness_summary,
+)
+from .graph_memory_provider_spike_opt_in_human_signoff_schema_draft import (
+    GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftRequestError,
+    get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft,
+)
 from .jobs import JOBS, JOB_KINDS, JobRecord, JobStore
 from .master_setting_update import (
     MasterSettingConflictError,
@@ -80,6 +175,7 @@ from .master_setting_update import (
     update_master_setting,
 )
 from .model_configuration import get_model_configuration_summary
+from .llm_profile_assignment import get_llm_profile_assignment
 from .project_health import HealthReport, check_project_health
 from .project_retention_policy import (
     ProjectRetentionPolicyConflictError,
@@ -102,6 +198,40 @@ from .rights_approval import (
     get_rights_approval_checklist,
 )
 from .retrieval_probe import evaluate_retrieval_probes
+from .retrieval_failure_samples import (
+    RetrievalFailureSampleConflictError,
+    RetrievalFailureSampleRequestError,
+    add_retrieval_failure_sample,
+    get_retrieval_failure_samples,
+)
+from .retrieval_sample_export_pack import (
+    RetrievalSampleExportPackRequestError,
+    get_retrieval_sample_export_pack,
+)
+from .retrieval_sample_replay_report import (
+    RetrievalSampleReplayReportRequestError,
+    get_retrieval_sample_replay_report,
+)
+from .retrieval_sample_migration_pack import (
+    RetrievalSampleMigrationPackRequestError,
+    get_retrieval_sample_migration_pack,
+)
+from .runtime_preflight import (
+    RuntimePreflightRequestError,
+    get_runtime_preflight,
+)
+from .projection_health import (
+    ProjectionHealthRequestError,
+    get_projection_health,
+)
+from .reader_panel import (
+    ReaderPanelRequestError,
+    get_reader_panel,
+)
+from .prompt_budget_pack import (
+    PromptBudgetPackRequestError,
+    get_prompt_budget_pack,
+)
 from .runtime_settings import (
     RuntimeSettings,
     SettingsError,
@@ -160,6 +290,11 @@ from .emergence_mining import (
     get_emergence_nodes,
     mine_run_emergence,
 )
+from .embedding_evaluation_samples import get_embedding_evaluation_samples
+from .embedding_mock_evaluation_report import (
+    EmbeddingMockEvaluationReportRequestError,
+    get_embedding_mock_evaluation_report,
+)
 from .intervention_guardrail import (
     GuardrailRequestError,
     check_intervention_guardrail,
@@ -177,6 +312,7 @@ from .visual_assets import (
     get_visual_assets,
     resolve_asset_path,
 )
+from .vector_retrieval_readiness import get_vector_retrieval_readiness
 from .worldline_judge import (
     WorldlineJudgeRequestError,
     get_worldline_judgement,
@@ -195,15 +331,21 @@ __all__ = [
     "AnchorUpdateResult",
     "evaluate_advanced_runner_probes",
     "evaluate_advanced_runner_trigger",
+    "get_api_contract",
     "get_auth_boundary_checklist",
     "get_billing_adapter_boundary_checklist",
+    "get_bundled_release_readiness",
+    "get_cross_project_retrieval_samples_index",
+    "get_retrieval_samples_trend_snapshot",
     "BaselineRequestError",
     "BaselineServiceResult",
+    "CardsWorkspaceRequestError",
     "ChapterExportRequestError",
     "generate_baseline",
     "get_baseline_report",
     "build_chapter_collection_export",
     "build_chapter_export",
+    "get_cards_workspace",
     "get_account_project_space_boundary",
     "ProjectAuditLogConflictError",
     "ProjectAuditLogRequestError",
@@ -234,6 +376,14 @@ __all__ = [
     "get_release_preflight_checklist",
     "RightsApprovalRequestError",
     "get_rights_approval_checklist",
+    "RuntimePreflightRequestError",
+    "get_runtime_preflight",
+    "ProjectionHealthRequestError",
+    "get_projection_health",
+    "ReaderPanelRequestError",
+    "get_reader_panel",
+    "PromptBudgetPackRequestError",
+    "get_prompt_budget_pack",
     "HoldoutExistsError",
     "HoldoutReadOnlyError",
     "HoldoutRequestError",
@@ -275,6 +425,7 @@ __all__ = [
     "get_provider_usage_summary",
     "get_runtime_settings",
     "get_model_configuration_summary",
+    "get_llm_profile_assignment",
     "apply_runner_state_execution",
     "evaluate_runner_state_execution",
     "get_runner_state_execution_report",
@@ -303,18 +454,76 @@ __all__ = [
     "import_novel_from_payload",
     "import_request_from_session",
     "mark_ingest_session_imported",
+    "get_embedding_evaluation_samples",
+    "EmbeddingMockEvaluationReportRequestError",
+    "get_embedding_mock_evaluation_report",
     "resolve_llm_quietly",
     "run_intervention",
     "write_ingest_chunk",
     "get_emergence_nodes",
     "evaluate_graph_memory_trigger",
+    "GraphMemoryTriggerEvidenceRequestError",
+    "get_graph_memory_trigger_evidence",
+    "GraphMemorySpikeDesignPackRequestError",
+    "get_graph_memory_spike_design_pack",
+    "GraphMemoryShadowComparePackRequestError",
+    "get_graph_memory_shadow_compare_pack",
+    "GraphMemoryShadowCaseMatrixRequestError",
+    "get_graph_memory_shadow_case_matrix",
+    "GraphMemoryProviderBoundaryMatrixRequestError",
+    "get_graph_memory_provider_boundary_matrix",
+    "GraphMemoryOfflineShadowReplayPlanRequestError",
+    "get_graph_memory_offline_shadow_replay_plan",
+    "GraphMemoryOfflineShadowReplayReportRequestError",
+    "get_graph_memory_offline_shadow_replay_report",
+    "GraphMemoryProviderSpikeFixturePackRequestError",
+    "get_graph_memory_provider_spike_fixture_pack",
+    "GraphMemoryProviderSpikeReadinessGateRequestError",
+    "get_graph_memory_provider_spike_readiness_gate",
+    "GraphMemoryProviderSpikeRunbookRequestError",
+    "get_graph_memory_provider_spike_runbook",
+    "GraphMemoryProviderSpikeDryRunResultTemplateRequestError",
+    "get_graph_memory_provider_spike_dry_run_result_template",
+    "GraphMemoryProviderSpikeMockResultReportRequestError",
+    "get_graph_memory_provider_spike_mock_result_report",
+    "GraphMemoryProviderSpikeReviewGateRequestError",
+    "get_graph_memory_provider_spike_review_gate",
+    "GraphMemoryProviderSpikeManualApprovalPackRequestError",
+    "get_graph_memory_provider_spike_manual_approval_pack",
+    "GraphMemoryProviderSpikeManualApprovalEvidenceChecklistRequestError",
+    "get_graph_memory_provider_spike_manual_approval_evidence_checklist",
+    "GraphMemoryProviderSpikeOptInEvidenceSnapshotRequestError",
+    "get_graph_memory_provider_spike_opt_in_evidence_snapshot",
+    "GraphMemoryProviderSpikeOptInNoGoMatrixRequestError",
+    "get_graph_memory_provider_spike_opt_in_no_go_matrix",
+    "GraphMemoryProviderSpikeOptInOperatorChecklistRequestError",
+    "get_graph_memory_provider_spike_opt_in_operator_checklist",
+    "GraphMemoryProviderSpikeOptInReviewPacketRequestError",
+    "get_graph_memory_provider_spike_opt_in_review_packet",
+    "GraphMemoryProviderSpikeOptInDecisionLedgerPreviewRequestError",
+    "get_graph_memory_provider_spike_opt_in_decision_ledger_preview",
+    "GraphMemoryProviderSpikeOptInFinalReadinessSummaryRequestError",
+    "get_graph_memory_provider_spike_opt_in_final_readiness_summary",
+    "GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftRequestError",
+    "get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft",
     "evaluate_retrieval_probes",
+    "RetrievalFailureSampleConflictError",
+    "RetrievalFailureSampleRequestError",
+    "RetrievalSampleExportPackRequestError",
+    "RetrievalSampleReplayReportRequestError",
+    "RetrievalSampleMigrationPackRequestError",
+    "add_retrieval_failure_sample",
+    "get_retrieval_failure_samples",
+    "get_retrieval_sample_export_pack",
+    "get_retrieval_sample_replay_report",
+    "get_retrieval_sample_migration_pack",
     "mine_run_emergence",
     "VisualAssetPathError",
     "VisualAssetRequestError",
     "generate_visual_assets",
     "get_visual_assets",
     "resolve_asset_path",
+    "get_vector_retrieval_readiness",
     "WorldlineJudgeRequestError",
     "WorldlineSelectionRequestError",
     "get_worldline_judgement",

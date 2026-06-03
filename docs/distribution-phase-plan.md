@@ -1,6 +1,6 @@
 # 未终章 发行路径计划
 
-> 状态：本地运行脚本第一刀已落地；安装包、自动部署和线上多用户实现仍后置，等本地产品闭环稳定、用户本地验证通过后再进入。
+> 状态：本地运行脚本与 Bundled Release Readiness MVP 已落地；安装包、自动部署和线上多用户实现仍后置，等本地产品闭环稳定、用户本地验证通过后再进入。
 
 ## 1. 目标
 
@@ -9,7 +9,7 @@
 | 使用方式 | 面向用户 | 当前状态 | 进入条件 |
 | --- | --- | --- | --- |
 | 本地 clone + 配环境 | 技术用户、早期体验者 | 现有路径 | README、设置页模型配置和本地 smoke 足够清晰 |
-| GitHub Release 安装包 | 不想手动配置 Python/Node 的普通用户 | 后置排期；已有本地启动脚本底座 | 本地产品大体稳定、无大迭代、安装脚本可重复验证 |
+| GitHub Release 安装包 | 不想手动配置 Python/Node 的普通用户 | 后置排期；已有本地启动脚本底座与发行准备只读清单 | 本地产品大体稳定、无大迭代、安装脚本可重复验证 |
 | 服务器在线体验 | 不想 clone 或下载安装的用户 | 后置排期 | 本地版本稳定、服务器资源已购买、认证与数据边界明确 |
 
 ## 2. 本地 Clone 路径
@@ -49,7 +49,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start-local.ps1 -Che
 bash scripts/start-local.sh --check-only --no-browser
 ```
 
-这不是 GitHub Release 安装包，也不内置 Python/Node runtime；D2/D3 再处理更干净环境下的依赖 bootstrap 与打包形态。
+这不是 GitHub Release 安装包，也不内置 Python/Node runtime；发行准备清单只负责说明当前仓库离打包还差什么，D2/D3 再处理更干净环境下的依赖 bootstrap 与打包形态。
 
 ## 3. Release 安装包路径
 
@@ -82,9 +82,10 @@ bash scripts/start-local.sh --check-only --no-browser
 | 顺序 | 名称 | 范围 | 验证 |
 | --- | --- | --- | --- |
 | D1 | Local Run Script | `scripts/start-local.ps1` 与 `scripts/start-local.sh` 一键启动后端和前端 | 已落地；Windows check-only 已验证，完整启动需本机 HTTP smoke |
-| D2 | Dependency Bootstrap | 自动检查并安装 Python/Node/pnpm 依赖 | 干净环境或半干净环境重复执行 |
-| D3 | Release Packager Spike | 评估 `.exe`、`.app/.dmg`、压缩包三种形式 | GitHub Release 草包本地安装 |
-| D4 | Tencent Cloud Deploy Guide | 2c4g 单机部署脚本与文档 | 云端后端/前端健康检查 |
-| D5 | Hosted Safety Boundary | 在线体验的数据隔离、密钥、日志和权限边界 | 不泄漏 Key，不暴露本地文件路径 |
+| D2 | Bundled Release Readiness | 设置页只读检查脚本、package、前端 dist、发行文档和密钥边界 | 已落地；不创建安装包、不内置 runtime |
+| D3 | Dependency Bootstrap | 自动检查并安装 Python/Node/pnpm 依赖 | 干净环境或半干净环境重复执行 |
+| D4 | Release Packager Spike | 评估 `.exe`、`.app/.dmg`、压缩包三种形式 | GitHub Release 草包本地安装 |
+| D5 | Tencent Cloud Deploy Guide | 2c4g 单机部署脚本与文档 | 云端后端/前端健康检查 |
+| D6 | Hosted Safety Boundary | 在线体验的数据隔离、密钥、日志和权限边界 | 不泄漏 Key，不暴露本地文件路径 |
 
 暂停条件：只要本地产品仍有明显主流程缺口，就不进入 D1-D5。

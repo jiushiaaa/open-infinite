@@ -196,7 +196,7 @@ export interface ImportReportSummary {
   };
   quality_risks?: ImportQualityRisk[];
   recommended_actions?: ImportRecommendedAction[];
-  warnings: string[];
+  warnings: Array<string | { code: string; message: string }>;
 }
 
 export interface ImportQualityRisk {
@@ -342,6 +342,54 @@ export interface MasterSettingUpdateResponse {
   backup: string | null;
 }
 
+export interface CardsWorkspaceField {
+  label: string;
+  items: string[];
+  status: "ready" | "missing" | string;
+  empty: string;
+}
+
+export interface CardsWorkspaceCard {
+  id: string;
+  type: "world" | "character" | "style" | string;
+  title: string;
+  subtitle: string;
+  status: "ready" | "attention" | string;
+  status_label: string;
+  source_paths: string[];
+  editable_fields: string[];
+  fields: CardsWorkspaceField[];
+}
+
+export interface CardsWorkspaceGroup {
+  id: string;
+  label: string;
+  count: number;
+  card_ids: string[];
+}
+
+export interface CardsWorkspaceReport {
+  version: string;
+  mode: "read_only_cards_workspace" | string;
+  status: "ready" | "attention" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  summary: {
+    card_count: number;
+    world_card_count: number;
+    character_card_count: number;
+    style_card_count: number;
+    editable_card_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+  };
+  groups: CardsWorkspaceGroup[];
+  cards: CardsWorkspaceCard[];
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
 export interface ProjectWorkspaceCanonLedger {
   status: "ready" | "missing" | "damaged" | string;
   entry_count: number;
@@ -430,6 +478,2568 @@ export interface ProjectWorkspace {
     can_start_intervention: boolean;
     next_steps: string[];
   };
+}
+
+export interface RuntimePreflightCheckpoint {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | "blocked" | string;
+  status_label: string;
+  evidence: string;
+  source_endpoint: string;
+  next_step: string;
+  detail: Record<string, unknown>;
+}
+
+export interface RuntimePreflightReport {
+  version: string;
+  mode: "read_only_runtime_preflight" | string;
+  status: "ready" | "attention" | "blocked" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  summary: {
+    checkpoint_count: number;
+    ready_count: number;
+    attention_count: number;
+    blocked_count: number;
+    external_services_required: boolean;
+    writes_artifacts: boolean;
+  };
+  checkpoints: RuntimePreflightCheckpoint[];
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface VectorRetrievalReadinessSignal {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | "blocked" | string;
+  evidence: string;
+  next_step: string;
+  detail: Record<string, unknown>;
+}
+
+export interface VectorRetrievalCandidateLayer {
+  id: string;
+  label: string;
+  readiness: "evaluate" | "design_spike" | "monitor" | "deferred" | string;
+  reason: string;
+}
+
+export interface VectorRetrievalFailureSample {
+  query: string;
+  expected_entities: string[];
+  actual_top_sources: string[];
+  reason: string;
+}
+
+export interface VectorRetrievalReadinessReport {
+  version: string;
+  mode: "read_only_vector_retrieval_readiness" | string;
+  status: "ready" | "attention" | "monitor" | "triggered" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  summary: {
+    chapter_count: number;
+    character_count: number;
+    corpus_item_count: number;
+    canon_ledger_count: number;
+    legacy_fact_count: number;
+    chapter_brief_count: number;
+    volume_brief_count: number;
+    entity_alias_count: number;
+    ledger_entity_count: number;
+    alias_coverage_ratio: number;
+    retrieval_probe_status: string;
+    retrieval_probe_sample_count: number;
+    retrieval_probe_hit_rate: number;
+    saved_failure_sample_count: number;
+    large_project: boolean;
+    corpus_pressure: boolean;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_embedding: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    plaintext_key_returned: boolean;
+  };
+  signals: VectorRetrievalReadinessSignal[];
+  candidate_layers: VectorRetrievalCandidateLayer[];
+  retrieval_probe: {
+    status: string;
+    summary: string;
+    metrics: Record<string, unknown>;
+    failure_samples: Array<Record<string, unknown>>;
+  };
+  failure_samples: VectorRetrievalFailureSample[];
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryTriggerSignal {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | "deferred" | "triggered" | "monitor" | string;
+  value: number;
+  detail: string;
+}
+
+export interface GraphMemoryCandidateLayer {
+  id: "graphrag" | "zep" | "temporal_memory" | string;
+  label: string;
+  status: "candidate" | "deferred" | string;
+  reason: string;
+}
+
+export interface GraphMemoryTriggerEvidenceReport {
+  version: string;
+  mode: "read_only_graph_memory_trigger_evidence" | string;
+  status: "not_triggered" | "monitor" | "triggered" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_kind: SourceKind | string;
+    graph_memory_status: string;
+    graph_memory_should_evaluate: boolean;
+    graph_memory_reasons: string[];
+    chapter_count: number;
+    character_count: number;
+    canon_ledger_count: number;
+    canon_ledger_status: string;
+    entity_alias_count: number;
+    entity_alias_status: string;
+    consistency_severe_issue_count: number;
+    retrieval_probe_status: string;
+    retrieval_probe_hit_rate: number;
+    trend_project_count: number;
+    trend_record_count: number;
+    trend_lexical_gap_count: number;
+    trend_empty_project_count: number;
+    relation_signal_count: number;
+    causal_signal_count: number;
+    state_signal_count: number;
+    relation_or_state_pressure: boolean;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    plaintext_key_returned: boolean;
+  };
+  trigger_gate: {
+    id: string;
+    status: "ready_for_spike_design" | "needs_more_evidence" | "deferred" | string;
+    passed: boolean;
+    reason: string;
+    graph_memory_status: string;
+    trend_record_count: number;
+    trend_lexical_gap_count: number;
+  };
+  signals: GraphMemoryTriggerSignal[];
+  candidate_layers: GraphMemoryCandidateLayer[];
+  records: CrossProjectRetrievalSamplesIndexRecord[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemorySpikeLayerPlan {
+  id: "graphrag" | "zep" | "temporal_memory" | string;
+  label: string;
+  status: "candidate" | "monitor" | "deferred" | string;
+  source_status: string;
+  reason: string;
+  design_focus: string;
+  trial_inputs: string[];
+  acceptance_gate_ids: string[];
+  risks: string[];
+  rollback_strategy: string;
+}
+
+export interface GraphMemorySpikeExperimentInput {
+  id: string;
+  label: string;
+  status: "required" | "optional" | "missing" | string;
+  detail: string;
+}
+
+export interface GraphMemorySpikeAcceptanceGate {
+  id: string;
+  label: string;
+  status: "required" | "optional" | "deferred" | string;
+  target: string;
+}
+
+export interface GraphMemorySpikeDesignPackReport {
+  version: string;
+  mode: "read_only_graph_memory_spike_design_pack" | string;
+  status: "ready_for_spike" | "needs_more_evidence" | "deferred" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_kind: SourceKind | string;
+    evidence_status: string;
+    graph_memory_status: string;
+    trigger_gate_status: string;
+    candidate_layer_count: number;
+    monitor_layer_count: number;
+    experiment_input_count: number;
+    acceptance_gate_count: number;
+    no_go_condition_count: number;
+    trend_record_count: number;
+    trend_lexical_gap_count: number;
+    relation_signal_count: number;
+    causal_signal_count: number;
+    state_signal_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    plaintext_key_returned: boolean;
+  };
+  design_gate: {
+    id: string;
+    status: "design_pack_ready" | "collect_more_evidence" | "deferred" | string;
+    passed: boolean;
+    reason: string;
+    evidence_status: string;
+    candidate_layer_count: number;
+  };
+  layer_plans: GraphMemorySpikeLayerPlan[];
+  experiment_inputs: GraphMemorySpikeExperimentInput[];
+  acceptance_gates: GraphMemorySpikeAcceptanceGate[];
+  rollback_plan: Array<{ id: string; label: string; action: string }>;
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface EmbeddingEvaluationSample {
+  query: string;
+  expected_entities: string[];
+  expected_item_id: string;
+  expected_source: string;
+  current_chapter: number;
+  reason: string;
+  bm25_hit: boolean;
+  mock_embedding_hit: boolean;
+  diagnosis: "lexical_gap" | "memory_gap" | "already_covered" | "invalid_sample" | string;
+  target_item_id: string;
+  target_statement: string;
+  top_items: Array<{
+    id: string;
+    source: string;
+    score: number;
+    text: string;
+    entities: string[];
+  }>;
+  actual_top_sources: string[];
+}
+
+export interface EmbeddingEvaluationSamplesReport {
+  version: string;
+  mode: "read_only_embedding_evaluation_samples" | string;
+  status: "insufficient_samples" | "candidate" | "attention" | "blocked" | "covered" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  summary: {
+    sample_status: string;
+    sample_count: number;
+    bm25_hit_count: number;
+    mock_embedding_hit_count: number;
+    lexical_gap_count: number;
+    memory_gap_count: number;
+    invalid_sample_count: number;
+    bm25_hit_rate: number;
+    mock_embedding_hit_rate: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_embedding_provider: boolean;
+    uses_vector_store: boolean;
+    plaintext_key_returned: boolean;
+  };
+  samples: EmbeddingEvaluationSample[];
+  sample_schema: {
+    path: string;
+    required: string[];
+    optional: string[];
+  };
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface RetrievalSampleExportPackSample {
+  query: string;
+  expected_entities: string[];
+  expected_item_id: string;
+  expected_source: string;
+  current_chapter: number;
+  reason: string;
+  diagnosis: "lexical_gap" | "memory_gap" | "already_covered" | "invalid_sample" | string;
+  bm25_hit: boolean;
+  mock_embedding_hit: boolean;
+  target_item_id: string;
+  target_statement: string;
+  actual_top_sources: string[];
+}
+
+export interface RetrievalSampleExportPackReport {
+  version: string;
+  mode: "read_only_retrieval_sample_export_pack" | string;
+  status: "empty" | "ready" | "attention" | "blocked" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  filename: string;
+  content_type: string;
+  summary: {
+    sample_status: string;
+    sample_count: number;
+    bm25_hit_count: number;
+    mock_embedding_hit_count: number;
+    lexical_gap_count: number;
+    memory_gap_count: number;
+    already_covered_count: number;
+    invalid_sample_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_embedding_provider: boolean;
+    uses_vector_store: boolean;
+    plaintext_key_returned: boolean;
+  };
+  manifest: {
+    version: string;
+    story_slug: string;
+    generated_at: string;
+    status: string;
+    summary: RetrievalSampleExportPackReport["summary"];
+    sample_schema: {
+      path?: string;
+      required?: string[];
+      optional?: string[];
+    };
+    samples: RetrievalSampleExportPackSample[];
+  };
+  content_md: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface EmbeddingMockEvaluationReport {
+  version: string;
+  mode: "read_only_embedding_mock_evaluation_report" | string;
+  status: "empty" | "candidate" | "attention" | "blocked" | "covered" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: RetrievalSampleExportPackReport["summary"] & {
+    lexical_gap_rate: number;
+    memory_gap_rate: number;
+  };
+  gate: {
+    id: string;
+    status: "candidate" | "needs_samples" | "needs_memory" | "blocked" | "covered" | string;
+    passed: boolean;
+    reason: string;
+    min_candidates_required: number;
+    sample_count: number;
+    lexical_gap_count: number;
+  };
+  buckets: Record<
+    "lexical_gap" | "memory_gap" | "already_covered" | "invalid_sample" | string,
+    Array<{
+      query: string;
+      expected_entities: string[];
+      target_item_id: string;
+      target_statement: string;
+      reason: string;
+    }>
+  >;
+  report_md: string;
+  export_pack: {
+    status: string;
+    filename: string;
+    content_type: string;
+  };
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface RetrievalSampleReplayCase {
+  case_id: string;
+  query: string;
+  expected_entities: string[];
+  current_chapter: number;
+  diagnosis: string;
+  replay_status:
+    | "still_failing_lexically"
+    | "missing_memory_target"
+    | "covered_by_current_retrieval"
+    | "invalid_case"
+    | "needs_review"
+    | string;
+  bm25_hit: boolean;
+  mock_embedding_hit: boolean;
+  target_item_id: string;
+  target_statement: string;
+  reason: string;
+}
+
+export interface RetrievalSampleReplayReport {
+  version: string;
+  mode: "read_only_retrieval_sample_replay_report" | string;
+  status: "empty" | "ready" | "attention" | "blocked" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    case_count: number;
+    still_failing_lexically_count: number;
+    missing_memory_target_count: number;
+    covered_by_current_retrieval_count: number;
+    invalid_case_count: number;
+    needs_review_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_embedding_provider: boolean;
+    uses_vector_store: boolean;
+    plaintext_key_returned: boolean;
+  };
+  replay_gate: {
+    id: string;
+    status: "clean" | "needs_samples" | "needs_review" | "blocked" | string;
+    passed: boolean;
+    reason: string;
+    case_count: number;
+    invalid_case_count: number;
+  };
+  cases: RetrievalSampleReplayCase[];
+  report_md: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface RetrievalSampleMigrationRecord {
+  eval_id: string;
+  query: string;
+  current_chapter: number;
+  expected_entities: string[];
+  expected_item_id: string;
+  expected_source: string;
+  target_statement: string;
+  diagnosis: string;
+  replay_status: string;
+  labels: string[];
+  assertions: {
+    must_retrieve_item_id: string;
+    should_include_entities: string[];
+  };
+  provenance: {
+    story_slug: string;
+    generated_at: string;
+    original_case_id: string;
+    source_report: string;
+  };
+}
+
+export interface RetrievalSampleMigrationPackReport {
+  version: string;
+  mode: "read_only_retrieval_sample_migration_pack" | string;
+  status: "empty" | "ready" | "attention" | "blocked" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  filename: string;
+  content_type: string;
+  summary: {
+    replay_case_count: number;
+    record_count: number;
+    migratable_count: number;
+    skipped_count: number;
+    still_failing_lexically_count: number;
+    missing_memory_target_count: number;
+    covered_by_current_retrieval_count: number;
+    invalid_case_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_embedding_provider: boolean;
+    uses_vector_store: boolean;
+    plaintext_key_returned: boolean;
+  };
+  migration_gate: {
+    id: string;
+    status: "ready" | "needs_samples" | "needs_migratable_cases" | "blocked" | string;
+    passed: boolean;
+    reason: string;
+    record_count: number;
+    skipped_count: number;
+  };
+  manifest: {
+    version: string;
+    story_slug: string;
+    generated_at: string;
+    status: string;
+    summary: Record<string, unknown>;
+    migration_gate: Record<string, unknown>;
+    record_schema: Record<string, unknown>;
+    records: RetrievalSampleMigrationRecord[];
+  };
+  records: RetrievalSampleMigrationRecord[];
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryShadowComparison {
+  id: "graphrag" | "zep" | "temporal_memory" | string;
+  label: string;
+  status: "candidate" | "monitor" | "deferred" | string;
+  source_status: string;
+  baseline: string;
+  shadow_method: string;
+  projected_gain_score: number;
+  risk_score: number;
+  decision: "shadow_compare" | "collect_samples" | "collect_foundation_evidence" | "defer" | string;
+  sample_case_count: number;
+  required_gate_ids: string[];
+  missing_evidence: string[];
+  notes: string[];
+  rollback_strategy: string;
+}
+
+export interface GraphMemoryShadowSampleCase {
+  eval_id: string;
+  story_slug: string;
+  display_name: string;
+  query: string;
+  expected_item_id: string;
+  baseline_status: string;
+  diagnosis: string;
+  shadow_targets: string[];
+}
+
+export interface GraphMemoryShadowAcceptanceResult {
+  gate_id: string;
+  label: string;
+  status: string;
+  passed: boolean;
+  result_status: "ready" | "needs_evidence" | string;
+  target: string;
+  evidence: string;
+}
+
+export interface GraphMemoryShadowComparePackReport {
+  version: string;
+  mode: "read_only_graph_memory_shadow_compare_pack" | string;
+  status: "ready_for_shadow_compare" | "needs_more_evidence" | "deferred" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_kind: SourceKind | string;
+    design_status: string;
+    evidence_status: string;
+    design_gate_status: string;
+    candidate_layer_count: number;
+    monitor_layer_count: number;
+    comparison_count: number;
+    sample_case_count: number;
+    acceptance_result_count: number;
+    no_go_condition_count: number;
+    best_projected_gain_score: number;
+    best_candidate_layer: string;
+    trend_record_count: number;
+    trend_lexical_gap_count: number;
+    relation_signal_count: number;
+    causal_signal_count: number;
+    state_signal_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  shadow_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    reason: string;
+    design_status: string;
+    candidate_layer_count: number;
+    sample_case_count: number;
+  };
+  comparisons: GraphMemoryShadowComparison[];
+  sample_cases: GraphMemoryShadowSampleCase[];
+  acceptance_results: GraphMemoryShadowAcceptanceResult[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryShadowCaseLayer {
+  id: "graphrag" | "zep" | "temporal_memory" | string;
+  label: string;
+  status: "candidate" | "monitor" | "deferred" | string;
+  decision: string;
+  baseline: string;
+  shadow_method: string;
+  projected_gain_score: number;
+  risk_score: number;
+  missing_evidence: string[];
+  rollback_strategy: string;
+}
+
+export interface GraphMemoryShadowCase {
+  id: string;
+  eval_id: string;
+  story_slug: string;
+  display_name: string;
+  query: string;
+  expected_item_id: string;
+  baseline_status: string;
+  diagnosis: string;
+  shadow_targets: string[];
+}
+
+export interface GraphMemoryShadowCaseCell {
+  case_id: string;
+  layer_id: string;
+  layer_label: string;
+  status: "candidate" | "monitor" | "deferred" | string;
+  decision: string;
+  baseline_status: string;
+  evidence_status: "local_evidence_ready" | "needs_local_evidence" | "deferred" | string;
+  evidence_refs: string[];
+  missing_evidence: string[];
+  shadow_question: string;
+  rollback_strategy: string;
+  projected_gain_score: number;
+  risk_score: number;
+}
+
+export interface GraphMemoryShadowCaseMatrixReport {
+  version: string;
+  mode: "read_only_graph_memory_shadow_case_matrix" | string;
+  status: "ready" | "needs_more_evidence" | "deferred" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_compare_status: string;
+    status: string;
+    case_count: number;
+    layer_count: number;
+    matrix_cell_count: number;
+    candidate_cell_count: number;
+    evidence_ready_cell_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  case_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    reason: string;
+    case_count: number;
+    candidate_cell_count: number;
+  };
+  layers: GraphMemoryShadowCaseLayer[];
+  cases: GraphMemoryShadowCase[];
+  cells: GraphMemoryShadowCaseCell[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderBoundaryProvider {
+  id: "graphrag" | "zep" | "temporal_memory" | string;
+  label: string;
+  service_target: string;
+  provider_kind: string;
+  status: "candidate" | "monitor" | "deferred" | string;
+  source_layer_status: string;
+  decision: string;
+  opt_in_required: boolean;
+  projected_gain_score: number;
+  risk_score: number;
+  recommended_for: string;
+  local_baseline: string;
+  rollback_strategy: string;
+}
+
+export interface GraphMemoryProviderBoundaryCategory {
+  id: string;
+  label: string;
+  must_pass: boolean;
+  base_requirement: string;
+}
+
+export interface GraphMemoryProviderBoundaryCell {
+  provider_id: string;
+  provider_label: string;
+  category_id: string;
+  category_label: string;
+  status: "requires_opt_in" | "deferred" | string;
+  must_pass: boolean;
+  risk_level: "high" | "medium" | "low" | string;
+  requirement: string;
+  evidence_refs: string[];
+  fallback: string;
+}
+
+export interface GraphMemoryProviderBoundaryMatrixReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_boundary_matrix" | string;
+  status: "ready_for_boundary_review" | "needs_more_evidence" | "deferred" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_case_matrix_status: string;
+    status: string;
+    provider_count: number;
+    candidate_provider_count: number;
+    boundary_category_count: number;
+    boundary_cell_count: number;
+    requires_opt_in_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  boundary_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    reason: string;
+    candidate_provider_count: number;
+    required_boundary_count: number;
+  };
+  providers: GraphMemoryProviderBoundaryProvider[];
+  boundary_categories: GraphMemoryProviderBoundaryCategory[];
+  boundary_cells: GraphMemoryProviderBoundaryCell[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryOfflineReplayProviderPlan {
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  provider_kind: string;
+  status: "planned" | "deferred" | string;
+  opt_in_required: boolean;
+  replay_scope: string;
+  boundary_refs: string[];
+  acceptance_summary: string;
+  rollback_strategy: string;
+  manual_review_required: boolean;
+}
+
+export interface GraphMemoryOfflineReplayCase {
+  id: string;
+  status: "planned" | "deferred" | string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  fixture_kind: string;
+  eval_id: string;
+  query: string;
+  display_name: string;
+  baseline_status: string;
+  baseline_chain: string;
+  replay_input: Record<string, unknown>;
+  expected_delta: string;
+  acceptance_criteria: string[];
+  rollback_checklist: string[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+}
+
+export interface GraphMemoryOfflineReplayStep {
+  id: string;
+  label: string;
+  description: string;
+}
+
+export interface GraphMemoryOfflineShadowReplayPlanReport {
+  version: string;
+  mode: "read_only_graph_memory_offline_shadow_replay_plan" | string;
+  status: "ready_for_offline_replay" | "needs_more_evidence" | "deferred" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_provider_boundary_status: string;
+    status: string;
+    candidate_provider_count: number;
+    provider_plan_count: number;
+    replay_case_count: number;
+    replay_step_count: number;
+    manual_review_required_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  replay_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    reason: string;
+    provider_plan_count: number;
+    replay_case_count: number;
+  };
+  provider_plans: GraphMemoryOfflineReplayProviderPlan[];
+  replay_cases: GraphMemoryOfflineReplayCase[];
+  replay_steps: GraphMemoryOfflineReplayStep[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryOfflineReplayProviderResult {
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  status: "manual_review_required" | "collect_more_evidence" | string;
+  case_result_count: number;
+  candidate_gain_count: number;
+  recommendation: string;
+  rollback_strategy: string;
+}
+
+export interface GraphMemoryOfflineReplayCaseResult {
+  id: string;
+  source_case_id: string;
+  status: "mock_candidate_gain" | "deferred" | string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  fixture_kind: string;
+  eval_id: string;
+  query: string;
+  display_name: string;
+  baseline_status: string;
+  baseline_chain: string;
+  mock_delta: Record<string, unknown>;
+  gain_assessment: string;
+  risk_assessment: string;
+  acceptance_status: string;
+  failure_mode: {
+    fallback: string;
+    reason: string;
+    rollback_checklist: string[];
+  };
+  manual_review_result: {
+    status: string;
+    status_label: string;
+    review_focus: string[];
+  };
+  no_go_conditions: string[];
+}
+
+export interface GraphMemoryOfflineShadowReplayReport {
+  version: string;
+  mode: "read_only_graph_memory_offline_shadow_replay_report" | string;
+  status: "ready_for_review" | "needs_more_evidence" | "deferred" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_replay_plan_status: string;
+    status: string;
+    provider_result_count: number;
+    case_result_count: number;
+    candidate_gain_count: number;
+    manual_review_required_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  report_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    reason: string;
+    provider_result_count: number;
+    case_result_count: number;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    candidate_gain_count: number;
+    provider_result_count: number;
+  };
+  provider_results: GraphMemoryOfflineReplayProviderResult[];
+  case_results: GraphMemoryOfflineReplayCaseResult[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeFixtureCase {
+  eval_id: string;
+  query: string;
+  display_name: string;
+  baseline_chain: string;
+  mock_delta: Record<string, unknown>;
+  gain_assessment: string;
+  risk_assessment: string;
+  manual_review_focus: string[];
+  failure_fallback: string;
+}
+
+export interface GraphMemoryProviderSpikeFixture {
+  id: string;
+  dry_run_only: boolean;
+  scope: string;
+  project_slug: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_report_status: string;
+  sample_case_count: number;
+  source_case_ids: string[];
+  cases: GraphMemoryProviderSpikeFixtureCase[];
+  baseline_chain: string;
+  expected_output: string;
+}
+
+export interface GraphMemoryProviderSpikeFixturePack {
+  id: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  status: "dry_run_fixture_ready" | "deferred" | string;
+  opt_in_required: boolean;
+  fixture: GraphMemoryProviderSpikeFixture;
+  cost_guardrails: string[];
+  privacy_guardrails: string[];
+  rollback_checklist: string[];
+  manual_acceptance_checklist: string[];
+  no_go_conditions: string[];
+}
+
+export interface GraphMemoryProviderSpikeFixturePackReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_fixture_pack" | string;
+  status: "ready_for_fixture_pack" | "needs_more_evidence" | "deferred" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_replay_report_status: string;
+    status: string;
+    provider_fixture_count: number;
+    selected_fixture_count: number;
+    manual_review_required_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  fixture_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    reason: string;
+    provider_fixture_count: number;
+    selected_fixture_count: number;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    provider_fixture_count: number;
+    selected_fixture_count: number;
+  };
+  provider_fixture_packs: GraphMemoryProviderSpikeFixturePack[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeReadinessCheck {
+  id: string;
+  label: string;
+  status: "passed" | "manual_review_required" | "blocked" | string;
+  passed: boolean;
+}
+
+export interface GraphMemoryProviderSpikeReadiness {
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  status: "manual_review_ready" | "blocked" | string;
+  fixture_id: string;
+  source_fixture_pack_status: string;
+  sample_case_count: number;
+  source_case_ids: string[];
+  readiness_checks: GraphMemoryProviderSpikeReadinessCheck[];
+  manual_review_items: string[];
+  blockers: string[];
+  no_go_conditions: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeReadinessGateReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_readiness_gate" | string;
+  status:
+    | "ready_for_manual_opt_in_review"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_fixture_pack_status: string;
+    status: string;
+    provider_fixture_count: number;
+    ready_for_manual_review_count: number;
+    blocked_provider_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  readiness_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    real_provider_config_allowed: boolean;
+    reason: string;
+    selected_provider_count: number;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    provider_count: number;
+  };
+  provider_readiness: GraphMemoryProviderSpikeReadiness[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeRunbookStep {
+  id: string;
+  phase: "prepare" | "dry_run" | "compare" | "review" | "rollback" | "stop" | string;
+  title: string;
+  description: string;
+  expected_evidence: string[];
+}
+
+export interface GraphMemoryProviderSpikeRunbookProvider {
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  status: "manual_dry_run_ready" | "blocked" | string;
+  fixture_id: string;
+  source_readiness_status: string;
+  source_case_ids: string[];
+  steps: GraphMemoryProviderSpikeRunbookStep[];
+  acceptance_checks: string[];
+  rollback_steps: string[];
+  pause_conditions: string[];
+  evidence_refs: string[];
+  blockers: string[];
+  no_go_conditions: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeRunbookReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_runbook" | string;
+  status: "ready_for_manual_dry_run" | "needs_more_evidence" | "blocked" | "deferred" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_readiness_gate_status: string;
+    status: string;
+    provider_runbook_count: number;
+    ready_provider_count: number;
+    blocked_provider_count: number;
+    total_step_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  runbook: {
+    id: string;
+    title: string;
+    status: string;
+    manual_only: boolean;
+    real_provider_config_allowed: boolean;
+    provider_count: number;
+    step_count: number;
+    objective: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    provider_count: number;
+  };
+  provider_runbooks: GraphMemoryProviderSpikeRunbookProvider[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeDryRunResultField {
+  id: string;
+  label: string;
+  description: string;
+  input_kind: string;
+  required: boolean;
+  options: string[];
+}
+
+export interface GraphMemoryProviderSpikeDryRunDecisionOption {
+  id: string;
+  label: string;
+  description: string;
+}
+
+export interface GraphMemoryProviderSpikeDryRunResultTemplateProvider {
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  status: "manual_result_template_ready" | "blocked" | string;
+  fixture_id: string;
+  source_runbook_status: string;
+  source_step_count: number;
+  source_case_ids: string[];
+  result_fields: GraphMemoryProviderSpikeDryRunResultField[];
+  comparison_axes: GraphMemoryProviderSpikeDryRunDecisionOption[];
+  acceptance_record: string[];
+  pause_or_upgrade_decisions: GraphMemoryProviderSpikeDryRunDecisionOption[];
+  rollback_confirmation: string[];
+  evidence_refs: string[];
+  blockers: string[];
+  no_go_conditions: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeDryRunResultTemplateReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_dry_run_result_template" | string;
+  status:
+    | "ready_for_manual_result_recording"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_runbook_status: string;
+    status: string;
+    provider_template_count: number;
+    ready_provider_count: number;
+    blocked_provider_count: number;
+    required_result_field_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    result_write_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  template: {
+    id: string;
+    title: string;
+    status: string;
+    manual_only: boolean;
+    result_write_allowed: boolean;
+    real_provider_config_allowed: boolean;
+    provider_count: number;
+    required_result_field_count: number;
+    objective: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    provider_count: number;
+  };
+  provider_result_templates: GraphMemoryProviderSpikeDryRunResultTemplateProvider[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeMockResultFieldValue {
+  field_id: string;
+  label: string;
+  value: unknown;
+  source: string;
+}
+
+export interface GraphMemoryProviderSpikeMockResultRecord {
+  id: string;
+  status: "mock_filled_result_ready" | string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  fixture_id: string;
+  source_case_id: string;
+  eval_id: string;
+  template_field_count: number;
+  field_values: GraphMemoryProviderSpikeMockResultFieldValue[];
+  manual_decision: string;
+  gain_summary: string;
+  risk_summary: string;
+  review_summary: string;
+  pause_or_upgrade_decision: {
+    id: string;
+    label: string;
+    description: string;
+  };
+  evidence_refs: string[];
+  no_go_conditions: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeMockResultReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_mock_result_report" | string;
+  status:
+    | "ready_for_manual_review"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_result_template_status: string;
+    source_mock_replay_status: string;
+    status: string;
+    provider_result_count: number;
+    filled_record_count: number;
+    candidate_gain_count: number;
+    manual_review_required_count: number;
+    writes_artifacts: boolean;
+    result_write_allowed: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  report_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    reason: string;
+    filled_record_count: number;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    filled_record_count: number;
+  };
+  mock_result_records: GraphMemoryProviderSpikeMockResultRecord[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeReviewGateItem {
+  id: string;
+  label: string;
+  status: string;
+  evidence: string;
+}
+
+export interface GraphMemoryProviderSpikeReviewGateProviderReview {
+  id: string;
+  status: "manual_review_required" | string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_record_id: string;
+  fixture_id: string;
+  source_case_id: string;
+  eval_id: string;
+  manual_decision: string;
+  gate_decision: string;
+  candidate_gain: boolean;
+  review_item_count: number;
+  review_items: GraphMemoryProviderSpikeReviewGateItem[];
+  gain_summary: string;
+  risk_summary: string;
+  review_summary: string;
+  pause_or_upgrade_decision: Record<string, unknown>;
+  evidence_refs: string[];
+  no_go_conditions: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeReviewGateReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_review_gate" | string;
+  status:
+    | "ready_for_manual_review_gate"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_mock_result_status: string;
+    status: string;
+    mock_record_count: number;
+    provider_review_count: number;
+    candidate_gain_count: number;
+    manual_review_required_count: number;
+    pause_decision_count: number;
+    manual_approval_required_count: number;
+    no_go_condition_count: number;
+    writes_artifacts: boolean;
+    result_write_allowed: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  review_gate: {
+    id: string;
+    status: string;
+    passed: boolean;
+    approval_required: boolean;
+    automatic_upgrade_allowed: boolean;
+    real_provider_config_allowed: boolean;
+    reason: string;
+    provider_review_count: number;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    provider_review_count: number;
+  };
+  provider_reviews: GraphMemoryProviderSpikeReviewGateProviderReview[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeManualApprovalPackEntry {
+  id: string;
+  label: string;
+  status?: string;
+  evidence?: string;
+  value?: string;
+}
+
+export interface GraphMemoryProviderSpikeManualApprovalPackItem {
+  id: string;
+  status: "manual_approval_required" | string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_review_id: string;
+  source_record_id: string;
+  fixture_id: string;
+  source_case_id: string;
+  eval_id: string;
+  manual_decision: string;
+  gate_decision: string;
+  approval_required: boolean;
+  manual_signature_required: boolean;
+  real_provider_config_allowed: boolean;
+  risk_signoff_count: number;
+  rollback_confirmation_count: number;
+  opt_in_material_count: number;
+  risk_signoffs: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  rollback_confirmations: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  opt_in_materials: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  gain_summary: string;
+  risk_summary: string;
+  evidence_refs: string[];
+  no_go_conditions: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeManualApprovalPackReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_manual_approval_pack" | string;
+  status:
+    | "ready_for_manual_approval_pack"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_review_gate_status: string;
+    status: string;
+    provider_review_count: number;
+    approval_item_count: number;
+    risk_signoff_count: number;
+    rollback_confirmation_count: number;
+    opt_in_material_count: number;
+    no_go_condition_count: number;
+    writes_artifacts: boolean;
+    approval_write_allowed: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  approval_pack: {
+    id: string;
+    status: string;
+    ready: boolean;
+    approval_required: boolean;
+    manual_signature_required: boolean;
+    automatic_upgrade_allowed: boolean;
+    real_provider_config_allowed: boolean;
+    approval_item_count: number;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    approval_item_count: number;
+  };
+  approval_items: GraphMemoryProviderSpikeManualApprovalPackItem[];
+  manual_approval_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeManualApprovalEvidenceChecklistItem {
+  id: string;
+  status: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_approval_id: string;
+  source_review_id: string;
+  fixture_id: string;
+  eval_id: string;
+  gate_decision: string;
+  evidence_status: string;
+  pending_signoff_count: number;
+  material_gap_count: number;
+  rollback_material_gap_count: number;
+  pending_signoffs: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  material_gaps: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  rollback_material_gaps: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  available_materials: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  rollback_confirmations: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  evidence_refs: string[];
+  no_go_conditions: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeManualApprovalEvidenceChecklistReport {
+  version: string;
+  mode:
+    | "read_only_graph_memory_provider_spike_manual_approval_evidence_checklist"
+    | string;
+  status:
+    | "ready_for_manual_approval_evidence_checklist"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_approval_pack_status: string;
+    status: string;
+    approval_item_count: number;
+    checklist_item_count: number;
+    pending_signoff_count: number;
+    material_gap_count: number;
+    rollback_material_gap_count: number;
+    no_go_condition_count: number;
+    writes_artifacts: boolean;
+    approval_write_allowed: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  evidence_checklist: {
+    id: string;
+    status: string;
+    ready: boolean;
+    manual_signoff_required: boolean;
+    materials_complete: boolean;
+    automatic_upgrade_allowed: boolean;
+    real_provider_config_allowed: boolean;
+    checklist_item_count: number;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    checklist_item_count: number;
+  };
+  checklist_items: GraphMemoryProviderSpikeManualApprovalEvidenceChecklistItem[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeOptInEvidenceSnapshotItem {
+  id: string;
+  status: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_checklist_id: string;
+  source_approval_id: string;
+  source_review_id: string;
+  fixture_id: string;
+  eval_id: string;
+  evidence_status: string;
+  signoff_todo_count: number;
+  material_gap_count: number;
+  rollback_material_gap_count: number;
+  blocker_count: number;
+  signoff_todos: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  material_gaps: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  rollback_material_gaps: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  available_materials: GraphMemoryProviderSpikeManualApprovalPackEntry[];
+  evidence_refs: string[];
+  no_go_conditions: string[];
+  blocker_reasons: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeOptInEvidenceSnapshotReport {
+  version: string;
+  mode:
+    | "read_only_graph_memory_provider_spike_opt_in_evidence_snapshot"
+    | string;
+  status:
+    | "ready_for_opt_in_evidence_snapshot"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_evidence_checklist_status: string;
+    status: string;
+    checklist_item_count: number;
+    snapshot_item_count: number;
+    signoff_todo_count: number;
+    material_gap_count: number;
+    rollback_material_gap_count: number;
+    blocker_count: number;
+    no_go_condition_count: number;
+    writes_artifacts: boolean;
+    snapshot_write_allowed: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  opt_in_snapshot: {
+    id: string;
+    status: string;
+    ready: boolean;
+    opt_in_blocked: boolean;
+    real_provider_config_allowed: boolean;
+    snapshot_item_count: number;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    snapshot_item_count: number;
+    blocker_count: number;
+  };
+  snapshot_items: GraphMemoryProviderSpikeOptInEvidenceSnapshotItem[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeOptInNoGoCell {
+  id: string;
+  category: string;
+  label: string;
+  status: string;
+  blocker_count: number;
+  reason: string;
+  evidence_ref_count: number;
+}
+
+export interface GraphMemoryProviderSpikeOptInNoGoMatrixRow {
+  id: string;
+  status: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_snapshot_id: string;
+  source_checklist_id: string;
+  fixture_id: string;
+  eval_id: string;
+  cell_count: number;
+  blocked_cell_count: number;
+  cells: GraphMemoryProviderSpikeOptInNoGoCell[];
+  no_go_reasons: string[];
+  evidence_refs: string[];
+  source_blocker_reasons: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeOptInNoGoMatrixReport {
+  version: string;
+  mode: "read_only_graph_memory_provider_spike_opt_in_no_go_matrix" | string;
+  status:
+    | "ready_for_opt_in_no_go_matrix"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_opt_in_snapshot_status: string;
+    status: string;
+    provider_count: number;
+    snapshot_item_count: number;
+    matrix_row_count: number;
+    matrix_cell_count: number;
+    blocked_cell_count: number;
+    signoff_blocker_count: number;
+    material_blocker_count: number;
+    rollback_blocker_count: number;
+    real_config_blocker_count: number;
+    external_account_or_key_blocker_count: number;
+    no_go_condition_count: number;
+    writes_artifacts: boolean;
+    matrix_write_allowed: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  no_go_matrix: {
+    id: string;
+    status: string;
+    ready: boolean;
+    opt_in_blocked: boolean;
+    real_provider_config_allowed: boolean;
+    matrix_row_count: number;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    matrix_row_count: number;
+    blocked_cell_count: number;
+  };
+  matrix_rows: GraphMemoryProviderSpikeOptInNoGoMatrixRow[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeOptInOperatorStep {
+  id: string;
+  category: string;
+  label: string;
+  status: string;
+  action: string;
+  source_cell_id: string;
+  blocker_count: number;
+  reason: string;
+  evidence_refs: string[];
+  pause_required: boolean;
+  upgrade_allowed: boolean;
+  real_provider_config_allowed: boolean;
+}
+
+export interface GraphMemoryProviderSpikeOptInOperatorChecklistSection {
+  id: string;
+  status: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_matrix_row_id: string;
+  source_snapshot_id: string;
+  fixture_id: string;
+  eval_id: string;
+  step_count: number;
+  blocked_step_count: number;
+  steps: GraphMemoryProviderSpikeOptInOperatorStep[];
+  pause_reason: string;
+  evidence_refs: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeOptInOperatorChecklistReport {
+  version: string;
+  mode:
+    | "read_only_graph_memory_provider_spike_opt_in_operator_checklist"
+    | string;
+  status:
+    | "ready_for_opt_in_operator_checklist"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_no_go_matrix_status: string;
+    status: string;
+    provider_count: number;
+    matrix_row_count: number;
+    checklist_section_count: number;
+    operator_step_count: number;
+    blocked_step_count: number;
+    manual_signoff_step_count: number;
+    real_config_step_count: number;
+    external_account_or_key_step_count: number;
+    no_go_condition_count: number;
+    writes_artifacts: boolean;
+    checklist_write_allowed: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  operator_checklist: {
+    id: string;
+    status: string;
+    ready: boolean;
+    opt_in_blocked: boolean;
+    real_provider_config_allowed: boolean;
+    checklist_section_count: number;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    checklist_section_count: number;
+    blocked_step_count: number;
+  };
+  checklist_sections: GraphMemoryProviderSpikeOptInOperatorChecklistSection[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeOptInReviewPacketEvidenceItem {
+  id: string;
+  order: number;
+  source_step_id: string;
+  category: string;
+  label: string;
+  status: string;
+  action: string;
+  reason: string;
+  blocker_count: number;
+  evidence_refs: string[];
+  pause_required: boolean;
+  review_note: string;
+  upgrade_allowed: boolean;
+  real_provider_config_allowed: boolean;
+}
+
+export interface GraphMemoryProviderSpikeOptInReviewPacketSection {
+  id: string;
+  status: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_checklist_section_id: string;
+  source_matrix_row_id: string;
+  source_snapshot_id: string;
+  fixture_id: string;
+  eval_id: string;
+  evidence_item_count: number;
+  blocked_step_count: number;
+  review_step_count: number;
+  pause_required: boolean;
+  evidence_sequence: GraphMemoryProviderSpikeOptInReviewPacketEvidenceItem[];
+  pause_materials: string[];
+  escalation_materials: string[];
+  reviewer_todos: string[];
+  evidence_refs: string[];
+  recommendation: string;
+}
+
+export interface GraphMemoryProviderSpikeOptInReviewPacketReport {
+  version: string;
+  mode:
+    | "read_only_graph_memory_provider_spike_opt_in_review_packet"
+    | string;
+  status:
+    | "ready_for_opt_in_review_packet"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_operator_checklist_status: string;
+    status: string;
+    provider_count: number;
+    source_checklist_section_count: number;
+    packet_section_count: number;
+    evidence_item_count: number;
+    blocked_step_count: number;
+    pause_material_count: number;
+    escalation_material_count: number;
+    manual_signoff_item_count: number;
+    real_config_item_count: number;
+    no_go_condition_count: number;
+    writes_artifacts: boolean;
+    review_packet_write_allowed: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  review_packet: {
+    id: string;
+    status: string;
+    ready: boolean;
+    opt_in_blocked: boolean;
+    real_provider_config_allowed: boolean;
+    packet_section_count: number;
+    evidence_item_count: number;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    packet_section_count: number;
+    blocked_step_count: number;
+  };
+  packet_sections: GraphMemoryProviderSpikeOptInReviewPacketSection[];
+  review_packet_materials: string[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeOptInDecisionLedgerSignoffField {
+  id: string;
+  field: string;
+  label: string;
+  value: string | null;
+  required: boolean;
+  saved: boolean;
+}
+
+export interface GraphMemoryProviderSpikeOptInDecisionLedgerRow {
+  id: string;
+  status: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_review_packet_section_id: string;
+  source_checklist_section_id: string;
+  fixture_id: string;
+  eval_id: string;
+  evidence_item_count: number;
+  blocked_step_count: number;
+  pause_material_count: number;
+  escalation_material_count: number;
+  pending_signoff_fields: GraphMemoryProviderSpikeOptInDecisionLedgerSignoffField[];
+  decision_fields: Record<string, unknown>;
+  preview_notes: string[];
+  audit_refs: string[];
+  approved: boolean;
+  ledger_write_allowed: boolean;
+  real_provider_config_allowed: boolean;
+}
+
+export interface GraphMemoryProviderSpikeOptInDecisionLedgerPreviewReport {
+  version: string;
+  mode:
+    | "read_only_graph_memory_provider_spike_opt_in_decision_ledger_preview"
+    | string;
+  status:
+    | "ready_for_opt_in_decision_ledger_preview"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_review_packet_status: string;
+    status: string;
+    provider_count: number;
+    source_packet_section_count: number;
+    ledger_row_count: number;
+    pending_signoff_field_count: number;
+    blocked_row_count: number;
+    pause_material_count: number;
+    escalation_material_count: number;
+    writes_artifacts: boolean;
+    ledger_write_allowed: boolean;
+    approval_saved: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  decision_ledger_preview: {
+    id: string;
+    status: string;
+    ready: boolean;
+    ledger_row_count: number;
+    pending_signoff_field_count: number;
+    ledger_write_allowed: boolean;
+    approval_saved: boolean;
+    real_provider_config_allowed: boolean;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    ledger_row_count: number;
+    blocked_row_count: number;
+  };
+  ledger_rows: GraphMemoryProviderSpikeOptInDecisionLedgerRow[];
+  ledger_preview_materials: string[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeOptInFinalReadinessSignoffField {
+  id: string;
+  field: string;
+  label: string;
+  value: string | null;
+  required: boolean;
+  saved: boolean;
+  provider_id: string;
+  service_target: string;
+  source_decision_ledger_row_id: string;
+}
+
+export interface GraphMemoryProviderSpikeOptInFinalReadinessRow {
+  id: string;
+  gate_status: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_decision_ledger_row_id: string;
+  source_review_packet_section_id: string;
+  fixture_id: string;
+  eval_id: string;
+  unresolved_signoff_fields: GraphMemoryProviderSpikeOptInFinalReadinessSignoffField[];
+  unresolved_blockers: string[];
+  readiness_notes: string[];
+  audit_refs: string[];
+  real_provider_ready: boolean;
+  final_decision_saved: boolean;
+  real_provider_config_allowed: boolean;
+}
+
+export interface GraphMemoryProviderSpikeOptInFinalReadinessSummaryReport {
+  version: string;
+  mode:
+    | "read_only_graph_memory_provider_spike_opt_in_final_readiness_summary"
+    | string;
+  status:
+    | "ready_for_opt_in_final_readiness_summary"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_decision_ledger_status: string;
+    status: string;
+    provider_count: number;
+    source_ledger_row_count: number;
+    readiness_row_count: number;
+    unresolved_signoff_field_count: number;
+    blocked_row_count: number;
+    unresolved_blocker_count: number;
+    writes_artifacts: boolean;
+    final_decision_saved: boolean;
+    approval_saved: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_ready: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  final_readiness_summary: {
+    id: string;
+    status: string;
+    ready: boolean;
+    real_provider_ready: boolean;
+    readiness_label: string;
+    readiness_row_count: number;
+    unresolved_signoff_field_count: number;
+    unresolved_blocker_count: number;
+    final_decision_saved: boolean;
+    real_provider_config_allowed: boolean;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    readiness_row_count: number;
+    unresolved_blocker_count: number;
+  };
+  readiness_rows: GraphMemoryProviderSpikeOptInFinalReadinessRow[];
+  unresolved_signoff_fields: GraphMemoryProviderSpikeOptInFinalReadinessSignoffField[];
+  final_readiness_materials: string[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface GraphMemoryProviderSpikeOptInHumanSignoffSchemaField {
+  id: string;
+  provider_id: string;
+  service_target: string;
+  field: string;
+  label: string;
+  value: string | null;
+  type: string;
+  required: boolean;
+  saved: boolean;
+  input_storage: string;
+  source_final_readiness_field_id: string;
+  source_final_readiness_row_id: string;
+  source_decision_ledger_row_id: string;
+  validation_rule: {
+    type: string;
+    min_length: number;
+    max_length: number;
+    rejects_plaintext_keys: boolean;
+  };
+  review_prompt: string;
+}
+
+export interface GraphMemoryProviderSpikeOptInHumanSignoffSchemaSection {
+  id: string;
+  provider_id: string;
+  provider_label: string;
+  service_target: string;
+  source_final_readiness_row_id: string;
+  source_decision_ledger_row_id: string;
+  fixture_id: string;
+  eval_id: string;
+  schema_fields: GraphMemoryProviderSpikeOptInHumanSignoffSchemaField[];
+  required_field_count: number;
+  save_allowed: boolean;
+  signoff_saved: boolean;
+  real_provider_config_allowed: boolean;
+  section_notes: string[];
+}
+
+export interface GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport {
+  version: string;
+  mode:
+    | "read_only_graph_memory_provider_spike_opt_in_human_signoff_schema_draft"
+    | string;
+  status:
+    | "ready_for_human_signoff_schema_draft"
+    | "needs_more_evidence"
+    | "blocked"
+    | "deferred"
+    | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  generated_at: string;
+  summary: {
+    story_slug: string;
+    source_final_readiness_status: string;
+    source_final_readiness_summary_status: string;
+    status: string;
+    provider_count: number;
+    schema_section_count: number;
+    schema_field_count: number;
+    required_field_count: number;
+    unresolved_signoff_field_count: number;
+    writes_artifacts: boolean;
+    signoff_saved: boolean;
+    approval_saved: boolean;
+    final_decision_saved: boolean;
+    external_services_required: boolean;
+    provider_calls: boolean;
+    real_provider_ready: boolean;
+    real_provider_config_allowed: boolean;
+    uses_graphrag: boolean;
+    uses_zep: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    uses_embedding_provider: boolean;
+    plaintext_key_returned: boolean;
+  };
+  schema_draft: {
+    id: string;
+    status: string;
+    ready: boolean;
+    schema_version: string;
+    save_allowed: boolean;
+    signoff_saved: boolean;
+    real_provider_config_allowed: boolean;
+    field_count: number;
+    required_field_count: number;
+    reason: string;
+  };
+  decision: {
+    status: string;
+    recommendation: string;
+    next_slice: string;
+    schema_field_count: number;
+  };
+  schema_sections: GraphMemoryProviderSpikeOptInHumanSignoffSchemaSection[];
+  schema_fields: GraphMemoryProviderSpikeOptInHumanSignoffSchemaField[];
+  validation_rules: Array<Record<string, unknown>>;
+  schema_materials: string[];
+  manual_review_checklist: string[];
+  no_go_conditions: string[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface RetrievalFailureSample {
+  id: string;
+  created_at: string;
+  query: string;
+  expected_entities: string[];
+  expected_item_id: string;
+  expected_source: string;
+  reason: string;
+  current_chapter: number;
+  actual_top_sources: string[];
+}
+
+export interface RetrievalFailureSamplesReport {
+  version: string;
+  mode: "local_retrieval_failure_sample_authoring" | string;
+  status: "missing" | "ready" | "damaged" | "builtin_sample" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  artifact_path: string;
+  summary: {
+    sample_count: number;
+    invalid_sample_count: number;
+    write_policy: string;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_embedding_provider: boolean;
+    uses_vector_store: boolean;
+    plaintext_key_returned: boolean;
+  };
+  samples: RetrievalFailureSample[];
+  sample_schema: {
+    path: string;
+    required: string[];
+    optional: string[];
+  };
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface RetrievalFailureSampleAppendRequest {
+  query: string;
+  expected_entities: string[];
+  expected_item_id?: string;
+  expected_source?: string;
+  reason?: string;
+  current_chapter?: number;
+  actual_top_sources?: string[];
+}
+
+export interface RetrievalFailureSampleAppendResponse {
+  version: string;
+  mode: "local_append_retrieval_failure_sample" | string;
+  status: "appended" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  artifact_path: string;
+  sample: RetrievalFailureSample;
+  summary: RetrievalFailureSamplesReport["summary"];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface ProjectionHealthCheck {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | "blocked" | string;
+  status_label: string;
+  source_artifact: string;
+  evidence: string;
+  next_step: string;
+  detail: Record<string, unknown>;
+}
+
+export interface ProjectionHealthReport {
+  version: string;
+  mode: "read_only_projection_health" | string;
+  status: "ready" | "attention" | "blocked" | string;
+  run_id: string;
+  branch_id: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  summary: {
+    check_count: number;
+    ready_count: number;
+    attention_count: number;
+    blocked_count: number;
+    writes_artifacts: boolean;
+    mutates_state_snapshot: boolean;
+    replaces_canon_ledger: boolean;
+    external_services_required: boolean;
+  };
+  checks: ProjectionHealthCheck[];
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface ReaderPanelPersona {
+  id: string;
+  label: string;
+  focus: string;
+  status: "ready" | "attention" | "blocked" | string;
+  issue_ids: string[];
+  verdict: string;
+}
+
+export interface ReaderPanelIssue {
+  id: string;
+  label: string;
+  severity: "low" | "medium" | "high" | string;
+  severity_label: string;
+  evidence: string[];
+  persona_ids: string[];
+  revision_brief: string;
+}
+
+export interface ReaderRevisionBrief {
+  issue_id: string;
+  label: string;
+  severity: "low" | "medium" | "high" | string;
+  revision_brief: string;
+  keep: string;
+  avoid: string;
+}
+
+export interface ReaderPanelReport {
+  version: string;
+  mode: "deterministic_reader_panel" | string;
+  status: "ready" | "attention" | "blocked" | string;
+  run_id: string;
+  branch_id: string;
+  summary: {
+    issue_count: number;
+    persona_count: number;
+    revision_brief_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    llm_required: boolean;
+  };
+  personas: ReaderPanelPersona[];
+  issues: ReaderPanelIssue[];
+  revision_briefs: ReaderRevisionBrief[];
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface PromptBudgetItem {
+  id: string;
+  source: string;
+  section_id: string;
+  score: number;
+  priority: number;
+  text: string;
+  char_count: number;
+  estimated_tokens: number;
+  evidence: string;
+  included: boolean;
+  reason: string;
+}
+
+export interface PromptBudgetSection {
+  id: string;
+  label: string;
+  item_count: number;
+  estimated_chars: number;
+  items: PromptBudgetItem[];
+}
+
+export interface PromptBudgetPackReport {
+  version: string;
+  mode: "read_only_prompt_budget_pack" | string;
+  status: "ready" | "attention" | "blocked" | string;
+  run_id: string;
+  branch_id: string;
+  summary: {
+    char_budget: number;
+    source_item_count: number;
+    deduped_item_count: number;
+    included_item_count: number;
+    excluded_item_count: number;
+    estimated_prompt_chars: number;
+    estimated_prompt_tokens: number;
+    compression_ratio: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_vector_store: boolean;
+  };
+  sections: PromptBudgetSection[];
+  packed_items: PromptBudgetItem[];
+  excluded_items: PromptBudgetItem[];
+  prompt_block: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
 }
 
 export type CreationLoopStepStatus = "done" | "todo" | "warn" | string;
@@ -844,6 +3454,275 @@ export interface ModelConfigurationSummary {
   };
   warnings: string[];
   next_steps: string[];
+}
+
+export interface LLMProfileAssignmentProfile {
+  id: string;
+  label: string;
+  task_kind: string;
+  provider_id: string;
+  mode: string;
+  model: string;
+  temperature: number | null;
+  max_tokens: number | null;
+  budget_tier: string;
+  fallback: string;
+  note: string;
+}
+
+export interface LLMProfileAssignmentReport {
+  version: string;
+  mode: string;
+  status: "ready" | "attention" | string;
+  summary: {
+    profile_count: number;
+    provider_profile_count: number;
+    mock_or_deterministic_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    plaintext_key_returned: boolean;
+  };
+  routing: {
+    llm_route: string;
+    visual_route: string;
+    fallback_policy: string;
+  };
+  profiles: LLMProfileAssignmentProfile[];
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface ApiContractEndpoint {
+  group: string;
+  method: string;
+  path: string;
+  summary: string;
+  operation_id: string;
+  response_type: string;
+  client_method: string | null;
+  status_codes: number[];
+}
+
+export interface ApiContractGroup {
+  id: string;
+  label: string;
+  endpoint_count: number;
+}
+
+export interface ApiContractTypedClientMethod {
+  client_method: string;
+  method: string;
+  path: string;
+  operation_id: string;
+  response_type: string;
+  group: string;
+}
+
+export interface ApiContractReport {
+  version: string;
+  mode: "read_only_api_contract" | string;
+  status: "ready" | "attention" | string;
+  summary: {
+    endpoint_count: number;
+    openapi_path_count: number;
+    typed_client_method_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    plaintext_key_returned: boolean;
+    generated_client_written: boolean;
+  };
+  openapi: Record<string, unknown>;
+  groups: ApiContractGroup[];
+  endpoints: ApiContractEndpoint[];
+  typed_client: {
+    status: string;
+    client_source: string;
+    types_source: string;
+    methods: ApiContractTypedClientMethod[];
+    generation: {
+      mode: string;
+      writes_files: boolean;
+      generated_client_exists: boolean;
+      recommendation: string;
+    };
+  };
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface CrossProjectRetrievalSamplesProject {
+  story_slug: string;
+  display_name: string;
+  status: "empty" | "ready" | "attention" | "blocked" | string;
+  migration_gate_status: string;
+  migration_gate_passed: boolean;
+  record_count: number;
+  replay_case_count: number;
+  still_failing_lexically_count: number;
+  covered_by_current_retrieval_count: number;
+  skipped_count: number;
+  filename: string;
+  sample_records: Array<{
+    eval_id: string;
+    query: string;
+    expected_item_id: string;
+    replay_status: string;
+  }>;
+  reason?: string;
+}
+
+export interface CrossProjectRetrievalSamplesIndexRecord
+  extends RetrievalSampleMigrationRecord {
+  story_slug: string;
+  display_name: string;
+  indexed_at: string;
+}
+
+export interface CrossProjectRetrievalSamplesIndexReport {
+  version: string;
+  mode: "read_only_cross_project_retrieval_samples_index" | string;
+  status: "empty" | "ready" | "attention" | "blocked" | string;
+  generated_at: string;
+  summary: {
+    project_count: number;
+    ready_project_count: number;
+    empty_project_count: number;
+    attention_project_count: number;
+    blocked_project_count: number;
+    record_count: number;
+    replay_case_count: number;
+    still_failing_lexically_count: number;
+    covered_by_current_retrieval_count: number;
+    skipped_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_embedding_provider: boolean;
+    uses_vector_store: boolean;
+    plaintext_key_returned: boolean;
+  };
+  index_gate: {
+    id: string;
+    status: "ready" | "needs_projects" | "needs_records" | "blocked" | string;
+    passed: boolean;
+    reason: string;
+    project_count: number;
+    record_count: number;
+  };
+  projects: CrossProjectRetrievalSamplesProject[];
+  records: CrossProjectRetrievalSamplesIndexRecord[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface RetrievalSamplesTrendSignal {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | "blocked" | "deferred" | string;
+  value: number;
+  detail: string;
+}
+
+export interface RetrievalSamplesProjectTrend {
+  story_slug: string;
+  display_name: string;
+  status: "empty" | "ready" | "attention" | "blocked" | string;
+  record_count: number;
+  replay_case_count: number;
+  lexical_gap_count: number;
+  covered_count: number;
+  skipped_count: number;
+  trend_bucket:
+    | "has_samples"
+    | "covered_samples"
+    | "empty_samples"
+    | "blocked"
+    | string;
+}
+
+export interface RetrievalSamplesTrendSnapshotReport {
+  version: string;
+  mode: "read_only_retrieval_samples_trend_snapshot" | string;
+  status: "empty" | "ready" | "attention" | "blocked" | string;
+  generated_at: string;
+  summary: {
+    project_count: number;
+    ready_project_count: number;
+    empty_project_count: number;
+    attention_project_count: number;
+    blocked_project_count: number;
+    record_count: number;
+    replay_case_count: number;
+    still_failing_lexically_count: number;
+    covered_by_current_retrieval_count: number;
+    skipped_count: number;
+    sampled_project_ratio: number;
+    lexical_gap_ratio: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    uses_embedding_provider: boolean;
+    uses_vector_store: boolean;
+    plaintext_key_returned: boolean;
+  };
+  trend_gate: {
+    id: string;
+    status: "ready" | "needs_projects" | "needs_records" | "blocked" | string;
+    passed: boolean;
+    reason: string;
+    project_count: number;
+    record_count: number;
+  };
+  signals: RetrievalSamplesTrendSignal[];
+  project_trends: RetrievalSamplesProjectTrend[];
+  records: CrossProjectRetrievalSamplesIndexRecord[];
+  manifest: Record<string, unknown>;
+  content_json: string;
+  warnings: string[];
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface BundledReleaseReadinessCheck {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | string;
+  status_label: string;
+  evidence: string;
+  source_path: string;
+  bytes?: number;
+  next_step: string;
+}
+
+export interface BundledReleasePackageTarget {
+  id: string;
+  label: string;
+  status: "deferred" | string;
+  reason: string;
+}
+
+export interface BundledReleaseReadinessReport {
+  version: string;
+  mode: "read_only_packaging_readiness" | string;
+  status: "ready" | "attention" | string;
+  summary: {
+    check_count: number;
+    ready_count: number;
+    attention_count: number;
+    deferred_target_count: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    plaintext_key_returned: boolean;
+    builds_package: boolean;
+    bundles_runtime: boolean;
+  };
+  checks: BundledReleaseReadinessCheck[];
+  package_targets: BundledReleasePackageTarget[];
+  boundaries: string[];
+  next_steps: string[];
+  warnings: string[];
 }
 
 export interface CommercialStatusDomain {

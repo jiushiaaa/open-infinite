@@ -36,7 +36,20 @@ class BrowserHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt: str, *args: object) -> None:
         pass
 
+    def _drain_unread_post_body(self) -> None:
+        if getattr(self, "_request_body_consumed", False):
+            return
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+        except ValueError:
+            length = 0
+        if length > 0:
+            self.rfile.read(length)
+        self._request_body_consumed = True
+
     def _send_json(self, data: object, status: int = 200) -> None:
+        if status >= 400 and getattr(self, "command", "") == "POST":
+            self._drain_unread_post_body()
         body = json.dumps(data, ensure_ascii=False, default=str).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -59,6 +72,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
     def _read_body_json(self) -> dict:
         length = int(self.headers.get("Content-Length", 0))
+        self._request_body_consumed = True
         if length <= 0:
             return {}
         raw = self.rfile.read(length)
@@ -103,6 +117,40 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(indexer.get_project_workspace(slug))
+
+            if path.startswith("/api/stories/") and path.endswith("/cards-workspace"):
+                from living_novel_engine.service import (
+                    CardsWorkspaceRequestError,
+                    get_cards_workspace,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/cards-workspace")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_cards_workspace(slug))
+                except CardsWorkspaceRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith("/runtime-preflight"):
+                from living_novel_engine.service import (
+                    RuntimePreflightRequestError,
+                    get_runtime_preflight,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/runtime-preflight")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_runtime_preflight(slug))
+                except RuntimePreflightRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
 
             if path.startswith("/api/stories/") and path.endswith("/audit-log/export"):
                 from living_novel_engine.service import export_project_audit_log
@@ -188,6 +236,512 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(evaluate_graph_memory_trigger(slug))
 
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-trigger-evidence"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryTriggerEvidenceRequestError,
+                    get_graph_memory_trigger_evidence,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-trigger-evidence")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_graph_memory_trigger_evidence(slug))
+                except GraphMemoryTriggerEvidenceRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-spike-design-pack"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemorySpikeDesignPackRequestError,
+                    get_graph_memory_spike_design_pack,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-spike-design-pack")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_graph_memory_spike_design_pack(slug))
+                except GraphMemorySpikeDesignPackRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-shadow-compare-pack"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryShadowComparePackRequestError,
+                    get_graph_memory_shadow_compare_pack,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-shadow-compare-pack")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_graph_memory_shadow_compare_pack(slug))
+                except GraphMemoryShadowComparePackRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-shadow-case-matrix"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryShadowCaseMatrixRequestError,
+                    get_graph_memory_shadow_case_matrix,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-shadow-case-matrix")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_graph_memory_shadow_case_matrix(slug))
+                except GraphMemoryShadowCaseMatrixRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-boundary-matrix"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderBoundaryMatrixRequestError,
+                    get_graph_memory_provider_boundary_matrix,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-provider-boundary-matrix")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_boundary_matrix(slug)
+                    )
+                except GraphMemoryProviderBoundaryMatrixRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-offline-shadow-replay-plan"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryOfflineShadowReplayPlanRequestError,
+                    get_graph_memory_offline_shadow_replay_plan,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-offline-shadow-replay-plan")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_offline_shadow_replay_plan(slug)
+                    )
+                except GraphMemoryOfflineShadowReplayPlanRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-offline-shadow-replay-report"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryOfflineShadowReplayReportRequestError,
+                    get_graph_memory_offline_shadow_replay_report,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-offline-shadow-replay-report")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_offline_shadow_replay_report(slug)
+                    )
+                except GraphMemoryOfflineShadowReplayReportRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-fixture-pack"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeFixturePackRequestError,
+                    get_graph_memory_provider_spike_fixture_pack,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-provider-spike-fixture-pack")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_fixture_pack(slug)
+                    )
+                except GraphMemoryProviderSpikeFixturePackRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-readiness-gate"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeReadinessGateRequestError,
+                    get_graph_memory_provider_spike_readiness_gate,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-provider-spike-readiness-gate")].strip(
+                        "/"
+                    )
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_readiness_gate(slug)
+                    )
+                except GraphMemoryProviderSpikeReadinessGateRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-runbook"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeRunbookRequestError,
+                    get_graph_memory_provider_spike_runbook,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/graph-memory-provider-spike-runbook")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_graph_memory_provider_spike_runbook(slug))
+                except GraphMemoryProviderSpikeRunbookRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-dry-run-result-template"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeDryRunResultTemplateRequestError,
+                    get_graph_memory_provider_spike_dry_run_result_template,
+                )
+
+                suffix = "/graph-memory-provider-spike-dry-run-result-template"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_dry_run_result_template(slug)
+                    )
+                except GraphMemoryProviderSpikeDryRunResultTemplateRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-mock-result-report"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeMockResultReportRequestError,
+                    get_graph_memory_provider_spike_mock_result_report,
+                )
+
+                suffix = "/graph-memory-provider-spike-mock-result-report"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_mock_result_report(slug)
+                    )
+                except GraphMemoryProviderSpikeMockResultReportRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-review-gate"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeReviewGateRequestError,
+                    get_graph_memory_provider_spike_review_gate,
+                )
+
+                suffix = "/graph-memory-provider-spike-review-gate"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_review_gate(slug)
+                    )
+                except GraphMemoryProviderSpikeReviewGateRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-manual-approval-pack"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeManualApprovalPackRequestError,
+                    get_graph_memory_provider_spike_manual_approval_pack,
+                )
+
+                suffix = "/graph-memory-provider-spike-manual-approval-pack"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_manual_approval_pack(slug)
+                    )
+                except GraphMemoryProviderSpikeManualApprovalPackRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-manual-approval-evidence-checklist"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeManualApprovalEvidenceChecklistRequestError,
+                    get_graph_memory_provider_spike_manual_approval_evidence_checklist,
+                )
+
+                suffix = (
+                    "/graph-memory-provider-spike-manual-approval-evidence-checklist"
+                )
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_manual_approval_evidence_checklist(
+                            slug
+                        )
+                    )
+                except (
+                    GraphMemoryProviderSpikeManualApprovalEvidenceChecklistRequestError
+                ) as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-opt-in-evidence-snapshot"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeOptInEvidenceSnapshotRequestError,
+                    get_graph_memory_provider_spike_opt_in_evidence_snapshot,
+                )
+
+                suffix = "/graph-memory-provider-spike-opt-in-evidence-snapshot"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_opt_in_evidence_snapshot(slug)
+                    )
+                except GraphMemoryProviderSpikeOptInEvidenceSnapshotRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-opt-in-no-go-matrix"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeOptInNoGoMatrixRequestError,
+                    get_graph_memory_provider_spike_opt_in_no_go_matrix,
+                )
+
+                suffix = "/graph-memory-provider-spike-opt-in-no-go-matrix"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_opt_in_no_go_matrix(slug)
+                    )
+                except GraphMemoryProviderSpikeOptInNoGoMatrixRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-opt-in-operator-checklist"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeOptInOperatorChecklistRequestError,
+                    get_graph_memory_provider_spike_opt_in_operator_checklist,
+                )
+
+                suffix = "/graph-memory-provider-spike-opt-in-operator-checklist"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_opt_in_operator_checklist(slug)
+                    )
+                except GraphMemoryProviderSpikeOptInOperatorChecklistRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-opt-in-review-packet"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeOptInReviewPacketRequestError,
+                    get_graph_memory_provider_spike_opt_in_review_packet,
+                )
+
+                suffix = "/graph-memory-provider-spike-opt-in-review-packet"
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_opt_in_review_packet(slug)
+                    )
+                except GraphMemoryProviderSpikeOptInReviewPacketRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-opt-in-decision-ledger-preview"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeOptInDecisionLedgerPreviewRequestError,
+                    get_graph_memory_provider_spike_opt_in_decision_ledger_preview,
+                )
+
+                suffix = (
+                    "/graph-memory-provider-spike-opt-in-decision-ledger-preview"
+                )
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_opt_in_decision_ledger_preview(
+                            slug
+                        )
+                    )
+                except (
+                    GraphMemoryProviderSpikeOptInDecisionLedgerPreviewRequestError
+                ) as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-opt-in-final-readiness-summary"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeOptInFinalReadinessSummaryRequestError,
+                    get_graph_memory_provider_spike_opt_in_final_readiness_summary,
+                )
+
+                suffix = (
+                    "/graph-memory-provider-spike-opt-in-final-readiness-summary"
+                )
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_opt_in_final_readiness_summary(
+                            slug
+                        )
+                    )
+                except GraphMemoryProviderSpikeOptInFinalReadinessSummaryRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/graph-memory-provider-spike-opt-in-human-signoff-schema-draft"
+            ):
+                from living_novel_engine.service import (
+                    GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftRequestError,
+                    get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft,
+                )
+
+                suffix = (
+                    "/graph-memory-provider-spike-opt-in-human-signoff-schema-draft"
+                )
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len(suffix)].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(
+                        get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft(
+                            slug
+                        )
+                    )
+                except GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
             if path.startswith("/api/stories/") and path.endswith("/retrieval-probes"):
                 from living_novel_engine.service import evaluate_retrieval_probes
 
@@ -196,6 +750,125 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._send_json(evaluate_retrieval_probes(slug))
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/vector-retrieval-readiness"
+            ):
+                from living_novel_engine.service import get_vector_retrieval_readiness
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/vector-retrieval-readiness")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._send_json(get_vector_retrieval_readiness(slug))
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/embedding-evaluation-samples"
+            ):
+                from living_novel_engine.service import get_embedding_evaluation_samples
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/embedding-evaluation-samples")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._send_json(get_embedding_evaluation_samples(slug))
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/retrieval-sample-export-pack"
+            ):
+                from living_novel_engine.service import (
+                    RetrievalSampleExportPackRequestError,
+                    get_retrieval_sample_export_pack,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/retrieval-sample-export-pack")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_retrieval_sample_export_pack(slug))
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+                except RetrievalSampleExportPackRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/embedding-mock-evaluation-report"
+            ):
+                from living_novel_engine.service import (
+                    EmbeddingMockEvaluationReportRequestError,
+                    get_embedding_mock_evaluation_report,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(
+                    rest[: -len("/embedding-mock-evaluation-report")].strip("/")
+                )
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_embedding_mock_evaluation_report(slug))
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+                except EmbeddingMockEvaluationReportRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/retrieval-sample-replay-report"
+            ):
+                from living_novel_engine.service import (
+                    RetrievalSampleReplayReportRequestError,
+                    get_retrieval_sample_replay_report,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/retrieval-sample-replay-report")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_retrieval_sample_replay_report(slug))
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+                except RetrievalSampleReplayReportRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/retrieval-sample-migration-pack"
+            ):
+                from living_novel_engine.service import (
+                    RetrievalSampleMigrationPackRequestError,
+                    get_retrieval_sample_migration_pack,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/retrieval-sample-migration-pack")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_retrieval_sample_migration_pack(slug))
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+                except RetrievalSampleMigrationPackRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
+            if path.startswith("/api/stories/") and path.endswith(
+                "/retrieval-failure-samples"
+            ):
+                from living_novel_engine.service import (
+                    RetrievalFailureSampleRequestError,
+                    get_retrieval_failure_samples,
+                )
+
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/retrieval-failure-samples")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                try:
+                    return self._send_json(get_retrieval_failure_samples(slug))
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+                except RetrievalFailureSampleRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
 
             if path.startswith("/api/stories/") and path.endswith(
                 "/creation-loop-closeout"
@@ -255,6 +928,35 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 from living_novel_engine.service import get_model_configuration_summary
 
                 return self._send_json(get_model_configuration_summary())
+
+            if path == "/api/settings/llm-profile-assignment":
+                from living_novel_engine.service import get_llm_profile_assignment
+
+                return self._send_json(get_llm_profile_assignment())
+
+            if path == "/api/settings/api-contract":
+                from living_novel_engine.service import get_api_contract
+
+                return self._send_json(get_api_contract())
+
+            if path == "/api/settings/retrieval-samples-index":
+                from living_novel_engine.service import (
+                    get_cross_project_retrieval_samples_index,
+                )
+
+                return self._send_json(get_cross_project_retrieval_samples_index())
+
+            if path == "/api/settings/retrieval-samples-trend-snapshot":
+                from living_novel_engine.service import (
+                    get_retrieval_samples_trend_snapshot,
+                )
+
+                return self._send_json(get_retrieval_samples_trend_snapshot())
+
+            if path == "/api/settings/packaging-readiness":
+                from living_novel_engine.service import get_bundled_release_readiness
+
+                return self._send_json(get_bundled_release_readiness())
 
             if path == "/api/settings/providers":
                 from living_novel_engine.service import get_provider_gateway_summary
@@ -560,6 +1262,80 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     )
                 return self._handle_chapter_collection_export_get(run_id, branch_id)
 
+            if (
+                path.startswith("/api/runs/")
+                and "/branches/" in path
+                and path.endswith("/projection-health")
+            ):
+                from living_novel_engine.service import (
+                    ProjectionHealthRequestError,
+                    get_projection_health,
+                )
+
+                run_id, branch_id = self._extract_run_branch_for_suffix(
+                    path, "/projection-health"
+                )
+                if run_id is None or branch_id is None:
+                    return self._send_json(
+                        {"error": "invalid run_id or branch_id"}, status=400
+                    )
+                try:
+                    return self._send_json(get_projection_health(run_id, branch_id))
+                except ProjectionHealthRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
+            if (
+                path.startswith("/api/runs/")
+                and "/branches/" in path
+                and path.endswith("/reader-panel")
+            ):
+                from living_novel_engine.service import (
+                    ReaderPanelRequestError,
+                    get_reader_panel,
+                )
+
+                run_id, branch_id = self._extract_run_branch_for_suffix(
+                    path, "/reader-panel"
+                )
+                if run_id is None or branch_id is None:
+                    return self._send_json(
+                        {"error": "invalid run_id or branch_id"}, status=400
+                    )
+                try:
+                    return self._send_json(get_reader_panel(run_id, branch_id))
+                except ReaderPanelRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
+            if (
+                path.startswith("/api/runs/")
+                and "/branches/" in path
+                and path.endswith("/prompt-budget-pack")
+            ):
+                from living_novel_engine.service import (
+                    PromptBudgetPackRequestError,
+                    get_prompt_budget_pack,
+                )
+
+                run_id, branch_id = self._extract_run_branch_for_suffix(
+                    path, "/prompt-budget-pack"
+                )
+                if run_id is None or branch_id is None:
+                    return self._send_json(
+                        {"error": "invalid run_id or branch_id"}, status=400
+                    )
+                budget_raw = _first_qs(qs, "char_budget")
+                try:
+                    char_budget = int(budget_raw) if budget_raw else 1600
+                    return self._send_json(
+                        get_prompt_budget_pack(
+                            run_id,
+                            branch_id,
+                            char_budget=char_budget,
+                        )
+                    )
+                except (ValueError, PromptBudgetPackRequestError) as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+
             if path.startswith("/api/runs/") and "/branches/" in path:
                 rest = path[len("/api/runs/") :]
                 run_id_raw, _, branch_part = rest.partition("/branches/")
@@ -590,6 +1366,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
             self._send_json({"error": str(exc)}, status=500)
 
     def do_POST(self) -> None:  # noqa: N802
+        self._request_body_consumed = False
         parsed = urlparse(self.path)
         path = parsed.path
         try:
@@ -702,6 +1479,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_retention_policy_write(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/retrieval-failure-samples"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/retrieval-failure-samples")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_retrieval_failure_sample_append(slug)
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 return self._handle_anchor_update(path)
             if path == "/api/settings/runtime":
@@ -845,6 +1630,28 @@ class BrowserHandler(BaseHTTPRequestHandler):
         except ProjectRetentionPolicyConflictError as exc:
             return self._send_json({"error": str(exc)}, status=409)
         except ProjectRetentionPolicyRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        self._send_json(report)
+
+    def _handle_retrieval_failure_sample_append(self, slug: str) -> None:
+        """后续增强：追加本地检索失败样本。"""
+        from living_novel_engine.service import (
+            RetrievalFailureSampleConflictError,
+            RetrievalFailureSampleRequestError,
+            add_retrieval_failure_sample,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            return self._send_json({"error": "请求体不是合法 JSON"}, status=400)
+        try:
+            report = add_retrieval_failure_sample(slug, body)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except RetrievalFailureSampleConflictError as exc:
+            return self._send_json({"error": str(exc)}, status=409)
+        except RetrievalFailureSampleRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         self._send_json(report)
 

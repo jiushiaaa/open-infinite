@@ -1,0 +1,147 @@
+# Graph Memory Offline Shadow Replay Plan MVP 收口说明
+
+日期：2026-06-01
+
+## 目标
+
+把 `Graph Memory Provider Boundary Matrix` 继续收束成真实 GraphRAG、Zep、Temporal Memory provider spike 前的离线 shadow replay 计划。该计划只说明要复跑哪些本地 case、使用哪些固定 fixture、如何验收、如何回滚、如何人工复核，不运行真实 provider。
+
+本切片继续保持本地、只读、可回滚：
+
+- 不连接 GraphRAG、Zep、图数据库、向量库、reranker、embedding provider 或真实 LLM。
+- 不写项目 artifact，不改变 `run_scene` 默认行为。
+- 不覆盖 `canon_ledger.jsonl`、`state_snapshot.json` 或既有检索上下文。
+- 不读取、不返回、不记录明文 Key。
+
+## 本次新增
+
+### Service
+
+新增 `living_novel_engine.service.get_graph_memory_offline_shadow_replay_plan(slug, projects_dir=None, now=None)`。
+
+报告字段包括：
+
+- `summary`：来源 provider boundary 状态、计划 provider 数、replay case 数、步骤数、人工复核数和安全边界。
+- `replay_gate`：`offline_replay_ready`、`collect_more_evidence` 或 `deferred`。
+- `provider_plans`：GraphRAG、Zep、Temporal Memory 候选 provider 的 replay scope、boundary refs、验收摘要、回滚策略和人工复核要求。
+- `replay_cases`：按 provider x 本地 eval case 生成的 planned replay case，包含 replay input、baseline chain、expected delta、验收、回滚、人工复核和 no-go 条件。
+- `replay_steps`：冻结 fixture、记录 baseline、生成 mock delta、人工复核、记录决策。
+- `no_go_conditions`、`boundaries`、`next_steps` 和 `content_json`。
+
+### HTTP API
+
+新增：
+
+```text
+GET /api/stories/<slug>/graph-memory-offline-shadow-replay-plan
+```
+
+状态约定：
+
+- 坏 `slug` 返回 `400`。
+- 项目不存在返回 `404`。
+- 正常项目返回只读报告；小项目或证据不足时返回明确 `deferred` / `needs_more_evidence`，不抛 500。
+
+### CLI
+
+新增：
+
+```powershell
+lne memory graph-replay-plan <slug> --json
+```
+
+未加 `--json` 时输出 `content_json`，方便无人值守脚本保存或人工复查。
+
+### 前端
+
+项目工作台新增 `Graph 记忆离线 Replay 计划` 面板，展示：
+
+- Replay 状态、计划服务、复跑样本和人工复核数。
+- GraphRAG / Zep 的 replay scope、验收摘要和样本 query。
+- 固定 fixture 步骤、no-go 条件和“不连接外部服务”的边界说明。
+
+可见文案保持中文。缺失/暂缓状态显示为空态或说明，不白屏。
+
+### API Contract / Typed Client
+
+`get_api_contract()` 新增：
+
+- endpoint：`/api/stories/{slug}/graph-memory-offline-shadow-replay-plan`
+- typed client method：`getGraphMemoryOfflineShadowReplayPlan`
+- response type：`GraphMemoryOfflineShadowReplayPlanReport`
+
+当前契约计数更新为：
+
+- `endpoint_count=46`
+- `openapi_path_count=45`
+- `typed_client_method_count=45`
+
+前端 `engine/ui/src/api/client.ts` 和 `types.ts` 已同步新增类型与方法。
+
+## 验收
+
+Focused tests：
+
+```powershell
+cd D:\AI\open-infinite\engine
+python -m pytest tests/test_graph_memory_offline_shadow_replay_plan.py tests/test_api_contract.py -q
+```
+
+结果：`7 passed`。
+
+邻近回归：
+
+```powershell
+cd D:\AI\open-infinite\engine
+python -m pytest tests/test_graph_memory_offline_shadow_replay_plan.py tests/test_graph_memory_provider_boundary_matrix.py tests/test_graph_memory_shadow_case_matrix.py tests/test_graph_memory_shadow_compare_pack.py tests/test_graph_memory_spike_design_pack.py tests/test_graph_memory_trigger_evidence.py tests/test_api_contract.py -q
+```
+
+结果：`27 passed`。
+
+前端：
+
+```powershell
+cd D:\AI\open-infinite\engine\ui
+pnpm.cmd run build
+```
+
+结果：通过。
+
+浏览器烟测：
+
+- 使用临时 `.local-run/graph-replay-smoke` fixture。
+- 后端指向临时 `LNE_PROJECTS_DIR`，`LLM_API_KEY` / `SEEDREAM_API_KEY` 清空，`LNE_MOCK=1`。
+- 打开 `http://localhost:5173/#/workspace/graph-replay-smoke-large`。
+- 已确认页面出现 `Graph 记忆离线 Replay 计划`、`Replay 就绪`、`计划服务 2`、`复跑样本 2`、`人工复核 2`、GraphRAG/Zep provider plan、固定 fixture 步骤、`不能要求真实付费 Key` no-go 和“不连接 GraphRAG、Zep、图数据库、向量库、reranker、embedding provider 或真实 LLM”边界。
+- 临时服务和 fixture 已清理。
+
+全量基线：
+
+```powershell
+cd D:\AI\open-infinite\engine
+python -m pytest -q
+
+cd D:\AI\open-infinite\engine\ui
+pnpm.cmd run build
+
+cd D:\AI\open-infinite
+git diff --check
+```
+
+结果：后端 `803 passed`；前端 build 通过；`git diff --check` 通过。
+
+## 边界复核
+
+- 路径安全：HTTP `slug` 经 `safe_id` 校验。
+- 只读性：service 只消费 provider boundary matrix，不写任何项目文件。
+- 外部服务：没有 provider、HTTP client、embedding、GraphRAG、Zep、向量库或 reranker 调用。
+- Key 安全：测试注入 fake key 并断言报告文本不包含密钥片段、环境变量名或临时路径。
+- 旧契约：未改 `run_scene`，未改既有 artifact schema，新增 API/UI/type 字段均 additive。
+
+## 下一刀建议
+
+`Graph Memory Offline Shadow Replay Report MVP`：
+
+- 基于 replay plan 生成 deterministic/mockable 的 per-case replay 结果、收益判断、失败降级和人工复核结论。
+- 继续不运行真实 GraphRAG、Zep、Temporal Memory、embedding provider、向量库或 reranker。
+- 仍保持只读，不创建 provider 配置、不写项目 artifact、不改变默认检索链路。

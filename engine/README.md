@@ -1,6 +1,6 @@
 # 未终章
 
-未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。当前已经从早期 Phase 0 CLI 演进到 v1.0-local：支持小说导入、长篇记忆、读者干预、多世界线生成、审计评估、章节导出、模型配置和本地一键运行。
+未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。当前已经从早期 Phase 0 CLI 演进到 v1.0-local + 后续增强四十刀：支持小说导入、长篇记忆、读者干预、多世界线生成、审计评估、章节导出、模型配置、本地一键运行、运行前体检、生成后投影健康、读者修订评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、样本趋势快照、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Case 矩阵、Graph 记忆 Provider 边界、Graph 记忆离线 Replay 计划/报告、Graph 记忆 Provider Spike 前置包、Graph 记忆 Provider Spike 就绪门禁、Graph 记忆 Provider Spike Runbook、Graph 记忆 Provider Spike 结果模板、Graph 记忆 Provider Spike Mock 结果报告、Graph 记忆 Provider Spike 复核门禁、Graph 记忆 Provider Spike 人工审批包、Graph 记忆 Provider Spike 审批证据核对表、Graph 记忆 Provider Spike Opt-in 证据快照、No-go 矩阵、Operator Checklist、Review Packet、Decision Ledger Preview、Final Readiness Summary 和 Human Signoff Schema Draft。
 
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
@@ -12,12 +12,12 @@
 | --- | --- |
 | 后端 | Python package + `lne` CLI + 本地 HTTP API |
 | 前端 | `engine/ui` React + Vite 产品工作台 |
-| 当前收口 | v1.0-local Model Configuration UX + Local Run Scripts |
-| 后端验证基线 | `python -m pytest -q` -> `713 passed` |
+| 当前收口 | v1.0-local Model Configuration UX + Local Run Scripts；Runtime Preflight MVP；Projection Health MVP；Reader Panel / Adversarial Revision Lab MVP；Prompt Budget Pack MVP；LLM Profile Assignment MVP；Cards Workspace MVP；OpenAPI / Typed Client MVP；Bundled Release Readiness MVP；Embedding / Vector Retrieval Readiness Probe MVP；Embedding Evaluation Samples MVP；Retrieval Failure Sample Authoring MVP；Memory CLI MVP；Retrieval Sample Export Pack MVP；Embedding Mock Evaluation Report MVP；Retrieval Sample Replay Report MVP；Retrieval Sample Migration Pack MVP；Cross Project Retrieval Samples Index MVP；Retrieval Samples Trend Snapshot MVP；GraphRAG / Zep Trigger Evidence MVP；Graph Memory Spike Design Pack MVP；Graph Memory Shadow Compare Pack MVP；Graph Memory Shadow Case Matrix MVP；Graph Memory Provider Boundary Matrix MVP；Graph Memory Offline Shadow Replay Plan MVP；Graph Memory Offline Shadow Replay Report MVP；Graph Memory Provider Spike Fixture Pack MVP；Graph Memory Provider Spike Readiness Gate MVP；Graph Memory Provider Spike Runbook MVP；Graph Memory Provider Spike Dry-run Result Template MVP；Graph Memory Provider Spike Mock Result Report MVP；Graph Memory Provider Spike Review Gate MVP；Graph Memory Provider Spike Manual Approval Pack MVP；Graph Memory Provider Spike Manual Approval Evidence Checklist MVP；Graph Memory Provider Spike Opt-in Evidence Snapshot MVP；Graph Memory Provider Spike Opt-in No-go Matrix MVP；Graph Memory Provider Spike Opt-in Operator Checklist MVP；Graph Memory Provider Spike Opt-in Review Packet MVP；Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP；Graph Memory Provider Spike Opt-in Final Readiness Summary MVP；Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP |
+| 后端验证基线 | `python -m pytest -q` -> `863 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
-| 当前暂停点 | 等待本地试用反馈；不继续默认开新刀 |
+| 当前迭代点 | 下一刀建议 Graph Memory Provider Spike Opt-in Config Draft MVP |
 
-仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、向量库/GraphRAG、高级 runner 默认替换。
+仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、生产向量库/GraphRAG/Zep、高级 runner 默认替换。
 
 ## 快速开始
 
@@ -126,6 +126,38 @@ lne browse --host 127.0.0.1 --port 8765 --no-open
 
 # v0.9.0-alpha 长篇闭环验收
 lne creation-loop-closeout <slug> --json --require-ready --write-report
+
+# 检索失败样本采集与复跑
+lne memory add-sample <slug> --query "她必须追查那个遗失的关键物证" --entity mo_qing_yan --entity retreat_bell --reason "换说法未命中" --chapter 2
+lne memory samples <slug> --json --require-candidate
+lne memory export-samples <slug> --json
+lne memory mock-report <slug> --json --require-candidate
+lne memory replay-report <slug> --json --require-clean
+lne memory migration-pack <slug> --json
+lne memory index-samples --json
+lne memory trend-snapshot --json
+lne memory graph-trigger <slug> --json
+lne memory graph-design <slug> --json
+lne memory graph-shadow <slug> --json
+lne memory graph-cases <slug> --json
+lne memory graph-boundaries <slug> --json
+lne memory graph-replay-plan <slug> --json
+lne memory graph-replay-report <slug> --json
+lne memory graph-fixture-pack <slug> --json
+lne memory graph-readiness-gate <slug> --json
+lne memory graph-runbook <slug> --json
+lne memory graph-result-template <slug> --json
+lne memory graph-mock-result <slug> --json
+lne memory graph-review-gate <slug> --json
+lne memory graph-manual-approval-pack <slug> --json
+lne memory graph-approval-evidence-checklist <slug> --json
+lne memory graph-opt-in-evidence-snapshot <slug> --json
+lne memory graph-opt-in-no-go-matrix <slug> --json
+lne memory graph-opt-in-operator-checklist <slug> --json
+lne memory graph-opt-in-review-packet <slug> --json
+lne memory graph-opt-in-decision-ledger-preview <slug> --json
+lne memory graph-opt-in-final-readiness-summary <slug> --json
+lne memory graph-opt-in-human-signoff-schema <slug> --json
 ```
 
 `browse` 启动的是本地后端和旧只读 viewer；普通用户产品入口在 `engine/ui`，通过 Vite 访问。
@@ -147,8 +179,9 @@ pnpm run dev -- --host 127.0.0.1 --port 5173
 
 - 书架、导入、主题创世、世界锚定轻编辑。
 - 阅读工作台、读者干预、动态分支轴、Causal Diff、世界线评审。
-- 长篇项目工作台、导入检查、设定工作台、回放与审计、章节导出。
-- 设置抽屉：运行设置、模型配置、provider 状态、usage/成本估算、商业化边界只读清单。
+- 长篇项目工作台、导入检查、设定工作台、设定卡片、向量检索就绪、Embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Provider 边界、离线 Replay、Provider Spike 前置包、Readiness Gate、Runbook、结果模板、Mock 结果报告、Review Gate、Manual Approval Pack、Opt-in Review Packet、Decision Ledger Preview、Final Readiness Summary、Human Signoff Schema Draft、回放与审计、章节导出。
+- 分支右栏：机制档案、投影健康、读者评审、上下文包、状态、检索记忆、Agent 轨迹、世界线评审。
+- 设置抽屉：运行设置、模型配置、任务模型画像、接口契约、发行准备、provider 状态、usage/成本估算、商业化边界只读清单。
 
 ## 产物目录
 
@@ -185,7 +218,8 @@ projects/<slug>/
     ├── entity_aliases.yaml
     ├── project_audit_log.jsonl
     ├── project_copyright_statement.json
-    └── project_retention_policy.json
+    ├── project_retention_policy.json
+    └── retrieval_failure_samples.jsonl   # 可选：本地记录的 BM25 召回失败样本
 ```
 
 一次干预 run 常见结构：
@@ -235,13 +269,13 @@ outputs/<run_id>/
 
 | 分组 | 典型路径 |
 | --- | --- |
-| 故事/项目 | `GET /api/stories`、`GET /api/stories/<slug>`、`GET /api/stories/<slug>/project-workspace` |
+| 故事/项目 | `GET /api/stories`、`GET /api/stories/<slug>`、`GET /api/stories/<slug>/project-workspace`、`GET /api/stories/<slug>/runtime-preflight`、`GET /api/stories/<slug>/cards-workspace`、`GET /api/stories/<slug>/vector-retrieval-readiness`、`GET /api/stories/<slug>/embedding-evaluation-samples`、`GET /api/stories/<slug>/retrieval-sample-export-pack`、`GET /api/stories/<slug>/embedding-mock-evaluation-report`、`GET /api/stories/<slug>/retrieval-sample-replay-report`、`GET /api/stories/<slug>/retrieval-sample-migration-pack`、`GET /api/stories/<slug>/graph-memory-trigger-evidence`、`GET /api/stories/<slug>/graph-memory-spike-design-pack`、`GET /api/stories/<slug>/graph-memory-shadow-compare-pack`、`GET /api/stories/<slug>/graph-memory-shadow-case-matrix`、`GET /api/stories/<slug>/graph-memory-provider-boundary-matrix`、`GET /api/stories/<slug>/graph-memory-offline-shadow-replay-plan`、`GET /api/stories/<slug>/graph-memory-offline-shadow-replay-report`、`GET /api/stories/<slug>/graph-memory-provider-spike-fixture-pack`、`GET /api/stories/<slug>/graph-memory-provider-spike-readiness-gate`、`GET /api/stories/<slug>/graph-memory-provider-spike-runbook`、`GET /api/stories/<slug>/graph-memory-provider-spike-dry-run-result-template`、`GET /api/stories/<slug>/graph-memory-provider-spike-mock-result-report`、`GET /api/stories/<slug>/graph-memory-provider-spike-review-gate`、`GET /api/stories/<slug>/graph-memory-provider-spike-manual-approval-pack`、`GET /api/stories/<slug>/graph-memory-provider-spike-manual-approval-evidence-checklist`、`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-evidence-snapshot`、`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-no-go-matrix`、`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-operator-checklist`、`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-review-packet`、`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-decision-ledger-preview`、`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-final-readiness-summary`、`GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-human-signoff-schema-draft`、`GET/POST /api/stories/<slug>/retrieval-failure-samples` |
 | 导入/创世/job | `POST /api/import-novel`、`POST /api/story-genesis`、`POST /api/jobs/import-novel`、`GET /api/jobs/<id>` |
 | 干预/续写 | `POST /api/interventions`、`POST /api/jobs/intervention`、`POST /api/jobs/resume-continue` |
-| run/branch | `GET /api/runs`、`GET /api/runs/<run_id>`、`GET /api/runs/<run_id>/branches/<branch_id>` |
+| run/branch | `GET /api/runs`、`GET /api/runs/<run_id>`、`GET /api/runs/<run_id>/branches/<branch_id>`、`GET /api/runs/<run_id>/branches/<branch_id>/projection-health`、`GET /api/runs/<run_id>/branches/<branch_id>/reader-panel`、`GET /api/runs/<run_id>/branches/<branch_id>/prompt-budget-pack` |
 | 评估/审计 | baseline、canon replay、worldline judgement、replay audit、audit log、creation loop closeout |
 | 导出 | chapter export、chapter collection export、audit log export |
-| 设置 | runtime、providers、provider usage、model configuration、commercial status、preflight/boundary checklists |
+| 设置 | runtime、providers、provider usage、model configuration、LLM profile assignment、api contract、retrieval samples index、retrieval samples trend snapshot、packaging readiness、commercial status、preflight/boundary checklists |
 
 API 设计原则：坏 ID 返回 400，缺资源返回 404，状态冲突/不可操作返回 409；密钥只返回脱敏状态。
 

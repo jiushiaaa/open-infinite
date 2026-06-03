@@ -158,6 +158,16 @@
   background: var(--jade-wash);
   border-color: var(--jade-soft);
 }
+.projection-chip--attention {
+  color: #7a5c15;
+  background: #fff7d6;
+  border-color: #e2c96a;
+}
+.projection-chip--blocked {
+  color: #7e2c22;
+  background: var(--cinnabar-wash);
+  border-color: var(--cinnabar-soft);
+}
 .runtime-warning {
   padding: 8px var(--space-3);
   border: 1px solid var(--cinnabar-soft);

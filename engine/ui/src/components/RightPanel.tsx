@@ -6,9 +6,21 @@ import { RetrievalPanel } from "./RetrievalPanel";
 import { AgentTracePanel } from "./AgentTracePanel";
 import { CompilationPanel } from "./CompilationPanel";
 import { WorldlineJudgePanel } from "./WorldlineJudgePanel";
+import { ProjectionHealthPanel } from "./ProjectionHealthPanel";
+import { ReaderPanel } from "./ReaderPanel";
+import { PromptBudgetPanel } from "./PromptBudgetPanel";
 import "./rightPanel.css";
 
-type Tab = "artifacts" | "state" | "retrieval" | "trace" | "compilation" | "judge";
+type Tab =
+  | "artifacts"
+  | "health"
+  | "reader"
+  | "budget"
+  | "state"
+  | "retrieval"
+  | "trace"
+  | "compilation"
+  | "judge";
 
 export function RightPanel({
   storySlug,
@@ -34,6 +46,9 @@ export function RightPanel({
 
   const tabs: { id: Tab; label: string; dot?: boolean }[] = [
     { id: "artifacts", label: "机制档案", dot: hasArtifacts },
+    { id: "health", label: "投影健康", dot: true },
+    { id: "reader", label: "读者评审", dot: true },
+    { id: "budget", label: "上下文包", dot: !!branch.retrieval },
     { id: "compilation", label: "干预编译", dot: !!compilation },
     { id: "state", label: "状态", dot: !!branch.state_snapshot },
     { id: "retrieval", label: "检索记忆", dot: !!branch.retrieval },
@@ -59,6 +74,9 @@ export function RightPanel({
       </div>
       <div className="rpanel__body">
         {tab === "artifacts" && <ArtifactPanel branch={branch} />}
+        {tab === "health" && <ProjectionHealthPanel branch={branch} />}
+        {tab === "reader" && <ReaderPanel branch={branch} />}
+        {tab === "budget" && <PromptBudgetPanel branch={branch} />}
         {tab === "compilation" && (
           <CompilationPanel compilation={compilation} loading={compilationLoading} />
         )}

@@ -1357,3 +1357,55 @@
 - **边界**：不改 `run_scene` 默认行为；不内置 Python/Node runtime；不生成 Release 安装包；不接腾讯云部署、真实认证、对象存储或计费；脚本不读取、写入或打印用户模型密钥。
 - **暂停说明**：这两件事完成、验证、提交推送后暂停，不继续开新刀。
 
+### 2026-06-01 — 品牌命名收口：未终章 / Unfinale
+
+- **做了什么**：
+  - 将面向用户与文档的产品名从 Living Novel Engine / 活体小说引擎收口为 **未终章**，英文名为 **Unfinale**。
+  - 新增 `docs/brand/`，包含 `unfinale-logo.svg`、`unfinale-icon.svg` 与 imagegen 轻量概念稿 `unfinale-logo-concept-light.png`。
+  - 同步入口文档、PRD、路线图、阶段图、README、接力包、UI spec、论文报告与 completed 归档中的产品命名表述。
+  - 明确命名边界：代码包、CLI、artifact、环境变量和技术缩写仍沿用 LNE / `living_novel_engine`，避免把品牌更新误扩散成代码层 rename。
+- **测试/验证**：本次只改文档与品牌资产；验证 `rg "Living Novel|living novel|活体小说" --glob "*.md"` 后，旧名只保留在 `memory.md` 与本日志的品牌迁移说明中；前端页面暂不改。
+- **边界**：不改 `engine/ui` 页面源码，不改 API/CLI/package 名，不改 `run_scene` 默认行为。
+
+### 2026-06-03 — 后续增强自主迭代总账补记：Runtime Preflight 至 Graph Memory Provider Spike Opt-in Final Readiness Summary
+
+- **补记原因**：用户指出本轮自主迭代完成了大量独立切片，但此前未按约定逐刀追加到 `docs/project-changelog.md`；本条补记过去 39h 的主要交付，并强化后续规则：每完成一个独立切片都必须即时追加本文件末尾，不等总收口再补。
+- **做了什么**：
+  - 完成后续增强产品化链路：Runtime Preflight、Projection Health、Reader Panel / Adversarial Revision Lab、Prompt Budget Pack、LLM Profile Assignment、Cards Workspace、OpenAPI / Typed Client、Bundled Release Readiness。
+  - 完成长篇记忆增强的检索评测链路：Embedding / Vector Retrieval Readiness Probe、Embedding Evaluation Samples、Retrieval Failure Sample Authoring、Memory CLI、Retrieval Sample Export Pack、Embedding Mock Evaluation Report、Retrieval Sample Replay Report、Retrieval Sample Migration Pack、Cross Project Retrieval Samples Index、Retrieval Samples Trend Snapshot。
+  - 完成 GraphRAG / Zep 触发式证据链路：GraphRAG / Zep Trigger Evidence、Graph Memory Spike Design Pack、Graph Memory Shadow Compare Pack、Graph Memory Shadow Case Matrix、Graph Memory Provider Boundary Matrix。
+  - 完成 Graph Memory provider spike dry-run 前置链路：Offline Shadow Replay Plan / Report、Provider Spike Fixture Pack、Readiness Gate、Runbook、Dry-run Result Template、Mock Result Report、Review Gate、Manual Approval Pack、Manual Approval Evidence Checklist。
+  - 完成 Graph Memory provider opt-in 人工复核链路：Opt-in Evidence Snapshot、Opt-in No-go Matrix、Opt-in Operator Checklist、Opt-in Review Packet、Opt-in Decision Ledger Preview、Opt-in Final Readiness Summary。
+  - 最新一刀新增 `graph_memory_provider_spike_opt_in_final_readiness_summary` 只读 service/API/CLI/UI，把 decision ledger preview 收束为最终就绪摘要、未签收字段、阻塞原因、真实 provider 继续禁止边界和下一步人工签收材料。
+- **测试/验证**：
+  - 最新一刀 focused tests 为 **7 passed**，Graph Memory 邻近回归为 **87 passed**。
+  - 前端 `cd engine/ui && pnpm run build` 通过。
+  - HTTP/CLI smoke 通过，确认最终摘要 API 与 CLI 都返回 ready 状态、未签收/阻塞计数、`real_provider_ready=false`、`real_provider_config_allowed=false`，且不返回明文 Key。
+  - 后端完整门禁 `cd engine && python -m pytest -q` 为 **859 passed**。
+  - `git diff --check` 通过，仅保留 Windows CRLF 提示。
+- **边界**：
+  - 所有新增链路保持 additive，只读优先；不改 `run_scene` 默认行为，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json`、`canon_ledger.jsonl`。
+  - 不接真实生产向量库、GraphRAG、Zep、外部 embedding provider 或 reranker；Graph 记忆相关功能全部保持触发式、mockable、dry-run/read-only。
+  - 不读取或打印明文 API Key；测试隔离真实 `.env`，HTTP-facing slug 继续走安全校验，失败降级为 400/404 或前端空态。
+- **暂停点**：按用户要求，本刀完成后暂停，不继续自动开新刀；恢复后建议先做 `Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP`，仍保持只读、本地边界和真实 provider 禁止。
+
+### 2026-06-03 — Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP
+
+- **做了什么**：
+  - 新增 `get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft()`，基于 final readiness summary 派生只读人工签收 schema 草案。
+  - 新增 `GET /api/stories/<slug>/graph-memory-provider-spike-opt-in-human-signoff-schema-draft`，坏 slug 返回 400，缺项目返回 404。
+  - 新增 `lne memory graph-opt-in-human-signoff-schema <slug> --json`，用于命令行查看 schema 草案。
+  - 项目工作台新增「Graph 记忆 Provider Spike Opt-in 人工签收 Schema」面板，展示 schema 状态、字段数、必填数、保存签收禁止状态、字段校验规则和下一步建议。
+  - 本地 API contract / typed client 新增 `getGraphMemoryProviderSpikeOptInHumanSignoffSchemaDraft`，OpenAPI skeleton endpoint count 更新为 61、path count 更新为 60、typed client method count 更新为 60。
+  - 新增 `docs/completed/graph-memory-provider-spike-opt-in-human-signoff-schema-draft-mvp.md`，并同步 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、路线图、阶段图、PRD、README、docs index、completed index 与后续增强清单。
+- **测试/验证**：
+  - RED：新增 focused tests 后，service、HTTP、CLI、API contract 入口缺失导致 **6 failed / 1 passed**。
+  - GREEN：`python -m pytest tests\test_graph_memory_provider_spike_opt_in_human_signoff_schema_draft.py tests\test_api_contract.py -q` -> **7 passed**。
+  - 相邻回归：PowerShell 展开 `tests\test_graph_memory*.py` 加 `tests\test_api_contract.py` -> **91 passed**。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过。
+- **边界**：
+  - 只读生成 schema draft，不保存签名、签收值、风险确认、回滚确认或最终结论。
+  - 不写项目 artifact、不写决策账本、不创建真实 provider 配置、不调用外部服务、不读取明文 Key。
+  - 不改 `run_scene` 默认行为，不接生产向量库、GraphRAG、Zep、外部 embedding provider 或 reranker。
+- **下一刀建议**：`Graph Memory Provider Spike Opt-in Config Draft MVP`，基于签收 schema 草案只读生成本地 opt-in 配置草案、字段映射和 adapter 边界；继续不保存配置、不读取明文 Key、不创建真实 provider 配置。
+

@@ -745,6 +745,123 @@
   line-height: 1.6;
 }
 
+.embedding-samples__form {
+  margin-top: 12px;
+}
+
+.embedding-samples__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.embedding-samples__export {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.embedding-samples__export-preview {
+  width: 100%;
+}
+
+.embedding-samples__export-preview pre {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 10px 0 0;
+  max-height: 260px;
+  overflow: auto;
+  padding: 10px;
+  white-space: pre-wrap;
+}
+
+.error-text {
+  color: var(--cinnabar);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cards-workspace__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.cards-workspace__card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 252, 242, 0.62);
+  padding: 12px;
+}
+
+.cards-workspace__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.cards-workspace__head strong,
+.cards-workspace__head span {
+  display: block;
+}
+
+.cards-workspace__head strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.cards-workspace__head span,
+.cards-workspace__head em,
+.cards-workspace__edit-note {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.5;
+}
+
+.cards-workspace__head em {
+  white-space: nowrap;
+}
+
+.cards-workspace__fields {
+  display: grid;
+  gap: 7px;
+}
+
+.cards-workspace__field {
+  display: grid;
+  gap: 2px;
+}
+
+.cards-workspace__field span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cards-workspace__field strong {
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.cards-workspace__edit-note {
+  margin: 10px 0 0;
+}
+
 .chapter-preview-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1025,6 +1142,7 @@
   .master-setting__layout,
   .master-setting__facts,
   .master-setting__editor,
+  .cards-workspace__grid,
   .chapter-preview-list,
   .project-workspace__grid,
   .creation-loop__checklist {

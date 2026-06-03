@@ -1,15 +1,20 @@
-import { useState } from "react";
+import { Component, useState, type ReactNode } from "react";
 import type {
+  ApiContractReport,
   AuthBoundaryChecklist,
+  BundledReleaseReadinessReport,
   ConnectivityResult,
   CommercialStatusOverview,
+  CrossProjectRetrievalSamplesIndexReport,
   DeploymentObservabilityChecklist,
+  LLMProfileAssignmentReport,
   LocalSmokeChecklist,
   ModelConfigurationPreset,
   ModelConfigurationSummary,
   ObjectStorageBoundaryChecklist,
   QuotaEnforcementBoundaryChecklist,
   ReleasePreflightChecklist,
+  RetrievalSamplesTrendSnapshotReport,
   ProviderGatewaySummary,
   ProviderUsageSummary,
   RuntimeSettings,
@@ -38,10 +43,36 @@ export function SettingsDrawer({
         role="dialog"
         aria-label="运行设置"
       >
-        {open && <SettingsBody onClose={onClose} />}
+        {open && (
+          <SettingsBoundary>
+            <SettingsBody onClose={onClose} />
+          </SettingsBoundary>
+        )}
       </aside>
     </div>
   );
+}
+
+class SettingsBoundary extends Component<
+  { children: ReactNode },
+  { message: string | null }
+> {
+  state = { message: null };
+
+  static getDerivedStateFromError(error: unknown) {
+    return { message: error instanceof Error ? error.message : String(error) };
+  }
+
+  render() {
+    if (this.state.message) {
+      return (
+        <div className="settings__inner">
+          <ErrorState message={`设置面板异常：${this.state.message}`} />
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 function SettingsBody({ onClose }: { onClose: () => void }) {
@@ -84,6 +115,14 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const [testing, setTesting] = useState(false);
   const [testRes, setTestRes] = useState<ConnectivityResult | null>(null);
   const modelConfigState = useAsync(() => api.getModelConfiguration(), []);
+  const profileState = useAsync(() => api.getLLMProfileAssignment(), []);
+  const apiContractState = useAsync(() => api.getApiContract(), []);
+  const retrievalSamplesIndexState = useAsync(() => api.getRetrievalSamplesIndex(), []);
+  const retrievalSamplesTrendState = useAsync(
+    () => api.getRetrievalSamplesTrendSnapshot(),
+    [],
+  );
+  const packagingReadinessState = useAsync(() => api.getPackagingReadiness(), []);
   const providerState = useAsync(
     async () => {
       const [gateway, usage] = await Promise.all([
@@ -115,6 +154,11 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
 
   function reloadConfigurationPanels() {
     modelConfigState.reload();
+    profileState.reload();
+    apiContractState.reload();
+    retrievalSamplesIndexState.reload();
+    retrievalSamplesTrendState.reload();
+    packagingReadinessState.reload();
     providerState.reload();
     commercialState.reload();
     deploymentObsState.reload();
@@ -322,6 +366,41 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         loading={modelConfigState.loading}
         error={modelConfigState.error}
         onRetry={modelConfigState.reload}
+      />
+
+      <LLMProfileAssignmentPanel
+        data={profileState.data}
+        loading={profileState.loading}
+        error={profileState.error}
+        onRetry={profileState.reload}
+      />
+
+      <ApiContractPanel
+        data={apiContractState.data}
+        loading={apiContractState.loading}
+        error={apiContractState.error}
+        onRetry={apiContractState.reload}
+      />
+
+      <RetrievalSamplesIndexPanel
+        data={retrievalSamplesIndexState.data}
+        loading={retrievalSamplesIndexState.loading}
+        error={retrievalSamplesIndexState.error}
+        onRetry={retrievalSamplesIndexState.reload}
+      />
+
+      <RetrievalSamplesTrendPanel
+        data={retrievalSamplesTrendState.data}
+        loading={retrievalSamplesTrendState.loading}
+        error={retrievalSamplesTrendState.error}
+        onRetry={retrievalSamplesTrendState.reload}
+      />
+
+      <PackagingReadinessPanel
+        data={packagingReadinessState.data}
+        loading={packagingReadinessState.loading}
+        error={packagingReadinessState.error}
+        onRetry={packagingReadinessState.reload}
       />
 
       <ProviderStatusPanel
@@ -621,8 +700,436 @@ function ModelConfigurationPanel({
             ))}
           </div>
           {data.warnings.slice(0, 2).map((warning) => (
-            <p className="settings__note tiny muted" key={warning}>
-              {warning}
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
+            </p>
+          ))}
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function LLMProfileAssignmentPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: LLMProfileAssignmentReport | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">任务模型画像</h3>
+      {loading && <p className="settings__note tiny muted">正在读取任务画像…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">任务画像</span>
+              <strong>{data.summary.profile_count}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">真实 / 本地</span>
+              <strong>
+                {data.summary.provider_profile_count} /{" "}
+                {data.summary.mock_or_deterministic_count}
+              </strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.profiles.map((profile) => (
+              <div className="settings__status-row" key={profile.id}>
+                <div>
+                  <strong>{profile.label}</strong>
+                  <span className="muted tiny">
+                    {profileTaskLabel(profile.task_kind)} ·{" "}
+                    {profileModelLabel(profile.model)} · {profile.note}
+                  </span>
+                </div>
+                <span className={`badge tiny ${profileModeBadgeClass(profile.mode)}`}>
+                  {profileModeLabel(profile.mode)}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="settings__route-list">
+            <div className="settings__route-row">
+              <span>文本路由</span>
+              <strong>{profileModeLabel(data.routing.llm_route)}</strong>
+            </div>
+            <div className="settings__route-row">
+              <span>视觉路由</span>
+              <strong>{profileModeLabel(data.routing.visual_route)}</strong>
+            </div>
+            <div className="settings__route-row">
+              <span>降级策略</span>
+              <strong>{fallbackPolicyLabel(data.routing.fallback_policy)}</strong>
+            </div>
+          </div>
+          {data.warnings.slice(0, 2).map((warning) => (
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
+            </p>
+          ))}
+          {data.boundaries.slice(0, 1).map((boundary) => (
+            <p className="settings__note tiny muted" key={boundary}>
+              {boundary}
+            </p>
+          ))}
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function ApiContractPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: ApiContractReport | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">接口契约</h3>
+      {loading && <p className="settings__note tiny muted">正在读取接口契约…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">端点 / 路径</span>
+              <strong>
+                {data.summary.endpoint_count} / {data.summary.openapi_path_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">类型方法</span>
+              <strong>{data.summary.typed_client_method_count}</strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.groups.map((group) => (
+              <div className="settings__status-row" key={group.id}>
+                <div>
+                  <strong>{group.label}</strong>
+                  <span className="muted tiny">{group.endpoint_count} 个本地端点</span>
+                </div>
+                <span className="badge tiny badge--jade">只读</span>
+              </div>
+            ))}
+          </div>
+          <div className="settings__route-list settings__route-list--api">
+            {data.endpoints.slice(0, 8).map((endpoint) => (
+              <div
+                className="settings__route-row settings__route-row--api"
+                key={`${endpoint.method}-${endpoint.path}`}
+              >
+                <span>
+                  <strong>{endpoint.method}</strong>{" "}
+                  <span className="settings__api-path">{endpoint.path}</span>
+                </span>
+                <strong>{endpoint.summary}</strong>
+              </div>
+            ))}
+          </div>
+          <p className="settings__note tiny muted">
+            类型入口：{data.typed_client.client_source} / {data.typed_client.types_source}
+          </p>
+          {data.boundaries.slice(0, 2).map((boundary) => (
+            <p className="settings__note tiny muted" key={boundary}>
+              {boundary}
+            </p>
+          ))}
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function RetrievalSamplesIndexPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: CrossProjectRetrievalSamplesIndexReport | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">跨项目样本索引</h3>
+      {loading && <p className="settings__note tiny muted">正在汇总检索样本…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">项目 / Records</span>
+              <strong>
+                {data.summary.project_count} / {data.summary.record_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">可迁移 / 空样本</span>
+              <strong>
+                {data.summary.ready_project_count} / {data.summary.empty_project_count}
+              </strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.projects.slice(0, 6).map((project) => (
+              <div className="settings__status-row" key={project.story_slug}>
+                <div>
+                  <strong>{project.display_name}</strong>
+                  <span className="muted tiny">
+                    {project.story_slug} · records {project.record_count} · case{" "}
+                    {project.replay_case_count}
+                  </span>
+                </div>
+                <span
+                  className={`badge tiny ${sampleIndexBadgeClass(project.status)}`}
+                >
+                  {sampleIndexStatusLabel(project.status)}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.records.length > 0 && (
+            <div className="settings__route-list settings__route-list--api">
+              {data.records.slice(0, 5).map((record) => (
+                <div
+                  className="settings__route-row settings__route-row--api"
+                  key={`${record.story_slug}:${record.eval_id}`}
+                >
+                  <span>
+                    <strong>{record.display_name}</strong>{" "}
+                    <span className="settings__api-path">{record.eval_id}</span>
+                  </span>
+                  <strong>{record.expected_item_id || record.replay_status}</strong>
+                </div>
+              ))}
+            </div>
+          )}
+          {data.warnings.slice(0, 2).map((warning) => (
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
+            </p>
+          ))}
+          {data.boundaries.slice(0, 1).map((boundary) => (
+            <p className="settings__note tiny muted" key={boundary}>
+              {boundary}
+            </p>
+          ))}
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function RetrievalSamplesTrendPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: RetrievalSamplesTrendSnapshotReport | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">样本趋势快照</h3>
+      {loading && <p className="settings__note tiny muted">正在读取样本趋势…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">词面缺口 / 已覆盖</span>
+              <strong>
+                {data.summary.still_failing_lexically_count} /{" "}
+                {data.summary.covered_by_current_retrieval_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">空样本 / 损坏</span>
+              <strong>
+                {data.summary.empty_project_count} / {data.summary.blocked_project_count}
+              </strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.signals.slice(0, 5).map((signal) => (
+              <div className="settings__status-row" key={signal.id}>
+                <div>
+                  <strong>{signal.label}</strong>
+                  <span className="muted tiny">{signal.detail}</span>
+                </div>
+                <span className={`badge tiny ${trendBadgeClass(signal.status)}`}>
+                  {trendStatusLabel(signal.status)}
+                </span>
+              </div>
+            ))}
+          </div>
+          {data.project_trends.length > 0 && (
+            <div className="settings__route-list settings__route-list--api">
+              {data.project_trends.slice(0, 5).map((project) => (
+                <div
+                  className="settings__route-row settings__route-row--api"
+                  key={project.story_slug}
+                >
+                  <span>
+                    <strong>{project.display_name}</strong>{" "}
+                    <span className="settings__api-path">{project.story_slug}</span>
+                  </span>
+                  <strong>{trendBucketLabel(project.trend_bucket)}</strong>
+                </div>
+              ))}
+            </div>
+          )}
+          {data.warnings.slice(0, 2).map((warning) => (
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
+            </p>
+          ))}
+          {data.boundaries.slice(0, 1).map((boundary) => (
+            <p className="settings__note tiny muted" key={boundary}>
+              {boundary}
+            </p>
+          ))}
+          {data.next_steps.slice(0, 1).map((step) => (
+            <p className="settings__note tiny muted" key={step}>
+              {step}
+            </p>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function PackagingReadinessPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: BundledReleaseReadinessReport | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">发行准备</h3>
+      {loading && <p className="settings__note tiny muted">正在读取发行准备清单…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {data && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">已具备 / 需留意</span>
+              <strong>
+                {data.summary.ready_count} / {data.summary.attention_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">后置目标</span>
+              <strong>{data.summary.deferred_target_count}</strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            {data.checks.slice(0, 6).map((check) => (
+              <div className="settings__status-row" key={check.id}>
+                <div>
+                  <strong>{check.label}</strong>
+                  <span className="muted tiny">{check.evidence}</span>
+                </div>
+                <span className={`badge tiny ${statusBadgeClass(check.status)}`}>
+                  {check.status_label}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="settings__route-list settings__route-list--api">
+            {data.package_targets.map((target) => (
+              <div className="settings__route-row settings__route-row--api" key={target.id}>
+                <span>{target.label}</span>
+                <strong>{target.reason}</strong>
+              </div>
+            ))}
+          </div>
+          {data.boundaries.slice(0, 2).map((boundary) => (
+            <p className="settings__note tiny muted" key={boundary}>
+              {boundary}
             </p>
           ))}
           {data.next_steps.slice(0, 1).map((step) => (
@@ -694,8 +1201,8 @@ function CommercialStatusPanel({
             </p>
           ))}
           {data.warnings.slice(0, 1).map((warning) => (
-            <p className="settings__note tiny muted" key={warning}>
-              {warning}
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
             </p>
           ))}
         </>
@@ -760,8 +1267,8 @@ function ReleasePreflightPanel({
             </p>
           ))}
           {data.warnings.slice(0, 1).map((warning) => (
-            <p className="settings__note tiny muted" key={warning}>
-              {warning}
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
             </p>
           ))}
         </>
@@ -826,8 +1333,8 @@ function DeploymentObservabilityPanel({
             </p>
           ))}
           {data.warnings.slice(0, 1).map((warning) => (
-            <p className="settings__note tiny muted" key={warning}>
-              {warning}
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
             </p>
           ))}
         </>
@@ -892,8 +1399,8 @@ function AuthBoundaryPanel({
             </p>
           ))}
           {data.warnings.slice(0, 1).map((warning) => (
-            <p className="settings__note tiny muted" key={warning}>
-              {warning}
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
             </p>
           ))}
         </>
@@ -958,8 +1465,8 @@ function ObjectStorageBoundaryPanel({
             </p>
           ))}
           {data.warnings.slice(0, 1).map((warning) => (
-            <p className="settings__note tiny muted" key={warning}>
-              {warning}
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
             </p>
           ))}
         </>
@@ -1024,8 +1531,8 @@ function QuotaEnforcementBoundaryPanel({
             </p>
           ))}
           {data.warnings.slice(0, 1).map((warning) => (
-            <p className="settings__note tiny muted" key={warning}>
-              {warning}
+            <p className="settings__note tiny muted" key={settingsWarningKey(warning)}>
+              {settingsWarningText(warning)}
             </p>
           ))}
         </>
@@ -1040,8 +1547,70 @@ function commercialBadgeClass(status: string): string {
   return "badge--gold";
 }
 
+function sampleIndexStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    ready: "可汇总",
+    empty: "暂无样本",
+    attention: "需补样本",
+    blocked: "需修复",
+  };
+  return map[status] ?? status;
+}
+
+function sampleIndexBadgeClass(status: string): string {
+  if (status === "ready") return "badge--jade";
+  if (status === "blocked") return "badge--cinnabar";
+  return "badge--gold";
+}
+
+function trendStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    ready: "正常",
+    attention: "需关注",
+    blocked: "需修复",
+    deferred: "暂缓",
+  };
+  return map[status] ?? status;
+}
+
+function trendBadgeClass(status: string): string {
+  if (status === "ready") return "badge--jade";
+  if (status === "blocked") return "badge--cinnabar";
+  return "badge--gold";
+}
+
+function trendBucketLabel(bucket: string): string {
+  const map: Record<string, string> = {
+    has_samples: "有样本缺口",
+    covered_samples: "样本已覆盖",
+    empty_samples: "暂无样本",
+    blocked: "样本需修复",
+  };
+  return map[bucket] ?? bucket;
+}
+
 function modelConfigBadgeClass(status: string): string {
   return status === "ready" ? "badge--jade" : "badge--gold";
+}
+
+function profileModeBadgeClass(mode: string): string {
+  if (mode === "provider" || mode === "seedream_visual") return "badge--jade";
+  if (mode === "disabled") return "badge--cinnabar";
+  return "badge--gold";
+}
+
+function settingsWarningText(
+  warning: string | { code?: string; message?: string },
+): string {
+  if (typeof warning === "string") return warning;
+  return warning.message ?? warning.code ?? "设置提示";
+}
+
+function settingsWarningKey(
+  warning: string | { code?: string; message?: string },
+): string {
+  if (typeof warning === "string") return warning;
+  return warning.code ?? warning.message ?? "settings-warning";
 }
 
 function ProviderStatusPanel({
@@ -1142,6 +1711,42 @@ function routeProviderLabel(providerId: string, gateway: ProviderGatewaySummary)
   if (providerId === "placeholder") return "占位图";
   if (providerId === "disabled") return "已关闭";
   return providerId;
+}
+
+function profileTaskLabel(kind: string): string {
+  if (kind === "generation") return "生成";
+  if (kind === "extraction") return "抽取";
+  if (kind === "revision") return "修订";
+  if (kind === "evaluation") return "评审";
+  if (kind === "image") return "视觉";
+  return kind;
+}
+
+function profileModeLabel(mode: string): string {
+  if (mode === "provider") return "真实模型";
+  if (mode === "mock") return "本地模拟";
+  if (mode === "deterministic") return "本地规则";
+  if (mode === "disabled") return "已关闭";
+  if (mode === "placeholder") return "占位图";
+  if (mode === "seedream_visual") return "视觉模型";
+  return mode;
+}
+
+function profileModelLabel(model: string): string {
+  if (!model) return "未指定模型";
+  if (model === "local_rules") return "本地规则";
+  return model;
+}
+
+function fallbackPolicyLabel(policy: string): string {
+  if (policy === "mock/placeholder") return "本地模拟 / 占位图";
+  return policy.replace("mock", "本地模拟").replace("placeholder", "占位图");
+}
+
+function statusBadgeClass(status: string): string {
+  if (status === "ready") return "badge--jade";
+  if (status === "attention" || status === "deferred") return "badge--gold";
+  return "badge--cinnabar";
 }
 
 function formatTokens(value: number): string {

@@ -110,6 +110,46 @@
 | `completed/v1.0-beta-billing-adapter-boundary-checklist-x.md` | v1.0-beta | Billing Adapter Boundary Checklist-X 收口说明、计费 adapter 边界只读清单 |
 | `completed/v1.0-local-model-configuration-ux.md` | v1.0-local | Model Configuration UX 收口说明、设置页模型配置状态和计费 UI 暂停边界 |
 | `completed/v1.0-local-run-scripts.md` | v1.0-local | Local Run Scripts 收口说明、Windows/macOS 本地一键启动脚本与边界 |
+| `completed/runtime-preflight-mvp.md` | 后续增强 | Runtime Preflight MVP 收口说明、创作前只读健康聚合 API 与项目工作台 UI |
+| `completed/projection-health-mvp.md` | 后续增强 | Projection Health MVP 收口说明、生成后分支投影健康 API 与右栏 UI |
+| `completed/reader-panel-revision-lab-mvp.md` | 后续增强 | Reader Panel / Adversarial Revision Lab MVP 收口说明、确定性读者评审 API 与右栏 UI |
+| `completed/prompt-budget-pack-mvp.md` | 后续增强 | Prompt Budget Pack MVP 收口说明、检索上下文预算包 API 与右栏 UI |
+| `completed/llm-profile-assignment-mvp.md` | 后续增强 | LLM Profile Assignment MVP 收口说明、任务级模型画像 API 与设置页 UI |
+| `completed/cards-workspace-mvp.md` | 后续增强 | Cards Workspace MVP 收口说明、世界卡/角色卡/风格卡 API 与项目工作台 UI |
+| `completed/openapi-typed-client-mvp.md` | 后续增强 | OpenAPI / Typed Client MVP 收口说明、本地 API 契约、OpenAPI skeleton 与 typed client 映射 |
+| `completed/bundled-release-readiness-mvp.md` | 后续增强 | Bundled Release Readiness MVP 收口说明、本地发行与桌面打包准备度 API 与设置页 UI |
+| `completed/vector-retrieval-readiness-probe-mvp.md` | 后续增强 | Embedding / Vector Retrieval Readiness Probe MVP 收口说明、向量检索接入前的召回压力 API 与项目工作台 UI |
+| `completed/embedding-evaluation-samples-mvp.md` | 后续增强 | Embedding Evaluation Samples MVP 收口说明、失败样本 BM25 与 mock semantic oracle 对照 API 与项目工作台 UI |
+| `completed/retrieval-failure-sample-authoring-mvp.md` | 后续增强 | Retrieval Failure Sample Authoring MVP 收口说明、本地失败样本追加 API 与项目工作台 UI |
+| `completed/memory-cli-mvp.md` | 后续增强 | Memory CLI MVP 收口说明、命令行失败样本追加与复跑工具 |
+| `completed/retrieval-sample-export-pack-mvp.md` | 后续增强 | Retrieval Sample Export Pack MVP 收口说明、失败样本 Markdown/manifest 导出 API、UI 与 CLI |
+| `completed/embedding-mock-evaluation-report-mvp.md` | 后续增强 | Embedding Mock Evaluation Report MVP 收口说明、BM25 与 mock semantic oracle 对照报告 API、UI 与 CLI |
+| `completed/retrieval-sample-replay-report-mvp.md` | 后续增强 | Retrieval Sample Replay Report MVP 收口说明、失败样本当前检索 case report API、UI 与 CLI |
+| `completed/retrieval-sample-migration-pack-mvp.md` | 后续增强 | Retrieval Sample Migration Pack MVP 收口说明、稳定 eval records 与 JSON manifest API、UI 与 CLI |
+| `completed/cross-project-retrieval-samples-index-mvp.md` | 后续增强 | Cross Project Retrieval Samples Index MVP 收口说明、跨项目 migration pack 索引 API、CLI 与设置页 |
+| `completed/retrieval-samples-trend-snapshot-mvp.md` | 后续增强 | Retrieval Samples Trend Snapshot MVP 收口说明、样本趋势快照 API、CLI 与设置页 |
+| `completed/graph-memory-trigger-evidence-mvp.md` | 后续增强 | GraphRAG / Zep Trigger Evidence MVP 收口说明、图记忆触发证据 API、CLI 与项目工作台 |
+| `completed/graph-memory-spike-design-pack-mvp.md` | 后续增强 | Graph Memory Spike Design Pack MVP 收口说明、重型记忆 spike 设计包 API、CLI 与项目工作台 |
+| `completed/graph-memory-shadow-compare-pack-mvp.md` | 后续增强 | Graph Memory Shadow Compare Pack MVP 收口说明、重型记忆候选层 shadow 对照 API、CLI 与项目工作台 |
+| `completed/graph-memory-shadow-case-matrix-mvp.md` | 后续增强 | Graph Memory Shadow Case Matrix MVP 收口说明、eval case x 候选层矩阵 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-boundary-matrix-mvp.md` | 后续增强 | Graph Memory Provider Boundary Matrix MVP 收口说明、GraphRAG/Zep/Temporal Memory provider 边界矩阵 API、CLI 与项目工作台 |
+| `completed/graph-memory-offline-shadow-replay-plan-mvp.md` | 后续增强 | Graph Memory Offline Shadow Replay Plan MVP 收口说明、离线 replay 计划 API、CLI 与项目工作台 |
+| `completed/graph-memory-offline-shadow-replay-report-mvp.md` | 后续增强 | Graph Memory Offline Shadow Replay Report MVP 收口说明、mock replay 结果 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-fixture-pack-mvp.md` | 后续增强 | Graph Memory Provider Spike Fixture Pack MVP 收口说明、dry-run 前置包 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-readiness-gate-mvp.md` | 后续增强 | Graph Memory Provider Spike Readiness Gate MVP 收口说明、provider spike 就绪门禁 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-runbook-mvp.md` | 后续增强 | Graph Memory Provider Spike Runbook MVP 收口说明、人工 opt-in dry-run SOP API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-dry-run-result-template-mvp.md` | 后续增强 | Graph Memory Provider Spike Dry-run Result Template MVP 收口说明、人工 dry-run 结果模板 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-mock-result-report-mvp.md` | 后续增强 | Graph Memory Provider Spike Mock Result Report MVP 收口说明、mock 填充结果 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-review-gate-mvp.md` | 后续增强 | Graph Memory Provider Spike Review Gate MVP 收口说明、人工复核 gate API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-manual-approval-pack-mvp.md` | 后续增强 | Graph Memory Provider Spike Manual Approval Pack MVP 收口说明、人工审批包 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-manual-approval-evidence-checklist-mvp.md` | 后续增强 | Graph Memory Provider Spike Manual Approval Evidence Checklist MVP 收口说明、审批证据核对表 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-opt-in-evidence-snapshot-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Evidence Snapshot MVP 收口说明、opt-in 证据快照 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-opt-in-no-go-matrix-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in No-go Matrix MVP 收口说明、no-go 分类矩阵 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-opt-in-operator-checklist-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Operator Checklist MVP 收口说明、人工操作 checklist API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-opt-in-review-packet-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Review Packet MVP 收口说明、人工复核包 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-opt-in-decision-ledger-preview-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP 收口说明、决策账本预览 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-opt-in-final-readiness-summary-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Final Readiness Summary MVP 收口说明、最终就绪摘要 API、CLI 与项目工作台 |
+| `completed/graph-memory-provider-spike-opt-in-human-signoff-schema-draft-mvp.md` | 后续增强 | Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP 收口说明、人工签收 schema 草案 API、CLI 与项目工作台 |
 
 ## 4. article/ 论文资料
 

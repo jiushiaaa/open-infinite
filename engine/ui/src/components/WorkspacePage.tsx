@@ -1,13 +1,39 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { ApiError, api } from "../api/client";
 import { JobCancelled, pollJob } from "../api/jobs";
 import { useAsync } from "../hooks/useAsync";
 import { navigate } from "../routing";
 import type {
   ImportQualityRisk,
+  CardsWorkspaceCard,
+  CardsWorkspaceReport,
   ProjectWorkspace,
   ProjectWorkspaceAudit,
   ProjectWorkspaceCanonLedger,
+  RuntimePreflightReport,
+  VectorRetrievalReadinessReport,
+  GraphMemoryTriggerEvidenceReport,
+  GraphMemorySpikeDesignPackReport,
+  GraphMemoryShadowComparePackReport,
+  GraphMemoryShadowCaseMatrixReport,
+  GraphMemoryProviderBoundaryMatrixReport,
+  GraphMemoryOfflineShadowReplayPlanReport,
+  GraphMemoryOfflineShadowReplayReport,
+  GraphMemoryProviderSpikeFixturePackReport,
+  GraphMemoryProviderSpikeReadinessGateReport,
+  GraphMemoryProviderSpikeRunbookReport,
+  GraphMemoryProviderSpikeDryRunResultTemplateReport,
+  GraphMemoryProviderSpikeMockResultReport,
+  GraphMemoryProviderSpikeReviewGateReport,
+  GraphMemoryProviderSpikeManualApprovalPackReport,
+  GraphMemoryProviderSpikeManualApprovalEvidenceChecklistReport,
+  GraphMemoryProviderSpikeOptInEvidenceSnapshotReport,
+  GraphMemoryProviderSpikeOptInNoGoMatrixReport,
+  GraphMemoryProviderSpikeOptInOperatorChecklistReport,
+  GraphMemoryProviderSpikeOptInReviewPacketReport,
+  GraphMemoryProviderSpikeOptInDecisionLedgerPreviewReport,
+  GraphMemoryProviderSpikeOptInFinalReadinessSummaryReport,
+  GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport,
   CanonReplayRangeRequest,
   ProjectCreationLoop,
   ProjectCreationLoopAction,
@@ -15,6 +41,12 @@ import type {
   ProjectCreationLoopEvidence,
   ProjectCreationLoopActionRequirement,
   MasterSettingPatch,
+  EmbeddingEvaluationSamplesReport,
+  EmbeddingMockEvaluationReport,
+  RetrievalSampleMigrationPackReport,
+  RetrievalSampleReplayReport,
+  RetrievalSampleExportPackReport,
+  RetrievalFailureSampleAppendRequest,
   ProjectAuditLog,
   ProjectAuditLogEvent,
   ProjectMasterSettingWorkspace,
@@ -258,6 +290,56 @@ function ProjectWorkspaceOverview({
         </div>
       </section>
 
+      <RuntimePreflightPanel storySlug={data.slug} />
+
+      <VectorRetrievalReadinessPanel storySlug={data.slug} />
+
+      <GraphMemoryTriggerEvidencePanel storySlug={data.slug} />
+
+      <GraphMemorySpikeDesignPackPanel storySlug={data.slug} />
+
+      <GraphMemoryShadowComparePackPanel storySlug={data.slug} />
+
+      <GraphMemoryShadowCaseMatrixPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderBoundaryMatrixPanel storySlug={data.slug} />
+
+      <GraphMemoryOfflineShadowReplayPlanPanel storySlug={data.slug} />
+
+      <GraphMemoryOfflineShadowReplayReportPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeFixturePackPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeReadinessGatePanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeRunbookPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeDryRunResultTemplatePanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeMockResultReportPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeReviewGatePanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeManualApprovalPackPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeManualApprovalEvidenceChecklistPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeOptInEvidenceSnapshotPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeOptInNoGoMatrixPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeOptInOperatorChecklistPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeOptInReviewPacketPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeOptInDecisionLedgerPreviewPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeOptInFinalReadinessSummaryPanel storySlug={data.slug} />
+
+      <GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftPanel storySlug={data.slug} />
+
+      <EmbeddingEvaluationSamplesPanel storySlug={data.slug} />
+
       {data.creation_loop && (
         <CreationLoopPanel
           storySlug={data.slug}
@@ -278,6 +360,8 @@ function ProjectWorkspaceOverview({
         master={data.master_setting_workspace}
         onSaved={onSelectionChanged}
       />
+
+      <CardsWorkspacePanel storySlug={data.slug} />
 
       <ProjectAuditLogPanel storySlug={data.slug} />
 
@@ -446,6 +530,3260 @@ function ProjectAuditLogPanel({ storySlug }: { storySlug: string }) {
       )}
     </section>
   );
+}
+
+function RuntimePreflightPanel({ storySlug }: { storySlug: string }) {
+  const preflight = useAsync(() => api.getRuntimePreflight(storySlug), [storySlug]);
+  const report = preflight.data;
+  const statusText = preflight.loading
+    ? "读取中"
+    : report
+      ? `${report.summary.ready_count} / ${report.summary.checkpoint_count} 已具备`
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section runtime-preflight">
+      <SectionTitle title="运行前体检" status={statusText} />
+      {preflight.loading && <Loading label="正在核对运行前证据…" />}
+      {preflight.error && (
+        <ErrorState message={preflight.error} onRetry={preflight.reload} />
+      )}
+      {!preflight.loading && !preflight.error && report && (
+        <RuntimePreflightReportView report={report} />
+      )}
+    </section>
+  );
+}
+
+function RuntimePreflightReportView({ report }: { report: RuntimePreflightReport }) {
+  const blocked = report.checkpoints.filter((item) => item.status === "blocked");
+  const attention = report.checkpoints.filter((item) => item.status === "attention");
+  const visible = [...blocked, ...attention, ...report.checkpoints].filter(
+    (item, index, arr) => arr.findIndex((other) => other.id === item.id) === index,
+  );
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>已具备</span>
+          <strong>{report.summary.ready_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>需留意</span>
+          <strong>{report.summary.attention_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>需修复</span>
+          <strong>{report.summary.blocked_count}</strong>
+        </div>
+      </div>
+
+      {report.warnings.length === 0 ? (
+        <p className="project-workspace__ok">运行前证据已聚合，未发现阻断项。</p>
+      ) : (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="audit-log__rights-list">
+        {visible.slice(0, 11).map((checkpoint) => (
+          <span key={checkpoint.id}>
+            {checkpoint.label}：{checkpoint.status_label} · {checkpoint.evidence}
+          </span>
+        ))}
+      </div>
+
+      {report.next_steps.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.next_steps.slice(0, 3).map((step) => (
+            <span key={step}>{step}</span>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function VectorRetrievalReadinessPanel({ storySlug }: { storySlug: string }) {
+  const readiness = useAsync(
+    () => api.getVectorRetrievalReadiness(storySlug),
+    [storySlug],
+  );
+  const report = readiness.data;
+  const statusText = readiness.loading
+    ? "读取中"
+    : report
+      ? vectorReadinessStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="向量检索就绪" status={statusText} />
+      {readiness.loading && <Loading label="正在评估检索召回压力…" />}
+      {readiness.error && (
+        <ErrorState message={readiness.error} onRetry={readiness.reload} />
+      )}
+      {!readiness.loading && !readiness.error && report && (
+        <VectorRetrievalReadinessView report={report} />
+      )}
+    </section>
+  );
+}
+
+function VectorRetrievalReadinessView({
+  report,
+}: {
+  report: VectorRetrievalReadinessReport;
+}) {
+  const attentionSignals = report.signals.filter(
+    (signal) => signal.status !== "ready",
+  );
+  const visibleSignals = [...attentionSignals, ...report.signals].filter(
+    (signal, index, arr) => arr.findIndex((item) => item.id === signal.id) === index,
+  );
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>章节</span>
+          <strong>{report.summary.chapter_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>语料</span>
+          <strong>{report.summary.corpus_item_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>探针命中</span>
+          <strong>{Math.round(report.summary.retrieval_probe_hit_rate * 100)}%</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>失败样本</span>
+          <strong>{report.summary.saved_failure_sample_count}</strong>
+        </div>
+      </div>
+
+      {report.warnings.length > 0 ? (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      ) : (
+        <p className="project-workspace__ok">当前评估未调用外部服务，也未生成向量索引。</p>
+      )}
+
+      <div className="audit-log__rights-list">
+        {visibleSignals.slice(0, 5).map((signal) => (
+          <span key={signal.id}>
+            {signal.label}：{signal.evidence} · {signal.next_step}
+          </span>
+        ))}
+      </div>
+
+      <div className="audit-log__rights-list">
+        {report.candidate_layers.slice(0, 4).map((layer) => (
+          <span key={layer.id}>
+            {layer.label}：{vectorLayerReadinessLabel(layer.readiness)} · {layer.reason}
+          </span>
+        ))}
+      </div>
+
+      {report.failure_samples.length > 0 && (
+        <ul className="sample-list">
+          {report.failure_samples.slice(0, 3).map((sample) => (
+            <li key={sample.query}>
+              <strong>召回失败</strong>
+              <span>{sample.query}：{sample.reason}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="project-workspace__steps">
+        {report.next_steps.slice(0, 3).map((step) => (
+          <span key={step}>{step}</span>
+        ))}
+      </div>
+      <p className="master-setting__note">{report.boundaries[1]}</p>
+    </>
+  );
+}
+
+function GraphMemoryTriggerEvidencePanel({ storySlug }: { storySlug: string }) {
+  const evidence = useAsync(
+    () => api.getGraphMemoryTriggerEvidence(storySlug),
+    [storySlug],
+  );
+  const report = evidence.data;
+  const statusText = evidence.loading
+    ? "读取中"
+    : report
+      ? graphTriggerStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="GraphRAG / Zep 触发证据" status={statusText} />
+      {evidence.loading && <Loading label="正在整理重型记忆触发证据…" />}
+      {evidence.error && <ErrorState message={evidence.error} onRetry={evidence.reload} />}
+      {!evidence.loading && !evidence.error && report && (
+        <GraphMemoryTriggerEvidenceView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryTriggerEvidenceView({
+  report,
+}: {
+  report: GraphMemoryTriggerEvidenceReport;
+}) {
+  const attentionSignals = report.signals.filter(
+    (signal) => signal.status !== "ready",
+  );
+  const visibleSignals = [...attentionSignals, ...report.signals].filter(
+    (signal, index, arr) => arr.findIndex((item) => item.id === signal.id) === index,
+  );
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>Graph 状态</span>
+          <strong>{graphTriggerStatusLabel(report.summary.graph_memory_status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>趋势样本</span>
+          <strong>{report.summary.trend_record_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>词面缺口</span>
+          <strong>{report.summary.trend_lexical_gap_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>关系/状态</span>
+          <strong>
+            {report.summary.relation_signal_count + report.summary.state_signal_count}
+          </strong>
+        </div>
+      </div>
+
+      {report.warnings.length > 0 ? (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      ) : (
+        <p className="project-workspace__ok">这里只输出触发证据，不接外部记忆服务。</p>
+      )}
+
+      <div className="audit-log__rights-list">
+        {visibleSignals.slice(0, 5).map((signal) => (
+          <span key={signal.id}>
+            {signal.label}：{graphTriggerStatusLabel(signal.status)} · {signal.detail}
+          </span>
+        ))}
+      </div>
+
+      <div className="audit-log__rights-list">
+        {report.candidate_layers.map((layer) => (
+          <span key={layer.id}>
+            {layer.label}：{graphCandidateStatusLabel(layer.status)} · {layer.reason}
+          </span>
+        ))}
+      </div>
+
+      {report.records.length > 0 && (
+        <ul className="sample-list">
+          {report.records.slice(0, 3).map((record) => (
+            <li key={`${record.story_slug}:${record.eval_id}`}>
+              <strong>{record.display_name}</strong>
+              <span>{record.eval_id}：{record.expected_item_id || record.replay_status}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="project-workspace__steps">
+        {report.next_steps.slice(0, 3).map((step) => (
+          <span key={step}>{step}</span>
+        ))}
+      </div>
+      <p className="master-setting__note">{report.boundaries[2]}</p>
+    </>
+  );
+}
+
+function GraphMemorySpikeDesignPackPanel({ storySlug }: { storySlug: string }) {
+  const designPack = useAsync(
+    () => api.getGraphMemorySpikeDesignPack(storySlug),
+    [storySlug],
+  );
+  const report = designPack.data;
+  const statusText = designPack.loading
+    ? "读取中"
+    : report
+      ? graphDesignStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆设计包" status={statusText} />
+      {designPack.loading && <Loading label="正在整理 Graph 记忆 spike 设计包…" />}
+      {designPack.error && <ErrorState message={designPack.error} onRetry={designPack.reload} />}
+      {!designPack.loading && !designPack.error && report && (
+        <GraphMemorySpikeDesignPackView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemorySpikeDesignPackView({
+  report,
+}: {
+  report: GraphMemorySpikeDesignPackReport;
+}) {
+  const candidateLayers = report.layer_plans.filter((layer) => layer.status !== "deferred");
+  const visibleLayers = candidateLayers.length > 0 ? candidateLayers : report.layer_plans;
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>设计状态</span>
+          <strong>{graphDesignGateStatusLabel(report.design_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>候选层</span>
+          <strong>{report.summary.candidate_layer_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>试验输入</span>
+          <strong>{report.summary.experiment_input_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>验收门槛</span>
+          <strong>{report.summary.acceptance_gate_count}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.design_gate.reason}</p>
+
+      <div className="audit-log__rights-list">
+        {visibleLayers.slice(0, 3).map((layer) => (
+          <span key={layer.id}>
+            {layer.label}：{graphCandidateStatusLabel(layer.status)} · {layer.design_focus}
+          </span>
+        ))}
+      </div>
+
+      <ul className="sample-list">
+        {report.experiment_inputs.slice(0, 4).map((input) => (
+          <li key={input.id}>
+            <strong>{input.label}</strong>
+            <span>{graphDesignInputStatusLabel(input.status)}：{input.detail}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="audit-log__rights-list">
+        {report.acceptance_gates.slice(0, 5).map((gate) => (
+          <span key={gate.id}>
+            {gate.label}：{graphDesignInputStatusLabel(gate.status)} · {gate.target}
+          </span>
+        ))}
+      </div>
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">{report.boundaries[1]}</p>
+    </>
+  );
+}
+
+function GraphMemoryShadowComparePackPanel({ storySlug }: { storySlug: string }) {
+  const shadowPack = useAsync(
+    () => api.getGraphMemoryShadowComparePack(storySlug),
+    [storySlug],
+  );
+  const report = shadowPack.data;
+  const statusText = shadowPack.loading
+    ? "读取中"
+    : report
+      ? graphShadowStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Shadow 对照" status={statusText} />
+      {shadowPack.loading && <Loading label="正在整理 Graph 记忆 shadow 对照…" />}
+      {shadowPack.error && <ErrorState message={shadowPack.error} onRetry={shadowPack.reload} />}
+      {!shadowPack.loading && !shadowPack.error && report && (
+        <GraphMemoryShadowComparePackView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryShadowComparePackView({
+  report,
+}: {
+  report: GraphMemoryShadowComparePackReport;
+}) {
+  const activeComparisons = report.comparisons.filter(
+    (item) => item.status !== "deferred",
+  );
+  const visibleComparisons =
+    activeComparisons.length > 0 ? activeComparisons : report.comparisons;
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>对照状态</span>
+          <strong>{graphShadowGateStatusLabel(report.shadow_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>候选层</span>
+          <strong>{report.summary.candidate_layer_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>样本</span>
+          <strong>{report.summary.sample_case_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>最高收益</span>
+          <strong>{report.summary.best_projected_gain_score}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.shadow_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="audit-log__rights-list">
+        {visibleComparisons.slice(0, 3).map((item) => (
+          <span key={item.id}>
+            {item.label}：{graphCandidateStatusLabel(item.status)} ·
+            {" "}{graphShadowDecisionLabel(item.decision)} · 收益 {item.projected_gain_score}
+          </span>
+        ))}
+      </div>
+
+      {report.sample_cases.length > 0 && (
+        <ul className="sample-list">
+          {report.sample_cases.slice(0, 3).map((sample) => (
+            <li key={sample.eval_id}>
+              <strong>{sample.display_name}</strong>
+              <span>{sample.query || sample.eval_id}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="audit-log__rights-list">
+        {report.acceptance_results.slice(0, 5).map((result) => (
+          <span key={result.gate_id}>
+            {result.label}：{graphShadowResultLabel(result.result_status)} · {result.evidence}
+          </span>
+        ))}
+      </div>
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryShadowCaseMatrixPanel({ storySlug }: { storySlug: string }) {
+  const matrixState = useAsync(
+    () => api.getGraphMemoryShadowCaseMatrix(storySlug),
+    [storySlug],
+  );
+  const report = matrixState.data;
+  const statusText = matrixState.loading
+    ? "读取中"
+    : report
+      ? graphCaseStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Case 矩阵" status={statusText} />
+      {matrixState.loading && <Loading label="正在展开 Graph 记忆 case 矩阵…" />}
+      {matrixState.error && <ErrorState message={matrixState.error} onRetry={matrixState.reload} />}
+      {!matrixState.loading && !matrixState.error && report && (
+        <GraphMemoryShadowCaseMatrixView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryShadowCaseMatrixView({
+  report,
+}: {
+  report: GraphMemoryShadowCaseMatrixReport;
+}) {
+  const activeCells = report.cells.filter((cell) => cell.status !== "deferred");
+  const visibleCells = activeCells.length > 0 ? activeCells : report.cells;
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>矩阵状态</span>
+          <strong>{graphCaseGateStatusLabel(report.case_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>样本</span>
+          <strong>{report.summary.case_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>候选格</span>
+          <strong>{report.summary.candidate_cell_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>证据格</span>
+          <strong>{report.summary.evidence_ready_cell_count}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.case_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="audit-log__rights-list">
+        {visibleCells.slice(0, 5).map((cell) => (
+          <span key={`${cell.case_id}-${cell.layer_id}`}>
+            {cell.layer_label}：{graphCandidateStatusLabel(cell.status)} ·{" "}
+            {graphCaseEvidenceStatusLabel(cell.evidence_status)} · {cell.shadow_question}
+          </span>
+        ))}
+      </div>
+
+      {report.cases.length > 0 && (
+        <ul className="sample-list">
+          {report.cases.slice(0, 3).map((item) => (
+            <li key={item.eval_id}>
+              <strong>{item.display_name || item.eval_id}</strong>
+              <span>{item.query || item.baseline_status}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderBoundaryMatrixPanel({ storySlug }: { storySlug: string }) {
+  const boundaryState = useAsync(
+    () => api.getGraphMemoryProviderBoundaryMatrix(storySlug),
+    [storySlug],
+  );
+  const report = boundaryState.data;
+  const statusText = boundaryState.loading
+    ? "读取中"
+    : report
+      ? graphProviderBoundaryStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider 边界" status={statusText} />
+      {boundaryState.loading && <Loading label="正在整理 Graph 记忆 provider 边界…" />}
+      {boundaryState.error && (
+        <ErrorState message={boundaryState.error} onRetry={boundaryState.reload} />
+      )}
+      {!boundaryState.loading && !boundaryState.error && report && (
+        <GraphMemoryProviderBoundaryMatrixView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderBoundaryMatrixView({
+  report,
+}: {
+  report: GraphMemoryProviderBoundaryMatrixReport;
+}) {
+  const activeProviders = report.providers.filter((item) => item.status !== "deferred");
+  const visibleProviders = activeProviders.length > 0 ? activeProviders : report.providers;
+  const highRiskCells = report.boundary_cells.filter(
+    (cell) => cell.status !== "deferred" && cell.risk_level === "high",
+  );
+  const visibleCells = report.boundary_cells.filter((cell) => cell.status !== "deferred");
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>边界状态</span>
+          <strong>{graphProviderBoundaryGateLabel(report.boundary_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>候选服务</span>
+          <strong>{report.summary.candidate_provider_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>边界格</span>
+          <strong>{report.summary.requires_opt_in_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>高风险</span>
+          <strong>{highRiskCells.length}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.boundary_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="audit-log__rights-list">
+        {visibleProviders.slice(0, 3).map((provider) => (
+          <span key={provider.id}>
+            {provider.service_target}：{graphCandidateStatusLabel(provider.status)} ·{" "}
+            {provider.opt_in_required ? "必须显式开启" : "只读观察"} · {provider.recommended_for}
+          </span>
+        ))}
+      </div>
+
+      {visibleCells.length > 0 && (
+        <div className="audit-log__rights-list">
+          {visibleCells.slice(0, 5).map((cell) => (
+            <span key={`${cell.provider_id}-${cell.category_id}`}>
+              {cell.provider_label} / {cell.category_label}：
+              {graphProviderBoundaryCellLabel(cell.status)} · {cell.requirement}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryOfflineShadowReplayPlanPanel({ storySlug }: { storySlug: string }) {
+  const replayPlanState = useAsync(
+    () => api.getGraphMemoryOfflineShadowReplayPlan(storySlug),
+    [storySlug],
+  );
+  const report = replayPlanState.data;
+  const statusText = replayPlanState.loading
+    ? "读取中"
+    : report
+      ? graphOfflineReplayStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆离线 Replay 计划" status={statusText} />
+      {replayPlanState.loading && <Loading label="正在整理 Graph 记忆离线 replay 计划…" />}
+      {replayPlanState.error && (
+        <ErrorState message={replayPlanState.error} onRetry={replayPlanState.reload} />
+      )}
+      {!replayPlanState.loading && !replayPlanState.error && report && (
+        <GraphMemoryOfflineShadowReplayPlanView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryOfflineShadowReplayPlanView({
+  report,
+}: {
+  report: GraphMemoryOfflineShadowReplayPlanReport;
+}) {
+  const visibleCases = report.replay_cases.filter((item) => item.status !== "deferred");
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>Replay 状态</span>
+          <strong>{graphOfflineReplayGateLabel(report.replay_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>计划服务</span>
+          <strong>{report.summary.provider_plan_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>复跑样本</span>
+          <strong>{report.summary.replay_case_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>人工复核</span>
+          <strong>{report.summary.manual_review_required_count}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.replay_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {report.provider_plans.length > 0 && (
+        <div className="audit-log__rights-list">
+          {report.provider_plans.slice(0, 3).map((plan) => (
+            <span key={plan.provider_id}>
+              {plan.service_target}：{graphOfflineReplayItemLabel(plan.status)} ·{" "}
+              {plan.replay_scope} · {plan.acceptance_summary}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {visibleCases.length > 0 && (
+        <ul className="sample-list">
+          {visibleCases.slice(0, 4).map((item) => (
+            <li key={item.id}>
+              <strong>{item.provider_label} / {item.display_name || item.eval_id}</strong>
+              <span>{item.query || item.expected_delta}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {report.replay_steps.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.replay_steps.slice(0, 5).map((step) => (
+            <span key={step.id}>
+              {step.label}：{step.description}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryOfflineShadowReplayReportPanel({ storySlug }: { storySlug: string }) {
+  const replayReportState = useAsync(
+    () => api.getGraphMemoryOfflineShadowReplayReport(storySlug),
+    [storySlug],
+  );
+  const report = replayReportState.data;
+  const statusText = replayReportState.loading
+    ? "读取中"
+    : report
+      ? graphOfflineReplayReportStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆离线 Replay 报告" status={statusText} />
+      {replayReportState.loading && <Loading label="正在整理 Graph 记忆离线 replay 报告…" />}
+      {replayReportState.error && (
+        <ErrorState message={replayReportState.error} onRetry={replayReportState.reload} />
+      )}
+      {!replayReportState.loading && !replayReportState.error && report && (
+        <GraphMemoryOfflineShadowReplayReportView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryOfflineShadowReplayReportView({
+  report,
+}: {
+  report: GraphMemoryOfflineShadowReplayReport;
+}) {
+  const visibleCases = report.case_results.filter((item) => item.status !== "deferred");
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>报告状态</span>
+          <strong>{graphOfflineReplayGateLabel(report.report_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>服务结果</span>
+          <strong>{report.summary.provider_result_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>Case 结果</span>
+          <strong>{report.summary.case_result_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>待复核</span>
+          <strong>{report.summary.manual_review_required_count}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.report_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {report.provider_results.length > 0 && (
+        <div className="audit-log__rights-list">
+          {report.provider_results.slice(0, 3).map((item) => (
+            <span key={item.provider_id}>
+              {item.service_target}：{graphOfflineReplayItemLabel(item.status)} ·{" "}
+              {item.case_result_count} 个 case · {item.recommendation}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {visibleCases.length > 0 && (
+        <ul className="sample-list">
+          {visibleCases.slice(0, 4).map((item) => (
+            <li key={item.id}>
+              <strong>{item.provider_label} / {item.display_name || item.eval_id}</strong>
+              <span>{item.gain_assessment || item.query}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphOfflineReplayItemLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeFixturePackPanel({ storySlug }: { storySlug: string }) {
+  const fixturePackState = useAsync(
+    () => api.getGraphMemoryProviderSpikeFixturePack(storySlug),
+    [storySlug],
+  );
+  const report = fixturePackState.data;
+  const statusText = fixturePackState.loading
+    ? "读取中"
+    : report
+      ? graphProviderFixturePackStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike 前置包" status={statusText} />
+      {fixturePackState.loading && <Loading label="正在整理 Provider spike 前置包…" />}
+      {fixturePackState.error && (
+        <ErrorState message={fixturePackState.error} onRetry={fixturePackState.reload} />
+      )}
+      {!fixturePackState.loading && !fixturePackState.error && report && (
+        <GraphMemoryProviderSpikeFixturePackView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeFixturePackView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeFixturePackReport;
+}) {
+  const selectedPacks = report.provider_fixture_packs.filter(
+    (pack) => pack.status !== "deferred",
+  );
+  const visibleCases = selectedPacks.flatMap((pack) =>
+    pack.fixture.cases.map((item) => ({
+      ...item,
+      providerLabel: pack.provider_label,
+    })),
+  );
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>前置包状态</span>
+          <strong>{graphOfflineReplayGateLabel(report.fixture_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>候选服务</span>
+          <strong>{report.summary.provider_fixture_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>选中 fixture</span>
+          <strong>{report.summary.selected_fixture_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>待复核</span>
+          <strong>{report.summary.manual_review_required_count}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.fixture_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {selectedPacks.length > 0 && (
+        <div className="audit-log__rights-list">
+          {selectedPacks.slice(0, 3).map((pack) => (
+            <span key={pack.id}>
+              {pack.service_target}：{graphOfflineReplayItemLabel(pack.status)} ·{" "}
+              {pack.fixture.sample_case_count} 个 case ·{" "}
+              {pack.opt_in_required ? "显式 opt-in" : "未要求 opt-in"}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {visibleCases.length > 0 && (
+        <ul className="sample-list">
+          {visibleCases.slice(0, 4).map((item) => (
+            <li key={`${item.providerLabel}-${item.eval_id}`}>
+              <strong>
+                {item.providerLabel} / {item.display_name || item.eval_id}
+              </strong>
+              <span>{item.gain_assessment || item.query}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {report.manual_review_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_review_checklist.slice(0, 4).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphOfflineReplayItemLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeReadinessGatePanel({ storySlug }: { storySlug: string }) {
+  const readinessGateState = useAsync(
+    () => api.getGraphMemoryProviderSpikeReadinessGate(storySlug),
+    [storySlug],
+  );
+  const report = readinessGateState.data;
+  const statusText = readinessGateState.loading
+    ? "读取中"
+    : report
+      ? graphProviderReadinessGateStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike 就绪门禁" status={statusText} />
+      {readinessGateState.loading && <Loading label="正在整理 Provider spike 就绪门禁…" />}
+      {readinessGateState.error && (
+        <ErrorState message={readinessGateState.error} onRetry={readinessGateState.reload} />
+      )}
+      {!readinessGateState.loading && !readinessGateState.error && report && (
+        <GraphMemoryProviderSpikeReadinessGateView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeReadinessGateView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeReadinessGateReport;
+}) {
+  const visibleProviders = report.provider_readiness.filter(
+    (item) => item.status !== "deferred",
+  );
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>门禁状态</span>
+          <strong>{graphProviderReadinessGateStatusLabel(report.readiness_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>可人工复核</span>
+          <strong>{report.summary.ready_for_manual_review_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>阻塞服务</span>
+          <strong>{report.summary.blocked_provider_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>{report.readiness_gate.real_provider_config_allowed ? "允许" : "禁止"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.readiness_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {visibleProviders.length > 0 && (
+        <div className="audit-log__rights-list">
+          {visibleProviders.slice(0, 3).map((provider) => (
+            <span key={provider.provider_id}>
+              {provider.service_target}：
+              {graphProviderReadinessItemLabel(provider.status)} ·{" "}
+              {provider.sample_case_count} 个 case · {provider.recommendation}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {visibleProviders.length > 0 && (
+        <ul className="sample-list">
+          {visibleProviders.slice(0, 3).map((provider) => (
+            <li key={provider.provider_id}>
+              <strong>{provider.provider_label} / {provider.fixture_id}</strong>
+              <span>
+                {provider.readiness_checks
+                  .slice(0, 4)
+                  .map((check) => `${check.label}：${graphProviderReadinessItemLabel(check.status)}`)
+                  .join("；")}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {report.manual_review_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_review_checklist.slice(0, 4).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderReadinessItemLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeRunbookPanel({ storySlug }: { storySlug: string }) {
+  const runbookState = useAsync(
+    () => api.getGraphMemoryProviderSpikeRunbook(storySlug),
+    [storySlug],
+  );
+  const report = runbookState.data;
+  const statusText = runbookState.loading
+    ? "读取中"
+    : report
+      ? graphProviderRunbookStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Runbook" status={statusText} />
+      {runbookState.loading && <Loading label="正在整理 Provider spike 人工 SOP…" />}
+      {runbookState.error && (
+        <ErrorState message={runbookState.error} onRetry={runbookState.reload} />
+      )}
+      {!runbookState.loading && !runbookState.error && report && (
+        <GraphMemoryProviderSpikeRunbookView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeRunbookView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeRunbookReport;
+}) {
+  const visibleProviders = report.provider_runbooks.filter(
+    (item) => item.status !== "deferred",
+  );
+  const firstProvider = visibleProviders[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>SOP 状态</span>
+          <strong>{graphProviderRunbookStatusLabel(report.runbook.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>可 dry-run</span>
+          <strong>{report.summary.ready_provider_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>SOP 步骤</span>
+          <strong>{report.summary.total_step_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>{report.runbook.real_provider_config_allowed ? "允许" : "禁止"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.runbook.objective}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {visibleProviders.length > 0 && (
+        <div className="audit-log__rights-list">
+          {visibleProviders.slice(0, 3).map((provider) => (
+            <span key={provider.provider_id}>
+              {provider.service_target}：
+              {graphProviderRunbookStatusLabel(provider.status)} ·{" "}
+              {provider.steps.length} 步 · {provider.recommendation}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstProvider && firstProvider.steps.length > 0 && (
+        <ul className="sample-list">
+          {firstProvider.steps.slice(0, 6).map((step) => (
+            <li key={step.id}>
+              <strong>{step.title}</strong>
+              <span>{step.description}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstProvider && (
+        <div className="project-workspace__steps">
+          {firstProvider.acceptance_checks.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {firstProvider && (
+        <div className="project-workspace__steps">
+          {firstProvider.rollback_steps.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderRunbookStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeDryRunResultTemplatePanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const templateState = useAsync(
+    () => api.getGraphMemoryProviderSpikeDryRunResultTemplate(storySlug),
+    [storySlug],
+  );
+  const report = templateState.data;
+  const statusText = templateState.loading
+    ? "读取中"
+    : report
+      ? graphProviderResultTemplateStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike 结果模板" status={statusText} />
+      {templateState.loading && <Loading label="正在整理 dry-run 结果模板…" />}
+      {templateState.error && (
+        <ErrorState message={templateState.error} onRetry={templateState.reload} />
+      )}
+      {!templateState.loading && !templateState.error && report && (
+        <GraphMemoryProviderSpikeDryRunResultTemplateView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeDryRunResultTemplateView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeDryRunResultTemplateReport;
+}) {
+  const visibleProviders = report.provider_result_templates.filter(
+    (item) => item.status !== "deferred",
+  );
+  const firstProvider = visibleProviders[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>模板状态</span>
+          <strong>{graphProviderResultTemplateStatusLabel(report.template.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>可记录</span>
+          <strong>{report.summary.ready_provider_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>结果字段</span>
+          <strong>{report.summary.required_result_field_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>写入结果</span>
+          <strong>{report.template.result_write_allowed ? "允许" : "禁止"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.template.objective}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {visibleProviders.length > 0 && (
+        <div className="audit-log__rights-list">
+          {visibleProviders.slice(0, 3).map((provider) => (
+            <span key={provider.provider_id}>
+              {provider.service_target}：
+              {graphProviderResultTemplateStatusLabel(provider.status)} ·{" "}
+              {provider.result_fields.length} 字段 · {provider.recommendation}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstProvider && firstProvider.result_fields.length > 0 && (
+        <ul className="sample-list">
+          {firstProvider.result_fields.slice(0, 6).map((field) => (
+            <li key={field.id}>
+              <strong>{field.label}</strong>
+              <span>{field.description}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstProvider && (
+        <div className="project-workspace__steps">
+          {firstProvider.pause_or_upgrade_decisions.slice(0, 4).map((item) => (
+            <span key={item.id}>{item.label}</span>
+          ))}
+        </div>
+      )}
+
+      {firstProvider && (
+        <div className="project-workspace__steps">
+          {firstProvider.acceptance_record.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderResultTemplateStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeMockResultReportPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const mockResultState = useAsync(
+    () => api.getGraphMemoryProviderSpikeMockResultReport(storySlug),
+    [storySlug],
+  );
+  const report = mockResultState.data;
+  const statusText = mockResultState.loading
+    ? "读取中"
+    : report
+      ? graphProviderMockResultStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Mock 结果" status={statusText} />
+      {mockResultState.loading && <Loading label="正在整理 mock 结果报告…" />}
+      {mockResultState.error && (
+        <ErrorState message={mockResultState.error} onRetry={mockResultState.reload} />
+      )}
+      {!mockResultState.loading && !mockResultState.error && report && (
+        <GraphMemoryProviderSpikeMockResultReportView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeMockResultReportView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeMockResultReport;
+}) {
+  const records = report.mock_result_records ?? [];
+  const firstRecord = records[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>报告状态</span>
+          <strong>{graphProviderMockResultStatusLabel(report.report_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>填充记录</span>
+          <strong>{report.summary.filled_record_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>候选收益</span>
+          <strong>{report.summary.candidate_gain_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>写入结果</span>
+          <strong>{report.summary.result_write_allowed ? "允许" : "禁止"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.report_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {records.length > 0 && (
+        <div className="audit-log__rights-list">
+          {records.slice(0, 3).map((record) => (
+            <span key={record.id}>
+              {record.service_target}：
+              {graphProviderMockResultStatusLabel(record.status)} ·{" "}
+              {graphProviderMockResultStatusLabel(record.manual_decision)}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstRecord && (
+        <ul className="sample-list">
+          {firstRecord.field_values.slice(0, 6).map((field) => (
+            <li key={field.field_id}>
+              <strong>{field.label}</strong>
+              <span>{String(field.value)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstRecord && (
+        <div className="project-workspace__steps">
+          <span>{firstRecord.gain_summary}</span>
+          <span>{firstRecord.risk_summary}</span>
+          <span>{firstRecord.review_summary}</span>
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderMockResultStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.manual_review_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_review_checklist.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeReviewGatePanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const reviewGateState = useAsync(
+    () => api.getGraphMemoryProviderSpikeReviewGate(storySlug),
+    [storySlug],
+  );
+  const report = reviewGateState.data;
+  const statusText = reviewGateState.loading
+    ? "读取中"
+    : report
+      ? graphProviderReviewGateStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike 复核门禁" status={statusText} />
+      {reviewGateState.loading && <Loading label="正在整理复核门禁…" />}
+      {reviewGateState.error && (
+        <ErrorState message={reviewGateState.error} onRetry={reviewGateState.reload} />
+      )}
+      {!reviewGateState.loading && !reviewGateState.error && report && (
+        <GraphMemoryProviderSpikeReviewGateView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeReviewGateView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeReviewGateReport;
+}) {
+  const reviews = report.provider_reviews ?? [];
+  const firstReview = reviews[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>门禁状态</span>
+          <strong>{graphProviderReviewGateStatusLabel(report.review_gate.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>复核行</span>
+          <strong>{report.summary.provider_review_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>候选收益</span>
+          <strong>{report.summary.candidate_gain_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>{report.review_gate.real_provider_config_allowed ? "允许" : "禁止"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.review_gate.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {reviews.length > 0 && (
+        <div className="audit-log__rights-list">
+          {reviews.slice(0, 3).map((review) => (
+            <span key={review.id}>
+              {review.service_target}：
+              {graphProviderReviewGateStatusLabel(review.status)} ·{" "}
+              {graphProviderReviewGateStatusLabel(review.gate_decision)}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstReview && (
+        <ul className="sample-list">
+          {firstReview.review_items.slice(0, 6).map((item) => (
+            <li key={item.id}>
+              <strong>{item.label}</strong>
+              <span>{item.evidence}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstReview && (
+        <div className="project-workspace__steps">
+          <span>{firstReview.gain_summary}</span>
+          <span>{firstReview.risk_summary}</span>
+          <span>{firstReview.recommendation}</span>
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderReviewGateStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.manual_review_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_review_checklist.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeManualApprovalPackPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const approvalState = useAsync(
+    () => api.getGraphMemoryProviderSpikeManualApprovalPack(storySlug),
+    [storySlug],
+  );
+  const report = approvalState.data;
+  const statusText = approvalState.loading
+    ? "读取中"
+    : report
+      ? graphProviderManualApprovalStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike 人工审批包" status={statusText} />
+      {approvalState.loading && <Loading label="正在整理人工审批包…" />}
+      {approvalState.error && (
+        <ErrorState message={approvalState.error} onRetry={approvalState.reload} />
+      )}
+      {!approvalState.loading && !approvalState.error && report && (
+        <GraphMemoryProviderSpikeManualApprovalPackView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeManualApprovalPackView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeManualApprovalPackReport;
+}) {
+  const items = report.approval_items ?? [];
+  const firstItem = items[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>审批包</span>
+          <strong>{graphProviderManualApprovalStatusLabel(report.approval_pack.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>审批项</span>
+          <strong>{report.summary.approval_item_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>风险签收</span>
+          <strong>{report.summary.risk_signoff_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>{report.approval_pack.real_provider_config_allowed ? "允许" : "禁止"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.approval_pack.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className="audit-log__rights-list">
+          {items.slice(0, 3).map((item) => (
+            <span key={item.id}>
+              {item.service_target}：
+              {graphProviderManualApprovalStatusLabel(item.status)} ·{" "}
+              {graphProviderManualApprovalStatusLabel(item.gate_decision)}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstItem && (
+        <ul className="sample-list">
+          {firstItem.risk_signoffs.slice(0, 5).map((item) => (
+            <li key={item.id}>
+              <strong>{item.label}</strong>
+              <span>{item.evidence ?? item.value ?? ""}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstItem && (
+        <div className="project-workspace__steps">
+          {firstItem.rollback_confirmations.slice(0, 3).map((item) => (
+            <span key={item.id}>{item.label}</span>
+          ))}
+        </div>
+      )}
+
+      {firstItem && (
+        <div className="project-workspace__steps">
+          {firstItem.opt_in_materials.slice(0, 4).map((item) => (
+            <span key={item.id}>
+              {item.label}：{item.value}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderManualApprovalStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.manual_approval_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_approval_checklist.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeManualApprovalEvidenceChecklistPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const checklistState = useAsync(
+    () => api.getGraphMemoryProviderSpikeManualApprovalEvidenceChecklist(storySlug),
+    [storySlug],
+  );
+  const report = checklistState.data;
+  const statusText = checklistState.loading
+    ? "读取中"
+    : report
+      ? graphProviderApprovalEvidenceStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike 审批证据核对表" status={statusText} />
+      {checklistState.loading && <Loading label="正在整理审批证据核对表…" />}
+      {checklistState.error && (
+        <ErrorState message={checklistState.error} onRetry={checklistState.reload} />
+      )}
+      {!checklistState.loading && !checklistState.error && report && (
+        <GraphMemoryProviderSpikeManualApprovalEvidenceChecklistView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeManualApprovalEvidenceChecklistView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeManualApprovalEvidenceChecklistReport;
+}) {
+  const items = report.checklist_items ?? [];
+  const firstItem = items[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>核对表</span>
+          <strong>{graphProviderApprovalEvidenceStatusLabel(report.evidence_checklist.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>待签收</span>
+          <strong>{report.summary.pending_signoff_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>材料缺口</span>
+          <strong>{report.summary.material_gap_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>
+            {report.evidence_checklist.real_provider_config_allowed ? "允许" : "禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.evidence_checklist.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className="audit-log__rights-list">
+          {items.slice(0, 3).map((item) => (
+            <span key={item.id}>
+              {item.service_target}：
+              {graphProviderApprovalEvidenceStatusLabel(item.status)} ·{" "}
+              {graphProviderApprovalEvidenceStatusLabel(item.evidence_status)}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstItem && (
+        <ul className="sample-list">
+          {firstItem.pending_signoffs.slice(0, 5).map((item) => (
+            <li key={item.id}>
+              <strong>{item.label}</strong>
+              <span>{item.evidence ?? item.value ?? ""}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstItem && firstItem.available_materials.length > 0 && (
+        <div className="project-workspace__steps">
+          {firstItem.available_materials.slice(0, 4).map((item) => (
+            <span key={item.id}>
+              {item.label}：{item.value}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderApprovalEvidenceStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.manual_review_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_review_checklist.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInEvidenceSnapshotPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const snapshotState = useAsync(
+    () => api.getGraphMemoryProviderSpikeOptInEvidenceSnapshot(storySlug),
+    [storySlug],
+  );
+  const report = snapshotState.data;
+  const statusText = snapshotState.loading
+    ? "读取中"
+    : report
+      ? graphProviderOptInSnapshotStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Opt-in 证据快照" status={statusText} />
+      {snapshotState.loading && <Loading label="正在整理 opt-in 证据快照…" />}
+      {snapshotState.error && (
+        <ErrorState message={snapshotState.error} onRetry={snapshotState.reload} />
+      )}
+      {!snapshotState.loading && !snapshotState.error && report && (
+        <GraphMemoryProviderSpikeOptInEvidenceSnapshotView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInEvidenceSnapshotView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeOptInEvidenceSnapshotReport;
+}) {
+  const items = report.snapshot_items ?? [];
+  const firstItem = items[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>快照</span>
+          <strong>{graphProviderOptInSnapshotStatusLabel(report.opt_in_snapshot.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>阻塞项</span>
+          <strong>{report.summary.blocker_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>待签收</span>
+          <strong>{report.summary.signoff_todo_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>
+            {report.opt_in_snapshot.real_provider_config_allowed ? "允许" : "禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.opt_in_snapshot.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className="audit-log__rights-list">
+          {items.slice(0, 3).map((item) => (
+            <span key={item.id}>
+              {item.service_target}：
+              {graphProviderOptInSnapshotStatusLabel(item.status)} · 阻塞{" "}
+              {item.blocker_count} 项
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstItem && (
+        <ul className="sample-list">
+          {firstItem.signoff_todos.slice(0, 5).map((item) => (
+            <li key={item.id}>
+              <strong>{item.label}</strong>
+              <span>{item.evidence ?? item.value ?? ""}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstItem && firstItem.blocker_reasons.length > 0 && (
+        <div className="project-workspace__steps">
+          {firstItem.blocker_reasons.slice(0, 4).map((reason) => (
+            <span key={reason}>{reason}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderOptInSnapshotStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.manual_review_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_review_checklist.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInNoGoMatrixPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const matrixState = useAsync(
+    () => api.getGraphMemoryProviderSpikeOptInNoGoMatrix(storySlug),
+    [storySlug],
+  );
+  const report = matrixState.data;
+  const statusText = matrixState.loading
+    ? "读取中"
+    : report
+      ? graphProviderNoGoMatrixStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Opt-in No-go 矩阵" status={statusText} />
+      {matrixState.loading && <Loading label="正在整理 opt-in no-go 矩阵…" />}
+      {matrixState.error && (
+        <ErrorState message={matrixState.error} onRetry={matrixState.reload} />
+      )}
+      {!matrixState.loading && !matrixState.error && report && (
+        <GraphMemoryProviderSpikeOptInNoGoMatrixView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInNoGoMatrixView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeOptInNoGoMatrixReport;
+}) {
+  const rows = report.matrix_rows ?? [];
+  const firstRow = rows[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>矩阵</span>
+          <strong>{graphProviderNoGoMatrixStatusLabel(report.no_go_matrix.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>阻塞格</span>
+          <strong>{report.summary.blocked_cell_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>签收阻塞</span>
+          <strong>{report.summary.signoff_blocker_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>
+            {report.no_go_matrix.real_provider_config_allowed ? "允许" : "禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.no_go_matrix.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {rows.length > 0 && (
+        <div className="audit-log__rights-list">
+          {rows.slice(0, 3).map((row) => (
+            <span key={row.id}>
+              {row.service_target}：{graphProviderNoGoMatrixStatusLabel(row.status)} ·{" "}
+              阻塞格 {row.blocked_cell_count}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstRow && (
+        <ul className="sample-list">
+          {firstRow.cells.slice(0, 5).map((cell) => (
+            <li key={cell.id}>
+              <strong>{cell.label}</strong>
+              <span>
+                {graphProviderNoGoMatrixStatusLabel(cell.status)} · {cell.reason}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstRow && firstRow.no_go_reasons.length > 0 && (
+        <div className="project-workspace__steps">
+          {firstRow.no_go_reasons.slice(0, 4).map((reason) => (
+            <span key={reason}>{reason}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderNoGoMatrixStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.manual_review_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_review_checklist.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInOperatorChecklistPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const checklistState = useAsync(
+    () => api.getGraphMemoryProviderSpikeOptInOperatorChecklist(storySlug),
+    [storySlug],
+  );
+  const report = checklistState.data;
+  const statusText = checklistState.loading
+    ? "读取中"
+    : report
+      ? graphProviderOperatorChecklistStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Opt-in 操作清单" status={statusText} />
+      {checklistState.loading && <Loading label="正在整理 opt-in 操作清单…" />}
+      {checklistState.error && (
+        <ErrorState message={checklistState.error} onRetry={checklistState.reload} />
+      )}
+      {!checklistState.loading && !checklistState.error && report && (
+        <GraphMemoryProviderSpikeOptInOperatorChecklistView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInOperatorChecklistView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeOptInOperatorChecklistReport;
+}) {
+  const sections = report.checklist_sections ?? [];
+  const firstSection = sections[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>清单</span>
+          <strong>
+            {graphProviderOperatorChecklistStatusLabel(report.operator_checklist.status)}
+          </strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>阻塞步骤</span>
+          <strong>{report.summary.blocked_step_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>签收步骤</span>
+          <strong>{report.summary.manual_signoff_step_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>
+            {report.operator_checklist.real_provider_config_allowed ? "允许" : "禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.operator_checklist.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {sections.length > 0 && (
+        <div className="audit-log__rights-list">
+          {sections.slice(0, 3).map((section) => (
+            <span key={section.id}>
+              {section.service_target}：
+              {graphProviderOperatorChecklistStatusLabel(section.status)} · 阻塞步骤{" "}
+              {section.blocked_step_count}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstSection && (
+        <ul className="sample-list">
+          {firstSection.steps.slice(0, 5).map((step) => (
+            <li key={step.id}>
+              <strong>{step.label}</strong>
+              <span>
+                {graphProviderOperatorChecklistStatusLabel(step.status)} ·{" "}
+                {step.action}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstSection && (
+        <div className="project-workspace__steps">
+          <span>{firstSection.pause_reason}</span>
+          <span>{firstSection.recommendation}</span>
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderOperatorChecklistStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.manual_review_checklist.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.manual_review_checklist.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {report.no_go_conditions.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.no_go_conditions.slice(0, 3).map((condition) => (
+            <span key={condition}>{condition}</span>
+          ))}
+        </div>
+      )}
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInReviewPacketPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const packetState = useAsync(
+    () => api.getGraphMemoryProviderSpikeOptInReviewPacket(storySlug),
+    [storySlug],
+  );
+  const report = packetState.data;
+  const statusText = packetState.loading
+    ? "读取中"
+    : report
+      ? graphProviderReviewPacketStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Opt-in 复核包" status={statusText} />
+      {packetState.loading && <Loading label="正在整理 opt-in 复核包…" />}
+      {packetState.error && (
+        <ErrorState message={packetState.error} onRetry={packetState.reload} />
+      )}
+      {!packetState.loading && !packetState.error && report && (
+        <GraphMemoryProviderSpikeOptInReviewPacketView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInReviewPacketView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeOptInReviewPacketReport;
+}) {
+  const sections = report.packet_sections ?? [];
+  const firstSection = sections[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>复核包</span>
+          <strong>{graphProviderReviewPacketStatusLabel(report.review_packet.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>证据项</span>
+          <strong>{report.summary.evidence_item_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>暂停材料</span>
+          <strong>{report.summary.pause_material_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>
+            {report.review_packet.real_provider_config_allowed ? "允许" : "禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.review_packet.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {sections.length > 0 && (
+        <div className="audit-log__rights-list">
+          {sections.slice(0, 3).map((section) => (
+            <span key={section.id}>
+              {section.service_target}：
+              {graphProviderReviewPacketStatusLabel(section.status)} · 证据项{" "}
+              {section.evidence_item_count}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstSection && (
+        <ul className="sample-list">
+          {firstSection.evidence_sequence.slice(0, 5).map((item) => (
+            <li key={item.id}>
+              <strong>{item.label}</strong>
+              <span>
+                {graphProviderReviewPacketStatusLabel(item.status)} ·{" "}
+                {item.review_note}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstSection && (
+        <div className="project-workspace__steps">
+          {firstSection.pause_materials.slice(0, 2).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+          {firstSection.escalation_materials.slice(0, 2).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderReviewPacketStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.review_packet_materials.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.review_packet_materials.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInDecisionLedgerPreviewPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const ledgerState = useAsync(
+    () => api.getGraphMemoryProviderSpikeOptInDecisionLedgerPreview(storySlug),
+    [storySlug],
+  );
+  const report = ledgerState.data;
+  const statusText = ledgerState.loading
+    ? "读取中"
+    : report
+      ? graphProviderDecisionLedgerStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Opt-in 决策账本预览" status={statusText} />
+      {ledgerState.loading && <Loading label="正在整理 opt-in 决策账本预览…" />}
+      {ledgerState.error && (
+        <ErrorState message={ledgerState.error} onRetry={ledgerState.reload} />
+      )}
+      {!ledgerState.loading && !ledgerState.error && report && (
+        <GraphMemoryProviderSpikeOptInDecisionLedgerPreviewView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInDecisionLedgerPreviewView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeOptInDecisionLedgerPreviewReport;
+}) {
+  const rows = report.ledger_rows ?? [];
+  const firstRow = rows[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>账本预览</span>
+          <strong>
+            {graphProviderDecisionLedgerStatusLabel(report.decision_ledger_preview.status)}
+          </strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>预览行</span>
+          <strong>{report.summary.ledger_row_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>签收字段</span>
+          <strong>{report.summary.pending_signoff_field_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>保存状态</span>
+          <strong>{report.decision_ledger_preview.approval_saved ? "已保存" : "未保存"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.decision_ledger_preview.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {rows.length > 0 && (
+        <div className="audit-log__rights-list">
+          {rows.slice(0, 3).map((row) => (
+            <span key={row.id}>
+              {row.service_target}：
+              {graphProviderDecisionLedgerStatusLabel(row.status)} · 签收字段{" "}
+              {row.pending_signoff_fields.length}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstRow && (
+        <ul className="sample-list">
+          {firstRow.pending_signoff_fields.slice(0, 5).map((field) => (
+            <li key={field.id}>
+              <strong>{field.label}</strong>
+              <span>{field.saved ? "已保存" : "未保存"} · 值为空</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstRow && (
+        <div className="project-workspace__steps">
+          {firstRow.preview_notes.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderDecisionLedgerStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.ledger_preview_materials.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.ledger_preview_materials.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInFinalReadinessSummaryPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const summaryState = useAsync(
+    () => api.getGraphMemoryProviderSpikeOptInFinalReadinessSummary(storySlug),
+    [storySlug],
+  );
+  const report = summaryState.data;
+  const statusText = summaryState.loading
+    ? "读取中"
+    : report
+      ? graphProviderFinalReadinessStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Opt-in 最终就绪摘要" status={statusText} />
+      {summaryState.loading && <Loading label="正在整理 opt-in 最终就绪摘要…" />}
+      {summaryState.error && (
+        <ErrorState message={summaryState.error} onRetry={summaryState.reload} />
+      )}
+      {!summaryState.loading && !summaryState.error && report && (
+        <GraphMemoryProviderSpikeOptInFinalReadinessSummaryView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInFinalReadinessSummaryView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeOptInFinalReadinessSummaryReport;
+}) {
+  const rows = report.readiness_rows ?? [];
+  const firstRow = rows[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>最终摘要</span>
+          <strong>
+            {graphProviderFinalReadinessStatusLabel(report.final_readiness_summary.status)}
+          </strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>就绪行</span>
+          <strong>{report.summary.readiness_row_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>未签收</span>
+          <strong>{report.summary.unresolved_signoff_field_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>真实配置</span>
+          <strong>
+            {report.final_readiness_summary.real_provider_ready ? "可继续" : "仍禁止"}
+          </strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.final_readiness_summary.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {rows.length > 0 && (
+        <div className="audit-log__rights-list">
+          {rows.slice(0, 3).map((row) => (
+            <span key={row.id}>
+              {row.service_target}：
+              {graphProviderFinalReadinessStatusLabel(row.gate_status)} · 阻塞{" "}
+              {row.unresolved_blockers.length}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstRow && (
+        <ul className="sample-list">
+          {firstRow.unresolved_signoff_fields.slice(0, 5).map((field) => (
+            <li key={field.id}>
+              <strong>{field.label}</strong>
+              <span>{field.saved ? "已保存" : "未保存"} · 仍需人工确认</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {firstRow && (
+        <div className="project-workspace__steps">
+          {firstRow.unresolved_blockers.slice(0, 4).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderFinalReadinessStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.final_readiness_materials.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.final_readiness_materials.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftPanel({
+  storySlug,
+}: {
+  storySlug: string;
+}) {
+  const schemaState = useAsync(
+    () => api.getGraphMemoryProviderSpikeOptInHumanSignoffSchemaDraft(storySlug),
+    [storySlug],
+  );
+  const report = schemaState.data;
+  const statusText = schemaState.loading
+    ? "读取中"
+    : report
+      ? graphProviderHumanSignoffSchemaStatusLabel(report.status)
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="Graph 记忆 Provider Spike Opt-in 人工签收 Schema" status={statusText} />
+      {schemaState.loading && <Loading label="正在整理人工签收 schema 草案…" />}
+      {schemaState.error && <ErrorState message={schemaState.error} onRetry={schemaState.reload} />}
+      {!schemaState.loading && !schemaState.error && report && (
+        <GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftView report={report} />
+      )}
+    </section>
+  );
+}
+
+function GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftView({
+  report,
+}: {
+  report: GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport;
+}) {
+  const sections = report.schema_sections ?? [];
+  const firstSection = sections[0];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>Schema 草案</span>
+          <strong>{graphProviderHumanSignoffSchemaStatusLabel(report.schema_draft.status)}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>字段</span>
+          <strong>{report.summary.schema_field_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>必填</span>
+          <strong>{report.summary.required_field_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>保存签收</span>
+          <strong>{report.schema_draft.save_allowed ? "允许" : "禁止"}</strong>
+        </div>
+      </div>
+
+      <p className="project-workspace__ok">{report.schema_draft.reason}</p>
+
+      {report.warnings.length > 0 && (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      )}
+
+      {sections.length > 0 && (
+        <div className="audit-log__rights-list">
+          {sections.slice(0, 3).map((section) => (
+            <span key={section.id}>
+              {section.service_target}：必填 {section.required_field_count} ·{" "}
+              {section.save_allowed ? "可保存" : "只读草案"}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {firstSection && (
+        <ul className="sample-list">
+          {firstSection.schema_fields.slice(0, 5).map((field) => (
+            <li key={field.id}>
+              <strong>{field.label}</strong>
+              <span>
+                {field.validation_rule.type === "required_non_empty_text"
+                  ? "必填文本"
+                  : field.validation_rule.type}{" "}
+                · {field.input_storage === "not_saved" ? "不保存输入" : field.input_storage}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="project-workspace__steps">
+        <span>{graphProviderHumanSignoffSchemaStatusLabel(report.decision.status)}</span>
+        <span>{report.decision.recommendation}</span>
+      </div>
+
+      {report.schema_materials.length > 0 && (
+        <div className="project-workspace__steps">
+          {report.schema_materials.slice(0, 3).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      )}
+
+      <p className="master-setting__note">
+        {report.boundaries[1] ?? report.boundaries[0]}
+      </p>
+    </>
+  );
+}
+
+function EmbeddingEvaluationSamplesPanel({ storySlug }: { storySlug: string }) {
+  const samplesState = useAsync(
+    () => api.getEmbeddingEvaluationSamples(storySlug),
+    [storySlug],
+  );
+  const [draft, setDraft] = useState({
+    query: "",
+    expectedEntities: "",
+    reason: "",
+    currentChapter: "1",
+  });
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [exportPack, setExportPack] = useState<RetrievalSampleExportPackReport | null>(null);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [mockReport, setMockReport] = useState<EmbeddingMockEvaluationReport | null>(null);
+  const [mockReportLoading, setMockReportLoading] = useState(false);
+  const [mockReportError, setMockReportError] = useState<string | null>(null);
+  const [replayReport, setReplayReport] = useState<RetrievalSampleReplayReport | null>(null);
+  const [replayReportLoading, setReplayReportLoading] = useState(false);
+  const [replayReportError, setReplayReportError] = useState<string | null>(null);
+  const [migrationPack, setMigrationPack] = useState<RetrievalSampleMigrationPackReport | null>(
+    null,
+  );
+  const [migrationPackLoading, setMigrationPackLoading] = useState(false);
+  const [migrationPackError, setMigrationPackError] = useState<string | null>(null);
+  const report = samplesState.data;
+  const statusText = samplesState.loading
+    ? "读取中"
+    : report
+      ? embeddingSamplesStatusLabel(report.status)
+      : "未读取";
+  const canSubmit = draft.query.trim() && parseExpectedEntities(draft.expectedEntities).length;
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!canSubmit || saving) return;
+    const payload: RetrievalFailureSampleAppendRequest = {
+      query: draft.query.trim(),
+      expected_entities: parseExpectedEntities(draft.expectedEntities),
+      reason: draft.reason.trim(),
+      current_chapter: Number(draft.currentChapter) || 1,
+    };
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await api.addRetrievalFailureSample(storySlug, payload);
+      setDraft({ query: "", expectedEntities: "", reason: "", currentChapter: "1" });
+      setExportPack(null);
+      setMockReport(null);
+      setReplayReport(null);
+      setMigrationPack(null);
+      samplesState.reload();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "记录失败");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleExportPreview() {
+    if (exportLoading) return;
+    setExportLoading(true);
+    setExportError(null);
+    try {
+      setExportPack(await api.getRetrievalSampleExportPack(storySlug));
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "导出包读取失败");
+    } finally {
+      setExportLoading(false);
+    }
+  }
+
+  async function handleMockReportPreview() {
+    if (mockReportLoading) return;
+    setMockReportLoading(true);
+    setMockReportError(null);
+    try {
+      setMockReport(await api.getEmbeddingMockEvaluationReport(storySlug));
+    } catch (err) {
+      setMockReportError(err instanceof Error ? err.message : "对照报告读取失败");
+    } finally {
+      setMockReportLoading(false);
+    }
+  }
+
+  async function handleReplayReportPreview() {
+    if (replayReportLoading) return;
+    setReplayReportLoading(true);
+    setReplayReportError(null);
+    try {
+      setReplayReport(await api.getRetrievalSampleReplayReport(storySlug));
+    } catch (err) {
+      setReplayReportError(err instanceof Error ? err.message : "复跑报告读取失败");
+    } finally {
+      setReplayReportLoading(false);
+    }
+  }
+
+  async function handleMigrationPackPreview() {
+    if (migrationPackLoading) return;
+    setMigrationPackLoading(true);
+    setMigrationPackError(null);
+    try {
+      setMigrationPack(await api.getRetrievalSampleMigrationPack(storySlug));
+    } catch (err) {
+      setMigrationPackError(err instanceof Error ? err.message : "迁移包读取失败");
+    } finally {
+      setMigrationPackLoading(false);
+    }
+  }
+
+  return (
+    <section className="project-workspace__section embedding-samples">
+      <SectionTitle title="Embedding 样本评估" status={statusText} />
+      {samplesState.loading && <Loading label="正在评估失败样本…" />}
+      {samplesState.error && (
+        <ErrorState message={samplesState.error} onRetry={samplesState.reload} />
+      )}
+      {!samplesState.loading && !samplesState.error && report && (
+        <EmbeddingEvaluationSamplesView
+          report={report}
+          draft={draft}
+          onDraftChange={setDraft}
+          onSubmit={handleSubmit}
+          canSubmit={Boolean(canSubmit)}
+          saving={saving}
+          saveError={saveError}
+          exportPack={exportPack}
+          exportLoading={exportLoading}
+          exportError={exportError}
+          onExportPreview={handleExportPreview}
+          mockReport={mockReport}
+          mockReportLoading={mockReportLoading}
+          mockReportError={mockReportError}
+          onMockReportPreview={handleMockReportPreview}
+          replayReport={replayReport}
+          replayReportLoading={replayReportLoading}
+          replayReportError={replayReportError}
+          onReplayReportPreview={handleReplayReportPreview}
+          migrationPack={migrationPack}
+          migrationPackLoading={migrationPackLoading}
+          migrationPackError={migrationPackError}
+          onMigrationPackPreview={handleMigrationPackPreview}
+        />
+      )}
+    </section>
+  );
+}
+
+function EmbeddingEvaluationSamplesView({
+  report,
+  draft,
+  onDraftChange,
+  onSubmit,
+  canSubmit,
+  saving,
+  saveError,
+  exportPack,
+  exportLoading,
+  exportError,
+  onExportPreview,
+  mockReport,
+  mockReportLoading,
+  mockReportError,
+  onMockReportPreview,
+  replayReport,
+  replayReportLoading,
+  replayReportError,
+  onReplayReportPreview,
+  migrationPack,
+  migrationPackLoading,
+  migrationPackError,
+  onMigrationPackPreview,
+}: {
+  report: EmbeddingEvaluationSamplesReport;
+  draft: {
+    query: string;
+    expectedEntities: string;
+    reason: string;
+    currentChapter: string;
+  };
+  onDraftChange: (draft: {
+    query: string;
+    expectedEntities: string;
+    reason: string;
+    currentChapter: string;
+  }) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  canSubmit: boolean;
+  saving: boolean;
+  saveError: string | null;
+  exportPack: RetrievalSampleExportPackReport | null;
+  exportLoading: boolean;
+  exportError: string | null;
+  onExportPreview: () => void;
+  mockReport: EmbeddingMockEvaluationReport | null;
+  mockReportLoading: boolean;
+  mockReportError: string | null;
+  onMockReportPreview: () => void;
+  replayReport: RetrievalSampleReplayReport | null;
+  replayReportLoading: boolean;
+  replayReportError: string | null;
+  onReplayReportPreview: () => void;
+  migrationPack: RetrievalSampleMigrationPackReport | null;
+  migrationPackLoading: boolean;
+  migrationPackError: string | null;
+  onMigrationPackPreview: () => void;
+}) {
+  const visibleSamples = [
+    ...report.samples.filter((sample) => sample.diagnosis === "lexical_gap"),
+    ...report.samples.filter((sample) => sample.diagnosis !== "lexical_gap"),
+  ];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>样本</span>
+          <strong>{report.summary.sample_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>BM25 命中</span>
+          <strong>{report.summary.bm25_hit_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>Mock 命中</span>
+          <strong>{report.summary.mock_embedding_hit_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>词面缺口</span>
+          <strong>{report.summary.lexical_gap_count}</strong>
+        </div>
+      </div>
+
+      {report.warnings.length > 0 ? (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      ) : (
+        <p className="project-workspace__ok">样本评估未调用真实 embedding provider。</p>
+      )}
+
+      {visibleSamples.length === 0 ? (
+        <EmptyState
+          title="暂无失败样本"
+          hint="先记录换说法召回失败样本，再比较 BM25 与 mock 语义命中。"
+        />
+      ) : (
+        <ul className="sample-list">
+          {visibleSamples.slice(0, 4).map((sample) => (
+            <li key={sample.query}>
+              <strong>{embeddingDiagnosisLabel(sample.diagnosis)}</strong>
+              <span>
+                {sample.query}
+                {sample.target_item_id ? ` · ${sample.target_item_id}` : ""}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="audit-log__rights-list">
+        <span>
+          样本文件：{report.sample_schema.path} · 必填：
+          {report.sample_schema.required.join("、")}
+        </span>
+        <span>
+          对照口径：BM25 走当前检索链路，mock 命中只检查期望实体能否定位到账本目标。
+        </span>
+      </div>
+
+      {report.source_kind !== "builtin" && (
+        <form className="master-setting__editor embedding-samples__form" onSubmit={onSubmit}>
+          <label className="master-setting__field master-setting__field--wide">
+            <span>失败查询</span>
+            <textarea
+              value={draft.query}
+              onChange={(event) =>
+                onDraftChange({ ...draft, query: event.target.value })
+              }
+              maxLength={180}
+            />
+          </label>
+          <label className="master-setting__field">
+            <span>期望实体</span>
+            <input
+              value={draft.expectedEntities}
+              onChange={(event) =>
+                onDraftChange({ ...draft, expectedEntities: event.target.value })
+              }
+              maxLength={240}
+            />
+          </label>
+          <label className="master-setting__field">
+            <span>当前章节</span>
+            <input
+              value={draft.currentChapter}
+              onChange={(event) =>
+                onDraftChange({ ...draft, currentChapter: event.target.value })
+              }
+              inputMode="numeric"
+              maxLength={4}
+            />
+          </label>
+          <label className="master-setting__field master-setting__field--wide">
+            <span>失败原因</span>
+            <input
+              value={draft.reason}
+              onChange={(event) =>
+                onDraftChange({ ...draft, reason: event.target.value })
+              }
+              maxLength={220}
+            />
+          </label>
+          <div className="master-setting__field master-setting__field--wide embedding-samples__actions">
+            <button
+              type="submit"
+              className="workspace-btn workspace-btn--primary"
+              disabled={!canSubmit || saving}
+            >
+              {saving ? "记录中" : "记录样本"}
+            </button>
+            {saveError && <span className="error-text">{saveError}</span>}
+          </div>
+        </form>
+      )}
+
+      <div className="embedding-samples__export">
+        <div className="embedding-samples__actions">
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={onExportPreview}
+            disabled={exportLoading}
+          >
+            {exportLoading ? "整理中" : "预览导出包"}
+          </button>
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={onMockReportPreview}
+            disabled={mockReportLoading}
+          >
+            {mockReportLoading ? "生成中" : "生成对照报告"}
+          </button>
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={onReplayReportPreview}
+            disabled={replayReportLoading}
+          >
+            {replayReportLoading ? "复跑中" : "生成复跑报告"}
+          </button>
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={onMigrationPackPreview}
+            disabled={migrationPackLoading}
+          >
+            {migrationPackLoading ? "整理中" : "生成迁移包"}
+          </button>
+        </div>
+        {exportError && <span className="error-text">{exportError}</span>}
+        {mockReportError && <span className="error-text">{mockReportError}</span>}
+        {replayReportError && <span className="error-text">{replayReportError}</span>}
+        {migrationPackError && <span className="error-text">{migrationPackError}</span>}
+        {exportPack && (
+          <div className="embedding-samples__export-preview">
+            <div className="audit-log__rights-list">
+              <span>
+                文件：{exportPack.filename} · 状态：
+                {retrievalExportPackStatusLabel(exportPack.status)}
+              </span>
+              <span>
+                样本：{exportPack.summary.sample_count} · 词面缺口：
+                {exportPack.summary.lexical_gap_count}
+              </span>
+            </div>
+            <pre>{exportPack.content_md.slice(0, 1800)}</pre>
+          </div>
+        )}
+        {mockReport && (
+          <div className="embedding-samples__export-preview">
+            <div className="audit-log__rights-list">
+              <span>
+                对照报告：{embeddingMockReportStatusLabel(mockReport.status)} · Gate：
+                {mockReport.gate.passed ? "通过" : "未通过"}
+              </span>
+              <span>
+                样本：{mockReport.summary.sample_count} · 词面缺口：
+                {mockReport.summary.lexical_gap_count}
+              </span>
+            </div>
+            <pre>{mockReport.report_md.slice(0, 1800)}</pre>
+          </div>
+        )}
+        {replayReport && (
+          <div className="embedding-samples__export-preview">
+            <div className="audit-log__rights-list">
+              <span>
+                复跑报告：{retrievalReplayReportStatusLabel(replayReport.status)} · Gate：
+                {replayReport.replay_gate.passed ? "通过" : "未通过"}
+              </span>
+              <span>
+                Cases：{replayReport.summary.case_count} · 仍是词面缺口：
+                {replayReport.summary.still_failing_lexically_count}
+              </span>
+            </div>
+            <pre>{replayReport.report_md.slice(0, 1800)}</pre>
+          </div>
+        )}
+        {migrationPack && (
+          <div className="embedding-samples__export-preview">
+            <div className="audit-log__rights-list">
+              <span>
+                迁移包：{retrievalMigrationPackStatusLabel(migrationPack.status)} · Gate：
+                {migrationPack.migration_gate.passed ? "通过" : "未通过"}
+              </span>
+              <span>
+                Records：{migrationPack.summary.record_count} · 跳过：
+                {migrationPack.summary.skipped_count}
+              </span>
+            </div>
+            <pre>{migrationPack.content_json.slice(0, 1800)}</pre>
+          </div>
+        )}
+      </div>
+
+      <div className="project-workspace__steps">
+        {report.next_steps.slice(0, 3).map((step) => (
+          <span key={step}>{step}</span>
+        ))}
+      </div>
+      <p className="master-setting__note">{report.boundaries[2]}</p>
+    </>
+  );
+}
+
+function parseExpectedEntities(value: string): string[] {
+  return value
+    .split(/[,，;；\s]+/)
+    .map((item) => item.trim())
+    .filter((item, index, arr) => item && arr.indexOf(item) === index)
+    .slice(0, 10);
 }
 
 function RightsApprovalPanel({
@@ -1206,6 +4544,120 @@ function FactList({ label, items, empty }: { label: string; items: string[]; emp
   );
 }
 
+function CardsWorkspacePanel({ storySlug }: { storySlug: string }) {
+  const cardsState = useAsync(() => api.getCardsWorkspace(storySlug), [storySlug]);
+  const report = cardsState.data;
+  const statusText = cardsState.loading
+    ? "读取中"
+    : report
+      ? `${report.summary.card_count} 张卡片`
+      : "未读取";
+
+  return (
+    <section className="project-workspace__section cards-workspace">
+      <SectionTitle title="设定卡片" status={statusText} />
+      {cardsState.loading && <Loading label="正在整理设定卡片…" />}
+      {cardsState.error && (
+        <ErrorState message={cardsState.error} onRetry={cardsState.reload} />
+      )}
+      {!cardsState.loading && !cardsState.error && report && (
+        <CardsWorkspaceReportView report={report} />
+      )}
+    </section>
+  );
+}
+
+function CardsWorkspaceReportView({ report }: { report: CardsWorkspaceReport }) {
+  const visibleCards = [
+    ...report.cards.filter((card) => card.type === "world"),
+    ...report.cards.filter((card) => card.type === "style"),
+    ...report.cards.filter((card) => card.type === "character"),
+  ];
+
+  return (
+    <>
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>世界卡</span>
+          <strong>{report.summary.world_card_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>角色卡</span>
+          <strong>{report.summary.character_card_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>风格卡</span>
+          <strong>{report.summary.style_card_count}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>可轻编辑</span>
+          <strong>{report.summary.editable_card_count}</strong>
+        </div>
+      </div>
+
+      {report.warnings.length > 0 ? (
+        <div className="risk-strip">
+          {report.warnings.slice(0, 4).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      ) : (
+        <p className="project-workspace__ok">设定卡片已从本地记忆资产整理完成。</p>
+      )}
+
+      <div className="cards-workspace__grid">
+        {visibleCards.slice(0, 10).map((card) => (
+          <CardsWorkspaceCardView card={card} key={card.id} />
+        ))}
+      </div>
+
+      <div className="project-workspace__steps">
+        {report.next_steps.slice(0, 3).map((step) => (
+          <span key={step}>{step}</span>
+        ))}
+      </div>
+      <p className="master-setting__note">{report.boundaries[0]}</p>
+    </>
+  );
+}
+
+function CardsWorkspaceCardView({ card }: { card: CardsWorkspaceCard }) {
+  const readyFields = card.fields.filter((field) => field.status === "ready");
+  return (
+    <article className="cards-workspace__card">
+      <div className="cards-workspace__head">
+        <div>
+          <strong>{card.title}</strong>
+          <span>{card.subtitle || cardTypeLabel(card.type)}</span>
+        </div>
+        <em>{card.status_label}</em>
+      </div>
+      {readyFields.length === 0 ? (
+        <p className="muted tiny">暂无可展示字段。</p>
+      ) : (
+        <div className="cards-workspace__fields">
+          {readyFields.slice(0, 4).map((field) => (
+            <div className="cards-workspace__field" key={field.label}>
+              <span>{field.label}</span>
+              <strong>{field.items.slice(0, 3).join("、")}</strong>
+            </div>
+          ))}
+        </div>
+      )}
+      {card.editable_fields.length > 0 && (
+        <p className="cards-workspace__edit-note">可通过上方设定工作台轻编辑。</p>
+      )}
+    </article>
+  );
+}
+
+function cardTypeLabel(type: string): string {
+  if (type === "world") return "世界卡";
+  if (type === "character") return "角色卡";
+  if (type === "style") return "风格卡";
+  return "设定卡";
+}
+
 function initMasterDraft(master: ProjectMasterSettingWorkspace): MasterSettingDraft {
   return {
     displayName: master.world.display_name,
@@ -1380,6 +4832,489 @@ function statusLabel(value: string): string {
     ready: "已就绪",
     missing: "未生成",
     damaged: "需修复",
+    attention: "需留意",
+    blocked: "需修复",
+  };
+  return map[value] ?? value;
+}
+
+function vectorReadinessStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready: "继续现状",
+    attention: "先补底座",
+    monitor: "进入监控",
+    triggered: "可做探针",
+  };
+  return map[value] ?? statusLabel(value);
+}
+
+function vectorLayerReadinessLabel(value: string): string {
+  const map: Record<string, string> = {
+    evaluate: "可评估",
+    design_spike: "先做探针",
+    monitor: "监控中",
+    deferred: "暂缓",
+  };
+  return map[value] ?? value;
+}
+
+function graphTriggerStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    not_triggered: "暂不触发",
+    monitor: "继续观察",
+    triggered: "可做探针",
+    ready_for_spike: "可做设计",
+    ready_for_spike_design: "可设计探针",
+    needs_more_evidence: "需更多证据",
+    deferred: "暂缓",
+    ready: "正常",
+    attention: "需关注",
+  };
+  return map[value] ?? statusLabel(value);
+}
+
+function graphCandidateStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    candidate: "候选",
+    monitor: "观察",
+    deferred: "暂缓",
+  };
+  return map[value] ?? value;
+}
+
+function graphDesignStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_spike: "可做设计",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphTriggerStatusLabel(value);
+}
+
+function graphDesignGateStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    design_pack_ready: "设计包就绪",
+    collect_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphTriggerStatusLabel(value);
+}
+
+function graphDesignInputStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    required: "必需",
+    optional: "可选",
+    missing: "缺失",
+    deferred: "暂缓",
+  };
+  return map[value] ?? value;
+}
+
+function graphShadowStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_shadow_compare: "可做对照",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphDesignStatusLabel(value);
+}
+
+function graphShadowGateStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    shadow_compare_ready: "对照就绪",
+    collect_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphShadowStatusLabel(value);
+}
+
+function graphShadowDecisionLabel(value: string): string {
+  const map: Record<string, string> = {
+    shadow_compare: "进入对照",
+    collect_samples: "补样本",
+    collect_foundation_evidence: "补基础证据",
+    defer: "暂缓",
+  };
+  return map[value] ?? value;
+}
+
+function graphShadowResultLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready: "可验证",
+    needs_evidence: "需证据",
+  };
+  return map[value] ?? graphDesignInputStatusLabel(value);
+}
+
+function graphCaseStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready: "可展开",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphShadowStatusLabel(value);
+}
+
+function graphCaseGateStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    case_matrix_ready: "矩阵就绪",
+    collect_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphCaseStatusLabel(value);
+}
+
+function graphCaseEvidenceStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    local_evidence_ready: "本地证据就绪",
+    needs_local_evidence: "需本地证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? value;
+}
+
+function graphProviderBoundaryStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_boundary_review: "可审查",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphCaseStatusLabel(value);
+}
+
+function graphProviderBoundaryGateLabel(value: string): string {
+  const map: Record<string, string> = {
+    boundary_matrix_ready: "边界就绪",
+    collect_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderBoundaryStatusLabel(value);
+}
+
+function graphProviderBoundaryCellLabel(value: string): string {
+  const map: Record<string, string> = {
+    requires_opt_in: "需显式开启",
+    deferred: "暂缓",
+  };
+  return map[value] ?? value;
+}
+
+function graphOfflineReplayStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_offline_replay: "Replay 就绪",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderBoundaryStatusLabel(value);
+}
+
+function graphOfflineReplayReportStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_review: "待人工复核",
+  };
+  return map[value] ?? graphOfflineReplayStatusLabel(value);
+}
+
+function graphOfflineReplayGateLabel(value: string): string {
+  const map: Record<string, string> = {
+    offline_replay_ready: "Replay 就绪",
+    offline_replay_report_ready: "报告就绪",
+    fixture_pack_ready: "前置包就绪",
+    collect_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphOfflineReplayStatusLabel(value);
+}
+
+function graphOfflineReplayItemLabel(value: string): string {
+  const map: Record<string, string> = {
+    planned: "已计划",
+    mock_candidate_gain: "候选收益",
+    manual_review_required: "待人工复核",
+    dry_run_fixture_ready: "dry-run 就绪",
+    manual_review_before_real_provider_config: "先人工复核",
+    collect_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphOfflineReplayStatusLabel(value);
+}
+
+function graphProviderFixturePackStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_fixture_pack: "前置包就绪",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphOfflineReplayReportStatusLabel(value);
+}
+
+function graphProviderReadinessGateStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_manual_opt_in_review: "可人工复核",
+    needs_more_evidence: "补证据",
+    blocked: "已阻塞",
+    collect_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderFixturePackStatusLabel(value);
+}
+
+function graphProviderReadinessItemLabel(value: string): string {
+  const map: Record<string, string> = {
+    manual_review_ready: "可人工复核",
+    manual_review_required: "需人工确认",
+    manual_review_ready_no_real_config: "只可人工复核",
+    passed: "通过",
+    blocked: "已阻塞",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderReadinessGateStatusLabel(value);
+}
+
+function graphProviderRunbookStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_manual_dry_run: "可人工 dry-run",
+    manual_dry_run_ready: "可人工 dry-run",
+    manual_runbook_ready_no_real_config: "SOP 就绪",
+    blocked_before_manual_dry_run: "dry-run 前阻塞",
+    needs_more_evidence: "补证据",
+    blocked: "已阻塞",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderReadinessItemLabel(value);
+}
+
+function graphProviderResultTemplateStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_manual_result_recording: "可人工记录",
+    manual_result_template_ready: "模板就绪",
+    result_template_ready_no_real_config: "记录模板就绪",
+    blocked_before_result_recording: "记录前阻塞",
+    needs_more_evidence: "补证据",
+    blocked: "已阻塞",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderRunbookStatusLabel(value);
+}
+
+function graphProviderMockResultStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_manual_review: "待人工复核",
+    mock_result_report_ready: "报告就绪",
+    mock_filled_result_ready: "填充就绪",
+    mock_result_review_required_no_real_config: "仅可人工复核",
+    collect_more_evidence: "继续补证据",
+    pause_no_stable_gain: "暂停：收益不稳定",
+    upgrade_manual_opt_in_spike: "另开真实 opt-in spike",
+    needs_more_evidence: "补证据",
+    blocked: "已阻塞",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderResultTemplateStatusLabel(value);
+}
+
+function graphProviderReviewGateStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_manual_review_gate: "可人工复核",
+    manual_review_gate_ready: "门禁就绪",
+    manual_review_required: "需人工复核",
+    review_required_no_real_provider_config: "仅可人工复核",
+    collect_more_evidence: "继续补证据",
+    manual_approval_required: "需人工审批",
+    pause_no_stable_gain: "暂停：收益不稳定",
+    needs_more_evidence: "补证据",
+    blocked: "已阻塞",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderMockResultStatusLabel(value);
+}
+
+function graphProviderManualApprovalStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_manual_approval_pack: "审批包就绪",
+    manual_approval_pack_ready: "审批包就绪",
+    manual_approval_required: "需人工审批",
+    approval_pack_ready_no_real_provider_config: "仅可人工审批",
+    signature_required: "需签收",
+    confirmation_required: "需确认",
+    collect_more_evidence: "继续补证据",
+    manual_approval_required_gate: "需人工审批",
+    pause_no_stable_gain: "暂停：收益不稳定",
+    needs_more_evidence: "补证据",
+    blocked: "已阻塞",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderReviewGateStatusLabel(value);
+}
+
+function graphProviderApprovalEvidenceStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_manual_approval_evidence_checklist: "核对表就绪",
+    evidence_checklist_ready: "核对表就绪",
+    manual_signoff_required: "待人工签收",
+    materials_ready_signoff_pending: "材料齐，待签收",
+    materials_gap: "材料缺口",
+    materials_ready: "材料齐备",
+    checklist_ready_no_real_provider_config: "仅可核对证据",
+    complete_no_real_config: "证据齐备",
+    needs_more_evidence: "补证据",
+    blocked: "已阻塞",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderManualApprovalStatusLabel(value);
+}
+
+function graphProviderOptInSnapshotStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_opt_in_evidence_snapshot: "快照就绪",
+    opt_in_evidence_snapshot_ready: "快照就绪",
+    blocked_by_pending_signoff: "签收阻塞",
+    blocked_by_material_gap: "材料阻塞",
+    materials_ready_real_config_still_blocked: "材料齐，仍禁真实配置",
+    snapshot_ready_real_provider_still_blocked: "仍禁止真实配置",
+    needs_more_evidence: "补证据",
+    blocked: "已阻塞",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderApprovalEvidenceStatusLabel(value);
+}
+
+function graphProviderNoGoMatrixStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_opt_in_no_go_matrix: "矩阵就绪",
+    no_go_matrix_ready: "矩阵就绪",
+    no_go_matrix_ready_real_provider_still_blocked: "仍禁止真实配置",
+    blocked: "已阻塞",
+    clear: "无阻塞",
+    clear_no_real_config: "仅证据无阻塞",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderOptInSnapshotStatusLabel(value);
+}
+
+function graphProviderOperatorChecklistStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_opt_in_operator_checklist: "清单就绪",
+    operator_checklist_ready: "清单就绪",
+    operator_checklist_ready_real_provider_still_blocked: "仍禁止真实配置",
+    blocked: "已阻塞",
+    review: "待复核",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderNoGoMatrixStatusLabel(value);
+}
+
+function graphProviderReviewPacketStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_opt_in_review_packet: "复核包就绪",
+    review_packet_ready: "复核包就绪",
+    review_packet_ready_real_provider_still_blocked: "仍禁止真实配置",
+    blocked: "已阻塞",
+    review: "待复核",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderOperatorChecklistStatusLabel(value);
+}
+
+function graphProviderDecisionLedgerStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_opt_in_decision_ledger_preview: "账本预览就绪",
+    decision_ledger_preview_ready: "账本预览就绪",
+    decision_ledger_preview_ready_real_provider_still_blocked: "仍禁止真实配置",
+    blocked: "已阻塞",
+    review: "待复核",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderReviewPacketStatusLabel(value);
+}
+
+function graphProviderFinalReadinessStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_opt_in_final_readiness_summary: "最终摘要就绪",
+    final_readiness_summary_ready: "最终摘要就绪",
+    final_readiness_summary_ready_real_provider_still_blocked: "仍禁止真实配置",
+    not_ready_for_real_provider: "未就绪",
+    blocked: "已阻塞",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderDecisionLedgerStatusLabel(value);
+}
+
+function graphProviderHumanSignoffSchemaStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready_for_human_signoff_schema_draft: "签收 Schema 就绪",
+    human_signoff_schema_draft_ready: "签收 Schema 就绪",
+    human_signoff_schema_draft_ready_real_provider_still_blocked: "仍禁止真实配置",
+    blocked: "已阻塞",
+    needs_more_evidence: "补证据",
+    deferred: "暂缓",
+  };
+  return map[value] ?? graphProviderFinalReadinessStatusLabel(value);
+}
+
+function embeddingSamplesStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    insufficient_samples: "待收集",
+    candidate: "可对照",
+    attention: "先补记忆",
+    blocked: "需修复",
+    covered: "已覆盖",
+  };
+  return map[value] ?? value;
+}
+
+function embeddingDiagnosisLabel(value: string): string {
+  const map: Record<string, string> = {
+    lexical_gap: "词面缺口",
+    memory_gap: "记忆缺口",
+    already_covered: "已命中",
+    invalid_sample: "样本需修复",
+  };
+  return map[value] ?? value;
+}
+
+function retrievalExportPackStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    empty: "暂无样本",
+    ready: "可导出",
+    attention: "需复核",
+    blocked: "需修复",
+  };
+  return map[value] ?? value;
+}
+
+function embeddingMockReportStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    empty: "暂无样本",
+    candidate: "可继续评估",
+    attention: "先补记忆",
+    blocked: "需修复",
+    covered: "已覆盖",
+  };
+  return map[value] ?? value;
+}
+
+function retrievalReplayReportStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    empty: "暂无样本",
+    ready: "可复跑",
+    attention: "需复核",
+    blocked: "需修复",
+  };
+  return map[value] ?? value;
+}
+
+function retrievalMigrationPackStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    empty: "暂无样本",
+    ready: "可迁移",
+    attention: "需补目标",
+    blocked: "需修复",
   };
   return map[value] ?? value;
 }

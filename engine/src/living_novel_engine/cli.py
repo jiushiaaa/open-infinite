@@ -592,6 +592,797 @@ def creation_loop_closeout_cmd(
         raise click.ClickException("v0.9.0-alpha 尚未收口")
 
 
+@main.group("memory")
+def memory_group() -> None:
+    """本地长篇记忆与检索样本工具。"""
+
+
+@memory_group.command("add-sample")
+@click.argument("slug")
+@click.option("--query", required=True, help="失败查询文本")
+@click.option("--entity", "entities", multiple=True, help="期望实体 ID，可重复")
+@click.option("--entities", "entities_text", default="", help="逗号分隔的期望实体 ID")
+@click.option("--reason", default="", help="失败原因")
+@click.option("--chapter", default=1, type=int, help="当前章节序号")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_add_sample_cmd(
+    slug: str,
+    query: str,
+    entities: tuple[str, ...],
+    entities_text: str,
+    reason: str,
+    chapter: int,
+    json_output: bool,
+) -> None:
+    """追加一条本地检索失败样本，不调用外部服务。"""
+    from living_novel_engine.service import (
+        RetrievalFailureSampleConflictError,
+        RetrievalFailureSampleRequestError,
+        add_retrieval_failure_sample,
+    )
+
+    expected_entities: list[str] | str
+    expected_entities = list(entities) if entities else entities_text
+    try:
+        report = add_retrieval_failure_sample(
+            slug,
+            {
+                "query": query,
+                "expected_entities": expected_entities,
+                "reason": reason,
+                "current_chapter": chapter,
+            },
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except (RetrievalFailureSampleConflictError, RetrievalFailureSampleRequestError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    sample = report.get("sample") or {}
+    console.print("[bold green]已记录失败样本[/bold green]")
+    console.print(_item(f"id: {sample.get('id', '')}"))
+    console.print(_item(f"query: {sample.get('query', '')}"))
+    console.print(_item(f"entities: {', '.join(sample.get('expected_entities') or [])}"))
+    console.print(_item("下一步：运行 lne memory samples 复跑样本评估"))
+
+
+@memory_group.command("samples")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+@click.option("--require-candidate", is_flag=True, help="无词面缺口候选时以退出码 1 失败")
+def memory_samples_cmd(slug: str, json_output: bool, require_candidate: bool) -> None:
+    """复跑本地失败样本的 BM25 与 mock 语义对照。"""
+    from living_novel_engine.service import get_embedding_evaluation_samples
+
+    try:
+        report = get_embedding_evaluation_samples(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if require_candidate and report.get("status") != "candidate":
+        raise click.ClickException("未检测到可进入 embedding 对照的失败样本")
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    summary = report.get("summary") or {}
+    console.print(
+        f"[bold]失败样本评估[/bold] {slug}: {report.get('status', 'unknown')} "
+        f"样本={summary.get('sample_count', 0)} "
+        f"词面缺口={summary.get('lexical_gap_count', 0)}"
+    )
+    samples = list(report.get("samples") or [])
+    if not samples:
+        console.print("[yellow]暂无失败样本[/yellow]")
+        return
+    table = Table(title="检索失败样本")
+    table.add_column("诊断", style="cyan")
+    table.add_column("query", style="green")
+    table.add_column("target")
+    for sample in samples[:10]:
+        table.add_row(
+            str(sample.get("diagnosis") or ""),
+            str(sample.get("query") or "")[:60],
+            str(sample.get("target_item_id") or ""),
+        )
+    console.print(table)
+
+
+@memory_group.command("export-samples")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_export_samples_cmd(slug: str, json_output: bool) -> None:
+    """导出本地失败样本 Markdown/manifest，不调用外部服务。"""
+    from living_novel_engine.service import (
+        RetrievalSampleExportPackRequestError,
+        get_retrieval_sample_export_pack,
+    )
+
+    try:
+        report = get_retrieval_sample_export_pack(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except RetrievalSampleExportPackRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_md") or ""))
+
+
+@memory_group.command("mock-report")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+@click.option("--require-candidate", is_flag=True, help="无 mock 候选时以退出码 1 失败")
+def memory_mock_report_cmd(slug: str, json_output: bool, require_candidate: bool) -> None:
+    """生成本地失败样本的 mock embedding 对照报告。"""
+    from living_novel_engine.service import (
+        EmbeddingMockEvaluationReportRequestError,
+        get_embedding_mock_evaluation_report,
+    )
+
+    try:
+        report = get_embedding_mock_evaluation_report(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except EmbeddingMockEvaluationReportRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    gate = report.get("gate") or {}
+    if require_candidate and not gate.get("passed"):
+        raise click.ClickException("mock embedding 对照未达到 candidate gate")
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("report_md") or ""))
+
+
+@memory_group.command("replay-report")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+@click.option("--require-clean", is_flag=True, help="存在无效 case 时以退出码 1 失败")
+def memory_replay_report_cmd(slug: str, json_output: bool, require_clean: bool) -> None:
+    """复跑本地失败样本，生成当前检索 case report。"""
+    from living_novel_engine.service import (
+        RetrievalSampleReplayReportRequestError,
+        get_retrieval_sample_replay_report,
+    )
+
+    try:
+        report = get_retrieval_sample_replay_report(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except RetrievalSampleReplayReportRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    gate = report.get("replay_gate") or {}
+    if require_clean and not gate.get("passed"):
+        raise click.ClickException("检索样本复跑未达到 clean gate")
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("report_md") or ""))
+
+
+@memory_group.command("migration-pack")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_migration_pack_cmd(slug: str, json_output: bool) -> None:
+    """生成本地失败样本迁移评测集包，不调用外部服务。"""
+    from living_novel_engine.service import (
+        RetrievalSampleMigrationPackRequestError,
+        get_retrieval_sample_migration_pack,
+    )
+
+    try:
+        report = get_retrieval_sample_migration_pack(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except RetrievalSampleMigrationPackRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("index-samples")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_index_samples_cmd(json_output: bool) -> None:
+    """跨项目汇总本地失败样本迁移包，不调用外部服务。"""
+    from living_novel_engine.service import get_cross_project_retrieval_samples_index
+
+    report = get_cross_project_retrieval_samples_index()
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("trend-snapshot")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_trend_snapshot_cmd(json_output: bool) -> None:
+    """生成跨项目检索样本趋势快照，不调用外部服务。"""
+    from living_novel_engine.service import get_retrieval_samples_trend_snapshot
+
+    report = get_retrieval_samples_trend_snapshot()
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-trigger")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_trigger_cmd(slug: str, json_output: bool) -> None:
+    """生成 GraphRAG/Zep 触发证据，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryTriggerEvidenceRequestError,
+        get_graph_memory_trigger_evidence,
+    )
+
+    try:
+        report = get_graph_memory_trigger_evidence(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryTriggerEvidenceRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-design")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_design_cmd(slug: str, json_output: bool) -> None:
+    """生成 GraphRAG/Zep spike 设计包，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemorySpikeDesignPackRequestError,
+        get_graph_memory_spike_design_pack,
+    )
+
+    try:
+        report = get_graph_memory_spike_design_pack(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemorySpikeDesignPackRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-shadow")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_shadow_cmd(slug: str, json_output: bool) -> None:
+    """生成 GraphRAG/Zep shadow 对照包，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryShadowComparePackRequestError,
+        get_graph_memory_shadow_compare_pack,
+    )
+
+    try:
+        report = get_graph_memory_shadow_compare_pack(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryShadowComparePackRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-cases")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_cases_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 shadow case 矩阵，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryShadowCaseMatrixRequestError,
+        get_graph_memory_shadow_case_matrix,
+    )
+
+    try:
+        report = get_graph_memory_shadow_case_matrix(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryShadowCaseMatrixRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-boundaries")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_boundaries_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 provider 边界矩阵，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderBoundaryMatrixRequestError,
+        get_graph_memory_provider_boundary_matrix,
+    )
+
+    try:
+        report = get_graph_memory_provider_boundary_matrix(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderBoundaryMatrixRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-replay-plan")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_replay_plan_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆离线 shadow replay 计划，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryOfflineShadowReplayPlanRequestError,
+        get_graph_memory_offline_shadow_replay_plan,
+    )
+
+    try:
+        report = get_graph_memory_offline_shadow_replay_plan(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryOfflineShadowReplayPlanRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-replay-report")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_replay_report_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆离线 shadow replay 结果报告，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryOfflineShadowReplayReportRequestError,
+        get_graph_memory_offline_shadow_replay_report,
+    )
+
+    try:
+        report = get_graph_memory_offline_shadow_replay_report(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryOfflineShadowReplayReportRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-fixture-pack")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_fixture_pack_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 provider spike dry-run 前置包，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeFixturePackRequestError,
+        get_graph_memory_provider_spike_fixture_pack,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_fixture_pack(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeFixturePackRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-readiness-gate")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_readiness_gate_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 provider spike readiness gate，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeReadinessGateRequestError,
+        get_graph_memory_provider_spike_readiness_gate,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_readiness_gate(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeReadinessGateRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-runbook")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_runbook_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 provider spike 人工 dry-run SOP，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeRunbookRequestError,
+        get_graph_memory_provider_spike_runbook,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_runbook(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeRunbookRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-result-template")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_result_template_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 provider spike 人工 dry-run 结果模板，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeDryRunResultTemplateRequestError,
+        get_graph_memory_provider_spike_dry_run_result_template,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_dry_run_result_template(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeDryRunResultTemplateRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-mock-result")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_mock_result_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 provider spike mock 结果报告，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeMockResultReportRequestError,
+        get_graph_memory_provider_spike_mock_result_report,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_mock_result_report(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeMockResultReportRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-review-gate")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_review_gate_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 provider spike 人工复核 gate，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeReviewGateRequestError,
+        get_graph_memory_provider_spike_review_gate,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_review_gate(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeReviewGateRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-manual-approval-pack")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_manual_approval_pack_cmd(slug: str, json_output: bool) -> None:
+    """生成 Graph 记忆 provider spike 人工审批包，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeManualApprovalPackRequestError,
+        get_graph_memory_provider_spike_manual_approval_pack,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_manual_approval_pack(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeManualApprovalPackRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-approval-evidence-checklist")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_approval_evidence_checklist_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike 审批证据核对表，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeManualApprovalEvidenceChecklistRequestError,
+        get_graph_memory_provider_spike_manual_approval_evidence_checklist,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_manual_approval_evidence_checklist(
+            slug
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeManualApprovalEvidenceChecklistRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-opt-in-evidence-snapshot")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_opt_in_evidence_snapshot_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike opt-in 证据快照，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeOptInEvidenceSnapshotRequestError,
+        get_graph_memory_provider_spike_opt_in_evidence_snapshot,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_opt_in_evidence_snapshot(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeOptInEvidenceSnapshotRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-opt-in-no-go-matrix")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_opt_in_no_go_matrix_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike opt-in no-go 矩阵，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeOptInNoGoMatrixRequestError,
+        get_graph_memory_provider_spike_opt_in_no_go_matrix,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_opt_in_no_go_matrix(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeOptInNoGoMatrixRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-opt-in-operator-checklist")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_opt_in_operator_checklist_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike opt-in 人工操作清单，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeOptInOperatorChecklistRequestError,
+        get_graph_memory_provider_spike_opt_in_operator_checklist,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_opt_in_operator_checklist(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeOptInOperatorChecklistRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-opt-in-review-packet")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_opt_in_review_packet_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike opt-in 人工复核包，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeOptInReviewPacketRequestError,
+        get_graph_memory_provider_spike_opt_in_review_packet,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_opt_in_review_packet(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeOptInReviewPacketRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-opt-in-decision-ledger-preview")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_opt_in_decision_ledger_preview_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike opt-in 决策账本预览，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeOptInDecisionLedgerPreviewRequestError,
+        get_graph_memory_provider_spike_opt_in_decision_ledger_preview,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_opt_in_decision_ledger_preview(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeOptInDecisionLedgerPreviewRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-opt-in-final-readiness-summary")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_opt_in_final_readiness_summary_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike opt-in 最终就绪摘要，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeOptInFinalReadinessSummaryRequestError,
+        get_graph_memory_provider_spike_opt_in_final_readiness_summary,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_opt_in_final_readiness_summary(slug)
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeOptInFinalReadinessSummaryRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
+@memory_group.command("graph-opt-in-human-signoff-schema")
+@click.argument("slug")
+@click.option("--json", "json_output", is_flag=True, help="输出机器可读 JSON")
+def memory_graph_opt_in_human_signoff_schema_cmd(
+    slug: str,
+    json_output: bool,
+) -> None:
+    """生成 Graph 记忆 provider spike opt-in 人工签收 schema 草案，不调用外部服务。"""
+    from living_novel_engine.service import (
+        GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftRequestError,
+        get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft,
+    )
+
+    try:
+        report = get_graph_memory_provider_spike_opt_in_human_signoff_schema_draft(
+            slug
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftRequestError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps(report, ensure_ascii=False, indent=2))
+        return
+
+    click.echo(str(report.get("content_json") or ""))
+
+
 @main.group("resume")
 def resume_group() -> None:
     """沿已选世界线续写（v0.1.2+）"""

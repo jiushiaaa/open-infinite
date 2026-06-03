@@ -1,12 +1,15 @@
 import type {
   AnchorPatch,
   AnchorUpdateResponse,
+  ApiContractReport,
   AuthBoundaryChecklist,
   BillingAdapterBoundaryChecklist,
   BaselineGenerateRequest,
   BaselineGenerateResponse,
   BaselineReport,
   BranchDetail,
+  BundledReleaseReadinessReport,
+  CardsWorkspaceReport,
   CanonReplayReport,
   CanonReplayRangeReport,
   CanonReplayRangeRequest,
@@ -15,11 +18,42 @@ import type {
   ChapterExport,
   CharacterProbe,
   ConnectivityResult,
+  CrossProjectRetrievalSamplesIndexReport,
   DiffActionRequest,
   DiffActionResponse,
+  EmbeddingEvaluationSamplesReport,
+  EmbeddingMockEvaluationReport,
+  RetrievalSampleMigrationPackReport,
+  RetrievalSampleReplayReport,
+  RetrievalSampleExportPackReport,
+  RetrievalFailureSampleAppendRequest,
+  RetrievalFailureSampleAppendResponse,
+  RetrievalFailureSamplesReport,
   EmergenceReport,
   GuardrailRequest,
   GuardrailResult,
+  GraphMemoryTriggerEvidenceReport,
+  GraphMemorySpikeDesignPackReport,
+  GraphMemoryShadowComparePackReport,
+  GraphMemoryShadowCaseMatrixReport,
+  GraphMemoryProviderBoundaryMatrixReport,
+  GraphMemoryOfflineShadowReplayPlanReport,
+  GraphMemoryOfflineShadowReplayReport,
+  GraphMemoryProviderSpikeFixturePackReport,
+  GraphMemoryProviderSpikeReadinessGateReport,
+  GraphMemoryProviderSpikeRunbookReport,
+  GraphMemoryProviderSpikeDryRunResultTemplateReport,
+  GraphMemoryProviderSpikeMockResultReport,
+  GraphMemoryProviderSpikeReviewGateReport,
+  GraphMemoryProviderSpikeManualApprovalPackReport,
+  GraphMemoryProviderSpikeManualApprovalEvidenceChecklistReport,
+  GraphMemoryProviderSpikeOptInEvidenceSnapshotReport,
+  GraphMemoryProviderSpikeOptInNoGoMatrixReport,
+  GraphMemoryProviderSpikeOptInOperatorChecklistReport,
+  GraphMemoryProviderSpikeOptInReviewPacketReport,
+  GraphMemoryProviderSpikeOptInDecisionLedgerPreviewReport,
+  GraphMemoryProviderSpikeOptInFinalReadinessSummaryReport,
+  GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport,
   HoldoutManifest,
   HoldoutWriteRequest,
   IngestChunkRequest,
@@ -32,10 +66,12 @@ import type {
   MasterSettingPatch,
   MasterSettingUpdateResponse,
   DeploymentObservabilityChecklist,
+  LLMProfileAssignmentReport,
   LocalSmokeChecklist,
   ObjectStorageBoundaryChecklist,
   QuotaEnforcementBoundaryChecklist,
   ReleasePreflightChecklist,
+  RetrievalSamplesTrendSnapshotReport,
   RightsApprovalChecklist,
   ModelConfigurationSummary,
   ProviderGatewaySummary,
@@ -45,12 +81,17 @@ import type {
   ProjectAuditLogExport,
   ProjectWorkspace,
   ProjectHealth,
+  ProjectionHealthReport,
+  PromptBudgetPackReport,
+  ReaderPanelReport,
+  RuntimePreflightReport,
   InterventionRequest,
   InterventionResponse,
   RunDetail,
   RunTreeNode,
   RuntimeSettings,
   RuntimeSettingsPatch,
+  VectorRetrievalReadinessReport,
   ReplayAuditWorkspace,
   ResumeContinueRequest,
   RunnerStateExecutionApplyReport,
@@ -143,6 +184,211 @@ export const api = {
       `/api/stories/${encodeURIComponent(storySlug)}/project-workspace`,
     );
   },
+  getRuntimePreflight(storySlug: string): Promise<RuntimePreflightReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/runtime-preflight`,
+    );
+  },
+  getVectorRetrievalReadiness(storySlug: string): Promise<VectorRetrievalReadinessReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/vector-retrieval-readiness`,
+    );
+  },
+  getGraphMemoryTriggerEvidence(
+    storySlug: string,
+  ): Promise<GraphMemoryTriggerEvidenceReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-trigger-evidence`,
+    );
+  },
+  getGraphMemorySpikeDesignPack(
+    storySlug: string,
+  ): Promise<GraphMemorySpikeDesignPackReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-spike-design-pack`,
+    );
+  },
+  getGraphMemoryShadowComparePack(
+    storySlug: string,
+  ): Promise<GraphMemoryShadowComparePackReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-shadow-compare-pack`,
+    );
+  },
+  getGraphMemoryShadowCaseMatrix(
+    storySlug: string,
+  ): Promise<GraphMemoryShadowCaseMatrixReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-shadow-case-matrix`,
+    );
+  },
+  getGraphMemoryProviderBoundaryMatrix(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderBoundaryMatrixReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-boundary-matrix`,
+    );
+  },
+  getGraphMemoryOfflineShadowReplayPlan(
+    storySlug: string,
+  ): Promise<GraphMemoryOfflineShadowReplayPlanReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-offline-shadow-replay-plan`,
+    );
+  },
+  getGraphMemoryOfflineShadowReplayReport(
+    storySlug: string,
+  ): Promise<GraphMemoryOfflineShadowReplayReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-offline-shadow-replay-report`,
+    );
+  },
+  getGraphMemoryProviderSpikeFixturePack(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeFixturePackReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-fixture-pack`,
+    );
+  },
+  getGraphMemoryProviderSpikeReadinessGate(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeReadinessGateReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-readiness-gate`,
+    );
+  },
+  getGraphMemoryProviderSpikeRunbook(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeRunbookReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-runbook`,
+    );
+  },
+  getGraphMemoryProviderSpikeDryRunResultTemplate(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeDryRunResultTemplateReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-dry-run-result-template`,
+    );
+  },
+  getGraphMemoryProviderSpikeMockResultReport(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeMockResultReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-mock-result-report`,
+    );
+  },
+  getGraphMemoryProviderSpikeReviewGate(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeReviewGateReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-review-gate`,
+    );
+  },
+  getGraphMemoryProviderSpikeManualApprovalPack(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeManualApprovalPackReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-manual-approval-pack`,
+    );
+  },
+  getGraphMemoryProviderSpikeManualApprovalEvidenceChecklist(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeManualApprovalEvidenceChecklistReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-manual-approval-evidence-checklist`,
+    );
+  },
+  getGraphMemoryProviderSpikeOptInEvidenceSnapshot(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeOptInEvidenceSnapshotReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-evidence-snapshot`,
+    );
+  },
+  getGraphMemoryProviderSpikeOptInNoGoMatrix(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeOptInNoGoMatrixReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-no-go-matrix`,
+    );
+  },
+  getGraphMemoryProviderSpikeOptInOperatorChecklist(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeOptInOperatorChecklistReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-operator-checklist`,
+    );
+  },
+  getGraphMemoryProviderSpikeOptInReviewPacket(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeOptInReviewPacketReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-review-packet`,
+    );
+  },
+  getGraphMemoryProviderSpikeOptInDecisionLedgerPreview(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeOptInDecisionLedgerPreviewReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-decision-ledger-preview`,
+    );
+  },
+  getGraphMemoryProviderSpikeOptInFinalReadinessSummary(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeOptInFinalReadinessSummaryReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-final-readiness-summary`,
+    );
+  },
+  getGraphMemoryProviderSpikeOptInHumanSignoffSchemaDraft(
+    storySlug: string,
+  ): Promise<GraphMemoryProviderSpikeOptInHumanSignoffSchemaDraftReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/graph-memory-provider-spike-opt-in-human-signoff-schema-draft`,
+    );
+  },
+  getEmbeddingEvaluationSamples(storySlug: string): Promise<EmbeddingEvaluationSamplesReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/embedding-evaluation-samples`,
+    );
+  },
+  getRetrievalSampleExportPack(storySlug: string): Promise<RetrievalSampleExportPackReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/retrieval-sample-export-pack`,
+    );
+  },
+  getEmbeddingMockEvaluationReport(storySlug: string): Promise<EmbeddingMockEvaluationReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/embedding-mock-evaluation-report`,
+    );
+  },
+  getRetrievalSampleReplayReport(storySlug: string): Promise<RetrievalSampleReplayReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/retrieval-sample-replay-report`,
+    );
+  },
+  getRetrievalSampleMigrationPack(
+    storySlug: string,
+  ): Promise<RetrievalSampleMigrationPackReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/retrieval-sample-migration-pack`,
+    );
+  },
+  getRetrievalFailureSamples(storySlug: string): Promise<RetrievalFailureSamplesReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/retrieval-failure-samples`,
+    );
+  },
+  addRetrievalFailureSample(
+    storySlug: string,
+    req: RetrievalFailureSampleAppendRequest,
+  ): Promise<RetrievalFailureSampleAppendResponse> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/retrieval-failure-samples`,
+      req,
+    );
+  },
   getProjectAuditLog(storySlug: string): Promise<ProjectAuditLog> {
     return getJson(`/api/stories/${encodeURIComponent(storySlug)}/audit-log`);
   },
@@ -185,12 +431,38 @@ export const api = {
       patch,
     );
   },
+  getCardsWorkspace(storySlug: string): Promise<CardsWorkspaceReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/cards-workspace`,
+    );
+  },
   getRun(runId: string): Promise<RunDetail> {
     return getJson(`/api/runs/${encodeURIComponent(runId)}`);
   },
   getBranch(runId: string, branchId: string): Promise<BranchDetail> {
     return getJson(
       `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}`,
+    );
+  },
+  getProjectionHealth(
+    runId: string,
+    branchId: string,
+  ): Promise<ProjectionHealthReport> {
+    return getJson(
+      `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/projection-health`,
+    );
+  },
+  getReaderPanel(runId: string, branchId: string): Promise<ReaderPanelReport> {
+    return getJson(
+      `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/reader-panel`,
+    );
+  },
+  getPromptBudgetPack(
+    runId: string,
+    branchId: string,
+  ): Promise<PromptBudgetPackReport> {
+    return getJson(
+      `/api/runs/${encodeURIComponent(runId)}/branches/${encodeURIComponent(branchId)}/prompt-budget-pack`,
     );
   },
   postIntervention(req: InterventionRequest): Promise<InterventionResponse> {
@@ -239,6 +511,21 @@ export const api = {
   },
   getModelConfiguration(): Promise<ModelConfigurationSummary> {
     return getJson("/api/settings/model-configuration");
+  },
+  getLLMProfileAssignment(): Promise<LLMProfileAssignmentReport> {
+    return getJson("/api/settings/llm-profile-assignment");
+  },
+  getApiContract(): Promise<ApiContractReport> {
+    return getJson("/api/settings/api-contract");
+  },
+  getRetrievalSamplesIndex(): Promise<CrossProjectRetrievalSamplesIndexReport> {
+    return getJson("/api/settings/retrieval-samples-index");
+  },
+  getRetrievalSamplesTrendSnapshot(): Promise<RetrievalSamplesTrendSnapshotReport> {
+    return getJson("/api/settings/retrieval-samples-trend-snapshot");
+  },
+  getPackagingReadiness(): Promise<BundledReleaseReadinessReport> {
+    return getJson("/api/settings/packaging-readiness");
   },
   getCommercialStatusOverview(): Promise<CommercialStatusOverview> {
     return getJson("/api/settings/commercial-status-overview");

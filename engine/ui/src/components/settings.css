@@ -150,6 +150,20 @@
   max-width: 230px;
   overflow-wrap: anywhere;
 }
+.settings__route-row--api {
+  align-items: flex-start;
+}
+.settings__route-row--api > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.settings__route-row--api > strong {
+  max-width: 140px;
+  overflow-wrap: anywhere;
+}
+.settings__api-path {
+  overflow-wrap: anywhere;
+}
 .settings__metric-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
