@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "zilliz": {
+      "source": "zilliztech/zilliz-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "e1cdb7c4739188edb2d74431ff68a42233a7ebdf0d1701afb7d4b770a9c35985"
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-03（用户授权进入后续增强自主迭代；Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口，共四十五刀。）
+> **最后更新**：2026-06-03（用户明确要求接入真实检索 provider；Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口，共四十五刀，Retrieval Provider Real Connectivity MVP 与 Vector Retrieval Pipeline MVP 已收口。）
 
 ---
 
@@ -12,11 +12,11 @@
 | --- | --- |
 | 项目 | 未终章（Unfinale）；技术缩写、Python 包、CLI 与环境变量前缀仍沿用 LNE / `living_novel_engine`，核心代码在 `D:\AI\open-infinite\engine` |
 | 北极星 | 文本输入 -> 世界锚定 -> 角色自主行动 -> 读者干预 -> 世界线分叉 -> 章节渲染 -> 可继续运行 |
-| 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已收口 |
+| 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已收口；Retrieval Provider Real Connectivity MVP 与 Vector Retrieval Pipeline MVP 已收口 |
 | 产品入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能必须优先通过 Web UI + API 完成，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑 |
 | 测试基线 | `cd engine && python -m pytest -q` -> `872 passed`；`cd engine/ui && pnpm run build` 通过 |
-| 官方下一步 | 按用户要求完成 `Graph Memory Provider Spike Manual Mock Adapter Review MVP` 后暂停继续开发；恢复时先由用户明确下一步，不自动接真实 provider、生产向量库、GraphRAG、Zep 或外部 embedding provider |
-| 后续候选 | 失败样本稳定复现、趋势快照持续暴露缺口后，再按证据评估真实 embedding、向量库、GraphRAG、Zep 或 reranker；继续避免一次性接重型服务 |
+| 官方下一步 | 用户已明确恢复真实检索 provider 接入；当前完成百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的显式配置、脱敏设置页、mock/real smoke、Zilliz collection 写入、混合检索预览和 rerank。默认 BM25 仍不替换，运行时只有 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 时才消费真实向量链路 |
+| 后续候选 | 用真实失败样本持续评估 embedding + Zilliz + reranker 对召回和预算的收益；是否把 hybrid vector 作为默认检索、是否接 GraphRAG/Zep、云端多租户仍需另行确认 |
 
 判断“下一刀”时，先以本节和 `docs/living-novel-engine-iteration-plan.md` 为准；不要从旧变更日志里直接捞历史待办。
 
@@ -99,12 +99,14 @@
 - Graph Memory Provider Spike Single Fixture Dry-run Harness MVP：后续增强第四十三刀已收口，新增只读 service/API/CLI/项目工作台面板，把本地 contract 收束为单 fixture dry-run harness；只允许 local mock，不保存 dry-run 结果、不运行真实 provider。
 - Graph Memory Provider Spike Mock-compatible Adapter MVP：后续增强第四十四刀已收口，新增只读 service/API/CLI/项目工作台面板，把 dry-run harness 收束为 mock-compatible adapter 规格、方法实现要求和 validation cases；不创建真实 provider adapter。
 - Graph Memory Provider Spike Manual Mock Adapter Review MVP：后续增强第四十五刀已收口，新增只读 service/API/CLI/项目工作台面板，把 mock-compatible adapter 规格收束为人工复核包、per-adapter review rows、合规检查、阻断项和“本刀后暂停”建议；不保存人工结论、不创建真实 provider adapter。
+- Retrieval Provider Real Connectivity MVP：已按用户明确要求收口，新增百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的真实 provider 配置摘要与显式 smoke。设置页只脱敏展示配置状态；`GET /api/settings/retrieval-provider-configuration` 只读返回配置，`POST /api/settings/retrieval-provider/test` 支持 `mock=true` 本地契约检查与 `mock=false` 真实连通性检查。
+- Vector Retrieval Pipeline MVP：已按用户明确要求收口，新增显式 `POST /api/stories/<slug>/vector-retrieval/index` 写入 Zilliz collection、`POST /api/stories/<slug>/vector-retrieval/search` 做百炼 embedding + Zilliz + 百炼 rerank 检索预览；项目工作台新增「真实向量检索」面板；运行时保持 opt-in，只有 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 才消费该链路，任一 provider 失败回退 BM25。
 
 ### 当前自主迭代点
 
 - 真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已完成。
-- 按用户“ step by step ”要求，下一步仍不直接接重型外部记忆服务。
-- 本刀完成后按用户要求暂停继续开发；恢复时先确认用户选择，不默认接外部 embedding、GraphRAG、Zep 或向量库。
+- 按用户要求，真实 embedding、Zilliz 和 reranker 已进入显式可用链路。
+- 后续如继续，应优先用真实失败样本评估收益和默认启用边界，不自动接 GraphRAG/Zep 或云端多租户。
 
 ---
 
@@ -146,6 +148,7 @@
 - 设置抽屉新增「发行准备」只读面板；`GET /api/settings/packaging-readiness` 检查脚本、package、前端 dist、发行文档和密钥边界，不生成安装包、不内置 runtime。
 - 项目工作台新增「设定卡片」只读面板；`GET /api/stories/<slug>/cards-workspace` 汇总世界卡、角色卡、风格卡，不生成卡片文件、不写 artifact。
 - 项目工作台新增「向量检索就绪」只读面板；`GET /api/stories/<slug>/vector-retrieval-readiness` 汇总导入规模、检索语料、BM25 探针、失败样本和候选层状态，不生成 embedding、不接向量库、不写 artifact。
+- 项目工作台新增「真实向量检索」面板；`POST /api/stories/<slug>/vector-retrieval/index` 可显式把当前项目语料 embedding 后写入 Zilliz collection，`POST /api/stories/<slug>/vector-retrieval/search` 可用百炼 embedding + Zilliz + 百炼 rerank 做检索预览。默认创作检索不被替换，运行时只有 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 时才使用真实向量链路，失败时回退 BM25。
 - 项目工作台新增「Embedding 样本评估」只读面板；`GET /api/stories/<slug>/embedding-evaluation-samples` 对本地失败样本做 BM25 vs mock semantic oracle 对照，不调用真实 provider、不创建向量索引。
 - 项目工作台新增「Embedding 样本评估」内的失败样本记录表单；`GET/POST /api/stories/<slug>/retrieval-failure-samples` 读取或追加本地失败样本，追加后可直接刷新 mock 对照评估。
 - 项目工作台新增「预览导出包」「生成对照报告」「生成复跑报告」「生成迁移包」入口；设置页新增「跨项目样本索引」入口；`GET /api/stories/<slug>/retrieval-sample-export-pack` 只读返回失败样本 Markdown 与 manifest，`GET /api/stories/<slug>/embedding-mock-evaluation-report` 只读返回 candidate gate、分桶样本和 Markdown 对照报告，`GET /api/stories/<slug>/retrieval-sample-replay-report` 只读返回当前检索 case report，`GET /api/stories/<slug>/retrieval-sample-migration-pack` 只读返回稳定 eval records 与 JSON manifest，`GET /api/settings/retrieval-samples-index` 只读返回跨项目样本索引。
@@ -186,7 +189,7 @@
 | Bundled Release / Desktop Packaging 深化 | 已有只读发行准备清单；安装包、内置 runtime、桌面壳、签名和自动升级仍未做 | 用户本地试用稳定后再做 opt-in packager spike |
 | Retrieval Sample Export Pack / Mock Evaluation Report | 已有失败样本工作台、CLI 追加/复跑入口、只读 Markdown/manifest 导出包、mock 对照报告、replay case report 和 migration pack；跨项目样本索引仍未做 | 需要把真实失败 query 跨项目汇总时再做 |
 | 云端多用户持久队列/对象存储/认证/计费 | v1.0-beta 已定义边界，但刻意不接真实云端系统 | 外部用户试用或部署路径明确后再做 |
-| 向量库 / embedding / GraphRAG | 已有 BM25、ledger、alias、probe、Prompt Budget Pack、向量检索就绪探针、mock 样本评估、跨项目趋势快照、GraphRAG/Zep trigger evidence、spike design pack、shadow compare pack、case matrix、provider boundary matrix、offline replay、fixture pack、readiness gate、runbook、result template、mock result、review gate、manual approval、opt-in evidence/no-go/operator/review packet、decision ledger preview 和 final readiness summary；暂不接 Zep/图数据库/生产向量库 | 本地失败样本、mock embedding 对照、trigger evidence、design pack、shadow compare、case matrix、provider boundary matrix、offline replay、fixture pack、readiness gate、runbook、result template、mock result、review gate、manual approval、opt-in evidence/no-go/operator/review packet、decision ledger preview 和 final readiness summary 共同证明收益并完成人工 dry-run 复核后再评估真实 provider |
+| 生产默认检索替换 / GraphRAG / Zep | 已有 BM25、ledger、alias、probe、Prompt Budget Pack、向量检索就绪探针、mock 样本评估、跨项目趋势快照、GraphRAG/Zep 证据链；已新增百炼 embedding、Zilliz Cloud、百炼 reranker 的显式配置、真实 smoke、Zilliz 写索引、混合检索预览和 opt-in runtime 消费 | 先用真实失败样本评估收益；收益明确后再决定是否默认启用 hybrid vector、接 GraphRAG/Zep 或扩展生产运维能力 |
 | 高级 runner 框架 | 已有触发式评估，不默认接 LangGraph/OASIS/CAMEL | probe 证明现有 runner 到瓶颈时再做 |
 
 已完成但历史上曾列为缺口的能力：视觉资产、长篇分层记忆、正史账本、长篇混合检索、长篇一致性审计、抽象干预编译层、Worldline Judge、涌现节点、叙事诊断、动态动作注册表、百万字上传入口、无干预 baseline、正史回放等，均不应再作为当前未做项重复安排。

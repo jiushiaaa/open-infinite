@@ -8,6 +8,7 @@ separate audit artifact. It does not mutate project memory or runner state.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import os
 from pathlib import Path
 from typing import Any
 
@@ -82,12 +83,20 @@ def build_runtime_memory_context(
     elif aliases.status == "missing":
         warnings.append("entity_aliases.yaml 缺失，已按原始查询检索")
 
-    retrieval = retrieve_context(
-        project_dir,
-        query,
-        current_chapter=current_chapter,
-        top_k=top_k,
-    )
+    if _retrieval_strategy() == "hybrid_vector":
+        retrieval = _retrieve_hybrid_vector_context(
+            project_dir,
+            query,
+            current_chapter=current_chapter,
+            top_k=top_k,
+        )
+    else:
+        retrieval = retrieve_context(
+            project_dir,
+            query,
+            current_chapter=current_chapter,
+            top_k=top_k,
+        )
     resolved = aliases.resolve_text(query) if aliases.status == "ready" else []
     return RuntimeMemoryContext(
         query=query,
@@ -96,6 +105,29 @@ def build_runtime_memory_context(
         entity_aliases=aliases,
         resolved_query_entities=resolved,
         warnings=warnings,
+    )
+
+
+def _retrieval_strategy() -> str:
+    return os.environ.get("LNE_RETRIEVAL_STRATEGY", "bm25").strip().lower() or "bm25"
+
+
+def _retrieve_hybrid_vector_context(
+    project_dir: Path,
+    query: str,
+    *,
+    current_chapter: int,
+    top_k: int,
+):
+    from living_novel_engine.service.vector_retrieval_pipeline import (
+        retrieve_hybrid_vector_context,
+    )
+
+    return retrieve_hybrid_vector_context(
+        project_dir,
+        query,
+        current_chapter=current_chapter,
+        top_k=top_k,
     )
 
 
@@ -110,4 +142,9 @@ def _consumed_layers(
         source = str(item.get("source") or "").strip()
         if source:
             layers.add(source)
+        path = str(item.get("retrieval_path") or "")
+        if "vector" in path:
+            layers.add("vector_retrieval")
+        if "rerank" in path:
+            layers.add("reranker")
     return sorted(layers)

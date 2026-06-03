@@ -2,7 +2,7 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-03，本地模型配置 UX、本地一键运行脚本、Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口，共四十五刀。
+> 版本：2026-06-03，本地模型配置 UX、本地一键运行脚本、Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口，共四十五刀；Retrieval Provider Real Connectivity MVP 与 Vector Retrieval Pipeline MVP 已收口。
 
 ## 1. 产品北极星
 
@@ -75,12 +75,14 @@
 | Graph Memory Provider Spike Single Fixture Dry-run Harness MVP | 第四十三刀已收口 | 后续增强自主迭代第四十三刀：service/API/CLI/项目工作台只读展示单 fixture dry-run harness；只允许 local mock，不保存 dry-run 结果。 |
 | Graph Memory Provider Spike Mock-compatible Adapter MVP | 第四十四刀已收口 | 后续增强自主迭代第四十四刀：service/API/CLI/项目工作台只读展示 mock-compatible adapter 规格、方法要求和 validation cases；不创建真实 adapter。 |
 | Graph Memory Provider Spike Manual Mock Adapter Review MVP | 第四十五刀已收口 | 后续增强自主迭代第四十五刀：service/API/CLI/项目工作台只读展示 mock adapter 人工复核包、合规检查、阻断项和本刀后暂停建议；不保存人工结论、不创建真实 adapter。 |
+| Retrieval Provider Real Connectivity MVP | 已收口 | 用户明确要求接入真实检索 provider；新增百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的脱敏配置摘要和显式 smoke。`mock=true` 不打外网，`mock=false` 才调用真实 provider。 |
+| Vector Retrieval Pipeline MVP | 已收口 | 新增显式 Zilliz 索引写入、百炼 embedding + Zilliz + 百炼 rerank 检索预览、项目工作台真实向量检索面板和 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 运行时 opt-in；默认 BM25 不被替换，失败回退 BM25。 |
 
 当前验证基线：后端 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
 ## 3. 当前自主迭代点
 
-用户已授权进入后续增强自主迭代。真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已完成。本刀后按用户要求暂停继续开发；恢复时先确认用户选择，不自动进入真实 provider。
+用户已授权进入后续增强自主迭代。真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已完成。随后用户明确要求接入真实检索 provider，已完成百炼 embedding、Zilliz Cloud 与百炼 reranker 的显式配置、真实 smoke、Zilliz 索引写入、混合检索预览和运行时 opt-in；默认 BM25 检索仍不被替换。
 
 本地体验稳定后，发行路径仍由用户选择进入：
 
@@ -141,7 +143,7 @@
 | Graph Memory Provider Boundary Matrix | 已有只读 service/API/CLI/项目工作台，可展示 provider opt-in 边界、成本、隐私、数据同步、回滚、测试、验收和失败降级 | 已接续完成 Graph Memory Offline Shadow Replay Plan 与 Report，不接真实 provider。 |
 | Graph Memory Offline Shadow Replay Plan / Report / Fixture Pack / Readiness Gate / Runbook / Result Template / Mock Result Report / Review Gate / Manual Approval Pack / Approval Evidence Checklist / Opt-in Evidence Snapshot / No-go Matrix / Operator Checklist / Review Packet / Decision Ledger Preview / Final Readiness Summary / Human Signoff Schema / Config Draft / Local Contract / Dry-run Harness / Mock-compatible Adapter / Manual Mock Adapter Review | 已有只读 service/API/CLI/项目工作台，可展示 provider plans、replay cases、mock result、候选收益、失败降级、人工复核结论、单 provider dry-run fixture 前置包、readiness gate、人工 opt-in dry-run SOP、结果记录模板、mock 填充报告、人工复核 gate、人工审批包、审批证据核对表、opt-in 证据快照、no-go 分类矩阵、人工操作 checklist、人工复核包、决策账本预览、最终就绪摘要、签收 schema、配置草案、本地 contract、dry-run harness、mock adapter 规格和 mock adapter 人工复核包 | 已按用户要求暂停继续开发；恢复时先确认下一步，继续不接真实 provider。 |
 | 云端多用户、对象存储、认证、计费 | 本地试用稳定并明确发行路径后再拆。 |
-| 向量库 / embedding / GraphRAG | 只有 BM25/ledger/alias probe 与向量就绪探针证明不足时再评估。 |
+| 默认检索替换 / GraphRAG / Zep | 百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 已有显式配置与 smoke；Zilliz collection 写入、混合检索预览和运行时 opt-in 已可用。是否默认替换 BM25、接 GraphRAG/Zep 仍需基于失败样本另行确认。 |
 | LangGraph / OASIS / CAMEL | 只有复杂 run probe 证明自研 runner 不足时再评估。 |
 
 ## 6. 后续候选路线

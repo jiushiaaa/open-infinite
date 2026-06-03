@@ -76,6 +76,8 @@ import type {
   ObjectStorageBoundaryChecklist,
   QuotaEnforcementBoundaryChecklist,
   ReleasePreflightChecklist,
+  RetrievalProviderConfigurationReport,
+  RetrievalProviderConnectivityResult,
   RetrievalSamplesTrendSnapshotReport,
   RightsApprovalChecklist,
   ModelConfigurationSummary,
@@ -96,7 +98,9 @@ import type {
   RunTreeNode,
   RuntimeSettings,
   RuntimeSettingsPatch,
+  VectorRetrievalIndexReport,
   VectorRetrievalReadinessReport,
+  VectorRetrievalSearchReport,
   ReplayAuditWorkspace,
   ResumeContinueRequest,
   RunnerStateExecutionApplyReport,
@@ -197,6 +201,24 @@ export const api = {
   getVectorRetrievalReadiness(storySlug: string): Promise<VectorRetrievalReadinessReport> {
     return getJson(
       `/api/stories/${encodeURIComponent(storySlug)}/vector-retrieval-readiness`,
+    );
+  },
+  buildVectorRetrievalIndex(
+    storySlug: string,
+    payload: { refresh?: boolean; limit?: number | null } = {},
+  ): Promise<VectorRetrievalIndexReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/vector-retrieval/index`,
+      payload,
+    );
+  },
+  searchVectorRetrieval(
+    storySlug: string,
+    payload: { query: string; current_chapter?: number; top_k?: number },
+  ): Promise<VectorRetrievalSearchReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/vector-retrieval/search`,
+      payload,
     );
   },
   getGraphMemoryTriggerEvidence(
@@ -551,6 +573,14 @@ export const api = {
   },
   getModelConfiguration(): Promise<ModelConfigurationSummary> {
     return getJson("/api/settings/model-configuration");
+  },
+  getRetrievalProviderConfiguration(): Promise<RetrievalProviderConfigurationReport> {
+    return getJson("/api/settings/retrieval-provider-configuration");
+  },
+  testRetrievalProviderConnectivity(
+    mock = true,
+  ): Promise<RetrievalProviderConnectivityResult> {
+    return postJson("/api/settings/retrieval-provider/test", { mock });
   },
   getLLMProfileAssignment(): Promise<LLMProfileAssignmentReport> {
     return getJson("/api/settings/llm-profile-assignment");

@@ -58,6 +58,22 @@ def _get(port: int, path: str) -> tuple[int, dict]:
         return e.code, json.loads(e.read().decode("utf-8"))
 
 
+def _post(port: int, path: str, payload: dict) -> tuple[int, dict]:
+    url = f"http://127.0.0.1:{port}{path}"
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        method="POST",
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=2) as resp:
+            return resp.status, json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        return e.code, json.loads(e.read().decode("utf-8"))
+
+
 def test_runs_endpoint_returns_demo_run(running_server):
     status, body = _get(running_server, "/api/runs")
     assert status == 200
@@ -93,6 +109,99 @@ def test_unknown_run_returns_404(running_server):
     status, body = _get(running_server, "/api/runs/run_nope")
     assert status == 404
     assert "error" in body
+
+
+def test_retrieval_provider_configuration_endpoint_is_secret_safe(running_server, monkeypatch):
+    monkeypatch.delenv("LNE_RERANK_API_KEY", raising=False)
+    monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
+
+    status, body = _get(running_server, "/api/settings/retrieval-provider-configuration")
+
+    assert status == 200
+    assert body["mode"] == "read_only_retrieval_provider_configuration"
+    assert body["providers"]["embedding"]["model"] == "text-embedding-v3"
+    assert body["providers"]["reranker"]["model"] == "gte-rerank-v2"
+    assert body["summary"]["plaintext_key_returned"] is False
+
+
+def test_retrieval_provider_mock_smoke_endpoint_is_local_only(running_server):
+    status, body = _post(
+        running_server,
+        "/api/settings/retrieval-provider/test",
+        {"mock": True},
+    )
+
+    assert status == 200
+    assert body["mode"] == "mock"
+    assert body["summary"]["provider_calls"] is False
+    assert body["checks"]["embedding"]["model"] == "text-embedding-v3"
+    assert body["checks"]["reranker"]["model"] == "gte-rerank-v2"
+
+
+def test_vector_retrieval_index_endpoint(running_server, monkeypatch):
+    from living_novel_engine import service
+
+    captured = {}
+
+    def fake_index(slug, *, refresh=False, limit=None):
+        captured["slug"] = slug
+        captured["refresh"] = refresh
+        captured["limit"] = limit
+        return {
+            "version": "vector-retrieval-pipeline-mvp",
+            "mode": "write_vector_retrieval_index",
+            "status": "ready",
+            "story_slug": slug,
+            "summary": {"indexed_count": 3, "writes_vector_store": True},
+        }
+
+    monkeypatch.setattr(service, "build_vector_retrieval_index", fake_index)
+
+    status, body = _post(
+        running_server,
+        "/api/stories/demo/vector-retrieval/index",
+        {"refresh": True, "limit": 5},
+    )
+
+    assert status == 200
+    assert captured == {"slug": "demo", "refresh": True, "limit": 5}
+    assert body["status"] == "ready"
+    assert body["summary"]["writes_vector_store"] is True
+
+
+def test_vector_retrieval_search_endpoint(running_server, monkeypatch):
+    from living_novel_engine import service
+
+    captured = {}
+
+    def fake_search(slug, query, *, current_chapter=1, top_k=8):
+        captured["slug"] = slug
+        captured["query"] = query
+        captured["current_chapter"] = current_chapter
+        captured["top_k"] = top_k
+        return {
+            "version": "vector-retrieval-pipeline-mvp",
+            "mode": "hybrid_vector_retrieval_preview",
+            "status": "ready",
+            "story_slug": slug,
+            "summary": {"retrieval_mode": "hybrid_vector_rerank"},
+            "items": [{"id": "canon_ledger:canon_000001"}],
+        }
+
+    monkeypatch.setattr(service, "search_vector_retrieval", fake_search)
+
+    status, body = _post(
+        running_server,
+        "/api/stories/demo/vector-retrieval/search",
+        {"query": "退魂铃在哪里响过", "current_chapter": 3, "top_k": 4},
+    )
+
+    assert status == 200
+    assert captured["slug"] == "demo"
+    assert captured["query"] == "退魂铃在哪里响过"
+    assert captured["current_chapter"] == 3
+    assert captured["top_k"] == 4
+    assert body["summary"]["retrieval_mode"] == "hybrid_vector_rerank"
 
 
 def test_port_in_use_raises_clean_error():

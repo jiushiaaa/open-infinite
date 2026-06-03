@@ -61,13 +61,20 @@ def test_api_contract_describes_core_openapi_paths(monkeypatch):
         "/api/stories/{slug}/graph-memory-provider-spike-mock-compatible-adapter",
         "/api/stories/{slug}/graph-memory-provider-spike-manual-mock-adapter-review",
         "/api/settings/llm-profile-assignment",
+        "/api/settings/retrieval-provider-configuration",
         "/api/settings/retrieval-samples-trend-snapshot",
         "/api/runs/{run_id}/branches/{branch_id}/prompt-budget-pack",
     ):
         assert path in paths
         assert "get" in paths[path]
-    assert report["summary"]["endpoint_count"] == 66
-    assert report["summary"]["openapi_path_count"] == 65
+    assert "/api/settings/retrieval-provider/test" in paths
+    assert "post" in paths["/api/settings/retrieval-provider/test"]
+    assert "/api/stories/{slug}/vector-retrieval/index" in paths
+    assert "post" in paths["/api/stories/{slug}/vector-retrieval/index"]
+    assert "/api/stories/{slug}/vector-retrieval/search" in paths
+    assert "post" in paths["/api/stories/{slug}/vector-retrieval/search"]
+    assert report["summary"]["endpoint_count"] == 70
+    assert report["summary"]["openapi_path_count"] == 69
 
 
 def test_api_contract_maps_typed_client_without_leaking_secrets(monkeypatch):
@@ -114,12 +121,16 @@ def test_api_contract_maps_typed_client_without_leaking_secrets(monkeypatch):
         "getGraphMemoryProviderSpikeLocalProviderContract",
         "getGraphMemoryProviderSpikeSingleFixtureDryRunHarness",
         "getGraphMemoryProviderSpikeMockCompatibleAdapter",
-        "getGraphMemoryProviderSpikeManualMockAdapterReview",
-        "getLLMProfileAssignment",
-        "getRetrievalSamplesTrendSnapshot",
-        "getPromptBudgetPack",
-    }.issubset(client_methods)
-    assert report["summary"]["typed_client_method_count"] == 65
+            "getGraphMemoryProviderSpikeManualMockAdapterReview",
+            "getLLMProfileAssignment",
+            "getRetrievalProviderConfiguration",
+            "testRetrievalProviderConnectivity",
+            "getRetrievalSamplesTrendSnapshot",
+            "getPromptBudgetPack",
+            "buildVectorRetrievalIndex",
+            "searchVectorRetrieval",
+        }.issubset(client_methods)
+    assert report["summary"]["typed_client_method_count"] == 69
     assert client_methods["getCardsWorkspace"]["response_type"] == "CardsWorkspaceReport"
     assert (
         client_methods["getVectorRetrievalReadiness"]["response_type"]

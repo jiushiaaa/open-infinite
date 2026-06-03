@@ -11,7 +11,9 @@ import type {
   ProjectWorkspaceAudit,
   ProjectWorkspaceCanonLedger,
   RuntimePreflightReport,
+  VectorRetrievalIndexReport,
   VectorRetrievalReadinessReport,
+  VectorRetrievalSearchReport,
   GraphMemoryTriggerEvidenceReport,
   GraphMemorySpikeDesignPackReport,
   GraphMemoryShadowComparePackReport,
@@ -298,6 +300,8 @@ function ProjectWorkspaceOverview({
       <RuntimePreflightPanel storySlug={data.slug} />
 
       <VectorRetrievalReadinessPanel storySlug={data.slug} />
+
+      <VectorRetrievalPipelinePanel storySlug={data.slug} />
 
       <GraphMemoryTriggerEvidencePanel storySlug={data.slug} />
 
@@ -726,6 +730,156 @@ function VectorRetrievalReadinessView({
       </div>
       <p className="master-setting__note">{report.boundaries[1]}</p>
     </>
+  );
+}
+
+function VectorRetrievalPipelinePanel({ storySlug }: { storySlug: string }) {
+  const [query, setQuery] = useState("退魂铃在哪里响过");
+  const [indexReport, setIndexReport] = useState<VectorRetrievalIndexReport | null>(
+    null,
+  );
+  const [searchReport, setSearchReport] = useState<VectorRetrievalSearchReport | null>(
+    null,
+  );
+  const [loadingAction, setLoadingAction] = useState<"index" | "search" | null>(
+    null,
+  );
+  const [error, setError] = useState<string | null>(null);
+  const statusText = loadingAction
+    ? "执行中"
+    : searchReport
+      ? vectorPipelineStatusLabel(searchReport.status)
+      : indexReport
+        ? vectorPipelineStatusLabel(indexReport.status)
+        : "待执行";
+
+  async function handleBuildIndex() {
+    if (loadingAction) return;
+    setLoadingAction("index");
+    setError(null);
+    try {
+      const report = await api.buildVectorRetrievalIndex(storySlug, {
+        refresh: true,
+      });
+      setIndexReport(report);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "构建向量索引失败");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  async function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!query.trim() || loadingAction) return;
+    setLoadingAction("search");
+    setError(null);
+    try {
+      const report = await api.searchVectorRetrieval(storySlug, {
+        query: query.trim(),
+        current_chapter: 1,
+        top_k: 5,
+      });
+      setSearchReport(report);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "检索预览失败");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  return (
+    <section className="project-workspace__section vector-readiness">
+      <SectionTitle title="真实向量检索" status={statusText} />
+      <div className="master-setting__metrics">
+        <div className="master-setting__metric">
+          <span>索引文档</span>
+          <strong>{indexReport?.summary.document_count ?? "待建"}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>写入</span>
+          <strong>{indexReport?.summary.indexed_count ?? "待建"}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>命中</span>
+          <strong>{searchReport?.summary.item_count ?? "待检"}</strong>
+        </div>
+        <div className="master-setting__metric">
+          <span>模式</span>
+          <strong>{searchReport?.summary.retrieval_mode ?? "预览"}</strong>
+        </div>
+      </div>
+
+      <form className="master-setting__editor embedding-samples__form" onSubmit={handleSearch}>
+        <label className="master-setting__field master-setting__field--wide">
+          <span>检索问题</span>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            maxLength={180}
+          />
+        </label>
+        <div className="master-setting__field master-setting__field--wide embedding-samples__actions">
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={handleBuildIndex}
+            disabled={Boolean(loadingAction)}
+          >
+            {loadingAction === "index" ? "构建中" : "构建 / 刷新索引"}
+          </button>
+          <button
+            type="submit"
+            className="workspace-btn workspace-btn--primary"
+            disabled={!query.trim() || Boolean(loadingAction)}
+          >
+            {loadingAction === "search" ? "检索中" : "检索预览"}
+          </button>
+          {error && <span className="error-text">{error}</span>}
+        </div>
+      </form>
+
+      {indexReport && (
+        <div className="audit-log__rights-list">
+          <span>
+            Zilliz Collection：{indexReport.summary.collection} · Embedding：
+            {indexReport.summary.embedding_model}
+          </span>
+          <span>
+            写向量库：{indexReport.summary.writes_vector_store ? "是" : "否"} · 明文密钥返回：
+            {indexReport.summary.plaintext_key_returned ? "是" : "否"}
+          </span>
+        </div>
+      )}
+
+      {searchReport?.warnings.length ? (
+        <div className="risk-strip">
+          {searchReport.warnings.slice(0, 3).map((warning) => (
+            <span key={warning}>{warning}</span>
+          ))}
+        </div>
+      ) : null}
+
+      {searchReport && searchReport.items.length > 0 && (
+        <ul className="sample-list">
+          {searchReport.items.slice(0, 5).map((item) => (
+            <li key={item.id}>
+              <strong>
+                {item.source}
+                {item.chapter ? ` · 第 ${item.chapter} 章` : ""}
+              </strong>
+              <span>
+                {formatVectorPipelineScores(item)} · {item.text}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <p className="master-setting__note">
+        预览会调用百炼 embedding、Zilliz 和百炼 rerank；默认创作检索仍保持本地 BM25，需在本地配置中显式启用 hybrid_vector 后才会进入运行时。
+      </p>
+    </section>
   );
 }
 
@@ -5367,6 +5521,30 @@ function vectorReadinessStatusLabel(value: string): string {
     triggered: "可做探针",
   };
   return map[value] ?? statusLabel(value);
+}
+
+function vectorPipelineStatusLabel(value: string): string {
+  const map: Record<string, string> = {
+    ready: "已连通",
+    empty: "暂无语料",
+    fallback: "已降级",
+    attention: "需留意",
+  };
+  return map[value] ?? statusLabel(value);
+}
+
+function formatVectorPipelineScores(item: {
+  vector_score?: number;
+  bm25_score?: number;
+  rerank_score?: number;
+  retrieval_path?: string;
+}): string {
+  const scores = [
+    typeof item.rerank_score === "number" ? `重排 ${item.rerank_score.toFixed(3)}` : null,
+    typeof item.vector_score === "number" ? `向量 ${item.vector_score.toFixed(3)}` : null,
+    typeof item.bm25_score === "number" ? `BM25 ${item.bm25_score.toFixed(2)}` : null,
+  ].filter(Boolean);
+  return scores.length > 0 ? scores.join(" · ") : item.retrieval_path || "检索命中";
 }
 
 function vectorLayerReadinessLabel(value: string): string {

@@ -1468,3 +1468,51 @@
   - 不改 `run_scene` 默认行为，不替换 BM25、canon ledger、entity aliases 或 retrieval_context。
 - **暂停点**：按用户要求，本刀完成后暂停继续开发；恢复时先由用户明确下一步。
 
+### 2026-06-03 — Retrieval Provider Real Connectivity MVP
+
+- **做了什么**：
+  - 新增/完善 `retrieval_provider_configuration`，默认接入百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2`。
+  - 百炼 embedding smoke 使用 OpenAI-compatible `/embeddings` 与 `dimensions=1024`；百炼 reranker smoke 改为官方 text-rerank HTTP payload；Zilliz smoke 使用 `pymilvus.MilvusClient(uri, token)` 只读列集合。
+  - 新增 `GET /api/settings/retrieval-provider-configuration` 和 `POST /api/settings/retrieval-provider/test`；`mock=true` 不打外网，`mock=false` 才显式调用真实 provider。
+  - 设置抽屉新增「检索增强 Provider」面板，脱敏展示 embedding、Zilliz、reranker 配置状态和本地契约 smoke。
+  - `engine/.env.example`、`engine/README.md`、`memory.md`、路线图、阶段图和 PRD 同步新增真实检索 provider 变量与当前边界。
+- **测试/验证**：
+  - RED：新增 provider tests 后，默认 reranker 仍为 `qwen3-rerank`、缺 DashScope HTTP rerank 调用、缺可 mock 的 Zilliz client 导入点，`tests/test_retrieval_provider_configuration.py` **4 failed / 1 passed**。
+  - GREEN：`python -m pytest tests\test_retrieval_provider_configuration.py -q` -> **5 passed**。
+  - HTTP RED/GREEN：新增设置端点测试后先因路由缺失失败；补路由后 `python -m pytest tests\test_browser_server.py::test_retrieval_provider_configuration_endpoint_is_secret_safe tests\test_browser_server.py::test_retrieval_provider_mock_smoke_endpoint_is_local_only -q` -> **2 passed**。
+  - Focused：`python -m pytest tests\test_retrieval_provider_configuration.py tests\test_browser_server.py::test_retrieval_provider_configuration_endpoint_is_secret_safe tests\test_browser_server.py::test_retrieval_provider_mock_smoke_endpoint_is_local_only -q` -> **7 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 不创建 Zilliz collection、不写入 embedding、不保存 rerank 结果、不写项目 artifact。
+  - 不替换默认 BM25 / canon ledger / entity aliases 检索链路，不改 `run_scene` 默认行为。
+  - 设置页和 API 只返回脱敏状态，不返回明文 Key；真实 provider smoke 必须由用户显式触发。
+- **下一步建议**：基于真实 retrieval failure samples 做 opt-in 离线索引/检索对照；收益明确后再决定是否写入 Zilliz collection 或接入默认检索。
+
+### 2026-06-03 — Vector Retrieval Pipeline MVP
+
+- **做了什么**：
+  - 新增 `vector_retrieval_pipeline` service，支持把项目检索语料 embedding 后写入 Zilliz Cloud collection，并用百炼 embedding + Zilliz search + 百炼 rerank 返回混合检索结果。
+  - 新增 `POST /api/stories/<slug>/vector-retrieval/index` 与 `POST /api/stories/<slug>/vector-retrieval/search`；坏 slug 返回 400，缺项目返回 404，provider 配置缺失返回 400。
+  - `runtime_memory.build_runtime_memory_context()` 新增 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` opt-in；未设置时继续走 BM25，provider 失败时回退 BM25。
+  - OpenAPI / typed client contract 新增 `buildVectorRetrievalIndex` 与 `searchVectorRetrieval`。
+  - 项目工作台新增「真实向量检索」面板，可显式构建/刷新索引并做检索预览，不展示明文 Key。
+  - 同步 `engine/.env.example`、`engine/README.md`、`memory.md`、路线图、阶段图、PRD 和 handoff。
+- **测试/验证**：
+  - RED/GREEN：新增 `tests/test_vector_retrieval_pipeline.py` 先定义 Zilliz 写入、混合检索/rerank、runtime opt-in；补实现后通过。
+  - Focused：`python -m pytest tests\test_vector_retrieval_pipeline.py tests\test_api_contract.py tests\test_browser_server.py::test_vector_retrieval_index_endpoint tests\test_browser_server.py::test_vector_retrieval_search_endpoint -q` -> **8 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 真实 smoke：`v090-alpha-proof` 写入 `unfinale_memory` 20 条，检索 `退魂铃在哪里响过` 返回 `retrieval_mode=hybrid_vector_rerank`、5 条结果，embedding、Zilliz 和 reranker 均参与，`plaintext_key_returned=false`。
+- **边界**：
+  - 默认 BM25 / canon ledger / entity aliases 不被替换；运行时必须显式设置 `LNE_RETRIEVAL_STRATEGY=hybrid_vector`。
+  - 不写 run artifact，不保存 rerank 结果，不返回明文 Key。
+  - 不接 GraphRAG、Zep、图数据库、云端多租户或计费系统。
+- **下一步建议**：用真实失败样本复跑 hybrid vector 收益，确认是否把 `hybrid_vector` 作为某些项目的推荐策略；默认替换 BM25 仍需另行确认。
+
+### 2026-06-03 — 后续增强清单同步补记
+
+- **做了什么**：
+  - 同步 `docs/后续增强清单.md`，把 Embedding、Zilliz、Reranker 从“未接入/后续接入”更新为“真实 provider 与 Vector Retrieval Pipeline 已显式可用”。
+  - 更新 A/B/C/I/J 区块，明确后续工作不再是“接入向量库/reranker”，而是基于真实失败样本做 hybrid vector replay、默认启用建议和 GraphRAG/Zep 继续评估。
+- **验证**：`git diff --check` 通过，仅有 Windows CRLF 提示。
+- **边界**：文档-only 更新；不改代码、不改 API、不改 `run_scene` 默认行为。
+

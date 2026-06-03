@@ -1,6 +1,6 @@
 # 未终章
 
-未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。当前已经从早期 Phase 0 CLI 演进到 v1.0-local + 后续增强四十五刀：支持小说导入、长篇记忆、读者干预、多世界线生成、审计评估、章节导出、模型配置、本地一键运行、运行前体检、生成后投影健康、读者修订评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、样本趋势快照，以及 Graph Memory provider spike 到 Manual Mock Adapter Review 的只读证据链。
+未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。当前已经从早期 Phase 0 CLI 演进到 v1.0-local + 后续增强四十五刀：支持小说导入、长篇记忆、读者干预、多世界线生成、审计评估、章节导出、模型配置、本地一键运行、运行前体检、生成后投影健康、读者修订评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、样本趋势快照，以及 Graph Memory provider spike 到 Manual Mock Adapter Review 的只读证据链。用户明确要求后，百炼 embedding、Zilliz Cloud 和百炼 reranker 的真实向量检索 Pipeline 已可显式使用。
 
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
@@ -13,12 +13,12 @@
 | 后端 | Python package + `lne` CLI + 本地 HTTP API |
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
-| 当前收口 | v1.0-local Model Configuration UX + Local Run Scripts；Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀 |
+| 当前收口 | v1.0-local Model Configuration UX + Local Run Scripts；Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀；Retrieval Provider Real Connectivity MVP 与 Vector Retrieval Pipeline MVP |
 | 后端验证基线 | `python -m pytest -q` -> `872 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
-| 当前迭代点 | Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口；按用户要求暂停继续开发 |
+| 当前迭代点 | 真实检索 provider 和向量检索 Pipeline 已显式接入；默认 BM25 仍不替换，运行时需 opt-in |
 
-仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、生产向量库/GraphRAG/Zep、高级 runner 默认替换。
+仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、GraphRAG/Zep、高级 runner 默认替换，以及 hybrid vector 是否默认替换 BM25。
 
 ## 快速开始
 
@@ -79,12 +79,24 @@ SEEDREAM_BASE_URL=https://ark.cn-beijing.volces.com
 SEEDREAM_MODEL=seedream-5-0-lite
 SEEDREAM_PATH=/api/v3/images/generations
 LNE_VISUAL_ASSETS=1
+
+DASHSCOPE_API_KEY=your_dashscope_key
+LNE_EMBEDDING_MODEL=text-embedding-v3
+LNE_EMBEDDING_DIMENSION=1024
+LNE_ZILLIZ_URI=https://your-cluster.zillizcloud.com:19530
+LNE_ZILLIZ_TOKEN=your_zilliz_token
+LNE_ZILLIZ_COLLECTION=unfinale_memory
+LNE_RERANK_MODEL=gte-rerank-v2
+LNE_RERANK_TOP_N=5
+# 可选：让 run/resume 运行时消费真实向量链路
+LNE_RETRIEVAL_STRATEGY=hybrid_vector
 ```
 
 密钥边界：
 
 - 未配置 `LLM_API_KEY` 或设置 `LNE_MOCK=1` 时，文字链路走本地 mock / deterministic fallback。
 - 未配置 `SEEDREAM_API_KEY` 或设置 `LNE_VISUAL_ASSETS=0` 时，视觉资产稳定降级为占位，不阻塞文字主流程。
+- 检索增强 provider 使用百炼 `text-embedding-v3`、Zilliz Cloud 和百炼 `gte-rerank-v2`；项目工作台可显式构建 Zilliz 索引并做检索预览。默认 BM25 检索不被替换，只有设置 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 后，run/resume 运行时才消费真实向量链路。
 - 设置页和 API 只返回脱敏状态，不回显明文 Key。
 
 常用环境变量：
@@ -98,6 +110,19 @@ LNE_VISUAL_ASSETS=1
 | `LNE_FOURTH_WALL=0` | 关闭第四面墙账本与注入 |
 | `LNE_PROJECTS_DIR` | 覆盖项目目录，测试/临时运行常用 |
 | `LNE_OUTPUTS_DIR` | 覆盖输出目录，测试/临时运行常用 |
+| `DASHSCOPE_API_KEY` | 百炼通用密钥，可被 embedding / reranker 复用 |
+| `LNE_EMBEDDING_API_KEY` | 百炼 embedding 独立密钥；未填时复用 `DASHSCOPE_API_KEY` |
+| `LNE_EMBEDDING_BASE_URL` | 百炼 OpenAI-compatible embedding 地址 |
+| `LNE_EMBEDDING_MODEL` | embedding 模型，默认 `text-embedding-v3` |
+| `LNE_EMBEDDING_DIMENSION` | embedding 维度，默认 `1024` |
+| `LNE_ZILLIZ_URI` | Zilliz Cloud cluster endpoint |
+| `LNE_ZILLIZ_TOKEN` | Zilliz Cloud API key 或 `user:password` token |
+| `LNE_ZILLIZ_COLLECTION` | 检索增强 collection 名，默认 `unfinale_memory` |
+| `LNE_RERANK_API_KEY` | 百炼 reranker 独立密钥；未填时复用 `DASHSCOPE_API_KEY` |
+| `LNE_RERANK_ENDPOINT` | 百炼 text-rerank HTTP endpoint |
+| `LNE_RERANK_MODEL` | reranker 模型，默认 `gte-rerank-v2` |
+| `LNE_RERANK_TOP_N` | reranker 返回条数，默认 `5` |
+| `LNE_RETRIEVAL_STRATEGY=hybrid_vector` | 显式让运行时使用百炼 embedding + Zilliz + 百炼 rerank；未设置时保持 BM25 |
 
 ## 开发者常用命令
 
@@ -189,7 +214,7 @@ pnpm run dev -- --host 127.0.0.1 --port 5173
 
 - 书架、导入、主题创世、世界锚定轻编辑。
 - 阅读工作台、读者干预、动态分支轴、Causal Diff、世界线评审。
-- 长篇项目工作台、导入检查、设定工作台、设定卡片、向量检索就绪、Embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Provider 边界、离线 Replay、Provider Spike 前置包、Readiness Gate、Runbook、结果模板、Mock 结果报告、Review Gate、Manual Approval Pack、Opt-in Review Packet、Decision Ledger Preview、Final Readiness Summary、Human Signoff Schema Draft、Config Draft、Local Provider Contract、Single Fixture Dry-run Harness、Mock-compatible Adapter、Manual Mock Adapter Review、回放与审计、章节导出。
+- 长篇项目工作台、导入检查、设定工作台、设定卡片、向量检索就绪、真实向量检索、Embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Provider 边界、离线 Replay、Provider Spike 前置包、Readiness Gate、Runbook、结果模板、Mock 结果报告、Review Gate、Manual Approval Pack、Opt-in Review Packet、Decision Ledger Preview、Final Readiness Summary、Human Signoff Schema Draft、Config Draft、Local Provider Contract、Single Fixture Dry-run Harness、Mock-compatible Adapter、Manual Mock Adapter Review、回放与审计、章节导出。
 - 分支右栏：机制档案、投影健康、读者评审、上下文包、状态、检索记忆、Agent 轨迹、世界线评审。
 - 设置抽屉：运行设置、模型配置、任务模型画像、接口契约、发行准备、provider 状态、usage/成本估算、商业化边界只读清单。
 
@@ -279,13 +304,13 @@ outputs/<run_id>/
 
 | 分组 | 典型路径 |
 | --- | --- |
-| 故事/项目 | `GET /api/stories`、`GET /api/stories/<slug>`、`GET /api/stories/<slug>/project-workspace`、`GET /api/stories/<slug>/runtime-preflight`、`GET /api/stories/<slug>/cards-workspace`、`GET /api/stories/<slug>/vector-retrieval-readiness`、`GET /api/stories/<slug>/embedding-evaluation-samples`、`GET /api/stories/<slug>/retrieval-sample-export-pack`、`GET /api/stories/<slug>/embedding-mock-evaluation-report`、`GET /api/stories/<slug>/retrieval-sample-replay-report`、`GET /api/stories/<slug>/retrieval-sample-migration-pack`、Graph Memory provider spike 系列端点（trigger/design/shadow/case/boundary/replay/fixture/readiness/runbook/result/mock/review/approval/opt-in/final/signoff/config/contract/harness/adapter/manual-mock-review）、`GET/POST /api/stories/<slug>/retrieval-failure-samples` |
+| 故事/项目 | `GET /api/stories`、`GET /api/stories/<slug>`、`GET /api/stories/<slug>/project-workspace`、`GET /api/stories/<slug>/runtime-preflight`、`GET /api/stories/<slug>/cards-workspace`、`GET /api/stories/<slug>/vector-retrieval-readiness`、`POST /api/stories/<slug>/vector-retrieval/index`、`POST /api/stories/<slug>/vector-retrieval/search`、`GET /api/stories/<slug>/embedding-evaluation-samples`、`GET /api/stories/<slug>/retrieval-sample-export-pack`、`GET /api/stories/<slug>/embedding-mock-evaluation-report`、`GET /api/stories/<slug>/retrieval-sample-replay-report`、`GET /api/stories/<slug>/retrieval-sample-migration-pack`、Graph Memory provider spike 系列端点（trigger/design/shadow/case/boundary/replay/fixture/readiness/runbook/result/mock/review/approval/opt-in/final/signoff/config/contract/harness/adapter/manual-mock-review）、`GET/POST /api/stories/<slug>/retrieval-failure-samples` |
 | 导入/创世/job | `POST /api/import-novel`、`POST /api/story-genesis`、`POST /api/jobs/import-novel`、`GET /api/jobs/<id>` |
 | 干预/续写 | `POST /api/interventions`、`POST /api/jobs/intervention`、`POST /api/jobs/resume-continue` |
 | run/branch | `GET /api/runs`、`GET /api/runs/<run_id>`、`GET /api/runs/<run_id>/branches/<branch_id>`、`GET /api/runs/<run_id>/branches/<branch_id>/projection-health`、`GET /api/runs/<run_id>/branches/<branch_id>/reader-panel`、`GET /api/runs/<run_id>/branches/<branch_id>/prompt-budget-pack` |
 | 评估/审计 | baseline、canon replay、worldline judgement、replay audit、audit log、creation loop closeout |
 | 导出 | chapter export、chapter collection export、audit log export |
-| 设置 | runtime、providers、provider usage、model configuration、LLM profile assignment、api contract、retrieval samples index、retrieval samples trend snapshot、packaging readiness、commercial status、preflight/boundary checklists |
+| 设置 | runtime、providers、provider usage、model configuration、retrieval provider configuration/test、LLM profile assignment、api contract、retrieval samples index、retrieval samples trend snapshot、packaging readiness、commercial status、preflight/boundary checklists |
 
 API 设计原则：坏 ID 返回 400，缺资源返回 404，状态冲突/不可操作返回 409；密钥只返回脱敏状态。
 
@@ -302,7 +327,7 @@ cd D:\AI\open-infinite
 git diff --check
 ```
 
-真实外部模型 smoke 不是 pytest 的前置条件。需要真实联调时，先确认 `.env` 中 Key 是你想使用的账号，并避免在测试中误打外网。
+真实外部模型 smoke 不是 pytest 的前置条件。需要真实联调时，先确认 `.env` 中 Key 是你想使用的账号，并避免在测试中误打外网。检索增强可先调用 `POST /api/settings/retrieval-provider/test` 且 `mock=true` 做本地契约检查；改为 `mock=false` 才会尝试百炼 embedding、Zilliz Cloud 和百炼 reranker。项目工作台的「真实向量检索」可显式构建/刷新 Zilliz 索引并做检索预览；只有设置 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 后，运行时才消费该链路。
 
 ## 文档索引
 
@@ -324,6 +349,6 @@ git diff --check
 
 - 云端多用户持久队列、对象存储 adapter、真实认证、团队空间、请求级 ACL。
 - 硬配额拦截、真实账单、支付、webhook/idempotency、商业计费系统。
-- Zep / 图数据库 / GraphRAG / embedding / reranker，除非现有 BM25 + canon ledger + entity aliases 在真实长篇样例中明确不足。
+- Zep / 图数据库 / GraphRAG 默认替换；embedding / Zilliz / reranker 已具备显式配置、smoke、索引写入和检索预览，但默认 BM25 + canon ledger + entity aliases 仍不被替换。
 - OASIS / CAMEL / LangGraph，除非现有 runner、trace 与状态执行层无法解释真实复杂样例。
 - overlay 自动驱动下一轮 runner、运行后审计写入正史账本、LLM 语义评审和 run 级聚合评审。

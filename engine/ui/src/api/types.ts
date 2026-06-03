@@ -578,6 +578,72 @@ export interface VectorRetrievalReadinessReport {
   next_steps: string[];
 }
 
+export interface VectorRetrievalIndexReport {
+  version: string;
+  mode: "write_vector_retrieval_index" | string;
+  status: "ready" | "empty" | "attention" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  summary: {
+    document_count: number;
+    indexed_count: number;
+    embedding_model: string;
+    embedding_dimension: number;
+    vector_store_provider: string;
+    collection: string;
+    writes_vector_store: boolean;
+    plaintext_key_returned: boolean;
+  };
+  documents: Array<{
+    doc_id: string;
+    source: string;
+    chapter: number;
+    text: string;
+  }>;
+  boundaries: string[];
+}
+
+export interface VectorRetrievalSearchItem {
+  id: string;
+  source: string;
+  type?: string;
+  score?: number;
+  vector_score?: number;
+  bm25_score?: number;
+  rerank_score?: number;
+  retrieval_path?: string;
+  text: string;
+  chapter: number;
+  evidence?: string;
+  entities?: string[];
+  resolved_entities?: string[];
+}
+
+export interface VectorRetrievalSearchReport {
+  version: string;
+  mode: "hybrid_vector_retrieval_preview" | string;
+  status: "ready" | "empty" | "fallback" | string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  summary: {
+    item_count: number;
+    retrieval_mode: string;
+    uses_embedding_provider: boolean;
+    uses_vector_store: boolean;
+    uses_reranker: boolean;
+    writes_vector_store: boolean;
+    default_retrieval_changed: boolean;
+    plaintext_key_returned: boolean;
+  };
+  query: string;
+  current_chapter: number;
+  provider: Record<string, unknown>;
+  items: VectorRetrievalSearchItem[];
+  prompt_block: string;
+  warnings: string[];
+  boundaries: string[];
+}
+
 export interface GraphMemoryTriggerSignal {
   id: string;
   label: string;
@@ -4471,6 +4537,95 @@ export interface ConnectivityResult {
   error?: string;
   model?: string | null;
   mode?: string;
+}
+
+export interface RetrievalProviderConfigurationReport {
+  version: string;
+  mode: "read_only_retrieval_provider_configuration" | string;
+  status: "ready" | "attention" | string;
+  summary: {
+    embedding_provider: string;
+    embedding_configured: boolean;
+    vector_store_provider: string;
+    vector_store_configured: boolean;
+    reranker_provider: string;
+    reranker_configured: boolean;
+    ready_count: number;
+    attention_count: number;
+    plaintext_key_returned: boolean;
+    writes_artifacts: boolean;
+    provider_calls: boolean;
+    default_retrieval_changed: boolean;
+  };
+  providers: {
+    embedding: {
+      provider: string;
+      base_url: string;
+      model: string;
+      dimension: number;
+      batch_size: number;
+      configured: boolean;
+      masked_key: string;
+      route: string;
+    };
+    vector_store: {
+      provider: string;
+      uri_configured: boolean;
+      token_configured: boolean;
+      configured: boolean;
+      masked_token: string;
+      collection: string;
+      route: string;
+    };
+    reranker: {
+      provider: string;
+      endpoint: string;
+      model: string;
+      top_n: number;
+      configured: boolean;
+      masked_key: string;
+      route: string;
+    };
+  };
+  boundaries: string[];
+  next_steps: string[];
+  warnings: string[];
+}
+
+export interface RetrievalProviderConnectivityResult {
+  version: string;
+  mode: "mock" | "provider" | string;
+  status: "ready" | "attention" | string;
+  summary: {
+    check_count: number;
+    available_count: number;
+    attention_count: number;
+    provider_calls: boolean;
+    writes_artifacts: boolean;
+    default_retrieval_changed: boolean;
+    elapsed_ms: number;
+  };
+  checks: {
+    embedding: Record<string, unknown> & {
+      available: boolean;
+      model?: string;
+      dimension?: number;
+      provider_call?: boolean;
+    };
+    vector_store: Record<string, unknown> & {
+      available: boolean;
+      provider?: string;
+      collection?: string;
+      provider_call?: boolean;
+    };
+    reranker: Record<string, unknown> & {
+      available: boolean;
+      model?: string;
+      result_count?: number;
+      provider_call?: boolean;
+    };
+  };
+  boundaries: string[];
 }
 
 // ── POST /api/story-genesis ───────────────────────────────

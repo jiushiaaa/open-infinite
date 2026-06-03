@@ -218,6 +218,17 @@ from .rights_approval import (
     get_rights_approval_checklist,
 )
 from .retrieval_probe import evaluate_retrieval_probes
+from .retrieval_provider_configuration import (
+    get_retrieval_provider_configuration,
+    get_retrieval_provider_settings,
+    test_retrieval_provider_connectivity,
+)
+from .vector_retrieval_pipeline import (
+    VectorRetrievalPipelineRequestError,
+    build_vector_retrieval_index,
+    retrieve_hybrid_vector_context,
+    search_vector_retrieval,
+)
 from .retrieval_failure_samples import (
     RetrievalFailureSampleConflictError,
     RetrievalFailureSampleRequestError,
@@ -537,6 +548,13 @@ __all__ = [
     "GraphMemoryProviderSpikeManualMockAdapterReviewRequestError",
     "get_graph_memory_provider_spike_manual_mock_adapter_review",
     "evaluate_retrieval_probes",
+    "get_retrieval_provider_configuration",
+    "get_retrieval_provider_settings",
+    "test_retrieval_provider_connectivity",
+    "VectorRetrievalPipelineRequestError",
+    "build_vector_retrieval_index",
+    "retrieve_hybrid_vector_context",
+    "search_vector_retrieval",
     "RetrievalFailureSampleConflictError",
     "RetrievalFailureSampleRequestError",
     "RetrievalSampleExportPackRequestError",

@@ -14,6 +14,8 @@ import type {
   ObjectStorageBoundaryChecklist,
   QuotaEnforcementBoundaryChecklist,
   ReleasePreflightChecklist,
+  RetrievalProviderConfigurationReport,
+  RetrievalProviderConnectivityResult,
   RetrievalSamplesTrendSnapshotReport,
   ProviderGatewaySummary,
   ProviderUsageSummary,
@@ -115,6 +117,16 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
   const [testing, setTesting] = useState(false);
   const [testRes, setTestRes] = useState<ConnectivityResult | null>(null);
   const modelConfigState = useAsync(() => api.getModelConfiguration(), []);
+  const retrievalProviderState = useAsync(
+    async () => {
+      const [configuration, mockSmoke] = await Promise.all([
+        api.getRetrievalProviderConfiguration(),
+        api.testRetrievalProviderConnectivity(true),
+      ]);
+      return { configuration, mockSmoke };
+    },
+    [],
+  );
   const profileState = useAsync(() => api.getLLMProfileAssignment(), []);
   const apiContractState = useAsync(() => api.getApiContract(), []);
   const retrievalSamplesIndexState = useAsync(() => api.getRetrievalSamplesIndex(), []);
@@ -154,6 +166,7 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
 
   function reloadConfigurationPanels() {
     modelConfigState.reload();
+    retrievalProviderState.reload();
     profileState.reload();
     apiContractState.reload();
     retrievalSamplesIndexState.reload();
@@ -366,6 +379,13 @@ function SettingsForm({ settings }: { settings: RuntimeSettings }) {
         loading={modelConfigState.loading}
         error={modelConfigState.error}
         onRetry={modelConfigState.reload}
+      />
+
+      <RetrievalProviderPanel
+        data={retrievalProviderState.data}
+        loading={retrievalProviderState.loading}
+        error={retrievalProviderState.error}
+        onRetry={retrievalProviderState.reload}
       />
 
       <LLMProfileAssignmentPanel
@@ -709,6 +729,127 @@ function ModelConfigurationPanel({
               {step}
             </p>
           ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+function RetrievalProviderPanel({
+  data,
+  loading,
+  error,
+  onRetry,
+}: {
+  data: {
+    configuration: RetrievalProviderConfigurationReport;
+    mockSmoke: RetrievalProviderConnectivityResult;
+  } | null;
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}) {
+  const config = data?.configuration;
+  const smoke = data?.mockSmoke;
+  return (
+    <section className="settings__group">
+      <h3 className="settings__group-title">检索增强 Provider</h3>
+      {loading && <p className="settings__note tiny muted">正在读取检索增强配置…</p>}
+      {error && (
+        <div className="settings__inline-error">
+          <span>{error}</span>
+          <button className="btn btn--ghost tiny" onClick={onRetry}>
+            重试
+          </button>
+        </div>
+      )}
+      {config && smoke && (
+        <>
+          <div className="settings__metric-row">
+            <div>
+              <span className="muted tiny">已配置</span>
+              <strong>
+                {config.summary.ready_count} /{" "}
+                {config.summary.ready_count + config.summary.attention_count}
+              </strong>
+            </div>
+            <div>
+              <span className="muted tiny">本地契约</span>
+              <strong>
+                {smoke.summary.available_count} / {smoke.summary.check_count}
+              </strong>
+            </div>
+          </div>
+          <div className="settings__status-list">
+            <div className="settings__status-row">
+              <div>
+                <strong>百炼 Embedding</strong>
+                <span className="muted tiny">
+                  {config.providers.embedding.model} · {config.providers.embedding.dimension} 维
+                </span>
+              </div>
+              <span
+                className={`badge tiny ${
+                  config.providers.embedding.configured ? "badge--jade" : "badge--gold"
+                }`}
+              >
+                {config.providers.embedding.configured ? "已配置" : "待配置"}
+              </span>
+            </div>
+            <div className="settings__status-row">
+              <div>
+                <strong>Zilliz Cloud</strong>
+                <span className="muted tiny">
+                  {config.providers.vector_store.collection} ·{" "}
+                  {config.providers.vector_store.route}
+                </span>
+              </div>
+              <span
+                className={`badge tiny ${
+                  config.providers.vector_store.configured ? "badge--jade" : "badge--gold"
+                }`}
+              >
+                {config.providers.vector_store.configured ? "已配置" : "待配置"}
+              </span>
+            </div>
+            <div className="settings__status-row">
+              <div>
+                <strong>百炼 Reranker</strong>
+                <span className="muted tiny">
+                  {config.providers.reranker.model} · 前 {config.providers.reranker.top_n} 条
+                </span>
+              </div>
+              <span
+                className={`badge tiny ${
+                  config.providers.reranker.configured ? "badge--jade" : "badge--gold"
+                }`}
+              >
+                {config.providers.reranker.configured ? "已配置" : "待配置"}
+              </span>
+            </div>
+          </div>
+          <div className="settings__route-list">
+            <div className="settings__route-row">
+              <span>向量生成路径</span>
+              <strong>{config.providers.embedding.route}</strong>
+            </div>
+            <div className="settings__route-row">
+              <span>向量库路径</span>
+              <strong>{config.providers.vector_store.route}</strong>
+            </div>
+            <div className="settings__route-row">
+              <span>重排路径</span>
+              <strong>{config.providers.reranker.route}</strong>
+            </div>
+          </div>
+          {config.warnings.slice(0, 3).map((warning) => (
+            <p className="settings__note tiny muted" key={warning}>
+              {warning}
+            </p>
+          ))}
+          <p className="settings__note tiny muted">
+            页面只展示脱敏状态；本地 smoke 不调用外部 provider，不改变默认 BM25 检索。
+          </p>
         </>
       )}
     </section>

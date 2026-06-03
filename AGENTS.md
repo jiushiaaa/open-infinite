@@ -109,10 +109,12 @@
 | Graph Memory Provider Spike Single Fixture Dry-run Harness MVP | 后续增强第四十三刀已收口，service/API/CLI/项目工作台可只读展示单 fixture dry-run harness |
 | Graph Memory Provider Spike Mock-compatible Adapter MVP | 后续增强第四十四刀已收口，service/API/CLI/项目工作台可只读展示 mock-compatible adapter 规格、方法要求和 validation cases |
 | Graph Memory Provider Spike Manual Mock Adapter Review MVP | 后续增强第四十五刀已收口，service/API/CLI/项目工作台可只读展示 mock adapter 人工复核包、合规检查、阻断项和本刀后暂停建议 |
+| Retrieval Provider Real Connectivity MVP | 已收口，百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的脱敏配置、mock smoke 和真实 smoke 可用 |
+| Vector Retrieval Pipeline MVP | 已收口，API/UI 可显式写入 Zilliz collection、执行百炼 embedding + Zilliz + 百炼 rerank 检索预览；运行时需 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` opt-in |
 
-当前验证基线：后端 `cd engine && python -m pytest -q` 为 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+当前验证基线：后端 `cd engine && python -m pytest -q` 为 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索 smoke 已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
 
-官方下一步：Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口；按用户要求本刀后暂停继续开发。恢复时先确认用户选择，不自动接真实 provider、生产向量库、GraphRAG、Zep、外部 embedding provider、云端多租户、对象存储、认证或计费系统。
+官方下一步：真实检索 provider 和向量检索 Pipeline 已显式接入。恢复时先确认用户选择，建议用真实失败样本评估 hybrid vector 收益；不自动接 GraphRAG、Zep、云端多租户、对象存储、认证或计费系统，不默认替换 BM25。
 
 ### 当前边界备忘
 
@@ -120,8 +122,8 @@
 - `canon_ledger`、entity aliases 与 runtime memory 已进入只读检索/展示链路；正史 holdout 通过 `canon/visibility_manifest.json` 隔离。
 - 干预 run 会写 `act_director_plan.json`、`narrative_diagnostics.json`、`dynamic_action_registry.yaml`、`emergence_nodes.json`，但这些机制产物暂不自动驱动 runner。
 - 状态执行 overlay 可显式 apply/rollback，但不覆盖 `state_snapshot.json`，也不自动喂回下一轮 runner。
-- 设置页已有脱敏 provider 状态、usage、route matrix、模型配置、任务模型画像、本地 API 契约、发行准备、跨项目样本索引、样本趋势快照和本地运行脚本；项目工作台已有运行前体检、设定卡片、向量检索就绪探针、embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Case 矩阵、Graph 记忆 Provider 边界、Graph 记忆离线 replay 计划/报告、Provider Spike 前置包、就绪门禁、Runbook、结果模板、Mock 结果报告、复核门禁、人工审批包、审批证据核对表、opt-in 证据、no-go 矩阵、operator checklist、review packet、decision ledger preview、final readiness summary、human signoff schema draft、config draft、local provider contract、single fixture dry-run harness、mock-compatible adapter 和 manual mock adapter review；分支右栏已有投影健康、读者评审和上下文包；不读取或打印明文密钥。
-- 仍未做：云端多用户持久队列、真实对象存储 adapter、生产向量库/GraphRAG/Zep、overlay 自动消费、运行后审计写入正史账本。
+- 设置页已有脱敏 provider 状态、usage、route matrix、模型配置、任务模型画像、本地 API 契约、发行准备、跨项目样本索引、样本趋势快照、本地运行脚本和检索增强 provider 状态；项目工作台已有运行前体检、设定卡片、向量检索就绪探针、真实向量检索、embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Case 矩阵、Graph 记忆 Provider 边界、Graph 记忆离线 replay 计划/报告、Provider Spike 前置包、就绪门禁、Runbook、结果模板、Mock 结果报告、复核门禁、人工审批包、审批证据核对表、opt-in 证据、no-go 矩阵、operator checklist、review packet、decision ledger preview、final readiness summary、human signoff schema draft、config draft、local provider contract、single fixture dry-run harness、mock-compatible adapter 和 manual mock adapter review；分支右栏已有投影健康、读者评审和上下文包；不读取或打印明文密钥。
+- 仍未做：云端多用户持久队列、真实对象存储 adapter、GraphRAG/Zep、hybrid vector 默认替换 BM25、overlay 自动消费、运行后审计写入正史账本。
 - v1.0-beta 后续不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些按 v0.9.3 / v0.9.4 的触发式 spike 处理。
 
 ## 资料索引

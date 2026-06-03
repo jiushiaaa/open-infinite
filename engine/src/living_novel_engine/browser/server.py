@@ -1047,6 +1047,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
                 return self._send_json(get_model_configuration_summary())
 
+            if path == "/api/settings/retrieval-provider-configuration":
+                from living_novel_engine.service import (
+                    get_retrieval_provider_configuration,
+                )
+
+                return self._send_json(get_retrieval_provider_configuration())
+
             if path == "/api/settings/llm-profile-assignment":
                 from living_novel_engine.service import get_llm_profile_assignment
 
@@ -1605,12 +1612,30 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_retrieval_failure_sample_append(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/vector-retrieval/index"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/vector-retrieval/index")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_vector_retrieval_index(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/vector-retrieval/search"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/vector-retrieval/search")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_vector_retrieval_search(slug)
             if path.startswith("/api/stories/") and path.endswith("/anchor"):
                 return self._handle_anchor_update(path)
             if path == "/api/settings/runtime":
                 return self._handle_settings_update()
             if path == "/api/settings/runtime/test":
                 return self._handle_settings_test()
+            if path == "/api/settings/retrieval-provider/test":
+                return self._handle_retrieval_provider_test()
             if path == "/api/ingest-sessions":
                 return self._handle_ingest_session_create()
             if path.startswith("/api/ingest-sessions/") and path.endswith("/chunks"):
@@ -1636,6 +1661,59 @@ class BrowserHandler(BaseHTTPRequestHandler):
             self.send_error(404)
         except Exception as exc:
             self._send_json({"error": str(exc)}, status=500)
+
+    def _handle_vector_retrieval_index(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            VectorRetrievalPipelineRequestError,
+            build_vector_retrieval_index,
+        )
+
+        try:
+            payload = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            refresh = bool(payload.get("refresh", False))
+            limit = payload.get("limit")
+            limit_value = int(limit) if limit is not None else None
+            result = build_vector_retrieval_index(
+                slug,
+                refresh=refresh,
+                limit=limit_value,
+            )
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except (TypeError, ValueError, VectorRetrievalPipelineRequestError) as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        return self._send_json(result)
+
+    def _handle_vector_retrieval_search(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            VectorRetrievalPipelineRequestError,
+            search_vector_retrieval,
+        )
+
+        try:
+            payload = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            query = str(payload.get("query") or "").strip()
+            if not query:
+                raise VectorRetrievalPipelineRequestError("query is required")
+            current_chapter = int(payload.get("current_chapter") or 1)
+            top_k = int(payload.get("top_k") or 8)
+            result = search_vector_retrieval(
+                slug,
+                query,
+                current_chapter=current_chapter,
+                top_k=top_k,
+            )
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        except (TypeError, ValueError, VectorRetrievalPipelineRequestError) as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        return self._send_json(result)
 
     def _handle_audit_log_event_append(self, slug: str) -> None:
         from living_novel_engine.service import (
@@ -2978,6 +3056,17 @@ class BrowserHandler(BaseHTTPRequestHandler):
             body = {}
         mock = bool(body.get("mock", False)) if isinstance(body, dict) else False
         self._send_json(test_connectivity(mock=mock))
+
+    def _handle_retrieval_provider_test(self) -> None:
+        """显式检索增强 provider smoke；mock 模式不打外网。"""
+        from living_novel_engine.service import test_retrieval_provider_connectivity
+
+        try:
+            body = self._read_body_json()
+        except (ValueError, json.JSONDecodeError):
+            body = {}
+        mock = bool(body.get("mock", False)) if isinstance(body, dict) else False
+        self._send_json(test_retrieval_provider_connectivity(mock=mock))
 
     def do_OPTIONS(self) -> None:  # noqa: N802
         self.send_response(204)
