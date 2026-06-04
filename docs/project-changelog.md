@@ -1695,3 +1695,106 @@
   - 新 UI 是世界内部卷宗独立页面，不继续往 `WorkspacePage.tsx` 堆工程支撑面板。
 - **下一步建议**：进入世界沙盘闭环体验打磨：采纳后章节 brief、角色个人卷正文质量、事件多视角证据链和世界内部卷宗之间的连续跳转。
 
+### 2026-06-04 — World Sandbox Loop 文档收口与后续深化路线
+
+- **做了什么**：
+  - 对照 `docs/unfinale-ai-development-alignment-checklist.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/unfinale-world-sandbox-remodel-prd.md` 与当前代码实现，确认 v1-v8 已有本地 deterministic service/API/UI/artifact/tests 第一版。
+  - 修正 `docs/unfinale-world-sandbox-remodel-prd.md` 的旧“当前缺口”段落，避免继续把已落地的 `tianming.json`、`subjective_memory.jsonl`、`sandbox_rounds.jsonl`、`autopilot_report.json`、`character_lens_briefs.json` 和作者采纳账本误判为未做。
+  - 在 PRD 中新增 S1-S9 后续深化路线：Agent 决策加深、主观记忆心理模型、动态《天命书》、干预执行投放、L5 觉醒反抗、代偿持续驱动、自演任务化、多视角正文和作者采纳反哺章节 brief。
+  - 更新 `docs/unfinale-ai-development-alignment-checklist.md`，把第一批 artifact/API 从“建议优先落地”改为“已落地 + 仍需补强”，并新增后续默认迭代判断。
+  - 更新 `docs/unfinale-product-vision-correction-draft.md`，在愿景草稿顶部加入 2026-06-04 实现收口，明确当前只是结构化第一版，不等于完整愿景完成。
+  - 同步 `memory.md` 与 `AGENTS.md`，强调 v1-v8 已收口是第一版本地闭环口径，后续不要从 v1 重做，也不要回到 provider/Graph/检索评测主线。
+- **验证**：
+  - 文档-only 更新；运行 `git diff --check`。
+- **边界**：
+  - 不改代码、不改 API、不改 `run_scene` 默认行为。
+  - 不删除历史讨论内容，只给讨论稿和 PRD 增加当前实现状态与后续深化口径。
+
+### 2026-06-04 — S1-S9 产品能力验收口径补充
+
+- **做了什么**：
+  - 将用户确认的新纪律写入 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/unfinale-world-sandbox-remodel-prd.md` 和 `docs/unfinale-ai-development-alignment-checklist.md`。
+  - 明确小步切片只是工程推进方式，不再把“最小闭环”当作产品完成标准。
+  - 明确 `service/API/UI/artifact/tests` 齐全只是工程底线，S1-S9 必须验收到用户能真实感到角色被记忆驱动、干预进入世界、代偿持续影响状态、多视角正文可读、作者采纳反哺下一章 brief。
+  - 明确当前正在执行的 S1-S9 先不打断，待完成后按该口径复盘；若未全部达标，第三轮迭代从未达标项继续深化。
+- **边界**：
+  - 文档-only 更新，不改代码、不改 API、不影响当前正在运行的开发任务。
+
+### 2026-06-04 — S1 Agent Decision Deepening MVP
+
+- **做了什么**：
+  - 将世界沙盘行动从固定姿态模板加深为 `deterministic_agent_decision`：每个角色行动读取角色欲望、恐惧、上一轮主观记忆、关系信号、秘密信号、资源信号和《天命书》压力。
+  - `sandbox_rounds.jsonl` 的角色行动新增 `decision_inputs`、`visible_action`、`true_intent`、`expected_outcome`、`risk`、`memory_influence` 和 `action_outcome`，同时保留旧 `intent/action/reason/stance` 字段兼容既有读取链路。
+  - `subjective_memory_delta.json` 和角色 `subjective_memory.jsonl` 追加记录本轮决策输入、真实意图、风险和行动结果，为 S2 主观心理与信息差模型留证据。
+  - 世界沙盘 UI 在角色行动卡展示外在行动、真实意图、决策输入、预期/风险和行动结果；不改 `WorkspacePage.tsx`，不新增工程支撑面板。
+  - 同步 `memory.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md` 和 `engine/README.md`，把下一刀切到 S2 主观记忆心理与信息差模型。
+- **测试/验证**：
+  - RED：新增 `test_second_round_decision_changes_with_subjective_memory`，先因旧行动记录缺少 `decision_mode` 失败。
+  - GREEN：`cd engine && python -m pytest tests\test_world_sandbox.py -q` -> **5 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 浏览器 smoke：打开 `http://127.0.0.1:5173/#/world/my-story/sandbox`，运行一轮后确认页面出现“角色行动链 / 真实意图 / 决策输入 / 上一轮记忆 / 天命压力”。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 不引入 GraphRAG/Zep、检索评测、发行、计费或工程健康面板。
+  - 用户已允许真实 API 用于测试和联调；本刀仍保持默认 deterministic/mockable 基线，真实模型 runner smoke 留到显式 opt-in 小刀。
+- **下一刀建议**：`S2 Subjective Memory Psychology MVP`，让同一事件至少两个角色写出互相矛盾但各自合理的主观记忆，区分已知事实、误以为的事实、真实意图、秘密可见性和异常感权重。
+
+### 2026-06-04 — S2 Subjective Memory Psychology MVP
+
+- **做了什么**：
+  - 将角色 `subjective_memory.jsonl` 从“看到/做了/新认知”加深为主观心理与信息差记录，新增 `perceived_event`、`inner_thought`、`inferred_motive`、`emotional_impact`、`trust_shift`、`anomaly_weight`、`secret_visibility`、`known_truths`、`misbeliefs`、`unknown_canon_facts`、`suppressed_memory`、`worldline_residue` 和 `awareness_level`。
+  - 同一大事件会被不同角色写成互相矛盾但各自合理的主观记忆；下一轮沙盘冲突会读取上一轮 `misbeliefs`，让误会成为冲突来源。
+  - 世界沙盘 UI 的“角色个人卷雏形”新增主观感知、内心想法、推测动机、误会、未知正史、秘密可见性和异常权重展示。
+  - 同步 `memory.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md` 和 `engine/README.md`，把下一刀切到 S3《天命书》世界线宪法或 S2 深层召回/误会图谱。
+- **测试/验证**：
+  - RED：新增 `test_subjective_memories_record_contradictory_perspectives`，先因旧记忆缺少 `perceived_event` 失败。
+  - GREEN：`cd engine && python -m pytest tests\test_world_sandbox.py -q` -> **6 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 浏览器 smoke：打开 `http://127.0.0.1:5173/#/world/my-story/sandbox`，运行一轮后确认页面出现“角色个人卷雏形 / 主观感知 / 内心想法 / 推测动机 / 误会 / 未知正史 / 秘密可见性”。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 不引入 GraphRAG/Zep、检索评测、发行、计费或工程健康面板。
+  - 仍保持 deterministic/mockable 基线；真实模型 runner smoke 留到显式 opt-in 小刀。
+- **下一刀建议**：`S3 Tianming Worldline Constitution MVP`，将《天命书》升级为多叙事吸引子、多锚点、压力等级和世界线快照；或继续 S2 深层召回/误会图谱。
+
+### 2026-06-04 — 真实模型 smoke 验收口径补充
+
+- **做了什么**：
+  - 将用户确认的真实 API 测试偏好写入 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/unfinale-world-sandbox-remodel-prd.md` 和 `engine/README.md`。
+  - 明确 mock/deterministic 测试仍作为单元测试、契约测试和回归测试底线。
+  - 明确涉及 Agent 决策、叙事生成、章节 brief、多视角正文、Reviewer 或视觉质量的切片，若 `.env` 已配置真实 key，应额外做小样本真实模型 smoke。
+  - 明确真实 smoke 需要记录真实输出质量、失败原因和回退情况，但不得打印明文 key，不做大规模消耗，也不塞进默认全量 pytest。
+- **边界**：
+  - 文档-only 更新；本次不主动调用真实 API，不影响当前正在运行的开发任务。
+
+### 2026-06-04 — 独立切片提交与远程推送纪律补充
+
+- **做了什么**：
+  - 将用户指出的“AI 修改完成后没有及时推送远程”问题写入 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/unfinale-ai-development-alignment-checklist.md` 和 `docs/unfinale-world-sandbox-remodel-prd.md`。
+  - 明确独立切片完成并验证通过后，默认要提交并推送远程，除非用户明确要求暂不提交或暂不推送。
+  - 明确推送前必须检查 `git status`，只提交本轮负责的文件，不能混入用户改动或另一轮 AI 的未完成改动。
+  - 明确无远程、无上游、认证失败、网络失败或当前长任务尚未形成可验证 checkpoint 时，要说明未推送原因。
+- **边界**：
+  - 文档-only 更新；当前工作树存在其他开发改动时，本条规则不要求立即混推半成品。
+
+### 2026-06-04 — S3 Tianming Worldline Constitution MVP
+
+- **做了什么**：
+  - 将根 `tianming.json` 从静态草案加深为世界线宪法雏形，新增 `constitution_schema_version`。
+  - `narrative_attractors` 新增权重和类别，并保留 deterministic fallback 吸引子；`anchor_status.anchors` 新增角色、势力、谜团、地点多锚点；`contract_pressure.pressure_tiers` 新增轻微压力、重大压力、时代压力和世界崩坏压力四档。
+  - 旧版已确认 `tianming.json` 在生成或读取时会保守补齐 S3 宪法字段，并保留既有吸引子，避免旧项目页面缺少权重/多锚点/压力四档。
+  - `compile_intervention_against_tianming()` 和 `POST /api/stories/<slug>/tianming/intervention-compile` 支持 `worldline_id`；L4/L5 或 AU 干预会写 `projects/<slug>/worldlines/<worldline_id>/tianming_snapshot.json`，并返回 `worldline_tianming_snapshot`。
+  - 世界线快照只写新 artifact，不覆盖根 `tianming.json`；快照合约压力会升级到时代或世界崩坏档。
+  - 天命书页新增投放世界线输入、吸引子权重/类别、多锚点、四档压力和世界线快照展示；可见文案保持中文。
+  - 同步 `memory.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/unfinale-product-vision-correction-draft.md` 和 `engine/README.md`，把下一刀切到 S4 干预可执行投放或 S2 深层召回。
+- **测试/验证**：
+  - RED：新增 S3 字段和世界线快照测试后，先因根天命书缺少宪法字段、编译器不写快照失败；补旧版已确认天命书升级断言后，先因旧吸引子被替换失败。
+  - GREEN：`cd engine && python -m pytest tests\test_tianming.py tests\test_tianming_intervention_compiler.py -q` -> **9 passed**。
+  - 浏览器 smoke：打开 `http://127.0.0.1:5173/#/world/my-story/tianming`，生成天命书后确认页面出现权重、多锚点、四档压力；Chrome headless + CDP 提交 L5 干预到 `reader_cdp_ui` 后确认 DOM 出现 `worldlines/reader_cdp_ui/tianming_snapshot.json` 和“根天命书未被覆盖”。
+  - 完整后端、前端 build 与 `git diff --check` 在最终收口时重新执行。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+  - S3 第一刀仍是 deterministic/mockable 基线；动态吸引子、锚点转移后自动刷新、作者确认/审计和后续沙盘消费留给后续 S3/S4/S6 深化。
+- **下一刀建议**：`S4 Intervention Execution Injection MVP`，让干预编译结果成为下一轮沙盘约束，支持沉浸模式 / 暴走 AU 模式，并让普通干预进入 Divergent Worldline。
+

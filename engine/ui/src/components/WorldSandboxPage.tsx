@@ -303,13 +303,59 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                         <span className="badge badge--gold">{item.stance}</span>
                       </div>
                       <p className="sandbox-action__line">{item.intent}</p>
-                      <p>{item.action}</p>
+                      <p>{item.visible_action ?? item.action}</p>
+                      {item.true_intent && (
+                        <p className="muted tiny">真实意图：{item.true_intent}</p>
+                      )}
                       <p className="muted tiny">{item.reason}</p>
+                      {item.decision_inputs && (
+                        <div className="sandbox-action__decision-block">
+                          <span>决策输入</span>
+                          <dl className="sandbox-action__decision">
+                            <div>
+                              <dt>欲望</dt>
+                              <dd>{item.decision_inputs.desire}</dd>
+                            </div>
+                            <div>
+                              <dt>恐惧</dt>
+                              <dd>{item.decision_inputs.fear}</dd>
+                            </div>
+                            <div>
+                              <dt>上一轮记忆</dt>
+                              <dd>
+                                {item.decision_inputs.previous_memory_belief ||
+                                  "暂无上一轮主观认知"}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>天命压力</dt>
+                              <dd>{item.decision_inputs.tianming_pressure}</dd>
+                            </div>
+                          </dl>
+                        </div>
+                      )}
+                      {(item.expected_outcome || item.risk || item.action_outcome) && (
+                        <div className="sandbox-action__memory">
+                          <span>预期与风险</span>
+                          <strong>
+                            {item.expected_outcome ?? "继续观察"}；风险：
+                            {item.risk ?? "未记录"}
+                          </strong>
+                          {item.action_outcome?.reason && (
+                            <p className="muted tiny">
+                              结果：{item.action_outcome.status ?? "pending"} ·{" "}
+                              {item.action_outcome.reason}
+                            </p>
+                          )}
+                        </div>
+                      )}
                       <div className="sandbox-action__memory">
                         <span>将写入记忆种子</span>
                         <strong>{item.memory_seed?.inferred?.[0] ?? "形成新的判断"}</strong>
                       </div>
-                      <p className="muted tiny">{item.previous_subjective_memory}</p>
+                      <p className="muted tiny">
+                        {item.memory_influence ?? item.previous_subjective_memory}
+                      </p>
                       <button
                         className={`btn btn--ghost sandbox-action__button ${
                           selectedCharacterId === item.character_id ? "is-active" : ""
@@ -358,6 +404,42 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                         </div>
                         <p>{entry.new_belief}</p>
                         <dl>
+                          {entry.perceived_event && (
+                            <div className="sandbox-memory__wide">
+                              <dt>主观感知</dt>
+                              <dd>{entry.perceived_event}</dd>
+                            </div>
+                          )}
+                          {entry.inner_thought && (
+                            <div className="sandbox-memory__wide">
+                              <dt>内心想法</dt>
+                              <dd>{entry.inner_thought}</dd>
+                            </div>
+                          )}
+                          {entry.inferred_motive && (
+                            <div>
+                              <dt>推测动机</dt>
+                              <dd>{entry.inferred_motive}</dd>
+                            </div>
+                          )}
+                          {entry.misbeliefs?.length ? (
+                            <div>
+                              <dt>误会</dt>
+                              <dd>{entry.misbeliefs.join("；")}</dd>
+                            </div>
+                          ) : null}
+                          {entry.unknown_canon_facts?.length ? (
+                            <div>
+                              <dt>未知正史</dt>
+                              <dd>{entry.unknown_canon_facts.join("；")}</dd>
+                            </div>
+                          ) : null}
+                          {entry.secret_visibility && (
+                            <div>
+                              <dt>秘密可见性</dt>
+                              <dd>{entry.secret_visibility}</dd>
+                            </div>
+                          )}
                           <div>
                             <dt>看到</dt>
                             <dd>{entry.saw.join("；")}</dd>
@@ -376,7 +458,12 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                           </div>
                           <div>
                             <dt>异常感</dt>
-                            <dd>{entry.anomaly_delta}</dd>
+                            <dd>
+                              {entry.anomaly_delta}
+                              {typeof entry.anomaly_weight === "number"
+                                ? `；权重 ${entry.anomaly_weight}`
+                                : ""}
+                            </dd>
                           </div>
                         </dl>
                       </article>

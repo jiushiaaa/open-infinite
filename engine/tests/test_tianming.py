@@ -67,6 +67,88 @@ def test_generate_tianming_book_writes_required_world_constitution(tmp_path):
     assert loaded["status"] == "draft"
 
 
+def test_tianming_book_has_worldline_constitution_fields(tmp_path):
+    _make_project(tmp_path)
+
+    report = generate_tianming_book("tianming-story", projects_dir=tmp_path)
+
+    assert report["constitution_schema_version"] == 1
+    assert len(report["narrative_attractors"]) >= 3
+    assert all(isinstance(item["weight"], int) for item in report["narrative_attractors"])
+    assert all(item["category"] for item in report["narrative_attractors"])
+    assert report["narrative_attractors"][0]["weight"] >= report["narrative_attractors"][-1]["weight"]
+
+    anchors = report["anchor_status"]["anchors"]
+    assert len(anchors) >= 3
+    anchor_types = {item["type"] for item in anchors}
+    assert {"character", "faction", "mystery"}.issubset(anchor_types)
+    assert all(isinstance(item["stability"], int) for item in anchors)
+
+    tiers = report["contract_pressure"]["pressure_tiers"]
+    assert [item["id"] for item in tiers] == [
+        "minor",
+        "major",
+        "era",
+        "collapse",
+    ]
+    assert all(item["label"] for item in tiers)
+    assert report["contract_pressure"]["active_tier"] in {
+        "minor",
+        "major",
+        "era",
+        "collapse",
+    }
+
+
+def test_generate_tianming_book_upgrades_existing_confirmed_book_to_constitution(tmp_path):
+    project_dir = _make_project(tmp_path)
+    path = project_dir / "tianming.json"
+    path.write_text(
+        json.dumps(
+            {
+                "version": "tianming-book-v1",
+                "artifact": "tianming.json",
+                "story_slug": "tianming-story",
+                "source_kind": "imported",
+                "status": "confirmed",
+                "requires_confirmation": False,
+                "created_at": "2026-06-03T00:00:00",
+                "updated_at": "2026-06-03T00:00:00",
+                "confirmed_at": "2026-06-03T00:00:00",
+                "narrative_attractors": [
+                    {
+                        "id": "old_attractor",
+                        "title": "旧版牵引",
+                        "pull": "旧版天命书还没有世界线宪法字段。",
+                        "source": "old",
+                    }
+                ],
+                "genre_constraints": [],
+                "anchor_status": {"status": "anchored"},
+                "contract_pressure": {"level": "low", "score": 1, "drivers": []},
+                "replacement_anchor_candidates": [],
+                "ordinary_intervention_mutates_tianming": False,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    upgraded = generate_tianming_book("tianming-story", projects_dir=tmp_path)
+    saved = json.loads(path.read_text(encoding="utf-8"))
+
+    assert upgraded["status"] == "confirmed"
+    assert upgraded["requires_confirmation"] is False
+    assert upgraded["confirmed_at"] == "2026-06-03T00:00:00"
+    assert upgraded["constitution_schema_version"] == 1
+    assert any(item["id"] == "old_attractor" for item in upgraded["narrative_attractors"])
+    assert upgraded["narrative_attractors"][0]["weight"]
+    assert upgraded["anchor_status"]["anchors"]
+    assert upgraded["contract_pressure"]["pressure_tiers"]
+    assert saved == upgraded
+
+
 def test_confirm_tianming_book_is_lightweight_and_requires_explicit_confirm(tmp_path):
     _make_project(tmp_path)
     generate_tianming_book("tianming-story", projects_dir=tmp_path)

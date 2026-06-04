@@ -1865,6 +1865,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 slug,
                 content=str(body.get("content") or ""),
                 target=str(body.get("target") or ""),
+                worldline_id=str(body.get("worldline_id") or "main"),
             )
         except (TianmingInterventionCompilerRequestError, TianmingRequestError) as exc:
             return self._send_json({"error": str(exc)}, status=400)

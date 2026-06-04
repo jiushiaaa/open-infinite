@@ -120,7 +120,8 @@ OpenAPI / typed client 面板
 - 产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳。导入、配置、创作、干预、评审、导出、样本采集、Graph Memory 证据查看等用户级能力必须优先通过 Web UI + API 完成；CLI 只服务开发者、本地服务启动、自动化验收、批处理、JSON 输出和无人值守复跑，不承载独立业务规则。
 - `Reference_projects/` 与外部项目只作参考，不直接复制源码或引入依赖，除非用户明确要求。
 - 不泄漏 API Key；设置页或日志只能展示脱敏尾号。
-- 用户在 `.env` 中可能已经配置真实 `SEEDREAM_API_KEY` / `LLM_API_KEY`。测试要隔离环境，避免误打真实外网。
+- 用户在 `.env` 中可能已经配置真实 `SEEDREAM_API_KEY` / `LLM_API_KEY`。单元测试要隔离环境，避免默认全量 pytest 误打真实外网。
+- 用户已明确允许在产品验收时调用真实接入的模型 API。后续涉及叙事生成、Agent 决策、章节 brief、多视角正文、Reviewer 或视觉生成质量的切片，除 mock/deterministic 回归外，应做小样本真实模型 smoke，观察真实输出是否符合产品体验；不得打印明文 key，不做大规模消耗，不把真实 API 调用放进默认全量测试。
 
 ## 当前版本状态
 
@@ -184,7 +185,11 @@ OpenAPI / typed client 面板
 
 当前验证基线：后端 `cd engine && python -m pytest -q` 为 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索 smoke 已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
 
-官方下一步：进入 **World Sandbox Loop / 世界沙盘改造**。真实检索 provider 和向量检索 Pipeline 已显式接入，但当前只作为支撑层；恢复开发时不要继续默认评估 hybrid vector、GraphRAG、Zep 或 provider spike，而应优先做《天命书》、角色主观记忆链、沙盘轮次、世界自演、多视角活体小说和作者采纳台。
+官方下一步：**World Sandbox Loop / 世界沙盘改造 v1-v8 已形成第一版可运行闭环**。真实检索 provider 和向量检索 Pipeline 已显式接入，但当前只作为支撑层；恢复开发时不要继续默认评估 hybrid vector、GraphRAG、Zep 或 provider spike，也不要从 v1 重新做一遍。应优先沿 `docs/unfinale-world-sandbox-remodel-prd.md` 的 S1-S9 深化方向推进：Agent 决策加深、主观记忆心理模型、动态《天命书》、干预执行投放、L5 觉醒反抗、世界线代偿持续驱动、自演任务化、多视角正文和作者采纳反哺章节 brief。
+
+S1-S9 后续验收纪律：允许用小步切片降低工程风险，但不要把“最小实现”当成阶段完成。每个切片完成后必须继续向该阶段深挖，直到对应产品能力成立；`service/API/UI/artifact/tests` 齐全只是基础门槛。判定完成时要问：用户是否能真实感到角色被记忆驱动、干预进入世界、世界状态持续变化、角色可能反抗、章节来自世界演化。当前正在跑的 S1-S9 不被中途打断；等该轮完成后，复盘和第三轮迭代按此口径检查。
+
+涉及生成质量时，复盘不能只看 mock 结果。若本地 `.env` 已配置真实模型 key，应补一次小样本真实 API smoke，并说明真实输出是否暴露了 mock 看不到的问题。
 
 ### 当前边界备忘
 
@@ -216,6 +221,7 @@ OpenAPI / typed client 面板
 3. 补 service / API / 前端类型和 UI 测试，测试规模随风险调整。
 4. 跑验证命令。
 5. 同步 `memory.md` 当前状态、相关路线/README/PRD，并且每完成一个独立切片都必须把历史记录追加到 `docs/project-changelog.md` 末尾；不要等多刀总收口再补。
+6. 独立切片完成且验证通过后，默认提交并推送到远程仓库，除非用户明确要求暂不提交/暂不推送。推送前检查 `git status`，只提交本轮负责的文件；若工作树混有用户或其他 AI 的未完成改动，不要混推，先说明阻塞、隔离范围或等待当前长任务收口。若无远程、无上游、认证失败或网络失败，收尾时明确说明未推送原因。
 
 常用验证：
 

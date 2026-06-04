@@ -2,7 +2,7 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-04，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环：沙盘轮次、主观记忆链、天命书、干预编译、世界线代偿、世界自演、多视角活体小说和作者采纳台均已有本地 service/API/UI/artifact 第一版；后续官方主线转入闭环体验打磨、采纳后章节 brief 和跨卷宗串联。
+> 版本：2026-06-04，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3 第一刀已收口：沙盘行动读取决策输入，主观记忆记录心理/信息差，《天命书》支持吸引子权重、多锚点、四档合约压力和 L4/L5/AU 世界线快照。后续官方主线继续 S4 干预可执行投放、S2 深层召回/误会图谱和跨卷宗串联。
 
 ## 1. 产品北极星
 
@@ -85,6 +85,9 @@
 | World Autopilot MVP | 已收口 | 世界沙盘改造第六刀：新增世界自演 service/API/UI，支持运行到轮数、事件、时间或锚点变化，输出 `autopilot_report.json` 和 checkpoints；连续复用沙盘轮次和主观记忆链，不改 `run_scene` 默认行为。 |
 | Character Lens Novel MVP | 已收口 | 世界沙盘改造第七刀：新增多视角活体小说 service/API/UI，输出 `character_lens_briefs.json`，同一事件可生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角；角色个人卷读取主观记忆链。 |
 | Author Adoption Desk MVP | 已收口 | 世界沙盘改造第八刀：新增作者采纳台 service/API/UI，支持采纳、部分采纳、另开分支和导出 brief，写入 `author_adoption_ledger.jsonl`，并展示原大纲 vs 沙盘涌现剧情对照；不自动覆盖正史。 |
+| S1 Agent Decision Deepening MVP | 已收口 | S1 深化第一刀：沙盘行动新增 `decision_mode`、`decision_inputs`、`visible_action`、`true_intent`、`expected_outcome`、`risk`、`memory_influence` 和 `action_outcome`；第二轮行动会被上一轮主观记忆/异常感改变，UI 可查看决策输入和真实意图。 |
+| S2 Subjective Memory Psychology MVP | 已收口 | S2 深化第一刀：主观记忆新增 `perceived_event`、`inner_thought`、`inferred_motive`、`emotional_impact`、`trust_shift`、`anomaly_weight`、`secret_visibility`、`misbeliefs` 和 `unknown_canon_facts`；同一事件至少两个角色会写出互相矛盾但各自合理的主观记忆，下一轮冲突会引用上一轮误会。 |
+| S3 Tianming Worldline Constitution MVP | 已收口 | S3 深化第一刀：`tianming.json` 新增 `constitution_schema_version`、吸引子权重/类别、多锚点结构和四档合约压力；旧版已确认天命书会保守补齐 S3 字段；L4/L5/AU 干预可写 `worldlines/<worldline_id>/tianming_snapshot.json`，根《天命书》保持不覆盖，天命书页可指定世界线并展示快照产物。 |
 
 当前验证基线：后端 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
@@ -94,9 +97,9 @@
 
 当前官方下一步是：
 
-> 世界沙盘闭环体验打磨 / 采纳后章节 brief。
+> S4 干预可执行投放，或 S2 深层召回/误会图谱。
 
-后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。
+后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。用户已允许真实 API 参与测试或联调；默认常规测试仍保持 deterministic/mockable，真实模型 smoke 只在显式 opt-in 时运行。
 
 本阶段读取入口：
 

@@ -87,6 +87,35 @@ def test_compile_rule_rewrite_marks_au_and_requires_audit(tmp_path):
     assert report["audit"]["can_mutate_tianming_snapshot"] is True
 
 
+def test_l5_intervention_writes_worldline_tianming_snapshot_without_root_mutation(tmp_path):
+    project_dir = _make_project(tmp_path)
+    before = (project_dir / "tianming.json").read_text(encoding="utf-8")
+
+    report = compile_intervention_against_tianming(
+        "compiler-story",
+        content="永久改写世界规则：所有角色都知道自己是小说人物，并必须回应读者。",
+        target="zhao_xuan",
+        projects_dir=tmp_path,
+        worldline_id="reader_au",
+    )
+    after = (project_dir / "tianming.json").read_text(encoding="utf-8")
+    snapshot_path = project_dir / "worldlines" / "reader_au" / "tianming_snapshot.json"
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+
+    assert before == after
+    assert snapshot_path.exists()
+    assert report["worldline_tianming_snapshot"]["artifact"] == (
+        "worldlines/reader_au/tianming_snapshot.json"
+    )
+    assert report["worldline_tianming_snapshot"]["status"] == "draft_snapshot"
+    assert snapshot["status"] == "draft_snapshot"
+    assert snapshot["worldline_id"] == "reader_au"
+    assert snapshot["root_tianming_mutated"] is False
+    assert snapshot["snapshot_reason"]["intervention_level"] == "L5"
+    assert snapshot["contract_pressure"]["active_tier"] == "collapse"
+    assert snapshot["contract_pressure"]["score"] >= 12
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))
@@ -127,6 +156,27 @@ def test_tianming_intervention_compiler_http_statuses(tmp_path, monkeypatch):
         assert status == 200
         assert body["intervention_type"] == "resource_injection"
         assert body["tianming"]["artifact"] == "tianming.json"
+
+        snapshot_status, snapshot_body = _post(
+            port,
+            "/api/stories/compiler-http/tianming/intervention-compile",
+            {
+                "content": "永久改写世界规则，让所有角色知道自己是小说人物。",
+                "target": "zhao_xuan",
+                "worldline_id": "http_au",
+            },
+        )
+        assert snapshot_status == 200
+        assert snapshot_body["worldline_tianming_snapshot"]["artifact"] == (
+            "worldlines/http_au/tianming_snapshot.json"
+        )
+        assert (
+            tmp_path
+            / "compiler-http"
+            / "worldlines"
+            / "http_au"
+            / "tianming_snapshot.json"
+        ).exists()
 
         bad_status, bad = _post(
             port,

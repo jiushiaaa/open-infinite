@@ -79,13 +79,15 @@
 }
 
 .tianming-list,
-.tianming-candidates {
+.tianming-candidates,
+.tianming-anchors {
   display: grid;
   gap: var(--space-3);
 }
 
 .tianming-list article,
-.tianming-candidates article {
+.tianming-candidates article,
+.tianming-anchors article {
   display: grid;
   gap: var(--space-1);
   padding: var(--space-3);
@@ -103,6 +105,14 @@
 
 .tianming-candidates article > div {
   display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.tianming-row {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
   flex-wrap: wrap;
@@ -240,6 +250,11 @@
 
 .tianming-pressure p {
   margin: var(--space-1) 0;
+}
+
+.tianming-pressure article.is-active {
+  border-color: var(--jade);
+  background: rgba(37, 104, 86, 0.08);
 }
 
 @media (max-width: 900px) {

@@ -50,6 +50,7 @@ def run_sandbox_round(
         raise WorldSandboxRequestError("故事缺少可参与沙盘的角色")
     selected = _select_characters(characters)
     previous_memories = _load_latest_subjective_memories(story_path, wid, selected)
+    tianming_pressure = _load_tianming_pressure(story_path)
     created_at = datetime.now().isoformat(timespec="seconds")
     run_id = _new_run_id()
     root = outputs_dir or default_outputs_dir()
@@ -64,6 +65,7 @@ def run_sandbox_round(
         major_event=event,
         characters=selected,
         previous_memories=previous_memories,
+        tianming_pressure=tianming_pressure,
         created_at=created_at,
     )
     _write_jsonl(run_dir / _ROUNDS_ARTIFACT, [round_record])
@@ -201,6 +203,7 @@ def _build_round_record(
     major_event: str,
     characters: list[dict[str, Any]],
     previous_memories: dict[str, dict[str, Any]],
+    tianming_pressure: dict[str, Any],
     created_at: str,
 ) -> dict[str, Any]:
     actions = [
@@ -209,6 +212,7 @@ def _build_round_record(
             idx,
             major_event,
             previous_memories=previous_memories,
+            tianming_pressure=tianming_pressure,
         )
         for idx, character in enumerate(characters)
     ]
@@ -240,6 +244,7 @@ def _character_action(
     major_event: str,
     *,
     previous_memories: dict[str, dict[str, Any]],
+    tianming_pressure: dict[str, Any],
 ) -> dict[str, Any]:
     character_id = _safe_character_id(character, index)
     name = _text(character.get("name")) or character_id
@@ -259,6 +264,39 @@ def _character_action(
     target_hint = _event_hint(major_event)
     previous_memory = previous_memories.get(character_id) or {}
     previous_memory_ref = _previous_memory_reference(previous_memory)
+    previous_belief = _text(previous_memory.get("new_belief"))
+    previous_anomaly = _text(previous_memory.get("anomaly_delta"))
+    previous_misbelief = _first_text(previous_memory.get("misbeliefs"), "")
+    relationship_signal = _relationship_signal(character)
+    secret_signal = _secret_signal(character, index)
+    resource_signal = _resource_signal(character)
+    pressure_text = _tianming_pressure_text(tianming_pressure)
+    decision = _deterministic_decision(
+        name=name,
+        location=location,
+        target_hint=target_hint,
+        base_posture=posture,
+        index=index,
+        previous_belief=previous_belief,
+        previous_anomaly=previous_anomaly,
+        pressure_text=pressure_text,
+    )
+    memory_influence = (
+        f"上一轮认知“{previous_belief}”与异常感“{previous_anomaly}”改变本轮选择。"
+        if previous_belief or previous_anomaly
+        else "无上一轮主观记忆"
+    )
+    decision_inputs = {
+        "desire": desire,
+        "fear": fear,
+        "relationship_signal": relationship_signal,
+        "secret_signal": secret_signal,
+        "resource_signal": resource_signal,
+        "tianming_pressure": pressure_text,
+        "previous_memory_belief": previous_belief,
+        "previous_memory_anomaly": previous_anomaly,
+        "previous_misbelief": previous_misbelief,
+    }
     return {
         "character_id": character_id,
         "character_name": name,
@@ -266,19 +304,34 @@ def _character_action(
         "known_information": [
             f"听闻：{target_hint}",
             f"旧记忆：{memory}",
+            f"关系信号：{relationship_signal}",
+            f"秘密信号：{secret_signal}",
+            f"资源信号：{resource_signal}",
+            f"天命压力：{pressure_text}",
             previous_memory_ref,
         ],
         "previous_subjective_memory": previous_memory_ref,
+        "decision_mode": "deterministic_agent_decision",
+        "decision_inputs": decision_inputs,
         "intent": f"{name}想{desire}，同时避免{fear}。",
-        "action": f"{name}在{location}{posture}，围绕“{target_hint}”调整下一步。",
-        "reason": f"行动依据来自欲望“{desire}”、恐惧“{fear}”和记忆“{memory}”。",
-        "stance": posture,
+        "visible_action": decision["visible_action"],
+        "true_intent": decision["true_intent"],
+        "expected_outcome": decision["expected_outcome"],
+        "risk": decision["risk"],
+        "action_outcome": decision["action_outcome"],
+        "memory_influence": memory_influence,
+        "action": decision["visible_action"],
+        "reason": (
+            f"行动依据来自欲望“{desire}”、恐惧“{fear}”、旧记忆“{memory}”、"
+            f"{memory_influence}以及{pressure_text}。"
+        ),
+        "stance": decision["stance"],
         "emotion_delta": f"{emotion} -> {emotion}中带有戒备",
-        "relationship_delta": "开始重新评估同场角色的可靠性",
+        "relationship_delta": decision["relationship_delta"],
         "memory_seed": {
             "saw": [target_hint],
-            "did": [posture],
-            "inferred": [f"{name}认为这不是孤立事件，而是世界大势的开端。"],
+            "did": [decision["stance"]],
+            "inferred": [decision["new_belief"]],
         },
     }
 
@@ -332,6 +385,7 @@ def _subjective_memory_entry(
     did = _list_text(seed.get("did")) or [_text(action.get("action"))]
     inferred = _list_text(seed.get("inferred"))
     new_belief = inferred[0] if inferred else f"{action.get('character_name')}认为局势正在改写。"
+    psychology = _subjective_memory_psychology(round_record, action, new_belief)
     return {
         "version": VERSION,
         "source_run_id": round_record.get("run_id"),
@@ -350,6 +404,15 @@ def _subjective_memory_entry(
         "anomaly_delta": "异常感上升：本轮事件被记为世界大势的扰动。",
         "previous_subjective_memory": action.get("previous_subjective_memory") or "",
         "source_action": action.get("action") or "",
+        "decision_mode": action.get("decision_mode") or "",
+        "decision_inputs": action.get("decision_inputs") or {},
+        "visible_action": action.get("visible_action") or action.get("action") or "",
+        "true_intent": action.get("true_intent") or "",
+        "expected_outcome": action.get("expected_outcome") or "",
+        "risk": action.get("risk") or "",
+        "memory_influence": action.get("memory_influence") or "",
+        "action_outcome": action.get("action_outcome") or {},
+        **psychology,
     }
 
 
@@ -395,11 +458,242 @@ def _previous_memory_reference(memory: dict[str, Any]) -> str:
     return f"主观记忆：{belief}；{emotion}"
 
 
+def _subjective_memory_psychology(
+    round_record: dict[str, Any],
+    action: dict[str, Any],
+    new_belief: str,
+) -> dict[str, Any]:
+    character_name = _text(action.get("character_name")) or "该角色"
+    character_id = _text(action.get("character_id"))
+    event = _event_hint(str(round_record.get("major_event") or ""))
+    participants = [
+        _text(item.get("character_name"))
+        for item in round_record.get("character_actions", [])
+        if isinstance(item, dict) and _text(item.get("character_id")) != character_id
+    ]
+    other = participants[0] if participants else "另一名角色"
+    known_information = _list_text(action.get("known_information"))
+    perspective_index = _perspective_index(character_id)
+    perceived_event_options = [
+        f"{character_name}认为“{event}”是有人故意留下破绽，目的在于逼自己表态。",
+        f"{character_name}认为“{event}”更像{other}布下的试探，真正线索被遮住了。",
+        f"{character_name}认为“{event}”不是失控事故，而是旧秩序借机清洗证人。",
+        f"{character_name}认为“{event}”只是表层动静，真正危险藏在沉默的人身上。",
+    ]
+    inferred_motive_options = [
+        f"{other}可能想借物证嫁祸，迫使{character_name}提前暴露立场。",
+        f"{other}可能在保护某个秘密，因此故意让线索看起来指向自己。",
+        "幕后势力可能利用半真半假的证据切断角色之间的信任。",
+        f"{character_name}可能误把天命压力当成私人背叛信号。",
+    ]
+    secret_visibility = ["hidden", "partial", "exposed", "partial"][
+        perspective_index % 4
+    ]
+    misbelief = (
+        f"{character_name}误以为{other}已经掌握“{event}”的关键证据"
+        if perspective_index % 2 == 0
+        else f"{character_name}误以为{other}正在故意遮掩“{event}”的真正动机"
+    )
+    return {
+        "perceived_event": perceived_event_options[perspective_index % len(perceived_event_options)],
+        "inner_thought": (
+            f"{character_name}把本轮外在行动和真实意图分开："
+            f"{_text(action.get('true_intent')) or new_belief}"
+        ),
+        "inferred_motive": inferred_motive_options[
+            perspective_index % len(inferred_motive_options)
+        ],
+        "emotional_impact": _emotional_impact(action, perspective_index),
+        "trust_shift": _text(action.get("relationship_delta"))
+        or "信任关系出现轻微偏移",
+        "anomaly_weight": min(9, 3 + perspective_index),
+        "secret_visibility": secret_visibility,
+        "known_truths": known_information[:3],
+        "misbeliefs": [misbelief],
+        "unknown_canon_facts": [
+            f"谁真正触发了“{event}”仍未被{character_name}确认",
+            f"{other}的真实意图并未进入{character_name}的视野",
+        ],
+        "suppressed_memory": (
+            "暂时压下对旧案的联想，以免影响当前判断"
+            if perspective_index % 2 == 0
+            else "把对同伴的不信任藏在礼貌行动之后"
+        ),
+        "worldline_residue": (
+            "轻微既视感：此事像是另一条世界线残留的回声"
+            if perspective_index % 3 == 0
+            else "暂无明确世界线残影"
+        ),
+        "awareness_level": "ordinary" if perspective_index < 3 else "uneasy",
+    }
+
+
+def _perspective_index(character_id: str) -> int:
+    text = character_id or "character"
+    return sum(ord(char) for char in text) % 4
+
+
+def _emotional_impact(action: dict[str, Any], perspective_index: int) -> str:
+    base = _text(action.get("emotion_delta")) or "情绪被扰动"
+    impacts = ["戒备加深", "信任松动", "羞惭转为试探", "恐惧被压成冷静"]
+    return f"{base}；{impacts[perspective_index % len(impacts)]}"
+
+
+def _load_tianming_pressure(story_path: Path) -> dict[str, Any]:
+    raw = _read_optional_json(story_path / "tianming.json")
+    pressure = raw.get("contract_pressure") if isinstance(raw, dict) else {}
+    if not isinstance(pressure, dict):
+        pressure = {}
+    drivers = pressure.get("drivers")
+    return {
+        "level": _text(pressure.get("level")) or "unconfirmed",
+        "score": pressure.get("score") if isinstance(pressure.get("score"), int) else 0,
+        "drivers": [item for item in _list_text(drivers) if item],
+        "status": _text(raw.get("status")) if isinstance(raw, dict) else "",
+    }
+
+
+def _tianming_pressure_text(pressure: dict[str, Any]) -> str:
+    level = _text(pressure.get("level")) or "unconfirmed"
+    score = pressure.get("score") if isinstance(pressure.get("score"), int) else 0
+    drivers = _list_text(pressure.get("drivers"))
+    if drivers:
+        return f"《天命书》压力 {level}/{score}：{drivers[0]}"
+    return f"《天命书》压力 {level}/{score}：尚未确认，角色先按私心与记忆行动"
+
+
+def _relationship_signal(character: dict[str, Any]) -> str:
+    relationships = character.get("relationships")
+    if isinstance(relationships, list) and relationships:
+        sample = _text(relationships[0])
+        if sample:
+            return f"已知关系牵动：{sample}"
+        return f"关系网数量：{len(relationships)}"
+    return "关系网缺口：只能临场判断同场角色"
+
+
+def _secret_signal(character: dict[str, Any], index: int) -> str:
+    secrets = character.get("secrets")
+    if isinstance(secrets, list) and secrets:
+        sample = _text(secrets[0])
+        if sample:
+            return f"可隐藏秘密：{sample}"
+        return f"秘密数量：{len(secrets)}"
+    fallback = ["隐瞒真实判断", "保留旧案线索", "试探匿名消息来源"]
+    return fallback[index % len(fallback)]
+
+
+def _resource_signal(character: dict[str, Any]) -> str:
+    state = (
+        character.get("current_state")
+        if isinstance(character.get("current_state"), dict)
+        else {}
+    )
+    resources = state.get("resources")
+    if isinstance(resources, list) and resources:
+        return f"可动用资源：{_text(resources[0]) or len(resources)}"
+    resource_count = state.get("resource_count")
+    if isinstance(resource_count, int) and resource_count > 0:
+        return f"可动用资源数量：{resource_count}"
+    return "资源紧张：只能使用情报、关系或误导"
+
+
+def _deterministic_decision(
+    *,
+    name: str,
+    location: str,
+    target_hint: str,
+    base_posture: str,
+    index: int,
+    previous_belief: str,
+    previous_anomaly: str,
+    pressure_text: str,
+) -> dict[str, Any]:
+    has_memory = bool(previous_belief or previous_anomaly)
+    if not has_memory:
+        return {
+            "stance": base_posture,
+            "visible_action": f"{name}在{location}{base_posture}，围绕“{target_hint}”调整下一步。",
+            "true_intent": f"{name}仍在确认事件是否会牵动自己。",
+            "expected_outcome": "先取得局势解释权，再决定是否扩大行动。",
+            "risk": "信息不足，容易被后来者反向利用。",
+            "relationship_delta": "开始重新评估同场角色的可靠性",
+            "new_belief": f"{name}认为这不是孤立事件，而是世界大势的开端。",
+            "action_outcome": {
+                "status": "succeeded",
+                "reason": "第一轮只建立试探性位置，尚未遭遇记忆反噬。",
+                "cost": "暴露了自己关注此事。",
+            },
+        }
+
+    tactics = [
+        {
+            "stance": "假意服从",
+            "status": "succeeded",
+            "risk": "若被识破，会被视为两面下注。",
+            "relationship_delta": "表面顺从，暗中降低对同场角色的信任",
+        },
+        {
+            "stance": "隐瞒",
+            "status": "succeeded",
+            "risk": "信息被压住后，误会会向关系链扩散。",
+            "relationship_delta": "选择隐瞒关键判断，关系信任开始裂开",
+        },
+        {
+            "stance": "试探结盟",
+            "status": "misjudged",
+            "risk": "把上一轮异常误读成同盟信号，可能引错人入局。",
+            "relationship_delta": "向可疑对象释放善意，但判断并不稳定",
+        },
+        {
+            "stance": "背叛旧约",
+            "status": "failed",
+            "risk": "旧约反噬会把个人选择变成公开冲突。",
+            "relationship_delta": "为了自保牺牲旧关系，引发公开裂痕",
+        },
+    ]
+    tactic = tactics[index % len(tactics)]
+    visible_action = (
+        f"{name}在{location}{tactic['stance']}：表面回应“{target_hint}”，"
+        "却把上一轮异常感作为本轮行动前提。"
+    )
+    true_intent = (
+        f"{name}真正想验证上一轮判断“{previous_belief or previous_anomaly}”是否被人利用，"
+        f"并在{pressure_text}下保住退路。"
+    )
+    return {
+        "stance": tactic["stance"],
+        "visible_action": visible_action,
+        "true_intent": true_intent,
+        "expected_outcome": "让旁人误判自己的立场，同时观察匿名消息和旧秩序的反应。",
+        "risk": tactic["risk"],
+        "relationship_delta": tactic["relationship_delta"],
+        "new_belief": (
+            f"{name}把上一轮记忆转化为行动策略：{tactic['stance']}可能比直面真相更安全。"
+        ),
+        "action_outcome": {
+            "status": tactic["status"],
+            "reason": "行动受上一轮主观记忆、异常感和天命压力共同牵引。",
+            "cost": "因果债增加，至少一段关系开始带着误会运转。",
+        },
+    }
+
+
 def _conflicts(actions: list[dict[str, Any]], major_event: str) -> list[dict[str, Any]]:
     if len(actions) < 2:
         return []
     first = actions[0]
     second = actions[1]
+    first_inputs = (
+        first.get("decision_inputs") if isinstance(first.get("decision_inputs"), dict) else {}
+    )
+    previous_misbelief = _text(first_inputs.get("previous_misbelief"))
+    cause = (
+        f"上一轮误会“{previous_misbelief}”继续影响本轮判断，"
+        f"同一大事件“{_event_hint(major_event)}”被推向互相试探。"
+        if previous_misbelief
+        else f"同一大事件“{_event_hint(major_event)}”被不同角色解释成不同机会。"
+    )
     return [
         {
             "id": "conflict_1",
@@ -408,7 +702,7 @@ def _conflicts(actions: list[dict[str, Any]], major_event: str) -> list[dict[str
                 first["character_id"],
                 second["character_id"],
             ],
-            "cause": f"同一大事件“{_event_hint(major_event)}”被不同角色解释成不同机会。",
+            "cause": cause,
             "pressure": "中",
         }
     ]

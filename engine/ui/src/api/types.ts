@@ -396,8 +396,20 @@ export interface WorldSandboxCharacterAction {
   narrative_role: string;
   known_information: string[];
   previous_subjective_memory: string;
+  decision_mode?: string;
+  decision_inputs?: Record<string, string | number | boolean | null>;
   intent: string;
   action: string;
+  visible_action?: string;
+  true_intent?: string;
+  expected_outcome?: string;
+  risk?: string;
+  memory_influence?: string;
+  action_outcome?: {
+    status?: string;
+    reason?: string;
+    cost?: string;
+  };
   reason: string;
   stance: string;
   emotion_delta: string;
@@ -508,6 +520,31 @@ export interface SubjectiveMemoryEntry {
   anomaly_delta: string;
   previous_subjective_memory: string;
   source_action: string;
+  perceived_event?: string;
+  inner_thought?: string;
+  inferred_motive?: string;
+  emotional_impact?: string;
+  trust_shift?: string;
+  anomaly_weight?: number;
+  secret_visibility?: "hidden" | "partial" | "exposed" | string;
+  known_truths?: string[];
+  misbeliefs?: string[];
+  unknown_canon_facts?: string[];
+  suppressed_memory?: string;
+  worldline_residue?: string;
+  awareness_level?: string;
+  decision_mode?: string;
+  decision_inputs?: Record<string, string | number | boolean | null>;
+  visible_action?: string;
+  true_intent?: string;
+  expected_outcome?: string;
+  risk?: string;
+  memory_influence?: string;
+  action_outcome?: {
+    status?: string;
+    reason?: string;
+    cost?: string;
+  };
 }
 
 export interface SubjectiveMemoryReport {
@@ -527,6 +564,8 @@ export interface TianmingAttractor {
   title: string;
   pull: string;
   source: string;
+  weight?: number;
+  category?: string;
 }
 
 export interface TianmingGenreConstraint {
@@ -547,6 +586,7 @@ export interface TianmingReplacementCandidate {
 
 export interface TianmingBook {
   version: string;
+  constitution_schema_version?: number;
   artifact: string;
   story_slug: string;
   source_kind: SourceKind | string;
@@ -563,10 +603,26 @@ export interface TianmingBook {
     current_anchor_name: string;
     candidate_count: number;
     risk: string;
+    anchors?: Array<{
+      id: string;
+      type: "character" | "faction" | "mystery" | "place" | string;
+      name: string;
+      status: string;
+      stability: number;
+      pressure: string;
+    }>;
   };
   contract_pressure: {
     level: "low" | "medium" | "high" | string;
     score: number;
+    active_tier?: "minor" | "major" | "era" | "collapse" | string;
+    pressure_tiers?: Array<{
+      id: "minor" | "major" | "era" | "collapse" | string;
+      label: string;
+      threshold: number;
+      active: boolean;
+      drivers: string[];
+    }>;
     drivers: string[];
   };
   replacement_anchor_candidates: TianmingReplacementCandidate[];
@@ -583,6 +639,7 @@ export interface TianmingBook {
 export interface TianmingInterventionCompileReport {
   version: string;
   story_slug: string;
+  worldline_id?: string;
   target: string;
   content: string;
   tianming: {
@@ -620,6 +677,13 @@ export interface TianmingInterventionCompileReport {
     score: number;
     spread: string[];
   };
+  worldline_tianming_snapshot?: {
+    artifact: string;
+    status: string;
+    worldline_id: string;
+    root_tianming_mutated: boolean;
+    requires_confirmation: boolean;
+  } | null;
   audit: {
     required: boolean;
     can_mutate_tianming_snapshot: boolean;

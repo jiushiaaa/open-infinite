@@ -18,6 +18,7 @@ export function TianmingPage({ slug }: { slug: string }) {
     "给赵轩一封来自未来的大纲信，提醒他风鸣铃会引来新的代价。",
   );
   const [target, setTarget] = useState("");
+  const [worldlineId, setWorldlineId] = useState("reader_au");
   const [compileBusy, setCompileBusy] = useState(false);
   const [compileError, setCompileError] = useState<string | null>(null);
   const [compileReport, setCompileReport] =
@@ -88,6 +89,7 @@ export function TianmingPage({ slug }: { slug: string }) {
         await api.compileTianmingIntervention(slug, {
           content: interventionText.trim(),
           target: target.trim() || undefined,
+          worldline_id: worldlineId.trim() || "main",
         }),
       );
     } catch (err) {
@@ -189,13 +191,55 @@ export function TianmingPage({ slug }: { slug: string }) {
             <div className="tianming-list">
               {book.narrative_attractors.map((item) => (
                 <article key={item.id}>
-                  <strong>{item.title}</strong>
+                  <div className="tianming-row">
+                    <strong>{item.title}</strong>
+                    {typeof item.weight === "number" && (
+                      <span className="badge badge--gold">权重 {item.weight}</span>
+                    )}
+                  </div>
                   <p>{item.pull}</p>
-                  <span className="muted tiny">{item.source}</span>
+                  <span className="muted tiny">
+                    类别 {attractorCategoryLabel(item.category)} · {item.source}
+                  </span>
                 </article>
               ))}
             </div>
           </section>
+
+          {book.anchor_status.anchors?.length ? (
+            <section className="tianming-panel">
+              <h2>多锚点结构</h2>
+              <div className="tianming-anchors">
+                {book.anchor_status.anchors.map((item) => (
+                  <article key={item.id}>
+                    <div className="tianming-row">
+                      <strong>{item.name}</strong>
+                      <span className="badge badge--jade">
+                        {anchorTypeLabel(item.type)} · 稳定 {item.stability}
+                      </span>
+                    </div>
+                    <p>{item.pressure}</p>
+                    <span className="muted tiny">{anchorStatusLabel(item.status)}</span>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {book.contract_pressure.pressure_tiers?.length ? (
+            <section className="tianming-panel">
+              <h2>合约压力四档</h2>
+              <div className="tianming-pressure">
+                {book.contract_pressure.pressure_tiers.map((item) => (
+                  <article className={item.active ? "is-active" : ""} key={item.id}>
+                    <strong>{item.label}</strong>
+                    <p>{item.drivers.join("；")}</p>
+                    <span className="muted tiny">阈值 {item.threshold}</span>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className="tianming-panel">
             <h2>题材与世界约束</h2>
@@ -252,6 +296,14 @@ export function TianmingPage({ slug }: { slug: string }) {
               />
             </label>
             <label>
+              <span className="muted tiny">投放世界线</span>
+              <input
+                value={worldlineId}
+                onChange={(event) => setWorldlineId(event.target.value)}
+                placeholder="例如 reader_au"
+              />
+            </label>
+            <label>
               <span className="muted tiny">自由干预</span>
               <textarea
                 value={interventionText}
@@ -303,6 +355,18 @@ export function TianmingPage({ slug }: { slug: string }) {
                   <p>{compileReport.branch_axis.question}</p>
                   <p className="muted tiny">{compileReport.audit.message}</p>
                 </article>
+                {compileReport.worldline_tianming_snapshot && (
+                  <article>
+                    <strong>世界线天命书快照</strong>
+                    <p className="mono">
+                      {compileReport.worldline_tianming_snapshot.artifact}
+                    </p>
+                    <p className="muted tiny">
+                      根天命书未被覆盖；状态：
+                      {compileReport.worldline_tianming_snapshot.status}
+                    </p>
+                  </article>
+                )}
                 <div className="tianming-debt">
                   {compileReport.causal_debt.spread.map((item) => (
                     <span key={item}>{item}</span>
@@ -393,4 +457,29 @@ export function TianmingPage({ slug }: { slug: string }) {
       )}
     </div>
   );
+}
+
+function attractorCategoryLabel(value?: string): string {
+  if (value === "open_thread") return "开放伏笔";
+  if (value === "character_desire") return "角色欲望";
+  if (value === "world_continuity") return "世界惯性";
+  if (value === "world_trend") return "世界大势";
+  if (value === "genre_promise") return "题材承诺";
+  if (value === "anchor_replacement") return "锚点代偿";
+  return value || "叙事牵引";
+}
+
+function anchorTypeLabel(value: string): string {
+  if (value === "character") return "角色锚点";
+  if (value === "faction") return "势力锚点";
+  if (value === "mystery") return "谜团锚点";
+  if (value === "place") return "地点锚点";
+  return value;
+}
+
+function anchorStatusLabel(value: string): string {
+  if (value === "active") return "正在承压";
+  if (value === "latent") return "潜伏待发";
+  if (value === "missing") return "缺失";
+  return value;
 }

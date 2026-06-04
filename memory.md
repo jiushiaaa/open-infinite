@@ -2,7 +2,7 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-04（World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环：沙盘轮次、主观记忆链、天命书、干预编译、世界线代偿、世界自演、多视角活体小说和作者采纳台均有本地 service/API/UI/artifact 第一版。后续进入体验打磨、真实文本质量提升和跨卷宗串联，而不是回到 provider/Graph/检索评测堆叠。）
+> **最后更新**：2026-06-04（World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1 Agent Decision Deepening、S2 Subjective Memory Psychology、S3 Tianming Worldline Constitution 第一刀已收口：沙盘行动读取决策输入，主观记忆记录心理/信息差，《天命书》支持吸引子权重、多锚点、四档合约压力和 L4/L5/AU 世界线快照；旧版已确认 `tianming.json` 会保守补齐 S3 宪法字段且保留既有吸引子。下一步继续 S4 干预可执行投放或 S2 长期召回/误会图谱，而不是回到 provider/Graph/检索评测堆叠。）
 
 ---
 
@@ -15,11 +15,19 @@
 | 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已收口；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8（Sandbox Round、Subjective Memory Chain、Tianming Book、Intervention Compiler、Narrative Compensation、World Autopilot、Character Lens Novel、Author Adoption Desk）已收口 |
 | 产品入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能必须优先通过 Web UI + API 完成，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑 |
 | 测试基线 | `cd engine && python -m pytest -q` -> `872 passed`；`cd engine/ui && pnpm run build` 通过 |
-| 官方下一步 | **世界沙盘体验打磨 / 闭环强化**：优先把 v1-v8 串成更顺的世界内部卷宗体验，提升可读文本质量、跨卷宗引用和作者采纳后的章节 brief；不默认回到 provider/Graph/检索评测主线 |
+| 官方下一步 | **S4 干预可执行投放 / S2 深层召回**：S3 已完成第一刀，多锚点、压力四档、旧版天命书懒升级和 L4/L5/AU 世界线快照已有 service/API/UI/tests；下一步优先让编译结果成为下一轮沙盘约束，或继续补长期召回、误会图谱与角色不知道的正史事实；不默认回到 provider/Graph/检索评测主线 |
 | 当前主导航决策 | 一级按“世界书架”组织；进入某世界后使用“天命书、世界沙盘、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、世界线、检查点、作者采纳台”。“沙盘/阅读/干预/作者”是场景能力，不做一级工作区 |
 | 支撑层边界 | GraphRAG/Zep、provider spike、真实向量检索、OpenAPI、发行、计费、对象存储、认证都已降为支撑层；除非用户明确要求，不继续扩展这些方向 |
 
 判断“下一刀”时，先以本节和 `docs/unfinale-world-sandbox-remodel-prd.md` 为准；不要从旧变更日志或 Graph/provider 历史面板里直接捞待办。
+
+注意：v1-v8 的“已收口”是第一版本地闭环口径，主要是 deterministic service/API/UI/artifact/tests。它证明链路能跑，但不等于完整愿景已经完成；真实高智商多 Agent 决策、长期心理记忆、L5 觉醒反抗、代偿持续驱动、无人值守自演任务、多视角正文和作者采纳反哺章节 brief 仍是后续深化方向。
+
+后续迭代纪律：工程实现可以继续小步安全推进，但产品完成标准不能再停在“最小切片闭环”。一次 S1-S9 切片只有在用户能真实感到对应能力成立时才算通过，例如角色决策真的被记忆改变、干预真的进入下一轮沙盘、代偿压力真的持续影响世界状态、采纳真的反哺下一章 brief。`有 API / 有测试 / 有页面 / 有 artifact` 只能算底线，不等于产品能力完成。当前正在进行的 S1-S9 先不打断；等该轮完成后，下一轮复盘和第三轮迭代必须按这个口径验收。真实模型/API 可在用户明确允许时作为 opt-in smoke 或 LLM runner 联调使用，但默认 pytest 仍应保留 deterministic/mockable 基线，避免外网与额度依赖污染常规验证。
+
+真实模型验收口径：用户已明确允许在本项目测试中调用其真实接入的模型 API。后续涉及叙事生成、Agent 决策、章节 brief、多视角正文、Reviewer 或视觉生成质量的切片，不能只用 mock/deterministic 测试宣布体验合格；应在常规 mock 回归之外，使用 `.env` 中已配置的真实 `LLM_API_KEY` / `SEEDREAM_API_KEY` 做小样本 smoke，并记录真实输出质量、失败原因和是否回退。单元测试仍应 mock-safe、可复现；真实 API smoke 是产品验收补充，不打印明文 key，不做大规模消耗，不把真实外网调用塞进默认全量 pytest。
+
+远程同步纪律：后续 AI 完成一个独立切片并通过对应验证后，不能只停在本地工作树；应提交并推送到远程仓库，除非用户明确说暂不提交/暂不推送。推送前必须先检查 `git status`，只提交本轮自己负责的文件；如果工作树混有用户或另一轮 AI 的未完成改动，不能把脏状态混推，应先隔离提交范围、说明阻塞或等待当前长任务收口。没有远程、无上游分支、认证失败或网络失败时，要在收尾里明确说明未推送原因和下一步。
 
 ### 1.1 当前纠偏主线（最高优先级）
 
@@ -46,9 +54,9 @@
 
 ```text
 1. 沙盘轮次：sandbox_rounds.jsonl 已有第一版，记录每轮角色意图、行动、冲突、信息传播和世界状态 delta；API 为 `POST /api/stories/<slug>/sandbox/run`，前端入口为“世界书架 -> 世界沙盘”。
-2. 主观记忆链：每个角色在每条世界线拥有独立 subjective_memory.jsonl；每轮后写入看到、做了、新认知、情绪/信任/异常感变化，下一轮行动会引用上一轮记忆。
-3. 《天命书》：tianming.json 已有第一版，承载叙事吸引子、题材约束、当前锚点、合约压力、候选天命承载者和普通干预不可永久改写边界；前端可生成草案并轻量确认。
-4. 干预编译器读天命书：自由干预可预编译为干预类型、层级、兼容性、转译策略、Divergent/AU、分支轴和因果债；普通干预不改写 `tianming.json`。
+2. 主观记忆链：每个角色在每条世界线拥有独立 subjective_memory.jsonl；每轮后写入看到、做了、新认知、情绪/信任/异常感变化，并已扩展 perceived_event、inner_thought、inferred_motive、emotional_impact、trust_shift、anomaly_weight、secret_visibility、misbeliefs、unknown_canon_facts 等字段，下一轮行动和冲突会引用上一轮记忆/误会。
+3. 《天命书》：tianming.json 已有第一版，并已加深为世界线宪法雏形；`narrative_attractors` 有权重/类别，`anchor_status.anchors` 支持角色/势力/谜团/地点多锚点，`contract_pressure.pressure_tiers` 支持轻微/重大/时代/世界崩坏四档；旧版已确认天命书再次读取或生成时会补齐 S3 字段，同时保留既有吸引子。
+4. 干预编译器读天命书：自由干预可预编译为干预类型、层级、兼容性、转译策略、Divergent/AU、分支轴和因果债；普通干预不改写 `tianming.json`，L4/L5/AU 可写 `projects/<slug>/worldlines/<worldline_id>/tianming_snapshot.json` 且不覆盖根天命书。
 5. 世界线代偿：可生成 `tianming_delta.json`，解释锚点稳定/转移/失锚、候选天命承载者、因果债扩散和世界内压力事件。
 6. 世界自演：已支持运行到轮数、事件、时间或锚点变化，并生成 `autopilot_report.json` 与检查点。
 7. 多视角活体小说：已可把同一事件渲染为世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角，并写入 `character_lens_briefs.json`。

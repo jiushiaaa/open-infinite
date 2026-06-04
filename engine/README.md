@@ -2,7 +2,7 @@
 
 未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。当前已经从早期 Phase 0 CLI 演进到 v1.0-local + 后续增强四十五刀：支持小说导入、长篇记忆、读者干预、多世界线生成、审计评估、章节导出、模型配置、本地一键运行、运行前体检、生成后投影健康、读者修订评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、样本趋势快照，以及 Graph Memory provider spike 到 Manual Mock Adapter Review 的只读证据链。用户明确要求后，百炼 embedding、Zilliz Cloud 和百炼 reranker 的真实向量检索 Pipeline 已可显式使用。
 
-2026-06-03 产品纠偏后，上述 provider、Graph、检索评测、发行和商业化能力全部降为支撑层。当前默认开发主线是 **World Sandbox Loop / 世界沙盘改造**。2026-06-04 已完成 World Sandbox Loop v1-v8：用户可从世界书架进入“世界沙盘”“天命书”“多视角活体小说”和“作者采纳台”，看到角色行动、世界变化、角色主观记忆、干预分支轴、因果债、世界线代偿、世界自演检查点、多视角卷宗和作者采纳账本。后续进入闭环体验打磨、采纳后章节 brief 和跨卷宗串联，而不是回到 provider/Graph/检索评测堆叠。具体改造 PRD 见 [`../docs/unfinale-world-sandbox-remodel-prd.md`](../docs/unfinale-world-sandbox-remodel-prd.md)。
+2026-06-03 产品纠偏后，上述 provider、Graph、检索评测、发行和商业化能力全部降为支撑层。当前默认开发主线是 **World Sandbox Loop / 世界沙盘改造**。2026-06-04 已完成 World Sandbox Loop v1-v8：用户可从世界书架进入“世界沙盘”“天命书”“多视角活体小说”和“作者采纳台”，看到角色行动、世界变化、角色主观记忆、干预分支轴、因果债、世界线代偿、世界自演检查点、多视角卷宗和作者采纳账本；S1/S2/S3 深化已让沙盘行动记录展示决策输入、外在行动、真实意图、风险和行动结果，让主观记忆展示角色感知、内心想法、推测动机、误会、未知正史、秘密可见性和异常权重，并让《天命书》展示吸引子权重、多锚点、四档合约压力和 L4/L5/AU 世界线快照；旧版已确认天命书会保守补齐 S3 字段。后续进入 S4 干预可执行投放、闭环体验打磨、采纳后章节 brief 和跨卷宗串联，而不是回到 provider/Graph/检索评测堆叠。具体改造 PRD 见 [`../docs/unfinale-world-sandbox-remodel-prd.md`](../docs/unfinale-world-sandbox-remodel-prd.md)。
 
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
@@ -61,6 +61,8 @@
 - `GET /api/stories/<slug>/tianming`：读取天命书。
 - `POST /api/stories/<slug>/tianming/confirm`：用 `confirm=true` 轻量确认天命书。
 - `POST /api/stories/<slug>/tianming/intervention-compile`：读取天命书并预编译自由干预，输出类型、层级、兼容性、转译策略、Divergent/AU、分支轴和因果债。
+- L4/L5/AU 干预预编译会写 `projects/<slug>/worldlines/<worldline_id>/tianming_snapshot.json`，返回 `worldline_tianming_snapshot`，根 `tianming.json` 不被覆盖。
+- 旧版已确认 `tianming.json` 会在生成或读取时补齐 S3 宪法字段，同时保留既有吸引子。
 - `POST /api/stories/<slug>/narrative-compensation/run`：生成世界线代偿 delta，解释锚点转移、候选承载者、因果债扩散和世界内压力。
 - `POST /api/stories/<slug>/world-autopilot/run`：连续运行沙盘轮次，支持轮数、事件、时间或锚点变化目标，生成世界自演报告与检查点。
 - `POST /api/stories/<slug>/character-lens/generate`：从同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角 brief。
@@ -73,10 +75,10 @@
 - `projects/<slug>/author_adoption_ledger.jsonl`：作者采纳账本，记录采纳、部分采纳、另开分支或导出 brief。
 - `outputs/<run_id>/author_adoption_record.json`：单次作者采纳记录和原大纲 vs 沙盘涌现剧情对照。
 - `outputs/<run_id>/author_adoption_brief.md`：可交给后续章节 brief 或人工整理的采纳说明。
-- `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、行动、冲突、信息传播和世界状态 delta。
+- `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、决策输入、外在行动、真实意图、风险、行动结果、冲突、信息传播和世界状态 delta。
 - `outputs/<run_id>/sandbox_summary.json`：聚合本轮摘要、边界和下一步故事可能性。
-- `outputs/<run_id>/subjective_memory_delta.json`：聚合本轮写入的角色主观记忆。
-- `projects/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective_memory.jsonl`：角色自己的连续主观记忆链。
+- `outputs/<run_id>/subjective_memory_delta.json`：聚合本轮写入的角色主观记忆，包含主观感知、内心想法、推测动机、误会、未知正史和秘密可见性。
+- `projects/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective_memory.jsonl`：角色自己的连续主观记忆链，下一轮行动和冲突会读取上一轮记忆/误会。
 
 ## 快速开始
 
@@ -392,7 +394,11 @@ cd D:\AI\open-infinite
 git diff --check
 ```
 
-真实外部模型 smoke 不是 pytest 的前置条件。需要真实联调时，先确认 `.env` 中 Key 是你想使用的账号，并避免在测试中误打外网。检索增强可先调用 `POST /api/settings/retrieval-provider/test` 且 `mock=true` 做本地契约检查；改为 `mock=false` 才会尝试百炼 embedding、Zilliz Cloud 和百炼 reranker。项目工作台的「真实向量检索」可显式构建/刷新 Zilliz 索引并做检索预览；只有设置 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 后，运行时才消费该链路。
+真实外部模型 smoke 不是默认全量 pytest 的前置条件。单元测试和契约测试应保持 mock-safe、低成本、可复现。
+
+但产品验收不能只看 mock。用户已允许使用 `.env` 中真实接入的模型 API 做小样本 smoke。涉及 Agent 决策、叙事生成、章节 brief、多视角正文、Reviewer 或视觉质量的切片，完成 mock 回归后，应额外调用真实 `LLM_API_KEY` / `SEEDREAM_API_KEY` 链路观察真实输出质量，并记录输出质量、失败原因和是否回退；不得打印明文 key，不做大规模消耗，不把真实外网调用塞进默认全量 pytest。
+
+检索增强可先调用 `POST /api/settings/retrieval-provider/test` 且 `mock=true` 做本地契约检查；改为 `mock=false` 才会尝试百炼 embedding、Zilliz Cloud 和百炼 reranker。项目工作台的「真实向量检索」可显式构建/刷新 Zilliz 索引并做检索预览；只有设置 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 后，运行时才消费该链路。
 
 ## 文档索引
 

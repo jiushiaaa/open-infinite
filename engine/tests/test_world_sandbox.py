@@ -147,6 +147,118 @@ def test_sandbox_round_writes_and_reuses_subjective_memory(tmp_path):
     assert memory_report["entries"][0]["source_run_id"] == first["run_id"]
 
 
+def test_second_round_decision_changes_with_subjective_memory(tmp_path):
+    project_dir = _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    first = run_sandbox_round(
+        "sandbox-story",
+        major_event="沈冰月发现密库中有人提前取走风鸣铃。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    first_action = first["rounds"][0]["character_actions"][0]
+    character_id = first_action["character_id"]
+    memory_path = (
+        project_dir
+        / "worldlines"
+        / "main"
+        / "characters"
+        / character_id
+        / "subjective_memory.jsonl"
+    )
+    first_memory = json.loads(memory_path.read_text(encoding="utf-8").splitlines()[0])
+
+    second = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩收到一封声称沈冰月背叛归云斋的匿名密信。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    second_action = next(
+        action
+        for action in second["rounds"][0]["character_actions"]
+        if action["character_id"] == character_id
+    )
+
+    assert second_action["decision_mode"] == "deterministic_agent_decision"
+    assert second_action["decision_inputs"]["previous_memory_belief"] == first_memory["new_belief"]
+    assert second_action["decision_inputs"]["previous_memory_anomaly"] == first_memory["anomaly_delta"]
+    assert second_action["decision_inputs"]["desire"]
+    assert second_action["decision_inputs"]["fear"]
+    assert second_action["decision_inputs"]["relationship_signal"]
+    assert second_action["decision_inputs"]["secret_signal"]
+    assert second_action["decision_inputs"]["resource_signal"]
+    assert second_action["decision_inputs"]["tianming_pressure"]
+    assert second_action["visible_action"]
+    assert second_action["true_intent"]
+    assert second_action["expected_outcome"]
+    assert second_action["risk"]
+    assert second_action["action_outcome"]["status"] in {
+        "succeeded",
+        "failed",
+        "misjudged",
+    }
+    assert second_action["memory_influence"] != "无上一轮主观记忆"
+    assert (
+        second_action["visible_action"] != first_action["visible_action"]
+        or second_action["true_intent"] != first_action["true_intent"]
+    )
+
+
+def test_subjective_memories_record_contradictory_perspectives(tmp_path):
+    project_dir = _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    first = run_sandbox_round(
+        "sandbox-story",
+        major_event="归云斋库门半夜洞开，风鸣铃失踪，只留下沈冰月的玉扣。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    entries = first["subjective_memory_delta"]["entries"]
+    assert len(entries) >= 2
+
+    first_entry = entries[0]
+    second_entry = entries[1]
+    for entry in (first_entry, second_entry):
+        assert entry["perceived_event"]
+        assert entry["inner_thought"]
+        assert entry["inferred_motive"]
+        assert entry["emotional_impact"]
+        assert entry["trust_shift"]
+        assert isinstance(entry["anomaly_weight"], int)
+        assert entry["secret_visibility"] in {"hidden", "partial", "exposed"}
+        assert entry["misbeliefs"]
+        assert entry["unknown_canon_facts"]
+        assert entry["true_intent"]
+
+    assert first_entry["perceived_event"] != second_entry["perceived_event"]
+    assert first_entry["inferred_motive"] != second_entry["inferred_motive"]
+    assert set(first_entry["misbeliefs"]).isdisjoint(set(second_entry["misbeliefs"]))
+
+    second = run_sandbox_round(
+        "sandbox-story",
+        major_event="第二日清晨，沈冰月公开否认去过密库。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    second_conflict = second["rounds"][0]["conflicts"][0]
+    assert "误会" in second_conflict["cause"]
+    assert first_entry["misbeliefs"][0] in second_conflict["cause"]
+
+    first_memory_path = (
+        project_dir
+        / "worldlines"
+        / "main"
+        / "characters"
+        / first_entry["character_id"]
+        / "subjective_memory.jsonl"
+    )
+    persisted = json.loads(first_memory_path.read_text(encoding="utf-8").splitlines()[0])
+    assert persisted["perceived_event"] == first_entry["perceived_event"]
+
+
 def test_run_sandbox_round_validates_inputs(tmp_path):
     _make_project(tmp_path)
 

@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import json
+from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from living_novel_engine.browser.validators import safe_id
+from living_novel_engine.service.project_health import resolve_story_path
 from living_novel_engine.service.tianming import get_tianming_book
 
 VERSION = "tianming-intervention-compiler-v1"
@@ -21,6 +25,7 @@ def compile_intervention_against_tianming(
     content: str,
     target: str = "",
     projects_dir: Path | None = None,
+    worldline_id: str = "main",
 ) -> dict[str, Any]:
     """Read Tianming and compile one free-form intervention.
 
@@ -34,6 +39,7 @@ def compile_intervention_against_tianming(
     if not text:
         raise TianmingInterventionCompilerRequestError("缺少 content（干预内容）")
     target_id = safe_id(str(target or "").strip()) or ""
+    wid = _checked_id(worldline_id or "main", "worldline_id")
     book = get_tianming_book(sid, projects_dir=projects_dir)
     intervention_type = _classify_intervention(text)
     level = _level_for(intervention_type, text)
@@ -41,9 +47,22 @@ def compile_intervention_against_tianming(
     judgement = _worldline_judgement(intervention_type, level, compatibility)
     branch_axis = _branch_axis(intervention_type, target_id, text, judgement)
     causal_debt = _causal_debt(intervention_type, level, compatibility, book)
+    snapshot = _write_worldline_snapshot(
+        story_slug=sid,
+        worldline_id=wid,
+        content=text,
+        target_id=target_id,
+        level=level,
+        judgement=judgement,
+        compatibility=compatibility,
+        causal_debt=causal_debt,
+        book=book,
+        projects_dir=projects_dir,
+    )
     return {
         "version": VERSION,
         "story_slug": sid,
+        "worldline_id": wid,
         "target": target_id,
         "content": text,
         "tianming": {
@@ -67,6 +86,7 @@ def compile_intervention_against_tianming(
         "worldline_judgement": judgement,
         "branch_axis": branch_axis,
         "causal_debt": causal_debt,
+        "worldline_tianming_snapshot": snapshot,
         "audit": {
             "required": level in {"L4", "L5"},
             "can_mutate_tianming_snapshot": level in {"L4", "L5"},
@@ -80,10 +100,106 @@ def compile_intervention_against_tianming(
         "ordinary_intervention_mutates_tianming": False,
         "boundaries": [
             "本结果只解释干预如何投放，不调用 run_scene。",
-            "本结果不写 tianming.json、不覆盖任何 run artifact。",
+            (
+                "L4/L5 或 AU 只写世界线天命书快照，不覆盖根 tianming.json。"
+                if snapshot
+                else "普通干预不写 tianming.json、不写世界线天命书快照。"
+            ),
             "普通干预不能永久改写《天命书》。",
         ],
     }
+
+
+def _write_worldline_snapshot(
+    *,
+    story_slug: str,
+    worldline_id: str,
+    content: str,
+    target_id: str,
+    level: str,
+    judgement: dict[str, str],
+    compatibility: dict[str, Any],
+    causal_debt: dict[str, Any],
+    book: dict[str, Any],
+    projects_dir: Path | None,
+) -> dict[str, Any] | None:
+    if level not in {"L4", "L5"} and judgement.get("kind") != "au":
+        return None
+    story_path, _source_kind = resolve_story_path(story_slug, projects_dir)
+    snapshot_dir = story_path / "worldlines" / worldline_id
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    artifact = f"worldlines/{worldline_id}/tianming_snapshot.json"
+    now = datetime.now().isoformat(timespec="seconds")
+    snapshot = deepcopy(book)
+    snapshot.update(
+        {
+            "artifact": artifact,
+            "status": "draft_snapshot",
+            "requires_confirmation": True,
+            "worldline_id": worldline_id,
+            "root_tianming_artifact": book.get("artifact") or "tianming.json",
+            "root_tianming_mutated": False,
+            "created_at": now,
+            "updated_at": now,
+            "confirmed_at": None,
+            "snapshot_reason": {
+                "intervention_level": level,
+                "worldline_kind": judgement.get("kind") or "",
+                "compatibility": compatibility.get("status") or "",
+                "content_preview": content[:120],
+                "target": target_id or "world",
+            },
+            "boundaries": [
+                "这是世界线《天命书》快照，不覆盖根 tianming.json。",
+                "普通干预不能写入本快照；只有 L4/L5 或 AU 触发后才生成。",
+                "快照仍需审计或作者确认后才能成为该世界线长期宪法。",
+            ],
+        }
+    )
+    snapshot["contract_pressure"] = _snapshot_contract_pressure(
+        snapshot.get("contract_pressure"),
+        level=level,
+        causal_debt=causal_debt,
+    )
+    (snapshot_dir / "tianming_snapshot.json").write_text(
+        json.dumps(snapshot, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return {
+        "artifact": artifact,
+        "status": "draft_snapshot",
+        "worldline_id": worldline_id,
+        "root_tianming_mutated": False,
+        "requires_confirmation": True,
+    }
+
+
+def _snapshot_contract_pressure(
+    raw: object,
+    *,
+    level: str,
+    causal_debt: dict[str, Any],
+) -> dict[str, Any]:
+    pressure = deepcopy(raw) if isinstance(raw, dict) else {}
+    active_tier = "collapse" if level == "L5" else "era"
+    minimum_score = 12 if active_tier == "collapse" else 8
+    pressure["active_tier"] = active_tier
+    pressure["level"] = "high"
+    pressure["score"] = max(
+        int(pressure.get("score") or 0),
+        int(causal_debt.get("score") or 0),
+        minimum_score,
+    )
+    tiers = pressure.get("pressure_tiers")
+    if isinstance(tiers, list):
+        for item in tiers:
+            if isinstance(item, dict):
+                item["active"] = item.get("id") == pressure["active_tier"]
+    pressure.setdefault(
+        "drivers",
+        ["高等级干预触发世界线宪法快照", "根天命书保持不变"],
+    )
+    return pressure
 
 
 def _classify_intervention(text: str) -> str:
