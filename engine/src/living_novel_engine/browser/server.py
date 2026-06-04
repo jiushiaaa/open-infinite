@@ -1765,6 +1765,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 slug,
                 major_event=str(body.get("major_event") or ""),
                 worldline_id=str(body.get("worldline_id") or "main"),
+                intervention_content=str(body.get("intervention_content") or ""),
+                intervention_target=str(body.get("intervention_target") or ""),
+                intervention_constraint=(
+                    body.get("intervention_constraint")
+                    if isinstance(body.get("intervention_constraint"), dict)
+                    else None
+                ),
             )
         except WorldSandboxRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)

@@ -13,6 +13,8 @@ const DEFAULT_EVENT = "老皇帝驾崩，边境军报同时传入归云斋。";
 
 export function WorldSandboxPage({ slug }: { slug: string }) {
   const [majorEvent, setMajorEvent] = useState(DEFAULT_EVENT);
+  const [interventionContent, setInterventionContent] = useState("");
+  const [interventionTarget, setInterventionTarget] = useState("");
   const [report, setReport] = useState<WorldSandboxRunReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,12 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [autopilotReport, setAutopilotReport] = useState<WorldAutopilotReport | null>(null);
 
   const round = report?.rounds[0] ?? null;
+  const interventionConstraint =
+    report?.intervention_constraint?.status === "active"
+      ? report.intervention_constraint
+      : round?.intervention_constraint?.status === "active"
+        ? round.intervention_constraint
+        : null;
   const canRun = majorEvent.trim().length > 0 && !loading;
   const actionCount = round?.character_actions.length ?? 0;
   const deltaItems = useMemo(() => {
@@ -41,6 +49,10 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       ["因果债", round.world_state_delta.causal_debt],
       ["资源变化", round.world_state_delta.resource_changes.join("；")],
       ["秘密流动", round.world_state_delta.secret_changes.join("；")],
+      [
+        "干预投放",
+        round.world_state_delta.intervention_effects?.join("；") || "本轮未投放干预",
+      ],
     ];
   }, [round]);
 
@@ -52,6 +64,8 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       const next = await api.runSandboxRound(slug, {
         major_event: majorEvent.trim(),
         worldline_id: "main",
+        intervention_content: interventionContent.trim() || undefined,
+        intervention_target: interventionTarget.trim() || undefined,
       });
       setReport(next);
       const firstCharacter = next.rounds[0]?.character_actions[0]?.character_id;
@@ -146,11 +160,28 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
               rows={7}
               placeholder="写下世界刚刚发生的事"
             />
+            <label>
+              <span className="muted tiny">本轮干预</span>
+              <textarea
+                value={interventionContent}
+                onChange={(event) => setInterventionContent(event.target.value)}
+                rows={4}
+                placeholder="可选：写下要投放进本轮世界线的梦兆、密信、谣言或资源"
+              />
+            </label>
+            <label>
+              <span className="muted tiny">投放对象</span>
+              <input
+                value={interventionTarget}
+                onChange={(event) => setInterventionTarget(event.target.value)}
+                placeholder="可选：角色 id，例如 zhao_xuan"
+              />
+            </label>
             <button className="btn btn--primary" disabled={!canRun} onClick={runRound}>
               {loading ? "沙盘推演中…" : "运行一轮"}
             </button>
             <p className="muted tiny">
-              第一版只写入沙盘轮次，不覆盖章节、事件、状态快照或既有世界线。
+              留空干预时只运行普通沙盘；填写后会先读取《天命书》，再把编译结果投放为本轮约束。
             </p>
           </div>
 
@@ -178,6 +209,12 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   <dt>记忆</dt>
                   <dd>{report.summary.subjective_memory_entries_written} 条</dd>
                 </div>
+                {report.artifacts.intervention_constraint && (
+                  <div>
+                    <dt>干预</dt>
+                    <dd>{report.artifacts.intervention_constraint}</dd>
+                  </div>
+                )}
               </dl>
             </div>
           )}
@@ -282,6 +319,38 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           )}
           {!error && round && (
             <>
+              {interventionConstraint && (
+                <section className="sandbox-section sandbox-intervention">
+                  <div className="sandbox-section__title">
+                    <h2>已投放干预约束</h2>
+                    <span className="badge badge--gold">
+                      {interventionConstraint.branch_axis?.axis ?? "分支变量"}
+                    </span>
+                  </div>
+                  <p>{interventionConstraint.content}</p>
+                  <dl>
+                    <div>
+                      <dt>法则吸收</dt>
+                      <dd>{interventionConstraint.translation_strategy?.strategy}</dd>
+                    </div>
+                    <div>
+                      <dt>命运线</dt>
+                      <dd>{interventionConstraint.branch_axis?.question}</dd>
+                    </div>
+                    <div>
+                      <dt>因果债</dt>
+                      <dd>
+                        {interventionConstraint.causal_debt?.level ?? "medium"} /{" "}
+                        {interventionConstraint.causal_debt?.score ?? 0}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>投放结果</dt>
+                      <dd>{interventionConstraint.worldline_judgement?.reason}</dd>
+                    </div>
+                  </dl>
+                </section>
+              )}
               <section className="sandbox-section">
                 <div className="sandbox-section__title">
                   <h2>角色行动链</h2>

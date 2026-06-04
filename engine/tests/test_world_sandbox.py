@@ -12,6 +12,7 @@ import pytest
 
 from living_novel_engine.browser import server
 from living_novel_engine.service import import_novel_from_payload
+from living_novel_engine.service.tianming import confirm_tianming_book, generate_tianming_book
 from living_novel_engine.service.world_sandbox import (
     WorldSandboxRequestError,
     get_character_subjective_memory,
@@ -259,6 +260,48 @@ def test_subjective_memories_record_contradictory_perspectives(tmp_path):
     assert persisted["perceived_event"] == first_entry["perceived_event"]
 
 
+def test_sandbox_round_consumes_tianming_intervention_as_executable_constraint(tmp_path):
+    _make_project(tmp_path)
+    generate_tianming_book("sandbox-story", projects_dir=tmp_path)
+    confirm_tianming_book("sandbox-story", confirm=True, projects_dir=tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = run_sandbox_round(
+        "sandbox-story",
+        major_event="沈冰月在归云斋外捡到一封陌生密信。",
+        intervention_content="告诉沈冰月未来大纲：风鸣铃会引出真正叛徒。",
+        intervention_target="shen_bing_yue",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+
+    constraint = report["intervention_constraint"]
+    round_record = report["rounds"][0]
+    first_action = round_record["character_actions"][0]
+
+    assert constraint["status"] == "active"
+    assert constraint["source"] == "tianming_intervention_compile"
+    assert constraint["content"] == "告诉沈冰月未来大纲：风鸣铃会引出真正叛徒。"
+    assert constraint["branch_axis"]["axis"] == "信息差 / 预言可信度"
+    assert constraint["translation_strategy"]["strategy"]
+    assert constraint["causal_debt"]["score"] >= 2
+    assert round_record["intervention_constraint"] == constraint
+    assert first_action["decision_inputs"]["intervention_constraint"]
+    assert first_action["decision_inputs"]["intervention_branch_axis"] == "信息差 / 预言可信度"
+    assert "密信" in first_action["visible_action"]
+    assert "干预" in first_action["action_outcome"]["reason"]
+    assert "信息差 / 预言可信度" in round_record["conflicts"][0]["cause"]
+    assert any(flow["from"] == "reader_intervention" for flow in round_record["information_flow"])
+    assert round_record["world_state_delta"]["intervention_effects"]
+
+    saved_round = json.loads(
+        (outputs_dir / report["run_id"] / "sandbox_rounds.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()[0]
+    )
+    assert saved_round["intervention_constraint"]["status"] == "active"
+
+
 def test_run_sandbox_round_validates_inputs(tmp_path):
     _make_project(tmp_path)
 
@@ -292,6 +335,8 @@ def running_server(tmp_path, monkeypatch):
     monkeypatch.setenv("LNE_PROJECTS_DIR", str(tmp_path))
     monkeypatch.setenv("LNE_OUTPUTS_DIR", str(tmp_path / "_outputs"))
     _make_project(tmp_path, "sandbox-http")
+    generate_tianming_book("sandbox-http", projects_dir=tmp_path)
+    confirm_tianming_book("sandbox-http", confirm=True, projects_dir=tmp_path)
     port = _free_port()
     httpd = server.start_browser_server("127.0.0.1", port, open_browser=False)
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
@@ -332,11 +377,19 @@ def test_world_sandbox_http_run_and_read_statuses(running_server):
     status, body = _post(
         port,
         "/api/stories/sandbox-http/sandbox/run",
-        {"major_event": "老皇帝驾崩，三方势力同时试探。"},
+        {
+            "major_event": "老皇帝驾崩，三方势力同时试探。",
+            "intervention_content": "告诉赵轩未来大纲：归云斋会出现叛徒。",
+            "intervention_target": "zhao_xuan",
+        },
     )
     assert status == 200
     assert body["version"] == "world-sandbox-round-v1"
     assert body["summary"]["character_action_count"] >= 3
+    assert body["intervention_constraint"]["status"] == "active"
+    assert body["rounds"][0]["intervention_constraint"]["branch_axis"]["axis"] == (
+        "信息差 / 预言可信度"
+    )
 
     detail_status, detail = _get(port, f"/api/sandbox-runs/{body['run_id']}")
     assert detail_status == 200

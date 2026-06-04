@@ -1798,3 +1798,22 @@
   - S3 第一刀仍是 deterministic/mockable 基线；动态吸引子、锚点转移后自动刷新、作者确认/审计和后续沙盘消费留给后续 S3/S4/S6 深化。
 - **下一刀建议**：`S4 Intervention Execution Injection MVP`，让干预编译结果成为下一轮沙盘约束，支持沉浸模式 / 暴走 AU 模式，并让普通干预进入 Divergent Worldline。
 
+### 2026-06-04 — S4 Intervention Execution Constraint MVP
+
+- **做了什么**：
+  - `run_sandbox_round()` 新增可选 `intervention_content`、`intervention_target` 和 `intervention_constraint`，无干预时保持旧沙盘路径。
+  - `POST /api/stories/<slug>/sandbox/run` 可接收本轮干预文本，先读取《天命书》并复用干预编译器，生成 `intervention_constraint.json`。
+  - `sandbox_rounds.jsonl` 新增 `intervention_constraint`；角色 `decision_inputs` 新增干预约束、分支轴、因果债和投放对象；角色行动、行动结果、冲突原因、信息流和 `world_state_delta.intervention_effects` 会体现本轮干预。
+  - 世界沙盘页新增可选“本轮干预 / 投放对象”输入，并在结果区展示法则吸收、命运线、因果债和投放结果。
+  - 同步 `memory.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md` 和 `engine/README.md`，把下一刀切到 S4 沉浸/AU 投放确认或 S5 觉醒反抗。
+- **测试/验证**：
+  - RED：新增 `test_sandbox_round_consumes_tianming_intervention_as_executable_constraint` 和 HTTP 断言后，先因 `run_sandbox_round()` 不接受 `intervention_content`、响应缺少 `intervention_constraint` 失败。
+  - GREEN：`cd engine && python -m pytest tests\test_world_sandbox.py tests\test_tianming_intervention_compiler.py -q` -> **11 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 普通干预只作为本轮沙盘约束和 Divergent Worldline 压力，不覆盖根 `tianming.json`。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+  - S4 第一刀仍是 deterministic/mockable 基线；沉浸模式 / 暴走 AU 模式确认、分支继续运行和 L4/L5 快照审计留给后续切片。
+- **下一刀建议**：继续 S4 的沉浸模式 / 暴走 AU 模式确认与分支继续运行，或进入 `S5 L5 Awareness and Resistance MVP`，让角色能拒绝、假意服从、欺骗读者或传播高维真相。
+

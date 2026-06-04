@@ -13,10 +13,15 @@ import yaml
 from living_novel_engine.browser.validators import safe_id
 from living_novel_engine.browser.paths import outputs_dir as default_outputs_dir
 from living_novel_engine.service.project_health import resolve_story_path
+from living_novel_engine.service.tianming_intervention_compiler import (
+    TianmingInterventionCompilerRequestError,
+    compile_intervention_against_tianming,
+)
 
 VERSION = "world-sandbox-round-v1"
 _ROUNDS_ARTIFACT = "sandbox_rounds.jsonl"
 _SUBJECTIVE_MEMORY_DELTA_ARTIFACT = "subjective_memory_delta.json"
+_INTERVENTION_CONSTRAINT_ARTIFACT = "intervention_constraint.json"
 
 
 class WorldSandboxRequestError(ValueError):
@@ -27,6 +32,9 @@ def run_sandbox_round(
     story_slug: str,
     *,
     major_event: str,
+    intervention_content: str = "",
+    intervention_target: str = "",
+    intervention_constraint: dict[str, Any] | None = None,
     projects_dir: Path | None = None,
     outputs_dir: Path | None = None,
     worldline_id: str = "main",
@@ -51,6 +59,14 @@ def run_sandbox_round(
     selected = _select_characters(characters)
     previous_memories = _load_latest_subjective_memories(story_path, wid, selected)
     tianming_pressure = _load_tianming_pressure(story_path)
+    constraint = _build_intervention_constraint(
+        story_slug=sid,
+        worldline_id=wid,
+        content=intervention_content,
+        target=intervention_target,
+        raw_constraint=intervention_constraint,
+        projects_dir=projects_dir,
+    )
     created_at = datetime.now().isoformat(timespec="seconds")
     run_id = _new_run_id()
     root = outputs_dir or default_outputs_dir()
@@ -66,9 +82,15 @@ def run_sandbox_round(
         characters=selected,
         previous_memories=previous_memories,
         tianming_pressure=tianming_pressure,
+        intervention_constraint=constraint,
         created_at=created_at,
     )
     _write_jsonl(run_dir / _ROUNDS_ARTIFACT, [round_record])
+    if constraint.get("status") == "active":
+        (run_dir / _INTERVENTION_CONSTRAINT_ARTIFACT).write_text(
+            json.dumps(constraint, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
     memory_delta = _append_subjective_memory_delta(
         story_path=story_path,
         run_dir=run_dir,
@@ -84,6 +106,11 @@ def run_sandbox_round(
         "artifacts": {
             "sandbox_rounds": _ROUNDS_ARTIFACT,
             "subjective_memory_delta": _SUBJECTIVE_MEMORY_DELTA_ARTIFACT,
+            **(
+                {"intervention_constraint": _INTERVENTION_CONSTRAINT_ARTIFACT}
+                if constraint.get("status") == "active"
+                else {}
+            ),
         },
     }
     (run_dir / "meta.json").write_text(
@@ -99,6 +126,7 @@ def run_sandbox_round(
         created_at=created_at,
         rounds=[round_record],
         subjective_memory_delta=memory_delta,
+        intervention_constraint=constraint,
     )
     (run_dir / "sandbox_summary.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2),
@@ -139,6 +167,9 @@ def get_sandbox_run(
         created_at=str(meta.get("created_at") or rounds[0].get("created_at") or ""),
         rounds=rounds,
         subjective_memory_delta=subjective_memory_delta,
+        intervention_constraint=_read_optional_json(
+            run_dir / _INTERVENTION_CONSTRAINT_ARTIFACT
+        ),
     )
 
 
@@ -204,6 +235,7 @@ def _build_round_record(
     characters: list[dict[str, Any]],
     previous_memories: dict[str, dict[str, Any]],
     tianming_pressure: dict[str, Any],
+    intervention_constraint: dict[str, Any],
     created_at: str,
 ) -> dict[str, Any]:
     actions = [
@@ -213,6 +245,7 @@ def _build_round_record(
             major_event,
             previous_memories=previous_memories,
             tianming_pressure=tianming_pressure,
+            intervention_constraint=intervention_constraint,
         )
         for idx, character in enumerate(characters)
     ]
@@ -225,6 +258,7 @@ def _build_round_record(
         "round_index": 1,
         "created_at": created_at,
         "major_event": major_event,
+        "intervention_constraint": intervention_constraint,
         "character_actions": actions,
         "conflicts": _conflicts(actions, major_event),
         "information_flow": _information_flow(actions, major_event),
@@ -245,6 +279,7 @@ def _character_action(
     *,
     previous_memories: dict[str, dict[str, Any]],
     tianming_pressure: dict[str, Any],
+    intervention_constraint: dict[str, Any],
 ) -> dict[str, Any]:
     character_id = _safe_character_id(character, index)
     name = _text(character.get("name")) or character_id
@@ -271,6 +306,10 @@ def _character_action(
     secret_signal = _secret_signal(character, index)
     resource_signal = _resource_signal(character)
     pressure_text = _tianming_pressure_text(tianming_pressure)
+    intervention_text = _intervention_constraint_text(intervention_constraint)
+    intervention_axis = _intervention_branch_axis(intervention_constraint)
+    intervention_debt = _intervention_causal_debt_text(intervention_constraint)
+    intervention_target = _text(intervention_constraint.get("target"))
     decision = _deterministic_decision(
         name=name,
         location=location,
@@ -280,6 +319,8 @@ def _character_action(
         previous_belief=previous_belief,
         previous_anomaly=previous_anomaly,
         pressure_text=pressure_text,
+        intervention_text=intervention_text,
+        intervention_axis=intervention_axis,
     )
     memory_influence = (
         f"上一轮认知“{previous_belief}”与异常感“{previous_anomaly}”改变本轮选择。"
@@ -296,6 +337,10 @@ def _character_action(
         "previous_memory_belief": previous_belief,
         "previous_memory_anomaly": previous_anomaly,
         "previous_misbelief": previous_misbelief,
+        "intervention_constraint": intervention_text,
+        "intervention_branch_axis": intervention_axis,
+        "intervention_causal_debt": intervention_debt,
+        "intervention_target": intervention_target,
     }
     return {
         "character_id": character_id,
@@ -308,6 +353,7 @@ def _character_action(
             f"秘密信号：{secret_signal}",
             f"资源信号：{resource_signal}",
             f"天命压力：{pressure_text}",
+            f"干预约束：{intervention_text or '无'}",
             previous_memory_ref,
         ],
         "previous_subjective_memory": previous_memory_ref,
@@ -562,6 +608,93 @@ def _tianming_pressure_text(pressure: dict[str, Any]) -> str:
     return f"《天命书》压力 {level}/{score}：尚未确认，角色先按私心与记忆行动"
 
 
+def _build_intervention_constraint(
+    *,
+    story_slug: str,
+    worldline_id: str,
+    content: str,
+    target: str,
+    raw_constraint: dict[str, Any] | None,
+    projects_dir: Path | None,
+) -> dict[str, Any]:
+    if isinstance(raw_constraint, dict) and raw_constraint:
+        normalized = dict(raw_constraint)
+        normalized.setdefault("status", "active")
+        normalized.setdefault("source", "provided_intervention_constraint")
+        return normalized
+    text = " ".join(str(content or "").split())
+    if not text:
+        return {"status": "none", "source": "none", "content": "", "target": ""}
+    try:
+        compiled = compile_intervention_against_tianming(
+            story_slug,
+            content=text,
+            target=target,
+            worldline_id=worldline_id,
+            projects_dir=projects_dir,
+        )
+    except TianmingInterventionCompilerRequestError as exc:
+        raise WorldSandboxRequestError(str(exc)) from exc
+    return {
+        "status": "active",
+        "source": "tianming_intervention_compile",
+        "content": compiled.get("content") or text,
+        "target": compiled.get("target") or "",
+        "intervention_type": compiled.get("intervention_type") or "",
+        "intervention_level": compiled.get("intervention_level") or "",
+        "compatibility": compiled.get("compatibility") or {},
+        "translation_strategy": compiled.get("translation_strategy") or {},
+        "worldline_judgement": compiled.get("worldline_judgement") or {},
+        "branch_axis": compiled.get("branch_axis") or {},
+        "causal_debt": compiled.get("causal_debt") or {},
+        "tianming": compiled.get("tianming") or {},
+        "worldline_tianming_snapshot": compiled.get("worldline_tianming_snapshot"),
+        "boundaries": [
+            "本约束来自《天命书》干预编译结果。",
+            "它只影响本次沙盘轮次，不覆盖根 tianming.json。",
+            "普通干预进入 Divergent Worldline；L4/L5/AU 仍需单独确认快照。",
+        ],
+    }
+
+
+def _intervention_constraint_text(constraint: dict[str, Any]) -> str:
+    if not isinstance(constraint, dict) or constraint.get("status") != "active":
+        return ""
+    content = _text(constraint.get("content"))
+    strategy = constraint.get("translation_strategy")
+    branch = constraint.get("branch_axis")
+    strategy_text = ""
+    axis = ""
+    if isinstance(strategy, dict):
+        strategy_text = _text(strategy.get("strategy"))
+    if isinstance(branch, dict):
+        axis = _text(branch.get("axis"))
+    parts = [part for part in (content, strategy_text, axis) if part]
+    return "；".join(parts)
+
+
+def _intervention_branch_axis(constraint: dict[str, Any]) -> str:
+    if not isinstance(constraint, dict) or constraint.get("status") != "active":
+        return ""
+    branch = constraint.get("branch_axis")
+    if isinstance(branch, dict):
+        return _text(branch.get("axis"))
+    return ""
+
+
+def _intervention_causal_debt_text(constraint: dict[str, Any]) -> str:
+    if not isinstance(constraint, dict) or constraint.get("status") != "active":
+        return ""
+    debt = constraint.get("causal_debt")
+    if not isinstance(debt, dict):
+        return ""
+    level = _text(debt.get("level")) or "medium"
+    score = debt.get("score") if isinstance(debt.get("score"), int) else 0
+    spread = _list_text(debt.get("spread"))
+    suffix = f"：{spread[0]}" if spread else ""
+    return f"干预因果债 {level}/{score}{suffix}"
+
+
 def _relationship_signal(character: dict[str, Any]) -> str:
     relationships = character.get("relationships")
     if isinstance(relationships, list) and relationships:
@@ -608,9 +741,33 @@ def _deterministic_decision(
     previous_belief: str,
     previous_anomaly: str,
     pressure_text: str,
+    intervention_text: str,
+    intervention_axis: str,
 ) -> dict[str, Any]:
     has_memory = bool(previous_belief or previous_anomaly)
+    has_intervention = bool(intervention_text)
     if not has_memory:
+        if has_intervention:
+            axis = intervention_axis or "干预变量"
+            return {
+                "stance": "转译干预",
+                "visible_action": (
+                    f"{name}在{location}{base_posture}，把“{intervention_text}”当作"
+                    f"{axis}的一枚密信，先试探其真假。"
+                ),
+                "true_intent": (
+                    f"{name}不直接服从干预，而是借“{target_hint}”观察谁会抢先响应。"
+                ),
+                "expected_outcome": "让干预成为世界内可怀疑、可传播、可误读的变量。",
+                "risk": "密信来源不明，可能诱发错误结盟或反向钓鱼。",
+                "relationship_delta": "因干预线索开始试探关键关系",
+                "new_belief": f"{name}认为外来线索需要先被本土化验证，不能直接当作正史。",
+                "action_outcome": {
+                    "status": "misjudged",
+                    "reason": "干预已进入沙盘，但角色只把它当作可疑线索而非绝对命令。",
+                    "cost": "信息差扩大，因果债开始压向收到线索的人。",
+                },
+            }
         return {
             "stance": base_posture,
             "visible_action": f"{name}在{location}{base_posture}，围绕“{target_hint}”调整下一步。",
@@ -661,6 +818,9 @@ def _deterministic_decision(
         f"{name}真正想验证上一轮判断“{previous_belief or previous_anomaly}”是否被人利用，"
         f"并在{pressure_text}下保住退路。"
     )
+    if has_intervention:
+        visible_action += f" 同时将干预线索包装成“{intervention_axis or '分支变量'}”暗中投放。"
+        true_intent += f" 还要判断外来干预“{intervention_text}”能否被自己反向利用。"
     return {
         "stance": tactic["stance"],
         "visible_action": visible_action,
@@ -673,7 +833,10 @@ def _deterministic_decision(
         ),
         "action_outcome": {
             "status": tactic["status"],
-            "reason": "行动受上一轮主观记忆、异常感和天命压力共同牵引。",
+            "reason": (
+                "行动受上一轮主观记忆、异常感、天命压力"
+                + ("和已投放干预共同牵引。" if has_intervention else "共同牵引。")
+            ),
             "cost": "因果债增加，至少一段关系开始带着误会运转。",
         },
     }
@@ -688,12 +851,15 @@ def _conflicts(actions: list[dict[str, Any]], major_event: str) -> list[dict[str
         first.get("decision_inputs") if isinstance(first.get("decision_inputs"), dict) else {}
     )
     previous_misbelief = _text(first_inputs.get("previous_misbelief"))
+    intervention_axis = _text(first_inputs.get("intervention_branch_axis"))
     cause = (
         f"上一轮误会“{previous_misbelief}”继续影响本轮判断，"
         f"同一大事件“{_event_hint(major_event)}”被推向互相试探。"
         if previous_misbelief
         else f"同一大事件“{_event_hint(major_event)}”被不同角色解释成不同机会。"
     )
+    if intervention_axis:
+        cause += f" 已投放干预把冲突推向“{intervention_axis}”。"
     return [
         {
             "id": "conflict_1",
@@ -711,7 +877,7 @@ def _conflicts(actions: list[dict[str, Any]], major_event: str) -> list[dict[str
 def _information_flow(
     actions: list[dict[str, Any]], major_event: str
 ) -> list[dict[str, Any]]:
-    return [
+    rows = [
         {
             "from": "world_event",
             "to": action["character_id"],
@@ -720,11 +886,43 @@ def _information_flow(
         }
         for action in actions
     ]
+    first_inputs = (
+        actions[0].get("decision_inputs")
+        if actions and isinstance(actions[0].get("decision_inputs"), dict)
+        else {}
+    )
+    intervention_text = _text(first_inputs.get("intervention_constraint"))
+    intervention_axis = _text(first_inputs.get("intervention_branch_axis"))
+    if intervention_text:
+        rows.append(
+            {
+                "from": "reader_intervention",
+                "to": first_inputs.get("intervention_target") or "worldline",
+                "content": intervention_text,
+                "distortion": intervention_axis or "本土化转译",
+            }
+        )
+    return rows
 
 
 def _world_state_delta(
     actions: list[dict[str, Any]], major_event: str
 ) -> dict[str, Any]:
+    first_inputs = (
+        actions[0].get("decision_inputs")
+        if actions and isinstance(actions[0].get("decision_inputs"), dict)
+        else {}
+    )
+    intervention_text = _text(first_inputs.get("intervention_constraint"))
+    intervention_axis = _text(first_inputs.get("intervention_branch_axis"))
+    intervention_effects = (
+        [
+            f"干预已作为“{intervention_axis or '分支变量'}”进入本轮角色判断",
+            "普通干预只改变当前世界线压力，不改写根天命书",
+        ]
+        if intervention_text
+        else []
+    )
     return {
         "status": "changed",
         "trigger": _event_hint(major_event),
@@ -739,6 +937,7 @@ def _world_state_delta(
         "secret_changes": ["至少一名角色选择暂不公开自己的判断"],
         "anchor_pressure": "上升",
         "causal_debt": "低到中：世界开始要求角色为各自选择付出代价",
+        "intervention_effects": intervention_effects,
     }
 
 
@@ -770,6 +969,7 @@ def _build_report(
     created_at: str,
     rounds: list[dict[str, Any]],
     subjective_memory_delta: dict[str, Any] | None = None,
+    intervention_constraint: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     actions = [
         action
@@ -777,6 +977,14 @@ def _build_report(
         for action in round_record.get("character_actions", [])
         if isinstance(action, dict)
     ]
+    active_constraint = _active_intervention_constraint(rounds, intervention_constraint)
+    artifacts = {
+        "sandbox_rounds": _ROUNDS_ARTIFACT,
+        "sandbox_summary": "sandbox_summary.json",
+        "subjective_memory_delta": _SUBJECTIVE_MEMORY_DELTA_ARTIFACT,
+    }
+    if active_constraint.get("status") == "active":
+        artifacts["intervention_constraint"] = _INTERVENTION_CONSTRAINT_ARTIFACT
     return {
         "version": VERSION,
         "mode": "deterministic_world_sandbox_round",
@@ -799,11 +1007,8 @@ def _build_report(
             "external_services_required": False,
             "run_scene_default_unchanged": True,
         },
-        "artifacts": {
-            "sandbox_rounds": _ROUNDS_ARTIFACT,
-            "sandbox_summary": "sandbox_summary.json",
-            "subjective_memory_delta": _SUBJECTIVE_MEMORY_DELTA_ARTIFACT,
-        },
+        "artifacts": artifacts,
+        "intervention_constraint": active_constraint,
         "rounds": rounds,
         "subjective_memory_delta": subjective_memory_delta or {},
         "next_steps": [
@@ -811,6 +1016,21 @@ def _build_report(
             "再把《天命书》作为干预编译与沙盘轮次的世界宪法输入。",
         ],
     }
+
+
+def _active_intervention_constraint(
+    rounds: list[dict[str, Any]],
+    explicit: dict[str, Any] | None,
+) -> dict[str, Any]:
+    if isinstance(explicit, dict) and explicit.get("status") == "active":
+        return explicit
+    for round_record in rounds:
+        if not isinstance(round_record, dict):
+            continue
+        constraint = round_record.get("intervention_constraint")
+        if isinstance(constraint, dict) and constraint.get("status") == "active":
+            return constraint
+    return {"status": "none", "source": "none", "content": "", "target": ""}
 
 
 def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:

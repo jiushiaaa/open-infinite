@@ -390,6 +390,42 @@ export interface CardsWorkspaceReport {
   next_steps: string[];
 }
 
+export interface WorldSandboxInterventionConstraint {
+  status: "active" | "none" | string;
+  source: string;
+  content: string;
+  target?: string;
+  intervention_type?: string;
+  intervention_level?: string;
+  compatibility?: {
+    status?: string;
+    reason?: string;
+    tianming_pressure_level?: string;
+  };
+  translation_strategy?: {
+    strategy?: string;
+    packaging?: string;
+    original_hint?: string;
+    level?: string;
+  };
+  worldline_judgement?: {
+    kind?: string;
+    reason?: string;
+  };
+  branch_axis?: {
+    id?: string;
+    target?: string;
+    axis?: string;
+    question?: string;
+  };
+  causal_debt?: {
+    level?: string;
+    score?: number;
+    spread?: string[];
+  };
+  boundaries?: string[];
+}
+
 export interface WorldSandboxCharacterAction {
   character_id: string;
   character_name: string;
@@ -456,6 +492,7 @@ export interface WorldSandboxRound {
     secret_changes: string[];
     anchor_pressure: string;
     causal_debt: string;
+    intervention_effects?: string[];
   };
   next_story_possibilities: Array<{
     id: string;
@@ -463,6 +500,7 @@ export interface WorldSandboxRound {
     brief: string;
   }>;
   boundaries: string[];
+  intervention_constraint?: WorldSandboxInterventionConstraint;
 }
 
 export interface WorldSandboxRunReport {
@@ -487,7 +525,9 @@ export interface WorldSandboxRunReport {
     sandbox_rounds: string;
     sandbox_summary: string;
     subjective_memory_delta: string;
+    intervention_constraint?: string;
   };
+  intervention_constraint?: WorldSandboxInterventionConstraint;
   rounds: WorldSandboxRound[];
   subjective_memory_delta: {
     entry_count?: number;
@@ -500,6 +540,9 @@ export interface WorldSandboxRunReport {
 export interface WorldSandboxRunRequest {
   major_event: string;
   worldline_id?: string;
+  intervention_content?: string;
+  intervention_target?: string;
+  intervention_constraint?: WorldSandboxInterventionConstraint;
 }
 
 export interface SubjectiveMemoryEntry {
