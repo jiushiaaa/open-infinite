@@ -12,6 +12,21 @@
 
 当前 Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口；用户随后明确要求接入真实检索 provider，当前已支持百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的显式配置、smoke、索引写入和检索预览。仍不默认替换 BM25、不接 GraphRAG/Zep。真实云端多租户、对象存储、认证、计费、安装包和服务器在线体验都不默认进入当前主线。
 
+2026-06-03 产品纠偏结论：上述能力都已转为支撑层。当前主线不是继续做工程化面板、provider 或商业化，而是 **World Sandbox Loop / 世界沙盘改造**：
+
+```text
+导入 / 创世
+  -> 《天命书》
+  -> 世界沙盘轮次
+  -> 角色主观记忆链
+  -> 世界自演检查点
+  -> 世界线代偿 / 锚点转移
+  -> 多视角活体小说
+  -> 作者采纳台
+```
+
+本阶段的产品化判断：能否让普通用户感到“世界真的在运行、角色真的会自己行动、干预真的有后果”。如果一个功能不增强这个感知，即使技术上已完成或很高级，也属于支撑层或后置能力。
+
 当前产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳。CLI 保留给开发者、本地服务启动、自动化验收、批处理和无人值守复跑；普通用户不需要理解或复制命令行，用户级功能不应只有 CLI 入口。
 
 ## 2. 阶段归类表
@@ -30,6 +45,7 @@
 | 后续增强四十五刀 | Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review | 产品诊断、上下文、模型画像、设定资产、本地契约、发行准备、检索增强触发评估、样本对照、本地采集、批处理复跑、样本导出、mock 报告、replay case report、migration pack、跨项目索引、趋势快照、重型记忆触发证据、设计包、shadow 对照、per-case 矩阵、provider opt-in 边界、离线 replay 计划、离线 replay 报告、provider dry-run 前置包、readiness gate、人工 dry-run SOP、结果记录模板、mock 填充报告、人工复核 gate、人工审批包、审批证据核对表、opt-in 证据快照、no-go 分类矩阵、operator checklist、review packet、decision ledger preview、final readiness summary、human signoff schema draft、config draft、local provider contract、single fixture dry-run harness、mock-compatible adapter 与 manual mock adapter review | 创作前体检到 mock adapter 人工复核包均已接入；真实 embedding、向量库、GraphRAG、Zep、reranker 仍保持触发式。 |
 | Retrieval Provider Real Connectivity MVP | 百炼 embedding + Zilliz Cloud + 百炼 reranker | 显式配置与 smoke | 按用户明确要求接入 `text-embedding-v3`、Zilliz Cloud、`gte-rerank-v2`。设置页脱敏展示，API 支持 mock/real smoke。 |
 | Vector Retrieval Pipeline MVP | Zilliz 索引写入 + 混合检索预览 | 显式可用链路 | 项目工作台和 API 可构建/刷新 Zilliz collection 索引，并用百炼 embedding + Zilliz + 百炼 rerank 做检索预览；运行时需 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` opt-in，默认 BM25 不被替换。 |
+| World Sandbox Remodel | 《天命书》、沙盘轮次、主观记忆链、世界自演、多视角小说、作者采纳 | 当前产品纠偏主线 | 不是新增工程面板，而是把现有导入、世界线、干预编译、多 Agent、记忆和前端工作台重新组织成活体小说体验。详见 `unfinale-world-sandbox-remodel-prd.md`。 |
 
 ## 3. A-slice、MVP 与完整产品能力
 
@@ -51,3 +67,4 @@
 4. 商业化/计费暂缓：真实计费、支付、余额、发票、webhook、对象存储和认证执行继续后置。
 5. 用户功能先前端/API：新增普通用户需要理解或操作的能力时，先落 Web UI + API；CLI 只做开发者、自动化、批处理或验收薄封装。
 6. 每次升级都保持 additive：不破坏 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 既有契约。
+7. 当前纠偏阶段先做世界体验：每一刀必须服务世界运行、角色自主、角色记忆、干预后果、角色反抗、世界代偿或章节从世界演化中生成。

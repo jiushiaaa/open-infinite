@@ -390,6 +390,423 @@ export interface CardsWorkspaceReport {
   next_steps: string[];
 }
 
+export interface WorldSandboxCharacterAction {
+  character_id: string;
+  character_name: string;
+  narrative_role: string;
+  known_information: string[];
+  previous_subjective_memory: string;
+  intent: string;
+  action: string;
+  reason: string;
+  stance: string;
+  emotion_delta: string;
+  relationship_delta: string;
+  memory_seed?: {
+    saw?: string[];
+    did?: string[];
+    inferred?: string[];
+  };
+}
+
+export interface WorldSandboxConflict {
+  id: string;
+  title: string;
+  participants: string[];
+  cause: string;
+  pressure: string;
+}
+
+export interface WorldSandboxInformationFlow {
+  from: string;
+  to: string;
+  content: string;
+  distortion: string;
+}
+
+export interface WorldSandboxRound {
+  version: string;
+  run_id: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  round_index: number;
+  created_at: string;
+  major_event: string;
+  character_actions: WorldSandboxCharacterAction[];
+  conflicts: WorldSandboxConflict[];
+  information_flow: WorldSandboxInformationFlow[];
+  world_state_delta: {
+    status: string;
+    trigger: string;
+    relationship_changes: Array<{ source: string; change: string }>;
+    resource_changes: string[];
+    secret_changes: string[];
+    anchor_pressure: string;
+    causal_debt: string;
+  };
+  next_story_possibilities: Array<{
+    id: string;
+    title: string;
+    brief: string;
+  }>;
+  boundaries: string[];
+}
+
+export interface WorldSandboxRunReport {
+  version: string;
+  mode: "deterministic_world_sandbox_round" | string;
+  run_id: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  created_at: string;
+  round_count: number;
+  summary: {
+    character_action_count: number;
+    conflict_count: number;
+    information_flow_count: number;
+    subjective_memory_entries_written: number;
+    writes_artifacts: boolean;
+    external_services_required: boolean;
+    run_scene_default_unchanged: boolean;
+  };
+  artifacts: {
+    sandbox_rounds: string;
+    sandbox_summary: string;
+    subjective_memory_delta: string;
+  };
+  rounds: WorldSandboxRound[];
+  subjective_memory_delta: {
+    entry_count?: number;
+    entries?: SubjectiveMemoryEntry[];
+    paths?: string[];
+  };
+  next_steps: string[];
+}
+
+export interface WorldSandboxRunRequest {
+  major_event: string;
+  worldline_id?: string;
+}
+
+export interface SubjectiveMemoryEntry {
+  version: string;
+  source_run_id: string;
+  source_round_index: number;
+  source_major_event: string;
+  created_at: string;
+  story_slug: string;
+  worldline_id: string;
+  character_id: string;
+  character_name: string;
+  saw: string[];
+  did: string[];
+  new_belief: string;
+  emotion_delta: string;
+  trust_delta: string;
+  anomaly_delta: string;
+  previous_subjective_memory: string;
+  source_action: string;
+}
+
+export interface SubjectiveMemoryReport {
+  version: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  character_id: string;
+  entry_count: number;
+  artifact: string;
+  entries: SubjectiveMemoryEntry[];
+  next_steps: string[];
+}
+
+export interface TianmingAttractor {
+  id: string;
+  title: string;
+  pull: string;
+  source: string;
+}
+
+export interface TianmingGenreConstraint {
+  id: string;
+  name: string;
+  rule: string;
+}
+
+export interface TianmingReplacementCandidate {
+  character_id: string;
+  character_name: string;
+  current_role: string;
+  desire: string;
+  risk: string;
+  anchor_fit: number;
+  reason: string;
+}
+
+export interface TianmingBook {
+  version: string;
+  artifact: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  status: "draft" | "confirmed" | string;
+  requires_confirmation: boolean;
+  created_at: string;
+  updated_at: string;
+  confirmed_at: string | null;
+  narrative_attractors: TianmingAttractor[];
+  genre_constraints: TianmingGenreConstraint[];
+  anchor_status: {
+    status: "anchored" | "needs_anchor" | string;
+    current_anchor_character_id: string | null;
+    current_anchor_name: string;
+    candidate_count: number;
+    risk: string;
+  };
+  contract_pressure: {
+    level: "low" | "medium" | "high" | string;
+    score: number;
+    drivers: string[];
+  };
+  replacement_anchor_candidates: TianmingReplacementCandidate[];
+  ordinary_intervention_mutates_tianming: boolean;
+  mutation_policy: Record<string, string>;
+  boundaries: string[];
+  next_steps: string[];
+  confirmation?: {
+    method: string;
+    message: string;
+  };
+}
+
+export interface TianmingInterventionCompileReport {
+  version: string;
+  story_slug: string;
+  target: string;
+  content: string;
+  tianming: {
+    artifact: string;
+    status: string;
+    anchor_status: TianmingBook["anchor_status"];
+    contract_pressure: TianmingBook["contract_pressure"];
+    ordinary_intervention_mutates_tianming: boolean;
+  };
+  intervention_type: string;
+  intervention_level: string;
+  compatibility: {
+    status: string;
+    reason: string;
+    tianming_pressure_level: string;
+  };
+  translation_strategy: {
+    strategy: string;
+    packaging: string;
+    original_hint: string;
+    level: string;
+  };
+  worldline_judgement: {
+    kind: "divergent" | "au" | string;
+    reason: string;
+  };
+  branch_axis: {
+    id: string;
+    target: string;
+    axis: string;
+    question: string;
+  };
+  causal_debt: {
+    level: "low" | "medium" | "high" | string;
+    score: number;
+    spread: string[];
+  };
+  audit: {
+    required: boolean;
+    can_mutate_tianming_snapshot: boolean;
+    ordinary_intervention_can_mutate_tianming: boolean;
+    message: string;
+  };
+  ordinary_intervention_mutates_tianming: boolean;
+  boundaries: string[];
+}
+
+export interface NarrativeCompensationReport {
+  version: string;
+  artifact: string;
+  run_id: string;
+  story_slug: string;
+  worldline_id: string;
+  created_at: string;
+  trigger_event: string;
+  source_tianming: {
+    artifact: string;
+    status: string;
+    anchor_status: TianmingBook["anchor_status"];
+    contract_pressure: TianmingBook["contract_pressure"];
+  };
+  anchor_transfer: {
+    status: "stable" | "transferring" | "unanchored" | string;
+    current_anchor: string | null;
+    next_anchor_candidate: TianmingReplacementCandidate | null;
+    reason: string;
+  };
+  replacement_anchor_candidates: Array<{
+    character_id: string;
+    character_name: string;
+    desire: string;
+    ability_score: number;
+    resource_score: number;
+    risk_score: number;
+    risk: string;
+    reason: string;
+  }>;
+  causal_debt_diffusion: {
+    level: "low" | "medium" | "high" | string;
+    score: number;
+    spread: string[];
+  };
+  world_pressure_events: Array<{
+    id: string;
+    domain: string;
+    mode: string;
+    event: string;
+    evidence: string;
+  }>;
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface WorldAutopilotCheckpoint {
+  round_index: number;
+  sandbox_run_id: string;
+  major_event: string;
+  objective_type: string;
+  stage: string;
+  anchor_pressure: string;
+  causal_debt: string;
+  character_action_count: number;
+  next_story_possibilities: Array<{
+    id: string;
+    title: string;
+    brief: string;
+  }>;
+}
+
+export interface WorldAutopilotReport {
+  version: string;
+  artifact: string;
+  run_id: string;
+  story_slug: string;
+  worldline_id: string;
+  created_at: string;
+    objective: {
+      type: string;
+      round_limit: number;
+      seed_event: string;
+      stop_event?: string;
+      time_limit?: string;
+    };
+  rounds_completed: number;
+  stop_reason: string;
+  sandbox_runs: Array<{
+    round_index: number;
+    sandbox_run_id: string;
+    major_event: string;
+    character_action_count: number;
+  }>;
+  checkpoints: WorldAutopilotCheckpoint[];
+  final_world_stage: {
+    stage: string;
+    summary: string;
+  };
+  artifacts: {
+    autopilot_report: string;
+    checkpoints_dir: string;
+  };
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface CharacterLensPerspective {
+  character_id: string;
+  character_name: string;
+  stance: string;
+  voice: string;
+  evidence: {
+    source: string;
+    source_run_id?: string | null;
+  };
+}
+
+export interface CharacterLensBrief {
+  lens_type: string;
+  title: string;
+  body: string;
+  character_id?: string;
+  character_name?: string;
+  perspectives?: CharacterLensPerspective[];
+  evidence: Record<string, unknown>;
+}
+
+export interface CharacterLensReport {
+  version: string;
+  artifact: string;
+  run_id: string;
+  story_slug: string;
+  worldline_id: string;
+  created_at: string;
+  source: {
+    source_event: string;
+    sandbox_run_id: string;
+    source_round_index: number;
+  };
+  brief_count: number;
+  briefs: CharacterLensBrief[];
+  artifacts: {
+    character_lens_briefs: string;
+  };
+  boundaries: string[];
+  next_steps: string[];
+}
+
+export interface AuthorAdoptionReport {
+  version: string;
+  artifact: string;
+  run_id: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  created_at: string;
+  decision: string;
+  mode_label: string;
+  comparison: {
+    original_outline: string;
+    sandbox_emergence: string;
+    difference: string;
+  };
+  adoption_entry: {
+    version: string;
+    created_at: string;
+    story_slug: string;
+    source_kind: SourceKind | string;
+    worldline_id: string;
+    decision: string;
+    mode_label: string;
+    source_run_id: string;
+    source_event: string;
+    original_outline: string;
+    sandbox_emergence: string;
+    author_note: string;
+  };
+  artifacts: {
+    author_adoption_record: string;
+    author_adoption_brief: string;
+    ledger: string;
+  };
+  boundaries: string[];
+  next_steps: string[];
+}
+
 export interface ProjectWorkspaceCanonLedger {
   status: "ready" | "missing" | "damaged" | string;
   entry_count: number;

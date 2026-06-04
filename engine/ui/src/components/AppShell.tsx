@@ -42,6 +42,22 @@ export function AppShell({
               阅读工作台 · {route.slug}
             </span>
           )}
+          {route.name === "sandbox" && (
+            <span className="topbar__crumb muted tiny">世界沙盘 · {route.slug}</span>
+          )}
+          {route.name === "tianming" && (
+            <span className="topbar__crumb muted tiny">天命书 · {route.slug}</span>
+          )}
+          {route.name === "lens" && (
+            <span className="topbar__crumb muted tiny">
+              多视角活体小说 · {route.slug}
+            </span>
+          )}
+          {route.name === "author" && (
+            <span className="topbar__crumb muted tiny">
+              作者采纳台 · {route.slug}
+            </span>
+          )}
           {route.name === "anchor" && (
             <span className="topbar__crumb muted tiny">世界锚定 · {route.slug}</span>
           )}
@@ -50,10 +66,75 @@ export function AppShell({
           {route.name === "workspace" && (
             <button
               className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "anchor", slug: route.slug })}
-              title="查看并确认这部故事的世界、角色、规则、伏笔"
+              onClick={() => navigate({ name: "sandbox", slug: route.slug })}
+              title="进入世界沙盘，输入大事件并观察角色行动"
             >
-              世界锚定
+              世界沙盘
+            </button>
+          )}
+          {route.name === "sandbox" && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate({ name: "workspace", slug: route.slug })}
+              title="返回阅读工作台"
+            >
+              世界正史卷
+            </button>
+          )}
+          {(route.name === "workspace" || route.name === "sandbox") && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate({ name: "tianming", slug: route.slug })}
+              title="生成并轻量确认这部故事的天命书"
+            >
+              天命书
+            </button>
+          )}
+          {(route.name === "workspace" ||
+            route.name === "sandbox" ||
+            route.name === "tianming") && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate({ name: "lens", slug: route.slug })}
+              title="把同一事件生成世界正史、角色个人卷和事件多视角"
+            >
+              多视角
+            </button>
+          )}
+          {(route.name === "workspace" ||
+            route.name === "sandbox" ||
+            route.name === "tianming" ||
+            route.name === "lens") && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate({ name: "author", slug: route.slug })}
+              title="采纳、部分采纳、另开分支或导出沙盘涌现剧情"
+            >
+              作者采纳台
+            </button>
+          )}
+          {route.name === "tianming" && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate({ name: "sandbox", slug: route.slug })}
+            >
+              世界沙盘
+            </button>
+          )}
+          {route.name === "lens" && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate({ name: "sandbox", slug: route.slug })}
+            >
+              世界沙盘
+            </button>
+          )}
+          {route.name === "author" && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate({ name: "lens", slug: route.slug })}
+            >
+              多视角卷
             </button>
           )}
           {route.name === "anchor" && (

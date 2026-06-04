@@ -1,0 +1,174 @@
+import { useState } from "react";
+import { api } from "../api/client";
+import type { AuthorAdoptionReport } from "../api/types";
+import { navigate } from "../routing";
+import { EmptyState, ErrorState } from "./common/States";
+import "./authorAdoption.css";
+
+const DEFAULT_OUTLINE = "赵轩按旧大纲公开风鸣铃线索，苍澜派保持稳定。";
+const DEFAULT_EMERGENCE = "赵轩选择隐瞒消息，沈冰月开始怀疑，苍澜派内部压力上升。";
+
+const DECISIONS = [
+  ["adopted", "采纳"],
+  ["partial", "部分采纳"],
+  ["new_branch", "另开分支"],
+  ["export_brief", "导出 brief"],
+] as const;
+
+export function AuthorAdoptionPage({ slug }: { slug: string }) {
+  const [sourceEvent, setSourceEvent] = useState("风鸣铃现世。");
+  const [sourceRunId, setSourceRunId] = useState("");
+  const [originalOutline, setOriginalOutline] = useState(DEFAULT_OUTLINE);
+  const [sandboxSummary, setSandboxSummary] = useState(DEFAULT_EMERGENCE);
+  const [decision, setDecision] = useState("partial");
+  const [authorNote, setAuthorNote] = useState("保留隐瞒动作，但不立刻推翻苍澜派。");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [report, setReport] = useState<AuthorAdoptionReport | null>(null);
+
+  async function submitAdoption() {
+    setLoading(true);
+    setError(null);
+    try {
+      setReport(
+        await api.recordAuthorAdoption(slug, {
+          source_event: sourceEvent.trim(),
+          source_run_id: sourceRunId.trim(),
+          sandbox_summary: sandboxSummary.trim(),
+          decision,
+          original_outline: originalOutline.trim(),
+          author_note: authorNote.trim(),
+          worldline_id: "main",
+        }),
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="adoption-page">
+      <header className="adoption-hero">
+        <div>
+          <p className="adoption-hero__eyebrow muted">世界内部卷宗 · 作者采纳台</p>
+          <h1>把沙盘涌现剧情纳入作者手稿</h1>
+          <p className="muted">
+            原大纲与世界自演结果并排校对，采纳动作只追加账本，不自动覆盖正史。
+          </p>
+        </div>
+        <div className="adoption-hero__actions">
+          <button
+            className="btn btn--ghost"
+            onClick={() => navigate({ name: "lens", slug })}
+          >
+            多视角卷
+          </button>
+          <button
+            className="btn btn--ghost"
+            onClick={() => navigate({ name: "sandbox", slug })}
+          >
+            世界沙盘
+          </button>
+        </div>
+      </header>
+
+      <div className="adoption-layout">
+        <aside className="adoption-panel">
+          <h2>采纳决策</h2>
+          <label>
+            <span className="muted tiny">来源 run</span>
+            <input
+              value={sourceRunId}
+              onChange={(event) => setSourceRunId(event.target.value)}
+              placeholder="可留空，或填 lens_*"
+            />
+          </label>
+          <label>
+            <span className="muted tiny">来源事件</span>
+            <input
+              value={sourceEvent}
+              onChange={(event) => setSourceEvent(event.target.value)}
+            />
+          </label>
+          <div className="adoption-decisions">
+            {DECISIONS.map(([value, label]) => (
+              <button
+                key={value}
+                className={`btn btn--ghost ${decision === value ? "is-active" : ""}`}
+                onClick={() => setDecision(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <button className="btn btn--primary" disabled={loading} onClick={submitAdoption}>
+            {loading ? "正在入账…" : "写入采纳台"}
+          </button>
+        </aside>
+
+        <main className="adoption-main">
+          {error && <ErrorState message={error} onRetry={submitAdoption} />}
+          <section className="adoption-compare">
+            <article>
+              <h2>原大纲</h2>
+              <textarea
+                value={originalOutline}
+                onChange={(event) => setOriginalOutline(event.target.value)}
+                rows={8}
+              />
+            </article>
+            <article>
+              <h2>沙盘涌现剧情</h2>
+              <textarea
+                value={sandboxSummary}
+                onChange={(event) => setSandboxSummary(event.target.value)}
+                rows={8}
+              />
+            </article>
+          </section>
+
+          <section className="adoption-panel adoption-note">
+            <h2>作者备注</h2>
+            <textarea
+              value={authorNote}
+              onChange={(event) => setAuthorNote(event.target.value)}
+              rows={4}
+            />
+          </section>
+
+          {!error && !report && (
+            <EmptyState
+              title="尚未写入采纳记录"
+              hint="选择采纳方式后，采纳台会追加本地账本并导出 brief。"
+            />
+          )}
+          {!error && report && (
+            <section className="adoption-result">
+              <div className="adoption-result__head">
+                <h2>{report.mode_label}</h2>
+                <span className="badge badge--jade">{report.artifact}</span>
+              </div>
+              <p>{report.comparison.difference}</p>
+              <dl>
+                <div>
+                  <dt>账本</dt>
+                  <dd>{report.artifacts.ledger}</dd>
+                </div>
+                <div>
+                  <dt>导出</dt>
+                  <dd>{report.artifacts.author_adoption_brief}</dd>
+                </div>
+                <div>
+                  <dt>运行</dt>
+                  <dd className="mono">{report.run_id}</dd>
+                </div>
+              </dl>
+            </section>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}

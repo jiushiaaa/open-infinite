@@ -17,27 +17,37 @@
 1. `../AGENTS.md`
 2. `codex-handoff.md`
 3. `../memory.md`
-4. `living-novel-engine-iteration-plan.md`
-5. `productization-phase-map.md`
-6. `living-novel-engine-prd.md`
-7. `completed/v0.7-product-web-app-ui-spec.md`
-8. `../engine/README.md`
+4. `unfinale-world-sandbox-remodel-prd.md`
+5. `unfinale-product-vision-correction-draft.md`
+6. `unfinale-ai-development-alignment-checklist.md`
+7. `living-novel-engine-iteration-plan.md`
+8. `productization-phase-map.md`
+9. `living-novel-engine-prd.md`
+10. `completed/v0.7-product-web-app-ui-spec.md`
+11. `../engine/README.md`
 
 ### 做版本规划或判断下一步
 
 1. `../memory.md`
-2. `living-novel-engine-iteration-plan.md`
-3. `productization-phase-map.md`
-4. `completed/v0.1-to-v0.8-version-audit.md`
-5. `living-novel-engine-prd.md`
-6. 必要时读 `completed/` 下对应阶段专项文档
+2. `unfinale-world-sandbox-remodel-prd.md`
+3. `unfinale-product-vision-correction-draft.md`
+4. `unfinale-ai-development-alignment-checklist.md`
+5. `living-novel-engine-iteration-plan.md`
+6. `productization-phase-map.md`
+7. `completed/v0.1-to-v0.8-version-audit.md`
+8. `living-novel-engine-prd.md`
+9. 必要时读 `completed/` 下对应阶段专项文档
 
 ### 做前端 UI 或产品体验
 
-1. `completed/v0.7-product-web-app-ui-spec.md`
-2. `living-novel-engine-prd.md`
-3. `codex-handoff.md`
-4. `../engine/README.md`
+1. `unfinale-world-sandbox-remodel-prd.md`
+2. `unfinale-product-vision-correction-draft.md`
+3. `unfinale-ai-development-alignment-checklist.md`
+4. `image/README.md`
+5. `completed/v0.7-product-web-app-ui-spec.md`
+6. `living-novel-engine-prd.md`
+7. `codex-handoff.md`
+8. `../engine/README.md`
 
 ### 做论文能力或参考项目吸收
 
@@ -55,6 +65,10 @@
 | `codex-migration-guide.md` | 迁移说明 | `.cursor/rules`、`.cursor/skills` 与 Codex skills/plugins 的迁移关系 |
 | `project-changelog.md` | 历史日志 | 从 `memory.md` 迁出的完整变更日志，供追溯版本过程和历史验收记录 |
 | `brand/` | 品牌资产 | 未终章 / Unfinale 的 SVG 标识、图标和 imagegen 概念稿 |
+| `image/` | UI 原型参考 | 世界书架、天命书、世界自演、干预编译器、多视角活体小说等纠偏原型图 |
+| `unfinale-world-sandbox-remodel-prd.md` | 当前改造 PRD | 把现有代码拉回世界沙盘主线的改造说明、代码接入关系、artifact/API/UI 路线 |
+| `unfinale-product-vision-correction-draft.md` | 产品纠偏草稿 | 记录《天命书》、干预编译、世界代偿、主观记忆、世界自演、多视角小说和 UI 决策 |
+| `unfinale-ai-development-alignment-checklist.md` | AI 开发对齐清单 | 后续 AI 开工前自检，确认下一刀是否服务世界沙盘主线，避免继续跑向工程化面板或 provider spike |
 | `living-novel-engine-prd.md` | 主 PRD | 产品定位、用户流程、核心能力、版本级需求入口 |
 | `living-novel-engine-iteration-plan.md` | 主路线图 | 当前阶段状态、暂停点、真实未做项和后续候选路线 |
 | `productization-phase-map.md` | 阶段归类 | 统一解释技术 MVP、短中篇产品化 MVP、长篇底座、长篇产品化、商业化加固的边界 |

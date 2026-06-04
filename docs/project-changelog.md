@@ -1516,3 +1516,182 @@
 - **验证**：`git diff --check` 通过，仅有 Windows CRLF 提示。
 - **边界**：文档-only 更新；不改代码、不改 API、不改 `run_scene` 默认行为。
 
+### 2026-06-03 — World Sandbox Remodel 产品纠偏文档
+
+- **做了什么**：
+  - 新增 `docs/unfinale-world-sandbox-remodel-prd.md`，明确后续最高优先级切换为 World Sandbox Loop / 世界沙盘改造。
+  - 确认主导航采用“世界书架 -> 世界内部卷宗”，不采用“沙盘 / 阅读 / 干预 / 作者”四大一级工作区。
+  - 在 `docs/unfinale-product-vision-correction-draft.md` 补充主导航决策和 UI 信息架构。
+  - 在 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/index.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/productization-phase-map.md`、`docs/后续增强清单.md` 同步纠偏口径。
+  - 明确 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费、对象存储、认证和工程健康报告全部降为支撑层，除非用户明确要求不继续扩张。
+  - 梳理现有代码接入关系：导入/创世/世界锚定、干预编译、多 Agent runner、runtime memory、fourth_wall、worldline judge、Reader Panel 和现有 UI 如何服务《天命书》、沙盘轮次、主观记忆链、世界自演、多视角活体小说和作者采纳台。
+- **验证**：
+  - 文档-only 更新；运行 `git diff --check`。
+- **边界**：
+  - 不改代码、不改 API、不改 `run_scene` 默认行为。
+  - 不删除历史已收口文档；只调整入口优先级和后续执行口径。
+
+### 2026-06-03 — World Sandbox Remodel 入口一致性审计
+
+- **做了什么**：
+  - 重新扫描根目录入口、`docs/` 根层文档、`engine/README.md` 和关键接力文档中的“当前迭代点 / 下一步 / provider / Graph / 世界沙盘”相关表述。
+  - 修正 `memory.md` 旧“当前自主迭代点”，明确下一刀是 World Sandbox Loop / 世界沙盘改造，不再默认继续 provider、Graph Memory、真实向量检索评测或工程化面板。
+  - 修正 `engine/README.md`，把真实检索 provider 和 Vector Retrieval Pipeline 标记为支撑层，并补充当前纠偏主线、目标前端骨架和目标 artifact。
+  - 新增 `docs/unfinale-ai-development-alignment-checklist.md`，作为后续 AI 开工前自检清单，要求每刀都服务角色行动、主观记忆、世界变化或可读叙事产物。
+  - 同步 `README.md`、`AGENTS.md`、`docs/index.md`、`docs/codex-handoff.md` 和 `memory.md` 的读取顺序，确保新会话会优先读世界沙盘 PRD、产品纠偏草稿和 AI 对齐清单。
+- **验证**：
+  - 文档-only 更新；运行 `git diff --check`。
+  - 运行关键词扫描，确认根入口和关键 docs 的“当前迭代点 / 当前最高优先级”已指向世界沙盘改造。
+- **边界**：
+  - 不改代码、不改 API、不改 `run_scene` 默认行为。
+  - 不删除历史 provider / Graph / 检索评测收口文档；仅把它们从当前主线降为支撑层和历史证据。
+
+### 2026-06-04 — World Sandbox Round MVP
+
+- **做了什么**：
+  - 新增 `world_sandbox` service，输入故事世界 slug 和大事件后，本地 deterministic 生成一轮角色行动、冲突、信息传播、世界状态 delta 与后续故事可能性。
+  - 新增 `POST /api/stories/<slug>/sandbox/run` 与 `GET /api/sandbox-runs/<run_id>`；HTTP-facing slug/run_id 继续走安全校验，坏 slug/run_id 返回 400，缺项目返回 404。
+  - 新增 artifact：`outputs/<run_id>/sandbox_rounds.jsonl` 与 `sandbox_summary.json`；不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json`。
+  - 前端新增独立 `WorldSandboxPage`，从“世界书架 -> 世界沙盘”进入，展示角色意图、行动、行动理由、记忆种子、冲突、信息传播、世界状态变化和后续故事可能性；未继续往 `WorkspacePage.tsx` 堆工程支撑面板。
+  - 同步 `memory.md`、路线图、世界沙盘 PRD 与 `engine/README.md`，把下一刀切到角色主观记忆链。
+- **测试/验证**：
+  - RED：新增 `tests/test_world_sandbox.py` 后先因 `living_novel_engine.service.world_sandbox` 缺失失败。
+  - GREEN：`cd engine && python -m pytest tests\test_world_sandbox.py -q` -> **3 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 不改 `run_scene` 默认行为；不引入外部服务、provider、GraphRAG/Zep、向量库或 reranker。
+  - 新 artifact/API/UI 均为 additive。
+- **下一刀建议**：`Subjective Memory Chain MVP`，基于 `sandbox_rounds.jsonl` 为每个角色/世界线写入 `subjective_memory.jsonl`，并让下一轮行动能引用各自的主观记忆。
+
+### 2026-06-04 — Subjective Memory Chain MVP
+
+- **做了什么**：
+  - 扩展 `world_sandbox` service：每轮沙盘成功后，为每个行动角色追加 `projects/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective_memory.jsonl`。
+  - 新增 run 侧 `subjective_memory_delta.json`，聚合本轮写入的“看到什么、做了什么、形成什么新认知、情绪/信任/异常感变化”。
+  - 下一轮沙盘行动会读取该角色最后一条主观记忆，并把 `previous_subjective_memory` 展示在角色行动卡片中。
+  - 新增 `GET /api/stories/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective-memory`；坏 slug/worldline/character id 返回 400，缺项目返回 404。
+  - 世界沙盘页新增“角色个人卷雏形”，可点击角色查看自己的主观记忆链，而不是全局正史摘要。
+  - 同步 `memory.md`、路线图、世界沙盘 PRD 与 `engine/README.md`，把下一刀切到《天命书》。
+- **测试/验证**：
+  - RED：新增 v2 测试后先因 `get_character_subjective_memory` 缺失失败。
+  - GREEN：`cd engine && python -m pytest tests\test_world_sandbox.py -q` -> **4 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 不改 `run_scene` 默认行为；不覆盖既有核心 artifact。
+  - 角色 ID 写入路径前会收敛为 HTTP-safe identifier，中文角色名保留在展示字段中。
+  - 不引入 GraphRAG/Zep、向量库、provider 或真实外部服务。
+- **下一刀建议**：`Tianming Book MVP`，生成并轻量确认 `projects/<slug>/tianming.json`，字段至少覆盖 narrative_attractors、genre_constraints、anchor_status、contract_pressure、replacement_anchor_candidates。
+
+### 2026-06-04 — Tianming Book MVP
+
+- **做了什么**：
+  - 新增 `tianming` service，基于本地 `world.yaml`、`characters.yaml`、`open_threads.yaml` deterministic 派生 `projects/<slug>/tianming.json` 草案。
+  - `tianming.json` 覆盖 `narrative_attractors`、`genre_constraints`、`anchor_status`、`contract_pressure`、`replacement_anchor_candidates`，并明确普通干预不能永久改写《天命书》。
+  - 新增 `GET /api/stories/<slug>/tianming`、`POST /api/stories/<slug>/tianming/generate`、`POST /api/stories/<slug>/tianming/confirm`；坏 slug 返回 400，缺项目或缺天命书返回 404。
+  - 前端新增“世界内部卷宗 · 天命书”页，可生成草案、查看叙事吸引子/题材约束/候选承载者/干预边界，并用一个按钮轻量确认；不做复杂表单。
+  - 同步 `memory.md`、路线图、世界沙盘 PRD 与 `engine/README.md`，把下一刀切到干预编译器读取《天命书》。
+- **测试/验证**：
+  - RED：新增 `tests/test_tianming.py` 后先因 `living_novel_engine.service.tianming` 缺失失败。
+  - GREEN：`cd engine && python -m pytest tests\test_tianming.py -q` -> **3 passed**。
+  - 相邻回归：`python -m pytest tests\test_tianming.py tests\test_world_sandbox.py -q` -> **7 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 不调用外部模型/provider，不接 GraphRAG/Zep，不改 `run_scene` 默认行为。
+  - 轻量确认只切换 `tianming.json` 状态和时间戳，不引入复杂表单或永久改写普通干预。
+- **下一刀建议**：`Intervention Compiler Reads Tianming MVP`，每次自由干预先读取《天命书》，输出干预类型、层级、兼容性、转译策略、Divergent/AU 判断、分支轴和因果债。
+
+### 2026-06-04 — Intervention Compiler Reads Tianming MVP
+
+- **做了什么**：
+  - 新增 `tianming_intervention_compiler` service，读取 `tianming.json` 后对自由干预做 deterministic 预编译。
+  - 输出干预类型、层级、兼容性、转译策略、Divergent/AU 判断、分支轴、因果债、审计提示和“不改写天命书”边界。
+  - 新增 `POST /api/stories/<slug>/tianming/intervention-compile`；坏 slug 返回 400，缺天命书/缺项目返回 404，空 content 返回 400。
+  - 前端“天命书”页新增干预预编译模块，可输入目标角色和自由干预，用卷内注解展示类型、层级、世界线判断、因果债、转译策略和分支轴。
+  - 同步 `memory.md`、路线图、世界沙盘 PRD 与 `engine/README.md`，把下一刀切到世界线代偿。
+- **测试/验证**：
+  - RED：新增 `tests/test_tianming_intervention_compiler.py` 后先因 `living_novel_engine.service.tianming_intervention_compiler` 缺失失败。
+  - GREEN：`cd engine && python -m pytest tests\test_tianming_intervention_compiler.py -q` -> **3 passed**。
+  - 相邻回归：`python -m pytest tests\test_tianming_intervention_compiler.py tests\test_tianming.py -q` -> **6 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 不调用 `run_scene`，不写 run artifact，不改写 `tianming.json`。
+  - 不引入外部模型/provider、GraphRAG/Zep、向量库或 reranker。
+- **下一刀建议**：`Narrative Compensation MVP`，支持锚点转移、候选天命承载者、因果债扩散和失锚世界线，生成 `tianming_delta.json` 并在 UI 解释世界内代偿证据。
+
+### 2026-06-04 — Narrative Compensation MVP
+
+- **做了什么**：
+  - 新增 `narrative_compensation` service，读取《天命书》后根据失锚、拒绝、摆烂、离场等触发事件生成世界线代偿。
+  - 新增 `outputs/<run_id>/tianming_delta.json`，记录锚点稳定/转移/失锚、候选天命承载者评分、因果债扩散和世界内压力事件。
+  - 新增 `POST /api/stories/<slug>/narrative-compensation/run`；坏 slug 返回 400，缺天命书/缺项目返回 404，空 trigger_event 返回 400。
+  - 前端“天命书”页新增“世界线代偿”模块，可输入触发事件并展示锚点转移、候选承载者、因果债和政治/关系/势力/环境压力。
+  - 同步 `memory.md`、路线图、世界沙盘 PRD 与 `engine/README.md`，把下一刀切到世界自演。
+- **测试/验证**：
+  - RED：新增 `tests/test_narrative_compensation.py` 后先因 `living_novel_engine.service.narrative_compensation` 缺失失败。
+  - GREEN：`cd engine && python -m pytest tests\test_narrative_compensation.py -q` -> **3 passed**。
+  - 相邻回归：`python -m pytest tests\test_narrative_compensation.py tests\test_tianming_intervention_compiler.py tests\test_tianming.py -q` -> **9 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 不做系统管理员式抹杀；代偿压力通过政治、关系、势力和环境自然涌现。
+  - 不调用 `run_scene`，不覆盖 `tianming.json`，不引入外部 provider。
+- **下一刀建议**：`World Autopilot MVP`，支持运行到轮数、事件、时间或锚点变化，输出 `autopilot_report.json` 和检查点。
+
+### 2026-06-04 — World Autopilot MVP
+
+- **做了什么**：
+  - 新增 `world_autopilot` service，连续复用世界沙盘轮次和主观记忆链，生成世界自演报告。
+  - 新增 `outputs/<run_id>/autopilot_report.json` 与 `outputs/<run_id>/checkpoints/checkpoint_*.json`，记录运行目标、停止原因、沙盘 run、锚点压力、因果债和后续剧情可能性。
+  - 支持 `rounds`、`event`、`time`、`anchor_change` 四种自演目标；事件/时间目标会写入报告 objective 字段并给出 `target_event_reached` 或 `time_limit_reached`。
+  - 新增 `POST /api/stories/<slug>/world-autopilot/run`；坏 slug 返回 400，空 seed_event 返回 400，缺项目返回 404。
+  - 前端“世界沙盘”页新增“世界自演”控制，可选择运行到轮数、事件、时间或锚点变化，并展示“昨夜世界演化报告”和检查点列表。
+  - 同步 `memory.md`、路线图、世界沙盘 PRD 与 `engine/README.md`，把下一刀切到多视角活体小说。
+- **测试/验证**：
+  - RED：新增事件/时间目标测试后先因 `run_world_autopilot()` 不支持 `stop_event` 失败。
+  - GREEN：`cd engine && python -m pytest tests\test_world_autopilot.py -q` -> **4 passed**。
+  - 完整后端、前端 build 与 `git diff --check` 待本刀最终验证重新执行。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 不引入外部模型/provider、GraphRAG/Zep、向量库或真实队列。
+  - 自演 UI 进入既有“世界沙盘”页，不继续往 `WorkspacePage.tsx` 堆工程支撑面板。
+- **下一刀建议**：`Character Lens Novel MVP`，同一事件读取沙盘轮次、检查点和主观记忆，生成世界正史卷、角色个人卷、势力卷或事件多视角的第一版可读文本。
+
+### 2026-06-04 — Character Lens Novel MVP
+
+- **做了什么**：
+  - 新增 `character_lens` service，把同一 `source_event` 转成多视角活体小说 brief。
+  - 新增 `outputs/<run_id>/character_lens_briefs.json`，覆盖世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角。
+  - 角色个人卷读取 `subjective_memory.jsonl` 的最新主观记忆，证据源标记为 `subjective_memory`，不是把全局正史摘要换文风。
+  - 新增 `POST /api/stories/<slug>/character-lens/generate`；坏 slug 返回 400，空 source_event 返回 400，缺项目返回 404。
+  - 前端新增“世界内部卷宗 · 多视角活体小说”页，可输入事件、指定角色个人卷，并展示五类卷宗 brief 与事件多视角角色 voice。
+  - 同步 `memory.md`、路线图、世界沙盘 PRD 与 `engine/README.md`，把下一刀切到作者采纳台。
+- **测试/验证**：
+  - RED：新增 `tests/test_character_lens_novel.py` 后先因 `living_novel_engine.service.character_lens` 缺失失败。
+  - GREEN：`cd engine && python -m pytest tests\test_character_lens_novel.py -q` -> **3 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 完整后端、最终前端 build 与 `git diff --check` 待本刀最终验证重新执行。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖既有章节、事件、状态快照或世界线 artifact。
+  - 不引入外部模型/provider、GraphRAG/Zep、向量库或真实队列。
+  - 新 UI 按“世界内部卷宗”新增独立页面，不继续往 `WorkspacePage.tsx` 堆工程支撑面板。
+- **下一刀建议**：`Author Adoption Desk MVP`，作者模式下把沙盘涌现剧情标记为采纳、部分采纳、另开分支或导出 brief，并支持原大纲 vs 沙盘涌现剧情对照。
+
+### 2026-06-04 — Author Adoption Desk MVP
+
+- **做了什么**：
+  - 新增 `author_adoption` service，记录作者对沙盘涌现剧情的采纳决策。
+  - 支持 `adopted`、`partial`、`new_branch`、`export_brief` 四种决策；采纳只追加账本，不自动覆盖正史或原大纲。
+  - 新增 `projects/<slug>/author_adoption_ledger.jsonl`、`outputs/<run_id>/author_adoption_record.json` 和 `outputs/<run_id>/author_adoption_brief.md`。
+  - 支持从 `character_lens_briefs.json` 读取沙盘/多视角涌现材料，也支持作者手动输入 `sandbox_summary`。
+  - 新增 `POST /api/stories/<slug>/author-adoption`；坏 slug 返回 400，非法 decision 返回 400，缺项目返回 404。
+  - 前端新增“世界内部卷宗 · 作者采纳台”页，可并排编辑原大纲与沙盘涌现剧情，选择采纳、部分采纳、另开分支或导出 brief，并展示账本/导出产物。
+  - 同步 `memory.md`、路线图、世界沙盘 PRD 与 `engine/README.md`，标记 World Sandbox Loop v1-v8 第一版闭环已形成。
+- **测试/验证**：
+  - RED：新增 `tests/test_author_adoption.py` 后先因 `living_novel_engine.service.author_adoption` 缺失失败。
+  - GREEN：`cd engine && python -m pytest tests\test_author_adoption.py -q` -> **3 passed**。
+  - 完整后端、最终前端 build、浏览器 smoke 与 `git diff --check` 待最终验证重新执行。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 或原大纲。
+  - 不引入外部模型/provider、GraphRAG/Zep、向量库或真实队列。
+  - 新 UI 是世界内部卷宗独立页面，不继续往 `WorkspacePage.tsx` 堆工程支撑面板。
+- **下一步建议**：进入世界沙盘闭环体验打磨：采纳后章节 brief、角色个人卷正文质量、事件多视角证据链和世界内部卷宗之间的连续跳转。
+

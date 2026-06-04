@@ -13,6 +13,9 @@
 只要任务与未终章、`engine/`、版本路线、产品 UI、API、测试或文档有关，开始动手前先阅读并对齐：
 
 - `memory.md`
+- `docs/unfinale-world-sandbox-remodel-prd.md`
+- `docs/unfinale-product-vision-correction-draft.md`
+- `docs/unfinale-ai-development-alignment-checklist.md`
 - `docs/living-novel-engine-iteration-plan.md`
 - `docs/productization-phase-map.md`
 - `docs/living-novel-engine-prd.md`
@@ -23,6 +26,9 @@
 读取重点：
 
 - `memory.md`：当前状态、测试基线、已知缺口、文档索引
+- `docs/unfinale-world-sandbox-remodel-prd.md`：当前世界沙盘改造 PRD，说明现有代码如何接入《天命书》、沙盘轮次、主观记忆链、世界自演、多视角活体小说和作者采纳台
+- `docs/unfinale-product-vision-correction-draft.md`：产品愿景纠偏草稿，记录当前讨论定稿和 UI 原型方向
+- `docs/unfinale-ai-development-alignment-checklist.md`：后续 AI 开工前自检，避免把旧工程化面板、provider spike 或检索评测当成默认下一步
 - `docs/project-changelog.md`：完整历史变更日志；每完成一个独立切片都必须追加本文件末尾，入口阅读时仅在追溯版本过程或补历史记录时读取，避免新会话入口过重
 - `docs/living-novel-engine-iteration-plan.md`：版本路线和下一刀范围
 - `docs/productization-phase-map.md`：技术 MVP、产品化 MVP、长篇产品化、商业化加固的阶段归类
@@ -33,10 +39,74 @@
 事实优先级：
 
 1. `memory.md`
-2. `docs/living-novel-engine-iteration-plan.md`
-3. `engine/README.md`
-4. `docs/living-novel-engine-prd.md`
-5. 聊天摘要
+2. `docs/unfinale-world-sandbox-remodel-prd.md`
+3. `docs/unfinale-product-vision-correction-draft.md`
+4. `docs/unfinale-ai-development-alignment-checklist.md`
+5. `docs/living-novel-engine-iteration-plan.md`
+6. `engine/README.md`
+7. `docs/living-novel-engine-prd.md`
+8. 聊天摘要
+
+## 当前纠偏主线（最高优先级）
+
+截至 2026-06-03，用户已经明确：项目后续要从工程化支撑层拉回最初愿望，即 **Living Novel Engine / 小说世界沙盘**。
+
+后续默认主线是：
+
+```text
+导入故事世界
+  -> AI 预抽并确认《天命书》
+  -> 多 Agent 世界沙盘轮次
+  -> 每个角色写入独立主观记忆链
+  -> 世界状态、因果债、锚点和候选天命承载者变化
+  -> 世界自演生成检查点
+  -> 读者自由干预经干预编译器投放
+  -> 多视角活体小说渲染
+  -> 作者模式采纳或导出沙盘涌现剧情
+```
+
+主导航已定稿：
+
+```text
+世界书架
+  -> 某个故事世界
+      -> 天命书
+      -> 世界沙盘
+      -> 世界正史卷
+      -> 主锚点卷
+      -> 角色个人卷
+      -> 势力卷
+      -> 事件多视角
+      -> 世界线
+      -> 检查点
+      -> 作者采纳台
+```
+
+不要把一级导航设计成“沙盘 / 阅读 / 干预 / 作者”四大工作区；这些只是同一个世界里的场景能力。主导航按世界组织，功能按场景浮现。
+
+后续每一刀必须服务至少一项：
+
+```text
+世界会运行。
+角色会自主。
+角色会记得。
+干预有后果。
+角色可能反抗。
+世界会代偿。
+章节来自世界演化。
+```
+
+以下方向默认降级为支撑层，除非用户明确要求，不继续扩张：
+
+```text
+GraphRAG / Zep
+provider spike
+真实向量检索评测
+OpenAPI / typed client 面板
+发行准备
+商业化 / 计费 / 认证 / 对象存储
+纯工程健康报告
+```
 
 ## 当前硬约束
 
@@ -114,7 +184,7 @@
 
 当前验证基线：后端 `cd engine && python -m pytest -q` 为 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索 smoke 已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
 
-官方下一步：真实检索 provider 和向量检索 Pipeline 已显式接入。恢复时先确认用户选择，建议用真实失败样本评估 hybrid vector 收益；不自动接 GraphRAG、Zep、云端多租户、对象存储、认证或计费系统，不默认替换 BM25。
+官方下一步：进入 **World Sandbox Loop / 世界沙盘改造**。真实检索 provider 和向量检索 Pipeline 已显式接入，但当前只作为支撑层；恢复开发时不要继续默认评估 hybrid vector、GraphRAG、Zep 或 provider spike，而应优先做《天命书》、角色主观记忆链、沙盘轮次、世界自演、多视角活体小说和作者采纳台。
 
 ### 当前边界备忘
 
@@ -125,6 +195,7 @@
 - 设置页已有脱敏 provider 状态、usage、route matrix、模型配置、任务模型画像、本地 API 契约、发行准备、跨项目样本索引、样本趋势快照、本地运行脚本和检索增强 provider 状态；项目工作台已有运行前体检、设定卡片、向量检索就绪探针、真实向量检索、embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Case 矩阵、Graph 记忆 Provider 边界、Graph 记忆离线 replay 计划/报告、Provider Spike 前置包、就绪门禁、Runbook、结果模板、Mock 结果报告、复核门禁、人工审批包、审批证据核对表、opt-in 证据、no-go 矩阵、operator checklist、review packet、decision ledger preview、final readiness summary、human signoff schema draft、config draft、local provider contract、single fixture dry-run harness、mock-compatible adapter 和 manual mock adapter review；分支右栏已有投影健康、读者评审和上下文包；不读取或打印明文密钥。
 - 仍未做：云端多用户持久队列、真实对象存储 adapter、GraphRAG/Zep、hybrid vector 默认替换 BM25、overlay 自动消费、运行后审计写入正史账本。
 - v1.0-beta 后续不默认接 Zep / 图数据库 / OASIS / CAMEL / LangGraph；这些按 v0.9.3 / v0.9.4 的触发式 spike 处理。
+- `WorkspacePage.tsx` 已承载过多项目工作台和工程支撑面板；后续不要继续往里面堆 Graph/provider/报告 UI，应按 `docs/unfinale-world-sandbox-remodel-prd.md` 拆出世界内部卷宗壳和具体页面。
 
 ## 资料索引
 

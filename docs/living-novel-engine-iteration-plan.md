@@ -2,7 +2,7 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-03，本地模型配置 UX、本地一键运行脚本、Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口，共四十五刀；Retrieval Provider Real Connectivity MVP 与 Vector Retrieval Pipeline MVP 已收口。
+> 版本：2026-06-04，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环：沙盘轮次、主观记忆链、天命书、干预编译、世界线代偿、世界自演、多视角活体小说和作者采纳台均已有本地 service/API/UI/artifact 第一版；后续官方主线转入闭环体验打磨、采纳后章节 brief 和跨卷宗串联。
 
 ## 1. 产品北极星
 
@@ -77,12 +77,66 @@
 | Graph Memory Provider Spike Manual Mock Adapter Review MVP | 第四十五刀已收口 | 后续增强自主迭代第四十五刀：service/API/CLI/项目工作台只读展示 mock adapter 人工复核包、合规检查、阻断项和本刀后暂停建议；不保存人工结论、不创建真实 adapter。 |
 | Retrieval Provider Real Connectivity MVP | 已收口 | 用户明确要求接入真实检索 provider；新增百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的脱敏配置摘要和显式 smoke。`mock=true` 不打外网，`mock=false` 才调用真实 provider。 |
 | Vector Retrieval Pipeline MVP | 已收口 | 新增显式 Zilliz 索引写入、百炼 embedding + Zilliz + 百炼 rerank 检索预览、项目工作台真实向量检索面板和 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 运行时 opt-in；默认 BM25 不被替换，失败回退 BM25。 |
+| World Sandbox Round MVP | 已收口 | 世界沙盘改造第一刀：新增 deterministic 本地单轮沙盘 service/API/UI，写入 `sandbox_rounds.jsonl` 和 `sandbox_summary.json`，展示角色意图、行动、冲突、信息传播和世界状态 delta；不改 `run_scene` 默认行为，不覆盖既有核心 artifact。 |
+| Subjective Memory Chain MVP | 已收口 | 世界沙盘改造第二刀：每轮沙盘后为角色/世界线追加 `subjective_memory.jsonl`，写入看到、做了、新认知、情绪/信任/异常感变化；下一轮行动读取上一轮主观记忆，UI 可查看角色个人记忆链。 |
+| Tianming Book MVP | 已收口 | 世界沙盘改造第三刀：新增 `tianming.json` 生成、读取与轻量确认 API/UI，覆盖 narrative_attractors、genre_constraints、anchor_status、contract_pressure、replacement_anchor_candidates 和普通干预不可永久改写边界。 |
+| Intervention Compiler Reads Tianming MVP | 已收口 | 世界沙盘改造第四刀：新增天命书干预预编译 service/API/UI，读取 `tianming.json` 输出干预类型、层级、兼容性、转译策略、Divergent/AU、分支轴和因果债；不调用 `run_scene`，不改写天命书。 |
+| Narrative Compensation MVP | 已收口 | 世界沙盘改造第五刀：新增世界线代偿 service/API/UI，输出 `tianming_delta.json`，解释锚点稳定/转移/失锚、候选承载者、因果债扩散和政治/关系/势力/环境压力；不做管理员式抹杀。 |
+| World Autopilot MVP | 已收口 | 世界沙盘改造第六刀：新增世界自演 service/API/UI，支持运行到轮数、事件、时间或锚点变化，输出 `autopilot_report.json` 和 checkpoints；连续复用沙盘轮次和主观记忆链，不改 `run_scene` 默认行为。 |
+| Character Lens Novel MVP | 已收口 | 世界沙盘改造第七刀：新增多视角活体小说 service/API/UI，输出 `character_lens_briefs.json`，同一事件可生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角；角色个人卷读取主观记忆链。 |
+| Author Adoption Desk MVP | 已收口 | 世界沙盘改造第八刀：新增作者采纳台 service/API/UI，支持采纳、部分采纳、另开分支和导出 brief，写入 `author_adoption_ledger.jsonl`，并展示原大纲 vs 沙盘涌现剧情对照；不自动覆盖正史。 |
 
 当前验证基线：后端 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
 ## 3. 当前自主迭代点
 
-用户已授权进入后续增强自主迭代。真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已完成。随后用户明确要求接入真实检索 provider，已完成百炼 embedding、Zilliz Cloud 与百炼 reranker 的显式配置、真实 smoke、Zilliz 索引写入、混合检索预览和运行时 opt-in；默认 BM25 检索仍不被替换。
+用户已明确进入产品纠偏。真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀、百炼 embedding、Zilliz Cloud、百炼 reranker、Zilliz 索引写入、混合检索预览和运行时 opt-in 均已完成；这些现在统一降为支撑层。
+
+当前官方下一步是：
+
+> 世界沙盘闭环体验打磨 / 采纳后章节 brief。
+
+后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。
+
+本阶段读取入口：
+
+- `docs/unfinale-world-sandbox-remodel-prd.md`
+- `docs/unfinale-product-vision-correction-draft.md`
+- `docs/image/README.md`
+
+第一批改造目标：
+
+```text
+v1：世界沙盘循环 / 单次角色行动轮（已收口）
+v2：角色主观记忆链 / 每轮持久化（已收口）
+v3：《天命书》/ 世界宪法（已收口）
+v4：干预编译器读取《天命书》（已收口）
+v5：世界线代偿 / 锚点转移（已收口）
+v6：世界自演 / 检查点（已收口）
+v7：多视角活体小说（已收口）
+v8：作者采纳台（已收口）
+```
+
+v1-v8 已经满足“世界会运行、角色会行动、角色会记得、干预有解释、世界会代偿、世界可自演、同一事件可多视角阅读、作者可采纳”的第一版闭环。后续不要把默认主线切回 provider/Graph/检索评测，应优先打磨这些卷宗之间的连续体验。
+
+主导航已定稿：
+
+```text
+世界书架
+  -> 某个故事世界
+      -> 天命书
+      -> 世界沙盘
+      -> 世界正史卷
+      -> 主锚点卷
+      -> 角色个人卷
+      -> 势力卷
+      -> 事件多视角
+      -> 世界线
+      -> 检查点
+      -> 作者采纳台
+```
+
+“沙盘 / 阅读 / 干预 / 作者”是同一世界里的场景能力，不作为一级主导航。
 
 本地体验稳定后，发行路径仍由用户选择进入：
 

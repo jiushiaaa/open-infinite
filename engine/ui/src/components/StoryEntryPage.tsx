@@ -100,6 +100,30 @@ export function StoryEntryPage() {
                   </button>
                   <button
                     className="story-card__link"
+                    onClick={() => navigate({ name: "sandbox", slug: s.slug })}
+                  >
+                    世界沙盘
+                  </button>
+                  <button
+                    className="story-card__link"
+                    onClick={() => navigate({ name: "tianming", slug: s.slug })}
+                  >
+                    天命书
+                  </button>
+                  <button
+                    className="story-card__link"
+                    onClick={() => navigate({ name: "lens", slug: s.slug })}
+                  >
+                    多视角
+                  </button>
+                  <button
+                    className="story-card__link"
+                    onClick={() => navigate({ name: "author", slug: s.slug })}
+                  >
+                    作者采纳台
+                  </button>
+                  <button
+                    className="story-card__link"
                     onClick={() => navigate({ name: "anchor", slug: s.slug })}
                   >
                     世界锚定

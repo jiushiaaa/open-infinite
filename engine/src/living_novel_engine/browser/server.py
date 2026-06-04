@@ -1268,6 +1268,20 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_holdout_get(slug)
 
+            if path.startswith("/api/stories/") and path.endswith("/tianming"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/tianming")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_tianming_get(slug)
+
+            if (
+                path.startswith("/api/stories/")
+                and "/worldlines/" in path
+                and path.endswith("/subjective-memory")
+            ):
+                return self._handle_subjective_memory_get(path)
+
             if path.startswith("/api/stories/"):
                 slug = safe_id(path.split("/api/stories/", 1)[1].strip("/"))
                 if slug is None:
@@ -1484,6 +1498,22 @@ class BrowserHandler(BaseHTTPRequestHandler):
             if path.startswith("/api/jobs/"):
                 return self._handle_job_get(path)
 
+            if path.startswith("/api/sandbox-runs/"):
+                run_id = safe_id(path[len("/api/sandbox-runs/") :].strip("/"))
+                if run_id is None:
+                    return self._send_json({"error": "invalid run_id"}, status=400)
+                from living_novel_engine.service import (
+                    WorldSandboxRequestError,
+                    get_sandbox_run,
+                )
+
+                try:
+                    return self._send_json(get_sandbox_run(run_id))
+                except WorldSandboxRequestError as exc:
+                    return self._send_json({"error": str(exc)}, status=400)
+                except FileNotFoundError as exc:
+                    return self._send_json({"error": str(exc)}, status=404)
+
             self.send_error(404)
         except FileNotFoundError as exc:
             self._send_json({"error": str(exc)}, status=404)
@@ -1505,6 +1535,64 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 return self._handle_import_novel()
             if path == "/api/story-genesis":
                 return self._handle_story_genesis()
+            if path.startswith("/api/stories/") and path.endswith("/tianming/generate"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/tianming/generate")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_tianming_generate(slug)
+            if path.startswith("/api/stories/") and path.endswith("/tianming/confirm"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/tianming/confirm")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_tianming_confirm(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/tianming/intervention-compile"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/tianming/intervention-compile")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_tianming_intervention_compile(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/narrative-compensation/run"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/narrative-compensation/run")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_narrative_compensation_run(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/world-autopilot/run"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/world-autopilot/run")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_world_autopilot_run(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/character-lens/generate"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/character-lens/generate")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_character_lens_generate(slug)
+            if path.startswith("/api/stories/") and path.endswith(
+                "/author-adoption"
+            ):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/author-adoption")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_author_adoption(slug)
+            if path.startswith("/api/stories/") and path.endswith("/sandbox/run"):
+                rest = path[len("/api/stories/") :]
+                slug = safe_id(rest[: -len("/sandbox/run")].strip("/"))
+                if slug is None:
+                    return self._send_json({"error": "invalid slug"}, status=400)
+                return self._handle_sandbox_run(slug)
             if path.startswith("/api/stories/") and path.endswith(
                 "/visual-assets/generate"
             ):
@@ -1661,6 +1749,228 @@ class BrowserHandler(BaseHTTPRequestHandler):
             self.send_error(404)
         except Exception as exc:
             self._send_json({"error": str(exc)}, status=500)
+
+    def _handle_sandbox_run(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            WorldSandboxRequestError,
+            run_sandbox_round,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = run_sandbox_round(
+                slug,
+                major_event=str(body.get("major_event") or ""),
+                worldline_id=str(body.get("worldline_id") or "main"),
+            )
+        except WorldSandboxRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_subjective_memory_get(self, path: str) -> None:
+        from living_novel_engine.service import (
+            WorldSandboxRequestError,
+            get_character_subjective_memory,
+        )
+
+        rest = path[len("/api/stories/") :]
+        slug_raw, _, after_slug = rest.partition("/worldlines/")
+        worldline_raw, _, after_worldline = after_slug.partition("/characters/")
+        character_raw = after_worldline[: -len("/subjective-memory")].strip("/")
+        slug = safe_id(slug_raw.strip("/"))
+        worldline_id = safe_id(worldline_raw.strip("/"))
+        character_id = safe_id(character_raw)
+        if slug is None or worldline_id is None or character_id is None:
+            return self._send_json(
+                {"error": "invalid slug, worldline, or character id"},
+                status=400,
+            )
+        try:
+            report = get_character_subjective_memory(
+                slug,
+                character_id,
+                worldline_id=worldline_id,
+            )
+        except WorldSandboxRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_tianming_get(self, slug: str) -> None:
+        from living_novel_engine.service import TianmingRequestError, get_tianming_book
+
+        try:
+            report = get_tianming_book(slug)
+        except TianmingRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_tianming_generate(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            TianmingRequestError,
+            generate_tianming_book,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = generate_tianming_book(slug, force=bool(body.get("force")))
+        except TianmingRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_tianming_confirm(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            TianmingRequestError,
+            confirm_tianming_book,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = confirm_tianming_book(slug, confirm=bool(body.get("confirm")))
+        except TianmingRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_tianming_intervention_compile(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            TianmingInterventionCompilerRequestError,
+            TianmingRequestError,
+            compile_intervention_against_tianming,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = compile_intervention_against_tianming(
+                slug,
+                content=str(body.get("content") or ""),
+                target=str(body.get("target") or ""),
+            )
+        except (TianmingInterventionCompilerRequestError, TianmingRequestError) as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_narrative_compensation_run(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            NarrativeCompensationRequestError,
+            TianmingRequestError,
+            run_narrative_compensation,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = run_narrative_compensation(
+                slug,
+                trigger_event=str(body.get("trigger_event") or ""),
+                worldline_id=str(body.get("worldline_id") or "main"),
+            )
+        except (NarrativeCompensationRequestError, TianmingRequestError) as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_world_autopilot_run(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            WorldAutopilotRequestError,
+            run_world_autopilot,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = run_world_autopilot(
+                slug,
+                seed_event=str(body.get("seed_event") or ""),
+                objective_type=str(body.get("objective_type") or "rounds"),
+                stop_event=str(body.get("stop_event") or ""),
+                time_limit=str(body.get("time_limit") or ""),
+                round_limit=int(body.get("round_limit") or 3),
+                worldline_id=str(body.get("worldline_id") or "main"),
+            )
+        except (TypeError, ValueError, WorldAutopilotRequestError) as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_character_lens_generate(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            CharacterLensRequestError,
+            generate_character_lens_briefs,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = generate_character_lens_briefs(
+                slug,
+                source_event=str(body.get("source_event") or ""),
+                character_id=str(body.get("character_id") or ""),
+                source_run_id=str(body.get("source_run_id") or ""),
+                worldline_id=str(body.get("worldline_id") or "main"),
+            )
+        except CharacterLensRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_author_adoption(self, slug: str) -> None:
+        from living_novel_engine.service import (
+            AuthorAdoptionRequestError,
+            record_author_adoption,
+        )
+
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = record_author_adoption(
+                slug,
+                source_run_id=str(body.get("source_run_id") or ""),
+                source_event=str(body.get("source_event") or ""),
+                sandbox_summary=str(body.get("sandbox_summary") or ""),
+                decision=str(body.get("decision") or ""),
+                original_outline=str(body.get("original_outline") or ""),
+                author_note=str(body.get("author_note") or ""),
+                worldline_id=str(body.get("worldline_id") or "main"),
+            )
+        except AuthorAdoptionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
 
     def _handle_vector_retrieval_index(self, slug: str) -> None:
         from living_novel_engine.service import (

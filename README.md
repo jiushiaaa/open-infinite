@@ -6,6 +6,29 @@
 
 这个项目受到多智能体仿真、长篇网文状态管理、互动叙事、世界线理论，以及《第一玩家》中第九世界、第十世界、第十一世界罗瓦莎相关叙事机制的启发。它不会复刻任何原作设定，而是抽象其中的机制：高维观测、世界线、命运干预、主人公身份、人设约束、剧情修正、角色反抗。
 
+## 当前开发口径
+
+2026-06-03 产品纠偏后，当前默认开发主线已经收束为 **World Sandbox Loop / 世界沙盘改造**：
+
+```text
+导入 / 创世
+  -> AI 预抽并确认《天命书》
+  -> 多 Agent 沙盘轮次
+  -> 角色主观记忆链
+  -> 世界自演检查点
+  -> 多视角活体小说
+  -> 作者采纳台
+```
+
+后续 AI / Codex 开发请优先阅读：
+
+- [`memory.md`](./memory.md)
+- [`AGENTS.md`](./AGENTS.md)
+- [`docs/unfinale-world-sandbox-remodel-prd.md`](./docs/unfinale-world-sandbox-remodel-prd.md)
+- [`docs/unfinale-ai-development-alignment-checklist.md`](./docs/unfinale-ai-development-alignment-checklist.md)
+
+Graph/provider/真实向量检索/OpenAPI/发行/商业化边界已降为支撑层，除非用户明确要求，不再作为下一刀默认方向。
+
 ## 一句话定位
 
 不是读小说，而是进入一部正在活着的小说。
@@ -521,4 +544,3 @@
 TBD.
 
 本项目仍处于概念设计阶段，后续可根据实现方式、依赖项目协议和社区目标选择合适的开源协议。
-

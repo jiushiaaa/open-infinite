@@ -330,6 +330,28 @@ from .intervention_guardrail import (
     GuardrailRequestError,
     check_intervention_guardrail,
 )
+from .narrative_compensation import (
+    NarrativeCompensationRequestError,
+    run_narrative_compensation,
+)
+from .character_lens import (
+    CharacterLensRequestError,
+    generate_character_lens_briefs,
+)
+from .author_adoption import (
+    AuthorAdoptionRequestError,
+    record_author_adoption,
+)
+from .tianming import (
+    TianmingRequestError,
+    confirm_tianming_book,
+    generate_tianming_book,
+    get_tianming_book,
+)
+from .tianming_intervention_compiler import (
+    TianmingInterventionCompilerRequestError,
+    compile_intervention_against_tianming,
+)
 from .story_genesis import (
     GenesisProjectExistsError,
     GenesisRequestError,
@@ -354,6 +376,16 @@ from .worldline_selection import (
     get_selected_worldline,
     select_worldline,
 )
+from .world_sandbox import (
+    WorldSandboxRequestError,
+    get_character_subjective_memory,
+    get_sandbox_run,
+    run_sandbox_round,
+)
+from .world_autopilot import (
+    WorldAutopilotRequestError,
+    run_world_autopilot,
+)
 
 __all__ = [
     "VALID_ACTIONS",
@@ -372,6 +404,11 @@ __all__ = [
     "BaselineServiceResult",
     "CardsWorkspaceRequestError",
     "ChapterExportRequestError",
+    "TianmingRequestError",
+    "TianmingInterventionCompilerRequestError",
+    "NarrativeCompensationRequestError",
+    "CharacterLensRequestError",
+    "AuthorAdoptionRequestError",
     "generate_baseline",
     "get_baseline_report",
     "build_chapter_collection_export",
@@ -565,6 +602,13 @@ __all__ = [
     "get_retrieval_sample_export_pack",
     "get_retrieval_sample_replay_report",
     "get_retrieval_sample_migration_pack",
+    "confirm_tianming_book",
+    "compile_intervention_against_tianming",
+    "generate_tianming_book",
+    "get_tianming_book",
+    "run_narrative_compensation",
+    "generate_character_lens_briefs",
+    "record_author_adoption",
     "mine_run_emergence",
     "VisualAssetPathError",
     "VisualAssetRequestError",
@@ -574,8 +618,14 @@ __all__ = [
     "get_vector_retrieval_readiness",
     "WorldlineJudgeRequestError",
     "WorldlineSelectionRequestError",
+    "WorldSandboxRequestError",
+    "WorldAutopilotRequestError",
+    "get_character_subjective_memory",
     "get_worldline_judgement",
     "get_selected_worldline",
+    "get_sandbox_run",
     "judge_worldline",
     "select_worldline",
+    "run_sandbox_round",
+    "run_world_autopilot",
 ]

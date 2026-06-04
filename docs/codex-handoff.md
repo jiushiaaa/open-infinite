@@ -10,6 +10,9 @@
 - memory.md
 - docs/index.md
 - docs/codex-handoff.md
+- docs/unfinale-world-sandbox-remodel-prd.md
+- docs/unfinale-product-vision-correction-draft.md
+- docs/unfinale-ai-development-alignment-checklist.md
 - docs/living-novel-engine-iteration-plan.md
 - docs/productization-phase-map.md
 - docs/living-novel-engine-prd.md
@@ -18,6 +21,7 @@
 
 当前项目是 未终章（Unfinale），核心代码在 engine/；技术缩写、包名、CLI 和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑。
+当前最高优先级是 World Sandbox Loop / 世界沙盘改造：主导航按“世界书架 -> 世界内部卷宗”组织，优先做《天命书》、沙盘轮次、角色主观记忆链、世界自演、多视角活体小说和作者采纳台。不要继续默认扩 Graph/provider/检索评测/工程看板。
 请不要只靠这段摘要；读完文档和相关代码后，再继续下一步。
 ```
 
@@ -95,7 +99,22 @@
 
 ## 当前自主迭代点
 
-用户已授权进入后续增强自主迭代。真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已完成。随后用户明确要求接入真实检索 provider，目前真实向量检索链路已可显式使用；下一次继续时先确认是否默认启用 hybrid vector 或继续做评测，不自动进入 GraphRAG/Zep 或云端多租户。
+用户已明确进入产品纠偏：下一步不是继续 provider、Graph Memory、真实向量检索评测或工程化面板，而是把现有底座改造成“小说世界沙盘 / 活体小说运行时”。
+
+当前改造主线：
+
+```text
+世界书架
+  -> 天命书
+  -> 世界沙盘
+  -> 角色主观记忆链
+  -> 世界自演检查点
+  -> 多视角活体小说
+  -> 世界线代偿 / 锚点转移
+  -> 作者采纳台
+```
+
+真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀、真实检索 provider 和 Vector Retrieval Pipeline 都已完成；这些现在统一视为支撑层。只有用户明确要求时，才继续评估 hybrid vector、GraphRAG/Zep 或 provider spike。
 
 可选后续方向只有在用户确认后再进入：
 
@@ -103,7 +122,7 @@
 - 腾讯云或服务器单机在线体验。
 - 真实认证、对象存储、云端队列、配额执行或计费系统。
 
-当前不默认接 Zep / 图数据库 / GraphRAG / LangGraph / OASIS / CAMEL；这些保持 v0.9.3 / v0.9.4 的触发式评估边界。
+当前不默认接 Zep / 图数据库 / GraphRAG / LangGraph / OASIS / CAMEL；这些保持触发式评估边界。不要继续往 `WorkspacePage.tsx` 堆工程面板，后续前端应按 `docs/unfinale-world-sandbox-remodel-prd.md` 拆成世界内部卷宗。
 
 ## 开发硬约束
 

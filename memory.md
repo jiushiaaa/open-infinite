@@ -2,7 +2,7 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-03（用户明确要求接入真实检索 provider；Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 已收口，共四十五刀，Retrieval Provider Real Connectivity MVP 与 Vector Retrieval Pipeline MVP 已收口。）
+> **最后更新**：2026-06-04（World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环：沙盘轮次、主观记忆链、天命书、干预编译、世界线代偿、世界自演、多视角活体小说和作者采纳台均有本地 service/API/UI/artifact 第一版。后续进入体验打磨、真实文本质量提升和跨卷宗串联，而不是回到 provider/Graph/检索评测堆叠。）
 
 ---
 
@@ -12,13 +12,55 @@
 | --- | --- |
 | 项目 | 未终章（Unfinale）；技术缩写、Python 包、CLI 与环境变量前缀仍沿用 LNE / `living_novel_engine`，核心代码在 `D:\AI\open-infinite\engine` |
 | 北极星 | 文本输入 -> 世界锚定 -> 角色自主行动 -> 读者干预 -> 世界线分叉 -> 章节渲染 -> 可继续运行 |
-| 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已收口；Retrieval Provider Real Connectivity MVP 与 Vector Retrieval Pipeline MVP 已收口 |
+| 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已收口；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8（Sandbox Round、Subjective Memory Chain、Tianming Book、Intervention Compiler、Narrative Compensation、World Autopilot、Character Lens Novel、Author Adoption Desk）已收口 |
 | 产品入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能必须优先通过 Web UI + API 完成，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑 |
 | 测试基线 | `cd engine && python -m pytest -q` -> `872 passed`；`cd engine/ui && pnpm run build` 通过 |
-| 官方下一步 | 用户已明确恢复真实检索 provider 接入；当前完成百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的显式配置、脱敏设置页、mock/real smoke、Zilliz collection 写入、混合检索预览和 rerank。默认 BM25 仍不替换，运行时只有 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` 时才消费真实向量链路 |
-| 后续候选 | 用真实失败样本持续评估 embedding + Zilliz + reranker 对召回和预算的收益；是否把 hybrid vector 作为默认检索、是否接 GraphRAG/Zep、云端多租户仍需另行确认 |
+| 官方下一步 | **世界沙盘体验打磨 / 闭环强化**：优先把 v1-v8 串成更顺的世界内部卷宗体验，提升可读文本质量、跨卷宗引用和作者采纳后的章节 brief；不默认回到 provider/Graph/检索评测主线 |
+| 当前主导航决策 | 一级按“世界书架”组织；进入某世界后使用“天命书、世界沙盘、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、世界线、检查点、作者采纳台”。“沙盘/阅读/干预/作者”是场景能力，不做一级工作区 |
+| 支撑层边界 | GraphRAG/Zep、provider spike、真实向量检索、OpenAPI、发行、计费、对象存储、认证都已降为支撑层；除非用户明确要求，不继续扩展这些方向 |
 
-判断“下一刀”时，先以本节和 `docs/living-novel-engine-iteration-plan.md` 为准；不要从旧变更日志里直接捞历史待办。
+判断“下一刀”时，先以本节和 `docs/unfinale-world-sandbox-remodel-prd.md` 为准；不要从旧变更日志或 Graph/provider 历史面板里直接捞待办。
+
+### 1.1 当前纠偏主线（最高优先级）
+
+当前项目不是要继续证明 provider、检索、Graph Memory 或商业化边界，而是要把已完成的底座重新拉回最初愿望：
+
+```text
+小说不是一本写完的静态文本，
+而是一个会运行、能被观察、可被干预、会分叉、角色可能反抗的故事世界。
+```
+
+后续所有开发默认服务这七件事：
+
+```text
+世界会运行。
+角色会自主。
+角色会记得。
+干预有后果。
+角色可能反抗。
+世界会代偿。
+章节来自世界演化。
+```
+
+首批改造目标：
+
+```text
+1. 沙盘轮次：sandbox_rounds.jsonl 已有第一版，记录每轮角色意图、行动、冲突、信息传播和世界状态 delta；API 为 `POST /api/stories/<slug>/sandbox/run`，前端入口为“世界书架 -> 世界沙盘”。
+2. 主观记忆链：每个角色在每条世界线拥有独立 subjective_memory.jsonl；每轮后写入看到、做了、新认知、情绪/信任/异常感变化，下一轮行动会引用上一轮记忆。
+3. 《天命书》：tianming.json 已有第一版，承载叙事吸引子、题材约束、当前锚点、合约压力、候选天命承载者和普通干预不可永久改写边界；前端可生成草案并轻量确认。
+4. 干预编译器读天命书：自由干预可预编译为干预类型、层级、兼容性、转译策略、Divergent/AU、分支轴和因果债；普通干预不改写 `tianming.json`。
+5. 世界线代偿：可生成 `tianming_delta.json`，解释锚点稳定/转移/失锚、候选天命承载者、因果债扩散和世界内压力事件。
+6. 世界自演：已支持运行到轮数、事件、时间或锚点变化，并生成 `autopilot_report.json` 与检查点。
+7. 多视角活体小说：已可把同一事件渲染为世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角，并写入 `character_lens_briefs.json`。
+8. 作者采纳台：已可把沙盘涌现剧情采纳、部分采纳、另开分支或导出 brief，并写入 `author_adoption_ledger.jsonl`。
+```
+
+本次纠偏新增入口文档：
+
+- `docs/unfinale-world-sandbox-remodel-prd.md`：后续改造 PRD，写清现有代码如何接入新方向。
+- `docs/unfinale-product-vision-correction-draft.md`：产品愿景纠偏草稿，记录《天命书》、干预编译、世界代偿、主观记忆、世界自演、多视角活体小说和 UI 原型。
+- `docs/unfinale-ai-development-alignment-checklist.md`：后续 AI 开发对齐检查清单，用于开工前确认这一刀是否服务世界沙盘主线。
+- `docs/image/README.md`：UI 原型参考图索引。
 
 ---
 
@@ -27,12 +69,15 @@
 新会话或新任务如果涉及 LNE、`engine/`、版本路线、产品 UI、API、测试或文档，先读：
 
 1. `memory.md`：当前事实、边界、测试基线、已知缺口。
-2. `docs/living-novel-engine-iteration-plan.md`：版本路线与官方下一步。
-3. `docs/productization-phase-map.md`：技术 MVP、产品化 MVP、长篇产品化、商业化加固的阶段边界。
-4. `docs/living-novel-engine-prd.md`：产品定位和用户流程。
-5. `docs/completed/v0.7-product-web-app-ui-spec.md`：Web UI 风格和交互边界。
-6. `engine/README.md`：CLI/API/输出结构/验收命令。
-7. `docs/codex-handoff.md`：存在接力任务时再读。
+2. `docs/unfinale-world-sandbox-remodel-prd.md`：当前改造 PRD，说明如何把现有代码拉回世界沙盘主线。
+3. `docs/unfinale-product-vision-correction-draft.md`：产品愿景纠偏草稿，记录当前讨论定稿。
+4. `docs/unfinale-ai-development-alignment-checklist.md`：后续 AI 开工前自检，避免继续沿旧工程化方向跑偏。
+5. `docs/living-novel-engine-iteration-plan.md`：版本路线与官方下一步。
+6. `docs/productization-phase-map.md`：技术 MVP、产品化 MVP、长篇产品化、商业化加固的阶段边界。
+7. `docs/living-novel-engine-prd.md`：产品定位和用户流程。
+8. `docs/completed/v0.7-product-web-app-ui-spec.md`：Web UI 风格和交互边界。
+9. `engine/README.md`：CLI/API/输出结构/验收命令。
+10. `docs/codex-handoff.md`：存在接力任务时再读。
 
 事实优先级：`memory.md` > 主迭代计划 > `engine/README.md` > 主 PRD > 聊天摘要。
 
@@ -104,9 +149,9 @@
 
 ### 当前自主迭代点
 
-- 真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已完成。
-- 按用户要求，真实 embedding、Zilliz 和 reranker 已进入显式可用链路。
-- 后续如继续，应优先用真实失败样本评估收益和默认启用边界，不自动接 GraphRAG/Zep 或云端多租户。
+- 产品纠偏已完成；当前自主迭代点是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph Memory、真实向量检索评测或工程化面板。
+- 已完成的真实 embedding、Zilliz、reranker、Graph/provider 证据链、OpenAPI、发行和商业化边界全部保留为支撑层；除非用户明确点名，不作为下一刀默认方向。
+- 后续如继续，优先沿 `docs/unfinale-world-sandbox-remodel-prd.md` 打磨 v1-v8 闭环：跨卷宗串联、采纳后章节 brief、角色个人卷正文质量和事件多视角证据链。
 
 ---
 

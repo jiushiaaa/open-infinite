@@ -2,6 +2,8 @@
 
 未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。当前已经从早期 Phase 0 CLI 演进到 v1.0-local + 后续增强四十五刀：支持小说导入、长篇记忆、读者干预、多世界线生成、审计评估、章节导出、模型配置、本地一键运行、运行前体检、生成后投影健康、读者修订评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、样本趋势快照，以及 Graph Memory provider spike 到 Manual Mock Adapter Review 的只读证据链。用户明确要求后，百炼 embedding、Zilliz Cloud 和百炼 reranker 的真实向量检索 Pipeline 已可显式使用。
 
+2026-06-03 产品纠偏后，上述 provider、Graph、检索评测、发行和商业化能力全部降为支撑层。当前默认开发主线是 **World Sandbox Loop / 世界沙盘改造**。2026-06-04 已完成 World Sandbox Loop v1-v8：用户可从世界书架进入“世界沙盘”“天命书”“多视角活体小说”和“作者采纳台”，看到角色行动、世界变化、角色主观记忆、干预分支轴、因果债、世界线代偿、世界自演检查点、多视角卷宗和作者采纳账本。后续进入闭环体验打磨、采纳后章节 brief 和跨卷宗串联，而不是回到 provider/Graph/检索评测堆叠。具体改造 PRD 见 [`../docs/unfinale-world-sandbox-remodel-prd.md`](../docs/unfinale-world-sandbox-remodel-prd.md)。
+
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
 当前事实、版本状态和暂停点以根目录 [`../memory.md`](../memory.md) 为准；历史版本细节在 [`../docs/completed/`](../docs/completed/README.md)。
@@ -13,12 +15,68 @@
 | 后端 | Python package + `lne` CLI + 本地 HTTP API |
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
-| 当前收口 | v1.0-local Model Configuration UX + Local Run Scripts；Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀；Retrieval Provider Real Connectivity MVP 与 Vector Retrieval Pipeline MVP |
+| 当前收口 | v1.0-local Model Configuration UX + Local Run Scripts；Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8 MVP |
 | 后端验证基线 | `python -m pytest -q` -> `872 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
-| 当前迭代点 | 真实检索 provider 和向量检索 Pipeline 已显式接入；默认 BM25 仍不替换，运行时需 opt-in |
+| 当前迭代点 | 世界沙盘闭环体验打磨；真实检索 provider 和向量检索 Pipeline 已显式接入但只作为支撑层 |
 
 仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、GraphRAG/Zep、高级 runner 默认替换，以及 hybrid vector 是否默认替换 BM25。
+
+## 当前纠偏主线
+
+后续开发不要继续默认扩 Graph/provider/检索评测/工程看板，也不要继续往 `WorkspacePage.tsx` 堆只读面板。下一批代码应把现有导入、世界锚定、干预编译、多 Agent、记忆、世界线和章节渲染能力重新组织成“世界书架 -> 世界内部卷宗”：
+
+```text
+世界书架
+  -> 导入故事世界 / 新建世界
+  -> 天命书
+  -> 世界沙盘
+  -> 世界正史卷
+  -> 主锚点卷
+  -> 角色个人卷
+  -> 事件多视角
+  -> 世界线 / 检查点
+  -> 作者采纳台
+```
+
+首批目标 artifact 以 additive 方式加入，不破坏既有 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 契约：
+
+- `projects/<slug>/tianming.json`
+- `projects/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective_memory.jsonl`
+- `outputs/<run_id>/sandbox_rounds.jsonl`
+- `outputs/<run_id>/subjective_memory_delta.json`
+- `outputs/<run_id>/autopilot_report.json`
+- `outputs/<run_id>/checkpoints/checkpoint_*.json`
+- `outputs/<run_id>/character_lens_briefs.json`
+- `projects/<slug>/author_adoption_ledger.jsonl`
+- `outputs/<run_id>/author_adoption_record.json`
+- `outputs/<run_id>/author_adoption_brief.md`
+
+已实现第一版：
+
+- `POST /api/stories/<slug>/sandbox/run`：输入 `major_event` 与可选 `worldline_id`，生成本地单轮沙盘。
+- `GET /api/sandbox-runs/<run_id>`：读取沙盘轮次结果。
+- `GET /api/stories/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective-memory`：读取某角色在某世界线上的主观记忆链。
+- `POST /api/stories/<slug>/tianming/generate`：从本地设定派生 `tianming.json` 草案。
+- `GET /api/stories/<slug>/tianming`：读取天命书。
+- `POST /api/stories/<slug>/tianming/confirm`：用 `confirm=true` 轻量确认天命书。
+- `POST /api/stories/<slug>/tianming/intervention-compile`：读取天命书并预编译自由干预，输出类型、层级、兼容性、转译策略、Divergent/AU、分支轴和因果债。
+- `POST /api/stories/<slug>/narrative-compensation/run`：生成世界线代偿 delta，解释锚点转移、候选承载者、因果债扩散和世界内压力。
+- `POST /api/stories/<slug>/world-autopilot/run`：连续运行沙盘轮次，支持轮数、事件、时间或锚点变化目标，生成世界自演报告与检查点。
+- `POST /api/stories/<slug>/character-lens/generate`：从同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角 brief。
+- `POST /api/stories/<slug>/author-adoption`：作者采纳、部分采纳、另开分支或导出 brief，并写入本地采纳账本。
+- `projects/<slug>/tianming.json`：叙事吸引子、题材约束、锚点状态、合约压力和候选天命承载者。
+- `outputs/<run_id>/tianming_delta.json`：世界线代偿报告。
+- `outputs/<run_id>/autopilot_report.json`：世界自演报告，包含目标、停止原因、沙盘运行、最终阶段和检查点索引。
+- `outputs/<run_id>/checkpoints/checkpoint_*.json`：每轮自演检查点，记录大事件、锚点压力、因果债和后续剧情可能性。
+- `outputs/<run_id>/character_lens_briefs.json`：多视角活体小说 brief，记录世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角。
+- `projects/<slug>/author_adoption_ledger.jsonl`：作者采纳账本，记录采纳、部分采纳、另开分支或导出 brief。
+- `outputs/<run_id>/author_adoption_record.json`：单次作者采纳记录和原大纲 vs 沙盘涌现剧情对照。
+- `outputs/<run_id>/author_adoption_brief.md`：可交给后续章节 brief 或人工整理的采纳说明。
+- `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、行动、冲突、信息传播和世界状态 delta。
+- `outputs/<run_id>/sandbox_summary.json`：聚合本轮摘要、边界和下一步故事可能性。
+- `outputs/<run_id>/subjective_memory_delta.json`：聚合本轮写入的角色主观记忆。
+- `projects/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective_memory.jsonl`：角色自己的连续主观记忆链。
 
 ## 快速开始
 
@@ -217,6 +275,13 @@ pnpm run dev -- --host 127.0.0.1 --port 5173
 - 长篇项目工作台、导入检查、设定工作台、设定卡片、向量检索就绪、真实向量检索、Embedding 样本评估、失败样本采集、GraphRAG/Zep 触发证据、Graph 记忆设计包、Graph 记忆 Shadow 对照、Graph 记忆 Provider 边界、离线 Replay、Provider Spike 前置包、Readiness Gate、Runbook、结果模板、Mock 结果报告、Review Gate、Manual Approval Pack、Opt-in Review Packet、Decision Ledger Preview、Final Readiness Summary、Human Signoff Schema Draft、Config Draft、Local Provider Contract、Single Fixture Dry-run Harness、Mock-compatible Adapter、Manual Mock Adapter Review、回放与审计、章节导出。
 - 分支右栏：机制档案、投影健康、读者评审、上下文包、状态、检索记忆、Agent 轨迹、世界线评审。
 - 设置抽屉：运行设置、模型配置、任务模型画像、接口契约、发行准备、provider 状态、usage/成本估算、商业化边界只读清单。
+
+产品纠偏后的前端目标态：
+
+- 一级主导航按“世界书架”组织；进入某个世界后再出现天命书、世界沙盘、正史卷、角色个人卷、事件多视角、世界线、检查点和作者采纳台。
+- “沙盘 / 阅读 / 干预 / 作者”不是一级工作区，而是同一个世界内部的场景能力。
+- `WorkspacePage.tsx` 已承载过多工程支撑面板；后续改造应拆出世界内部卷宗壳和具体页面，不继续堆 Graph/provider/报告 UI。
+- 已有检索、Graph/provider、OpenAPI、发行、计费面板保留为支撑层，默认不作为下一刀产品主线。
 
 ## 产物目录
 

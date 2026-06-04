@@ -1,0 +1,164 @@
+.adoption-page {
+  height: 100%;
+  overflow: auto;
+  padding: var(--space-5);
+  background:
+    linear-gradient(180deg, rgba(244, 238, 225, 0.72), rgba(250, 247, 239, 0.96)),
+    var(--paper);
+}
+
+.adoption-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-5);
+  align-items: flex-start;
+  max-width: 1320px;
+  margin: 0 auto var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.adoption-hero h1 {
+  margin: var(--space-1) 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.adoption-hero__eyebrow {
+  margin: 0;
+}
+
+.adoption-hero__actions,
+.adoption-decisions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.adoption-hero__actions {
+  justify-content: flex-end;
+}
+
+.adoption-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: var(--space-5);
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.adoption-panel,
+.adoption-compare article,
+.adoption-result {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+}
+
+.adoption-panel,
+.adoption-compare article,
+.adoption-result {
+  padding: var(--space-4);
+}
+
+.adoption-panel h2,
+.adoption-compare h2,
+.adoption-result h2 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-serif);
+  font-size: 18px;
+}
+
+.adoption-panel label {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.adoption-panel input,
+.adoption-panel textarea,
+.adoption-compare textarea {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  padding: var(--space-3);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.6;
+}
+
+.adoption-panel textarea,
+.adoption-compare textarea {
+  resize: vertical;
+}
+
+.adoption-decisions {
+  margin-bottom: var(--space-3);
+}
+
+.adoption-decisions .is-active {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+
+.adoption-main {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.adoption-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.adoption-result__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.adoption-result p {
+  margin: 0 0 var(--space-3);
+  line-height: 1.7;
+}
+
+.adoption-result dl {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.adoption-result dl div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.adoption-result dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.adoption-result dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 960px) {
+  .adoption-hero,
+  .adoption-layout,
+  .adoption-compare {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .adoption-hero__actions {
+    justify-content: flex-start;
+  }
+}

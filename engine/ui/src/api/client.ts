@@ -2,6 +2,7 @@ import type {
   AnchorPatch,
   AnchorUpdateResponse,
   ApiContractReport,
+  AuthorAdoptionReport,
   AuthBoundaryChecklist,
   BillingAdapterBoundaryChecklist,
   BaselineGenerateRequest,
@@ -16,6 +17,7 @@ import type {
   CanonReplayRequest,
   ChapterCollectionExport,
   ChapterExport,
+  CharacterLensReport,
   CharacterProbe,
   ConnectivityResult,
   CrossProjectRetrievalSamplesIndexReport,
@@ -98,6 +100,7 @@ import type {
   RunTreeNode,
   RuntimeSettings,
   RuntimeSettingsPatch,
+  NarrativeCompensationReport,
   VectorRetrievalIndexReport,
   VectorRetrievalReadinessReport,
   VectorRetrievalSearchReport,
@@ -109,9 +112,15 @@ import type {
   StoryGenesisRequest,
   StoryGenesisResponse,
   StorySummary,
+  SubjectiveMemoryReport,
+  TianmingBook,
+  TianmingInterventionCompileReport,
   VisualAssets,
   VisualAssetsGenerateRequest,
   WorldAnchor,
+  WorldAutopilotReport,
+  WorldSandboxRunReport,
+  WorldSandboxRunRequest,
   WorldlineSelectionRequest,
   WorldlineSelectionResponse,
   WorldlineJudgement,
@@ -498,7 +507,106 @@ export const api = {
       `/api/stories/${encodeURIComponent(storySlug)}/cards-workspace`,
     );
   },
-  getRun(runId: string): Promise<RunDetail> {
+  runSandboxRound(
+    storySlug: string,
+    req: WorldSandboxRunRequest,
+  ): Promise<WorldSandboxRunReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/sandbox/run`,
+      req,
+    );
+  },
+  getSandboxRun(runId: string): Promise<WorldSandboxRunReport> {
+    return getJson(`/api/sandbox-runs/${encodeURIComponent(runId)}`);
+  },
+  getSubjectiveMemory(
+    storySlug: string,
+    worldlineId: string,
+    characterId: string,
+  ): Promise<SubjectiveMemoryReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/characters/${encodeURIComponent(characterId)}/subjective-memory`,
+    );
+  },
+  getTianmingBook(storySlug: string): Promise<TianmingBook> {
+    return getJson(`/api/stories/${encodeURIComponent(storySlug)}/tianming`);
+  },
+  generateTianmingBook(storySlug: string): Promise<TianmingBook> {
+    return postJson(`/api/stories/${encodeURIComponent(storySlug)}/tianming/generate`, {});
+  },
+  confirmTianmingBook(storySlug: string): Promise<TianmingBook> {
+    return postJson(`/api/stories/${encodeURIComponent(storySlug)}/tianming/confirm`, {
+      confirm: true,
+    });
+  },
+  compileTianmingIntervention(
+    storySlug: string,
+    req: { content: string; target?: string },
+  ): Promise<TianmingInterventionCompileReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/tianming/intervention-compile`,
+      req,
+    );
+  },
+  runNarrativeCompensation(
+    storySlug: string,
+    req: { trigger_event: string; worldline_id?: string },
+  ): Promise<NarrativeCompensationReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/narrative-compensation/run`,
+      req,
+    );
+  },
+  runWorldAutopilot(
+    storySlug: string,
+    req: {
+      seed_event: string;
+      objective_type?: string;
+      stop_event?: string;
+      time_limit?: string;
+      round_limit?: number;
+      worldline_id?: string;
+    },
+  ): Promise<WorldAutopilotReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/world-autopilot/run`,
+      req,
+      );
+    },
+  generateCharacterLens(
+    storySlug: string,
+    req: {
+      source_event: string;
+      character_id?: string;
+      source_run_id?: string;
+      worldline_id?: string;
+    },
+  ): Promise<CharacterLensReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/character-lens/generate`,
+      req,
+    );
+  },
+  recordAuthorAdoption(
+    storySlug: string,
+    req: {
+      decision: string;
+      original_outline?: string;
+      sandbox_summary?: string;
+      source_event?: string;
+      source_run_id?: string;
+      author_note?: string;
+      worldline_id?: string;
+    },
+  ): Promise<AuthorAdoptionReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/author-adoption`,
+      req,
+    );
+  },
+    getRun(runId: string): Promise<RunDetail> {
     return getJson(`/api/runs/${encodeURIComponent(runId)}`);
   },
   getBranch(runId: string, branchId: string): Promise<BranchDetail> {
