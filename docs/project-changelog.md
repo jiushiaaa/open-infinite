@@ -2245,3 +2245,19 @@
   - 本刀只做 Reviewer 局部重写采纳链，不改 `run_scene` 默认行为，不覆盖 `chapter.md`、原 `next_chapter_draft.md`、确认稿或正史。
   - 采纳动作仍由作者显式选择；这不是自动编辑后定稿，也不新增 Graph/provider/检索评测/工程面板方向。
 
+### 2026-06-06 — Documentation Governance Sweep
+
+- **做了什么**：
+  - 深度扫描入口文档、路线文档、归档目录、后置支撑清单和近期代码落地状态，确认 `dossier_reading`、`readable_entry`、`accepted_local_rewrites`、`agent_decision_advisory`、`continuous_reading_chapter`、`meme_propagation_readout` 等近期主线能力均已在 service/API/UI/types/tests 中存在。
+  - 重写 `AGENTS.md`，把它从过期历史状态表收束为 Agent 入口规则：必读顺序、世界沙盘最高主线、闭环等级、硬约束、验证与文档治理。
+  - 重写 `docs/index.md`，建立当前主线、当前事实、历史归档、支撑层 backlog、后置发行路径、研究资产的文档分层，并明确不要从 `completed/` 或 changelog 旧条目直接派生下一刀。
+  - 压缩 `memory.md` 顶部超长状态摘要，新增“闭环等级”表和当前真实未做项前置：真实 LLM 多 Agent 策略、长正文/连续阅读、Reviewer 自动编辑后定稿、世界线阅读入口深化。
+  - 同步 `README.md`、`docs/completed/README.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/living-novel-engine-prd.md`、`docs/productization-phase-map.md`、`docs/后续增强清单.md`、`docs/distribution-phase-plan.md`、`docs/codex-handoff.md` 和 `engine/README.md`，统一说明哪些是当前事实、哪些是支撑层、哪些只是历史或后置路径。
+- **验证**：
+  - 项目事实扫描：`rg` 确认近期世界沙盘产品化能力在代码、类型和测试中均有落地。
+  - 过期口径扫描：入口文档已移除 929/944/945 等旧基线；changelog 和 legacy/completed 中保留旧基线作为历史记录。
+  - `git diff --check` 通过，仅有 Windows 换行提示。
+- **边界**：
+  - 不移动或重写 `docs/completed/` 的历史专项正文，不篡改 `docs/project-changelog.md` 的旧验收记录；通过 `docs/index.md` 和 `completed/README.md` 做逻辑归类。
+  - 不改代码、不改 artifact 契约、不改变 `run_scene` 默认行为。
+

@@ -2,7 +2,8 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-06（World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1 Agent Decision Deepening、S2 Subjective Memory Psychology、S3 Tianming Worldline Constitution、S4 Intervention Execution Constraint 与 S4 Immersive / Wild AU Projection 第一刀已收口。S4 后半、S5、S6、S7、S8、S9 已串成同一条可持续世界线：干预和 AU/L5 快照会写入 `worldline_state.json` 并被后续沙盘读取；L5 觉醒会进入角色主观记忆、命痕、反抗行为和模因污染，模因传播会记录传播来源、采信/存疑、可信度、人设/关系/记忆/异常感信号和反应类型；因果债、锚点状态、候选承载者和分支承接成为后续轮次输入；世界自演新增本地任务进度、暂停/恢复和检查点回放；多视角从 brief 扩为 `character_lens_volumes.json` 可读正文与证据链；作者采纳新增 `next_chapter_brief.json` 并回写世界线状态。S6 已把因果债具象为 `consequence_state` 六域代偿并进入后续沙盘、自演检查点、多视角正文证据链和下一章 brief；世界线页补上 `worldline_dossier` 只读聚合 API、世界线独立页和检查点回放页。本次新增 S7 `World Autopilot Unattended Recovery`：`world-autopilot/run` 支持运行到因果债爆发或角色觉醒，`autopilot_report.json` 新增 `status`、`stop_condition`、`recovery`、失败记录、醒来时间线和 checkpoint recovery；中途失败会保留最近检查点，任务可通过 resume 从最近 checkpoint 生成接续报告；世界沙盘页展示进度刷新、暂停、恢复、停止证据、失败原因和醒来时间线。S9 已新增正式下一章草稿、作者确认入卷和确认稿跨卷宗阅读链；采纳、部分采纳、另开分支三种决策会在 `next_chapter_brief.json` 中生成可读 `writing_plan` 与 `feed_forward` 包，写清原大纲差异、沙盘材料、下一章方案、伏笔移动、Reviewer 关注点和后续沙盘/章节入口；`new_branch` 会创建作者分支 `worldline_state.json` 并保持根正史不覆盖。S9 已进一步新增 `draft_revision_pack.json` 与作者采纳台局部修订包，草稿生成后会给出确认前 gate、局部改写建议、证据引用和建议改法；作者采纳 run 可生成 `next_chapter_draft.json` / `next_chapter_draft.md`，作者采纳台可编辑草稿并确认写入 `confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json`，确认结果回写 `worldline_state.confirmed_chapter_entry` 与后续沙盘入口，并可回读世界正史卷、角色个人卷和事件多视角证据；真实 LLM smoke 使用真实 LLM 成功生成正文并通过 Reviewer/修订包 gate。本轮已新增 S1 `LLM Agent Decision Advisory` 第一刀：`POST /api/stories/<slug>/sandbox/run` 可显式传 `llm_decision_mode=advisory`，在不改变默认 deterministic 沙盘和 `run_scene` 的前提下生成 `agent_decision_advisory.json`，把真实模型给出的逐角色采信、欺骗、传播、反抗和临场判断覆盖到本轮角色行动、报告摘要、主观记忆和世界沙盘 UI；真实 LLM smoke 命中 3 个角色并返回五类决策字段。本次新增 S8/S9 `Continuous Reading Chapter` 第一刀：`author_chapter_draft` 会同步写入 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，把 S9 下一章草稿、S8 `character_lens_volumes.json`、世界正史卷、角色个人卷、事件多视角和具象代偿编排成可按场景连续阅读的章节稿，并在作者采纳台展示阅读流、卷宗引用和下一章钩子。本轮 A/B/C 深化已补：`agent_decision_advisory.json` 新增 `strategy_board`，角色行动/主观记忆/信息流/世界状态 delta 可见谁在试探谁、筹码、误判和后续世界影响；`continuous_reading_chapter.json` 升级到 v2，默认小说阅读、证据默认收起，并提供视角 tab、认知偏差、伏笔/回收和结尾钩子；`draft_revision_pack.json` 升级到 v2，新增语义 Reviewer、优先级审稿维度、局部改写的原问题/修改意图/建议改写/角色与世界状态影响/采纳方向。本次真实小样本端到端 smoke 覆盖 S5 觉醒传播、世界演化、S8 多视角正文、S9 作者采纳到真实 LLM 草稿和确认入卷；暴露的首个产品体验问题是模因传播证据虽完整写入 artifact，但对外缺少统一可读读数，已补 `meme_propagation_readout` 到角色行动、主观记忆和世界状态传播汇总，UI 优先展示真相载荷、采信状态、可信度、反应和可读摘要。本轮继续针对真实 smoke 暴露的结构占位感补强：`autopilot_report.json` 的醒来报告新增 `narrative_timeline`，每个 checkpoint 新增 `scene_beats` 与 `chapter_seed`；`character_lens_volumes.json` 新增 `novel_scene_plan` 与小说优先阅读模式；`continuous_reading_chapter.json` 会优先消费 S8 场景计划生成正文节拍；`draft_revision_pack.json` 新增 `editorial_revision_draft`，让 Reviewer 产出不覆盖正文的可采纳编辑预览。真实小样本复测覆盖 S5/S8/S9 与真实 LLM 草稿，新增链路均通过，且修复了自演开场 hook 的角色名重复和双句号拼接痕迹。下一步继续观察真实正文文风和局部改写采纳体验，不回 provider/Graph/检索评测堆叠。）
+> **最后更新**：2026-06-06（文档治理收口）。当前事实：World Sandbox Loop / 世界沙盘改造 S1-S9 已有第一版可运行链路；最近三刀分别完成卷宗阅读页产品化、世界自演结果页可读入口、Reviewer 局部重写到作者采纳台再到下一章草稿。后续默认继续深化真实 LLM 多 Agent 策略、长正文/连续阅读质量、语义 Reviewer 与自动编辑后定稿，不回 provider、GraphRAG、检索评测、OpenAPI、发行或商业化主线。
+> **文档治理口径**：本文件只写当前事实和真实未做项；完整历史见 `docs/project-changelog.md`，文档分类见 `docs/index.md`，已收口专项见 `docs/completed/README.md`。旧文档若和本文冲突，以本文为准。
 
 2026-06-06 卷宗阅读页产品化已完成第一版：新增 `dossier_reading` service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`，只读聚合同一世界线的 `continuous_reading_chapter`、`confirmed_chapter.md`、`confirmed_chapter_reading_trail`、S8 `character_lens_volumes` 和 `worldline_dossier`；前端新增 `DossierReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/reading`，默认进入连续阅读正文态，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认正文，认知偏差可见，证据链默认折叠。该刀不新增持久 artifact，不破坏既有 API/artifact，不改 `run_scene` 默认行为；后续仍需正文内锚点跳转、独立角色/势力页、误会图谱和真实长文文风控制。
 
@@ -25,9 +26,18 @@
 | 当前主导航决策 | 一级按“世界书架”组织；进入某世界后使用“天命书、世界沙盘、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、世界线、检查点、作者采纳台”。“沙盘/阅读/干预/作者”是场景能力，不做一级工作区 |
 | 支撑层边界 | GraphRAG/Zep、provider spike、真实向量检索、OpenAPI、发行、计费、对象存储、认证都已降为支撑层；除非用户明确要求，不继续扩展这些方向 |
 
+### 1.0 闭环等级（避免下一轮被旧文档带偏）
+
+| 等级 | 当前结论 | 还能继续深入的地方 |
+| --- | --- | --- |
+| 已闭环支撑层 | v0.7-v1.0-local、后续增强四十五刀、真实 retrieval provider 和 opt-in Vector Retrieval Pipeline 都有 service/API/UI/CLI 或文档证据、测试和变更记录；它们现在是支撑层，不是默认主线 | 只有用户明确要求时，再评估默认 hybrid vector、GraphRAG/Zep、发行安装包、云端队列、对象存储、认证或计费 |
+| 世界沙盘 S1-S9 第一版闭环 | 《天命书》、沙盘轮次、主观记忆、干预投放、L5 觉醒/模因传播、因果债具象化、自演检查点、多视角正文、作者采纳、连续阅读和确认入卷已形成 additive 链路 | 多轮策略规划、长期关系/势力博弈、真实模型误判/欺骗的稳定性、代偿长期发酵仍需继续打磨 |
+| 产品化阅读入口第一版 | `dossier-reading`、卷宗阅读页、世界自演 `readable_entry` 和世界线/检查点/角色/事件跳转已让用户能从结果页进入小说化阅读 | 正文内证据锚点、角色/势力独立页、误会图谱、长篇阅读节奏和跨章节回收仍需深入 |
+| 作者采纳闭环第一版 | Reviewer 片段级建议可在作者采纳台勾选，写入 `accepted_local_rewrites.json`、`next_chapter_draft_revised.md`，并反哺确认入卷和下一轮入口 | 还不是自动完成“编辑后定稿”的闭环；真实语义 Reviewer、自动整章编辑和文风一致性仍需深化 |
+
 判断“下一刀”时，先以本节和 `docs/unfinale-world-sandbox-remodel-prd.md` 为准；不要从旧变更日志或 Graph/provider 历史面板里直接捞待办。
 
-注意：v1-v8 的“已收口”是第一版本地闭环口径，主要是 deterministic service/API/UI/artifact/tests。它证明链路能跑，但不等于完整愿景已经完成；真实高智商多 Agent 决策、长期心理记忆、L5 觉醒反抗、代偿持续驱动、无人值守自演任务、多视角正文和作者采纳反哺章节 brief 仍是后续深化方向。
+注意：World Sandbox Loop 的“已收口”是第一版产品链路闭环口径，证明 service/API/UI/artifact/tests 与小样本真实 LLM smoke 能把世界沙盘、觉醒传播、自演、连续阅读、作者采纳和局部重写串起来；但这不等于完整愿景已经完成。真实高智商多 Agent 决策、长期心理记忆、L5 觉醒反抗、代偿持续驱动、无人值守自演体验、多视角长正文和自动编辑后定稿仍是后续深化方向。
 
 后续迭代纪律：工程实现可以继续小步安全推进，但产品完成标准不能再停在“最小切片闭环”。一次 S1-S9 切片只有在用户能真实感到对应能力成立时才算通过，例如角色决策真的被记忆改变、干预真的进入下一轮沙盘、代偿压力真的持续影响世界状态、采纳真的反哺下一章 brief。`有 API / 有测试 / 有页面 / 有 artifact` 只能算底线，不等于产品能力完成。当前正在进行的 S1-S9 先不打断；等该轮完成后，下一轮复盘和第三轮迭代必须按这个口径验收。真实模型/API 可在用户明确允许时作为 opt-in smoke 或 LLM runner 联调使用，但默认 pytest 仍应保留 deterministic/mockable 基线，避免外网与额度依赖污染常规验证。
 
@@ -83,19 +93,18 @@
 新会话或新任务如果涉及 LNE、`engine/`、版本路线、产品 UI、API、测试或文档，先读：
 
 1. `memory.md`：当前事实、边界、测试基线、已知缺口。
-2. `docs/unfinale-world-sandbox-remodel-prd.md`：当前改造 PRD，说明如何把现有代码拉回世界沙盘主线。
-3. `docs/unfinale-product-vision-correction-draft.md`：产品愿景纠偏草稿，记录当前讨论定稿。
+2. `docs/index.md`：文档地图，先判断某文档是当前主线、历史归档、支撑层 backlog 还是后置发行路径。
+3. `docs/unfinale-world-sandbox-remodel-prd.md`：当前改造 PRD，说明如何把现有代码拉回世界沙盘主线。
 4. `docs/unfinale-ai-development-alignment-checklist.md`：后续 AI 开工前自检，避免继续沿旧工程化方向跑偏。
 5. `docs/living-novel-engine-iteration-plan.md`：版本路线与官方下一步。
-6. `docs/productization-phase-map.md`：技术 MVP、产品化 MVP、长篇产品化、商业化加固的阶段边界。
-7. `docs/living-novel-engine-prd.md`：产品定位和用户流程。
-8. `docs/completed/v0.7-product-web-app-ui-spec.md`：Web UI 风格和交互边界。
-9. `engine/README.md`：CLI/API/输出结构/验收命令。
-10. `docs/codex-handoff.md`：存在接力任务时再读。
+6. `engine/README.md`：CLI/API/输出结构/验收命令。
+7. 需要愿景/产品定位时读 `docs/unfinale-product-vision-correction-draft.md` 与 `docs/living-novel-engine-prd.md`。
+8. 需要 UI 风格时读 `docs/completed/v0.7-product-web-app-ui-spec.md`。
+9. 存在接力任务时再读 `docs/codex-handoff.md`。
 
-事实优先级：`memory.md` > 主迭代计划 > `engine/README.md` > 主 PRD > 聊天摘要。
+事实优先级：`memory.md` > `docs/index.md` > 世界沙盘 PRD > AI 对齐清单 > 主迭代计划 > `engine/README.md` > 主 PRD > 聊天摘要。
 
-文档导航见 `docs/index.md`；完整历史变更日志见 `docs/project-changelog.md`。
+完整历史变更日志见 `docs/project-changelog.md`；它是追溯材料，不是当前待办来源。
 
 ---
 
@@ -236,6 +245,10 @@
 
 | 缺口 | 当前状态 | 下一步触发 |
 | --- | --- | --- |
+| 真实 LLM 多 Agent 策略仍需深化 | 已有显式 opt-in `llm_decision_mode=advisory`、`agent_decision_advisory.json`、`strategy_board` 和小样本真实 smoke；能看到采信、欺骗、传播、反抗和临场判断 | 需要多轮策略规划、长期关系/势力博弈、稳定误判/隐瞒/试探和更强世界影响时继续 |
+| 长正文/连续阅读仍需打磨 | 已有 `continuous_reading_chapter` v2、`dossier-reading` API、卷宗阅读页、确认稿阅读链和世界自演可读入口；默认已像小说阅读而非 JSON 面板 | 需要正文内证据锚点、误会图谱、长篇节奏、跨章伏笔回收和真实文风一致性时继续 |
+| Reviewer 自动编辑后定稿仍未完成 | 已有语义 Reviewer、片段级问题、修改意图、建议改写、影响范围、作者勾选采纳和修订稿反哺确认入卷 | 需要从“作者挑选局部建议”升级为“系统自动生成编辑后定稿并可回滚/对照”时继续 |
+| 世界线阅读入口仍可深化 | `readable_entry`、世界线页、检查点回放、角色个人卷和事件多视角跳转已能串起醒来阅读 | 需要独立角色/势力卷页面、正文内锚点跳转、跨卷证据联动和用户阅读进度时继续 |
 | ChapterBrief 质量仍偏薄 | 导入时可用，但 summary/facts 仍偏规则化，未接真实 LLM 摘要 | 长篇质量明显受限时再做 |
 | `contract_audit` 主链路仍偏静态 | 已有多种审计与商业化边界，但运行时 contract 仍未作为主链路强约束 | 出现合约越界误判/漏判时再补 |
 | overlay 未自动喂回 runner | 状态执行 overlay 可 apply/rollback，但下一轮 runner 暂不自动消费 overlay | 用户确认需要连续状态演化时再做 |

@@ -2,13 +2,15 @@
 
 > 一个会自己生长、能被读者干预、角色可能反抗命运的 AI 小说世界。
 
-未终章是一个探索型开源项目构想。它试图把小说从“被作者写完的静态文本”，变成一个持续运行、可以观察、可以干预、可以分叉、甚至会反向凝视读者的故事宇宙。
+未终章是一个探索型本地产品原型。它试图把小说从“被作者写完的静态文本”，变成一个持续运行、可以观察、可以干预、可以分叉、甚至会反向凝视读者的故事宇宙。
 
 这个项目受到多智能体仿真、长篇网文状态管理、互动叙事、世界线理论，以及《第一玩家》中第九世界、第十世界、第十一世界罗瓦莎相关叙事机制的启发。它不会复刻任何原作设定，而是抽象其中的机制：高维观测、世界线、命运干预、主人公身份、人设约束、剧情修正、角色反抗。
 
-## 当前开发口径
+## 当前状态与文档入口
 
-2026-06-03 产品纠偏后，当前默认开发主线已经收束为 **World Sandbox Loop / 世界沙盘改造**：
+当前项目已经不只是概念文档：`engine/` 下已有 Python service/API/CLI 与 React/Vite 本地产品工作台，World Sandbox Loop / 世界沙盘改造 S1-S9 已形成第一版可运行链路。最新事实、验证基线和未完成深水区以 [`memory.md`](./memory.md) 为准。
+
+2026-06-03 产品纠偏后，默认开发主线收束为 **World Sandbox Loop / 世界沙盘改造**：
 
 ```text
 导入 / 创世
@@ -20,14 +22,17 @@
   -> 作者采纳台
 ```
 
-后续 AI / Codex 开发请优先阅读：
+当前最重要的文档分层：
 
-- [`memory.md`](./memory.md)
-- [`AGENTS.md`](./AGENTS.md)
-- [`docs/unfinale-world-sandbox-remodel-prd.md`](./docs/unfinale-world-sandbox-remodel-prd.md)
-- [`docs/unfinale-ai-development-alignment-checklist.md`](./docs/unfinale-ai-development-alignment-checklist.md)
+| 文档 | 用途 |
+| --- | --- |
+| [`AGENTS.md`](./AGENTS.md) | Agent 执行规则、硬约束和会话必读清单 |
+| [`memory.md`](./memory.md) | 当前事实、闭环等级、验证基线、未完成项 |
+| [`docs/index.md`](./docs/index.md) | `docs/` 分类地图，说明哪些是当前主线、历史归档、支撑层或后置路径 |
+| [`docs/unfinale-world-sandbox-remodel-prd.md`](./docs/unfinale-world-sandbox-remodel-prd.md) | 当前世界沙盘主线 PRD |
+| [`docs/unfinale-ai-development-alignment-checklist.md`](./docs/unfinale-ai-development-alignment-checklist.md) | 后续 AI 开工前自检 |
 
-Graph/provider/真实向量检索/OpenAPI/发行/商业化边界已降为支撑层，除非用户明确要求，不再作为下一刀默认方向。
+Graph/provider/真实向量检索/OpenAPI/发行/商业化边界已降为支撑层；除非用户明确要求，不再作为下一刀默认方向。`docs/completed/` 和 `docs/project-changelog.md` 保留历史证据，不承担当前待办来源。
 
 ## 一句话定位
 

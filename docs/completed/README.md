@@ -1,11 +1,13 @@
 # Completed Docs Index
 
-> 2026-06-01 整理口径：本目录只放已收口或历史归档文档。若某篇旧文档里出现“下一步”“未做”“后续建议”，应按该文档新增的“后续状态”理解：已经完成的能力会明确写成已收口；仍未做的能力会明确写成当前后置或触发式评估。
+> 2026-06-06 文档治理口径：本目录只放已收口或历史归档文档。若某篇旧文档里出现“下一步”“未做”“后续建议”，先按 `../../memory.md` 和 `../index.md` 复核；已经完成的能力会在当前事实中写成已收口，仍未做的能力会明确写成当前后置或触发式评估。不要从本目录直接派生下一刀。
 
 ## 当前事实入口
 
 - 当前状态、真实暂停点和最新缺口：`../../memory.md`
+- docs 分层与读取顺序：`../index.md`
 - 当前路线图：`../living-novel-engine-iteration-plan.md`
+- 当前世界沙盘主线：`../unfinale-world-sandbox-remodel-prd.md`
 - 产品 UI 增量索引：`v0.7-product-web-app-ui-spec.md` + `v0.9-to-v1.0-product-ui-addenda.md`
 
 ## 文档分组
@@ -21,6 +23,8 @@
 | 本地体验 | `v1.0-local-model-configuration-ux.md`、`v1.0-local-run-scripts.md` | 真实模型配置 UX 与本地一键运行脚本 |
 | 后续增强 | `runtime-preflight-mvp.md` 至 `graph-memory-provider-spike-manual-mock-adapter-review-mvp.md` | 创作前运行时体检到 Graph Memory Provider Spike Manual Mock Adapter Review 的后续增强 service/API/UI/CLI 收口说明 |
 | 入口瘦身备份 | `codex-handoff-legacy-2026-06-01.md`、`living-novel-engine-iteration-plan-legacy-2026-06-01.md` | 从入口文档迁出的长版历史备份 |
+
+当前世界沙盘 S1-S9、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳等主线产物仍在根层 PRD、`memory.md`、`engine/README.md` 和 changelog 里维护；这些不是 `completed/` 的默认读取入口。
 
 ## 仍然后置的主边界
 

@@ -1,5 +1,7 @@
 # 未终章 PRD
 
+> 2026-06-06 文档治理口径：本 PRD 保留产品定位、用户场景和长期愿景；当前实现事实以 `../memory.md` 为准，文档分层以 `index.md` 为准，世界沙盘执行路线以 `unfinale-world-sandbox-remodel-prd.md` 为准。不要从旧版本段落直接派生下一刀。
+
 ## 1. 文档信息
 
 | 字段 | 内容 |
@@ -7,8 +9,8 @@
 | 产品名称 | 未终章 |
 | 英文名称 | Unfinale |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.7 短中篇产品化 MVP、v0.8 长篇底座与产品化工作台、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本、后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀、Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP 均已收口；最新事实以 `../memory.md` 为准 |
-| 阶段 | 本地优先 alpha/beta 试用准备 + 后续增强自主迭代 |
+| 当前版本 | v0.7-v1.0-local、后续增强四十五刀、Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP 均已收口为支撑层；World Sandbox Loop S1-S9、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳已形成第一版产品链路；最新事实以 `../memory.md` 为准 |
+| 阶段 | 本地优先 alpha/beta 试用准备 + 世界沙盘主线体验深化 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |
 

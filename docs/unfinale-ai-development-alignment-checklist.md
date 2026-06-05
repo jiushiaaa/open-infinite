@@ -16,13 +16,13 @@
 
 1. `../memory.md`
 2. `../AGENTS.md`
-3. `unfinale-world-sandbox-remodel-prd.md`
-4. `unfinale-product-vision-correction-draft.md`
+3. `index.md`
+4. `unfinale-world-sandbox-remodel-prd.md`
 5. `living-novel-engine-iteration-plan.md`
-6. `living-novel-engine-prd.md`
-7. `../engine/README.md`
+6. `../engine/README.md`
+7. 需要愿景判断时再读 `unfinale-product-vision-correction-draft.md` 与 `living-novel-engine-prd.md`
 
-若这些文档与聊天摘要冲突，以 `memory.md` 和 `unfinale-world-sandbox-remodel-prd.md` 为准。
+若这些文档与聊天摘要冲突，以 `memory.md`、`index.md` 和 `unfinale-world-sandbox-remodel-prd.md` 为准。
 
 ## 2. 当前唯一默认主线
 

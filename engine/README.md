@@ -18,7 +18,7 @@
 
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
-当前事实、版本状态和暂停点以根目录 [`../memory.md`](../memory.md) 为准；历史版本细节在 [`../docs/completed/`](../docs/completed/README.md)。
+当前事实、版本状态和暂停点以根目录 [`../memory.md`](../memory.md) 为准；文档分层和读取顺序见 [`../docs/index.md`](../docs/index.md)；历史版本细节在 [`../docs/completed/`](../docs/completed/README.md)。本 README 负责 API、artifact、运行和验证细节，不承担当前下一刀来源。
 
 ## 当前状态
 

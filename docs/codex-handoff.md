@@ -1,6 +1,7 @@
 # Codex Handoff — 未终章
 
-> 用途：新开 Codex 窗口时的最小接力包。当前事实以 `../memory.md` 为准；完整历史变更见 `project-changelog.md`；旧版长接力稿已归档到 `completed/codex-handoff-legacy-2026-06-01.md`。
+> 用途：新开 Codex 窗口时的最小接力包。当前事实以 `../memory.md` 为准；文档分层以 `index.md` 为准；完整历史变更见 `project-changelog.md`；旧版长接力稿已归档到 `completed/codex-handoff-legacy-2026-06-01.md`。
+> 2026-06-06 文档治理口径：本文件提供接力摘要，不替代 `memory.md`。若下方历史阶段表与最新世界沙盘状态冲突，以 `memory.md` 与 `unfinale-world-sandbox-remodel-prd.md` 为准。
 
 ## 新窗口第一条消息建议
 
@@ -43,7 +44,7 @@ Reviewer 局部重写采纳链：新增 `POST /api/stories/<slug>/author-adoptio
 文本输入 -> 世界锚定 -> 角色自主行动 -> 读者干预 -> 世界线分叉 -> 章节渲染 -> 可继续运行
 ```
 
-截至 2026-06-01：
+历史底座截至 2026-06-01 的收口表如下；当前世界沙盘 S1-S9 与 2026-06-06 产品化闭环见上方摘要和 `memory.md`：
 
 | 阶段 | 状态 |
 | --- | --- |
