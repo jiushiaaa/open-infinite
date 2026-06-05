@@ -34,6 +34,7 @@ def run_sandbox_round(
     major_event: str,
     intervention_content: str = "",
     intervention_target: str = "",
+    intervention_projection_mode: str = "immersive",
     intervention_constraint: dict[str, Any] | None = None,
     projects_dir: Path | None = None,
     outputs_dir: Path | None = None,
@@ -64,6 +65,7 @@ def run_sandbox_round(
         worldline_id=wid,
         content=intervention_content,
         target=intervention_target,
+        projection_mode=intervention_projection_mode,
         raw_constraint=intervention_constraint,
         projects_dir=projects_dir,
     )
@@ -310,6 +312,7 @@ def _character_action(
     intervention_axis = _intervention_branch_axis(intervention_constraint)
     intervention_debt = _intervention_causal_debt_text(intervention_constraint)
     intervention_target = _text(intervention_constraint.get("target"))
+    intervention_projection_mode = _text(intervention_constraint.get("projection_mode"))
     decision = _deterministic_decision(
         name=name,
         location=location,
@@ -341,6 +344,7 @@ def _character_action(
         "intervention_branch_axis": intervention_axis,
         "intervention_causal_debt": intervention_debt,
         "intervention_target": intervention_target,
+        "intervention_projection_mode": intervention_projection_mode,
     }
     return {
         "character_id": character_id,
@@ -614,6 +618,7 @@ def _build_intervention_constraint(
     worldline_id: str,
     content: str,
     target: str,
+    projection_mode: str,
     raw_constraint: dict[str, Any] | None,
     projects_dir: Path | None,
 ) -> dict[str, Any]:
@@ -631,6 +636,7 @@ def _build_intervention_constraint(
             content=text,
             target=target,
             worldline_id=worldline_id,
+            projection_mode=projection_mode,
             projects_dir=projects_dir,
         )
     except TianmingInterventionCompilerRequestError as exc:
@@ -640,6 +646,7 @@ def _build_intervention_constraint(
         "source": "tianming_intervention_compile",
         "content": compiled.get("content") or text,
         "target": compiled.get("target") or "",
+        "projection_mode": compiled.get("projection_mode") or projection_mode,
         "intervention_type": compiled.get("intervention_type") or "",
         "intervention_level": compiled.get("intervention_level") or "",
         "compatibility": compiled.get("compatibility") or {},
@@ -915,10 +922,17 @@ def _world_state_delta(
     )
     intervention_text = _text(first_inputs.get("intervention_constraint"))
     intervention_axis = _text(first_inputs.get("intervention_branch_axis"))
+    intervention_projection_mode = _text(first_inputs.get("intervention_projection_mode"))
+    projection_effect = (
+        "暴走 AU 已开启：异物入侵保留为异设世界线压力，并要求世界线《天命书》快照确认"
+        if intervention_projection_mode == "wild_au"
+        else "沉浸模式吸收：干预会被本土化转译为世界内变量"
+    )
     intervention_effects = (
         [
             f"干预已作为“{intervention_axis or '分支变量'}”进入本轮角色判断",
-            "普通干预只改变当前世界线压力，不改写根天命书",
+            projection_effect,
+            "本轮干预不覆盖根天命书",
         ]
         if intervention_text
         else []

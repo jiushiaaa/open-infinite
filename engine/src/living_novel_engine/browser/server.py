@@ -1767,6 +1767,9 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 worldline_id=str(body.get("worldline_id") or "main"),
                 intervention_content=str(body.get("intervention_content") or ""),
                 intervention_target=str(body.get("intervention_target") or ""),
+                intervention_projection_mode=str(
+                    body.get("intervention_projection_mode") or "immersive"
+                ),
                 intervention_constraint=(
                     body.get("intervention_constraint")
                     if isinstance(body.get("intervention_constraint"), dict)
@@ -1873,6 +1876,7 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 content=str(body.get("content") or ""),
                 target=str(body.get("target") or ""),
                 worldline_id=str(body.get("worldline_id") or "main"),
+                projection_mode=str(body.get("projection_mode") or "immersive"),
             )
         except (TianmingInterventionCompilerRequestError, TianmingRequestError) as exc:
             return self._send_json({"error": str(exc)}, status=400)

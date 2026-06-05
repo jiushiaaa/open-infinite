@@ -542,7 +542,8 @@ S1-S9 的完成标准必须从“最小闭环成立”升级为“产品能力�
 - 已收口 S4 第一刀 `Intervention Execution Constraint MVP`：`POST /api/stories/<slug>/sandbox/run` 可选接收 `intervention_content` 与 `intervention_target`，即时读取《天命书》并复用干预编译器生成本轮 `intervention_constraint.json`。
 - 编译结果会写入 `sandbox_rounds.jsonl` 的 `intervention_constraint`，并进入角色 `decision_inputs`、外在行动、行动结果、冲突原因、信息流和 `world_state_delta.intervention_effects`；普通干预不会覆盖根 `tianming.json`。
 - 世界沙盘页已新增可选“本轮干预 / 投放对象”输入和“已投放干预约束”结果区，用户能看到法则吸收、分支轴、因果债和投放结果。
-- 仍未完成：沉浸模式 / 暴走 AU 模式的明确确认流、用户确认后的分支持久继续运行、L4/L5 世界线快照审计确认、干预投放后的多轮分支追踪。
+- 已收口 S4 第二刀 `Immersive / Wild AU Projection MVP`：干预预编译支持 `projection_mode`，沙盘投放支持 `intervention_projection_mode`；沉浸模式会把 AK47 等现代热武器标记为异物入侵并本土化重释，暴走 AU 会保留异物入侵、写 `worldlines/<worldline_id>/tianming_snapshot.json`，并进入本轮沙盘约束和世界状态 delta。
+- 仍未完成：用户确认后的分支持久继续运行、L4/L5 世界线快照审计确认、干预投放后的多轮分支追踪。
 
 目标：
 

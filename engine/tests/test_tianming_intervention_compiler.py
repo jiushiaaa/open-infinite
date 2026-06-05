@@ -116,6 +116,50 @@ def test_l5_intervention_writes_worldline_tianming_snapshot_without_root_mutatio
     assert snapshot["contract_pressure"]["score"] >= 12
 
 
+def test_ak47_intervention_can_choose_immersive_translation_or_wild_au(tmp_path):
+    project_dir = _make_project(tmp_path)
+    before = (project_dir / "tianming.json").read_text(encoding="utf-8")
+
+    immersive = compile_intervention_against_tianming(
+        "compiler-story",
+        content="给赵轩投放一把 AK47 和三十发子弹。",
+        target="zhao_xuan",
+        projects_dir=tmp_path,
+        worldline_id="ak47_line",
+        projection_mode="immersive",
+    )
+
+    assert immersive["projection_mode"] == "immersive"
+    assert immersive["intervention_type"] == "resource_injection"
+    assert immersive["compatibility"]["foreign_object_intrusion"] is True
+    assert immersive["translation_strategy"]["mode"] == "local_reinterpretation"
+    assert immersive["worldline_judgement"]["kind"] == "divergent"
+    assert immersive["worldline_tianming_snapshot"] is None
+    assert (project_dir / "tianming.json").read_text(encoding="utf-8") == before
+
+    wild = compile_intervention_against_tianming(
+        "compiler-story",
+        content="给赵轩投放一把 AK47 和三十发子弹。",
+        target="zhao_xuan",
+        projects_dir=tmp_path,
+        worldline_id="ak47_au",
+        projection_mode="wild_au",
+    )
+
+    assert wild["projection_mode"] == "wild_au"
+    assert wild["intervention_type"] == "resource_injection"
+    assert wild["compatibility"]["foreign_object_intrusion"] is True
+    assert wild["translation_strategy"]["mode"] == "wild_au_intrusion"
+    assert wild["worldline_judgement"]["kind"] == "au"
+    assert wild["audit"]["required"] is True
+    assert wild["audit"]["can_mutate_tianming_snapshot"] is True
+    assert wild["worldline_tianming_snapshot"]["artifact"] == (
+        "worldlines/ak47_au/tianming_snapshot.json"
+    )
+    assert (project_dir / "worldlines" / "ak47_au" / "tianming_snapshot.json").exists()
+    assert (project_dir / "tianming.json").read_text(encoding="utf-8") == before
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))
@@ -177,6 +221,24 @@ def test_tianming_intervention_compiler_http_statuses(tmp_path, monkeypatch):
             / "http_au"
             / "tianming_snapshot.json"
         ).exists()
+
+        wild_status, wild_body = _post(
+            port,
+            "/api/stories/compiler-http/tianming/intervention-compile",
+            {
+                "content": "给赵轩投放一把 AK47 和三十发子弹。",
+                "target": "zhao_xuan",
+                "worldline_id": "ak47_http_au",
+                "projection_mode": "wild_au",
+            },
+        )
+        assert wild_status == 200
+        assert wild_body["projection_mode"] == "wild_au"
+        assert wild_body["compatibility"]["foreign_object_intrusion"] is True
+        assert wild_body["worldline_judgement"]["kind"] == "au"
+        assert wild_body["worldline_tianming_snapshot"]["artifact"] == (
+            "worldlines/ak47_http_au/tianming_snapshot.json"
+        )
 
         bad_status, bad = _post(
             port,

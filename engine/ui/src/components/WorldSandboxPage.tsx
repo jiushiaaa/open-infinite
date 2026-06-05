@@ -15,6 +15,8 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [majorEvent, setMajorEvent] = useState(DEFAULT_EVENT);
   const [interventionContent, setInterventionContent] = useState("");
   const [interventionTarget, setInterventionTarget] = useState("");
+  const [interventionProjectionMode, setInterventionProjectionMode] =
+    useState<"immersive" | "wild_au">("immersive");
   const [report, setReport] = useState<WorldSandboxRunReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +68,9 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         worldline_id: "main",
         intervention_content: interventionContent.trim() || undefined,
         intervention_target: interventionTarget.trim() || undefined,
+        intervention_projection_mode: interventionContent.trim()
+          ? interventionProjectionMode
+          : undefined,
       });
       setReport(next);
       const firstCharacter = next.rounds[0]?.character_actions[0]?.character_id;
@@ -177,11 +182,25 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                 placeholder="可选：角色 id，例如 zhao_xuan"
               />
             </label>
+            <label>
+              <span className="muted tiny">投放方式</span>
+              <select
+                value={interventionProjectionMode}
+                onChange={(event) =>
+                  setInterventionProjectionMode(
+                    event.target.value === "wild_au" ? "wild_au" : "immersive",
+                  )
+                }
+              >
+                <option value="immersive">沉浸模式：本土化重释</option>
+                <option value="wild_au">暴走 AU：保留异物入侵</option>
+              </select>
+            </label>
             <button className="btn btn--primary" disabled={!canRun} onClick={runRound}>
               {loading ? "沙盘推演中…" : "运行一轮"}
             </button>
             <p className="muted tiny">
-              留空干预时只运行普通沙盘；填写后会先读取《天命书》，再把编译结果投放为本轮约束。
+              留空干预时只运行普通沙盘；填写后会先读取《天命书》，再按投放方式生成本轮约束。
             </p>
           </div>
 
@@ -324,11 +343,15 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   <div className="sandbox-section__title">
                     <h2>已投放干预约束</h2>
                     <span className="badge badge--gold">
-                      {interventionConstraint.branch_axis?.axis ?? "分支变量"}
+                      {projectionModeLabel(interventionConstraint.projection_mode)}
                     </span>
                   </div>
                   <p>{interventionConstraint.content}</p>
                   <dl>
+                    <div>
+                      <dt>分支轴</dt>
+                      <dd>{interventionConstraint.branch_axis?.axis ?? "分支变量"}</dd>
+                    </div>
                     <div>
                       <dt>法则吸收</dt>
                       <dd>{interventionConstraint.translation_strategy?.strategy}</dd>
@@ -348,6 +371,20 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                       <dt>投放结果</dt>
                       <dd>{interventionConstraint.worldline_judgement?.reason}</dd>
                     </div>
+                    {interventionConstraint.compatibility?.foreign_object_intrusion && (
+                      <div>
+                        <dt>异物入侵</dt>
+                        <dd>已标记，原世界线不会被静默污染。</dd>
+                      </div>
+                    )}
+                    {interventionConstraint.worldline_tianming_snapshot && (
+                      <div>
+                        <dt>天命快照</dt>
+                        <dd className="mono">
+                          {interventionConstraint.worldline_tianming_snapshot.artifact}
+                        </dd>
+                      </div>
+                    )}
                   </dl>
                 </section>
               )}
@@ -597,4 +634,8 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       </div>
     </div>
   );
+}
+
+function projectionModeLabel(mode?: string) {
+  return mode === "wild_au" ? "暴走 AU" : "沉浸模式";
 }

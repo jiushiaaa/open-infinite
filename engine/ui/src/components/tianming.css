@@ -148,6 +148,7 @@
 
 .tianming-compiler input,
 .tianming-compiler textarea,
+.tianming-compiler select,
 .tianming-compensation textarea {
   width: 100%;
   border: 1px solid var(--line);

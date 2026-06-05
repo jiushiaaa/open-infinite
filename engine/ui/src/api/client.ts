@@ -543,7 +543,12 @@ export const api = {
   },
   compileTianmingIntervention(
     storySlug: string,
-    req: { content: string; target?: string; worldline_id?: string },
+    req: {
+      content: string;
+      target?: string;
+      worldline_id?: string;
+      projection_mode?: "immersive" | "wild_au" | string;
+    },
   ): Promise<TianmingInterventionCompileReport> {
     return postJson(
       `/api/stories/${encodeURIComponent(storySlug)}/tianming/intervention-compile`,

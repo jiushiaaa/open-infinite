@@ -302,6 +302,42 @@ def test_sandbox_round_consumes_tianming_intervention_as_executable_constraint(t
     assert saved_round["intervention_constraint"]["status"] == "active"
 
 
+def test_sandbox_round_can_project_intervention_as_wild_au_constraint(tmp_path):
+    project_dir = _make_project(tmp_path)
+    generate_tianming_book("sandbox-story", projects_dir=tmp_path)
+    confirm_tianming_book("sandbox-story", confirm=True, projects_dir=tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩在归云斋外发现异样雷火声。",
+        intervention_content="给赵轩投放一把 AK47 和三十发子弹。",
+        intervention_target="zhao_xuan",
+        intervention_projection_mode="wild_au",
+        worldline_id="ak47_au",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+
+    constraint = report["intervention_constraint"]
+    round_record = report["rounds"][0]
+
+    assert constraint["status"] == "active"
+    assert constraint["projection_mode"] == "wild_au"
+    assert constraint["compatibility"]["foreign_object_intrusion"] is True
+    assert constraint["translation_strategy"]["mode"] == "wild_au_intrusion"
+    assert constraint["worldline_judgement"]["kind"] == "au"
+    assert constraint["worldline_tianming_snapshot"]["artifact"] == (
+        "worldlines/ak47_au/tianming_snapshot.json"
+    )
+    assert (project_dir / "worldlines" / "ak47_au" / "tianming_snapshot.json").exists()
+    assert round_record["intervention_constraint"] == constraint
+    assert any(
+        "暴走 AU" in item
+        for item in round_record["world_state_delta"]["intervention_effects"]
+    )
+
+
 def test_run_sandbox_round_validates_inputs(tmp_path):
     _make_project(tmp_path)
 

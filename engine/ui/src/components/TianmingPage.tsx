@@ -19,6 +19,9 @@ export function TianmingPage({ slug }: { slug: string }) {
   );
   const [target, setTarget] = useState("");
   const [worldlineId, setWorldlineId] = useState("reader_au");
+  const [projectionMode, setProjectionMode] = useState<"immersive" | "wild_au">(
+    "immersive",
+  );
   const [compileBusy, setCompileBusy] = useState(false);
   const [compileError, setCompileError] = useState<string | null>(null);
   const [compileReport, setCompileReport] =
@@ -90,6 +93,7 @@ export function TianmingPage({ slug }: { slug: string }) {
           content: interventionText.trim(),
           target: target.trim() || undefined,
           worldline_id: worldlineId.trim() || "main",
+          projection_mode: projectionMode,
         }),
       );
     } catch (err) {
@@ -304,6 +308,20 @@ export function TianmingPage({ slug }: { slug: string }) {
               />
             </label>
             <label>
+              <span className="muted tiny">投放方式</span>
+              <select
+                value={projectionMode}
+                onChange={(event) =>
+                  setProjectionMode(
+                    event.target.value === "wild_au" ? "wild_au" : "immersive",
+                  )
+                }
+              >
+                <option value="immersive">沉浸模式：本土化重释</option>
+                <option value="wild_au">暴走 AU：保留异物入侵</option>
+              </select>
+            </label>
+            <label>
               <span className="muted tiny">自由干预</span>
               <textarea
                 value={interventionText}
@@ -325,6 +343,10 @@ export function TianmingPage({ slug }: { slug: string }) {
                   <div>
                     <dt>干预类型</dt>
                     <dd>{compileReport.intervention_type}</dd>
+                  </div>
+                  <div>
+                    <dt>投放方式</dt>
+                    <dd>{projectionModeLabel(compileReport.projection_mode)}</dd>
                   </div>
                   <div>
                     <dt>层级</dt>
@@ -349,6 +371,9 @@ export function TianmingPage({ slug }: { slug: string }) {
                   <strong>转译策略</strong>
                   <p>{compileReport.translation_strategy.strategy}</p>
                   <p className="muted tiny">{compileReport.translation_strategy.packaging}</p>
+                  {compileReport.compatibility.foreign_object_intrusion && (
+                    <p className="muted tiny">已标记异物入侵，原世界线不会被静默污染。</p>
+                  )}
                 </article>
                 <article>
                   <strong>{compileReport.branch_axis.axis}</strong>
@@ -482,4 +507,8 @@ function anchorStatusLabel(value: string): string {
   if (value === "latent") return "潜伏待发";
   if (value === "missing") return "缺失";
   return value;
+}
+
+function projectionModeLabel(value?: string): string {
+  return value === "wild_au" ? "暴走 AU" : "沉浸模式";
 }

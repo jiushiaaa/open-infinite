@@ -1817,3 +1817,23 @@
   - S4 第一刀仍是 deterministic/mockable 基线；沉浸模式 / 暴走 AU 模式确认、分支继续运行和 L4/L5 快照审计留给后续切片。
 - **下一刀建议**：继续 S4 的沉浸模式 / 暴走 AU 模式确认与分支继续运行，或进入 `S5 L5 Awareness and Resistance MVP`，让角色能拒绝、假意服从、欺骗读者或传播高维真相。
 
+### 2026-06-05 — S4 Immersive / Wild AU Projection MVP
+
+- **做了什么**：
+  - `compile_intervention_against_tianming()` 新增 `projection_mode=immersive|wild_au`，默认 `immersive` 保持旧调用兼容。
+  - `POST /api/stories/<slug>/tianming/intervention-compile` 支持 `projection_mode`；AK47、枪、子弹、热武器等会被标记为 `foreign_object_intrusion`。
+  - 沉浸模式把 AK47 等异物本土化重释为雷鸣弩、连珠雷火机关或等价神器，生成 Divergent Worldline，不写世界线快照。
+  - 暴走 AU 模式保留异物入侵，生成 AU 判断与 `worldlines/<worldline_id>/tianming_snapshot.json`，并保持根 `tianming.json` 不被覆盖。
+  - `run_sandbox_round()` 和 `POST /api/stories/<slug>/sandbox/run` 新增 `intervention_projection_mode`；投放模式进入 `intervention_constraint.json`、角色 `decision_inputs` 和 `world_state_delta.intervention_effects`。
+  - 天命书页和世界沙盘页新增“沉浸模式 / 暴走 AU”选择，结果区展示投放方式、异物入侵提示和世界线天命书快照。
+  - 同步 `memory.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/unfinale-product-vision-correction-draft.md` 和 `engine/README.md`，把下一刀切到 S4 分支持续运行 / 快照审计确认或 S5 觉醒反抗。
+- **测试/验证**：
+  - RED：新增 `test_ak47_intervention_can_choose_immersive_translation_or_wild_au`、HTTP `projection_mode=wild_au` 断言和 `test_sandbox_round_can_project_intervention_as_wild_au_constraint` 后，先因函数不接受 `projection_mode` / `intervention_projection_mode` 失败。
+  - GREEN：`cd engine && python -m pytest tests\test_tianming_intervention_compiler.py tests\test_world_sandbox.py -q` -> **13 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 暴走 AU 只写世界线《天命书》快照，不覆盖根《天命书》；快照审计确认和分支持久继续运行仍留给后续 S4。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+- **下一刀建议**：继续 S4 的分支持续运行、L4/L5 世界线快照审计确认和多轮分支追踪，或进入 `S5 L5 Awareness and Resistance MVP`。
+

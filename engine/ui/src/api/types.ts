@@ -395,18 +395,23 @@ export interface WorldSandboxInterventionConstraint {
   source: string;
   content: string;
   target?: string;
+  projection_mode?: "immersive" | "wild_au" | string;
   intervention_type?: string;
   intervention_level?: string;
   compatibility?: {
     status?: string;
     reason?: string;
     tianming_pressure_level?: string;
+    foreign_object_intrusion?: boolean;
   };
   translation_strategy?: {
     strategy?: string;
     packaging?: string;
     original_hint?: string;
     level?: string;
+    mode?: string;
+    projection_mode?: string;
+    foreign_object_intrusion?: boolean;
   };
   worldline_judgement?: {
     kind?: string;
@@ -423,6 +428,13 @@ export interface WorldSandboxInterventionConstraint {
     score?: number;
     spread?: string[];
   };
+  worldline_tianming_snapshot?: {
+    artifact: string;
+    status: string;
+    worldline_id: string;
+    root_tianming_mutated: boolean;
+    requires_confirmation: boolean;
+  } | null;
   boundaries?: string[];
 }
 
@@ -542,6 +554,7 @@ export interface WorldSandboxRunRequest {
   worldline_id?: string;
   intervention_content?: string;
   intervention_target?: string;
+  intervention_projection_mode?: "immersive" | "wild_au" | string;
   intervention_constraint?: WorldSandboxInterventionConstraint;
 }
 
@@ -683,6 +696,7 @@ export interface TianmingInterventionCompileReport {
   version: string;
   story_slug: string;
   worldline_id?: string;
+  projection_mode?: "immersive" | "wild_au" | string;
   target: string;
   content: string;
   tianming: {
@@ -698,12 +712,16 @@ export interface TianmingInterventionCompileReport {
     status: string;
     reason: string;
     tianming_pressure_level: string;
+    foreign_object_intrusion?: boolean;
   };
   translation_strategy: {
     strategy: string;
     packaging: string;
     original_hint: string;
     level: string;
+    mode?: string;
+    projection_mode?: string;
+    foreign_object_intrusion?: boolean;
   };
   worldline_judgement: {
     kind: "divergent" | "au" | string;

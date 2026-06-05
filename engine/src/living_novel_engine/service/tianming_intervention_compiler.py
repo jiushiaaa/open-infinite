@@ -13,6 +13,9 @@ from living_novel_engine.service.project_health import resolve_story_path
 from living_novel_engine.service.tianming import get_tianming_book
 
 VERSION = "tianming-intervention-compiler-v1"
+PROJECTION_MODE_IMMERSIVE = "immersive"
+PROJECTION_MODE_WILD_AU = "wild_au"
+PROJECTION_MODES = {PROJECTION_MODE_IMMERSIVE, PROJECTION_MODE_WILD_AU}
 
 
 class TianmingInterventionCompilerRequestError(ValueError):
@@ -26,6 +29,7 @@ def compile_intervention_against_tianming(
     target: str = "",
     projects_dir: Path | None = None,
     worldline_id: str = "main",
+    projection_mode: str = PROJECTION_MODE_IMMERSIVE,
 ) -> dict[str, Any]:
     """Read Tianming and compile one free-form intervention.
 
@@ -40,11 +44,14 @@ def compile_intervention_against_tianming(
         raise TianmingInterventionCompilerRequestError("缺少 content（干预内容）")
     target_id = safe_id(str(target or "").strip()) or ""
     wid = _checked_id(worldline_id or "main", "worldline_id")
+    mode = str(projection_mode or PROJECTION_MODE_IMMERSIVE).strip() or PROJECTION_MODE_IMMERSIVE
+    if mode not in PROJECTION_MODES:
+        raise TianmingInterventionCompilerRequestError("projection_mode 只能是 immersive 或 wild_au")
     book = get_tianming_book(sid, projects_dir=projects_dir)
     intervention_type = _classify_intervention(text)
     level = _level_for(intervention_type, text)
-    compatibility = _compatibility(book, intervention_type, level, text)
-    judgement = _worldline_judgement(intervention_type, level, compatibility)
+    compatibility = _compatibility(book, intervention_type, level, text, mode)
+    judgement = _worldline_judgement(intervention_type, level, compatibility, mode)
     branch_axis = _branch_axis(intervention_type, target_id, text, judgement)
     causal_debt = _causal_debt(intervention_type, level, compatibility, book)
     snapshot = _write_worldline_snapshot(
@@ -58,11 +65,14 @@ def compile_intervention_against_tianming(
         causal_debt=causal_debt,
         book=book,
         projects_dir=projects_dir,
+        projection_mode=mode,
     )
+    requires_snapshot_audit = level in {"L4", "L5"} or judgement.get("kind") == "au"
     return {
         "version": VERSION,
         "story_slug": sid,
         "worldline_id": wid,
+        "projection_mode": mode,
         "target": target_id,
         "content": text,
         "tianming": {
@@ -82,18 +92,19 @@ def compile_intervention_against_tianming(
             level,
             text,
             book,
+            mode,
         ),
         "worldline_judgement": judgement,
         "branch_axis": branch_axis,
         "causal_debt": causal_debt,
         "worldline_tianming_snapshot": snapshot,
         "audit": {
-            "required": level in {"L4", "L5"},
-            "can_mutate_tianming_snapshot": level in {"L4", "L5"},
+            "required": requires_snapshot_audit,
+            "can_mutate_tianming_snapshot": requires_snapshot_audit,
             "ordinary_intervention_can_mutate_tianming": False,
             "message": (
-                "L4/L5 只能在审计后写世界线快照；本预编译不会改写 tianming.json。"
-                if level in {"L4", "L5"}
+                "L4/L5 或暴走 AU 只能在审计后写世界线快照；本预编译不会改写 tianming.json。"
+                if requires_snapshot_audit
                 else "普通干预只能生成分支轴和因果债，不永久改写 tianming.json。"
             ),
         },
@@ -122,6 +133,7 @@ def _write_worldline_snapshot(
     causal_debt: dict[str, Any],
     book: dict[str, Any],
     projects_dir: Path | None,
+    projection_mode: str,
 ) -> dict[str, Any] | None:
     if level not in {"L4", "L5"} and judgement.get("kind") != "au":
         return None
@@ -148,6 +160,7 @@ def _write_worldline_snapshot(
                 "compatibility": compatibility.get("status") or "",
                 "content_preview": content[:120],
                 "target": target_id or "world",
+                "projection_mode": projection_mode,
             },
             "boundaries": [
                 "这是世界线《天命书》快照，不覆盖根 tianming.json。",
@@ -208,7 +221,23 @@ def _classify_intervention(text: str) -> str:
         return "rule_rewrite"
     if any(token in lowered for token in ("未来", "大纲", "告诉", "密信", "预言", "传闻")):
         return "information"
-    if any(token in lowered for token in ("给", "塞", "注入", "铜铃", "钥匙", "武器", "资源")):
+    if any(
+        token in lowered
+        for token in (
+            "给",
+            "塞",
+            "注入",
+            "铜铃",
+            "钥匙",
+            "武器",
+            "资源",
+            "ak47",
+            "枪",
+            "子弹",
+            "步枪",
+            "热武器",
+        )
+    ):
         return "resource_injection"
     if any(token in lowered for token in ("命令", "强迫", "必须去", "不能", "立刻行动")):
         return "forced_action"
@@ -219,7 +248,15 @@ def _level_for(intervention_type: str, text: str) -> str:
     if intervention_type == "rule_rewrite":
         return "L5" if any(token in text for token in ("永久", "系统", "规则")) else "L4"
     if intervention_type == "resource_injection":
-        return "L3" if any(token in text for token in ("偷听", "武器", "未来")) else "L2"
+        lowered = text.lower()
+        return (
+            "L3"
+            if any(
+                token in lowered
+                for token in ("偷听", "武器", "未来", "ak47", "枪", "子弹", "步枪", "热武器")
+            )
+            else "L2"
+        )
     if intervention_type == "forced_action":
         return "L3"
     return "L3" if any(token in text for token in ("未来", "大纲", "下一章")) else "L2"
@@ -230,12 +267,20 @@ def _compatibility(
     intervention_type: str,
     level: str,
     text: str,
+    projection_mode: str,
 ) -> dict[str, Any]:
     pressure = book.get("contract_pressure") if isinstance(book.get("contract_pressure"), dict) else {}
     pressure_level = str(pressure.get("level") or "medium")
-    if level in {"L4", "L5"}:
+    foreign_object_intrusion = _is_foreign_object_intrusion(text)
+    if projection_mode == PROJECTION_MODE_WILD_AU:
+        status = "au_requested"
+        reason = "用户选择暴走 AU，异物将保留为改写世界前提的入侵变量。"
+    elif level in {"L4", "L5"}:
         status = "strained"
         reason = "干预试图改写世界法则，必须转入 AU 或审计后的世界线快照。"
+    elif foreign_object_intrusion and intervention_type == "resource_injection":
+        status = "translated"
+        reason = "检测到现代热武器异物入侵；沉浸模式会本土化重释，避免静默污染原世界。"
     elif intervention_type == "resource_injection" and pressure_level == "high":
         status = "strained"
         reason = "天命书显示合约压力较高，物品/资源注入会扩大因果债。"
@@ -248,6 +293,7 @@ def _compatibility(
         "status": status,
         "reason": reason,
         "tianming_pressure_level": pressure_level,
+        "foreign_object_intrusion": foreign_object_intrusion,
     }
 
 
@@ -256,24 +302,39 @@ def _translation_strategy(
     level: str,
     text: str,
     book: dict[str, Any],
-) -> dict[str, str]:
+    projection_mode: str,
+) -> dict[str, Any]:
     anchor = {}
     if isinstance(book.get("anchor_status"), dict):
         anchor = book.get("anchor_status") or {}
     anchor_name = str(anchor.get("current_anchor_name") or "主锚点")
-    if intervention_type == "rule_rewrite":
+    foreign_object_intrusion = _is_foreign_object_intrusion(text)
+    if projection_mode == PROJECTION_MODE_WILD_AU:
+        strategy = "保留异物入侵，另开暴走 AU 世界线；原世界线不被静默污染。"
+        mode = "wild_au_intrusion"
+    elif foreign_object_intrusion and intervention_type == "resource_injection":
+        strategy = "本土化重释为雷鸣弩、连珠雷火机关或等价神器，并补上来源与使用代价。"
+        mode = "local_reinterpretation"
+    elif intervention_type == "rule_rewrite":
         strategy = "转译为世界法则震荡或 AU 分支，不直接覆盖原天命书。"
+        mode = "law_reinterpretation"
     elif intervention_type == "resource_injection":
         strategy = "转译为世界内可追溯物品、线索或代价资源。"
+        mode = "in_world_resource"
     elif intervention_type == "forced_action":
         strategy = "转译为诱因、压力或关系胁迫，让角色仍保留选择。"
+        mode = "pressure_trigger"
     else:
         strategy = "转译为传闻、密信、梦兆、误读或预言碎片。"
+        mode = "information_packaging"
     return {
         "strategy": strategy,
         "packaging": f"投放给{anchor_name}相关的信息场，但保留角色误解和反抗空间。",
         "original_hint": text[:80],
         "level": level,
+        "mode": mode,
+        "projection_mode": projection_mode,
+        "foreign_object_intrusion": foreign_object_intrusion,
     }
 
 
@@ -281,7 +342,13 @@ def _worldline_judgement(
     intervention_type: str,
     level: str,
     compatibility: dict[str, Any],
+    projection_mode: str,
 ) -> dict[str, str]:
+    if projection_mode == PROJECTION_MODE_WILD_AU:
+        return {
+            "kind": "au",
+            "reason": "用户选择暴走 AU：干预将作为异设世界线投放，并生成世界线《天命书》快照。",
+        }
     if level in {"L4", "L5"} or intervention_type == "rule_rewrite":
         return {
             "kind": "au",
@@ -296,6 +363,14 @@ def _worldline_judgement(
         "kind": "divergent",
         "reason": "干预被吸收为本世界的一条分叉变量。",
     }
+
+
+def _is_foreign_object_intrusion(text: str) -> bool:
+    lowered = str(text or "").lower()
+    return any(
+        token in lowered
+        for token in ("ak47", "ak-47", "枪", "子弹", "步枪", "热武器", "现代武器")
+    )
 
 
 def _branch_axis(

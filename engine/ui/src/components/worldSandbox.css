@@ -76,11 +76,10 @@
 }
 
 .sandbox-panel input,
-.sandbox-panel textarea {
+.sandbox-panel textarea,
+.sandbox-panel select {
   width: 100%;
-  min-height: 148px;
   margin: var(--space-3) 0;
-  resize: vertical;
   border: 1px solid var(--line-strong);
   border-radius: 6px;
   padding: var(--space-3);
@@ -90,9 +89,20 @@
   line-height: 1.6;
 }
 
+.sandbox-panel textarea {
+  min-height: 148px;
+  resize: vertical;
+}
+
 .sandbox-panel input {
   min-height: 0;
   resize: none;
+  padding: 10px var(--space-3);
+}
+
+.sandbox-panel select {
+  min-height: 0;
+  margin: 0;
   padding: 10px var(--space-3);
 }
 
