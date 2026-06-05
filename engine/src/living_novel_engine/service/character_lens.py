@@ -164,6 +164,20 @@ def _volumes(
     event_nodes = _character_event_nodes(selected_action, selected_memory, sandbox)
     evidence_chain = _evidence_chain(sandbox, round_record, memories)
     consequence_text = _consequence_text(sandbox, round_record)
+    novel_scene_plan = _novel_scene_plan(
+        event=event,
+        sandbox=sandbox,
+        round_record=round_record,
+        actions=actions,
+        selected_action=selected_action,
+        selected_memory=selected_memory,
+        consequence_text=consequence_text,
+    )
+    reading_mode = {
+        "default": "novel",
+        "evidence_default_visible": False,
+        "guidance": "先读正文和场景节拍，再展开证据核对沙盘轮次、主观记忆和世界状态。",
+    }
     world_prose = (
         f"【正史】{event}被写入世界正史时，并不采纳任何人的自我辩解。"
         f"正史只记录结果：{first_action.get('character_name')}先行动，"
@@ -185,6 +199,8 @@ def _volumes(
             "volume_type": "world_chronicle",
             "title": "世界正史卷",
             "prose": world_prose,
+            "reading_mode": reading_mode,
+            "novel_scene_plan": novel_scene_plan,
             "evidence_chain": evidence_chain,
         },
         {
@@ -199,6 +215,8 @@ def _volumes(
                 f"真实意图却是：{first_action.get('true_intent')}。"
                 "锚点若继续承压，世界会优先让他付出代价；若他失败，候选承载者才会被推上来。"
             ),
+            "reading_mode": reading_mode,
+            "novel_scene_plan": novel_scene_plan,
             "evidence_chain": evidence_chain,
         },
         {
@@ -208,6 +226,8 @@ def _volumes(
             "character_name": character_name,
             "prose": character_prose,
             "event_nodes": event_nodes,
+            "reading_mode": reading_mode,
+            "novel_scene_plan": novel_scene_plan,
             "evidence_chain": evidence_chain,
         },
         {
@@ -218,6 +238,8 @@ def _volumes(
                 "一段需要隐藏真实意图的私人记忆。其他角色是否相信他，不由全局摘要决定，"
                 f"而由各自的误会、关系和秘密可见性决定。世界内代价是：{consequence_text}"
             ),
+            "reading_mode": reading_mode,
+            "novel_scene_plan": novel_scene_plan,
             "information_gap": {
                 "canon_vs_character": (
                     "正史知道世界状态已经改变；角色个人卷只知道自己看见和误解的部分。"
@@ -226,6 +248,76 @@ def _volumes(
                 "unknown_canon_facts": _join(selected_memory.get("unknown_canon_facts")),
             },
             "evidence_chain": evidence_chain,
+        },
+    ]
+
+
+def _novel_scene_plan(
+    *,
+    event: str,
+    sandbox: dict[str, Any],
+    round_record: dict[str, Any],
+    actions: list[dict[str, Any]],
+    selected_action: dict[str, Any],
+    selected_memory: dict[str, Any],
+    consequence_text: str,
+) -> list[dict[str, Any]]:
+    first = actions[0] if actions else selected_action
+    counterpart = next(
+        (action for action in actions if action.get("character_id") != selected_action.get("character_id")),
+        first,
+    )
+    character_name = str(selected_action.get("character_name") or "角色")
+    counterpart_name = str(counterpart.get("character_name") or "旁观者")
+    event_ref = f"outputs/{sandbox.get('run_id')}/sandbox_rounds.jsonl"
+    memory_ref = f"projects/{sandbox.get('story_slug')}/worldlines/{sandbox.get('worldline_id')}/characters/{selected_action.get('character_id')}/subjective_memory.jsonl"
+    visible = _trim(selected_action.get("visible_action") or selected_action.get("action") or "没有公开行动")
+    intent = _trim(selected_action.get("true_intent") or selected_memory.get("new_belief") or "仍在隐藏真正判断")
+    misbeliefs = _trim(_join(selected_memory.get("misbeliefs")), 90)
+    delta = round_record.get("world_state_delta") if isinstance(round_record.get("world_state_delta"), dict) else {}
+    next_possibility = _first_possibility(round_record)
+    return [
+        {
+            "beat_type": "opening_hook",
+            "title": "开场钩子",
+            "body": f"{_trim(event, 60)}。雨声、铃声和迟疑同时落下，{character_name}必须先做一个会被误读的选择。",
+            "viewpoint": "世界正史",
+            "evidence_refs": [event_ref],
+        },
+        {
+            "beat_type": "viewpoint_misread",
+            "title": "视角误判",
+            "body": (
+                f"{character_name}把自己的外在行动压成“{visible}”，心里却想着“{intent}”；"
+                f"{counterpart_name}只能看见他的迟疑，于是把它和“{misbeliefs}”连在一起。"
+            ),
+            "viewpoint": f"{character_name} / {counterpart_name}",
+            "evidence_refs": [memory_ref, event_ref],
+        },
+        {
+            "beat_type": "materialized_consequence",
+            "title": "世界代偿入场",
+            "body": consequence_text,
+            "viewpoint": "世界状态",
+            "evidence_refs": ["worldline_state.json#consequence_state"],
+        },
+        {
+            "beat_type": "conflict_turn",
+            "title": "冲突转折",
+            "body": (
+                f"锚点压力变为{delta.get('anchor_pressure') or '未明'}，因果债显示为{delta.get('causal_debt') or '未明'}；"
+                f"私人误会不再停在心里，而开始改变关系、资源和下一轮行动。"
+            ),
+            "viewpoint": "事件多视角",
+            "evidence_refs": [event_ref, f"outputs/{sandbox.get('run_id')}/sandbox_summary.json"],
+        },
+        {
+            "beat_type": "cliffhanger",
+            "title": "结尾悬念",
+            "body": next_possibility
+            or f"下一章要追问：{character_name}是否继续保留半句真话，而{counterpart_name}会不会把这半句误认为背叛。",
+            "viewpoint": "下一章入口",
+            "evidence_refs": [f"{event_ref}#next_story_possibilities"],
         },
     ]
 
@@ -502,6 +594,24 @@ def _join(value: object) -> str:
         return "；".join(str(item) for item in value if str(item))
     text = str(value or "").strip()
     return text or "尚未记录"
+
+
+def _first_possibility(round_record: dict[str, Any]) -> str:
+    possibilities = round_record.get("next_story_possibilities", [])
+    for item in possibilities if isinstance(possibilities, list) else []:
+        if not isinstance(item, dict):
+            continue
+        text = str(item.get("brief") or item.get("title") or "").strip()
+        if text:
+            return _trim(text, 100)
+    return ""
+
+
+def _trim(value: object, limit: int = 80) -> str:
+    text = " ".join(str(value or "").split())
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 1)].rstrip() + "…"
 
 
 def _new_run_id() -> str:

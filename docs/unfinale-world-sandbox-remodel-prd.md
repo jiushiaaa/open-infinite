@@ -121,6 +121,14 @@
 - smoke 暴露的首个体验问题是模因传播 artifact 字段完整，但对 UI/报告读数不够直观；新增 `meme_propagation_readout`，把 `belief_payload` / `belief_decision` / `reaction` 归一为真相载荷、采信状态、采信标签、反应类型、反应标签和可读摘要。
 - 世界沙盘 UI 与角色个人卷优先展示传播读数，让用户能直接看见“传播了什么、谁信了、谁存疑、他们怎么反应”，而不是只看到底层字段。
 
+2026-06-06 叙事节拍 / 连续阅读 / Reviewer 应用预览补强：
+
+- `world-autopilot/run` 的 `autopilot_report.json` 新增 `overnight_report.narrative_timeline`，每个 checkpoint 新增 `scene_beats` 与 `chapter_seed`，把世界演化从状态账本整理为开场钩子、人物误判、代偿显形、冲突升级和下一章悬念。
+- `character_lens_volumes.json` 新增 `novel_scene_plan` 与 `reading_mode`，让 S8 多视角卷宗在正文外提供可供章节生成消费的场景计划，证据默认收起，正文优先阅读。
+- `continuous_reading_chapter.json` 会优先消费 S8 `novel_scene_plan`，新增 `story_beat_source` 与每节 `source_beat_type`，连续阅读不再只按草稿段落切片。
+- `draft_revision_pack.json` 新增 `editorial_revision_draft`，把语义 Reviewer 的局部建议合成为不覆盖草稿/确认稿/正史的编辑应用预览，并在作者采纳台展示。
+- 真实 LLM 小样本复测通过 S5 觉醒传播、世界演化小说节拍、S8 场景计划和 S9 真实草稿/连续阅读/Reviewer 预览；复测同时修复自演开场 hook 的角色名重复、双句号和“推到明面”模板痕迹。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：

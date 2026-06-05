@@ -512,6 +512,20 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   ))}
                 </div>
               ) : null}
+              {autopilotReport.overnight_report?.narrative_timeline?.length ? (
+                <div className="sandbox-timeline">
+                  {autopilotReport.overnight_report.narrative_timeline.map((item) => (
+                    <article key={`story-${item.round_index}-${item.checkpoint_id}`}>
+                      <span>小说节拍 · 第 {item.round_index} 轮</span>
+                      <strong>{item.scene_hook}</strong>
+                      <p>{item.character_miscalculation}</p>
+                      <p className="muted tiny">{item.materialized_consequence}</p>
+                      <p className="muted tiny">{item.conflict_escalation}</p>
+                      <p className="muted tiny">下一章：{item.chapter_handoff}</p>
+                    </article>
+                  ))}
+                </div>
+              ) : null}
               <p className="muted tiny">
                 {autopilotReport.stop_reason} · {autopilotReport.artifact}
               </p>

@@ -142,6 +142,53 @@ def test_world_autopilot_stops_on_causal_debt_and_writes_readable_timeline(tmp_p
     assert report["overnight_report"]["checkpoint_recovery"]["resume_from_checkpoint"]
 
 
+def test_world_autopilot_writes_novelistic_scene_beats_for_downstream_chapters(tmp_path):
+    _make_project(tmp_path)
+
+    report = run_world_autopilot(
+        "autopilot-story",
+        seed_event="归云斋夜雨封山，赵轩在风鸣铃前隐瞒了一半真相。",
+        objective_type="rounds",
+        round_limit=2,
+        projects_dir=tmp_path,
+        outputs_dir=tmp_path / "_outputs",
+    )
+
+    beats = report["overnight_report"]["narrative_timeline"]
+    assert len(beats) == report["rounds_completed"]
+    first = beats[0]
+    assert first["scene_hook"]
+    assert first["character_miscalculation"]
+    assert first["materialized_consequence"]
+    assert first["conflict_escalation"]
+    assert first["chapter_handoff"]
+    assert "卷宗" not in first["scene_hook"]
+
+    checkpoint = report["checkpoints"][0]
+    assert checkpoint["scene_beats"][0]["beat_type"] == "opening_hook"
+    assert checkpoint["scene_beats"][-1]["beat_type"] == "handoff"
+    assert checkpoint["chapter_seed"]["opening_hook"] == first["scene_hook"]
+    assert checkpoint["chapter_seed"]["next_chapter_hook"] == first["chapter_handoff"]
+
+
+def test_world_autopilot_scene_hook_removes_template_duplication(tmp_path):
+    _make_project(tmp_path)
+
+    report = run_world_autopilot(
+        "autopilot-story",
+        seed_event="归云斋夜雨封山，赵轩泄露半句真相。",
+        objective_type="rounds",
+        round_limit=1,
+        projects_dir=tmp_path,
+        outputs_dir=tmp_path / "_outputs",
+    )
+
+    hook = report["overnight_report"]["narrative_timeline"][0]["scene_hook"]
+    assert "赵轩先把赵轩" not in hook
+    assert "。。" not in hook
+    assert "推到明面" not in hook
+
+
 def test_world_autopilot_failure_can_resume_from_latest_checkpoint(
     tmp_path, monkeypatch
 ):

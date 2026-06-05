@@ -393,6 +393,15 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                         <span>
                           {draft.continuous_reading_chapter.reading_flow.scene_count} 场
                         </span>
+                        {draft.continuous_reading_chapter.story_beat_source && (
+                          <span>
+                            来源：
+                            {draft.continuous_reading_chapter.story_beat_source.kind ===
+                            "s8_novel_scene_plan"
+                              ? "S8 场景节拍"
+                              : "草稿段落"}
+                          </span>
+                        )}
                         <span>
                           默认：
                           {draft.continuous_reading_chapter.default_mode === "novel"
@@ -432,6 +441,11 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                               <strong>{section.title}</strong>
                               <span className="muted tiny">{section.narrative_role}</span>
                             </div>
+                            {section.source_beat_type && (
+                              <span className="badge badge--gold">
+                                {section.source_beat_type}
+                              </span>
+                            )}
                             {(section.viewpoint || section.cognitive_bias) && (
                               <p className="muted tiny">
                                 {section.viewpoint}
@@ -508,6 +522,31 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                               </span>
                             ))}
                           </div>
+                        </div>
+                      )}
+                      {draft.revision_pack.editorial_revision_draft?.status === "ready" && (
+                        <div className="adoption-reading__section">
+                          <div>
+                            <strong>编辑应用预览</strong>
+                            <span className="muted tiny">
+                              {draft.revision_pack.editorial_revision_draft.applied_rewrite_ids.length}
+                              条建议
+                            </span>
+                          </div>
+                          <p>{draft.revision_pack.editorial_revision_draft.preview_text_md}</p>
+                          <div className="adoption-reading__refs">
+                            {draft.revision_pack.editorial_revision_draft.feeds.map((feed) => (
+                              <span className="badge" key={feed}>
+                                {feed}
+                              </span>
+                            ))}
+                          </div>
+                          <p className="muted tiny">
+                            不自动覆盖：
+                            {draft.revision_pack.editorial_revision_draft.does_not_overwrite.join(
+                              " / ",
+                            )}
+                          </p>
                         </div>
                       )}
                       <div className="adoption-reading__sections">

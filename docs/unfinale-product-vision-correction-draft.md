@@ -51,6 +51,8 @@ L5 觉醒、模因污染、角色反抗和假意服从
 
 2026-06-06 真实端到端 smoke 已验证 S5 觉醒传播、S8 多视角正文、S9 作者采纳反哺下一章在真实模型链路下能跑通；首个产品体验问题是模因传播证据虽然存在，但字段读起来偏底层，报告容易看不出“真相载荷 / 采信 / 反应”。本轮补 `meme_propagation_readout` 和 UI 展示，把传播读数转成用户能直接理解的小说世界证据。
 
+2026-06-06 继续针对“仍偏结构占位”的真实读感做上游补强：世界自演醒来报告新增 `narrative_timeline`，checkpoint 新增 `scene_beats` / `chapter_seed`，先把世界状态变化编译成开场钩子、人物误判、代偿显形、冲突升级和下一章悬念；S8 `character_lens_volumes.json` 新增 `novel_scene_plan`，让多视角卷宗不只是说明文；S9 `continuous_reading_chapter.json` 优先消费这些场景节拍生成正文 section；语义 Reviewer 新增 `editorial_revision_draft`，把局部建议合成为作者可预览、可手动采纳、不会自动覆盖正史的编辑应用稿。真实 LLM 小样本复测通过，并修复自演 hook 的角色名重复和模板拼接痕迹。
+
 ## 1. 原始动机
 
 未终章最初来自一个阅读小说时产生的问题：

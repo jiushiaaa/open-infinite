@@ -252,11 +252,13 @@ def _continuous_reading_chapter(
         lens_run_id=source_lens_run_id,
         sandbox_run_id=str(source.get("sandbox_run_id") or ""),
     )
+    scene_plan = _scene_plan_from_volumes(volumes)
     reading_sections = _reading_sections(
         chapter_text=chapter_text,
         brief=brief,
         consequences=consequences,
         volumes=volumes,
+        scene_plan=scene_plan,
     )
     status = "ready" if len(cross_volume_refs) >= 3 else "partial"
     reading_body_md = _continuous_reading_markdown(
@@ -274,6 +276,16 @@ def _continuous_reading_chapter(
         "chapter_title": _chapter_title(brief),
         "reading_body_md": reading_body_md,
         "reading_sections": reading_sections,
+        "story_beat_source": {
+            "kind": "s8_novel_scene_plan" if scene_plan else "chapter_paragraph_fallback",
+            "source_lens_run_id": source_lens_run_id,
+            "beat_count": len(scene_plan),
+            "artifact": (
+                f"outputs/{source_lens_run_id}/character_lens_volumes.json#novel_scene_plan"
+                if scene_plan and source_lens_run_id
+                else ""
+            ),
+        },
         "viewpoint_tabs": _viewpoint_tabs(cross_volume_refs),
         "evidence_toggle": {
             "default_visible": False,
@@ -321,7 +333,16 @@ def _reading_sections(
     brief: dict[str, Any],
     consequences: list[str],
     volumes: list[Any],
+    scene_plan: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
+    if scene_plan:
+        return _scene_plan_sections(
+            scene_plan=scene_plan,
+            chapter_text=chapter_text,
+            brief=brief,
+            consequences=consequences,
+            volumes=volumes,
+        )
     paragraphs = _chapter_paragraphs(chapter_text)
     world = _find_volume(volumes, "world_chronicle")
     character = _find_volume(volumes, "character_volume")
@@ -331,6 +352,7 @@ def _reading_sections(
             "id": "opening_pressure",
             "title": "一、雨声入局",
             "body": paragraphs[0],
+            "source_beat_type": "paragraph_fallback",
             "viewpoint": "世界正史卷",
             "cognitive_bias": "读者先看到客观压力，角色尚未共享彼此底牌。",
             "conflict_turn": "开场钩子把角色推入必须立即选择的现场。",
@@ -345,6 +367,7 @@ def _reading_sections(
             "id": "character_misread",
             "title": "二、各怀半句真话",
             "body": paragraphs[1],
+            "source_beat_type": "paragraph_fallback",
             "viewpoint": "角色个人卷",
             "cognitive_bias": "角色把对方的沉默当成隐瞒，却不知道自己也在隐瞒。",
             "conflict_turn": "误会从内心判断进入对话和动作。",
@@ -359,6 +382,7 @@ def _reading_sections(
             "id": "world_counterweight",
             "title": "三、正史不替人辩解",
             "body": _merge_body(paragraphs[2], world, consequences),
+            "source_beat_type": "paragraph_fallback",
             "viewpoint": "世界正史卷",
             "cognitive_bias": "正史只记录代偿落点，不替任何角色解释动机。",
             "conflict_turn": "世界状态把私人误判扩大成公共压力。",
@@ -375,6 +399,7 @@ def _reading_sections(
             "id": "next_round_hook",
             "title": "四、余波写入下一轮",
             "body": _merge_body(paragraphs[-1], event, consequences),
+            "source_beat_type": "paragraph_fallback",
             "viewpoint": "事件多视角",
             "cognitive_bias": "不同卷宗都只拿到事件的一面，悬念留给下一轮沙盘。",
             "conflict_turn": "结尾把伏笔和未解误会交给下一章。",
@@ -395,6 +420,7 @@ def _reading_sections(
                 "id": "middle_turn",
                 "title": "三更、代价显形",
                 "body": paragraphs[3],
+                "source_beat_type": "paragraph_fallback",
                 "viewpoint": "主锚点卷",
                 "cognitive_bias": "主锚点以为自己在控制局面，其实世界代偿已经先行一步。",
                 "conflict_turn": "中段让抽象因果债变成可见阻碍。",
@@ -407,6 +433,128 @@ def _reading_sections(
             },
         )
     return sections
+
+
+def _scene_plan_from_volumes(volumes: list[Any]) -> list[dict[str, Any]]:
+    for volume_type in ("event_multi_perspective", "character_volume", "world_chronicle"):
+        volume = _find_volume(volumes, volume_type)
+        plan = volume.get("novel_scene_plan") if isinstance(volume, dict) else None
+        if isinstance(plan, list) and plan:
+            return [beat for beat in plan if isinstance(beat, dict)]
+    return []
+
+
+def _scene_plan_sections(
+    *,
+    scene_plan: list[dict[str, Any]],
+    chapter_text: str,
+    brief: dict[str, Any],
+    consequences: list[str],
+    volumes: list[Any],
+) -> list[dict[str, Any]]:
+    paragraphs = _chapter_paragraphs(chapter_text)
+    labels = {
+        "opening_hook": ("一、雨声入局", "世界正史卷", "开场先落入现场，让角色在世界代偿里做选择。"),
+        "viewpoint_misread": ("二、各怀半句真话", "角色个人卷", "把角色个人卷的信息差写成对话和误读。"),
+        "materialized_consequence": ("三、代价显形", "世界正史卷", "让世界状态和因果代偿成为场景压力。"),
+        "conflict_turn": ("四、冲突转向", "事件多视角", "把私人误会推成公共压力与下一轮行动。"),
+        "cliffhanger": ("五、余波入卷", "下一章入口", "把伏笔和未解误会交给下一章。"),
+    }
+    sections: list[dict[str, Any]] = []
+    for index, beat in enumerate(scene_plan):
+        beat_type = str(beat.get("beat_type") or f"beat_{index + 1}")
+        title, viewpoint, role = labels.get(
+            beat_type,
+            (str(beat.get("title") or f"第 {index + 1} 场"), str(beat.get("viewpoint") or "事件视角"), "承接 S8 场景计划。"),
+        )
+        beat_body = str(beat.get("body") or "").strip()
+        paragraph = paragraphs[min(index, len(paragraphs) - 1)] if paragraphs else ""
+        body = _compose_scene_body(
+            beat_body=beat_body,
+            paragraph=paragraph,
+            beat_type=beat_type,
+            consequences=consequences,
+        )
+        refs = [str(ref) for ref in beat.get("evidence_refs", []) if str(ref)]
+        refs.extend(_section_volume_refs(volumes, beat_type))
+        if beat_type == "materialized_consequence":
+            refs.append("worldline_state.json#consequence_state")
+        if beat_type == "cliffhanger":
+            refs.append("next_chapter_brief.json#feed_forward")
+        refs = list(dict.fromkeys(ref for ref in refs if ref))
+        sections.append(
+            {
+                "id": beat_type,
+                "title": title,
+                "body": body,
+                "source_beat_type": beat_type,
+                "viewpoint": viewpoint,
+                "cognitive_bias": _scene_bias(beat_type, beat),
+                "conflict_turn": _scene_conflict_turn(beat_type, beat, brief),
+                "narrative_role": role,
+                "evidence_refs": refs,
+                "evidence_mode": {"default_visible": False, "refs": refs},
+            }
+        )
+    return sections
+
+
+def _compose_scene_body(
+    *,
+    beat_body: str,
+    paragraph: str,
+    beat_type: str,
+    consequences: list[str],
+) -> str:
+    parts = [beat_body]
+    trimmed_paragraph = _trim(paragraph, 260)
+    if trimmed_paragraph and trimmed_paragraph not in beat_body:
+        parts.append(trimmed_paragraph)
+    if beat_type == "materialized_consequence" and consequences:
+        consequence = _trim(consequences[0], 140)
+        if consequence and consequence not in " ".join(parts):
+            parts.append(f"这场压力继续落在世界内：{consequence}")
+    return "\n\n".join(part for part in parts if part)
+
+
+def _section_volume_refs(volumes: list[Any], beat_type: str) -> list[str]:
+    mapping = {
+        "opening_hook": "world_chronicle",
+        "viewpoint_misread": "character_volume",
+        "materialized_consequence": "world_chronicle",
+        "conflict_turn": "event_multi_perspective",
+        "cliffhanger": "event_multi_perspective",
+    }
+    volume_type = mapping.get(beat_type, "event_multi_perspective")
+    return _volume_evidence_refs(_find_volume(volumes, volume_type), volume_type)
+
+
+def _scene_bias(beat_type: str, beat: dict[str, Any]) -> str:
+    if beat_type == "viewpoint_misread":
+        return "角色只能按个人记忆和半截证据判断，因此误读对方动机。"
+    if beat_type == "opening_hook":
+        return "读者先看到现场压力，角色尚未共享彼此底牌。"
+    if beat_type == "materialized_consequence":
+        return "世界状态只显形代价，不替任何角色解释动机。"
+    if beat_type == "conflict_turn":
+        return "不同视角都以为自己在止损，却共同扩大冲突。"
+    if beat_type == "cliffhanger":
+        return "悬念保留未被任何单一卷宗完全解释的空白。"
+    return str(beat.get("viewpoint") or "该视角保留自己的盲区。")
+
+
+def _scene_conflict_turn(beat_type: str, beat: dict[str, Any], brief: dict[str, Any]) -> str:
+    if beat_type == "opening_hook":
+        return "开场迫使角色立刻行动。"
+    if beat_type == "viewpoint_misread":
+        return "误判进入动作和对话，不再只是内心说明。"
+    if beat_type == "materialized_consequence":
+        return "世界代偿把私人选择变成公共压力。"
+    if beat_type == "conflict_turn":
+        return str(brief.get("conflict_focus") or "冲突从隐瞒转向公开后果。")
+    if beat_type == "cliffhanger":
+        return "结尾把下一轮沙盘入口留给未解误会。"
+    return str(beat.get("title") or "场景继续推进。")
 
 
 def _continuous_reading_markdown(
@@ -648,6 +796,11 @@ def _revision_pack(
         consequences=consequences,
         missing=missing,
     )
+    editorial_revision_draft = _editorial_revision_draft(
+        chapter_text=chapter_text,
+        rewrites=rewrites,
+        semantic_reviewer=semantic_reviewer,
+    )
     return {
         "version": "draft-revision-pack-v2",
         "artifact": REVISION_ARTIFACT,
@@ -660,6 +813,7 @@ def _revision_pack(
             "保留角色信息差，让确认稿能回读角色个人卷。",
         ],
         "localized_rewrites": rewrites,
+        "editorial_revision_draft": editorial_revision_draft,
         "adoption_feedback": {
             "surface": "author_adoption_desk",
             "feeds": ["next_chapter_draft", "chapter_confirmation"],
@@ -668,6 +822,7 @@ def _revision_pack(
         },
         "confirmation_gate": {
             "ready_for_confirmation": not missing,
+            "editorial_preview_available": editorial_revision_draft["status"] == "ready",
             "blocking_items": missing,
             "author_action": (
                 "可直接确认入卷，也可先按局部改写建议微调。"
@@ -683,6 +838,74 @@ def _revision_pack(
         "boundaries": [
             "修订包只写 draft_revision_pack.json，不自动改写草稿正文。",
             "建议面向作者手工编辑确认稿，不覆盖正史 chapter.md。",
+        ],
+    }
+
+
+def _editorial_revision_draft(
+    *,
+    chapter_text: str,
+    rewrites: list[dict[str, Any]],
+    semantic_reviewer: dict[str, Any],
+) -> dict[str, Any]:
+    applied = [
+        rewrite
+        for rewrite in rewrites
+        if rewrite.get("suggested_rewrite") and rewrite.get("id")
+    ][:3]
+    if not applied:
+        return {
+            "status": "empty",
+            "preview_text_md": "",
+            "applied_rewrite_ids": [],
+            "feeds": ["author_adoption_desk", "chapter_confirmation", "next_chapter_brief"],
+            "does_not_overwrite": ["next_chapter_draft.md", "confirmed_chapter.md", "chapter.md"],
+        }
+    opening = _trim(chapter_text, 260)
+    review_items = (
+        semantic_reviewer.get("review_items")
+        if isinstance(semantic_reviewer.get("review_items"), list)
+        else []
+    )
+    priority = next(
+        (
+            str(item.get("dimension") or "")
+            for item in review_items
+            if isinstance(item, dict) and item.get("priority") in {"high", "blocking"}
+        ),
+        "局部节奏",
+    )
+    preview_lines = [
+        "## Reviewer 应用预览",
+        "",
+        opening,
+        "",
+        f"【编辑意图】优先修正{priority}，把建议落到正文动作、误判和世界代偿里。",
+    ]
+    for rewrite in applied:
+        preview_lines.extend(
+            [
+                "",
+                f"【{rewrite.get('id')}】{rewrite.get('suggested_rewrite')}",
+                f"影响：{rewrite.get('impact_on_world_state') or '反哺下一轮世界状态。'}",
+            ]
+        )
+    preview_lines.extend(
+        [
+            "",
+            "【采纳方向】作者可把以上预览复制到草稿编辑区，再确认入卷；系统不会自动覆盖任何正式正文。",
+        ]
+    )
+    return {
+        "status": "ready",
+        "preview_text_md": "\n".join(preview_lines),
+        "applied_rewrite_ids": [str(rewrite.get("id")) for rewrite in applied],
+        "feeds": ["author_adoption_desk", "chapter_confirmation", "next_chapter_brief"],
+        "does_not_overwrite": ["next_chapter_draft.md", "confirmed_chapter.md", "chapter.md"],
+        "adoption_direction": "建议作者审阅后手动采纳到草稿编辑区",
+        "evidence_refs": [
+            "draft_revision_pack.json#localized_rewrites",
+            "draft_revision_pack.json#semantic_reviewer",
         ],
     }
 

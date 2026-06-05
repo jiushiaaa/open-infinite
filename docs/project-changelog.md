@@ -2152,3 +2152,33 @@
   - 真实 smoke 只做小样本质量验收，不打印明文 key，不进入默认全量 pytest。
   - 本刀只修 S5/S8/S9 主线体验证据，不接 GraphRAG/Zep、provider spike、检索评测、OpenAPI、发行、商业化或工程面板。
 
+### 2026-06-06 — Narrative Timeline / Scene Plan / Editorial Preview
+
+- **做了什么**：
+  - 针对真实 smoke 后仍偏结构占位的三个问题继续补强：世界演化像账本、S8/S9 仍有卷宗说明痕迹、Reviewer 只有建议清单。
+  - `world_autopilot` 新增 `overnight_report.narrative_timeline`；每个 checkpoint 新增 `scene_beats` 与 `chapter_seed`，把自演结果整理成开场钩子、人物误判、代偿显形、冲突升级和下一章悬念。
+  - `character_lens_volumes.json` 新增 `novel_scene_plan` 与 `reading_mode`，让 S8 多视角卷宗提供可被章节生成消费的故事节拍，证据默认收起。
+  - `continuous_reading_chapter.json` 新增 `story_beat_source`，阅读 sections 优先消费 S8 `novel_scene_plan` 并记录 `source_beat_type`；缺少场景计划时才回退到草稿段落切片。
+  - `draft_revision_pack.json` 新增 `editorial_revision_draft`，把语义 Reviewer 的局部建议合成为作者可预览、可手动采纳、不覆盖 `next_chapter_draft.md` / `confirmed_chapter.md` / `chapter.md` 的编辑应用稿。
+  - 前端类型同步新增自演小说节拍、S8 scene plan、连续阅读来源和 Reviewer 编辑预览；世界沙盘页展示“小说节拍”，作者采纳台展示 S8 场景来源、source beat 和编辑应用预览。
+  - 真实 smoke 首轮在 `engine/.local-run/real-narrative-optimization-smoke-20260606_031403/` 暴露自演 hook 有“赵轩先把赵轩”、双句号和模板拼接痕迹；随后补 focused 回归并修复动作片段清洗。
+  - 真实 smoke 复测写入 `engine/.local-run/real-narrative-optimization-smoke-20260606_031833/`，S5 真实 LLM 觉醒传播、世界演化小说节拍、S8 场景计划、S9 真实草稿连续阅读和 Reviewer 预览均通过，未打印明文 key。
+- **测试/验证**：
+  - RED：新增 `test_world_autopilot_writes_novelistic_scene_beats_for_downstream_chapters`，先因缺少 `narrative_timeline` 失败。
+  - RED：新增 `test_character_lens_outputs_scene_plan_for_novel_reading`，先因缺少 `novel_scene_plan` 失败。
+  - RED：新增 `test_continuous_reading_consumes_s8_scene_plan_as_story_beats`，先因缺少 `story_beat_source` 失败。
+  - RED：新增 `test_revision_pack_builds_editorial_preview_draft_without_overwriting_author_text`，先因缺少 `editorial_revision_draft` 失败。
+  - RED：新增 `test_world_autopilot_scene_hook_removes_template_duplication`，先因 hook 中出现角色名重复失败。
+  - GREEN：`cd engine && python -m pytest tests/test_world_autopilot.py -q` -> **9 passed**。
+  - GREEN：`cd engine && python -m pytest tests/test_character_lens_novel.py -q` -> **6 passed**。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **12 passed**。
+  - Focused combined：新增 narrative / S8 / S9 / Reviewer 4 条测试 -> **4 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **942 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+  - 页面 smoke：本轮工具未暴露 in-app Browser；尝试本地 Vite HTTP smoke 时 dev server 未在检查窗口内接受连接，已停止尝试，最终以前端 production build 作为 UI 编译验证。
+- **边界**：
+  - 新字段和 UI 展示均 additive；保留旧 `timeline`、旧 continuous reading 字段和旧 revision 建议，不覆盖既有核心 artifact。
+  - Reviewer 只生成编辑应用预览，仍由作者手动采纳和确认入卷；不自动覆盖正史。
+  - 本刀继续服务世界沙盘主线，不接 GraphRAG/Zep、provider spike、检索评测、OpenAPI、发行、商业化或工程面板。
+

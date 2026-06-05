@@ -120,6 +120,38 @@ def test_character_lens_generates_readable_volumes_with_evidence_chain(tmp_path)
     assert event["evidence_chain"]["world_state_delta_refs"]
 
 
+def test_character_lens_outputs_scene_plan_for_novel_reading(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = generate_character_lens_briefs(
+        "lens-story",
+        source_event="风鸣铃在夜雨里倒响，赵轩压住真相，沈冰月只看见他迟疑。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+
+    event = next(
+        volume for volume in report["volumes"] if volume["volume_type"] == "event_multi_perspective"
+    )
+    plan = event["novel_scene_plan"]
+    assert [beat["beat_type"] for beat in plan] == [
+        "opening_hook",
+        "viewpoint_misread",
+        "materialized_consequence",
+        "conflict_turn",
+        "cliffhanger",
+    ]
+    assert all(beat["body"] for beat in plan)
+    assert all(beat["evidence_refs"] for beat in plan)
+    assert "沈冰月" in plan[1]["body"]
+    assert "赵轩" in plan[1]["body"]
+    assert "卷宗" not in plan[0]["body"]
+    assert event["reading_mode"]["default"] == "novel"
+    assert event["reading_mode"]["evidence_default_visible"] is False
+
+
 def test_character_lens_volumes_include_materialized_consequence_refs(tmp_path):
     _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"

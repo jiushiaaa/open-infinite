@@ -8,6 +8,8 @@
 
 真实小样本端到端 smoke 已覆盖 S5 觉醒传播、世界演化、S8 多视角正文、S9 作者采纳到真实 LLM 草稿和确认入卷。为修复真实报告里模因传播证据不够直观的问题，角色行动、主观记忆和 `world_state_delta.meme_contamination` 现在会额外暴露 `meme_propagation_readout`，统一展示真相载荷、采信状态、可信度、反应和可读摘要；原 `meme_propagation` 字段保持不变。
 
+针对真实 smoke 暴露的结构占位感，本轮继续把世界演化和长正文链路改为“叙事节拍优先”：`autopilot_report.json` 的醒来报告新增 `narrative_timeline`，checkpoint 新增 `scene_beats` 与 `chapter_seed`；`character_lens_volumes.json` 新增 `novel_scene_plan` 与小说优先阅读模式；`continuous_reading_chapter.json` 新增 `story_beat_source` 并优先消费 S8 场景计划；`draft_revision_pack.json` 新增 `editorial_revision_draft`，把 Reviewer 局部建议合成为不覆盖正文的编辑应用预览。真实 LLM 小样本复测通过，且已修复自演开场 hook 的角色名重复和双句号拼接痕迹。
+
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
 当前事实、版本状态和暂停点以根目录 [`../memory.md`](../memory.md) 为准；历史版本细节在 [`../docs/completed/`](../docs/completed/README.md)。
@@ -89,19 +91,19 @@
 - `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation`：把作者编辑后的草稿确认入卷，写入确认记录、Markdown 正文和跨卷宗阅读链，并回写世界线状态与下一轮沙盘入口。
 - `projects/<slug>/tianming.json`：叙事吸引子、题材约束、锚点状态、合约压力和候选天命承载者。
 - `outputs/<run_id>/tianming_delta.json`：世界线代偿报告。
-- `outputs/<run_id>/autopilot_report.json`：世界自演报告，包含目标、状态、停止原因、停止证据、沙盘运行、最终阶段、醒来时间线、失败恢复信息和检查点索引。
+- `outputs/<run_id>/autopilot_report.json`：世界自演报告，包含目标、状态、停止原因、停止证据、沙盘运行、最终阶段、醒来时间线、`narrative_timeline`、失败恢复信息和检查点索引；每个 checkpoint 额外带 `scene_beats` 与 `chapter_seed`。
 - `outputs/<run_id>/checkpoints/checkpoint_*.json`：每轮自演检查点，记录大事件、锚点压力、因果债、角色记忆变化和后续剧情可能性，可作为失败恢复入口。
 - `worldline_dossier`：只读 API 聚合，不新增持久 artifact；读取世界线状态、自演任务和检查点，驱动世界线页与检查点回放页。
 - `outputs/<run_id>/character_lens_briefs.json`：多视角活体小说 brief，记录世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角。
-- `outputs/<run_id>/character_lens_volumes.json`：多视角正文，记录世界正史卷、主锚点卷、角色个人卷和事件多视角的可读正文及证据链。
+- `outputs/<run_id>/character_lens_volumes.json`：多视角正文，记录世界正史卷、主锚点卷、角色个人卷和事件多视角的可读正文、`novel_scene_plan` 和证据链。
 - `projects/<slug>/author_adoption_ledger.jsonl`：作者采纳账本，记录采纳、部分采纳、另开分支或导出 brief。
 - `outputs/<run_id>/author_adoption_record.json`：单次作者采纳记录和原大纲 vs 沙盘涌现剧情对照。
 - `outputs/<run_id>/author_adoption_brief.md`：可交给后续章节 brief 或人工整理的采纳说明。
 - `outputs/<run_id>/next_chapter_brief.json`：作者采纳后的下一章 brief、伏笔保留项、原大纲差异、Reviewer 建议和后续沙盘入口；`writing_plan` 面向作者阅读，`feed_forward.chapter_generation_inputs` 面向章节生成，`feed_forward.sandbox_continuation_inputs` 面向后续世界沙盘运行。
 - `outputs/<run_id>/next_chapter_draft.json`：作者采纳后的下一章正文草稿、证据链、Reviewer 检查和局部修订包引用。
 - `outputs/<run_id>/next_chapter_draft.md`：可阅读的下一章正文导出，不覆盖正史 `chapter.md`。
-- `outputs/<run_id>/draft_revision_pack.json`：下一章草稿的局部修订包，包含确认前 gate、局部改写建议、建议改法和证据引用。
-- `outputs/<run_id>/continuous_reading_chapter.json`：连续阅读稿结构，包含阅读场景、阅读流、下一章钩子、来源 S8 卷宗和证据 refs。
+- `outputs/<run_id>/draft_revision_pack.json`：下一章草稿的局部修订包，包含确认前 gate、语义 Reviewer、局部改写建议、编辑应用预览 `editorial_revision_draft` 和证据引用。
+- `outputs/<run_id>/continuous_reading_chapter.json`：连续阅读稿结构，包含阅读场景、阅读流、下一章钩子、来源 S8 场景计划 `story_beat_source`、卷宗和证据 refs。
 - `outputs/<run_id>/continuous_reading_chapter.md`：按场景连续阅读的章节稿，正文先读、证据后查，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。
 - `outputs/<run_id>/confirmed_chapter.md`：作者确认后的可读正文导出，不覆盖正史 `chapter.md`。

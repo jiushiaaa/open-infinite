@@ -414,6 +414,15 @@ def _checkpoint(
         if isinstance(state.get("consequence_state"), dict)
         else {}
     )
+    scene_beats = _scene_beats(
+        round_index=round_index,
+        event=event,
+        sandbox=sandbox,
+        round_record=round_record,
+        delta=delta,
+        consequence=consequence,
+    )
+    chapter_seed = _chapter_seed(scene_beats)
     return {
         "checkpoint_id": f"checkpoint_{round_index:03d}",
         "round_index": round_index,
@@ -445,7 +454,167 @@ def _checkpoint(
             for action in round_record.get("character_actions", [])
             if isinstance(action, dict)
         ],
+        "scene_beats": scene_beats,
+        "chapter_seed": chapter_seed,
     }
+
+
+def _scene_beats(
+    *,
+    round_index: int,
+    event: str,
+    sandbox: dict[str, Any],
+    round_record: dict[str, Any],
+    delta: dict[str, Any],
+    consequence: dict[str, Any],
+) -> list[dict[str, Any]]:
+    actions = [
+        action
+        for action in round_record.get("character_actions", [])
+        if isinstance(action, dict)
+    ]
+    first = actions[0] if actions else {}
+    second = actions[1] if len(actions) > 1 else {}
+    first_name = str(first.get("character_name") or "主锚点")
+    second_name = str(second.get("character_name") or "另一名角色")
+    visible_action = _action_fragment(
+        first.get("visible_action") or first.get("action") or "没有公开行动",
+        first_name,
+    )
+    true_intent = _trim(first.get("true_intent") or first.get("stance") or "仍在权衡", 80)
+    risk = _trim(first.get("risk") or "误判会把私人选择推成公共后果", 80)
+    consequence_text = _trim(
+        consequence.get("summary")
+        or delta.get("causal_debt")
+        or "因果债尚未具象，但世界已经开始记账",
+        90,
+    )
+    possibility = _first_possibility(round_record)
+    event_text = _strip_terminal_punctuation(_trim(event, 48))
+    scene_hook = (
+        f"第 {round_index} 轮，{event_text}。{first_name}{visible_action}，"
+        f"却把真正意图压在心底。"
+    )
+    character_miscalculation = (
+        f"{first_name}以为{true_intent}足以保住主动；{second_name}却只能按自己掌握的半截消息判断，"
+        f"把沉默、试探或迟疑读成新的威胁。"
+    )
+    materialized_consequence = (
+        f"世界没有替任何人解释，它把代价落成可见压力：{consequence_text}。"
+    )
+    conflict_escalation = (
+        f"{risk}；锚点压力为{delta.get('anchor_pressure') or '未明'}，"
+        f"因果债为{delta.get('causal_debt') or '未明'}，私人误会被推向下一场公开冲突。"
+    )
+    chapter_handoff = possibility or (
+        f"下一章应从{first_name}是否继续隐瞒，以及{second_name}是否误信这半截真相写起。"
+    )
+    return [
+        {
+            "beat_type": "opening_hook",
+            "label": "开场钩子",
+            "body": scene_hook,
+            "focus_character_id": first.get("character_id") or "",
+            "evidence_refs": [f"outputs/{sandbox.get('run_id')}/sandbox_rounds.jsonl"],
+        },
+        {
+            "beat_type": "miscalculation",
+            "label": "人物误判",
+            "body": character_miscalculation,
+            "focus_character_id": second.get("character_id") or first.get("character_id") or "",
+            "evidence_refs": [f"outputs/{sandbox.get('run_id')}/subjective_memory_delta.json"],
+        },
+        {
+            "beat_type": "materialized_consequence",
+            "label": "代偿显形",
+            "body": materialized_consequence,
+            "focus_character_id": "",
+            "evidence_refs": ["worldline_state.json#consequence_state"],
+        },
+        {
+            "beat_type": "conflict_escalation",
+            "label": "冲突升级",
+            "body": conflict_escalation,
+            "focus_character_id": first.get("character_id") or "",
+            "evidence_refs": [f"outputs/{sandbox.get('run_id')}/sandbox_summary.json"],
+        },
+        {
+            "beat_type": "handoff",
+            "label": "下一章悬念",
+            "body": chapter_handoff,
+            "focus_character_id": first.get("character_id") or "",
+            "evidence_refs": [f"outputs/{sandbox.get('run_id')}/sandbox_rounds.jsonl#next_story_possibilities"],
+        },
+    ]
+
+
+def _chapter_seed(scene_beats: list[dict[str, Any]]) -> dict[str, str]:
+    by_type = {str(beat.get("beat_type")): str(beat.get("body") or "") for beat in scene_beats}
+    return {
+        "opening_hook": by_type.get("opening_hook", ""),
+        "viewpoint_misread": by_type.get("miscalculation", ""),
+        "consequence_pressure": by_type.get("materialized_consequence", ""),
+        "conflict_turn": by_type.get("conflict_escalation", ""),
+        "next_chapter_hook": by_type.get("handoff", ""),
+    }
+
+
+def _narrative_timeline(checkpoints: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    timeline: list[dict[str, Any]] = []
+    for checkpoint in checkpoints:
+        seed = checkpoint.get("chapter_seed") if isinstance(checkpoint.get("chapter_seed"), dict) else {}
+        timeline.append(
+            {
+                "round_index": checkpoint.get("round_index"),
+                "checkpoint_id": checkpoint.get("checkpoint_id"),
+                "sandbox_run_id": checkpoint.get("sandbox_run_id"),
+                "scene_hook": seed.get("opening_hook") or "",
+                "character_miscalculation": seed.get("viewpoint_misread") or "",
+                "materialized_consequence": seed.get("consequence_pressure") or "",
+                "conflict_escalation": seed.get("conflict_turn") or "",
+                "chapter_handoff": seed.get("next_chapter_hook") or "",
+                "evidence_refs": [
+                    f"outputs/{checkpoint.get('sandbox_run_id')}/sandbox_rounds.jsonl",
+                    f"outputs/{checkpoint.get('sandbox_run_id')}/subjective_memory_delta.json",
+                    "worldline_state.json#consequence_state",
+                ],
+            }
+        )
+    return timeline
+
+
+def _first_possibility(round_record: dict[str, Any]) -> str:
+    possibilities = round_record.get("next_story_possibilities", [])
+    for item in possibilities if isinstance(possibilities, list) else []:
+        if not isinstance(item, dict):
+            continue
+        text = str(item.get("brief") or item.get("title") or "").strip()
+        if text:
+            return _trim(text, 100)
+    return ""
+
+
+def _trim(value: Any, limit: int = 80) -> str:
+    text = " ".join(str(value or "").split())
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 1)].rstrip() + "…"
+
+
+def _action_fragment(value: Any, character_name: str) -> str:
+    text = _strip_terminal_punctuation(_trim(value, 80))
+    name = str(character_name or "").strip()
+    if name and text.startswith(name):
+        text = text[len(name) :].lstrip("，,。 ")
+    if not text:
+        return "没有公开行动"
+    if text.startswith(("在", "向", "把", "将", "以", "用", "假意", "选择", "故意")):
+        return text
+    return f"选择{text}"
+
+
+def _strip_terminal_punctuation(value: str) -> str:
+    return str(value or "").rstrip("。.!！?？；;，, ")
 
 
 def _anchor_changed(event: str, sandbox: dict[str, Any]) -> bool:
@@ -541,6 +710,7 @@ def _overnight_report(
             "why_world_changed": "无检查点。",
             "where_to_continue": [],
             "timeline": [],
+            "narrative_timeline": [],
             "memory_changes": [],
             "checkpoint_recovery": recovery,
         }
@@ -582,6 +752,7 @@ def _overnight_report(
             }
             for checkpoint in checkpoints
         ],
+        "narrative_timeline": _narrative_timeline(checkpoints),
         "memory_changes": [
             item
             for checkpoint in checkpoints

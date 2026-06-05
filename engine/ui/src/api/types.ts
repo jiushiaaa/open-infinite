@@ -1053,6 +1053,34 @@ export interface WorldAutopilotCheckpoint {
     brief: string;
   }>;
   who_remembered_what?: Array<{ character_id?: string; remembered?: string }>;
+  scene_beats?: WorldAutopilotSceneBeat[];
+  chapter_seed?: {
+    opening_hook?: string;
+    viewpoint_misread?: string;
+    consequence_pressure?: string;
+    conflict_turn?: string;
+    next_chapter_hook?: string;
+  };
+}
+
+export interface WorldAutopilotSceneBeat {
+  beat_type: string;
+  label: string;
+  body: string;
+  focus_character_id?: string;
+  evidence_refs: string[];
+}
+
+export interface WorldAutopilotNarrativeTimelineItem {
+  round_index?: number;
+  checkpoint_id?: string;
+  sandbox_run_id?: string;
+  scene_hook: string;
+  character_miscalculation: string;
+  materialized_consequence: string;
+  conflict_escalation: string;
+  chapter_handoff: string;
+  evidence_refs: string[];
 }
 
 export interface WorldAutopilotReport {
@@ -1119,6 +1147,7 @@ export interface WorldAutopilotReport {
       causal_debt?: string;
       remembered_count?: number;
     }>;
+    narrative_timeline?: WorldAutopilotNarrativeTimelineItem[];
     memory_changes?: Array<{ character_id?: string; remembered?: string }>;
     checkpoint_recovery?: WorldAutopilotRecovery;
   };
@@ -1253,6 +1282,14 @@ export interface CharacterLensBrief {
   evidence: Record<string, unknown>;
 }
 
+export interface CharacterLensNovelSceneBeat {
+  beat_type: string;
+  title: string;
+  body: string;
+  viewpoint: string;
+  evidence_refs: string[];
+}
+
 export interface CharacterLensReport {
   version: string;
   artifact: string;
@@ -1274,6 +1311,12 @@ export interface CharacterLensReport {
     prose: string;
     character_id?: string;
     character_name?: string;
+    reading_mode?: {
+      default: string;
+      evidence_default_visible: boolean;
+      guidance?: string;
+    };
+    novel_scene_plan?: CharacterLensNovelSceneBeat[];
     event_nodes?: Array<{
       id: string;
       title: string;
@@ -1452,6 +1495,15 @@ export interface AuthorChapterDraftReport {
       adoption_direction?: string;
       evidence_refs: string[];
     }>;
+    editorial_revision_draft?: {
+      status: string;
+      preview_text_md: string;
+      applied_rewrite_ids: string[];
+      feeds: string[];
+      does_not_overwrite: string[];
+      adoption_direction?: string;
+      evidence_refs?: string[];
+    };
     adoption_feedback?: {
       surface: string;
       feeds: string[];
@@ -1460,6 +1512,7 @@ export interface AuthorChapterDraftReport {
     };
     confirmation_gate: {
       ready_for_confirmation: boolean;
+      editorial_preview_available?: boolean;
       blocking_items: string[];
       author_action: string;
     };
@@ -1481,6 +1534,7 @@ export interface ContinuousReadingSection {
   id: string;
   title: string;
   body: string;
+  source_beat_type?: string;
   viewpoint?: string;
   cognitive_bias?: string;
   conflict_turn?: string;
@@ -1510,6 +1564,12 @@ export interface ContinuousReadingChapter {
   chapter_title: string;
   reading_body_md: string;
   reading_sections: ContinuousReadingSection[];
+  story_beat_source?: {
+    kind: string;
+    source_lens_run_id: string;
+    beat_count: number;
+    artifact: string;
+  };
   viewpoint_tabs?: Array<{
     id: string;
     label: string;
