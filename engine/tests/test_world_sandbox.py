@@ -207,6 +207,85 @@ def test_second_round_decision_changes_with_subjective_memory(tmp_path):
     )
 
 
+def test_llm_decision_advisory_overlays_character_choices(tmp_path):
+    project_dir = _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    class FakeDecisionClient:
+        mock = False
+        available = True
+
+        def chat_json_with_usage(self, _system, _user, model_type, **_kwargs):
+            return model_type.model_validate(
+                {
+                    "status": "ready",
+                    "summary": "模型让赵轩把匿名密信当成可利用的半真线索，而不是照模板相信。",
+                    "decisions": [
+                        {
+                            "character_id": "zhao_xuan",
+                            "belief_update": "赵轩半信半疑，决定先拿密信钓出真正传话的人。",
+                            "visible_action": "赵轩当众把密信折入袖中，只说要去核对风鸣铃账册。",
+                            "true_intent": "他想假装采信密信，暗中观察谁会跟着改变口风。",
+                            "expected_outcome": "让传播者误以为赵轩已经入局，从而提前暴露下一步。",
+                            "risk": "若沈冰月误会他私藏证据，两人的信任会先裂开。",
+                            "deception_strategy": "表面采信，暗中反向设饵。",
+                            "propagation_choice": "只向沈冰月留半句线索，不向归云斋公开。",
+                            "resistance_choice": "拒绝把外来密信当成命令。",
+                            "situational_judgement": "先验信源，再决定是否传播。",
+                            "trust_shift": "对沈冰月保持试探，对匿名信源提高戒备。",
+                            "memory_seed": [
+                                "赵轩认为密信可以利用，但不能直接相信。",
+                                "赵轩记下沈冰月对半句线索的反应。",
+                            ],
+                        }
+                    ],
+                }
+            ), {"total_tokens": 321}
+
+    report = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩收到一封声称沈冰月背叛归云斋的匿名密信。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        llm_decision_mode="advisory",
+        llm_client=FakeDecisionClient(),
+    )
+
+    run_dir = outputs_dir / report["run_id"]
+    action = report["rounds"][0]["character_actions"][0]
+    memory_path = (
+        project_dir
+        / "worldlines"
+        / "main"
+        / "characters"
+        / action["character_id"]
+        / "subjective_memory.jsonl"
+    )
+    persisted_memory = json.loads(memory_path.read_text(encoding="utf-8").splitlines()[0])
+    advisory_path = run_dir / "agent_decision_advisory.json"
+    advisory_artifact = json.loads(advisory_path.read_text(encoding="utf-8"))
+
+    assert report["mode"] == "llm_agent_decision_advisory"
+    assert report["summary"]["llm_decision_status"] == "ready"
+    assert report["summary"]["llm_decision_action_count"] == 1
+    assert report["summary"]["external_services_required"] is True
+    assert report["artifacts"]["agent_decision_advisory"] == "agent_decision_advisory.json"
+    assert advisory_path.exists()
+    assert advisory_artifact["usage"]["total_tokens"] == 321
+    assert action["decision_mode"] == "llm_agent_decision_advisory"
+    assert action["visible_action"] == "赵轩当众把密信折入袖中，只说要去核对风鸣铃账册。"
+    assert action["true_intent"] == "他想假装采信密信，暗中观察谁会跟着改变口风。"
+    assert action["llm_decision_advisory"]["deception_strategy"] == "表面采信，暗中反向设饵。"
+    assert action["llm_decision_advisory"]["propagation_choice"] == "只向沈冰月留半句线索，不向归云斋公开。"
+    assert action["llm_decision_advisory"]["resistance_choice"] == "拒绝把外来密信当成命令。"
+    assert action["llm_decision_advisory"]["situational_judgement"] == "先验信源，再决定是否传播。"
+    assert action["memory_seed"]["inferred"][0] == "赵轩认为密信可以利用，但不能直接相信。"
+    assert persisted_memory["decision_mode"] == "llm_agent_decision_advisory"
+    assert persisted_memory["llm_decision_advisory"]["belief_update"] == (
+        "赵轩半信半疑，决定先拿密信钓出真正传话的人。"
+    )
+
+
 def test_subjective_memories_record_contradictory_perspectives(tmp_path):
     project_dir = _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"
@@ -688,6 +767,17 @@ def test_world_sandbox_http_run_and_read_statuses(running_server):
     )
     assert bad_memory_status == 400
     assert bad_memory["error"] == "invalid slug, worldline, or character id"
+
+    bad_mode_status, bad_mode = _post(
+        port,
+        "/api/stories/sandbox-http/sandbox/run",
+        {
+            "major_event": "老皇帝驾崩。",
+            "llm_decision_mode": "random",
+        },
+    )
+    assert bad_mode_status == 400
+    assert "llm_decision_mode" in bad_mode["error"]
 
 
 def test_world_sandbox_http_exposes_l5_meme_propagation_and_memory(running_server):

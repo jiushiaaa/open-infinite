@@ -2,7 +2,7 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染，并新增可追踪传播来源、采信/存疑、可信度与反应类型；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、确认入卷、确认稿跨卷宗阅读链和草稿局部修订包：`next_chapter_draft.json` / `next_chapter_draft.md`、`draft_revision_pack.json`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮。本轮继续补强 S9：采纳、部分采纳、另开分支都会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact；另开分支写作者分支状态，不覆盖根正史。后续官方主线继续真实 LLM 多 Agent 决策、长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
+> 版本：2026-06-06，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染，并新增可追踪传播来源、采信/存疑、可信度与反应类型；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、确认入卷、确认稿跨卷宗阅读链和草稿局部修订包：`next_chapter_draft.json` / `next_chapter_draft.md`、`draft_revision_pack.json`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮；采纳、部分采纳、另开分支都会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact。本轮新增 S1 `LLM Agent Decision Advisory` 第一刀：世界沙盘 API/UI 可显式启用真实模型逐角色决策建议并写 `agent_decision_advisory.json`，默认 deterministic 不变。后续官方主线继续多轮策略规划、长期关系/势力博弈、长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
 
 ## 1. 产品北极星
 
@@ -86,6 +86,7 @@
 | Character Lens Novel MVP | 已收口 | 世界沙盘改造第七刀：新增多视角活体小说 service/API/UI，输出 `character_lens_briefs.json`，同一事件可生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角；角色个人卷读取主观记忆链。 |
 | Author Adoption Desk MVP | 已收口 | 世界沙盘改造第八刀：新增作者采纳台 service/API/UI，支持采纳、部分采纳、另开分支和导出 brief，写入 `author_adoption_ledger.jsonl`，并展示原大纲 vs 沙盘涌现剧情对照；不自动覆盖正史。 |
 | S1 Agent Decision Deepening MVP | 已收口 | S1 深化第一刀：沙盘行动新增 `decision_mode`、`decision_inputs`、`visible_action`、`true_intent`、`expected_outcome`、`risk`、`memory_influence` 和 `action_outcome`；第二轮行动会被上一轮主观记忆/异常感改变，UI 可查看决策输入和真实意图。 |
+| S1 LLM Agent Decision Advisory | 已收口第一版 | `POST /api/stories/<slug>/sandbox/run` 可显式传 `llm_decision_mode=advisory`，批量请求真实 LLM 基于本轮事件、角色决策输入、主观记忆、干预约束和世界线状态生成逐角色决策建议；输出 `agent_decision_advisory.json`，覆盖本轮行动展示和主观记忆种子，字段覆盖采信、欺骗、传播、反抗和临场判断。世界沙盘页新增“启用真实模型决策建议”勾选项。真实 LLM smoke 返回 ready、命中 3 个角色且五类字段齐全；默认 deterministic 和 `run_scene` 不变。 |
 | S2 Subjective Memory Psychology MVP | 已收口 | S2 深化第一刀：主观记忆新增 `perceived_event`、`inner_thought`、`inferred_motive`、`emotional_impact`、`trust_shift`、`anomaly_weight`、`secret_visibility`、`misbeliefs` 和 `unknown_canon_facts`；同一事件至少两个角色会写出互相矛盾但各自合理的主观记忆，下一轮冲突会引用上一轮误会。 |
 | S3 Tianming Worldline Constitution MVP | 已收口 | S3 深化第一刀：`tianming.json` 新增 `constitution_schema_version`、吸引子权重/类别、多锚点结构和四档合约压力；旧版已确认天命书会保守补齐 S3 字段；L4/L5/AU 干预可写 `worldlines/<worldline_id>/tianming_snapshot.json`，根《天命书》保持不覆盖，天命书页可指定世界线并展示快照产物。 |
 | S4 Intervention Execution Constraint MVP | 已收口 | S4 深化第一刀：`POST /api/stories/<slug>/sandbox/run` 可选接收 `intervention_content` / `intervention_target`，即时读取《天命书》编译为本轮 `intervention_constraint.json`；约束进入 `sandbox_rounds.jsonl`、角色 `decision_inputs`、行动结果、冲突原因、信息流和世界状态 delta，世界沙盘页可填写并查看已投放干预约束；根《天命书》不被覆盖。 |
@@ -100,7 +101,7 @@
 | S9 Author Adoption Feed-forward Pack | 已收口第一版 | `POST /api/stories/<slug>/author-adoption` 对采纳、部分采纳、另开分支生成 `next_chapter_brief.writing_plan` 与 `feed_forward`：可读下一章 brief、伏笔调整、原大纲差异、Reviewer 建议、`chapter_generation_inputs`、`sandbox_continuation_inputs` 和 `next_round_reads`。部分采纳保留待修订冲突；另开分支创建作者分支 `worldline_state.json`，后续入口指向作者分支且不覆盖根正史。作者采纳台展示“原大纲 vs 沙盘涌现剧情 vs 下一章可写方案”。 |
 | S9 Draft Revision Pack | 已收口第一版 | `author_chapter_draft` 生成 `draft_revision_pack.json`，包含确认前 gate、局部改写建议、建议改法、证据引用和边界说明；作者采纳台在草稿编辑区展示“局部修订包”。真实 LLM smoke 生成 1047 字正文，Reviewer 四项全通过，修订包 ready 且有 3 条局部建议。 |
 
-当前验证基线：后端 `930 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+当前验证基线：后端 `931 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
 ## 3. 当前自主迭代点
 
@@ -108,7 +109,7 @@
 
 当前官方下一步是：
 
-> 真实 LLM 多 Agent 决策、多视角/章节长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
+> 多轮策略规划、长期关系/势力博弈、多视角/章节长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
 
 后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。用户已允许真实 API 参与测试或联调；默认常规测试仍保持 deterministic/mockable，真实模型 smoke 只在显式 opt-in 时运行。
 

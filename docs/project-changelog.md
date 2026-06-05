@@ -2041,3 +2041,26 @@
   - 新字段、artifact 和 UI 均 additive；默认 pytest 仍 mock-safe，真实 LLM smoke 不进入默认测试。
   - 本刀聚焦 S9 语义 Reviewer / 局部重写第一刀，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
 
+### 2026-06-06 — S1 LLM Agent Decision Advisory
+
+- **做了什么**：
+  - `world_sandbox` 新增显式 opt-in 的 `llm_decision_mode=advisory`，默认 `deterministic` 不变；不改 `run_scene` 默认行为。
+  - 启用后会把本轮角色 baseline、决策输入、主观记忆、干预约束和世界线状态批量交给真实 LLM，生成逐角色决策建议，并写入 `outputs/<run_id>/agent_decision_advisory.json`。
+  - 角色行动新增 `llm_decision_advisory`，包含采信/存疑、欺骗或隐瞒、传播或压住信息、反抗或顺势利用、临场判断、信任移动和记忆种子；命中角色的 `visible_action`、`true_intent`、`expected_outcome`、`risk` 和主观记忆种子会被 advisory 覆盖，同时保留 deterministic baseline。
+  - `POST /api/stories/<slug>/sandbox/run` 接收 `llm_decision_mode` / `llm_decision_mock` 字段；非法模式返回 400，不静默忽略。
+  - 世界沙盘页新增“启用真实模型决策建议”勾选项，并在本地产物、模型决策建议区和角色行动卡展示 advisory 状态与五类决策字段。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增 `test_llm_decision_advisory_overlays_character_choices` 后，先因 `run_sandbox_round()` 不支持 `llm_decision_mode` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_world_sandbox.py -q` -> **14 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **931 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 真实模型 smoke：临时项目显式启用 `llm_decision_mode=advisory`；真实 LLM 返回 `ready`，命中 3 个角色，首个角色包含 `belief_update`、`deception_strategy`、`propagation_choice`、`resistance_choice`、`situational_judgement` 五类字段，未打印明文 key。
+- **边界**：
+  - 新参数、artifact、API 字段和 UI 均 additive；默认沙盘仍走 deterministic，不调用真实模型。
+  - advisory 是单轮决策建议层，不是完整 LLM runner；失败或无 key 时降级保留 deterministic 行动。
+  - 本刀聚焦 S1 真实模型决策第一刀，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+- **下一刀建议**：
+  - 继续 S1/S2/S5：让 advisory 跨轮结算，形成长期关系图、势力资源和失败/误判后的后续策略。
+  - 继续 S8/S9：提升长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
+

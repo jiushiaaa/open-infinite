@@ -462,6 +462,30 @@ export interface WorldSandboxMemePropagation {
   reaction?: WorldSandboxResistanceBehavior;
 }
 
+export interface WorldSandboxLLMDecisionAdvisory {
+  status?: string;
+  generated_by?: string;
+  character_id?: string;
+  belief_update?: string;
+  visible_action?: string;
+  true_intent?: string;
+  expected_outcome?: string;
+  risk?: string;
+  deception_strategy?: string;
+  propagation_choice?: string;
+  resistance_choice?: string;
+  situational_judgement?: string;
+  trust_shift?: string;
+  memory_seed?: string[];
+  deterministic_baseline?: {
+    decision_mode?: string;
+    visible_action?: string;
+    true_intent?: string;
+    expected_outcome?: string;
+    risk?: string;
+  };
+}
+
 export interface WorldSandboxCharacterAction {
   character_id: string;
   character_name: string;
@@ -494,6 +518,7 @@ export interface WorldSandboxCharacterAction {
     spread_vector?: string[];
   };
   meme_propagation?: WorldSandboxMemePropagation;
+  llm_decision_advisory?: WorldSandboxLLMDecisionAdvisory;
   fate_mark?: {
     status?: string;
     label?: string;
@@ -594,6 +619,18 @@ export interface WorldSandboxRound {
   }>;
   boundaries: string[];
   intervention_constraint?: WorldSandboxInterventionConstraint;
+  llm_decision_advisory?: {
+    status?: string;
+    mode?: string;
+    requested?: boolean;
+    mock?: boolean;
+    generated_by?: string;
+    summary?: string;
+    action_count?: number;
+    fallback_reason?: string;
+    decisions?: WorldSandboxLLMDecisionAdvisory[];
+    usage?: Record<string, number | string | null>;
+  };
 }
 
 export interface WorldSandboxRunReport {
@@ -613,12 +650,16 @@ export interface WorldSandboxRunReport {
     writes_artifacts: boolean;
     external_services_required: boolean;
     run_scene_default_unchanged: boolean;
+    llm_decision_status?: string;
+    llm_decision_action_count?: number;
+    llm_decision_generated_by?: string;
   };
   artifacts: {
     sandbox_rounds: string;
     sandbox_summary: string;
     subjective_memory_delta: string;
     intervention_constraint?: string;
+    agent_decision_advisory?: string;
   };
   intervention_constraint?: WorldSandboxInterventionConstraint;
   worldline_state?: WorldlineState;
@@ -638,6 +679,8 @@ export interface WorldSandboxRunRequest {
   intervention_target?: string;
   intervention_projection_mode?: "immersive" | "wild_au" | string;
   intervention_constraint?: WorldSandboxInterventionConstraint;
+  llm_decision_mode?: "deterministic" | "advisory" | string;
+  llm_decision_mock?: boolean;
 }
 
 export interface SubjectiveMemoryEntry {
@@ -696,6 +739,7 @@ export interface SubjectiveMemoryEntry {
     spread_vector?: string[];
   };
   meme_propagation?: WorldSandboxMemePropagation;
+  llm_decision_advisory?: WorldSandboxLLMDecisionAdvisory;
 }
 
 export interface WorldlineState {

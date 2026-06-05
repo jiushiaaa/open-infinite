@@ -1857,6 +1857,8 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     if isinstance(body.get("intervention_constraint"), dict)
                     else None
                 ),
+                llm_decision_mode=str(body.get("llm_decision_mode") or "deterministic"),
+                llm_decision_mock=bool(body.get("llm_decision_mock") or False),
             )
         except WorldSandboxRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)

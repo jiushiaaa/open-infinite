@@ -8,10 +8,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, ConfigDict, Field
 import yaml
 
 from living_novel_engine.browser.validators import safe_id
 from living_novel_engine.browser.paths import outputs_dir as default_outputs_dir
+from living_novel_engine.llm.client import LLMClient
 from living_novel_engine.service.project_health import resolve_story_path
 from living_novel_engine.service.tianming_intervention_compiler import (
     TianmingInterventionCompilerRequestError,
@@ -26,6 +28,32 @@ VERSION = "world-sandbox-round-v1"
 _ROUNDS_ARTIFACT = "sandbox_rounds.jsonl"
 _SUBJECTIVE_MEMORY_DELTA_ARTIFACT = "subjective_memory_delta.json"
 _INTERVENTION_CONSTRAINT_ARTIFACT = "intervention_constraint.json"
+_AGENT_DECISION_ADVISORY_ARTIFACT = "agent_decision_advisory.json"
+
+
+class _LLMDecisionItem(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    character_id: str = ""
+    belief_update: str = ""
+    visible_action: str = ""
+    true_intent: str = ""
+    expected_outcome: str = ""
+    risk: str = ""
+    deception_strategy: str = ""
+    propagation_choice: str = ""
+    resistance_choice: str = ""
+    situational_judgement: str = ""
+    trust_shift: str = ""
+    memory_seed: list[str] = Field(default_factory=list)
+
+
+class _LLMDecisionPack(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    status: str = "ready"
+    summary: str = ""
+    decisions: list[_LLMDecisionItem] = Field(default_factory=list)
 
 
 class WorldSandboxRequestError(ValueError):
@@ -43,6 +71,9 @@ def run_sandbox_round(
     projects_dir: Path | None = None,
     outputs_dir: Path | None = None,
     worldline_id: str = "main",
+    llm_decision_mode: str = "deterministic",
+    llm_decision_mock: bool = False,
+    llm_client: Any | None = None,
 ) -> dict[str, Any]:
     """Run one deterministic sandbox round and write ``sandbox_rounds.jsonl``.
 
@@ -56,6 +87,7 @@ def run_sandbox_round(
         raise WorldSandboxRequestError("major_event 不能为空")
     sid = _checked_id(story_slug, "story_slug")
     wid = _checked_id(worldline_id, "worldline_id")
+    normalized_llm_decision_mode = _normalize_llm_decision_mode(llm_decision_mode)
 
     story_path, source_kind = resolve_story_path(sid, projects_dir)
     characters = _load_characters(story_path)
@@ -94,8 +126,17 @@ def run_sandbox_round(
         intervention_constraint=constraint,
         worldline_state=worldline_state,
         created_at=created_at,
+        llm_decision_mode=normalized_llm_decision_mode,
+        llm_decision_mock=llm_decision_mock,
+        llm_client=llm_client,
     )
     _write_jsonl(run_dir / _ROUNDS_ARTIFACT, [round_record])
+    decision_advisory = round_record.get("llm_decision_advisory")
+    if isinstance(decision_advisory, dict) and decision_advisory.get("status") != "skipped":
+        (run_dir / _AGENT_DECISION_ADVISORY_ARTIFACT).write_text(
+            json.dumps(decision_advisory, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
     if constraint.get("status") == "active":
         (run_dir / _INTERVENTION_CONSTRAINT_ARTIFACT).write_text(
             json.dumps(constraint, ensure_ascii=False, indent=2),
@@ -125,6 +166,12 @@ def run_sandbox_round(
             **(
                 {"intervention_constraint": _INTERVENTION_CONSTRAINT_ARTIFACT}
                 if constraint.get("status") == "active"
+                else {}
+            ),
+            **(
+                {"agent_decision_advisory": _AGENT_DECISION_ADVISORY_ARTIFACT}
+                if isinstance(decision_advisory, dict)
+                and decision_advisory.get("status") != "skipped"
                 else {}
             ),
         },
@@ -256,6 +303,9 @@ def _build_round_record(
     intervention_constraint: dict[str, Any],
     worldline_state: dict[str, Any],
     created_at: str,
+    llm_decision_mode: str = "deterministic",
+    llm_decision_mock: bool = False,
+    llm_client: Any | None = None,
 ) -> dict[str, Any]:
     actions = [
         _character_action(
@@ -270,7 +320,18 @@ def _build_round_record(
         for idx, character in enumerate(characters)
     ]
     _apply_meme_propagation(actions, previous_memories)
-    return {
+    decision_advisory = _maybe_apply_llm_decision_advisory(
+        mode=llm_decision_mode,
+        mock=llm_decision_mock,
+        client=llm_client,
+        story_slug=story_slug,
+        worldline_id=worldline_id,
+        major_event=major_event,
+        actions=actions,
+        intervention_constraint=intervention_constraint,
+        worldline_state=worldline_state,
+    )
+    record = {
         "version": VERSION,
         "run_id": run_id,
         "story_slug": story_slug,
@@ -285,12 +346,11 @@ def _build_round_record(
         "information_flow": _information_flow(actions, major_event),
         "world_state_delta": _world_state_delta(actions, major_event, worldline_state),
         "next_story_possibilities": _next_story_possibilities(actions, major_event),
-        "boundaries": [
-            "本轮只写 sandbox_rounds.jsonl 和 sandbox_summary.json。",
-            "不调用 run_scene，不覆盖 chapter.md、events.json、state_snapshot.json。",
-            "不调用外部模型、GraphRAG、Zep、向量库或 reranker。",
-        ],
+        "boundaries": _sandbox_boundaries(decision_advisory),
     }
+    if decision_advisory.get("status") != "skipped":
+        record["llm_decision_advisory"] = decision_advisory
+    return record
 
 
 def _character_action(
@@ -427,6 +487,276 @@ def _character_action(
     return action
 
 
+def _normalize_llm_decision_mode(value: str) -> str:
+    mode = str(value or "deterministic").strip().lower()
+    if mode in {"", "deterministic", "off", "none"}:
+        return "deterministic"
+    if mode in {"advisory", "llm_advisory", "llm_agent_decision_advisory"}:
+        return "advisory"
+    raise WorldSandboxRequestError("llm_decision_mode 只支持 deterministic 或 advisory")
+
+
+def _maybe_apply_llm_decision_advisory(
+    *,
+    mode: str,
+    mock: bool,
+    client: Any | None,
+    story_slug: str,
+    worldline_id: str,
+    major_event: str,
+    actions: list[dict[str, Any]],
+    intervention_constraint: dict[str, Any],
+    worldline_state: dict[str, Any],
+) -> dict[str, Any]:
+    if mode != "advisory":
+        return {"status": "skipped", "mode": "deterministic", "requested": False}
+
+    llm = client or LLMClient(mock=mock)
+    if not bool(getattr(llm, "available", True)):
+        return {
+            "status": "fallback",
+            "mode": "llm_agent_decision_advisory",
+            "requested": True,
+            "mock": bool(mock or getattr(llm, "mock", False)),
+            "generated_by": "fallback",
+            "fallback_reason": "LLM_API_KEY 未配置，已保留 deterministic 行动。",
+            "action_count": 0,
+            "decisions": [],
+        }
+
+    generated_by = "mock_llm" if bool(mock or getattr(llm, "mock", False)) else "real_llm"
+    try:
+        if hasattr(llm, "chat_json_with_usage"):
+            pack, usage = llm.chat_json_with_usage(
+                _llm_decision_system_prompt(),
+                _llm_decision_user_prompt(
+                    story_slug=story_slug,
+                    worldline_id=worldline_id,
+                    major_event=major_event,
+                    actions=actions,
+                    intervention_constraint=intervention_constraint,
+                    worldline_state=worldline_state,
+                ),
+                _LLMDecisionPack,
+                temperature=0.55,
+            )
+        else:
+            pack = llm.chat_json(
+                _llm_decision_system_prompt(),
+                _llm_decision_user_prompt(
+                    story_slug=story_slug,
+                    worldline_id=worldline_id,
+                    major_event=major_event,
+                    actions=actions,
+                    intervention_constraint=intervention_constraint,
+                    worldline_state=worldline_state,
+                ),
+                _LLMDecisionPack,
+                temperature=0.55,
+            )
+            usage = None
+    except Exception as exc:  # pragma: no cover - exercised by real smoke fallback.
+        return {
+            "status": "fallback",
+            "mode": "llm_agent_decision_advisory",
+            "requested": True,
+            "mock": bool(mock or getattr(llm, "mock", False)),
+            "generated_by": "fallback",
+            "fallback_reason": _safe_error_text(exc),
+            "action_count": 0,
+            "decisions": [],
+        }
+
+    by_id = {
+        _text(item.character_id): item
+        for item in pack.decisions
+        if _text(item.character_id)
+    }
+    applied: list[dict[str, Any]] = []
+    for action in actions:
+        decision = by_id.get(_text(action.get("character_id")))
+        if decision is None:
+            continue
+        public = _public_llm_decision(decision, generated_by=generated_by)
+        _overlay_action_with_llm_decision(action, public)
+        applied.append(public)
+
+    status = "ready" if applied else "fallback"
+    return {
+        "status": status,
+        "mode": "llm_agent_decision_advisory",
+        "requested": True,
+        "mock": generated_by == "mock_llm",
+        "generated_by": generated_by if applied else "fallback",
+        "summary": _text(pack.summary)
+        or ("模型已给出逐角色决策建议。" if applied else "模型未返回可匹配角色决策。"),
+        "action_count": len(applied),
+        "decisions": applied,
+        "usage": usage or {},
+        **({"fallback_reason": "模型未返回可匹配角色决策。"} if not applied else {}),
+    }
+
+
+def _llm_decision_system_prompt() -> str:
+    return (
+        "你是未终章世界沙盘的多 Agent 决策顾问。"
+        "你的任务不是写小说正文，而是让每个角色基于自己的欲望、恐惧、记忆、关系、"
+        "干预痕迹、因果债和命痕压力做更像人的判断。"
+        "请避免模板化三选一；每个角色都要给出采信/存疑、欺骗或隐瞒、传播或压住信息、"
+        "反抗或顺势利用、临场判断。"
+        "不要输出推理过程，只给可审计的决策摘要和可用于沙盘字段的短文本。"
+    )
+
+
+def _llm_decision_user_prompt(
+    *,
+    story_slug: str,
+    worldline_id: str,
+    major_event: str,
+    actions: list[dict[str, Any]],
+    intervention_constraint: dict[str, Any],
+    worldline_state: dict[str, Any],
+) -> str:
+    payload = {
+        "story_slug": story_slug,
+        "worldline_id": worldline_id,
+        "major_event": _event_hint(major_event),
+        "intervention_constraint": _compact_for_prompt(intervention_constraint),
+        "worldline_state": _compact_for_prompt(worldline_state),
+        "characters": [
+            {
+                "character_id": action.get("character_id"),
+                "character_name": action.get("character_name"),
+                "narrative_role": action.get("narrative_role"),
+                "baseline_stance": action.get("stance"),
+                "baseline_visible_action": action.get("visible_action"),
+                "baseline_true_intent": action.get("true_intent"),
+                "decision_inputs": action.get("decision_inputs"),
+                "previous_subjective_memory": action.get("previous_subjective_memory"),
+                "awareness": action.get("awareness"),
+                "meme_propagation": action.get("meme_propagation"),
+            }
+            for action in actions
+        ],
+        "required_decision_fields": [
+            "belief_update",
+            "visible_action",
+            "true_intent",
+            "expected_outcome",
+            "risk",
+            "deception_strategy",
+            "propagation_choice",
+            "resistance_choice",
+            "situational_judgement",
+            "trust_shift",
+            "memory_seed",
+        ],
+    }
+    return json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def _compact_for_prompt(value: Any) -> Any:
+    if not isinstance(value, dict):
+        return value
+    wanted = {
+        "status",
+        "content",
+        "target",
+        "projection_mode",
+        "branch_axis",
+        "causal_debt",
+        "source_intervention",
+        "tianming_snapshot",
+        "causal_debt",
+        "anchor_status",
+        "replacement_anchor_candidates",
+        "meme_contamination",
+        "consequence_state",
+        "continuation_inputs",
+    }
+    return {key: value.get(key) for key in wanted if key in value}
+
+
+def _public_llm_decision(
+    item: _LLMDecisionItem,
+    *,
+    generated_by: str,
+) -> dict[str, Any]:
+    return {
+        "status": "ready",
+        "generated_by": generated_by,
+        "character_id": _text(item.character_id),
+        "belief_update": _text(item.belief_update),
+        "visible_action": _text(item.visible_action),
+        "true_intent": _text(item.true_intent),
+        "expected_outcome": _text(item.expected_outcome),
+        "risk": _text(item.risk),
+        "deception_strategy": _text(item.deception_strategy),
+        "propagation_choice": _text(item.propagation_choice),
+        "resistance_choice": _text(item.resistance_choice),
+        "situational_judgement": _text(item.situational_judgement),
+        "trust_shift": _text(item.trust_shift),
+        "memory_seed": [_text(seed) for seed in item.memory_seed if _text(seed)][:3],
+    }
+
+
+def _overlay_action_with_llm_decision(
+    action: dict[str, Any],
+    decision: dict[str, Any],
+) -> None:
+    baseline = {
+        "decision_mode": action.get("decision_mode"),
+        "visible_action": action.get("visible_action"),
+        "true_intent": action.get("true_intent"),
+        "expected_outcome": action.get("expected_outcome"),
+        "risk": action.get("risk"),
+    }
+    action["decision_mode"] = "llm_agent_decision_advisory"
+    action["llm_decision_advisory"] = {
+        **decision,
+        "deterministic_baseline": baseline,
+    }
+    for field in ("visible_action", "true_intent", "expected_outcome", "risk"):
+        if decision.get(field):
+            action[field] = decision[field]
+    if decision.get("visible_action"):
+        action["action"] = decision["visible_action"]
+    if decision.get("trust_shift"):
+        action["relationship_delta"] = decision["trust_shift"]
+    seeds = _list_text(decision.get("memory_seed"))
+    if seeds:
+        seed = action.get("memory_seed") if isinstance(action.get("memory_seed"), dict) else {}
+        seed["inferred"] = seeds
+        action["memory_seed"] = seed
+    if decision.get("belief_update"):
+        action["memory_influence"] = decision["belief_update"]
+    action["reason"] = (
+        f"{action.get('reason') or ''} 模型决策建议："
+        f"{decision.get('situational_judgement') or decision.get('belief_update') or '本轮已改用角色临场判断。'}"
+    ).strip()
+
+
+def _sandbox_boundaries(decision_advisory: dict[str, Any]) -> list[str]:
+    boundaries = [
+        "本轮只写 sandbox_rounds.jsonl 和 sandbox_summary.json。",
+        "不调用 run_scene，不覆盖 chapter.md、events.json、state_snapshot.json。",
+    ]
+    if decision_advisory.get("status") == "skipped":
+        boundaries.append("不调用外部模型、GraphRAG、Zep、向量库或 reranker。")
+    elif decision_advisory.get("generated_by") == "real_llm":
+        boundaries.append(
+            "已显式启用真实 LLM 决策建议；失败会保留 deterministic 行动。"
+        )
+    else:
+        boundaries.append("LLM 决策建议未调用真实外部模型，已保留可降级边界。")
+    return boundaries
+
+
+def _safe_error_text(exc: Exception) -> str:
+    text = str(exc).strip() or exc.__class__.__name__
+    return text[:180]
+
+
 def _append_subjective_memory_delta(
     *,
     story_path: Path,
@@ -512,6 +842,7 @@ def _subjective_memory_entry(
         "resistance_behavior": action.get("resistance_behavior") or {},
         "meme_contamination": action.get("meme_contamination") or {"status": "none"},
         "meme_propagation": action.get("meme_propagation") or {"status": "none"},
+        "llm_decision_advisory": action.get("llm_decision_advisory") or {},
         **psychology,
     }
 
@@ -1459,6 +1790,7 @@ def _build_report(
         if isinstance(action, dict)
     ]
     active_constraint = _active_intervention_constraint(rounds, intervention_constraint)
+    decision_advisory = _active_llm_decision_advisory(rounds)
     artifacts = {
         "sandbox_rounds": _ROUNDS_ARTIFACT,
         "sandbox_summary": "sandbox_summary.json",
@@ -1466,9 +1798,15 @@ def _build_report(
     }
     if active_constraint.get("status") == "active":
         artifacts["intervention_constraint"] = _INTERVENTION_CONSTRAINT_ARTIFACT
+    if decision_advisory.get("status") != "skipped":
+        artifacts["agent_decision_advisory"] = _AGENT_DECISION_ADVISORY_ARTIFACT
     return {
         "version": VERSION,
-        "mode": "deterministic_world_sandbox_round",
+        "mode": (
+            "llm_agent_decision_advisory"
+            if decision_advisory.get("status") != "skipped"
+            else "deterministic_world_sandbox_round"
+        ),
         "run_id": run_id,
         "story_slug": story_slug,
         "source_kind": source_kind,
@@ -1485,7 +1823,16 @@ def _build_report(
             "subjective_memory_entries_written": int(
                 (subjective_memory_delta or {}).get("entry_count") or 0
             ),
-            "external_services_required": False,
+            "llm_decision_status": decision_advisory.get("status") or "skipped",
+            "llm_decision_action_count": int(
+                decision_advisory.get("action_count") or 0
+            ),
+            "llm_decision_generated_by": decision_advisory.get("generated_by") or "",
+            "external_services_required": bool(
+                decision_advisory.get("requested")
+                and not decision_advisory.get("mock")
+                and decision_advisory.get("status") != "skipped"
+            ),
             "run_scene_default_unchanged": True,
         },
         "artifacts": artifacts,
@@ -1513,6 +1860,16 @@ def _active_intervention_constraint(
         if isinstance(constraint, dict) and constraint.get("status") == "active":
             return constraint
     return {"status": "none", "source": "none", "content": "", "target": ""}
+
+
+def _active_llm_decision_advisory(rounds: list[dict[str, Any]]) -> dict[str, Any]:
+    for round_record in rounds:
+        if not isinstance(round_record, dict):
+            continue
+        advisory = round_record.get("llm_decision_advisory")
+        if isinstance(advisory, dict):
+            return advisory
+    return {"status": "skipped", "mode": "deterministic", "requested": False}
 
 
 def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:

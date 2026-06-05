@@ -2,7 +2,7 @@
 
 > 用途：给后续 Codex / Cursor / 其他开发 Agent 做开工前自检，避免继续沿着旧的工程化面板、provider spike 或检索评测方向跑偏。
 > 当前主 PRD：`unfinale-world-sandbox-remodel-prd.md`。
-> 2026-06-05 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。S4 后半到 S9 已补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。S6 进一步新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入后续沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和作者采纳台草稿入口，采纳结果可生成可读下一章正文；继续新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者编辑确认入口，确认结果会回写世界线状态与后续沙盘入口；已补 `confirmed_chapter_reading_trail.json` 和作者采纳台跨卷宗阅读链，确认稿可回读世界正史卷、角色个人卷和事件多视角证据。本轮继续补强 S9：采纳、部分采纳、另开分支会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact；另开分支写作者分支状态，不覆盖根正史。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
+> 2026-06-06 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。S4 后半到 S9 已补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。S6 进一步新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入后续沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增 `next_chapter_draft.json` / `next_chapter_draft.md`、`draft_revision_pack.json`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台草稿/确认/跨卷宗阅读链。S9 采纳、部分采纳、另开分支会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact；另开分支写作者分支状态，不覆盖根正史。本轮新增 S1 真实 LLM 多 Agent 决策第一刀：世界沙盘 API/UI 可显式启用 `llm_decision_mode=advisory`，写 `agent_decision_advisory.json`，让模型给出逐角色采信、欺骗、传播、反抗和临场判断；默认 deterministic 不变。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
 
 ## 1. 开工前必读
 
@@ -174,7 +174,7 @@ API 规则沿用项目硬约束：identifier 安全校验；失败返回明确 4
 1. 世界线 / 检查点独立页：在 `worldline_state.json`、`consequence_state` 和 checkpoint replay 已有能力层后，补用户可直接浏览和回放世界线/检查点的卷宗页。
 2. L5 觉醒反抗：让高觉醒角色能拒绝、假意服从、欺骗读者、保护他人或传播高维真相。
 3. 主观记忆继续加深：在 S2 已有误会/盲区字段后，补长期召回、记忆压缩/遗忘、压抑记忆爆发、误会图谱和“角色不知道的正史事实”对照。
-4. Agent 决策继续加深：下一轮可在显式 opt-in 下接真实模型 runner smoke，但默认仍保留 deterministic/mockable 基线。
+4. Agent 决策继续加深：已具备显式 opt-in 的真实模型决策建议层；下一轮应深挖多轮策略规划、长期关系/势力博弈和 LLM 建议如何跨轮结算，默认仍保留 deterministic/mockable 基线。
 5. 世界状态持久化：继续把 `consequence_state` 从固定六域描述升级为可累积、可确认、可用于真实 LLM 决策的状态机。
 6. 多视角正文：从 brief 升级到可读章节和连续角色个人卷。
 7. 作者采纳反哺：采纳、部分采纳、另开分支能生成下一章 brief、正文草稿、可读方案、伏笔调整、Reviewer 建议和后续沙盘入口；作者可编辑确认入卷。
@@ -195,6 +195,8 @@ API 规则沿用项目硬约束：identifier 安全校验；失败返回明确 4
 当前正在执行的 S1-S9 不需要中途推翻。等这一轮完成后，统一按本口径检查；若没有全部达到产品能力成立，第三轮迭代从未达标项继续。
 
 2026-06-04 补充：S1 `Agent Decision Deepening MVP` 已让角色行动记录新增决策输入、外在行动、真实意图、风险和行动结果，并通过第二轮记忆影响行动的 focused test。下一刀优先 S2，把这些行动证据写成更细的主观心理和信息差；真实 API 可做显式 smoke，不进入默认 pytest 基线。
+
+2026-06-06 补充：S1 `LLM Agent Decision Advisory` 已让世界沙盘 API/UI 在显式 opt-in 下调用真实 LLM，生成 `agent_decision_advisory.json`，并把逐角色采信、欺骗、传播、反抗、临场判断写回本轮行动和主观记忆；真实 smoke 返回 ready、命中 3 个角色。下一刀不应再重复“能否接真实 LLM”，而应继续做跨轮策略、长期关系图、势力资源和失败/误判结算。
 
 2026-06-04 补充：S2 `Subjective Memory Psychology MVP` 已让主观记忆记录角色感知、内心想法、推测动机、误会、未知正史、秘密可见性和异常权重，并通过同一事件双角色矛盾记忆与下一轮误会冲突的 focused test。下一刀优先 S3《天命书》世界线宪法，或继续 S2 的长期召回/误会图谱。
 

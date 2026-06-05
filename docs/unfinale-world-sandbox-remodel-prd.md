@@ -92,6 +92,14 @@
 - 作者采纳台在草稿编辑区展示“局部修订包”，让作者在“确认入卷”前看到应该打磨开场、角色误判和具象代偿的具体建议。
 - 真实 LLM smoke 使用 `.env` 中真实配置生成 1047 字正文，Reviewer 四项全通过，修订包状态 ready，包含 3 条局部改写建议；默认单元测试仍保持 mock-safe。
 
+2026-06-06 S1 真实 LLM 多 Agent 决策第一刀：
+
+- `run_sandbox_round()` 与 `POST /api/stories/<slug>/sandbox/run` 新增显式 opt-in 参数 `llm_decision_mode=advisory`；默认仍是 deterministic，不改 `run_scene`。
+- 启用后会把本轮 deterministic 行动、主观记忆、干预约束和世界线状态作为 baseline，批量请求真实 LLM 生成逐角色决策建议，并写入 `outputs/<run_id>/agent_decision_advisory.json`。
+- 决策建议覆盖本轮角色行动展示字段，并保留 deterministic baseline；字段包括采信/存疑、欺骗或隐瞒、传播或压住信息、反抗或顺势利用、临场判断、信任移动和记忆种子。
+- 世界沙盘页新增“启用真实模型决策建议”勾选项和行动卡展示区；作者/读者可直接看到模型建议如何改变外在行动、真实意图和记忆写入。
+- 真实 LLM smoke 使用 `.env` 中真实配置成功返回 ready，命中 3 个角色，五类决策字段齐全；默认单元测试仍保持 mock-safe。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：
@@ -232,7 +240,7 @@
 | --- | --- | --- |
 | 《天命书》 artifact | 已有 `projects/<slug>/tianming.json`，支持生成、读取、轻量确认；S3 第一刀已加入吸引子权重/类别、多锚点、四档合约压力和 L4/L5/AU 世界线快照；旧版已确认天命书会保守补齐 S3 宪法字段并保留既有吸引子。 | 仍需从长篇全文和章节上下文中做更准确的 AI 预抽取；叙事吸引子和锚点压力还需要随世界线演化动态更新。 |
 | 角色主观记忆链 | 已有 `subjective_memory.jsonl`，每个角色/世界线独立追加，下一轮会读取上一条记忆；S5 已把 L5 高维真相、命痕、模因传播来源、是否采信、可信度和反应类型写入角色自己的记忆。 | 仍需支持更长期召回策略、记忆压缩/遗忘、压抑记忆后续爆发、误会图谱页面和真实 LLM 心理推演。 |
-| 沙盘轮次 artifact | 已有 `sandbox_rounds.jsonl` 和 `sandbox_summary.json`。 | 目前行动是 deterministic 模板，不是真正 LLM 多 Agent 高智商博弈；尚未接入多轮复杂目标、势力资源和策略欺骗。 |
+| 沙盘轮次 artifact | 已有 `sandbox_rounds.jsonl` 和 `sandbox_summary.json`；本轮新增显式 opt-in 的 `agent_decision_advisory.json`，可让真实 LLM 基于角色记忆、干预约束和世界线状态给出逐角色采信、欺骗、传播、反抗和临场判断，并进入行动/记忆/UI。 | 默认仍是 deterministic；真实 LLM 目前是单轮 advisory，不是完整多轮 runner。仍需复杂长期关系图、势力资源、跨轮策略规划和失败/误判后续结算。 |
 | 干预编译器 | 已有读取《天命书》的预编译 API，输出类型、层级、兼容性、转译、分支轴和因果债；L4/L5/AU 会写世界线《天命书》快照且不覆盖根文件。 | 目前主要靠关键词规则；仍需完整实现类型 x 层级 x 转译矩阵、用户确认界面和普通分支/AU 的后续落地执行。 |
 | 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入；本次新增 `consequence_state`，把代偿压力具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮决策、自演检查点、多视角正文和下一章 brief。 | 仍需让六域状态支持更细的数值/枚举演化、人工确认、跨章节归档和真实 LLM 决策消费。 |
 | 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放。 | 仍需真实后台队列、长时运行守护、失败自动恢复和更精确的停止条件命中。 |
@@ -581,7 +589,8 @@ S1-S9 的完成标准必须从“最小闭环成立”升级为“产品能力�
 - 已收口 S1 第一刀 `Agent Decision Deepening MVP`：`sandbox_rounds.jsonl` 的角色行动新增 `decision_mode`、`decision_inputs`、`visible_action`、`true_intent`、`expected_outcome`、`risk`、`memory_influence` 和 `action_outcome`。
 - 每个 deterministic 行动会读取角色欲望、恐惧、上一轮主观记忆、关系/秘密/资源信号和《天命书》压力；第二轮行动可因上一轮 `new_belief` / `anomaly_delta` 改为假意服从、隐瞒、试探结盟或背叛旧约等策略。
 - 世界沙盘 UI 已在角色行动卡展示外在行动、真实意图、决策输入、预期/风险和行动结果；不改 `run_scene` 默认行为，不调用外部 provider。
-- 仍未完成：LLM runner opt-in、复杂长期关系图、真正高智商多步欺骗和跨轮策略规划；这些进入后续 S1/S2/S5 深化，不计作 v1-v8 第一版重复工作。
+- 已新增 S1 第二刀 `LLM Agent Decision Advisory`：世界沙盘 API/UI 可显式启用真实模型决策建议，生成 `agent_decision_advisory.json`，让模型按角色分别给出采信、欺骗、传播、反抗和临场判断，并覆盖本轮行动展示与主观记忆种子；失败时保留 deterministic 行动。
+- 仍未完成：完整 LLM runner、多轮复杂长期关系图、势力资源、真正高智商多步欺骗和跨轮策略规划；这些进入后续 S1/S2/S5 深化，不计作 v1-v8 第一版重复工作。
 
 目标：
 

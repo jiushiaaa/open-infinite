@@ -17,6 +17,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [interventionTarget, setInterventionTarget] = useState("");
   const [interventionProjectionMode, setInterventionProjectionMode] =
     useState<"immersive" | "wild_au">("immersive");
+  const [llmDecisionAdvisory, setLlmDecisionAdvisory] = useState(false);
   const [report, setReport] = useState<WorldSandboxRunReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +96,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         intervention_projection_mode: interventionContent.trim()
           ? interventionProjectionMode
           : undefined,
+        llm_decision_mode: llmDecisionAdvisory ? "advisory" : "deterministic",
       });
       setReport(next);
       const firstCharacter = next.rounds[0]?.character_actions[0]?.character_id;
@@ -229,8 +231,16 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
             <button className="btn btn--primary" disabled={!canRun} onClick={runRound}>
               {loading ? "沙盘推演中…" : "运行一轮"}
             </button>
+            <label className="sandbox-check">
+              <input
+                type="checkbox"
+                checked={llmDecisionAdvisory}
+                onChange={(event) => setLlmDecisionAdvisory(event.target.checked)}
+              />
+              <span>启用真实模型决策建议</span>
+            </label>
             <p className="muted tiny">
-              留空干预时只运行普通沙盘；填写后会先读取《天命书》，再按投放方式生成本轮约束。
+              留空干预时只运行普通沙盘；勾选模型建议后，本轮会额外让模型给出采信、欺骗、传播、反抗和临场判断，失败则保留原沙盘行动。
             </p>
           </div>
 
@@ -262,6 +272,12 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   <div>
                     <dt>干预</dt>
                     <dd>{report.artifacts.intervention_constraint}</dd>
+                  </div>
+                )}
+                {report.artifacts.agent_decision_advisory && (
+                  <div>
+                    <dt>模型</dt>
+                    <dd>{report.artifacts.agent_decision_advisory}</dd>
                   </div>
                 )}
                 {report.worldline_state?.artifact && (
@@ -558,6 +574,27 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   </dl>
                 </section>
               )}
+              {round.llm_decision_advisory &&
+                round.llm_decision_advisory.status !== "skipped" && (
+                  <section className="sandbox-section sandbox-llm-advisory">
+                    <div className="sandbox-section__title">
+                      <h2>模型决策建议</h2>
+                      <span className="badge badge--gold">
+                        {llmDecisionStatusLabel(round.llm_decision_advisory.status)}
+                      </span>
+                    </div>
+                    <p>
+                      {round.llm_decision_advisory.summary ||
+                        round.llm_decision_advisory.fallback_reason ||
+                        "本轮已尝试让真实模型给角色补一层临场判断。"}
+                    </p>
+                    <p className="muted tiny">
+                      {llmGeneratedByLabel(round.llm_decision_advisory.generated_by)} · 命中{" "}
+                      {round.llm_decision_advisory.action_count ?? 0} 个角色 · 不改
+                      run_scene 默认行为
+                    </p>
+                  </section>
+                )}
               <section className="sandbox-section">
                 <div className="sandbox-section__title">
                   <h2>角色行动链</h2>
@@ -635,6 +672,30 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                             <div>
                               <dt>异常感</dt>
                               <dd>{item.meme_propagation.signals?.anomaly}</dd>
+                            </div>
+                          </dl>
+                        </div>
+                      )}
+                      {item.llm_decision_advisory?.status === "ready" && (
+                        <div className="sandbox-action__llm">
+                          <span>模型临场判断</span>
+                          <strong>{item.llm_decision_advisory.situational_judgement}</strong>
+                          <dl>
+                            <div>
+                              <dt>采信</dt>
+                              <dd>{item.llm_decision_advisory.belief_update}</dd>
+                            </div>
+                            <div>
+                              <dt>欺骗</dt>
+                              <dd>{item.llm_decision_advisory.deception_strategy}</dd>
+                            </div>
+                            <div>
+                              <dt>传播</dt>
+                              <dd>{item.llm_decision_advisory.propagation_choice}</dd>
+                            </div>
+                            <div>
+                              <dt>反抗</dt>
+                              <dd>{item.llm_decision_advisory.resistance_choice}</dd>
                             </div>
                           </dl>
                         </div>
@@ -913,4 +974,17 @@ function beliefDecisionLabel(decision?: string) {
   if (decision === "doubted") return "存疑";
   if (decision === "rejected") return "拒信";
   return "未判定";
+}
+
+function llmDecisionStatusLabel(status?: string) {
+  if (status === "ready") return "已采入";
+  if (status === "fallback") return "已降级";
+  return "未启用";
+}
+
+function llmGeneratedByLabel(value?: string) {
+  if (value === "real_llm") return "真实模型";
+  if (value === "mock_llm") return "模拟模型";
+  if (value === "fallback") return "本地降级";
+  return "未记录来源";
 }
