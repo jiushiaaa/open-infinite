@@ -235,6 +235,65 @@
   gap: var(--space-2);
 }
 
+.adoption-reading {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--line);
+}
+
+.adoption-reading__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.adoption-reading__head h4 {
+  margin: 0 0 2px;
+  font-family: var(--font-serif);
+  font-size: 16px;
+}
+
+.adoption-reading__head p,
+.adoption-reading__section p {
+  margin: 0;
+}
+
+.adoption-reading__sections {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.adoption-reading__section {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--line-faint);
+}
+
+.adoption-reading__section:first-child {
+  border-top: 0;
+}
+
+.adoption-reading__section > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.adoption-reading__section p:not(.mono) {
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.adoption-reading__refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
 @media (max-width: 960px) {
   .adoption-hero,
   .adoption-layout,

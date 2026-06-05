@@ -253,6 +253,80 @@ def test_author_chapter_confirmation_formalizes_edited_text_for_worldline(tmp_pa
     assert state["continuation_inputs"]["major_event_hint"].startswith("作者确认章节")
 
 
+def test_author_chapter_confirmation_links_back_to_cross_volume_evidence(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+    lens = generate_character_lens_briefs(
+        "adoption-story",
+        source_event="风鸣铃现世，赵轩连续隐瞒消息，沈冰月误以为他投向暗线。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    adoption = record_author_adoption(
+        "adoption-story",
+        source_run_id=lens["run_id"],
+        decision="adopted",
+        original_outline="赵轩公开风鸣铃线索，沈冰月不再怀疑。",
+        author_note="采纳信息差，让确认章节可回读多视角证据。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    draft = generate_author_chapter_draft(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        mock=True,
+    )
+
+    confirmation = confirm_author_chapter_entry(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        edited_chapter_text=draft["chapter_text"]
+        + "\n\n作者确认：这章必须能回读世界正史卷、赵轩个人卷和事件多视角证据。",
+        author_note="确认入卷并开启跨卷宗阅读。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    run_dir = outputs_dir / adoption["run_id"]
+    trail_path = run_dir / "confirmed_chapter_reading_trail.json"
+
+    assert confirmation["artifacts"]["confirmed_chapter_reading_trail"] == (
+        "confirmed_chapter_reading_trail.json"
+    )
+    assert trail_path.exists()
+    trail = confirmation["reading_trail"]
+    section_ids = {section["id"] for section in trail["sections"]}
+    assert trail["source_lens_run_id"] == lens["run_id"]
+    assert trail["source_sandbox_run_id"] == lens["source"]["sandbox_run_id"]
+    assert {
+        "confirmed_chapter",
+        "worldline_state",
+        "world_chronicle",
+        "character_volume",
+        "event_multi_perspective",
+    } <= section_ids
+    character_section = next(
+        section for section in trail["sections"] if section["id"] == "character_volume"
+    )
+    assert character_section["event_node_count"] >= 3
+    assert character_section["character_id"] == "zhao_xuan"
+    assert any(
+        "character_lens_volumes.json" in ref
+        for section in trail["sections"]
+        for ref in section["evidence_refs"]
+    )
+    assert all(item["passed"] for item in confirmation["reviewer_checklist"])
+    assert any(
+        item["item"] == "可回读世界正史卷、角色个人卷和事件多视角"
+        and item["passed"]
+        for item in confirmation["reviewer_checklist"]
+    )
+
+
 def test_author_adoption_supports_allowed_decisions(tmp_path):
     _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"
@@ -344,6 +418,9 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         assert confirmation["edited"] is True
         assert confirmation["evidence_chain"]["next_chapter_draft"] == "next_chapter_draft.json"
         assert confirmation["continuation_effect"]["affects_future_sandbox"] is True
+        assert confirmation["artifacts"]["confirmed_chapter_reading_trail"] == (
+            "confirmed_chapter_reading_trail.json"
+        )
         assert all(item["passed"] for item in confirmation["reviewer_checklist"])
 
         bad_status, bad = _post(

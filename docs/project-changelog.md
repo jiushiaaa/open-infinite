@@ -1961,3 +1961,27 @@
   - 加强章节草稿/确认稿的局部重写、更强 Reviewer 和长正文质量控制。
   - 补跨卷宗连续阅读，让确认后的章节能跳回世界正史卷、角色个人卷和事件多视角证据。
 
+### 2026-06-05 — S9 Confirmed Chapter Reading Trail
+
+- **做了什么**：
+  - `author_chapter_confirmation` 新增 `confirmed_chapter_reading_trail.json`，在作者确认入卷时把确认稿、`worldline_state.json`、来源作者采纳记录和来源 `character_lens_volumes.json` 串成跨卷宗阅读链。
+  - 阅读链会记录来源 lens run、来源 sandbox run、世界正史卷、角色个人卷、事件多视角、角色个人卷事件节点数和证据 refs；缺少来源 lens run 时降级为 partial，不阻断确认入卷。
+  - `confirmed_chapter_entry.json` 的 `evidence_chain` 和 `artifacts` 新增 reading trail 字段，Reviewer 增加“可回读世界正史卷、角色个人卷和事件多视角”检查。
+  - 作者采纳台的确认结果区新增“跨卷宗阅读链”，展示来源沙盘、阅读链状态、每个卷宗入口、角色事件节点数和证据引用。
+  - 同步 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增 `test_author_chapter_confirmation_links_back_to_cross_volume_evidence` 后，先因确认报告缺少 `confirmed_chapter_reading_trail` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **7 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **927 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 真实模型 smoke：使用 `.env` 中真实 LLM 配置，不打印明文 key；生成真实下一章草稿后确认入卷，reading trail 为 ready，包含世界正史卷、角色个人卷和事件多视角，Reviewer 全通过。
+  - UI 验收：`pnpm run build` 已覆盖作者采纳台新增类型与渲染路径。尝试用 in-app Browser 打开本地 Vite 页面时，`127.0.0.1`、`localhost` 与 `[::1]` 均被客户端以 `ERR_BLOCKED_BY_CLIENT` 拦截；本刀未拿到可用浏览器截图，后续若需视觉复核可在浏览器可访问本地端口后补测。
+- **边界**：
+  - 只写作者采纳 run 目录和 `worldline_state.json`；不覆盖正史 `chapter.md`，不调用 `run_scene`，不破坏既有核心 artifact。
+  - 新 API/UI/artifact 字段均 additive；默认 pytest 仍 mock-safe，真实模型 smoke 不进入默认测试。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+- **下一刀建议**：
+  - 继续真实 LLM 多 Agent 决策 smoke，让沙盘行动从模板进一步变成角色策略博弈。
+  - 加强章节草稿/确认稿的局部重写、更强 Reviewer 和长正文质量控制。
+  - 把 reading trail 从证据列表升级为正文内跳转阅读，直接打开世界正史卷、角色个人卷和事件多视角对应段落。
+

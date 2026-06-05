@@ -1246,6 +1246,29 @@ export interface AuthorChapterDraftReport {
   boundaries: string[];
 }
 
+export interface ConfirmedChapterReadingTrailSection {
+  id: string;
+  label: string;
+  title?: string;
+  artifact: string;
+  reason: string;
+  evidence_refs: string[];
+  character_id?: string;
+  character_name?: string;
+  event_node_count?: number;
+}
+
+export interface ConfirmedChapterReadingTrail {
+  version: string;
+  artifact: string;
+  status: "ready" | "partial" | string;
+  source_lens_run_id: string;
+  source_sandbox_run_id: string;
+  sections: ConfirmedChapterReadingTrailSection[];
+  next_reader_actions: string[];
+  boundaries: string[];
+}
+
 export interface AuthorChapterConfirmationReport {
   version: string;
   artifact: string;
@@ -1265,6 +1288,7 @@ export interface AuthorChapterConfirmationReport {
     worldline_state_artifact: string;
     sandbox_inputs: Record<string, string>;
     materialized_consequences: string[];
+    reading_trail: string;
   };
   continuation_effect: {
     affects_future_sandbox: boolean;
@@ -1277,6 +1301,7 @@ export interface AuthorChapterConfirmationReport {
       chapter_summary: string;
     };
   };
+  reading_trail: ConfirmedChapterReadingTrail;
   reviewer_checklist: Array<{
     item: string;
     passed: boolean;
@@ -1284,6 +1309,7 @@ export interface AuthorChapterConfirmationReport {
   artifacts: {
     confirmed_chapter_entry: string;
     confirmed_chapter_markdown: string;
+    confirmed_chapter_reading_trail: string;
   };
   boundaries: string[];
 }

@@ -19,6 +19,10 @@ const DECISIONS = [
   ["export_brief", "导出 brief"],
 ] as const;
 
+function readingTrailStatusLabel(status: string) {
+  return status === "ready" ? "可回读" : "部分证据";
+}
+
 export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [sourceEvent, setSourceEvent] = useState("风鸣铃现世。");
   const [sourceRunId, setSourceRunId] = useState("");
@@ -346,6 +350,10 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                           <dd>{confirmation.artifacts.confirmed_chapter_markdown}</dd>
                         </div>
                         <div>
+                          <dt>阅读链</dt>
+                          <dd>{confirmation.artifacts.confirmed_chapter_reading_trail}</dd>
+                        </div>
+                        <div>
                           <dt>状态</dt>
                           <dd>{confirmation.continuation_effect.worldline_state_artifact}</dd>
                         </div>
@@ -360,6 +368,53 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                           <dd>{confirmation.edited ? "已采用作者修订稿" : "沿用草稿"}</dd>
                         </div>
                       </dl>
+                      <div className="adoption-reading">
+                        <div className="adoption-reading__head">
+                          <div>
+                            <h4>跨卷宗阅读链</h4>
+                            <p className="muted tiny">
+                              来源沙盘：{confirmation.reading_trail.source_sandbox_run_id || "未绑定"}
+                            </p>
+                          </div>
+                          <span
+                            className={`badge ${
+                              confirmation.reading_trail.status === "ready"
+                                ? "badge--jade"
+                                : "badge--gold"
+                            }`}
+                          >
+                            {readingTrailStatusLabel(confirmation.reading_trail.status)}
+                          </span>
+                        </div>
+                        <div className="adoption-reading__sections">
+                          {confirmation.reading_trail.sections.map((section) => (
+                            <div className="adoption-reading__section" key={section.id}>
+                              <div>
+                                <strong>{section.label}</strong>
+                                {section.character_name && (
+                                  <span className="muted tiny">
+                                    {section.character_name}
+                                    {typeof section.event_node_count === "number"
+                                      ? ` · ${section.event_node_count} 个事件节点`
+                                      : ""}
+                                  </span>
+                                )}
+                              </div>
+                              <p>{section.reason}</p>
+                              <p className="mono tiny">{section.artifact}</p>
+                              {section.evidence_refs.length > 0 && (
+                                <div className="adoption-reading__refs">
+                                  {section.evidence_refs.map((ref) => (
+                                    <span className="badge" key={ref}>
+                                      {ref}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                       <p className="muted tiny">
                         后续沙盘会读取已确认章节、采纳记录、下一章 brief 与世界线状态继续推进。
                       </p>

@@ -17,6 +17,7 @@ from living_novel_engine.service.worldline_state import (
 VERSION = "author-chapter-confirmation-v1"
 ARTIFACT = "confirmed_chapter_entry.json"
 MARKDOWN_ARTIFACT = "confirmed_chapter.md"
+READING_TRAIL_ARTIFACT = "confirmed_chapter_reading_trail.json"
 
 
 class AuthorChapterConfirmationRequestError(ValueError):
@@ -77,6 +78,11 @@ def confirm_author_chapter_entry(
         markdown_artifact=MARKDOWN_ARTIFACT,
         next_sandbox_entry=next_sandbox_entry,
     )
+    reading_trail = _reading_trail(
+        record=record,
+        worldline_state=worldline_state,
+        outputs_root=root,
+    )
     now = datetime.now().isoformat(timespec="seconds")
     report = {
         "version": VERSION,
@@ -97,20 +103,24 @@ def confirm_author_chapter_entry(
             "worldline_state_artifact": worldline_state.get("artifact") or "",
             "sandbox_inputs": brief.get("sandbox_inputs") or {},
             "materialized_consequences": brief.get("materialized_consequences") or [],
+            "reading_trail": READING_TRAIL_ARTIFACT,
         },
         "continuation_effect": {
             "affects_future_sandbox": True,
             "worldline_state_artifact": worldline_state.get("artifact") or "",
             "next_sandbox_entry": next_sandbox_entry,
         },
+        "reading_trail": reading_trail,
         "reviewer_checklist": _reviewer_checklist(
             chapter_text,
             brief,
             worldline_state,
+            reading_trail,
         ),
         "artifacts": {
             "confirmed_chapter_entry": ARTIFACT,
             "confirmed_chapter_markdown": MARKDOWN_ARTIFACT,
+            "confirmed_chapter_reading_trail": READING_TRAIL_ARTIFACT,
         },
         "boundaries": [
             "正式入卷只写入作者采纳 run 目录和 worldline_state，不覆盖正史 chapter.md。",
@@ -123,6 +133,10 @@ def confirm_author_chapter_entry(
         encoding="utf-8",
     )
     (run_dir / MARKDOWN_ARTIFACT).write_text(_markdown(report), encoding="utf-8")
+    (run_dir / READING_TRAIL_ARTIFACT).write_text(
+        json.dumps(reading_trail, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     return report
 
 
@@ -157,8 +171,9 @@ def _reviewer_checklist(
     chapter_text: str,
     brief: dict[str, Any],
     worldline_state: dict[str, Any],
+    reading_trail: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    return [
+    checks = [
         {
             "item": "确认章节保留可读正文",
             "passed": len(_strip_text(chapter_text)) >= 120,
@@ -190,6 +205,98 @@ def _reviewer_checklist(
             "passed": True,
         },
     ]
+    if reading_trail.get("status") == "ready":
+        checks.append(
+            {
+                "item": "可回读世界正史卷、角色个人卷和事件多视角",
+                "passed": _has_cross_volume_sections(reading_trail),
+            }
+        )
+    return checks
+
+
+def _reading_trail(
+    *,
+    record: dict[str, Any],
+    worldline_state: dict[str, Any],
+    outputs_root: Path,
+) -> dict[str, Any]:
+    adoption_entry = (
+        record.get("adoption_entry") if isinstance(record.get("adoption_entry"), dict) else {}
+    )
+    source_lens_run_id = str(adoption_entry.get("source_run_id") or "").strip()
+    source_lens_run_id = safe_id(source_lens_run_id) or ""
+    sections = [
+        {
+            "id": "confirmed_chapter",
+            "label": "确认正文",
+            "artifact": MARKDOWN_ARTIFACT,
+            "reason": "作者最终确认的正文，从这里回看世界为什么会写成这一章。",
+            "evidence_refs": [ARTIFACT, MARKDOWN_ARTIFACT],
+        },
+        {
+            "id": "worldline_state",
+            "label": "世界线状态",
+            "artifact": str(worldline_state.get("artifact") or ""),
+            "reason": "确认章节已绑定的世界线、后续沙盘入口和分支状态。",
+            "evidence_refs": [str(worldline_state.get("artifact") or "")],
+        },
+        {
+            "id": "author_adoption",
+            "label": "作者采纳记录",
+            "artifact": "author_adoption_record.json",
+            "reason": "原大纲、沙盘涌现剧情和采纳方式的对照。",
+            "evidence_refs": ["author_adoption_record.json", "next_chapter_brief.json"],
+        },
+    ]
+    lens_payload = _read_lens_volumes(outputs_root, source_lens_run_id)
+    source = lens_payload.get("source") if isinstance(lens_payload.get("source"), dict) else {}
+    volumes = lens_payload.get("volumes") if isinstance(lens_payload.get("volumes"), list) else []
+    for volume_type, label in (
+        ("world_chronicle", "世界正史卷"),
+        ("character_volume", "角色个人卷"),
+        ("event_multi_perspective", "事件多视角"),
+    ):
+        volume = _find_volume(volumes, volume_type)
+        if not volume:
+            continue
+        artifact = f"outputs/{source_lens_run_id}/character_lens_volumes.json#{volume_type}"
+        section = {
+            "id": volume_type,
+            "label": label,
+            "title": str(volume.get("title") or label),
+            "artifact": artifact,
+            "reason": _volume_reason(volume_type),
+            "evidence_refs": _volume_evidence_refs(
+                volume=volume,
+                artifact=artifact,
+                sandbox_run_id=str(source.get("sandbox_run_id") or ""),
+            ),
+        }
+        if volume_type == "character_volume":
+            section["character_id"] = str(volume.get("character_id") or "")
+            section["character_name"] = str(volume.get("character_name") or "")
+            event_nodes = volume.get("event_nodes") if isinstance(volume.get("event_nodes"), list) else []
+            section["event_node_count"] = len(event_nodes)
+        sections.append(section)
+    status = "ready" if _has_cross_volume_sections({"sections": sections}) else "partial"
+    return {
+        "version": VERSION,
+        "artifact": READING_TRAIL_ARTIFACT,
+        "status": status,
+        "source_lens_run_id": source_lens_run_id,
+        "source_sandbox_run_id": str(source.get("sandbox_run_id") or ""),
+        "sections": sections,
+        "next_reader_actions": [
+            "先读确认正文，再回看世界线状态确认下一轮如何继续。",
+            "回到世界正史卷看客观后果，再读角色个人卷看信息差。",
+            "从事件多视角核对同一事件在不同角色眼中的裂缝。",
+        ],
+        "boundaries": [
+            "跨卷宗阅读链只引用现有作者采纳、多视角和世界线 artifact。",
+            "缺少来源 lens run 时降级为 partial，不阻断确认入卷。",
+        ],
+    }
 
 
 def _chapter_title(brief: dict[str, Any]) -> str:
@@ -199,6 +306,63 @@ def _chapter_title(brief: dict[str, Any]) -> str:
     if "隐瞒" in conflict or "误判" in conflict:
         return "下一章 风鸣铃后的确认"
     return "下一章 作者确认的世界线"
+
+
+def _read_lens_volumes(outputs_root: Path, lens_run_id: str) -> dict[str, Any]:
+    if not lens_run_id:
+        return {}
+    path = outputs_root / lens_run_id / "character_lens_volumes.json"
+    if not path.exists():
+        return {}
+    return _read_json(path)
+
+
+def _find_volume(volumes: list[Any], volume_type: str) -> dict[str, Any]:
+    for volume in volumes:
+        if isinstance(volume, dict) and volume.get("volume_type") == volume_type:
+            return volume
+    return {}
+
+
+def _has_cross_volume_sections(reading_trail: dict[str, Any]) -> bool:
+    sections = (
+        reading_trail.get("sections")
+        if isinstance(reading_trail.get("sections"), list)
+        else []
+    )
+    section_ids = {section.get("id") for section in sections if isinstance(section, dict)}
+    return {"world_chronicle", "character_volume", "event_multi_perspective"} <= section_ids
+
+
+def _volume_reason(volume_type: str) -> str:
+    if volume_type == "world_chronicle":
+        return "用正史卷确认这一章对应的客观世界后果。"
+    if volume_type == "character_volume":
+        return "用角色个人卷确认这一章保留了主观记忆、误会和连续事件节点。"
+    return "用事件多视角确认同一事件在不同角色眼中的信息差。"
+
+
+def _volume_evidence_refs(
+    *,
+    volume: dict[str, Any],
+    artifact: str,
+    sandbox_run_id: str,
+) -> list[str]:
+    refs = [artifact]
+    if sandbox_run_id:
+        refs.append(f"outputs/{sandbox_run_id}/sandbox_rounds.jsonl")
+    evidence_chain = (
+        volume.get("evidence_chain")
+        if isinstance(volume.get("evidence_chain"), dict)
+        else {}
+    )
+    subjective_refs = evidence_chain.get("subjective_memory_refs")
+    if isinstance(subjective_refs, list) and subjective_refs:
+        refs.append("subjective_memory.jsonl")
+    consequence_refs = evidence_chain.get("consequence_state_refs")
+    if isinstance(consequence_refs, list) and consequence_refs:
+        refs.append("worldline_state.json#consequence_state")
+    return list(dict.fromkeys(ref for ref in refs if ref))
 
 
 def _markdown(report: dict[str, Any]) -> str:
@@ -214,10 +378,18 @@ def _markdown(report: dict[str, Any]) -> str:
             f"- 下一章 brief：{report['evidence_chain']['next_chapter_brief']}",
             f"- 草稿：{report['evidence_chain']['next_chapter_draft']}",
             f"- 世界线状态：{report['evidence_chain']['worldline_state_artifact']}",
+            f"- 跨卷宗阅读链：{report['evidence_chain']['reading_trail']}",
             "",
             "## 下一轮沙盘入口",
             "",
             report["continuation_effect"]["next_sandbox_entry"]["major_event"],
+            "",
+            "## 跨卷宗阅读",
+            "",
+            "\n".join(
+                f"- {section['label']}：{section['artifact']}"
+                for section in report["reading_trail"]["sections"]
+            ),
             "",
             "## Reviewer 检查",
             "",
