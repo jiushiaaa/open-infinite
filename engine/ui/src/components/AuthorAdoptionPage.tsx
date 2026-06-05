@@ -378,6 +378,52 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       </span>
                     ))}
                   </div>
+                  {draft.revision_pack && (
+                    <div className="adoption-next">
+                      <div className="adoption-next__head">
+                        <h3>局部修订包</h3>
+                        <span
+                          className={`badge ${
+                            draft.revision_pack.confirmation_gate.ready_for_confirmation
+                              ? "badge--jade"
+                              : "badge--gold"
+                          }`}
+                        >
+                          {draft.revision_pack.confirmation_gate.ready_for_confirmation
+                            ? "可确认"
+                            : "需修订"}
+                        </span>
+                      </div>
+                      <p>{draft.revision_pack.summary}</p>
+                      <p className="muted tiny">
+                        {draft.revision_pack.confirmation_gate.author_action}
+                      </p>
+                      <div className="adoption-reading__sections">
+                        {draft.revision_pack.localized_rewrites.map((item) => (
+                          <div className="adoption-reading__section" key={item.id}>
+                            <div>
+                              <strong>{item.rewrite_instruction}</strong>
+                              <span className="muted tiny">{item.priority}</span>
+                            </div>
+                            <p>{item.issue}</p>
+                            <p>{item.suggested_revision}</p>
+                            {item.target_text && (
+                              <p className="muted tiny">对应段落：{item.target_text}</p>
+                            )}
+                            {item.evidence_refs.length > 0 && (
+                              <div className="adoption-reading__refs">
+                                {item.evidence_refs.map((ref) => (
+                                  <span className="badge" key={ref}>
+                                    {ref}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="adoption-confirm">
                     <label className="adoption-editor">
                       <span className="muted tiny">确认备注</span>

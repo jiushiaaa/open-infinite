@@ -158,7 +158,7 @@ def test_author_chapter_draft_turns_adoption_brief_into_readable_chapter(tmp_pat
     )
     run_dir = outputs_dir / adoption["run_id"]
 
-    assert draft["version"] == "author-chapter-draft-v1.1"
+    assert draft["version"] == "author-chapter-draft-v1.2"
     assert draft["story_slug"] == "adoption-story"
     assert draft["worldline_id"] == "branch_from_sandbox"
     assert draft["source_adoption_run_id"] == adoption["run_id"]
@@ -176,10 +176,20 @@ def test_author_chapter_draft_turns_adoption_brief_into_readable_chapter(tmp_pat
     assert draft["reviewer_checklist"]
     assert draft["evidence_chain"]["materialized_consequences"]
     assert all(item["passed"] for item in draft["reviewer_checklist"])
+    assert draft["revision_pack"]["artifact"] == "draft_revision_pack.json"
+    assert draft["revision_pack"]["localized_rewrites"]
+    assert draft["revision_pack"]["confirmation_gate"]["ready_for_confirmation"] is True
+    assert any(
+        "next_chapter_brief.json" in ref
+        for item in draft["revision_pack"]["localized_rewrites"]
+        for ref in item["evidence_refs"]
+    )
     assert draft["artifacts"]["next_chapter_draft"] == "next_chapter_draft.json"
     assert draft["artifacts"]["next_chapter_markdown"] == "next_chapter_draft.md"
+    assert draft["artifacts"]["draft_revision_pack"] == "draft_revision_pack.json"
     assert (run_dir / "next_chapter_draft.json").exists()
     assert (run_dir / "next_chapter_draft.md").exists()
+    assert (run_dir / "draft_revision_pack.json").exists()
 
 
 def test_author_chapter_confirmation_formalizes_edited_text_for_worldline(tmp_path):

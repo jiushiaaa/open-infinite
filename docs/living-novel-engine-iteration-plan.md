@@ -2,7 +2,7 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染，并新增可追踪传播来源、采信/存疑、可信度与反应类型；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、确认入卷和确认稿跨卷宗阅读链：`next_chapter_draft.json` / `next_chapter_draft.md`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮。本轮继续补强 S9：采纳、部分采纳、另开分支都会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact；另开分支写作者分支状态，不覆盖根正史。后续官方主线继续真实 LLM 多 Agent 决策、长正文质量、更强 Reviewer 和跨卷宗跳转阅读。
+> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染，并新增可追踪传播来源、采信/存疑、可信度与反应类型；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、确认入卷、确认稿跨卷宗阅读链和草稿局部修订包：`next_chapter_draft.json` / `next_chapter_draft.md`、`draft_revision_pack.json`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮。本轮继续补强 S9：采纳、部分采纳、另开分支都会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact；另开分支写作者分支状态，不覆盖根正史。后续官方主线继续真实 LLM 多 Agent 决策、长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
 
 ## 1. 产品北极星
 
@@ -98,6 +98,7 @@
 | S9 Author Chapter Confirmation Entry | 已收口第一版 | 新增 `author_chapter_confirmation` service/API/UI，作者可在采纳台编辑草稿并确认入卷，输出 `confirmed_chapter_entry.json` / `confirmed_chapter.md`，回写 `worldline_state.confirmed_chapter_entry`、确认历史和后续沙盘入口；不覆盖正史 `chapter.md`，不改 `run_scene` 默认行为。 |
 | S9 Confirmed Chapter Reading Trail | 已收口第一版 | 确认入卷时新增 `confirmed_chapter_reading_trail.json`，把确认稿、世界线状态、来源作者采纳、多视角 `character_lens_volumes.json` 中的世界正史卷、角色个人卷和事件多视角串成可回读证据链；作者采纳台确认结果区可展示来源沙盘 run、阅读链状态、事件节点数和证据 refs。 |
 | S9 Author Adoption Feed-forward Pack | 已收口第一版 | `POST /api/stories/<slug>/author-adoption` 对采纳、部分采纳、另开分支生成 `next_chapter_brief.writing_plan` 与 `feed_forward`：可读下一章 brief、伏笔调整、原大纲差异、Reviewer 建议、`chapter_generation_inputs`、`sandbox_continuation_inputs` 和 `next_round_reads`。部分采纳保留待修订冲突；另开分支创建作者分支 `worldline_state.json`，后续入口指向作者分支且不覆盖根正史。作者采纳台展示“原大纲 vs 沙盘涌现剧情 vs 下一章可写方案”。 |
+| S9 Draft Revision Pack | 已收口第一版 | `author_chapter_draft` 生成 `draft_revision_pack.json`，包含确认前 gate、局部改写建议、建议改法、证据引用和边界说明；作者采纳台在草稿编辑区展示“局部修订包”。真实 LLM smoke 生成 1047 字正文，Reviewer 四项全通过，修订包 ready 且有 3 条局部建议。 |
 
 当前验证基线：后端 `930 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
@@ -107,7 +108,7 @@
 
 当前官方下一步是：
 
-> 真实 LLM 多 Agent 决策、多视角/章节长正文质量、更强 Reviewer 和跨卷宗跳转阅读。
+> 真实 LLM 多 Agent 决策、多视角/章节长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
 
 后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。用户已允许真实 API 参与测试或联调；默认常规测试仍保持 deterministic/mockable，真实模型 smoke 只在显式 opt-in 时运行。
 

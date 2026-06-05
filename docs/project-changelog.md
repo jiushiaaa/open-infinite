@@ -2021,3 +2021,23 @@
   - 新 service/API/UI/artifact 字段均 additive；不改 `run_scene` 默认行为，不覆盖 `chapter.md`、根正史或既有核心 artifact。
   - 本刀聚焦 S9 采纳结果反哺，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
 
+### 2026-06-05 — S9 Draft Revision Pack
+
+- **做了什么**：
+  - `author_chapter_draft` 从 `author-chapter-draft-v1.1` 升级到 `author-chapter-draft-v1.2`，生成下一章草稿时同步输出 `draft_revision_pack.json`。
+  - `next_chapter_draft.json` 新增 `revision_pack`，包含确认前 gate、局部改写建议、建议改法、对应段落、证据引用和边界说明。
+  - 作者采纳台草稿编辑区新增“局部修订包”，在作者点击“确认入卷”前展示可确认/需修订状态、修订摘要、局部改写建议和证据引用。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：先在 `test_author_chapter_draft_turns_adoption_brief_into_readable_chapter` 中要求 `revision_pack` 与 `draft_revision_pack.json`，测试因缺少 `revision_pack` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **8 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **930 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+  - 真实模型 smoke：临时项目执行 adopted 决策后调用 `generate_author_chapter_draft(..., mock=False)`；真实 LLM 生成 1047 字正文，Reviewer 4 项全通过，`revision_pack.status=ready`，包含 3 条局部改写建议，未打印明文 key。
+  - UI smoke：启动本地后端与 Vite，打开 `#/world/my-story/author`，执行“写入采纳台 -> 生成下一章草稿”；页面出现“局部修订包”、确认 gate 和建议内容，控制台无 error。烟测后已停止 5173/5174/8765 本地服务。
+- **边界**：
+  - 修订包只写作者采纳 run 目录，不自动改写草稿正文，不覆盖正史 `chapter.md`，不调用 `run_scene`。
+  - 新字段、artifact 和 UI 均 additive；默认 pytest 仍 mock-safe，真实 LLM smoke 不进入默认测试。
+  - 本刀聚焦 S9 语义 Reviewer / 局部重写第一刀，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+

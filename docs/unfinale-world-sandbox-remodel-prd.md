@@ -85,6 +85,13 @@
 - 部分采纳会保留 `manual_review_points` 与 `unresolved_conflicts`，提示先修订再进入正文；另开分支会创建新的作者分支 `worldline_state.json`，后续入口指向作者分支，根正史保持只读不覆盖。
 - 作者采纳台新增“原大纲 vs 沙盘涌现剧情 vs 下一章可写方案”三栏，展示反哺状态、作者分支、后续读取清单和 Reviewer 提醒，不再只展示 JSON 字段。
 
+2026-06-05 S9 草稿局部修订包补强：
+
+- `author_chapter_draft` 新增 `draft_revision_pack.json`，和 `next_chapter_draft.json` 一起写入作者采纳 run 目录。
+- 修订包会给出确认前 gate、局部改写建议、建议改法、对应段落、证据引用和边界说明；它只辅助作者手工编辑，不自动覆盖草稿正文或正史 `chapter.md`。
+- 作者采纳台在草稿编辑区展示“局部修订包”，让作者在“确认入卷”前看到应该打磨开场、角色误判和具象代偿的具体建议。
+- 真实 LLM smoke 使用 `.env` 中真实配置生成 1047 字正文，Reviewer 四项全通过，修订包状态 ready，包含 3 条局部改写建议；默认单元测试仍保持 mock-safe。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：
@@ -230,7 +237,7 @@
 | 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入；本次新增 `consequence_state`，把代偿压力具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮决策、自演检查点、多视角正文和下一章 brief。 | 仍需让六域状态支持更细的数值/枚举演化、人工确认、跨章节归档和真实 LLM 决策消费。 |
 | 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放。 | 仍需真实后台队列、长时运行守护、失败自动恢复和更精确的停止条件命中。 |
 | 多视角活体小说 | 已有 `character_lens_briefs.json`；第二轮新增 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷、事件多视角正文与证据链。 | 仍需更长正文、跨卷宗跳转、误会图谱和真实 LLM 文风控制。 |
-| 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态；已新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和页面草稿入口，把采纳结果生成为可读下一章正文；已新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者编辑确认入口，并回写后续沙盘入口；确认入卷还会生成 `confirmed_chapter_reading_trail.json`，把确认稿回读到世界正史卷、角色个人卷和事件多视角。本轮补强 `writing_plan` / `feed_forward`，让采纳、部分采纳、另开分支直接形成下一章生成输入和沙盘继续输入；另开分支会写作者分支状态，不覆盖根正史。 | 仍需局部重写、更强 Reviewer、长正文质量控制和正文内跳转阅读。 |
+| 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态；已新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和页面草稿入口，把采纳结果生成为可读下一章正文；已新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者编辑确认入口，并回写后续沙盘入口；确认入卷还会生成 `confirmed_chapter_reading_trail.json`，把确认稿回读到世界正史卷、角色个人卷和事件多视角。已补强 `writing_plan` / `feed_forward`，让采纳、部分采纳、另开分支直接形成下一章生成输入和沙盘继续输入；另开分支会写作者分支状态，不覆盖根正史。本轮新增 `draft_revision_pack.json`，让草稿确认前具备局部改写建议、证据引用和确认 gate。 | 仍需自动局部重写、更强语义 Reviewer、长正文质量控制和正文内跳转阅读。 |
 | UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台、世界线档案和检查点回放页面与入口。 | 仍未完整拆出 `WorldWorkspaceShell`、世界正史卷、主锚点卷、角色页、事件页和机制档案页。 |
 
 ## 5. 目标 artifact
@@ -283,6 +290,9 @@ outputs/<run_id>/next_chapter_brief.json
 outputs/<run_id>/next_chapter_draft.json
 outputs/<run_id>/next_chapter_draft.md
   作者采纳后的下一章正文草稿、证据链、Reviewer 检查和 Markdown 导出；不覆盖正史 chapter.md。
+
+outputs/<run_id>/draft_revision_pack.json
+  下一章草稿的局部修订包；记录确认前 gate、局部改写建议、建议改法和证据引用。
 
 outputs/<run_id>/confirmed_chapter_entry.json
 outputs/<run_id>/confirmed_chapter.md
@@ -343,7 +353,7 @@ POST /api/stories/<slug>/author-adoption
   作者模式下采纳、部分采纳、另开作者分支或导出 brief。
 
 POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft
-  把作者采纳记录和下一章 brief 生成为可读正文草稿；默认 mock-safe，显式 mock=false 才尝试真实 LLM。
+  把作者采纳记录和下一章 brief 生成为可读正文草稿，并同步输出 `draft_revision_pack.json`；默认 mock-safe，显式 mock=false 才尝试真实 LLM。
 
 POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
   把作者编辑后的草稿确认入卷，写入 confirmed_chapter_entry/confirmed_chapter.md/confirmed_chapter_reading_trail.json 并回写世界线状态与下一轮沙盘入口。
@@ -529,7 +539,7 @@ MechanismArchivePage.tsx
 
 目标：作者能把沙盘涌现剧情采纳为大纲素材。
 
-当前状态：已收口第一版。`POST /api/stories/<slug>/author-adoption` 支持 `adopted`、`partial`、`new_branch`、`export_brief` 四种决策，写入 `projects/<slug>/author_adoption_ledger.jsonl`，并输出 `author_adoption_record.json` 与 `author_adoption_brief.md`。前端新增“世界内部卷宗 · 作者采纳台”页，可并排编辑原大纲与沙盘涌现剧情，记录采纳方式和作者备注；采纳只追加账本，不自动覆盖正史。S9 第二轮已支持生成下一章草稿、作者编辑确认和正式入卷：`next_chapter_draft.json` / `next_chapter_draft.md` 用于草稿，`confirmed_chapter_entry.json` / `confirmed_chapter.md` 用于确认后的正文与后续沙盘入口，`confirmed_chapter_reading_trail.json` 用于把确认稿回读到世界正史卷、角色个人卷和事件多视角证据。本轮补强后，采纳、部分采纳、另开分支三种结果会在 `next_chapter_brief.json` 中生成 `writing_plan` 和 `feed_forward`：作者可读下一章方案，章节生成可读 `chapter_generation_inputs`，世界沙盘继续运行可读 `sandbox_continuation_inputs`；另开分支会创建作者分支状态，根正史保持不覆盖。
+当前状态：已收口第一版。`POST /api/stories/<slug>/author-adoption` 支持 `adopted`、`partial`、`new_branch`、`export_brief` 四种决策，写入 `projects/<slug>/author_adoption_ledger.jsonl`，并输出 `author_adoption_record.json` 与 `author_adoption_brief.md`。前端新增“世界内部卷宗 · 作者采纳台”页，可并排编辑原大纲与沙盘涌现剧情，记录采纳方式和作者备注；采纳只追加账本，不自动覆盖正史。S9 第二轮已支持生成下一章草稿、作者编辑确认和正式入卷：`next_chapter_draft.json` / `next_chapter_draft.md` 用于草稿，`draft_revision_pack.json` 用于确认前局部修订建议，`confirmed_chapter_entry.json` / `confirmed_chapter.md` 用于确认后的正文与后续沙盘入口，`confirmed_chapter_reading_trail.json` 用于把确认稿回读到世界正史卷、角色个人卷和事件多视角证据。本轮补强后，采纳、部分采纳、另开分支三种结果会在 `next_chapter_brief.json` 中生成 `writing_plan` 和 `feed_forward`：作者可读下一章方案，章节生成可读 `chapter_generation_inputs`，世界沙盘继续运行可读 `sandbox_continuation_inputs`；另开分支会创建作者分支状态，根正史保持不覆盖。草稿生成后，作者采纳台会展示局部修订包，提示作者如何强化开场压力、角色误判和具象代偿，再确认入卷。
 
 验收：
 

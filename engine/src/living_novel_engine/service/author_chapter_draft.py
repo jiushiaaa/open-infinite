@@ -13,9 +13,10 @@ from living_novel_engine.service.intervene import resolve_llm_quietly
 from living_novel_engine.service.project_health import resolve_story_path
 from living_novel_engine.service.worldline_state import load_worldline_state
 
-VERSION = "author-chapter-draft-v1.1"
+VERSION = "author-chapter-draft-v1.2"
 ARTIFACT = "next_chapter_draft.json"
 MARKDOWN_ARTIFACT = "next_chapter_draft.md"
+REVISION_ARTIFACT = "draft_revision_pack.json"
 
 
 class AuthorChapterDraftRequestError(ValueError):
@@ -57,6 +58,13 @@ def generate_author_chapter_draft(
             brief,
             consequences,
         )
+    reviewer_checklist = _reviewer_checklist(chapter_text, brief, consequences)
+    revision_pack = _revision_pack(
+        chapter_text=chapter_text,
+        brief=brief,
+        consequences=consequences,
+        reviewer_checklist=reviewer_checklist,
+    )
     now = datetime.now().isoformat(timespec="seconds")
     report = {
         "version": VERSION,
@@ -96,10 +104,12 @@ def generate_author_chapter_draft(
             "must_preserve": brief.get("must_preserve") or [],
             "sandbox_inputs": brief.get("sandbox_inputs") or {},
         },
-        "reviewer_checklist": _reviewer_checklist(chapter_text, brief, consequences),
+        "reviewer_checklist": reviewer_checklist,
+        "revision_pack": revision_pack,
         "artifacts": {
             "next_chapter_draft": ARTIFACT,
             "next_chapter_markdown": MARKDOWN_ARTIFACT,
+            "draft_revision_pack": REVISION_ARTIFACT,
         },
         "boundaries": [
             "章节草稿只写入作者采纳 run 目录，不覆盖正史 chapter.md。",
@@ -112,6 +122,10 @@ def generate_author_chapter_draft(
         encoding="utf-8",
     )
     (run_dir / MARKDOWN_ARTIFACT).write_text(_markdown(report), encoding="utf-8")
+    (run_dir / REVISION_ARTIFACT).write_text(
+        json.dumps(revision_pack, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     return report
 
 
@@ -226,6 +240,136 @@ def _reviewer_checklist(
     return checks
 
 
+def _revision_pack(
+    *,
+    chapter_text: str,
+    brief: dict[str, Any],
+    consequences: list[str],
+    reviewer_checklist: list[dict[str, Any]],
+) -> dict[str, Any]:
+    missing = [str(row["item"]) for row in reviewer_checklist if not row.get("passed")]
+    rewrites = _localized_rewrites(chapter_text, brief, consequences, missing)
+    return {
+        "version": "draft-revision-pack-v1",
+        "artifact": REVISION_ARTIFACT,
+        "status": "ready" if not missing else "needs_revision",
+        "summary": _revision_summary(brief, consequences, missing),
+        "review_focus": [
+            str(brief.get("conflict_focus") or "确认章节冲突是否来自沙盘涌现"),
+            "把具象代偿落到动作、环境或对话里，而不是只解释因果债。",
+            "保留角色信息差，让确认稿能回读角色个人卷。",
+        ],
+        "localized_rewrites": rewrites,
+        "confirmation_gate": {
+            "ready_for_confirmation": not missing,
+            "blocking_items": missing,
+            "author_action": (
+                "可直接确认入卷，也可先按局部改写建议微调。"
+                if not missing
+                else "请先补齐待补项，再确认入卷。"
+            ),
+        },
+        "evidence_refs": [
+            "author_adoption_record.json",
+            "next_chapter_brief.json",
+            "worldline_state.json#consequence_state",
+        ],
+        "boundaries": [
+            "修订包只写 draft_revision_pack.json，不自动改写草稿正文。",
+            "建议面向作者手工编辑确认稿，不覆盖正史 chapter.md。",
+        ],
+    }
+
+
+def _localized_rewrites(
+    chapter_text: str,
+    brief: dict[str, Any],
+    consequences: list[str],
+    missing: list[str],
+) -> list[dict[str, Any]]:
+    opening = str(brief.get("opening_scene") or "下一章开场")
+    conflict = str(brief.get("conflict_focus") or "沙盘涌现冲突")
+    consequence = consequences[0] if consequences else "世界线代偿仍需落到场景里"
+    rows = [
+        {
+            "id": "tighten_opening_scene",
+            "priority": "medium",
+            "target_text": _pick_sentence(chapter_text, opening) or _trim(chapter_text, 90),
+            "issue": "开场已经承接 brief，但还可以更早把角色选择和场景压力绑在一起。",
+            "rewrite_instruction": "把开场第一段改成角色正在处理一个无法回避的具体代价。",
+            "suggested_revision": (
+                f"{opening}不要先解释世界线偏移，先让赵轩或沈冰月在现场碰到"
+                f"“{_trim(consequence, 46)}”，再用一句内心判断露出他们的误会。"
+            ),
+            "evidence_refs": [
+                "next_chapter_brief.json",
+                "worldline_state.json#consequence_state",
+            ],
+        },
+        {
+            "id": "sharpen_character_misread",
+            "priority": "high",
+            "target_text": _pick_sentence(chapter_text, "沈冰月") or _trim(chapter_text, 90),
+            "issue": "信息差已经存在，但作者确认前应让至少一方误读另一方动机。",
+            "rewrite_instruction": "新增一句角色自己的错误推断，并让对方用动作保留秘密。",
+            "suggested_revision": (
+                f"围绕“{_trim(conflict, 52)}”写一句沈冰月的误判，"
+                "再让赵轩用沉默、转移话题或藏起物件来证明他并未全盘托出。"
+            ),
+            "evidence_refs": [
+                "next_chapter_brief.json",
+                "subjective_memory.jsonl",
+                "author_adoption_record.json",
+            ],
+        },
+        {
+            "id": "materialize_consequence",
+            "priority": "high" if missing else "medium",
+            "target_text": _pick_sentence(chapter_text, "因果债") or _trim(str(consequence), 90),
+            "issue": "因果债需要被读者看见，而不只是被 narrator 说明。",
+            "rewrite_instruction": "把抽象代偿改成地点封锁、资源扣押、舆论逼迫或伤势反复。",
+            "suggested_revision": (
+                f"保留“{_trim(consequence, 58)}”，但把它改写成一个人物必须立刻应对的阻碍，"
+                "例如门禁、盘查、物资被扣或盟友临时倒戈。"
+            ),
+            "evidence_refs": [
+                "worldline_state.json#consequence_state",
+                "next_chapter_brief.json",
+            ],
+        },
+    ]
+    if not missing:
+        return rows
+    rows.insert(
+        0,
+        {
+            "id": "fix_blocking_reviewer_items",
+            "priority": "blocking",
+            "target_text": _trim(chapter_text, 90),
+            "issue": "Reviewer gate 仍有待补项：" + "；".join(missing),
+            "rewrite_instruction": "先补齐待补项，再进入确认入卷。",
+            "suggested_revision": "补一段明确来自沙盘事件、角色信息差和世界代偿的正文。",
+            "evidence_refs": ["next_chapter_brief.json", "draft_revision_pack.json"],
+        },
+    )
+    return rows
+
+
+def _revision_summary(
+    brief: dict[str, Any],
+    consequences: list[str],
+    missing: list[str],
+) -> str:
+    conflict = str(brief.get("conflict_focus") or "沙盘涌现冲突")
+    consequence = consequences[0] if consequences else "具象代偿"
+    if missing:
+        return f"确认前需先补齐：{'；'.join(missing)}。"
+    return (
+        f"草稿已可确认入卷；建议优先打磨“{_trim(conflict, 40)}”和"
+        f"“{_trim(consequence, 40)}”的局部呈现。"
+    )
+
+
 def _materialized_consequences(
     brief: dict[str, Any],
     worldline_state: dict[str, Any],
@@ -284,8 +428,27 @@ def _markdown(report: dict[str, Any]) -> str:
                 for row in report["reviewer_checklist"]
             ),
             "",
+            "## 局部修订包",
+            "",
+            report["revision_pack"]["summary"],
+            "",
+            "\n".join(
+                f"- {row['id']}：{row['rewrite_instruction']}"
+                for row in report["revision_pack"]["localized_rewrites"]
+            ),
+            "",
         ]
     )
+
+
+def _pick_sentence(text: str, keyword: str) -> str:
+    if not keyword:
+        return ""
+    for sentence in str(text or "").replace("\n", "。").split("。"):
+        clean = sentence.strip()
+        if keyword and keyword in clean:
+            return _trim(clean, 120)
+    return ""
 
 
 def _trim(text: str, limit: int) -> str:

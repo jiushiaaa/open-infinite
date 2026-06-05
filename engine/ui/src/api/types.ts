@@ -1293,9 +1293,33 @@ export interface AuthorChapterDraftReport {
     item: string;
     passed: boolean;
   }>;
+  revision_pack?: {
+    version: string;
+    artifact: string;
+    status: "ready" | "needs_revision" | string;
+    summary: string;
+    review_focus: string[];
+    localized_rewrites: Array<{
+      id: string;
+      priority: "blocking" | "high" | "medium" | "low" | string;
+      target_text: string;
+      issue: string;
+      rewrite_instruction: string;
+      suggested_revision: string;
+      evidence_refs: string[];
+    }>;
+    confirmation_gate: {
+      ready_for_confirmation: boolean;
+      blocking_items: string[];
+      author_action: string;
+    };
+    evidence_refs: string[];
+    boundaries: string[];
+  };
   artifacts: {
     next_chapter_draft: string;
     next_chapter_markdown: string;
+    draft_revision_pack?: string;
   };
   boundaries: string[];
 }
