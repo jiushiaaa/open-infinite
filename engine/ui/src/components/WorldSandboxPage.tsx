@@ -815,6 +815,26 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                               <dt>反抗</dt>
                               <dd>{item.llm_decision_advisory.resistance_choice}</dd>
                             </div>
+                            {item.strategic_interaction?.target_character_id && (
+                              <>
+                                <div>
+                                  <dt>算计对象</dt>
+                                  <dd>{item.strategic_interaction.target_character_id}</dd>
+                                </div>
+                                <div>
+                                  <dt>策略</dt>
+                                  <dd>{item.strategic_interaction.tactic}</dd>
+                                </div>
+                                <div>
+                                  <dt>误判</dt>
+                                  <dd>{item.strategic_interaction.assumed_misread}</dd>
+                                </div>
+                                <div>
+                                  <dt>结果</dt>
+                                  <dd>{item.strategic_interaction.expected_world_effect}</dd>
+                                </div>
+                              </>
+                            )}
                           </dl>
                         </div>
                       )}

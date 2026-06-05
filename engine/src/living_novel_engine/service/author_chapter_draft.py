@@ -264,19 +264,33 @@ def _continuous_reading_chapter(
         sections=reading_sections,
         cross_volume_refs=cross_volume_refs,
     )
+    next_hook = _next_chapter_hook(brief, consequences)
     return {
-        "version": "continuous-reading-chapter-v1",
+        "version": "continuous-reading-chapter-v2",
         "artifact": CONTINUOUS_READING_ARTIFACT,
         "markdown_artifact": CONTINUOUS_READING_MARKDOWN_ARTIFACT,
         "status": status,
+        "default_mode": "novel",
         "chapter_title": _chapter_title(brief),
         "reading_body_md": reading_body_md,
         "reading_sections": reading_sections,
+        "viewpoint_tabs": _viewpoint_tabs(cross_volume_refs),
+        "evidence_toggle": {
+            "default_visible": False,
+            "label": "证据",
+            "description": "默认先读正文；展开后查看沙盘轮次、角色个人卷和事件多视角引用。",
+        },
+        "continuity_threads": {
+            "foreshadowing": _foreshadowing_thread(brief, consequences),
+            "payoff": _payoff_thread(brief, cross_volume_refs),
+            "misunderstanding": "角色先按自己的记忆和利益误读对方，再由下一轮沙盘结算。",
+        },
+        "chapter_cliffhanger": next_hook,
         "reading_flow": {
             "scene_count": len(reading_sections),
             "opening_hook": str(brief.get("opening_scene") or reading_sections[0]["title"]),
             "turning_point": str(brief.get("conflict_focus") or "信息差被推到明面"),
-            "next_chapter_hook": _next_chapter_hook(brief, consequences),
+            "next_chapter_hook": next_hook,
         },
         "s8_source": {
             "lens_run_id": source_lens_run_id,
@@ -317,31 +331,61 @@ def _reading_sections(
             "id": "opening_pressure",
             "title": "一、雨声入局",
             "body": paragraphs[0],
+            "viewpoint": "世界正史卷",
+            "cognitive_bias": "读者先看到客观压力，角色尚未共享彼此底牌。",
+            "conflict_turn": "开场钩子把角色推入必须立即选择的现场。",
             "narrative_role": "开场先落入现场，让角色在世界代偿里做选择。",
             "evidence_refs": ["next_chapter_brief.json#opening_scene"],
+            "evidence_mode": {
+                "default_visible": False,
+                "refs": ["next_chapter_brief.json#opening_scene"],
+            },
         },
         {
             "id": "character_misread",
             "title": "二、各怀半句真话",
             "body": paragraphs[1],
+            "viewpoint": "角色个人卷",
+            "cognitive_bias": "角色把对方的沉默当成隐瞒，却不知道自己也在隐瞒。",
+            "conflict_turn": "误会从内心判断进入对话和动作。",
             "narrative_role": "把角色个人卷的信息差写成对话和误读。",
             "evidence_refs": _volume_evidence_refs(character, "character_volume"),
+            "evidence_mode": {
+                "default_visible": False,
+                "refs": _volume_evidence_refs(character, "character_volume"),
+            },
         },
         {
             "id": "world_counterweight",
             "title": "三、正史不替人辩解",
             "body": _merge_body(paragraphs[2], world, consequences),
+            "viewpoint": "世界正史卷",
+            "cognitive_bias": "正史只记录代偿落点，不替任何角色解释动机。",
+            "conflict_turn": "世界状态把私人误判扩大成公共压力。",
             "narrative_role": "让世界状态和因果代偿成为场景压力。",
             "evidence_refs": _volume_evidence_refs(world, "world_chronicle")
             + ["worldline_state.json#consequence_state"],
+            "evidence_mode": {
+                "default_visible": False,
+                "refs": _volume_evidence_refs(world, "world_chronicle")
+                + ["worldline_state.json#consequence_state"],
+            },
         },
         {
             "id": "next_round_hook",
             "title": "四、余波写入下一轮",
             "body": _merge_body(paragraphs[-1], event, consequences),
+            "viewpoint": "事件多视角",
+            "cognitive_bias": "不同卷宗都只拿到事件的一面，悬念留给下一轮沙盘。",
+            "conflict_turn": "结尾把伏笔和未解误会交给下一章。",
             "narrative_role": "把确认稿末尾接回后续沙盘入口。",
             "evidence_refs": _volume_evidence_refs(event, "event_multi_perspective")
             + ["next_chapter_brief.json#feed_forward"],
+            "evidence_mode": {
+                "default_visible": False,
+                "refs": _volume_evidence_refs(event, "event_multi_perspective")
+                + ["next_chapter_brief.json#feed_forward"],
+            },
         },
     ]
     if len(paragraphs) > 4:
@@ -351,8 +395,15 @@ def _reading_sections(
                 "id": "middle_turn",
                 "title": "三更、代价显形",
                 "body": paragraphs[3],
+                "viewpoint": "主锚点卷",
+                "cognitive_bias": "主锚点以为自己在控制局面，其实世界代偿已经先行一步。",
+                "conflict_turn": "中段让抽象因果债变成可见阻碍。",
                 "narrative_role": "承接正文中段，把抽象因果债转成可见阻碍。",
                 "evidence_refs": ["next_chapter_brief.json#materialized_consequences"],
+                "evidence_mode": {
+                    "default_visible": False,
+                    "refs": ["next_chapter_brief.json#materialized_consequences"],
+                },
             },
         )
     return sections
@@ -375,6 +426,58 @@ def _continuous_reading_markdown(
         lines.append("- 尚未绑定来源多视角卷宗；正文可读，证据回读降级为部分证据。")
     lines.append("")
     return "\n".join(lines)
+
+
+def _viewpoint_tabs(cross_volume_refs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    labels = {
+        "world_chronicle": "世界正史卷",
+        "character_volume": "角色个人卷",
+        "event_multi_perspective": "事件多视角",
+    }
+    tabs = [
+        {
+            "id": ref["id"],
+            "label": ref.get("label") or labels.get(ref["id"], ref["id"]),
+            "artifact": ref.get("artifact") or "",
+            "summary": ref.get("summary") or "",
+        }
+        for ref in cross_volume_refs
+        if ref.get("id")
+    ]
+    existing = {tab["id"] for tab in tabs}
+    for tab_id, label in labels.items():
+        if tab_id not in existing:
+            tabs.append(
+                {
+                    "id": tab_id,
+                    "label": label,
+                    "artifact": "",
+                    "summary": "来源卷宗暂缺，阅读稿保留该视角入口。",
+                }
+            )
+    return tabs
+
+
+def _foreshadowing_thread(brief: dict[str, Any], consequences: list[str]) -> str:
+    conflict = str(brief.get("conflict_focus") or "").strip()
+    if conflict:
+        return f"伏笔从“{_trim(conflict, 70)}”开始，角色暂时只看见其中一半。"
+    if consequences:
+        return f"伏笔落在“{_trim(consequences[0], 70)}”的世界内代价上。"
+    return "伏笔落在角色未说出口的误判和下一轮沙盘入口上。"
+
+
+def _payoff_thread(brief: dict[str, Any], cross_volume_refs: list[dict[str, Any]]) -> str:
+    if cross_volume_refs:
+        labels = "、".join(ref.get("label") or ref.get("id") or "" for ref in cross_volume_refs[:3])
+        return f"回收时从{labels}核对同一事件的不同说法。"
+    sandbox_inputs = (
+        brief.get("sandbox_inputs") if isinstance(brief.get("sandbox_inputs"), dict) else {}
+    )
+    major_event = str(sandbox_inputs.get("major_event") or "").strip()
+    if major_event:
+        return f"回收时回到沙盘事件“{_trim(major_event, 70)}”。"
+    return "回收时回到 next_chapter_brief 和角色主观记忆链。"
 
 
 def _chapter_paragraphs(chapter_text: str) -> list[str]:
@@ -539,17 +642,30 @@ def _revision_pack(
 ) -> dict[str, Any]:
     missing = [str(row["item"]) for row in reviewer_checklist if not row.get("passed")]
     rewrites = _localized_rewrites(chapter_text, brief, consequences, missing)
+    semantic_reviewer = _semantic_reviewer(
+        chapter_text=chapter_text,
+        brief=brief,
+        consequences=consequences,
+        missing=missing,
+    )
     return {
-        "version": "draft-revision-pack-v1",
+        "version": "draft-revision-pack-v2",
         "artifact": REVISION_ARTIFACT,
         "status": "ready" if not missing else "needs_revision",
         "summary": _revision_summary(brief, consequences, missing),
+        "semantic_reviewer": semantic_reviewer,
         "review_focus": [
             str(brief.get("conflict_focus") or "确认章节冲突是否来自沙盘涌现"),
             "把具象代偿落到动作、环境或对话里，而不是只解释因果债。",
             "保留角色信息差，让确认稿能回读角色个人卷。",
         ],
         "localized_rewrites": rewrites,
+        "adoption_feedback": {
+            "surface": "author_adoption_desk",
+            "feeds": ["next_chapter_draft", "chapter_confirmation"],
+            "confirmation_use": "作者可采纳局部改写后再确认入卷；未采纳时仍保留审稿证据。",
+            "next_chapter_use": "下一章草稿继续读取人物误判、冲突张力和世界代偿入文建议。",
+        },
         "confirmation_gate": {
             "ready_for_confirmation": not missing,
             "blocking_items": missing,
@@ -567,6 +683,70 @@ def _revision_pack(
         "boundaries": [
             "修订包只写 draft_revision_pack.json，不自动改写草稿正文。",
             "建议面向作者手工编辑确认稿，不覆盖正史 chapter.md。",
+        ],
+    }
+
+
+def _semantic_reviewer(
+    *,
+    chapter_text: str,
+    brief: dict[str, Any],
+    consequences: list[str],
+    missing: list[str],
+) -> dict[str, Any]:
+    conflict = str(brief.get("conflict_focus") or "沙盘涌现冲突")
+    consequence = consequences[0] if consequences else "具象代偿"
+    opening = str(brief.get("opening_scene") or "开场场景")
+    return {
+        "status": "needs_revision" if missing else "ready",
+        "diagnosis_summary": (
+            "语义审稿关注人物动机、冲突张力、世界代偿入文、视角清晰度和记忆消费；"
+            "当前草稿可进入确认前局部打磨。"
+            if not missing
+            else "语义审稿发现 gate 待补项，需先补足沙盘来源、信息差或代偿入文。"
+        ),
+        "priority_order": ["人物动机", "冲突张力", "世界代偿入文", "视角清晰度", "记忆消费"],
+        "review_items": [
+            {
+                "id": "motivation",
+                "priority": "high",
+                "dimension": "人物动机",
+                "problem": "角色选择需要更明确地来自自己的利益、误判或保护欲。",
+                "evidence_text": _pick_sentence(chapter_text, "赵轩") or _trim(chapter_text, 90),
+                "recommendation": f"围绕“{_trim(conflict, 58)}”补一句角色自己的判断，而不是让 narrator 替他解释。",
+            },
+            {
+                "id": "tension",
+                "priority": "high",
+                "dimension": "冲突张力",
+                "problem": "冲突应通过互相试探、隐瞒或错判推进，而不是直接摊牌。",
+                "evidence_text": _pick_sentence(chapter_text, "沈冰月") or _trim(chapter_text, 90),
+                "recommendation": "保留一句没说出口的真话，让下一场景仍有对抗余地。",
+            },
+            {
+                "id": "consequence",
+                "priority": "medium",
+                "dimension": "世界代偿入文",
+                "problem": "代偿要变成地点、资源、舆论、伤势或环境阻碍。",
+                "evidence_text": _trim(str(consequence), 90),
+                "recommendation": f"把“{_trim(consequence, 58)}”落成角色必须立刻处理的阻碍。",
+            },
+            {
+                "id": "viewpoint",
+                "priority": "medium",
+                "dimension": "视角清晰度",
+                "problem": "多视角切换需要标明谁知道什么，避免全知旁白泄露秘密。",
+                "evidence_text": _trim(opening, 90),
+                "recommendation": "每次转视角只补该角色能看见或误会的信息。",
+            },
+            {
+                "id": "memory",
+                "priority": "medium",
+                "dimension": "记忆消费",
+                "problem": "章节应消耗角色主观记忆，而不是只复述沙盘结果。",
+                "evidence_text": "subjective_memory.jsonl",
+                "recommendation": "把上一轮误会、信任变化或异常感写成动作和对话反应。",
+            },
         ],
     }
 
@@ -591,6 +771,15 @@ def _localized_rewrites(
                 f"{opening}不要先解释世界线偏移，先让赵轩或沈冰月在现场碰到"
                 f"“{_trim(consequence, 46)}”，再用一句内心判断露出他们的误会。"
             ),
+            "original_problem": "开场压力还可以更早落入具体场景。",
+            "revision_intent": "让读者先看到代价，再理解世界线为什么偏移。",
+            "suggested_rewrite": (
+                f"{opening}先写角色撞上“{_trim(consequence, 46)}”，"
+                "再用一句内心判断露出误会。"
+            ),
+            "impact_on_characters": ["赵轩更早暴露隐瞒压力", "沈冰月更早形成误判"],
+            "impact_on_world_state": "具象代偿从背景说明变成现场阻碍。",
+            "adoption_direction": "建议采纳后确认入卷",
             "evidence_refs": [
                 "next_chapter_brief.json",
                 "worldline_state.json#consequence_state",
@@ -606,6 +795,15 @@ def _localized_rewrites(
                 f"围绕“{_trim(conflict, 52)}”写一句沈冰月的误判，"
                 "再让赵轩用沉默、转移话题或藏起物件来证明他并未全盘托出。"
             ),
+            "original_problem": "信息差已经存在，但误判的主观来源还可更锋利。",
+            "revision_intent": "让角色各自的主观记忆真正改变对话节奏。",
+            "suggested_rewrite": (
+                f"围绕“{_trim(conflict, 52)}”补沈冰月的一句错误推断，"
+                "再用赵轩的沉默或藏物回应。"
+            ),
+            "impact_on_characters": ["沈冰月的怀疑升级", "赵轩的隐瞒变成可观察动作"],
+            "impact_on_world_state": "误会被写入下一轮关系压力。",
+            "adoption_direction": "建议采纳后确认入卷",
             "evidence_refs": [
                 "next_chapter_brief.json",
                 "subjective_memory.jsonl",
@@ -622,6 +820,14 @@ def _localized_rewrites(
                 f"保留“{_trim(consequence, 58)}”，但把它改写成一个人物必须立刻应对的阻碍，"
                 "例如门禁、盘查、物资被扣或盟友临时倒戈。"
             ),
+            "original_problem": "因果债若停在解释，会削弱世界自我运行的触感。",
+            "revision_intent": "把世界代偿写成角色必须处理的行动阻碍。",
+            "suggested_rewrite": (
+                f"把“{_trim(consequence, 58)}”改成门禁、盘查、物资被扣或盟友倒戈。"
+            ),
+            "impact_on_characters": ["角色不能只讨论代偿，必须当场选择"],
+            "impact_on_world_state": "六域代偿进入正文并反哺下一轮沙盘。",
+            "adoption_direction": "建议采纳后确认入卷",
             "evidence_refs": [
                 "worldline_state.json#consequence_state",
                 "next_chapter_brief.json",
@@ -639,6 +845,12 @@ def _localized_rewrites(
             "issue": "Reviewer gate 仍有待补项：" + "；".join(missing),
             "rewrite_instruction": "先补齐待补项，再进入确认入卷。",
             "suggested_revision": "补一段明确来自沙盘事件、角色信息差和世界代偿的正文。",
+            "original_problem": "确认前 gate 仍有阻塞项。",
+            "revision_intent": "先让正文满足沙盘来源、信息差和代偿入文底线。",
+            "suggested_rewrite": "补一段明确来自沙盘事件、角色信息差和世界代偿的正文。",
+            "impact_on_characters": ["角色动机和误判需要补足"],
+            "impact_on_world_state": "世界代偿需要自然进入正文。",
+            "adoption_direction": "建议先局部改写再确认入卷",
             "evidence_refs": ["next_chapter_brief.json", "draft_revision_pack.json"],
         },
     )

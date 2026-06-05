@@ -2101,3 +2101,31 @@
   - 当前恢复是本地任务文件 + checkpoint 的第一版，不是跨进程后台队列或真实长时守护。
   - 本刀只收口 S7 世界自演产品化，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
 
+### 2026-06-06 — A/B/C World Sandbox Quality Deepening
+
+- **做了什么**：
+  - A：`world_sandbox` 的 LLM advisory 新增策略互动字段与 `strategy_board`，记录角色算计对象、策略、私有目的、筹码、误判、风险、预期世界影响和下一轮 hook。
+  - A：策略互动写回角色行动、`subjective_memory.jsonl`、`information_flow` 的 `llm_strategy_probe` 和 `world_state_delta.strategy_game_effects`，世界沙盘 UI 展示“算计对象 / 策略 / 误判 / 结果”。
+  - B：`continuous_reading_chapter.json` 升级为 v2，默认小说阅读、证据默认收起，并新增视角 tab、每场视角、认知偏差、冲突转折、证据开关、伏笔/回收线和章节悬念。
+  - B：作者采纳台连续阅读稿展示默认阅读模式、证据状态、视角入口和每场认知偏差，仍保持正文先读、证据后查。
+  - C：`draft_revision_pack.json` 升级为 v2，新增语义 Reviewer，按人物动机、冲突张力、世界代偿入文、视角清晰度和记忆消费给出审稿优先级。
+  - C：局部改写建议新增原问题、修改意图、建议改写、影响角色、影响世界状态和采纳方向；作者采纳台展示语义审稿和采纳方向，反哺下一章草稿与确认入卷。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/codex-handoff.md`、`engine/README.md` 和本 changelog。
+- **测试/验证**：
+  - RED：新增 `test_llm_decision_advisory_builds_strategy_board_and_world_effects`，先因缺少 `strategy_interaction_count` 失败。
+  - RED：新增 `test_continuous_reading_packet_tracks_viewpoints_bias_and_evidence_toggle`，先因缺少 `default_mode` 失败。
+  - RED：新增 `test_revision_pack_contains_semantic_reviewer_and_adoption_direction`，先因缺少 `semantic_reviewer` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_world_sandbox.py::test_llm_decision_advisory_builds_strategy_board_and_world_effects tests/test_world_sandbox.py::test_llm_decision_advisory_overlays_character_choices -q` -> **2 passed**。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py::test_continuous_reading_packet_tracks_viewpoints_bias_and_evidence_toggle tests/test_author_adoption.py::test_revision_pack_contains_semantic_reviewer_and_adoption_direction tests/test_author_adoption.py::test_author_chapter_draft_turns_adoption_brief_into_readable_chapter -q` -> **3 passed**。
+  - Focused：`cd engine && python -m pytest tests/test_world_sandbox.py -q` -> **15 passed**。
+  - Focused：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **10 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **936 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+  - 真实 LLM smoke：临时项目显式启用 `llm_decision_mode=advisory` 与 `generate_author_chapter_draft(..., mock=False)`；advisory 返回 `ready` / `real_llm`，`strategy_interactions=2`；草稿由 LLM 生成 1202 字，连续阅读 v2 为 ready、5 场，语义 Reviewer ready，局部改写 3 条；未打印明文 key。
+  - UI smoke：重启本地后端与 Vite，打开 `#/world/my-story/author`，执行“写入采纳台 -> 生成下一章草稿”；页面可见“连续阅读稿”“默认：小说阅读”“世界正史卷/角色个人卷/事件多视角”“语义审稿”“建议采纳后确认入卷”，控制台无 error。烟测后已停止 8765/5173 本地服务。
+- **边界**：
+  - 新字段、artifact 内容和 UI 展示均 additive；不改 `run_scene` 默认行为，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 默认 pytest 仍 mock-safe；真实 LLM smoke 只做小样本质量验收，不打印明文 key，不进入默认全量测试。
+  - 本刀只做用户限定的真实 LLM 多 Agent 策略博弈、长正文/连续阅读、语义 Reviewer/局部重写；不接 GraphRAG/Zep、provider spike、检索评测、OpenAPI、发行、商业化或工程面板。
+

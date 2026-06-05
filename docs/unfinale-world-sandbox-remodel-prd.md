@@ -108,6 +108,13 @@
 - 缺少来源 lens run 或 `character_lens_volumes.json` 时连续阅读稿降级为 partial，不阻断草稿生成、作者编辑或确认入卷。
 - 本刀仍是第一版编排层：真实文风控制、正文内跳转、章节级长文规划和更强语义 Reviewer 仍需继续打磨。
 
+2026-06-06 A/B/C 深化补强：
+
+- 真实 LLM 多 Agent 决策建议新增 `strategy_board`，把每个角色的目标对象、策略、私有目的、筹码、误判、风险、预期世界影响和下一轮 hook 写入 `agent_decision_advisory.json`；同一证据进入角色行动、主观记忆、信息流和 `world_state_delta.strategy_game_effects`，让用户能看见谁在算计谁、为什么、结果改变了什么。
+- `continuous_reading_chapter.json` 升级到 v2：默认模式为小说阅读，证据默认收起；阅读包新增视角 tab、每场视角、认知偏差、冲突转折、证据开关、伏笔/回收线和章节悬念，仍保留 Markdown 正文先读、证据后查的边界。
+- `draft_revision_pack.json` 升级到 v2：新增语义 Reviewer，按人物动机、冲突张力、世界代偿入文、视角清晰度和记忆消费给出优先级审稿；局部改写建议新增原问题、修改意图、建议改写、影响角色、影响世界状态和采纳方向，反哺作者采纳台、下一章草稿和确认入卷。
+- 本轮仍不改 `run_scene` 默认行为，不覆盖既有核心 artifact，不接 GraphRAG/Zep、provider spike、检索评测、OpenAPI、发行、计费或工程面板。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：

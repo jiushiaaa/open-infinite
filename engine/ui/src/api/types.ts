@@ -477,6 +477,17 @@ export interface WorldSandboxLLMDecisionAdvisory {
   situational_judgement?: string;
   trust_shift?: string;
   memory_seed?: string[];
+  strategic_interaction?: {
+    actor_character_id?: string;
+    target_character_id?: string;
+    tactic?: string;
+    private_goal?: string;
+    perceived_leverage?: string;
+    assumed_misread?: string;
+    risk_assessment?: string;
+    expected_world_effect?: string;
+    outcome_hook?: string;
+  };
   deterministic_baseline?: {
     decision_mode?: string;
     visible_action?: string;
@@ -519,6 +530,7 @@ export interface WorldSandboxCharacterAction {
   };
   meme_propagation?: WorldSandboxMemePropagation;
   llm_decision_advisory?: WorldSandboxLLMDecisionAdvisory;
+  strategic_interaction?: WorldSandboxLLMDecisionAdvisory["strategic_interaction"];
   fate_mark?: {
     status?: string;
     label?: string;
@@ -1391,6 +1403,19 @@ export interface AuthorChapterDraftReport {
     artifact: string;
     status: "ready" | "needs_revision" | string;
     summary: string;
+    semantic_reviewer?: {
+      status: "ready" | "needs_revision" | string;
+      diagnosis_summary: string;
+      priority_order: string[];
+      review_items: Array<{
+        id: string;
+        priority: "blocking" | "high" | "medium" | "low" | string;
+        dimension: string;
+        problem: string;
+        evidence_text: string;
+        recommendation: string;
+      }>;
+    };
     review_focus: string[];
     localized_rewrites: Array<{
       id: string;
@@ -1399,8 +1424,20 @@ export interface AuthorChapterDraftReport {
       issue: string;
       rewrite_instruction: string;
       suggested_revision: string;
+      original_problem?: string;
+      revision_intent?: string;
+      suggested_rewrite?: string;
+      impact_on_characters?: string[];
+      impact_on_world_state?: string;
+      adoption_direction?: string;
       evidence_refs: string[];
     }>;
+    adoption_feedback?: {
+      surface: string;
+      feeds: string[];
+      confirmation_use: string;
+      next_chapter_use: string;
+    };
     confirmation_gate: {
       ready_for_confirmation: boolean;
       blocking_items: string[];
@@ -1424,8 +1461,15 @@ export interface ContinuousReadingSection {
   id: string;
   title: string;
   body: string;
+  viewpoint?: string;
+  cognitive_bias?: string;
+  conflict_turn?: string;
   narrative_role: string;
   evidence_refs: string[];
+  evidence_mode?: {
+    default_visible: boolean;
+    refs: string[];
+  };
 }
 
 export interface ContinuousReadingCrossVolumeRef {
@@ -1442,9 +1486,27 @@ export interface ContinuousReadingChapter {
   artifact: string;
   markdown_artifact: string;
   status: "ready" | "partial" | string;
+  default_mode?: "novel" | string;
   chapter_title: string;
   reading_body_md: string;
   reading_sections: ContinuousReadingSection[];
+  viewpoint_tabs?: Array<{
+    id: string;
+    label: string;
+    artifact: string;
+    summary: string;
+  }>;
+  evidence_toggle?: {
+    default_visible: boolean;
+    label: string;
+    description: string;
+  };
+  continuity_threads?: {
+    foreshadowing: string;
+    payoff: string;
+    misunderstanding: string;
+  };
+  chapter_cliffhanger?: string;
   reading_flow: {
     scene_count: number;
     opening_hook: string;

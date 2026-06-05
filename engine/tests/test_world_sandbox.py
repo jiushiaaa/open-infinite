@@ -286,6 +286,118 @@ def test_llm_decision_advisory_overlays_character_choices(tmp_path):
     )
 
 
+def test_llm_decision_advisory_builds_strategy_board_and_world_effects(tmp_path):
+    project_dir = _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    class FakeDecisionClient:
+        mock = False
+        available = True
+
+        def chat_json_with_usage(self, _system, _user, model_type, **_kwargs):
+            characters = json.loads(_user)["characters"]
+            first_id = characters[0]["character_id"]
+            second_id = characters[1]["character_id"]
+            return model_type.model_validate(
+                {
+                    "status": "ready",
+                    "summary": "赵轩和沈冰月都把密信当成可利用的半真变量，双方各自试探而不摊牌。",
+                    "decisions": [
+                        {
+                            "character_id": first_id,
+                            "belief_update": "赵轩判断密信三分真七分钓饵。",
+                            "visible_action": "赵轩只把密信折角给沈冰月看，故意漏掉落款。",
+                            "true_intent": "他要观察沈冰月是否会替落款人遮掩。",
+                            "expected_outcome": "逼沈冰月先暴露她和归云斋旧账册的关系。",
+                            "risk": "若沈冰月看穿试探，会反向怀疑赵轩在借密信布局。",
+                            "deception_strategy": "用缺页密信试探沈冰月。",
+                            "propagation_choice": "只向沈冰月半公开，不让流言进入归云斋。",
+                            "resistance_choice": "不接受匿名信给出的背叛结论。",
+                            "situational_judgement": "先试信源，再决定是否撕破关系。",
+                            "trust_shift": "赵轩对沈冰月信任下降，但保留合作窗口。",
+                            "memory_seed": ["赵轩记住沈冰月看见缺页时先看向账房。"],
+                            "target_character_id": second_id,
+                            "tactic": "缺页试探",
+                            "private_goal": "确认沈冰月是否知道账册被调包。",
+                            "perceived_leverage": "赵轩掌握密信缺页，沈冰月不知道他故意藏了落款。",
+                            "assumed_misread": "赵轩误以为沈冰月会立刻替归云斋辩解。",
+                            "risk_assessment": "中：试探失败会让双方信任继续下沉。",
+                            "expected_world_effect": "密信暂不扩散，但归云斋账册线索进入下一轮沙盘。",
+                            "outcome_hook": "沈冰月若沉默，赵轩下一轮会转向账房查证。",
+                        },
+                        {
+                            "character_id": second_id,
+                            "belief_update": "沈冰月意识到赵轩故意漏给她半截真相。",
+                            "visible_action": "沈冰月没有追问落款，只要求一同去账房。",
+                            "true_intent": "她想反向确认赵轩究竟藏了多少证据。",
+                            "expected_outcome": "让赵轩误判她暂时相信了缺页密信。",
+                            "risk": "若账房先被封，沈冰月会失去解释窗口。",
+                            "deception_strategy": "装作接受半截线索，实际反向验赵轩。",
+                            "propagation_choice": "压住消息，不让师门长老提前介入。",
+                            "resistance_choice": "不按赵轩给出的节奏表态。",
+                            "situational_judgement": "借同行争取查证时间。",
+                            "trust_shift": "沈冰月对赵轩信任下降，但暂时维持同盟。",
+                            "memory_seed": ["沈冰月记住赵轩漏掉落款，这不是无心之失。"],
+                            "target_character_id": first_id,
+                            "tactic": "反向同行",
+                            "private_goal": "拖住赵轩并确认他藏匿的证据。",
+                            "perceived_leverage": "沈冰月知道账房暗门，赵轩未必知道。",
+                            "assumed_misread": "沈冰月误以为赵轩还不知道账房暗门。",
+                            "risk_assessment": "高：账房若被封，双方都会被迫公开立场。",
+                            "expected_world_effect": "双方暂时同路，账房封锁和密信来源成为下一轮冲突。",
+                            "outcome_hook": "账房暗门若暴露，沈冰月会先抢走账册残页。",
+                        },
+                    ],
+                }
+            ), {"total_tokens": 499}
+
+    report = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩收到一封声称沈冰月背叛归云斋的匿名密信。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        llm_decision_mode="advisory",
+        llm_client=FakeDecisionClient(),
+    )
+
+    round_record = report["rounds"][0]
+    first_action = round_record["character_actions"][0]
+    advisory_artifact = json.loads(
+        (outputs_dir / report["run_id"] / "agent_decision_advisory.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    memory_path = (
+        project_dir
+        / "worldlines"
+        / "main"
+        / "characters"
+        / first_action["character_id"]
+        / "subjective_memory.jsonl"
+    )
+    persisted_memory = json.loads(memory_path.read_text(encoding="utf-8").splitlines()[0])
+
+    assert report["summary"]["strategy_interaction_count"] == 2
+    assert advisory_artifact["strategy_board"]["interaction_count"] == 2
+    assert (
+        advisory_artifact["strategy_board"]["interactions"][0]["actor_character_id"]
+        == first_action["character_id"]
+    )
+    assert advisory_artifact["strategy_board"]["interactions"][0]["target_character_id"]
+    assert "缺页试探" in advisory_artifact["strategy_board"]["interactions"][0]["tactic"]
+    assert first_action["strategic_interaction"]["target_character_id"]
+    assert first_action["strategic_interaction"]["assumed_misread"]
+    assert persisted_memory["strategic_interaction"]["outcome_hook"]
+    assert any(
+        row["type"] == "llm_strategy_probe" and row["from"] == first_action["character_id"]
+        for row in round_record["information_flow"]
+    )
+    assert any(
+        "归云斋账册" in item
+        for item in round_record["world_state_delta"]["strategy_game_effects"]
+    )
+
+
 def test_subjective_memories_record_contradictory_perspectives(tmp_path):
     project_dir = _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"

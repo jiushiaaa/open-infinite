@@ -290,6 +290,107 @@ def test_author_chapter_confirmation_formalizes_edited_text_for_worldline(tmp_pa
     assert state["continuation_inputs"]["major_event_hint"].startswith("作者确认章节")
 
 
+def test_continuous_reading_packet_tracks_viewpoints_bias_and_evidence_toggle(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+    lens = generate_character_lens_briefs(
+        "adoption-story",
+        source_event="风鸣铃现世，赵轩选择隐瞒，沈冰月误判他的真实立场。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    adoption = record_author_adoption(
+        "adoption-story",
+        source_run_id=lens["run_id"],
+        decision="adopted",
+        original_outline="赵轩公开风鸣铃，沈冰月继续相信他。",
+        author_note="让正文默认像小说阅读，可切换到角色误读和证据。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+
+    draft = generate_author_chapter_draft(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        mock=True,
+    )
+
+    reading = draft["continuous_reading_chapter"]
+    assert reading["default_mode"] == "novel"
+    assert {tab["id"] for tab in reading["viewpoint_tabs"]} >= {
+        "world_chronicle",
+        "character_volume",
+        "event_multi_perspective",
+    }
+    assert reading["evidence_toggle"]["default_visible"] is False
+    assert reading["continuity_threads"]["foreshadowing"]
+    assert reading["continuity_threads"]["payoff"]
+    assert reading["chapter_cliffhanger"] == reading["reading_flow"]["next_chapter_hook"]
+    assert all(section["viewpoint"] for section in reading["reading_sections"])
+    assert all(section["cognitive_bias"] for section in reading["reading_sections"])
+    assert any(section["evidence_mode"]["refs"] for section in reading["reading_sections"])
+
+
+def test_revision_pack_contains_semantic_reviewer_and_adoption_direction(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+    lens = generate_character_lens_briefs(
+        "adoption-story",
+        source_event="风鸣铃现世，赵轩选择隐瞒，沈冰月误判他的真实立场。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    adoption = record_author_adoption(
+        "adoption-story",
+        source_run_id=lens["run_id"],
+        decision="adopted",
+        original_outline="赵轩公开风鸣铃，沈冰月继续相信他。",
+        author_note="需要编辑指出动机、冲突、世界代偿是否自然入文。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+
+    draft = generate_author_chapter_draft(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        mock=True,
+    )
+
+    pack = draft["revision_pack"]
+    assert pack["semantic_reviewer"]["status"] == "ready"
+    assert {item["dimension"] for item in pack["semantic_reviewer"]["review_items"]} >= {
+        "人物动机",
+        "冲突张力",
+        "世界代偿入文",
+        "视角清晰度",
+    }
+    first_rewrite = pack["localized_rewrites"][0]
+    assert first_rewrite["original_problem"]
+    assert first_rewrite["revision_intent"]
+    assert first_rewrite["suggested_rewrite"]
+    assert first_rewrite["impact_on_characters"]
+    assert first_rewrite["impact_on_world_state"]
+    assert first_rewrite["adoption_direction"] in {
+        "建议采纳后确认入卷",
+        "建议先局部改写再确认入卷",
+    }
+    assert pack["adoption_feedback"]["surface"] == "author_adoption_desk"
+    assert pack["adoption_feedback"]["feeds"] >= [
+        "next_chapter_draft",
+        "chapter_confirmation",
+    ]
+
+
 def test_author_chapter_confirmation_links_back_to_cross_volume_evidence(tmp_path):
     _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"

@@ -46,6 +46,14 @@ class _LLMDecisionItem(BaseModel):
     situational_judgement: str = ""
     trust_shift: str = ""
     memory_seed: list[str] = Field(default_factory=list)
+    target_character_id: str = ""
+    tactic: str = ""
+    private_goal: str = ""
+    perceived_leverage: str = ""
+    assumed_misread: str = ""
+    risk_assessment: str = ""
+    expected_world_effect: str = ""
+    outcome_hook: str = ""
 
 
 class _LLMDecisionPack(BaseModel):
@@ -582,6 +590,7 @@ def _maybe_apply_llm_decision_advisory(
         applied.append(public)
 
     status = "ready" if applied else "fallback"
+    strategy_board = _strategy_board(applied)
     return {
         "status": status,
         "mode": "llm_agent_decision_advisory",
@@ -592,8 +601,33 @@ def _maybe_apply_llm_decision_advisory(
         or ("模型已给出逐角色决策建议。" if applied else "模型未返回可匹配角色决策。"),
         "action_count": len(applied),
         "decisions": applied,
+        "strategy_board": strategy_board,
         "usage": usage or {},
         **({"fallback_reason": "模型未返回可匹配角色决策。"} if not applied else {}),
+    }
+
+
+def _strategy_board(decisions: list[dict[str, Any]]) -> dict[str, Any]:
+    interactions = [
+        item["strategic_interaction"]
+        for item in decisions
+        if isinstance(item.get("strategic_interaction"), dict)
+        and item["strategic_interaction"].get("target_character_id")
+    ]
+    return {
+        "status": "ready" if interactions else "empty",
+        "interaction_count": len(interactions),
+        "interactions": interactions,
+        "world_effects": [
+            _text(item.get("expected_world_effect"))
+            for item in interactions
+            if _text(item.get("expected_world_effect"))
+        ],
+        "outcome_hooks": [
+            _text(item.get("outcome_hook"))
+            for item in interactions
+            if _text(item.get("outcome_hook"))
+        ],
     }
 
 
@@ -638,7 +672,7 @@ def _llm_decision_user_prompt(
             }
             for action in actions
         ],
-        "required_decision_fields": [
+    "required_decision_fields": [
             "belief_update",
             "visible_action",
             "true_intent",
@@ -650,6 +684,14 @@ def _llm_decision_user_prompt(
             "situational_judgement",
             "trust_shift",
             "memory_seed",
+            "target_character_id",
+            "tactic",
+            "private_goal",
+            "perceived_leverage",
+            "assumed_misread",
+            "risk_assessment",
+            "expected_world_effect",
+            "outcome_hook",
         ],
     }
     return json.dumps(payload, ensure_ascii=False, indent=2)
@@ -697,6 +739,31 @@ def _public_llm_decision(
         "situational_judgement": _text(item.situational_judgement),
         "trust_shift": _text(item.trust_shift),
         "memory_seed": [_text(seed) for seed in item.memory_seed if _text(seed)][:3],
+        "strategic_interaction": _public_strategy_interaction(item),
+    }
+
+
+def _public_strategy_interaction(item: _LLMDecisionItem) -> dict[str, Any]:
+    target = _text(item.target_character_id)
+    tactic = _text(item.tactic)
+    private_goal = _text(item.private_goal)
+    leverage = _text(item.perceived_leverage)
+    misread = _text(item.assumed_misread)
+    risk = _text(item.risk_assessment)
+    world_effect = _text(item.expected_world_effect)
+    outcome_hook = _text(item.outcome_hook)
+    if not any((target, tactic, private_goal, leverage, misread, risk, world_effect, outcome_hook)):
+        return {}
+    return {
+        "actor_character_id": _text(item.character_id),
+        "target_character_id": target,
+        "tactic": tactic,
+        "private_goal": private_goal,
+        "perceived_leverage": leverage,
+        "assumed_misread": misread,
+        "risk_assessment": risk,
+        "expected_world_effect": world_effect,
+        "outcome_hook": outcome_hook,
     }
 
 
@@ -730,6 +797,13 @@ def _overlay_action_with_llm_decision(
         action["memory_seed"] = seed
     if decision.get("belief_update"):
         action["memory_influence"] = decision["belief_update"]
+    strategic_interaction = (
+        decision.get("strategic_interaction")
+        if isinstance(decision.get("strategic_interaction"), dict)
+        else {}
+    )
+    if strategic_interaction:
+        action["strategic_interaction"] = strategic_interaction
     action["reason"] = (
         f"{action.get('reason') or ''} 模型决策建议："
         f"{decision.get('situational_judgement') or decision.get('belief_update') or '本轮已改用角色临场判断。'}"
@@ -843,6 +917,7 @@ def _subjective_memory_entry(
         "meme_contamination": action.get("meme_contamination") or {"status": "none"},
         "meme_propagation": action.get("meme_propagation") or {"status": "none"},
         "llm_decision_advisory": action.get("llm_decision_advisory") or {},
+        "strategic_interaction": action.get("strategic_interaction") or {},
         **psychology,
     }
 
@@ -1657,7 +1732,49 @@ def _information_flow(
                     ),
                 }
             )
+        strategic = (
+            action.get("strategic_interaction")
+            if isinstance(action.get("strategic_interaction"), dict)
+            else {}
+        )
+        if strategic.get("target_character_id"):
+            rows.append(
+                {
+                    "type": "llm_strategy_probe",
+                    "from": action.get("character_id"),
+                    "to": strategic.get("target_character_id"),
+                    "content": strategic.get("tactic") or strategic.get("private_goal") or "",
+                    "distortion": strategic.get("assumed_misread")
+                    or strategic.get("risk_assessment")
+                    or "",
+                }
+            )
     return rows
+
+
+def _strategy_game_effects(actions: list[dict[str, Any]]) -> list[str]:
+    effects: list[str] = []
+    names = {
+        _text(action.get("character_id")): _text(action.get("character_name"))
+        for action in actions
+        if _text(action.get("character_id"))
+    }
+    for action in actions:
+        strategic = (
+            action.get("strategic_interaction")
+            if isinstance(action.get("strategic_interaction"), dict)
+            else {}
+        )
+        if not strategic.get("target_character_id"):
+            continue
+        actor_id = _text(action.get("character_id"))
+        target_id = _text(strategic.get("target_character_id"))
+        actor = names.get(actor_id) or actor_id or "某角色"
+        target = names.get(target_id) or target_id or "目标角色"
+        tactic = _text(strategic.get("tactic")) or "策略试探"
+        world_effect = _text(strategic.get("expected_world_effect")) or "结果进入下一轮沙盘"
+        effects.append(f"{actor}对{target}使用“{tactic}”：{world_effect}")
+    return effects
 
 
 def _world_state_delta(
@@ -1690,6 +1807,7 @@ def _world_state_delta(
         if isinstance(action.get("meme_propagation"), dict)
         and action["meme_propagation"].get("status") in {"source", "received"}
     ]
+    strategy_effects = _strategy_game_effects(actions)
     projection_effect = (
         "暴走 AU 已开启：异物入侵保留为异设世界线压力，并要求世界线《天命书》快照确认"
         if intervention_projection_mode == "wild_au"
@@ -1716,6 +1834,7 @@ def _world_state_delta(
         ],
         "resource_changes": ["情报流动加快", "旧秩序稳定性下降"],
         "secret_changes": ["至少一名角色选择暂不公开自己的判断"],
+        "strategy_game_effects": strategy_effects,
         "anchor_pressure": "上升",
         "causal_debt": "低到中：世界开始要求角色为各自选择付出代价",
         "intervention_effects": intervention_effects,
@@ -1826,6 +1945,14 @@ def _build_report(
             "llm_decision_status": decision_advisory.get("status") or "skipped",
             "llm_decision_action_count": int(
                 decision_advisory.get("action_count") or 0
+            ),
+            "strategy_interaction_count": int(
+                (
+                    decision_advisory.get("strategy_board")
+                    if isinstance(decision_advisory.get("strategy_board"), dict)
+                    else {}
+                ).get("interaction_count")
+                or 0
             ),
             "llm_decision_generated_by": decision_advisory.get("generated_by") or "",
             "external_services_required": bool(

@@ -394,12 +394,37 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                           {draft.continuous_reading_chapter.reading_flow.scene_count} 场
                         </span>
                         <span>
+                          默认：
+                          {draft.continuous_reading_chapter.default_mode === "novel"
+                            ? "小说阅读"
+                            : draft.continuous_reading_chapter.default_mode || "正文"}
+                        </span>
+                        {draft.continuous_reading_chapter.evidence_toggle && (
+                          <span>
+                            {draft.continuous_reading_chapter.evidence_toggle.label}默认
+                            {draft.continuous_reading_chapter.evidence_toggle
+                              .default_visible
+                              ? "展开"
+                              : "收起"}
+                          </span>
+                        )}
+                        <span>
                           {draft.continuous_reading_chapter.reading_flow.turning_point}
                         </span>
                         <span>
                           {draft.continuous_reading_chapter.reading_flow.next_chapter_hook}
                         </span>
                       </div>
+                      {draft.continuous_reading_chapter.viewpoint_tabs &&
+                        draft.continuous_reading_chapter.viewpoint_tabs.length > 0 && (
+                          <div className="adoption-reading__refs">
+                            {draft.continuous_reading_chapter.viewpoint_tabs.map((tab) => (
+                              <span className="badge" key={tab.id}>
+                                {tab.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       <div className="adoption-reading__sections">
                         {draft.continuous_reading_chapter.reading_sections.map((section) => (
                           <div className="adoption-reading__section" key={section.id}>
@@ -407,6 +432,12 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                               <strong>{section.title}</strong>
                               <span className="muted tiny">{section.narrative_role}</span>
                             </div>
+                            {(section.viewpoint || section.cognitive_bias) && (
+                              <p className="muted tiny">
+                                {section.viewpoint}
+                                {section.cognitive_bias ? ` · ${section.cognitive_bias}` : ""}
+                              </p>
+                            )}
                             <p>{section.body}</p>
                             {section.evidence_refs.length > 0 && (
                               <div className="adoption-reading__refs">
@@ -461,6 +492,24 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       <p className="muted tiny">
                         {draft.revision_pack.confirmation_gate.author_action}
                       </p>
+                      {draft.revision_pack.semantic_reviewer && (
+                        <div className="adoption-reading__section">
+                          <div>
+                            <strong>语义审稿</strong>
+                            <span className="muted tiny">
+                              {draft.revision_pack.semantic_reviewer.status}
+                            </span>
+                          </div>
+                          <p>{draft.revision_pack.semantic_reviewer.diagnosis_summary}</p>
+                          <div className="adoption-reading__refs">
+                            {draft.revision_pack.semantic_reviewer.review_items.map((item) => (
+                              <span className="badge" key={item.id}>
+                                {item.priority} · {item.dimension}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <div className="adoption-reading__sections">
                         {draft.revision_pack.localized_rewrites.map((item) => (
                           <div className="adoption-reading__section" key={item.id}>
@@ -468,8 +517,21 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                               <strong>{item.rewrite_instruction}</strong>
                               <span className="muted tiny">{item.priority}</span>
                             </div>
-                            <p>{item.issue}</p>
-                            <p>{item.suggested_revision}</p>
+                            <p>{item.original_problem || item.issue}</p>
+                            <p>{item.suggested_rewrite || item.suggested_revision}</p>
+                            {(item.revision_intent || item.impact_on_world_state) && (
+                              <p className="muted tiny">
+                                {item.revision_intent}
+                                {item.impact_on_world_state
+                                  ? ` · ${item.impact_on_world_state}`
+                                  : ""}
+                              </p>
+                            )}
+                            {item.adoption_direction && (
+                              <span className="badge badge--jade">
+                                {item.adoption_direction}
+                              </span>
+                            )}
                             {item.target_text && (
                               <p className="muted tiny">对应段落：{item.target_text}</p>
                             )}
