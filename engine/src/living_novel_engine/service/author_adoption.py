@@ -71,6 +71,7 @@ def record_author_adoption(
     run_id = _new_run_id()
     run_dir = root / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
+    author_branch = _author_branch(decision_key, wid, run_id)
     comparison = {
         "original_outline": _clean(original_outline) or "原大纲未填写。",
         "sandbox_emergence": source["sandbox_emergence"],
@@ -94,10 +95,12 @@ def record_author_adoption(
     next_chapter_brief = _next_chapter_brief(
         story_slug=sid,
         worldline_id=wid,
+        adoption_run_id=run_id,
         decision=decision_key,
         source=source,
         comparison=comparison,
         author_note=_clean(author_note),
+        author_branch=author_branch,
         materialized_consequences=_materialized_consequences(
             load_worldline_state(story_path, wid)
         ),
@@ -111,12 +114,20 @@ def record_author_adoption(
         comparison,
         next_chapter_brief,
     )
+    target_worldline_id = (
+        next_chapter_brief.get("feed_forward", {})
+        .get("sandbox_continuation_inputs", {})
+        .get("worldline_id")
+        or wid
+    )
     worldline_state = apply_author_adoption_to_worldline_state(
         story_path=story_path,
-        worldline_id=wid,
+        worldline_id=str(target_worldline_id),
         decision=decision_key,
         source_run_id=run_id,
         next_chapter_brief=next_chapter_brief,
+        author_branch=author_branch,
+        source_worldline_id=wid,
     )
 
     report = {
@@ -175,14 +186,17 @@ def _next_chapter_brief(
     *,
     story_slug: str,
     worldline_id: str,
+    adoption_run_id: str,
     decision: str,
     source: dict[str, str],
     comparison: dict[str, str],
     author_note: str,
+    author_branch: dict[str, str],
     materialized_consequences: list[str],
 ) -> dict[str, Any]:
     emergence = comparison["sandbox_emergence"]
     event = source.get("source_event") or _first_sentence(emergence)
+    target_worldline_id = author_branch.get("branch_id") or worldline_id
     opening = (
         f"下一章从“{event}”之后开场：角色先按沙盘涌现剧情承担误会与因果债，"
         "再让原大纲中仍可保留的目标以伏笔形式回流。"
@@ -191,6 +205,17 @@ def _next_chapter_brief(
         opening = f"另开分支后，下一章以“{event}”作为分歧点，明确标记原大纲已退为参照。"
     if decision == "export_brief":
         opening = f"导出 brief 后，下一章暂不写入主线，只把“{event}”整理为作者可选素材。"
+    conflict_focus = _conflict_focus(emergence)
+    sandbox_inputs = {
+        "major_event": event or "作者采纳后的世界线继续运转。",
+        "worldline_id": target_worldline_id,
+        "author_note": author_note,
+    }
+    must_preserve = [
+        "角色主观记忆和信息差",
+        "世界状态 delta、因果债和具象代偿",
+        "作者对原大纲的采纳范围",
+    ]
     return {
         "version": VERSION,
         "story_slug": story_slug,
@@ -198,18 +223,136 @@ def _next_chapter_brief(
         "decision": decision,
         "opening_scene": opening,
         "chapter_goal": "把沙盘涌现剧情写成可继续运行的一章，而不是孤立摘要。",
-        "conflict_focus": _conflict_focus(emergence),
-        "sandbox_inputs": {
-            "major_event": event or "作者采纳后的世界线继续运转。",
-            "worldline_id": worldline_id,
-            "author_note": author_note,
-        },
+        "conflict_focus": conflict_focus,
+        "sandbox_inputs": sandbox_inputs,
         "materialized_consequences": materialized_consequences,
-        "must_preserve": [
-            "角色主观记忆和信息差",
-            "世界状态 delta、因果债和具象代偿",
-            "作者对原大纲的采纳范围",
+        "must_preserve": must_preserve,
+        "writing_plan": _writing_plan(
+            decision=decision,
+            opening=opening,
+            conflict_focus=conflict_focus,
+            comparison=comparison,
+            materialized_consequences=materialized_consequences,
+        ),
+        "feed_forward": _feed_forward(
+            decision=decision,
+            adoption_run_id=adoption_run_id,
+            source=source,
+            comparison=comparison,
+            opening=opening,
+            conflict_focus=conflict_focus,
+            sandbox_inputs=sandbox_inputs,
+            must_preserve=must_preserve,
+            author_note=author_note,
+        ),
+        "author_branch": author_branch,
+    }
+
+
+def _author_branch(decision: str, worldline_id: str, adoption_run_id: str) -> dict[str, str]:
+    if decision != "new_branch":
+        return {}
+    short = adoption_run_id.rsplit("_", 1)[-1]
+    branch_id = _checked_id(f"author_{worldline_id}_{short}", "author_branch_id")
+    return {
+        "branch_id": branch_id,
+        "source_worldline_id": worldline_id,
+        "status": "created",
+        "root_canon_policy": "preserve_root_canon",
+    }
+
+
+def _writing_plan(
+    *,
+    decision: str,
+    opening: str,
+    conflict_focus: str,
+    comparison: dict[str, str],
+    materialized_consequences: list[str],
+) -> dict[str, Any]:
+    stance = {
+        "adopted": "canon_candidate",
+        "partial": "revision_required",
+        "new_branch": "author_branch",
+        "export_brief": "reference_only",
+    }.get(decision, "reference_only")
+    manual_review_points = []
+    if decision == "partial":
+        manual_review_points = [
+            "确认原大纲哪些目标仍要保留。",
+            "标出沙盘涌现剧情中暂不入正文的冲突点。",
+        ]
+    elif decision == "new_branch":
+        manual_review_points = [
+            "确认作者分支与根正史的分歧点。",
+            "下一章标题或卷名需显式标记为作者分支。",
+        ]
+    return {
+        "stance": stance,
+        "next_chapter_brief_md": "\n".join(
+            [
+                f"开场：{opening}",
+                f"冲突焦点：{conflict_focus}",
+                f"原大纲差异：{comparison['difference']}",
+                "伏笔走向：保留可用目标，改写达成路径，补足角色误会或隐瞒。",
+            ]
+        ),
+        "outline_delta": comparison["difference"],
+        "manual_review_points": manual_review_points,
+        "foreshadowing_moves": [
+            "把原大纲目标降为角色仍想抵达的远处灯火。",
+            "把沙盘偏移写成可追踪的关系误判或世界内代价。",
+            "下一章末尾留一个可被后续沙盘继续消费的行动钩子。",
         ],
+        "materialized_consequences": materialized_consequences,
+    }
+
+
+def _feed_forward(
+    *,
+    decision: str,
+    adoption_run_id: str,
+    source: dict[str, str],
+    comparison: dict[str, str],
+    opening: str,
+    conflict_focus: str,
+    sandbox_inputs: dict[str, str],
+    must_preserve: list[str],
+    author_note: str,
+) -> dict[str, Any]:
+    unresolved = []
+    if decision == "partial":
+        unresolved = [
+            "原大纲保留范围需要作者确认。",
+            "沙盘涌现剧情中哪些后果立即入章需要作者确认。",
+        ]
+    return {
+        "chapter_generation_inputs": {
+            "decision": decision,
+            "source_event": source.get("source_event") or "",
+            "original_outline": comparison["original_outline"],
+            "sandbox_emergence": comparison["sandbox_emergence"],
+            "opening_scene": opening,
+            "conflict_focus": conflict_focus,
+            "must_preserve": must_preserve,
+            "unresolved_conflicts": unresolved,
+        },
+        "sandbox_continuation_inputs": {
+            **sandbox_inputs,
+            "source_adoption_run_id": adoption_run_id,
+            "next_chapter_brief_artifact": NEXT_CHAPTER_ARTIFACT,
+        },
+        "next_round_reads": [
+            "author_adoption_record",
+            "next_chapter_brief",
+            "worldline_state",
+            "confirmed_chapter_entry",
+        ],
+        "root_canon_policy": "preserve_root_canon",
+        "audit_note": (
+            "采纳结果只作为下一章和后续沙盘入口，不覆盖根正史 chapter.md。"
+        ),
+        "author_note": author_note,
     }
 
 

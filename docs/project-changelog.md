@@ -2002,3 +2002,22 @@
   - 当前采信判断仍是 deterministic 规则版，证明传播证据链和主观记忆写入成立；真实 LLM 心理推演、长期思想瘟疫演化和跨轮政治/宗门/战争压力仍需后续深化。
   - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
 
+### 2026-06-05 — S9 Author Adoption Feed-forward Pack
+
+- **做了什么**：
+  - `author_adoption` service 对 `adopted`、`partial`、`new_branch` 三种采纳结果生成更完整的 `next_chapter_brief.json`，新增 `writing_plan` 和 `feed_forward`。
+  - `writing_plan` 输出可读下一章 brief、原大纲差异、伏笔调整、具象代偿延续和 Reviewer/人工修订建议；`feed_forward` 输出 `chapter_generation_inputs`、`sandbox_continuation_inputs` 和 `next_round_reads`，让后续章节生成和世界沙盘继续入口有明确可审计输入。
+  - 部分采纳会保留 `manual_review_points` 和 `unresolved_conflicts`；另开分支会创建新的作者分支 `worldline_state.json`，后续入口指向作者分支，来源世界线和根正史不被覆盖。
+  - 作者采纳台新增“原大纲 vs 沙盘涌现剧情 vs 下一章可写方案”三栏展示，并显示反哺状态、作者分支、后续读取清单和 Reviewer 提醒。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/codex-handoff.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增 `test_author_adoption_decisions_build_distinct_chapter_feed_forward` 后，先因 `next_chapter_brief` 缺少 `writing_plan` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **8 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **930 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+  - 真实模型 smoke：临时项目执行 adopted 决策后调用 `generate_author_chapter_draft(..., mock=False)`；`next_chapter_brief` 含 `writing_plan` / `feed_forward`，真实 LLM 生成 995 字正文，Reviewer 全通过，未打印明文 key。
+- **边界**：
+  - 新 service/API/UI/artifact 字段均 additive；不改 `run_scene` 默认行为，不覆盖 `chapter.md`、根正史或既有核心 artifact。
+  - 本刀聚焦 S9 采纳结果反哺，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+

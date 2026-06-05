@@ -345,6 +345,70 @@ def test_author_adoption_supports_allowed_decisions(tmp_path):
         assert report["adoption_entry"]["mode_label"]
 
 
+def test_author_adoption_decisions_build_distinct_chapter_feed_forward(tmp_path):
+    project_dir = _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    reports = {}
+    for decision in ("adopted", "partial", "new_branch"):
+        reports[decision] = record_author_adoption(
+            "adoption-story",
+            source_event="风鸣铃现世，赵轩隐瞒消息。",
+            sandbox_summary="赵轩隐瞒风鸣铃，沈冰月误判他的真实立场，归云斋被封锁复查。",
+            decision=decision,
+            original_outline="赵轩公开风鸣铃线索，沈冰月继续信任他。",
+            author_note="让下一章从信息差和归云斋封锁继续。",
+            projects_dir=tmp_path,
+            outputs_dir=outputs_dir,
+            worldline_id="branch_from_sandbox",
+        )
+
+    adopted_brief = reports["adopted"]["next_chapter_brief"]
+    partial_brief = reports["partial"]["next_chapter_brief"]
+    branch_brief = reports["new_branch"]["next_chapter_brief"]
+
+    assert adopted_brief["writing_plan"]["stance"] == "canon_candidate"
+    assert adopted_brief["writing_plan"]["next_chapter_brief_md"]
+    assert adopted_brief["feed_forward"]["chapter_generation_inputs"]["decision"] == "adopted"
+    assert adopted_brief["feed_forward"]["sandbox_continuation_inputs"]["worldline_id"] == (
+        "branch_from_sandbox"
+    )
+    assert "next_chapter_brief" in adopted_brief["feed_forward"]["next_round_reads"]
+
+    assert partial_brief["writing_plan"]["stance"] == "revision_required"
+    assert partial_brief["writing_plan"]["manual_review_points"]
+    assert partial_brief["feed_forward"]["chapter_generation_inputs"]["unresolved_conflicts"]
+    assert partial_brief["feed_forward"]["sandbox_continuation_inputs"]["author_note"]
+
+    assert branch_brief["writing_plan"]["stance"] == "author_branch"
+    assert branch_brief["author_branch"]["branch_id"].startswith("author_branch_from_sandbox_")
+    assert branch_brief["feed_forward"]["sandbox_continuation_inputs"]["worldline_id"] == (
+        branch_brief["author_branch"]["branch_id"]
+    )
+    assert branch_brief["feed_forward"]["root_canon_policy"] == "preserve_root_canon"
+    branch_state_path = (
+        project_dir
+        / "worldlines"
+        / branch_brief["author_branch"]["branch_id"]
+        / "worldline_state.json"
+    )
+    assert branch_state_path.exists()
+    branch_state = json.loads(branch_state_path.read_text(encoding="utf-8"))
+    assert branch_state["author_branch"]["source_worldline_id"] == "branch_from_sandbox"
+    assert branch_state["continuation_inputs"]["worldline_id"] == branch_brief["author_branch"]["branch_id"]
+    assert branch_state["branch_state"]["continuation_status"] == "runnable"
+
+    source_state = json.loads(
+        (
+            project_dir
+            / "worldlines"
+            / "branch_from_sandbox"
+            / "worldline_state.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert source_state["author_adoption"]["latest_decision"] == "partial"
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))

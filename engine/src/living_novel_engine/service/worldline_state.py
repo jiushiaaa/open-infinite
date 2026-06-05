@@ -141,10 +141,24 @@ def apply_author_adoption_to_worldline_state(
     decision: str,
     source_run_id: str,
     next_chapter_brief: dict[str, Any],
+    author_branch: dict[str, str] | None = None,
+    source_worldline_id: str = "",
 ) -> dict[str, Any]:
     wid = _checked_id(worldline_id, "worldline_id")
     state = load_worldline_state(story_path, wid)
     now = datetime.now().isoformat(timespec="seconds")
+    feed_forward = (
+        next_chapter_brief.get("feed_forward")
+        if isinstance(next_chapter_brief.get("feed_forward"), dict)
+        else {}
+    )
+    sandbox_inputs = (
+        feed_forward.get("sandbox_continuation_inputs")
+        if isinstance(feed_forward.get("sandbox_continuation_inputs"), dict)
+        else next_chapter_brief.get("sandbox_inputs")
+        if isinstance(next_chapter_brief.get("sandbox_inputs"), dict)
+        else {}
+    )
     state.update(
         {
             "version": VERSION,
@@ -161,20 +175,41 @@ def apply_author_adoption_to_worldline_state(
             "next_chapter_brief": {
                 "source_run_id": source_run_id,
                 "opening_scene": next_chapter_brief.get("opening_scene") or "",
-                "major_event": (
-                    next_chapter_brief.get("sandbox_inputs")
-                    if isinstance(next_chapter_brief.get("sandbox_inputs"), dict)
-                    else {}
-                ).get("major_event")
-                or "",
+                "major_event": sandbox_inputs.get("major_event") or "",
                 "materialized_consequences": next_chapter_brief.get(
                     "materialized_consequences"
                 )
                 or [],
+                "writing_plan": next_chapter_brief.get("writing_plan") or {},
+                "feed_forward": feed_forward,
+            },
+            "continuation_inputs": {
+                "major_event_hint": sandbox_inputs.get("major_event") or "",
+                "worldline_id": wid,
+                "source": "next_chapter_brief",
+                "source_adoption_run_id": source_run_id,
             },
         }
     )
     state.setdefault("branch_state", {})["continuation_status"] = "runnable"
+    state.setdefault("branch_state", {}).setdefault("next_round_reads", [])
+    reads = state["branch_state"]["next_round_reads"]
+    if isinstance(reads, list):
+        for key in feed_forward.get("next_round_reads") or ["next_chapter_brief"]:
+            if key not in reads:
+                reads.append(key)
+    branch = author_branch if isinstance(author_branch, dict) else {}
+    if branch:
+        state["author_branch"] = {
+            "branch_id": branch.get("branch_id") or wid,
+            "source_worldline_id": branch.get("source_worldline_id")
+            or source_worldline_id
+            or "",
+            "status": branch.get("status") or "created",
+            "root_canon_policy": branch.get("root_canon_policy")
+            or "preserve_root_canon",
+            "source_adoption_run_id": source_run_id,
+        }
     path = _state_path(story_path, wid)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")

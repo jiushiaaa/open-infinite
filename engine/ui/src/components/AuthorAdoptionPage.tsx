@@ -23,6 +23,13 @@ function readingTrailStatusLabel(status: string) {
   return status === "ready" ? "可回读" : "部分证据";
 }
 
+function writingStanceLabel(stance?: string) {
+  if (stance === "canon_candidate") return "可入正史候选";
+  if (stance === "revision_required") return "需作者复核";
+  if (stance === "author_branch") return "作者分支";
+  return "素材留档";
+}
+
 export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [sourceEvent, setSourceEvent] = useState("风鸣铃现世。");
   const [sourceRunId, setSourceRunId] = useState("");
@@ -208,6 +215,24 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                 <span className="badge badge--jade">{report.artifact}</span>
               </div>
               <p>{report.comparison.difference}</p>
+              <div className="adoption-triad" aria-label="原大纲与沙盘涌现剧情对照">
+                <article>
+                  <span className="muted tiny">原大纲</span>
+                  <p>{report.comparison.original_outline}</p>
+                </article>
+                <article>
+                  <span className="muted tiny">沙盘涌现剧情</span>
+                  <p>{report.comparison.sandbox_emergence}</p>
+                </article>
+                <article>
+                  <span className="muted tiny">下一章可写方案</span>
+                  <p>
+                    {report.next_chapter_brief?.writing_plan?.next_chapter_brief_md ||
+                      report.next_chapter_brief?.opening_scene ||
+                      "采纳后会在这里生成下一章方案。"}
+                  </p>
+                </article>
+              </div>
               <dl>
                 <div>
                   <dt>账本</dt>
@@ -230,14 +255,37 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
               </dl>
               {report.next_chapter_brief && (
                 <div className="adoption-next">
-                  <h3>下一章可写方案</h3>
+                  <div className="adoption-next__head">
+                    <h3>下一章可写方案</h3>
+                    <span className="badge badge--gold">
+                      {writingStanceLabel(report.next_chapter_brief.writing_plan?.stance)}
+                    </span>
+                  </div>
                   <p>{report.next_chapter_brief.opening_scene}</p>
                   <p className="muted tiny">
                     冲突焦点：{report.next_chapter_brief.conflict_focus}
                   </p>
                   <p className="muted tiny">
-                    后续沙盘入口：{report.next_chapter_brief.sandbox_inputs.major_event}
+                    后续沙盘入口：
+                    {report.next_chapter_brief.feed_forward?.sandbox_continuation_inputs
+                      .major_event || report.next_chapter_brief.sandbox_inputs.major_event}
                   </p>
+                  {report.next_chapter_brief.author_branch?.branch_id && (
+                    <p className="muted tiny">
+                      作者分支：
+                      {report.next_chapter_brief.author_branch.branch_id}
+                      ，根正史保持不覆盖。
+                    </p>
+                  )}
+                  {report.next_chapter_brief.writing_plan?.manual_review_points?.length ? (
+                    <div className="adoption-review-points">
+                      {report.next_chapter_brief.writing_plan.manual_review_points.map((item) => (
+                        <span className="badge badge--gold" key={item}>
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                   <button
                     className="btn btn--primary"
                     disabled={draftLoading}
@@ -268,9 +316,21 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                 </div>
               )}
               {report.continuation_effect?.affects_future_sandbox && (
-                <p className="muted tiny">
-                  已写入 {report.continuation_effect.worldline_state_artifact}，后续沙盘会读取本次采纳结果。
-                </p>
+                <div className="adoption-feed-forward">
+                  <strong>已反哺后续入口</strong>
+                  <p className="muted tiny">
+                    已写入 {report.continuation_effect.worldline_state_artifact}，后续沙盘会读取采纳记录、下一章 brief、世界线状态和确认章节入口。
+                  </p>
+                  {report.next_chapter_brief?.feed_forward?.next_round_reads?.length ? (
+                    <div className="adoption-reading__refs">
+                      {report.next_chapter_brief.feed_forward.next_round_reads.map((item) => (
+                        <span className="badge" key={item}>
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
               )}
               {draftError && <ErrorState message={draftError} onRetry={generateDraft} />}
               {draft && (

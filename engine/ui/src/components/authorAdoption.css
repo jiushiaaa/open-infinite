@@ -136,6 +136,30 @@
   margin: 0;
 }
 
+.adoption-triad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.adoption-triad article {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-height: 156px;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(250, 247, 239, 0.72);
+}
+
+.adoption-triad p {
+  margin: 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
 .adoption-result dl div {
   display: grid;
   grid-template-columns: 72px minmax(0, 1fr);
@@ -162,6 +186,38 @@
   margin: 0 0 var(--space-2);
   font-family: var(--font-serif);
   font-size: 16px;
+}
+
+.adoption-next__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.adoption-next__head h3 {
+  margin: 0;
+}
+
+.adoption-review-points,
+.adoption-feed-forward {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.adoption-feed-forward {
+  display: grid;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(236, 244, 235, 0.52);
+}
+
+.adoption-feed-forward p {
+  margin: 0;
 }
 
 .adoption-next ul {
@@ -297,7 +353,8 @@
 @media (max-width: 960px) {
   .adoption-hero,
   .adoption-layout,
-  .adoption-compare {
+  .adoption-compare,
+  .adoption-triad {
     display: grid;
     grid-template-columns: 1fr;
   }

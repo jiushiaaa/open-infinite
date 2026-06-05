@@ -1198,7 +1198,39 @@ export interface AuthorAdoptionReport {
       worldline_id: string;
       author_note?: string;
     };
+    materialized_consequences?: string[];
     must_preserve: string[];
+    writing_plan?: {
+      stance: string;
+      next_chapter_brief_md: string;
+      outline_delta: string;
+      manual_review_points: string[];
+      foreshadowing_moves: string[];
+      materialized_consequences: string[];
+    };
+    feed_forward?: {
+      chapter_generation_inputs: {
+        decision: string;
+        source_event?: string;
+        original_outline: string;
+        sandbox_emergence: string;
+        opening_scene: string;
+        conflict_focus: string;
+        must_preserve: string[];
+        unresolved_conflicts: string[];
+      };
+      sandbox_continuation_inputs: Record<string, string>;
+      next_round_reads: string[];
+      root_canon_policy: string;
+      audit_note: string;
+      author_note: string;
+    };
+    author_branch?: {
+      branch_id?: string;
+      source_worldline_id?: string;
+      status?: string;
+      root_canon_policy?: string;
+    };
   };
   continuation_effect?: {
     affects_future_sandbox: boolean;
