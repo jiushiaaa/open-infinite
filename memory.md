@@ -21,6 +21,8 @@
 
 2026-06-06 产品愿景纠偏稿瘦身：`docs/unfinale-product-vision-correction-draft.md` 已从讨论期长记录收束为愿景与设计原则文档，只保留原始愿望、双入口、一套底层、领域记忆模型、《天命书》、干预、代偿、多视角、Reviewer、UI 方向和不再扩张的支撑层边界。讨论期 v1-v12 节奏和长 UI 描述不再作为当前执行路线；执行以世界沙盘 PRD 和本文为准。
 
+2026-06-06 阶段归类与开工自检瘦身：`docs/productization-phase-map.md` 已收束为技术 MVP、产品化 MVP、世界沙盘第一版、完整产品能力和后置排期的判定表；`docs/unfinale-ai-development-alignment-checklist.md` 已收束为开工前问题清单、当前优先候选、默认不做、代码接入判断、artifact/API 边界、真实模型验收和完成判断。二者不再复制 S1-S9 长状态流水或支撑层逐刀历史。
+
 ---
 
 ## 1. 当前状态（先读）

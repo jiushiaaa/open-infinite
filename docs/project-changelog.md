@@ -2362,3 +2362,15 @@
 - **边界**：
   - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
 
+### 2026-06-06 — Phase Map And Alignment Checklist Slimming
+
+- **做了什么**：
+  - 重写 `docs/productization-phase-map.md`，从阶段长表和支撑层历史摘要收束为技术 MVP、产品化 MVP、世界沙盘第一版、完整产品能力、当前深化方向和后置排期原则。
+  - 重写 `docs/unfinale-ai-development-alignment-checklist.md`，从超长状态补充记录收束为开工前自检清单：是否服务世界运行、角色自主、主观记忆、干预后果、章节生成和小说阅读体验。
+  - 同步 `memory.md`，记录这两个入口文档不再复制 S1-S9 长状态流水或支撑层逐刀历史。
+- **验证**：
+  - 非归档根层扫描：检查旧基线、旧下一刀、Graph/provider 扩张、后续增强逐刀历史和支撑层待办标签。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
+
