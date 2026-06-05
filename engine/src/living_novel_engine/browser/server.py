@@ -1654,6 +1654,10 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_character_lens_generate(slug)
             if path.startswith("/api/stories/") and path.endswith(
+                "/chapter-draft"
+            ) and "/author-adoption/" in path:
+                return self._handle_author_chapter_draft(path)
+            if path.startswith("/api/stories/") and path.endswith(
                 "/author-adoption"
             ):
                 rest = path[len("/api/stories/") :]
@@ -2187,6 +2191,36 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 worldline_id=str(body.get("worldline_id") or "main"),
             )
         except AuthorAdoptionRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_author_chapter_draft(self, path: str) -> None:
+        from living_novel_engine.service import (
+            AuthorChapterDraftRequestError,
+            generate_author_chapter_draft,
+        )
+
+        prefix = "/api/stories/"
+        suffix = "/chapter-draft"
+        rest = path[len(prefix) : -len(suffix)]
+        slug_raw, marker, run_raw = rest.partition("/author-adoption/")
+        slug = safe_id(slug_raw.strip("/"))
+        adoption_run_id = safe_id(run_raw.strip("/"))
+        if not marker or slug is None or adoption_run_id is None:
+            return self._send_json({"error": "invalid slug or adoption_run_id"}, status=400)
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = generate_author_chapter_draft(
+                slug,
+                adoption_run_id=adoption_run_id,
+                mock=bool(body.get("mock", True)),
+            )
+        except AuthorChapterDraftRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         except FileNotFoundError as exc:
             return self._send_json({"error": str(exc)}, status=404)

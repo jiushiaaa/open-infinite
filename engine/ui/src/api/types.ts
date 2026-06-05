@@ -1207,6 +1207,45 @@ export interface AuthorAdoptionReport {
   next_steps: string[];
 }
 
+export interface AuthorChapterDraftReport {
+  version: string;
+  artifact: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  source_adoption_run_id: string;
+  created_at: string;
+  generated_by: string;
+  fallback_reason?: string;
+  chapter_title: string;
+  chapter_text: string;
+  draft_inputs: {
+    decision?: string;
+    mode_label?: string;
+    opening_scene?: string;
+    conflict_focus?: string;
+    original_outline?: string;
+    sandbox_emergence?: string;
+  };
+  evidence_chain: {
+    adoption_record: string;
+    next_chapter_brief: string;
+    worldline_state_artifact: string;
+    materialized_consequences: string[];
+    must_preserve: string[];
+    sandbox_inputs: Record<string, string>;
+  };
+  reviewer_checklist: Array<{
+    item: string;
+    passed: boolean;
+  }>;
+  artifacts: {
+    next_chapter_draft: string;
+    next_chapter_markdown: string;
+  };
+  boundaries: string[];
+}
+
 export interface ProjectWorkspaceCanonLedger {
   status: "ready" | "missing" | "damaged" | string;
   entry_count: number;

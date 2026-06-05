@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { api } from "../api/client";
-import type { AuthorAdoptionReport } from "../api/types";
+import type { AuthorAdoptionReport, AuthorChapterDraftReport } from "../api/types";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
 import "./authorAdoption.css";
@@ -25,6 +25,9 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<AuthorAdoptionReport | null>(null);
+  const [draftLoading, setDraftLoading] = useState(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [draft, setDraft] = useState<AuthorChapterDraftReport | null>(null);
 
   async function submitAdoption() {
     setLoading(true);
@@ -41,10 +44,25 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
           worldline_id: "main",
         }),
       );
+      setDraft(null);
+      setDraftError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generateDraft() {
+    if (!report?.run_id) return;
+    setDraftLoading(true);
+    setDraftError(null);
+    try {
+      setDraft(await api.generateAuthorChapterDraft(slug, report.run_id, { mock: true }));
+    } catch (err) {
+      setDraftError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setDraftLoading(false);
     }
   }
 
@@ -181,6 +199,13 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                   <p className="muted tiny">
                     后续沙盘入口：{report.next_chapter_brief.sandbox_inputs.major_event}
                   </p>
+                  <button
+                    className="btn btn--primary"
+                    disabled={draftLoading}
+                    onClick={generateDraft}
+                  >
+                    {draftLoading ? "正在生成草稿…" : "生成下一章草稿"}
+                  </button>
                 </div>
               )}
               {report.foreshadowing_adjustments && (
@@ -207,6 +232,44 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                 <p className="muted tiny">
                   已写入 {report.continuation_effect.worldline_state_artifact}，后续沙盘会读取本次采纳结果。
                 </p>
+              )}
+              {draftError && <ErrorState message={draftError} onRetry={generateDraft} />}
+              {draft && (
+                <div className="adoption-draft">
+                  <div className="adoption-draft__head">
+                    <h3>{draft.chapter_title}</h3>
+                    <span className="badge badge--gold">{draft.artifact}</span>
+                  </div>
+                  <pre>{draft.chapter_text}</pre>
+                  <dl>
+                    <div>
+                      <dt>采纳记录</dt>
+                      <dd>{draft.evidence_chain.adoption_record}</dd>
+                    </div>
+                    <div>
+                      <dt>下一章 brief</dt>
+                      <dd>{draft.evidence_chain.next_chapter_brief}</dd>
+                    </div>
+                    <div>
+                      <dt>世界线</dt>
+                      <dd>{draft.evidence_chain.worldline_state_artifact}</dd>
+                    </div>
+                    <div>
+                      <dt>导出</dt>
+                      <dd>{draft.artifacts.next_chapter_markdown}</dd>
+                    </div>
+                  </dl>
+                  <div className="adoption-draft__checks">
+                    {draft.reviewer_checklist.map((item) => (
+                      <span
+                        key={item.item}
+                        className={`badge ${item.passed ? "badge--jade" : "badge--gold"}`}
+                      >
+                        {item.passed ? "通过" : "待补"} · {item.item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               )}
             </section>
           )}

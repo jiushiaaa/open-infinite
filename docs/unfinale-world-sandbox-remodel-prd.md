@@ -57,6 +57,13 @@
 - 前端新增世界线独立页，展示当前世界线、来源干预、投放方式、快照审计、因果债、下一轮读取字段、具象代偿、自演任务和检查点列表。
 - 前端新增检查点回放页，展示本轮大事件、世界阶段、谁记住了什么、具象代偿和后续可写方向；沙盘自演结果可直接跳转。
 
+2026-06-05 S9 下一章草稿入口补强：
+
+- 新增 `author_chapter_draft` service 与 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft`，读取作者采纳记录、`next_chapter_brief.json` 和 `worldline_state.json`，生成 `next_chapter_draft.json` 与 `next_chapter_draft.md`。
+- 作者采纳台新增“生成下一章草稿”入口，展示正文、采纳 brief、世界线状态、导出 artifact 和 Reviewer 检查。
+- 章节草稿只写入采纳 run 目录，不覆盖正史 `chapter.md`，不调用 `run_scene`，不改变默认 runner 行为。
+- 真实模型 smoke 使用 `.env` 中真实 LLM 配置（`qwen3.5-plus`）生成 1101 字正文，命中赵轩 / 沈冰月、信息差和世界代偿检查，Reviewer 四项全通过；默认单元测试仍保持 mock-safe。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：
@@ -202,7 +209,7 @@
 | 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入；本次新增 `consequence_state`，把代偿压力具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮决策、自演检查点、多视角正文和下一章 brief。 | 仍需让六域状态支持更细的数值/枚举演化、人工确认、跨章节归档和真实 LLM 决策消费。 |
 | 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放。 | 仍需真实后台队列、长时运行守护、失败自动恢复和更精确的停止条件命中。 |
 | 多视角活体小说 | 已有 `character_lens_briefs.json`；第二轮新增 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷、事件多视角正文与证据链。 | 仍需更长正文、跨卷宗跳转、误会图谱和真实 LLM 文风控制。 |
-| 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态。 | 仍需把下一章 brief 接入正式章节生成入口和作者可编辑确认流程。 |
+| 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态；本次新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和页面草稿入口，把采纳结果生成为可读下一章正文。 | 仍需作者可编辑确认、局部重写、采纳后正式入卷和更强 Reviewer。 |
 | UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台、世界线档案和检查点回放页面与入口。 | 仍未完整拆出 `WorldWorkspaceShell`、世界正史卷、主锚点卷、角色页、事件页和机制档案页。 |
 
 ## 5. 目标 artifact
@@ -251,6 +258,10 @@ outputs/<run_id>/character_lens_volumes.json
 
 outputs/<run_id>/next_chapter_brief.json
   作者采纳后的下一章 brief、沙盘继续入口和必须保留的记忆/因果债/采纳范围。
+
+outputs/<run_id>/next_chapter_draft.json
+outputs/<run_id>/next_chapter_draft.md
+  作者采纳后的下一章正文草稿、证据链、Reviewer 检查和 Markdown 导出；不覆盖正史 chapter.md。
   ```
 
 `worldline_dossier` 当前是只读 API 聚合，不新增持久 artifact；它读取上述 worldline/autopilot 产物，为前端世界线页与检查点页提供页面级数据。
@@ -302,6 +313,9 @@ POST /api/stories/<slug>/character-lens/generate
 
 POST /api/stories/<slug>/author-adoption
   作者模式下采纳、部分采纳、另开作者分支或导出 brief。
+
+POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft
+  把作者采纳记录和下一章 brief 生成为可读正文草稿；默认 mock-safe，显式 mock=false 才尝试真实 LLM。
 ```
 
 第一版不需要全部实现。最小闭环只需要：

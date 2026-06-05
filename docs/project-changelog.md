@@ -1913,3 +1913,27 @@
   - 接作者采纳后的正式章节生成入口。
   - 在 opt-in 小样本里继续接真实 LLM 多 Agent 决策和多视角长正文质量控制。
 
+### 2026-06-05 — S9 Author Chapter Draft Entry
+
+- **做了什么**：
+  - 新增 `author_chapter_draft` service，把作者采纳 run 的 `author_adoption_record.json`、`next_chapter_brief.json`、世界线状态和具象代偿生成为正式下一章草稿。
+  - 新增 artifact：`outputs/<run_id>/next_chapter_draft.json` 和 `outputs/<run_id>/next_chapter_draft.md`，包含章节正文、采纳/brief/世界线证据链、Reviewer 检查和边界说明。
+  - `author-chapter-draft-v1.1` 会在上游缺少六域代偿时，从下一章沙盘入口派生一条世界内代偿证据，避免默认作者台草稿出现“延续世界内具象代偿”待补。
+  - 新增 API：`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft`；坏 slug/run_id 返回 400，缺采纳 run 返回 404，默认 `mock=true` 保持 deterministic。
+  - 作者采纳台新增“生成下一章草稿”按钮，展示可读正文、导出 artifact、证据链和 Reviewer 检查，让 S9 从 brief 进入正文入口。
+  - 同步 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增 `test_author_chapter_draft_turns_adoption_brief_into_readable_chapter` 后，先因缺 `living_novel_engine.service.author_chapter_draft` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **5 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - API smoke：本地 HTTP 后端返回 `version=author-chapter-draft-v1.1`，默认作者采纳路径包含派生 `materialized_consequences`，Reviewer 四项均通过。
+  - 真实模型 smoke：使用 `.env` 中真实 LLM 配置，不打印明文 key；`mock=False` 返回 `generated_by=llm`，生成 1101 字正文，命中赵轩、沈冰月、信息差和世界代偿检查，Reviewer checklist 全部通过。
+- **边界**：
+  - 章节草稿只写入作者采纳 run 目录，不覆盖正史 `chapter.md`，不调用 `run_scene`，不破坏既有核心 artifact。
+  - 新 API/UI/artifact 均 additive；默认 pytest 仍 mock-safe，真实模型 smoke 不进入默认测试。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+- **下一刀建议**：
+  - 继续真实 LLM 多 Agent 决策 smoke，让沙盘行动从模板进一步变成角色策略博弈。
+  - 增加作者可编辑确认、局部重写和正式入卷入口。
+  - 加强多视角/章节长正文质量控制与跨卷宗连续阅读。
+

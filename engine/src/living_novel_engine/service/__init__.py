@@ -342,6 +342,10 @@ from .author_adoption import (
     AuthorAdoptionRequestError,
     record_author_adoption,
 )
+from .author_chapter_draft import (
+    AuthorChapterDraftRequestError,
+    generate_author_chapter_draft,
+)
 from .tianming import (
     TianmingRequestError,
     confirm_tianming_book,
@@ -421,6 +425,7 @@ __all__ = [
     "NarrativeCompensationRequestError",
     "CharacterLensRequestError",
     "AuthorAdoptionRequestError",
+    "AuthorChapterDraftRequestError",
     "generate_baseline",
     "get_baseline_report",
     "build_chapter_collection_export",
@@ -621,6 +626,7 @@ __all__ = [
     "run_narrative_compensation",
     "generate_character_lens_briefs",
     "record_author_adoption",
+    "generate_author_chapter_draft",
     "mine_run_emergence",
     "VisualAssetPathError",
     "VisualAssetRequestError",

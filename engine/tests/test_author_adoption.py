@@ -11,6 +11,7 @@ import urllib.request
 from living_novel_engine.browser import server
 from living_novel_engine.service import import_novel_from_payload
 from living_novel_engine.service.author_adoption import record_author_adoption
+from living_novel_engine.service.author_chapter_draft import generate_author_chapter_draft
 from living_novel_engine.service.character_lens import generate_character_lens_briefs
 
 
@@ -123,6 +124,61 @@ def test_author_adoption_feeds_next_chapter_brief_and_worldline_continuation(tmp
     assert state["next_chapter_brief"]["source_run_id"] == report["run_id"]
 
 
+def test_author_chapter_draft_turns_adoption_brief_into_readable_chapter(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+    lens = generate_character_lens_briefs(
+        "adoption-story",
+        source_event="风鸣铃现世，赵轩选择隐瞒，沈冰月误判他的真实立场。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    adoption = record_author_adoption(
+        "adoption-story",
+        source_run_id=lens["run_id"],
+        decision="adopted",
+        original_outline="赵轩公开消息，沈冰月继续相信他。",
+        author_note="采纳误判，让下一章从两人的信息差开场。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+
+    draft = generate_author_chapter_draft(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        mock=True,
+    )
+    run_dir = outputs_dir / adoption["run_id"]
+
+    assert draft["version"] == "author-chapter-draft-v1.1"
+    assert draft["story_slug"] == "adoption-story"
+    assert draft["worldline_id"] == "branch_from_sandbox"
+    assert draft["source_adoption_run_id"] == adoption["run_id"]
+    assert draft["chapter_title"]
+    assert "赵轩" in draft["chapter_text"]
+    assert "沈冰月" in draft["chapter_text"]
+    assert "风鸣铃" in draft["chapter_text"]
+    assert "信息差" in draft["chapter_text"] or "误判" in draft["chapter_text"]
+    assert len(draft["chapter_text"]) > 260
+    assert draft["evidence_chain"]["adoption_record"] == "author_adoption_record.json"
+    assert draft["evidence_chain"]["next_chapter_brief"] == "next_chapter_brief.json"
+    assert draft["evidence_chain"]["worldline_state_artifact"].endswith(
+        "worldline_state.json"
+    )
+    assert draft["reviewer_checklist"]
+    assert draft["evidence_chain"]["materialized_consequences"]
+    assert all(item["passed"] for item in draft["reviewer_checklist"])
+    assert draft["artifacts"]["next_chapter_draft"] == "next_chapter_draft.json"
+    assert draft["artifacts"]["next_chapter_markdown"] == "next_chapter_draft.md"
+    assert (run_dir / "next_chapter_draft.json").exists()
+    assert (run_dir / "next_chapter_draft.md").exists()
+
+
 def test_author_adoption_supports_allowed_decisions(tmp_path):
     _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"
@@ -186,6 +242,19 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         assert status == 200
         assert body["artifact"] == "author_adoption_record.json"
         assert body["decision"] == "adopted"
+        adoption_run_id = body["run_id"]
+
+        draft_status, draft = _post(
+            port,
+            f"/api/stories/adoption-http/author-adoption/{adoption_run_id}/chapter-draft",
+            {"mock": True},
+        )
+        assert draft_status == 200
+        assert draft["artifact"] == "next_chapter_draft.json"
+        assert "赵轩" in draft["chapter_text"]
+        assert draft["evidence_chain"]["next_chapter_brief"] == "next_chapter_brief.json"
+        assert draft["evidence_chain"]["materialized_consequences"]
+        assert all(item["passed"] for item in draft["reviewer_checklist"])
 
         bad_status, bad = _post(
             port,
@@ -202,6 +271,22 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         )
         assert invalid_status == 400
         assert "decision" in invalid["error"]
+
+        bad_draft_status, bad_draft = _post(
+            port,
+            "/api/stories/adoption-http/author-adoption/..%2Fbad/chapter-draft",
+            {"mock": True},
+        )
+        assert bad_draft_status == 400
+        assert "adoption_run_id" in bad_draft["error"] or "invalid" in bad_draft["error"]
+
+        missing_status, missing = _post(
+            port,
+            "/api/stories/adoption-http/author-adoption/adoption_missing/chapter-draft",
+            {"mock": True},
+        )
+        assert missing_status == 404
+        assert "不存在" in missing["error"]
     finally:
         httpd.shutdown()
         httpd.server_close()

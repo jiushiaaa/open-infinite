@@ -3,6 +3,7 @@ import type {
   AnchorUpdateResponse,
   ApiContractReport,
   AuthorAdoptionReport,
+  AuthorChapterDraftReport,
   AuthBoundaryChecklist,
   BillingAdapterBoundaryChecklist,
   BaselineGenerateRequest,
@@ -673,6 +674,18 @@ export const api = {
   ): Promise<AuthorAdoptionReport> {
     return postJson(
       `/api/stories/${encodeURIComponent(storySlug)}/author-adoption`,
+      req,
+    );
+  },
+  generateAuthorChapterDraft(
+    storySlug: string,
+    adoptionRunId: string,
+    req: { mock?: boolean } = { mock: true },
+  ): Promise<AuthorChapterDraftReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(
+        storySlug,
+      )}/author-adoption/${encodeURIComponent(adoptionRunId)}/chapter-draft`,
       req,
     );
   },
