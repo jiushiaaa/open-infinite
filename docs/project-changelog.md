@@ -2326,3 +2326,15 @@
 - **边界**：
   - 本轮仍是 docs-only，不移动历史归档、不改旧 changelog 记录、不改变代码、artifact、API 或 `run_scene` 默认行为。
 
+### 2026-06-06 — Support Layer Index Slimming
+
+- **做了什么**：
+  - 继续处理会把下一轮带回支撑层的文档入口，重写 `docs/后续增强清单.md`。
+  - 将原逐刀长待办收束为“LNE 支撑层与后置增强索引”：只保留当前边界、已收口支撑能力分组、触发式增强规则、研究参考和追溯入口。
+  - 同步 `memory.md` 与 `docs/index.md`，把“支撑层待办”统一改成“支撑层索引”，明确它不能作为默认下一刀来源；`memory.md` 的后续增强四十五刀逐条长表和支撑层 API/CLI 长清单也压缩为分组摘要，完整细节回指 changelog 和支撑层索引。
+- **验证**：
+  - 过期口径扫描：`rg` 检查入口文档中的旧基线、旧下一刀、Graph/provider/retrieval 误导口径和“待办”标签。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮仍是 docs-only，不移动历史归档、不改代码、不改变 artifact/API 契约或 `run_scene` 默认行为。
+
