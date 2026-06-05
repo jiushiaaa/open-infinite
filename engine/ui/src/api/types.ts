@@ -1567,6 +1567,7 @@ export interface AuthorChapterDraftReport {
   fallback_reason?: string;
   chapter_title: string;
   chapter_text: string;
+  chapter_text_with_accepted_rewrites?: string;
   draft_inputs: {
     decision?: string;
     mode_label?: string;
@@ -1646,13 +1647,58 @@ export interface AuthorChapterDraftReport {
     boundaries: string[];
   };
   continuous_reading_chapter?: ContinuousReadingChapter;
+  accepted_local_rewrites?: {
+    artifact: string;
+    markdown_artifact: string;
+    applied_rewrite_ids: string[];
+    applied_rewrite_count: number;
+    author_note?: string;
+    updated_at?: string;
+    feeds?: string[];
+    does_not_overwrite?: string[];
+  };
   artifacts: {
     next_chapter_draft: string;
     next_chapter_markdown: string;
     draft_revision_pack?: string;
     continuous_reading_chapter?: string;
     continuous_reading_markdown?: string;
+    accepted_local_rewrites?: string;
+    next_chapter_draft_revised?: string;
   };
+  boundaries: string[];
+}
+
+export interface AuthorChapterRewriteApplicationReport {
+  version: string;
+  artifact: string;
+  markdown_artifact: string;
+  story_slug: string;
+  worldline_id: string;
+  source_adoption_run_id: string;
+  created_at: string;
+  author_note: string;
+  applied_rewrite_ids: string[];
+  applied_rewrites: Array<{
+    id: string;
+    priority: "blocking" | "high" | "medium" | "low" | string;
+    target_text: string;
+    original_problem: string;
+    revision_intent: string;
+    suggested_rewrite: string;
+    impact_on_characters: string[];
+    impact_on_world_state: string;
+    adoption_direction: string;
+    evidence_refs: string[];
+  }>;
+  revised_chapter_text: string;
+  evidence_chain: {
+    next_chapter_draft: string;
+    draft_revision_pack: string;
+    localized_rewrites: string[];
+  };
+  feeds: string[];
+  does_not_overwrite: string[];
   boundaries: string[];
 }
 
@@ -1772,6 +1818,16 @@ export interface AuthorChapterConfirmationReport {
     sandbox_inputs: Record<string, string>;
     materialized_consequences: string[];
     reading_trail: string;
+    accepted_local_rewrites?: string;
+  };
+  accepted_local_rewrites?: {
+    artifact: string;
+    markdown_artifact: string;
+    applied_rewrite_ids: string[];
+    applied_rewrite_count: number;
+    applied_rewrites?: AuthorChapterRewriteApplicationReport["applied_rewrites"];
+    author_note?: string;
+    feeds?: string[];
   };
   continuation_effect: {
     affects_future_sandbox: boolean;
@@ -1782,6 +1838,8 @@ export interface AuthorChapterConfirmationReport {
       confirmed_chapter_artifact: string;
       confirmed_chapter_markdown: string;
       chapter_summary: string;
+      accepted_local_rewrites?: string;
+      accepted_rewrite_ids?: string;
     };
   };
   reading_trail: ConfirmedChapterReadingTrail;

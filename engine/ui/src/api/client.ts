@@ -5,6 +5,7 @@ import type {
   AuthorAdoptionReport,
   AuthorChapterConfirmationReport,
   AuthorChapterDraftReport,
+  AuthorChapterRewriteApplicationReport,
   AuthBoundaryChecklist,
   BillingAdapterBoundaryChecklist,
   BaselineGenerateRequest,
@@ -708,6 +709,18 @@ export const api = {
       `/api/stories/${encodeURIComponent(
         storySlug,
       )}/author-adoption/${encodeURIComponent(adoptionRunId)}/chapter-draft`,
+      req,
+    );
+  },
+  applyAuthorChapterRewrites(
+    storySlug: string,
+    adoptionRunId: string,
+    req: { rewrite_ids: string[]; author_note?: string },
+  ): Promise<AuthorChapterRewriteApplicationReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(
+        storySlug,
+      )}/author-adoption/${encodeURIComponent(adoptionRunId)}/chapter-rewrites`,
       req,
     );
   },

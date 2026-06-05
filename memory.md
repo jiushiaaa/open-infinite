@@ -8,6 +8,8 @@
 
 2026-06-06 世界自演结果页 -> 可读世界线入口已完成第一版：`autopilot_report.json` 新增 additive `readable_entry`，并新增 `GET /api/world-autopilot-runs/<run_id>/readable-entry`；检查点回放 API 同步返回同一入口。世界沙盘页的“昨夜世界演化报告”现在直接展示“醒来从这里读”，可跳最近关键检查点、角色个人卷、事件多视角和连续阅读，并在结果页解释为什么世界状态变了、谁记住了什么、哪条因果债在发酵；世界线档案页也可直接进入连续阅读/角色个人卷/事件多视角，卷宗阅读路由支持 `/reading/<tab>` 精准落卷。该刀不新增持久 artifact，不改旧字段，不往 `WorkspacePage` 继续堆面板；后续仍需正文内证据锚点、角色/势力独立页和误会图谱。
 
+2026-06-06 Reviewer 局部重写 -> 作者采纳台 -> 下一章草稿链已收口第一版：新增 `author_chapter_rewrite_application` service 与 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`，作者可在采纳台勾选 `draft_revision_pack.json` 中的片段级建议并生成 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md`；`next_chapter_draft.json` additive 记录已采纳局部改写和 `chapter_text_with_accepted_rewrites`，确认入卷会把 `accepted_local_rewrites` 写入 `confirmed_chapter_entry.json`、`continuation_effect.next_sandbox_entry` 和 `worldline_state.confirmed_chapter_entry.accepted_rewrite_ids`。UI 仍保持古风纸面风格，局部建议展示原问题、修改意图、建议改写、影响范围和采纳方向；后续仍需自动编辑后定稿、真实长文文风和更强语义 Reviewer。
+
 ---
 
 ## 1. 当前状态（先读）
@@ -18,8 +20,8 @@
 | 北极星 | 文本输入 -> 世界锚定 -> 角色自主行动 -> 读者干预 -> 世界线分叉 -> 章节渲染 -> 可继续运行 |
 | 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已收口；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8（Sandbox Round、Subjective Memory Chain、Tianming Book、Intervention Compiler、Narrative Compensation、World Autopilot、Character Lens Novel、Author Adoption Desk）已收口 |
 | 产品入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能必须优先通过 Web UI + API 完成，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑 |
-| 测试基线 | `cd engine && python -m pytest -q` -> `945 passed`；`cd engine/ui && pnpm run build` 通过 |
-| 官方下一步 | **真实模型决策 + 长正文质量 + 更强 Reviewer**：S4 后半与 S5/S6/S7/S8/S9 已形成一条可继续运行的产品链路，新增 `worldline_state.json`、`consequence_state` 六域代偿、自演任务状态、检查点回放、因果债/觉醒停止条件、失败后检查点恢复、多视角正文、下一章 brief、正式下一章草稿、作者确认入卷、确认稿跨卷宗阅读链和 `draft_revision_pack.json` 局部修订包；采纳/部分采纳/另开分支已能生成 `writing_plan` 与 `feed_forward` 并影响章节生成或后续沙盘入口；世界线/检查点独立页已补第一版 dossier 与回放入口；S1 已新增显式 opt-in 的真实 LLM 逐角色决策建议，产出 `agent_decision_advisory.json` 并进入沙盘行动/主观记忆/UI；S8/S9 已新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，并已通过 `dossier-reading` API 与卷宗阅读页组织成默认小说阅读入口；下一步优先加强多轮策略规划、长期关系/势力博弈、长正文文风质量、正文内锚点跳转/误会图谱和更深层 Reviewer/局部重写；不默认回到 provider/Graph/检索评测主线 |
+| 测试基线 | `cd engine && python -m pytest -q` -> `946 passed`；`cd engine/ui && pnpm run build` 通过 |
+| 官方下一步 | **真实模型决策 + 长正文质量 + 更强 Reviewer**：S4 后半与 S5/S6/S7/S8/S9 已形成一条可继续运行的产品链路，新增 `worldline_state.json`、`consequence_state` 六域代偿、自演任务状态、检查点回放、因果债/觉醒停止条件、失败后检查点恢复、多视角正文、下一章 brief、正式下一章草稿、作者确认入卷、确认稿跨卷宗阅读链和 `draft_revision_pack.json` 局部修订包；采纳/部分采纳/另开分支已能生成 `writing_plan` 与 `feed_forward` 并影响章节生成或后续沙盘入口；世界线/检查点独立页已补第一版 dossier 与回放入口；S1 已新增显式 opt-in 的真实 LLM 逐角色决策建议，产出 `agent_decision_advisory.json` 并进入沙盘行动/主观记忆/UI；S8/S9 已新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，并已通过 `dossier-reading` API 与卷宗阅读页组织成默认小说阅读入口；Reviewer 局部重写已可由作者勾选、写入修订稿并反哺确认入卷和下一轮入口；下一步优先加强多轮策略规划、长期关系/势力博弈、长正文文风质量、正文内锚点跳转/误会图谱和自动编辑后定稿；不默认回到 provider/Graph/检索评测主线 |
 | 当前主导航决策 | 一级按“世界书架”组织；进入某世界后使用“天命书、世界沙盘、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、世界线、检查点、作者采纳台”。“沙盘/阅读/干预/作者”是场景能力，不做一级工作区 |
 | 支撑层边界 | GraphRAG/Zep、provider spike、真实向量检索、OpenAPI、发行、计费、对象存储、认证都已降为支撑层；除非用户明确要求，不继续扩展这些方向 |
 
@@ -64,7 +66,7 @@
 5. 世界线代偿：可生成 `tianming_delta.json`，解释锚点稳定/转移/失锚、候选天命承载者、因果债扩散和世界内压力事件。
 6. 世界自演：已支持运行到轮数、事件、时间、锚点变化、因果债爆发或角色觉醒，并生成 `autopilot_report.json` 与检查点；报告包含醒来时间线、停止证据和恢复入口，中途失败会记录最近检查点，任务可 resume 生成接续报告。
 7. 多视角活体小说：已可把同一事件渲染为世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角，并写入 `character_lens_briefs.json`。
-8. 作者采纳台：已可把沙盘涌现剧情采纳、部分采纳、另开分支或导出 brief，并写入 `author_adoption_ledger.jsonl`；采纳 run 会生成 `next_chapter_brief.json`，其中包含 `writing_plan` 与 `feed_forward`，把原大纲差异、沙盘涌现剧情、下一章可写方案、伏笔调整、Reviewer 建议和后续入口串起来；另开分支会创建作者分支 `worldline_state.json` 且不覆盖根正史。采纳 run 可继续生成 `next_chapter_draft.json`、`next_chapter_draft.md`、`draft_revision_pack.json`、`continuous_reading_chapter.json` 和 `continuous_reading_chapter.md`，作者采纳台会展示确认前 gate、局部改写建议、连续阅读稿、阅读流、下一章钩子和 S8 卷宗引用；作者可编辑草稿并确认入卷为 `confirmed_chapter_entry.json` / `confirmed_chapter.md`，同时生成 `confirmed_chapter_reading_trail.json`，把确认稿回读到世界正史卷、角色个人卷和事件多视角证据；确认结果会回写世界线状态和后续沙盘入口。
+8. 作者采纳台：已可把沙盘涌现剧情采纳、部分采纳、另开分支或导出 brief，并写入 `author_adoption_ledger.jsonl`；采纳 run 会生成 `next_chapter_brief.json`，其中包含 `writing_plan` 与 `feed_forward`，把原大纲差异、沙盘涌现剧情、下一章可写方案、伏笔调整、Reviewer 建议和后续入口串起来；另开分支会创建作者分支 `worldline_state.json` 且不覆盖根正史。采纳 run 可继续生成 `next_chapter_draft.json`、`next_chapter_draft.md`、`draft_revision_pack.json`、`continuous_reading_chapter.json` 和 `continuous_reading_chapter.md`，作者采纳台会展示确认前 gate、局部改写建议、连续阅读稿、阅读流、下一章钩子和 S8 卷宗引用；作者可勾选 Reviewer 局部重写并生成 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md`，修订稿会 additive 反哺 `next_chapter_draft.json` 与确认入口；作者可编辑草稿并确认入卷为 `confirmed_chapter_entry.json` / `confirmed_chapter.md`，同时生成 `confirmed_chapter_reading_trail.json`，把确认稿回读到世界正史卷、角色个人卷和事件多视角证据；确认结果会回写世界线状态、已采纳改写 ids 和后续沙盘入口。
 ```
 
 本次纠偏新增入口文档：

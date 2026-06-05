@@ -346,6 +346,10 @@ from .author_chapter_draft import (
     AuthorChapterDraftRequestError,
     generate_author_chapter_draft,
 )
+from .author_chapter_rewrite_application import (
+    AuthorChapterRewriteApplicationRequestError,
+    apply_author_chapter_rewrites,
+)
 from .author_chapter_confirmation import (
     AuthorChapterConfirmationRequestError,
     confirm_author_chapter_entry,
@@ -435,6 +439,7 @@ __all__ = [
     "CharacterLensRequestError",
     "AuthorAdoptionRequestError",
     "AuthorChapterDraftRequestError",
+    "AuthorChapterRewriteApplicationRequestError",
     "AuthorChapterConfirmationRequestError",
     "generate_baseline",
     "get_baseline_report",
@@ -637,6 +642,7 @@ __all__ = [
     "generate_character_lens_briefs",
     "record_author_adoption",
     "generate_author_chapter_draft",
+    "apply_author_chapter_rewrites",
     "confirm_author_chapter_entry",
     "mine_run_emergence",
     "VisualAssetPathError",

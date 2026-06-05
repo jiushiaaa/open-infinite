@@ -14,6 +14,8 @@
 
 本次世界自演结果页补强新增 `readable_entry`：`autopilot_report.json` 会派生“醒来从这里读”的入口包，`GET /api/world-autopilot-runs/<run_id>/readable-entry` 可只读复算，checkpoint replay 也会返回同一入口。世界沙盘结果页可直接进入最近关键检查点、角色个人卷、事件多视角和连续阅读，并展示状态变化原因、角色记忆与发酵中的因果债；世界线页和卷宗阅读路由支持精准落到连续阅读/角色个人卷/事件多视角。
 
+本次 Reviewer 局部重写采纳闭环新增 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` 与 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`：作者采纳台可勾选片段级 Reviewer 建议，直接把原问题、修改意图、建议改写和影响范围写入修订稿；确认入卷会把已采纳改写 ids 带入 `confirmed_chapter_entry.json`、下一轮沙盘入口和 `worldline_state.confirmed_chapter_entry`，不覆盖原草稿、确认稿或正史。
+
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
 当前事实、版本状态和暂停点以根目录 [`../memory.md`](../memory.md) 为准；历史版本细节在 [`../docs/completed/`](../docs/completed/README.md)。
@@ -26,7 +28,7 @@
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
 | 当前收口 | v1.0-local Model Configuration UX + Local Run Scripts；Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8 MVP |
-| 后端验证基线 | `python -m pytest -q` -> `944 passed` |
+| 后端验证基线 | `python -m pytest -q` -> `946 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
 | 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、正文内锚点跳转/误会图谱和更强 Reviewer 是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
 
@@ -66,6 +68,8 @@
 - `outputs/<run_id>/next_chapter_brief.json`
 - `outputs/<run_id>/next_chapter_draft.json`
 - `outputs/<run_id>/next_chapter_draft.md`
+- `outputs/<run_id>/accepted_local_rewrites.json`
+- `outputs/<run_id>/next_chapter_draft_revised.md`
 - `outputs/<run_id>/draft_revision_pack.json`
 - `outputs/<run_id>/continuous_reading_chapter.json`
 - `outputs/<run_id>/continuous_reading_chapter.md`
@@ -94,6 +98,7 @@
 - `POST /api/stories/<slug>/character-lens/generate`：从同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角 brief。
 - `POST /api/stories/<slug>/author-adoption`：作者采纳、部分采纳、另开分支或导出 brief，写入本地采纳账本，并生成 `next_chapter_brief.writing_plan` / `feed_forward` 作为下一章生成和后续沙盘入口；另开分支会创建作者分支世界线状态。
 - `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft`：把作者采纳后的下一章 brief、世界线状态和具象代偿生成可读下一章草稿，并同步生成连续阅读稿与 S8 卷宗引用；`mock=true` deterministic，`mock=false` 显式走真实 LLM smoke。
+- `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`：把作者选中的 Reviewer 局部重写建议写入 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md`，并 additive 反哺 `next_chapter_draft.json`、确认入卷和下一轮沙盘入口。
 - `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation`：把作者编辑后的草稿确认入卷，写入确认记录、Markdown 正文和跨卷宗阅读链，并回写世界线状态与下一轮沙盘入口。
 - `projects/<slug>/tianming.json`：叙事吸引子、题材约束、锚点状态、合约压力和候选天命承载者。
 - `outputs/<run_id>/tianming_delta.json`：世界线代偿报告。
@@ -109,6 +114,8 @@
 - `outputs/<run_id>/next_chapter_draft.json`：作者采纳后的下一章正文草稿、证据链、Reviewer 检查和局部修订包引用。
 - `outputs/<run_id>/next_chapter_draft.md`：可阅读的下一章正文导出，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/draft_revision_pack.json`：下一章草稿的局部修订包，包含确认前 gate、语义 Reviewer、局部改写建议、编辑应用预览 `editorial_revision_draft` 和证据引用。
+- `outputs/<run_id>/accepted_local_rewrites.json`：作者勾选采纳的 Reviewer 局部重写，包含原问题、修改意图、建议改写、影响角色/世界状态、证据链和 feeds。
+- `outputs/<run_id>/next_chapter_draft_revised.md`：带已采纳局部重写的下一章修订稿，不覆盖原草稿 Markdown 或正史。
 - `outputs/<run_id>/continuous_reading_chapter.json`：连续阅读稿结构，包含阅读场景、阅读流、下一章钩子、来源 S8 场景计划 `story_beat_source`、卷宗和证据 refs。
 - `outputs/<run_id>/continuous_reading_chapter.md`：按场景连续阅读的章节稿，正文先读、证据后查，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。
@@ -417,7 +424,7 @@ outputs/<run_id>/
 | 故事/项目 | `GET /api/stories`、`GET /api/stories/<slug>`、`GET /api/stories/<slug>/project-workspace`、`GET /api/stories/<slug>/runtime-preflight`、`GET /api/stories/<slug>/cards-workspace`、`GET /api/stories/<slug>/vector-retrieval-readiness`、`POST /api/stories/<slug>/vector-retrieval/index`、`POST /api/stories/<slug>/vector-retrieval/search`、`GET /api/stories/<slug>/embedding-evaluation-samples`、`GET /api/stories/<slug>/retrieval-sample-export-pack`、`GET /api/stories/<slug>/embedding-mock-evaluation-report`、`GET /api/stories/<slug>/retrieval-sample-replay-report`、`GET /api/stories/<slug>/retrieval-sample-migration-pack`、Graph Memory provider spike 系列端点（trigger/design/shadow/case/boundary/replay/fixture/readiness/runbook/result/mock/review/approval/opt-in/final/signoff/config/contract/harness/adapter/manual-mock-review）、`GET/POST /api/stories/<slug>/retrieval-failure-samples` |
 | 导入/创世/job | `POST /api/import-novel`、`POST /api/story-genesis`、`POST /api/jobs/import-novel`、`GET /api/jobs/<id>` |
 | 干预/续写 | `POST /api/interventions`、`POST /api/jobs/intervention`、`POST /api/jobs/resume-continue` |
-| 世界沙盘/卷宗 | `POST /api/stories/<slug>/sandbox/run`、`GET /api/sandbox-runs/<run_id>`、`GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`、`GET /api/world-autopilot-runs/<run_id>/readable-entry`、`GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`、`POST /api/stories/<slug>/author-adoption` |
+| 世界沙盘/卷宗 | `POST /api/stories/<slug>/sandbox/run`、`GET /api/sandbox-runs/<run_id>`、`GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`、`GET /api/world-autopilot-runs/<run_id>/readable-entry`、`GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`、`POST /api/stories/<slug>/author-adoption`、`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` |
 | run/branch | `GET /api/runs`、`GET /api/runs/<run_id>`、`GET /api/runs/<run_id>/branches/<branch_id>`、`GET /api/runs/<run_id>/branches/<branch_id>/projection-health`、`GET /api/runs/<run_id>/branches/<branch_id>/reader-panel`、`GET /api/runs/<run_id>/branches/<branch_id>/prompt-budget-pack` |
 | 评估/审计 | baseline、canon replay、worldline judgement、replay audit、audit log、creation loop closeout |
 | 导出 | chapter export、chapter collection export、audit log export |

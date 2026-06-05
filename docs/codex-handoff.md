@@ -27,6 +27,7 @@
 叙事节拍补强：为解决真实读感仍偏结构占位，`autopilot_report.json` 已新增 `overnight_report.narrative_timeline`，checkpoint 新增 `scene_beats` / `chapter_seed`；S8 `character_lens_volumes.json` 新增 `novel_scene_plan`；S9 `continuous_reading_chapter.json` 优先消费 S8 场景计划并记录 `story_beat_source`；`draft_revision_pack.json` 新增 `editorial_revision_draft`，让 Reviewer 产出可预览、可手动采纳、不自动覆盖正史的编辑应用稿。真实 LLM 小样本复测通过，并修复自演开场 hook 的重复角色名和双句号拼接。
 卷宗阅读页产品化：新增 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 和 `DossierReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/reading`。它只读聚合 `continuous_reading_chapter`、确认正文、`confirmed_chapter_reading_trail`、S8 `character_lens_volumes` 与 `worldline_dossier`，默认进入连续正文阅读，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿；认知偏差可见，证据链默认折叠。后续不要把阅读体验继续堆回 Workspace 或 JSON 面板。
 世界自演结果页可读入口：`autopilot_report.json` 新增 `readable_entry`，`GET /api/world-autopilot-runs/<run_id>/readable-entry` 与 checkpoint replay 可返回同一入口；世界沙盘结果页可直接进入最近关键检查点、角色个人卷、事件多视角和连续阅读，并展示世界状态为何改变、谁记住了什么、哪条因果债在发酵。世界线页也可直接跳连续阅读/角色个人卷/事件多视角，卷宗阅读路由支持 `/reading/<tab>` 精准落卷。
+Reviewer 局部重写采纳链：新增 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`、`accepted_local_rewrites.json` 和 `next_chapter_draft_revised.md`；作者采纳台可勾选片段级 Reviewer 建议，把原问题、修改意图、建议改写和影响范围写入修订稿，确认入卷会将已采纳改写 ids 写入 confirmed entry、next sandbox entry 和 worldline state。后续剩余是自动编辑后定稿和更强真实语义审稿。
 后续执行纪律：小步开发可以继续，但不要再以“最小闭环”作为产品完成标准。S1-S9 每一项必须验收到用户能感到对应能力真实成立；有 API、有测试、有页面、有 artifact 只是底线，不是收口理由。当前正在迭代的 S1-S9 先不打断，等完成后按此口径复盘，不合格则第三轮继续深化。
 真实模型验收纪律：用户已允许调用真实接入的模型 API。后续涉及 Agent 决策、叙事生成、章节 brief、多视角正文、Reviewer 或视觉质量时，mock/deterministic 只能作为回归底线；若 `.env` 已配置 key，应额外做小样本真实 API smoke，并记录真实输出质量。不要打印明文 key，不做大规模消耗，不把真实外网调用塞进默认全量 pytest。
 请不要只靠这段摘要；读完文档和相关代码后，再继续下一步。
@@ -100,7 +101,7 @@
 | Retrieval Provider Real Connectivity MVP | 已收口，百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的脱敏配置、mock smoke 和真实 smoke 可用 |
 | Vector Retrieval Pipeline MVP | 已收口，API/UI 可显式写入 Zilliz collection、执行百炼 embedding + Zilliz + 百炼 rerank 检索预览；运行时需 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` opt-in |
 
-验证基线：后端 `cd engine && python -m pytest -q` 为 `944 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索烟测已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
+验证基线：后端 `cd engine && python -m pytest -q` 为 `946 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索烟测已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
 
 产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳。导入、配置、创作、干预、评审、导出、样本采集、Graph Memory 证据查看等用户级能力应优先通过 Web UI + API 完成；CLI 仅作为开发者、本地服务启动、自动化验收、批处理、JSON 输出和无人值守复跑的薄封装。
 

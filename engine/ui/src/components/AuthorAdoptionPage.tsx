@@ -4,6 +4,7 @@ import type {
   AuthorAdoptionReport,
   AuthorChapterConfirmationReport,
   AuthorChapterDraftReport,
+  AuthorChapterRewriteApplicationReport,
 } from "../api/types";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
@@ -44,6 +45,12 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [draftError, setDraftError] = useState<string | null>(null);
   const [draft, setDraft] = useState<AuthorChapterDraftReport | null>(null);
   const [editedChapterText, setEditedChapterText] = useState("");
+  const [selectedRewriteIds, setSelectedRewriteIds] = useState<string[]>([]);
+  const [rewriteNote, setRewriteNote] = useState("采纳可直接变成下一章写作材料的局部改写。");
+  const [rewriteLoading, setRewriteLoading] = useState(false);
+  const [rewriteError, setRewriteError] = useState<string | null>(null);
+  const [rewriteApplication, setRewriteApplication] =
+    useState<AuthorChapterRewriteApplicationReport | null>(null);
   const [confirmationNote, setConfirmationNote] = useState("确认入卷，下一轮从本章余波继续。");
   const [confirmationLoading, setConfirmationLoading] = useState(false);
   const [confirmationError, setConfirmationError] = useState<string | null>(null);
@@ -68,6 +75,9 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       setDraft(null);
       setDraftError(null);
       setEditedChapterText("");
+      setSelectedRewriteIds([]);
+      setRewriteApplication(null);
+      setRewriteError(null);
       setConfirmation(null);
       setConfirmationError(null);
     } catch (err) {
@@ -85,12 +95,47 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       const nextDraft = await api.generateAuthorChapterDraft(slug, report.run_id, { mock: true });
       setDraft(nextDraft);
       setEditedChapterText(nextDraft.chapter_text);
+      setSelectedRewriteIds(
+        (nextDraft.revision_pack?.localized_rewrites ?? [])
+          .filter((item) => item.priority === "blocking" || item.priority === "high")
+          .map((item) => item.id),
+      );
+      setRewriteApplication(null);
+      setRewriteError(null);
       setConfirmation(null);
       setConfirmationError(null);
     } catch (err) {
       setDraftError(err instanceof Error ? err.message : String(err));
     } finally {
       setDraftLoading(false);
+    }
+  }
+
+  function toggleRewrite(id: string) {
+    setSelectedRewriteIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    );
+    setRewriteApplication(null);
+    setConfirmation(null);
+  }
+
+  async function applySelectedRewrites() {
+    if (!report?.run_id || !draft || selectedRewriteIds.length === 0) return;
+    setRewriteLoading(true);
+    setRewriteError(null);
+    try {
+      const application = await api.applyAuthorChapterRewrites(slug, report.run_id, {
+        rewrite_ids: selectedRewriteIds,
+        author_note: rewriteNote.trim(),
+      });
+      setRewriteApplication(application);
+      setEditedChapterText(application.revised_chapter_text);
+      setConfirmation(null);
+      setConfirmationError(null);
+    } catch (err) {
+      setRewriteError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setRewriteLoading(false);
     }
   }
 
@@ -506,6 +551,53 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       <p className="muted tiny">
                         {draft.revision_pack.confirmation_gate.author_action}
                       </p>
+                      <div className="adoption-rewrite-toolbar">
+                        <div>
+                          <strong>可采纳局部改写</strong>
+                          <p className="muted tiny">
+                            已选 {selectedRewriteIds.length} /{" "}
+                            {draft.revision_pack.localized_rewrites.length} 条；采纳后会写入修订稿和下一章草稿记录。
+                          </p>
+                        </div>
+                        <button
+                          className="btn btn--primary"
+                          disabled={rewriteLoading || selectedRewriteIds.length === 0}
+                          onClick={applySelectedRewrites}
+                        >
+                          {rewriteLoading ? "正在采纳…" : "采纳选中改写到修订稿"}
+                        </button>
+                      </div>
+                      <label className="adoption-editor adoption-rewrite-note">
+                        <span className="muted tiny">采纳备注</span>
+                        <textarea
+                          value={rewriteNote}
+                          onChange={(event) => setRewriteNote(event.target.value)}
+                          rows={2}
+                        />
+                      </label>
+                      {rewriteError && (
+                        <ErrorState message={rewriteError} onRetry={applySelectedRewrites} />
+                      )}
+                      {rewriteApplication && (
+                        <div className="adoption-rewrite-result">
+                          <div>
+                            <strong>已写入修订稿</strong>
+                            <span className="badge badge--jade">
+                              {rewriteApplication.markdown_artifact}
+                            </span>
+                          </div>
+                          <p>
+                            已采纳 {rewriteApplication.applied_rewrite_ids.length} 条局部重写，正文编辑框已换成可确认版本。
+                          </p>
+                          <div className="adoption-reading__refs">
+                            {rewriteApplication.applied_rewrite_ids.map((id) => (
+                              <span className="badge" key={id}>
+                                {id}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       {draft.revision_pack.semantic_reviewer && (
                         <div className="adoption-reading__section">
                           <div>
@@ -551,18 +643,38 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       )}
                       <div className="adoption-reading__sections">
                         {draft.revision_pack.localized_rewrites.map((item) => (
-                          <div className="adoption-reading__section" key={item.id}>
-                            <div>
-                              <strong>{item.rewrite_instruction}</strong>
-                              <span className="muted tiny">{item.priority}</span>
+                          <div
+                            className={`adoption-reading__section adoption-rewrite-card ${
+                              selectedRewriteIds.includes(item.id) ? "is-selected" : ""
+                            }`}
+                            key={item.id}
+                          >
+                            <div className="adoption-rewrite-card__head">
+                              <label>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedRewriteIds.includes(item.id)}
+                                  onChange={() => toggleRewrite(item.id)}
+                                />
+                                <strong>{item.rewrite_instruction}</strong>
+                              </label>
+                              <span className="muted tiny">
+                                {priorityLabel(item.priority)} · {item.id}
+                              </span>
                             </div>
-                            <p>{item.original_problem || item.issue}</p>
-                            <p>{item.suggested_rewrite || item.suggested_revision}</p>
+                            <p>
+                              <b>原问题：</b>
+                              {item.original_problem || item.issue}
+                            </p>
+                            <p>
+                              <b>建议改写：</b>
+                              {item.suggested_rewrite || item.suggested_revision}
+                            </p>
                             {(item.revision_intent || item.impact_on_world_state) && (
                               <p className="muted tiny">
-                                {item.revision_intent}
+                                修改意图：{item.revision_intent}
                                 {item.impact_on_world_state
-                                  ? ` · ${item.impact_on_world_state}`
+                                  ? ` · 影响范围：${item.impact_on_world_state}`
                                   : ""}
                               </p>
                             )}
@@ -637,7 +749,32 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                           <dt>编辑</dt>
                           <dd>{confirmation.edited ? "已采用作者修订稿" : "沿用草稿"}</dd>
                         </div>
+                        <div>
+                          <dt>局部改写</dt>
+                          <dd>
+                            {confirmation.accepted_local_rewrites?.applied_rewrite_count
+                              ? `${confirmation.accepted_local_rewrites.applied_rewrite_count} 条已反哺下一轮`
+                              : "未采纳局部改写"}
+                          </dd>
+                        </div>
                       </dl>
+                      {confirmation.accepted_local_rewrites?.applied_rewrite_ids?.length ? (
+                        <div className="adoption-rewrite-result">
+                          <div>
+                            <strong>Reviewer 改写已随章节入卷</strong>
+                            <span className="badge badge--jade">
+                              {confirmation.accepted_local_rewrites.artifact}
+                            </span>
+                          </div>
+                          <div className="adoption-reading__refs">
+                            {confirmation.accepted_local_rewrites.applied_rewrite_ids.map((id) => (
+                              <span className="badge" key={id}>
+                                {id}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
                       <div className="adoption-reading">
                         <div className="adoption-reading__head">
                           <div>
@@ -708,4 +845,12 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       </div>
     </div>
   );
+}
+
+function priorityLabel(priority: string) {
+  if (priority === "blocking") return "阻断";
+  if (priority === "high") return "高优先级";
+  if (priority === "medium") return "中优先级";
+  if (priority === "low") return "低优先级";
+  return priority || "未分级";
 }

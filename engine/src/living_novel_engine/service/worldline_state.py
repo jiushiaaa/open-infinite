@@ -228,6 +228,8 @@ def apply_confirmed_chapter_to_worldline_state(
     artifact: str,
     markdown_artifact: str,
     next_sandbox_entry: dict[str, str],
+    accepted_rewrite_ids: list[str] | None = None,
+    accepted_rewrites_artifact: str = "",
 ) -> dict[str, Any]:
     wid = _checked_id(worldline_id, "worldline_id")
     rid = _checked_id(source_adoption_run_id, "source_adoption_run_id")
@@ -244,6 +246,8 @@ def apply_confirmed_chapter_to_worldline_state(
         "affects_future_sandbox": True,
         "updated_at": now,
         "next_sandbox_entry": next_sandbox_entry,
+        "accepted_rewrite_ids": accepted_rewrite_ids or [],
+        "accepted_rewrites_artifact": accepted_rewrites_artifact,
     }
     history = state.get("confirmed_chapter_entries")
     rows = [item for item in history if isinstance(item, dict)] if isinstance(history, list) else []

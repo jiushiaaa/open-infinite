@@ -2225,3 +2225,23 @@
   - 新字段和 API 均 additive；不新增独立持久 artifact，不改旧 `autopilot_report` 字段含义，不改 `run_scene` 默认行为。
   - 本刀不往 `WorkspacePage` 继续堆面板，只在世界沙盘结果页、世界线页、检查点页和卷宗阅读路由内组织入口。
 
+### 2026-06-06 — Reviewer Rewrite Adoption Loop
+
+- **做了什么**：
+  - 针对“Reviewer 局部重写 -> 作者采纳台 -> 下一章草稿”补闭环：新增 `author_chapter_rewrite_application` service，读取 `draft_revision_pack.json` 的片段级建议，按作者选择生成 `accepted_local_rewrites.json` 与 `next_chapter_draft_revised.md`。
+  - 新增 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`，保持 identifier 安全校验与 400/404 降级。
+  - `next_chapter_draft.json` additive 写入 `accepted_local_rewrites` 与 `chapter_text_with_accepted_rewrites`，保留原 `chapter_text` 和原 Markdown 草稿不变。
+  - 作者采纳台新增勾选式局部重写卡片、采纳备注和“采纳选中改写到修订稿”动作；每条建议展示原问题、修改意图、建议改写、影响范围、采纳方向和证据 refs，采纳后自动把修订稿放回作者编辑区。
+  - 确认入卷会读取已采纳局部重写，并把 artifact / rewrite ids 写入 `confirmed_chapter_entry.json`、`continuation_effect.next_sandbox_entry` 和 `worldline_state.confirmed_chapter_entry.accepted_rewrite_ids`。
+  - 同步 UI types/API client、`memory.md`、世界沙盘 PRD、愿景纠偏、AI 对齐清单、路线图、`engine/README.md`、`docs/codex-handoff.md` 和本 changelog。
+- **测试/验证**：
+  - RED：新增 `test_author_can_apply_selected_rewrites_to_draft_and_confirmation_entry`，先因缺少 `living_novel_engine.service.author_chapter_rewrite_application` 失败。
+  - GREEN：`cd D:\AI\open-infinite && python -m pytest engine/tests/test_author_adoption.py::test_author_can_apply_selected_rewrites_to_draft_and_confirmation_entry -q` -> **1 passed**。
+  - Focused/API：`python -m pytest engine/tests/test_author_adoption.py -q` -> **13 passed**，覆盖 service、HTTP `/chapter-rewrites`、确认入卷和安全坏 id。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 完整后端：`cd engine && python -m pytest -q` -> **946 passed**。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有既有换行提示。
+- **边界**：
+  - 本刀只做 Reviewer 局部重写采纳链，不改 `run_scene` 默认行为，不覆盖 `chapter.md`、原 `next_chapter_draft.md`、确认稿或正史。
+  - 采纳动作仍由作者显式选择；这不是自动编辑后定稿，也不新增 Graph/provider/检索评测/工程面板方向。
+

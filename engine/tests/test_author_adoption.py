@@ -16,6 +16,9 @@ from living_novel_engine.service.author_chapter_confirmation import (
     confirm_author_chapter_entry,
 )
 from living_novel_engine.service.character_lens import generate_character_lens_briefs
+from living_novel_engine.service.author_chapter_rewrite_application import (
+    apply_author_chapter_rewrites,
+)
 
 
 def _chapters(n: int = 6) -> list[dict]:
@@ -476,6 +479,108 @@ def test_revision_pack_builds_editorial_preview_draft_without_overwriting_author
     assert draft["revision_pack"]["confirmation_gate"]["editorial_preview_available"] is True
 
 
+def test_author_can_apply_selected_rewrites_to_draft_and_confirmation_entry(tmp_path):
+    project_dir = _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+    lens = generate_character_lens_briefs(
+        "adoption-story",
+        source_event="风鸣铃现世，赵轩选择隐瞒，沈冰月误判他的真实立场。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    adoption = record_author_adoption(
+        "adoption-story",
+        source_run_id=lens["run_id"],
+        decision="adopted",
+        original_outline="赵轩公开风鸣铃，沈冰月继续相信他。",
+        author_note="让作者能直接采纳 Reviewer 局部重写。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    generate_author_chapter_draft(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        mock=True,
+    )
+
+    application = apply_author_chapter_rewrites(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        rewrite_ids=["sharpen_character_misread", "materialize_consequence"],
+        author_note="采纳误判和代偿两条局部重写。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    run_dir = outputs_dir / adoption["run_id"]
+
+    assert application["version"] == "author-chapter-rewrite-application-v1"
+    assert application["artifact"] == "accepted_local_rewrites.json"
+    assert application["markdown_artifact"] == "next_chapter_draft_revised.md"
+    assert application["applied_rewrite_ids"] == [
+        "sharpen_character_misread",
+        "materialize_consequence",
+    ]
+    assert all(
+        item["original_problem"]
+        and item["revision_intent"]
+        and item["suggested_rewrite"]
+        and item["impact_on_world_state"]
+        for item in application["applied_rewrites"]
+    )
+    assert "## 已采纳的 Reviewer 局部重写" in application["revised_chapter_text"]
+    assert "sharpen_character_misread" in application["revised_chapter_text"]
+    assert (run_dir / "accepted_local_rewrites.json").exists()
+    assert (run_dir / "next_chapter_draft_revised.md").exists()
+
+    draft_payload = json.loads(
+        (run_dir / "next_chapter_draft.json").read_text(encoding="utf-8")
+    )
+    assert draft_payload["accepted_local_rewrites"]["artifact"] == (
+        "accepted_local_rewrites.json"
+    )
+    assert draft_payload["accepted_local_rewrites"]["applied_rewrite_ids"] == (
+        application["applied_rewrite_ids"]
+    )
+    assert draft_payload["chapter_text_with_accepted_rewrites"] == (
+        application["revised_chapter_text"]
+    )
+
+    confirmation = confirm_author_chapter_entry(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        edited_chapter_text=application["revised_chapter_text"],
+        author_note="确认入卷，并沿用已采纳的局部重写。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    assert confirmation["accepted_local_rewrites"]["applied_rewrite_ids"] == (
+        application["applied_rewrite_ids"]
+    )
+    assert confirmation["evidence_chain"]["accepted_local_rewrites"] == (
+        "accepted_local_rewrites.json"
+    )
+    assert "accepted_local_rewrites" in confirmation["continuation_effect"][
+        "next_sandbox_entry"
+    ]
+
+    state = json.loads(
+        (
+            project_dir
+            / "worldlines"
+            / "branch_from_sandbox"
+            / "worldline_state.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert state["confirmed_chapter_entry"]["accepted_rewrite_ids"] == (
+        application["applied_rewrite_ids"]
+    )
+
+
 def test_author_chapter_confirmation_links_back_to_cross_volume_evidence(tmp_path):
     _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"
@@ -696,11 +801,24 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         assert "赵轩" in draft["continuous_reading_chapter"]["reading_body_md"]
         assert all(item["passed"] for item in draft["reviewer_checklist"])
 
+        rewrite_status, rewrite_application = _post(
+            port,
+            f"/api/stories/adoption-http/author-adoption/{adoption_run_id}/chapter-rewrites",
+            {
+                "rewrite_ids": ["sharpen_character_misread"],
+                "author_note": "采纳一条 Reviewer 局部改写。",
+            },
+        )
+        assert rewrite_status == 200
+        assert rewrite_application["artifact"] == "accepted_local_rewrites.json"
+        assert rewrite_application["applied_rewrite_ids"] == ["sharpen_character_misread"]
+        assert "## 已采纳的 Reviewer 局部重写" in rewrite_application["revised_chapter_text"]
+
         confirm_status, confirmation = _post(
             port,
             f"/api/stories/adoption-http/author-adoption/{adoption_run_id}/chapter-confirmation",
             {
-                "edited_chapter_text": draft["chapter_text"]
+                "edited_chapter_text": rewrite_application["revised_chapter_text"]
                 + "\n\n作者确认：赵轩继续隐瞒风鸣铃，沈冰月记住信息差，归云斋因果债继续运行。",
                 "author_note": "确认入卷。",
             },
@@ -710,6 +828,15 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         assert confirmation["edited"] is True
         assert confirmation["evidence_chain"]["next_chapter_draft"] == "next_chapter_draft.json"
         assert confirmation["continuation_effect"]["affects_future_sandbox"] is True
+        assert confirmation["accepted_local_rewrites"]["applied_rewrite_ids"] == [
+            "sharpen_character_misread"
+        ]
+        assert (
+            confirmation["continuation_effect"]["next_sandbox_entry"][
+                "accepted_local_rewrites"
+            ]
+            == "accepted_local_rewrites.json"
+        )
         assert confirmation["artifacts"]["confirmed_chapter_reading_trail"] == (
             "confirmed_chapter_reading_trail.json"
         )
@@ -738,6 +865,14 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         )
         assert bad_draft_status == 400
         assert "adoption_run_id" in bad_draft["error"] or "invalid" in bad_draft["error"]
+
+        bad_rewrite_status, bad_rewrite = _post(
+            port,
+            "/api/stories/adoption-http/author-adoption/..%2Fbad/chapter-rewrites",
+            {"rewrite_ids": ["sharpen_character_misread"]},
+        )
+        assert bad_rewrite_status == 400
+        assert "adoption_run_id" in bad_rewrite["error"] or "invalid" in bad_rewrite["error"]
 
         bad_confirm_status, bad_confirm = _post(
             port,

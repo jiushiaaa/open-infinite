@@ -285,6 +285,42 @@
   min-height: 88px;
 }
 
+.adoption-rewrite-toolbar,
+.adoption-rewrite-result {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(250, 247, 239, 0.78);
+}
+
+.adoption-rewrite-toolbar p,
+.adoption-rewrite-result p {
+  margin: 4px 0 0;
+}
+
+.adoption-rewrite-note textarea {
+  min-height: 72px;
+  border-left-color: var(--gold);
+}
+
+.adoption-rewrite-result {
+  display: grid;
+  background: rgba(236, 244, 235, 0.56);
+}
+
+.adoption-rewrite-result > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
 .adoption-draft__checks {
   display: flex;
   flex-wrap: wrap;
@@ -358,6 +394,33 @@
   flex-wrap: wrap;
 }
 
+.adoption-rewrite-card {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(250, 247, 239, 0.58);
+}
+
+.adoption-rewrite-card.is-selected {
+  border-color: rgba(71, 128, 95, 0.62);
+  background: rgba(236, 244, 235, 0.52);
+}
+
+.adoption-rewrite-card__head {
+  justify-content: space-between;
+}
+
+.adoption-rewrite-card__head label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.adoption-rewrite-card__head input {
+  accent-color: var(--jade);
+}
+
 .adoption-reading__section p:not(.mono) {
   color: var(--ink-soft);
   line-height: 1.7;
@@ -373,7 +436,8 @@
   .adoption-hero,
   .adoption-layout,
   .adoption-compare,
-  .adoption-triad {
+  .adoption-triad,
+  .adoption-rewrite-toolbar {
     display: grid;
     grid-template-columns: 1fr;
   }
