@@ -19,6 +19,8 @@
 
 2026-06-06 主 PRD 瘦身：`docs/living-novel-engine-prd.md` 已从混有 v0.8/v0.9/v1.0 和 Graph/provider 长历史的综合长文，收束为当前产品 PRD；只保留定位、主体验、用户价值、已闭环、真实未做项、后置边界和验收口径。历史逐刀细节回指 `docs/project-changelog.md`、`docs/completed/README.md` 和 `docs/后续增强清单.md`。
 
+2026-06-06 产品愿景纠偏稿瘦身：`docs/unfinale-product-vision-correction-draft.md` 已从讨论期长记录收束为愿景与设计原则文档，只保留原始愿望、双入口、一套底层、领域记忆模型、《天命书》、干预、代偿、多视角、Reviewer、UI 方向和不再扩张的支撑层边界。讨论期 v1-v12 节奏和长 UI 描述不再作为当前执行路线；执行以世界沙盘 PRD 和本文为准。
+
 ---
 
 ## 1. 当前状态（先读）

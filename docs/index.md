@@ -14,7 +14,7 @@
 | 当前主线 PRD | `unfinale-world-sandbox-remodel-prd.md` | 世界沙盘 S1-S9 及后续深化路线 |
 | 开工自检 | `unfinale-ai-development-alignment-checklist.md` | 判断下一刀是否服务世界运行、角色自主、记忆、干预、反抗、代偿和章节生成 |
 | 路线图 | `living-novel-engine-iteration-plan.md` | 当前阶段、暂停点、下一刀候选 |
-| 产品愿景 | `unfinale-product-vision-correction-draft.md`、`living-novel-engine-prd.md` | 愿景、用户场景、产品结构和当前产品验收口径；执行细节以当前主线 PRD 为准 |
+| 产品愿景 | `unfinale-product-vision-correction-draft.md`、`living-novel-engine-prd.md` | 愿景原则、用户场景、产品结构和当前产品验收口径；执行细节以当前主线 PRD 为准 |
 | 历史归档 | `completed/`、`project-changelog.md` | 已收口专项和完整历史日志，供追溯，不直接产生当前待办 |
 | 支撑层/后置路径 | `后续增强清单.md`、`distribution-phase-plan.md` | 支撑层索引与发行路径；除非用户明确点名，不抢当前世界沙盘主线 |
 | 研究与资产 | `article/`、`brand/`、`image/` | 论文、品牌、原型图和视觉参考 |
@@ -71,7 +71,7 @@
 | `codex-migration-guide.md` | 迁移说明 | `.cursor/rules`、`.cursor/skills` 与 Codex skills/plugins 的迁移关系 |
 | `project-changelog.md` | 历史日志 | 完整变更日志；追加维护，不承担当前待办来源 |
 | `unfinale-world-sandbox-remodel-prd.md` | 当前主线 | 世界沙盘改造 PRD，说明现有代码如何接入《天命书》、沙盘轮次、主观记忆链、世界自演、多视角正文和作者采纳台 |
-| `unfinale-product-vision-correction-draft.md` | 愿景纠偏 | 产品愿景、导航口径和 UI 原型方向；细节以主线 PRD 和 memory 为准 |
+| `unfinale-product-vision-correction-draft.md` | 愿景纠偏 | 原始愿望、设计原则、双入口、领域记忆模型、UI 方向和不扩张边界；不是讨论期长接力 |
 | `unfinale-ai-development-alignment-checklist.md` | 开工自检 | 防止下一刀滑回 provider、GraphRAG、检索评测、发行或工程面板 |
 | `living-novel-engine-prd.md` | 当前产品 PRD | 产品定位、用户价值、主体验、已闭环/未完成边界和验收口径；历史长表已回指 changelog 与 completed |
 | `living-novel-engine-iteration-plan.md` | 当前路线图 | 当前阶段状态、真实未做项和后续候选路线 |

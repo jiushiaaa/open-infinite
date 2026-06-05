@@ -2350,3 +2350,15 @@
 - **边界**：
   - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
 
+### 2026-06-06 — Product Vision Correction Slimming
+
+- **做了什么**：
+  - 重写 `docs/unfinale-product-vision-correction-draft.md`，把讨论期 2000 多行长记录收束为愿景与设计原则文档。
+  - 保留原始愿望、双入口、一套底层、领域记忆模型、角色主观记忆链、《天命书》、干预、代偿、章节观察镜头、Reviewer、当前第一版成立体验、仍需深挖的深水区、UI 方向和不再默认扩张的支撑层。
+  - 同步 `memory.md` 与 `docs/index.md`，明确讨论期 v1-v12 节奏和长 UI 描述不再作为当前执行路线。
+- **验证**：
+  - 入口层扫描：确认愿景纠偏稿不再包含旧 v1-v12 长接力、旧工程面板路线、Graph/provider 继续扩张或旧“下一刀”口径。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
+
