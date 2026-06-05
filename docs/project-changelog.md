@@ -2261,3 +2261,16 @@
   - 不移动或重写 `docs/completed/` 的历史专项正文，不篡改 `docs/project-changelog.md` 的旧验收记录；通过 `docs/index.md` 和 `completed/README.md` 做逻辑归类。
   - 不改代码、不改 artifact 契约、不改变 `run_scene` 默认行为。
 
+### 2026-06-06 — Documentation Governance Second Pass
+
+- **做了什么**：
+  - 继续复扫根层和非归档文档，重点检查会把下一轮带回 Workspace、支撑层 backlog 或状态长表的残留入口。
+  - 精简 `engine/README.md` 第一屏，把它重新定位为 API / artifact / 运行手册；当前事实和路线判断回指 `memory.md`、`docs/index.md` 和世界沙盘 PRD。
+  - 给 `memory.md` 的阶段收口总览与当前产品/工程能力两节补跳读说明，明确这些长表用于确认历史能力，不用于派生当前下一刀。
+  - 更新 `docs/image/README.md`，说明旧 UI 原型只能取信息架构，不应把“主工作台堆面板”当当前实现方向。
+- **验证**：
+  - 过期基线扫描无命中。
+  - `git diff --check` 通过，仅有 Windows 换行提示。
+- **边界**：
+  - 本轮仍是 docs-only，不改代码、不移动历史归档、不改变 artifact/API 契约。
+

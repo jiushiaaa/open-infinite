@@ -1,6 +1,6 @@
 # 未终章 UI 原型参考图
 
-本目录存放当前纠偏讨论阶段生成的 UI 方向参考图。它们不是最终视觉稿，也不是要求立即全量重写前端，而是用于固定“未终章后续产品入口应该长什么样”的参考材料。
+本目录存放当前纠偏讨论阶段生成的 UI 方向参考图。它们不是最终视觉稿，也不是要求立即全量重写前端，而是用于固定“未终章后续产品入口应该长什么样”的参考材料。当前实现已经从“主工作台堆面板”转向“世界内部卷宗、世界线结果页和作者采纳台”；使用这些图时取信息架构，不要把旧 Workspace 布局当默认方向。
 
 整体方向：
 
@@ -12,7 +12,7 @@
 
 | 序号 | 文件 | 用途 |
 | --- | --- | --- |
-| 01 | [unfinale-ui-01-main-workspace-overview.png](./unfinale-ui-01-main-workspace-overview.png) | 主工作台总览：世界自演报告、角色镜头、读者干预和检查点入口。 |
+| 01 | [unfinale-ui-01-main-workspace-overview.png](./unfinale-ui-01-main-workspace-overview.png) | 早期世界体验总览：世界自演报告、角色镜头、读者干预和检查点入口；实现时优先拆到世界内部卷宗与结果页。 |
 | 02 | [unfinale-ui-02-import-tianming-confirmation-a.png](./unfinale-ui-02-import-tianming-confirmation-a.png) | 导入与《天命书》确认 A：偏文件导入、AI 泛读进度和初始化确认。 |
 | 03 | [unfinale-ui-03-import-tianming-confirmation-b.png](./unfinale-ui-03-import-tianming-confirmation-b.png) | 导入与《天命书》确认 B：偏结构化预抽结果、候选天命承载者和微调入口。 |
 | 04 | [unfinale-ui-04-world-autopilot-control.png](./unfinale-ui-04-world-autopilot-control.png) | 世界自演控制：设置运行到轮次、事件、时间或锚点变化。 |
