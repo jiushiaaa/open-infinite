@@ -595,6 +595,8 @@ export const api = {
       time_limit?: string;
       round_limit?: number;
       worldline_id?: string;
+      resume_from_run_id?: string;
+      resume_from_checkpoint?: string;
     },
   ): Promise<WorldAutopilotReport> {
     return postJson(

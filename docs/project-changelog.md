@@ -2084,3 +2084,20 @@
   - 连续阅读稿是第一版编排层，不等于长正文质量完全完成；真实文风控制、章节级长文规划、正文内跳转和更强语义 Reviewer 仍需继续深化。
   - 本刀聚焦 S8/S9 长正文与连续阅读第一刀，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
 
+### 2026-06-06 — S7 World Autopilot Unattended Recovery
+
+- **做了什么**：
+  - `world_autopilot` service 补强无人值守自演：`objective_type` 支持 `causal_debt` 和 `awakening`，因果债爆发或角色 L5 觉醒会写入 `stop_condition` 并提前停止。
+  - `autopilot_report.json` 新增 `status`、`stop_condition`、`recovery`、`failure`、醒来时间线、记忆变化列表和 checkpoint recovery，不再只给最终 summary。
+  - 本地任务文件保存原始请求、进度、失败原因和最近可恢复检查点；中途失败时保留已写 checkpoint，调用 resume 会从最近 checkpoint 生成接续报告。
+  - HTTP API 透传 `resume_from_run_id` / `resume_from_checkpoint`；检查点回放返回恢复提示。
+  - 世界沙盘页新增因果债爆发/角色觉醒自演目标，昨夜世界演化报告展示进度刷新、暂停、恢复、停止证据、失败原因、醒来时间线和检查点回放；世界线档案任务卡展示失败与恢复检查点。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增 S7 focused tests 后，先分别因 `causal_debt` 未真正停止、异常直接抛出且没有失败恢复任务而失败。
+  - GREEN：`cd engine && python -m pytest tests/test_world_autopilot.py -q` -> **7 passed**。
+- **边界**：
+  - 新字段、API 参数和 UI 均 additive；不改 `run_scene` 默认行为，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 当前恢复是本地任务文件 + checkpoint 的第一版，不是跨进程后台队列或真实长时守护。
+  - 本刀只收口 S7 世界自演产品化，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+

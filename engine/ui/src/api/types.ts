@@ -1026,6 +1026,7 @@ export interface WorldAutopilotCheckpoint {
 export interface WorldAutopilotReport {
   version: string;
   artifact: string;
+  status?: string;
   run_id: string;
   story_slug: string;
   worldline_id: string;
@@ -1039,6 +1040,13 @@ export interface WorldAutopilotReport {
     };
   rounds_completed: number;
   stop_reason: string;
+  stop_condition?: {
+    type: string;
+    matched: boolean;
+    evidence: string;
+    round_index: number;
+    checkpoint_id?: string;
+  };
   task?: {
     task_id: string;
     status: string;
@@ -1071,6 +1079,23 @@ export interface WorldAutopilotReport {
       sandbox_run_id?: string;
       label?: string;
     }>;
+    timeline?: Array<{
+      round_index?: number;
+      checkpoint_id?: string;
+      major_event?: string;
+      stage?: string;
+      causal_debt?: string;
+      remembered_count?: number;
+    }>;
+    memory_changes?: Array<{ character_id?: string; remembered?: string }>;
+    checkpoint_recovery?: WorldAutopilotRecovery;
+  };
+  recovery?: WorldAutopilotRecovery;
+  failure?: {
+    message?: string;
+    failed_round?: number;
+    latest_checkpoint?: string;
+    recoverable?: boolean;
   };
   artifacts: {
     autopilot_report: string;
@@ -1078,6 +1103,21 @@ export interface WorldAutopilotReport {
   };
   boundaries: string[];
   next_steps: string[];
+}
+
+export interface WorldAutopilotRecovery {
+  can_resume?: boolean;
+  resume_from_checkpoint?: string;
+  latest_report_run_id?: string;
+  resume_endpoint?: string;
+  resumed_from?: {
+    run_id?: string;
+    checkpoint_id?: string;
+    round_index?: number;
+    major_event?: string;
+    stage?: string;
+    causal_debt?: string;
+  };
 }
 
 export interface WorldlineDossierCheckpoint {
@@ -1125,6 +1165,14 @@ export interface WorldlineDossierReport {
       percent?: number;
     };
     resume_from_checkpoint?: string;
+    recovery?: WorldAutopilotRecovery;
+    failure?: {
+      message?: string;
+      failed_round?: number;
+      latest_checkpoint?: string;
+      recoverable?: boolean;
+    };
+    recovered_from?: WorldAutopilotRecovery["resumed_from"];
   }>;
   checkpoint_count: number;
   checkpoints: WorldlineDossierCheckpoint[];
@@ -1148,6 +1196,7 @@ export interface WorldAutopilotCheckpointReplayReport {
     sandbox_run_id: string;
     major_event: string;
     can_resume_from_here: boolean;
+    resume_hint?: string;
   };
 }
 

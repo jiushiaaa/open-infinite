@@ -2144,6 +2144,8 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 time_limit=str(body.get("time_limit") or ""),
                 round_limit=int(body.get("round_limit") or 3),
                 worldline_id=str(body.get("worldline_id") or "main"),
+                resume_from_run_id=str(body.get("resume_from_run_id") or ""),
+                resume_from_checkpoint=str(body.get("resume_from_checkpoint") or ""),
             )
         except (TypeError, ValueError, WorldAutopilotRequestError) as exc:
             return self._send_json({"error": str(exc)}, status=400)

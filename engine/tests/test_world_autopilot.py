@@ -121,6 +121,88 @@ def test_world_autopilot_supports_event_and_time_objectives(tmp_path):
     assert time_report["rounds_completed"] == 2
 
 
+def test_world_autopilot_stops_on_causal_debt_and_writes_readable_timeline(tmp_path):
+    _make_project(tmp_path)
+
+    report = run_world_autopilot(
+        "autopilot-story",
+        seed_event="归云斋因果债爆发，封山令压向所有弟子。",
+        objective_type="causal_debt",
+        round_limit=5,
+        projects_dir=tmp_path,
+        outputs_dir=tmp_path / "_outputs",
+    )
+
+    assert report["objective"]["type"] == "causal_debt"
+    assert report["stop_reason"] == "causal_debt_burst_detected"
+    assert report["rounds_completed"] == 1
+    assert report["stop_condition"]["matched"] is True
+    assert "因果债" in report["stop_condition"]["evidence"]
+    assert report["overnight_report"]["timeline"]
+    assert report["overnight_report"]["checkpoint_recovery"]["resume_from_checkpoint"]
+
+
+def test_world_autopilot_failure_can_resume_from_latest_checkpoint(
+    tmp_path, monkeypatch
+):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+    real_run_sandbox_round = world_autopilot.run_sandbox_round
+    calls = {"count": 0}
+
+    def fail_after_first_checkpoint(*args, **kwargs):
+        calls["count"] += 1
+        if calls["count"] == 2:
+            raise RuntimeError("模拟本地长时自演中断")
+        return real_run_sandbox_round(*args, **kwargs)
+
+    monkeypatch.setattr(
+        world_autopilot,
+        "run_sandbox_round",
+        fail_after_first_checkpoint,
+    )
+
+    failed = run_world_autopilot(
+        "autopilot-story",
+        seed_event="沈冰月夜巡归云斋，风鸣铃忽然倒响。",
+        objective_type="rounds",
+        round_limit=3,
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+
+    assert failed["status"] == "failed"
+    assert failed["task"]["status"] == "failed"
+    assert failed["rounds_completed"] == 1
+    assert failed["failure"]["latest_checkpoint"] == "checkpoint_001"
+    assert failed["recovery"]["can_resume"] is True
+    assert failed["overnight_report"]["checkpoint_recovery"]["resume_from_checkpoint"] == (
+        "checkpoint_001"
+    )
+
+    task = world_autopilot.get_world_autopilot_task(
+        "autopilot-story",
+        failed["task"]["task_id"],
+        projects_dir=tmp_path,
+        worldline_id="main",
+    )
+    assert task["status"] == "failed"
+    assert task["failure"]["latest_checkpoint"] == "checkpoint_001"
+
+    monkeypatch.setattr(world_autopilot, "run_sandbox_round", real_run_sandbox_round)
+    resumed = world_autopilot.resume_world_autopilot_task(
+        "autopilot-story",
+        failed["task"]["task_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="main",
+    )
+
+    assert resumed["status"] == "completed"
+    assert resumed["latest_report_run_id"] != failed["run_id"]
+    assert resumed["recovered_from"]["checkpoint_id"] == "checkpoint_001"
+
+
 def test_world_autopilot_records_task_progress_pause_resume_and_checkpoint_replay(tmp_path):
     _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"

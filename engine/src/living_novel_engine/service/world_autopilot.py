@@ -32,6 +32,8 @@ def run_world_autopilot(
     projects_dir: Path | None = None,
     outputs_dir: Path | None = None,
     worldline_id: str = "main",
+    resume_from_run_id: str = "",
+    resume_from_checkpoint: str = "",
 ) -> dict[str, Any]:
     """Run multiple sandbox rounds and write an autopilot report."""
 
@@ -50,19 +52,59 @@ def run_world_autopilot(
     run_dir = root / run_id
     checkpoints_dir = run_dir / "checkpoints"
     checkpoints_dir.mkdir(parents=True, exist_ok=True)
+    recovery_source = _load_recovery_source(
+        resume_from_run_id,
+        resume_from_checkpoint,
+        outputs_dir=root,
+    )
+    if recovery_source:
+        current_event = _resume_event(recovery_source)
+    else:
+        current_event = event
 
     sandbox_runs: list[dict[str, Any]] = []
     checkpoints: list[dict[str, Any]] = []
-    current_event = event
     stop_reason = "round_limit_reached"
+    status = "completed"
+    failure: dict[str, Any] | None = None
+    stop_condition: dict[str, Any] = {
+        "type": objective,
+        "matched": False,
+        "evidence": "达到轮数上限。",
+        "round_index": 0,
+    }
     for round_index in range(1, limit + 1):
-        sandbox = run_sandbox_round(
-            sid,
-            major_event=current_event,
-            projects_dir=projects_dir,
-            outputs_dir=root,
-            worldline_id=wid,
-        )
+        try:
+            sandbox = run_sandbox_round(
+                sid,
+                major_event=current_event,
+                projects_dir=projects_dir,
+                outputs_dir=root,
+                worldline_id=wid,
+            )
+        except Exception as exc:
+            if not checkpoints and isinstance(
+                exc,
+                (FileNotFoundError, WorldAutopilotRequestError),
+            ):
+                raise
+            status = "failed"
+            stop_reason = "autopilot_failed"
+            failure = {
+                "message": str(exc),
+                "failed_round": round_index,
+                "latest_checkpoint": (
+                    checkpoints[-1].get("checkpoint_id") if checkpoints else ""
+                ),
+                "recoverable": bool(checkpoints),
+            }
+            stop_condition = {
+                "type": objective,
+                "matched": False,
+                "evidence": f"第 {round_index} 轮中断：{exc}",
+                "round_index": round_index,
+            }
+            break
         sandbox_runs.append(
             {
                 "round_index": round_index,
@@ -79,15 +121,52 @@ def run_world_autopilot(
         )
         if objective == "anchor_change" and _anchor_changed(current_event, sandbox):
             stop_reason = "anchor_change_detected"
+            stop_condition = _stop_condition(
+                objective,
+                True,
+                checkpoint,
+                "锚点压力或事件描述已出现失锚/锚点变化。",
+            )
+            break
+        if objective == "causal_debt" and _causal_debt_burst(
+            current_event,
+            sandbox,
+            checkpoint,
+        ):
+            stop_reason = "causal_debt_burst_detected"
+            stop_condition = _stop_condition(
+                objective,
+                True,
+                checkpoint,
+                f"因果债已爆发：{checkpoint.get('causal_debt')}",
+            )
             break
         if objective == "awakening" and _awakening_detected(sandbox):
             stop_reason = "character_awareness_detected"
+            stop_condition = _stop_condition(
+                objective,
+                True,
+                checkpoint,
+                "至少一名角色进入 L5 觉醒。",
+            )
             break
         if objective == "event" and _event_reached(current_event, sandbox, target_event):
             stop_reason = "target_event_reached"
+            stop_condition = _stop_condition(
+                objective,
+                True,
+                checkpoint,
+                f"目标事件已出现：{target_event}",
+            )
             break
         if objective == "time" and _time_limit_reached(round_index, target_time):
             stop_reason = "time_limit_reached"
+            stop_condition = _stop_condition(
+                objective,
+                True,
+                checkpoint,
+                f"世界内时间推进到：{target_time}",
+            )
             break
         current_event = _next_event(sandbox, round_index)
 
@@ -101,9 +180,20 @@ def run_world_autopilot(
     if objective == "time":
         objective_payload["time_limit"] = target_time
 
+    recovery = _recovery_payload(
+        checkpoints,
+        recovery_source=recovery_source,
+        latest_report_run_id=run_id,
+    )
+    progress = {
+        "current_round": len(checkpoints),
+        "target_round": limit,
+        "percent": _progress_percent(len(checkpoints), limit, status),
+    }
     report = {
         "version": VERSION,
         "artifact": ARTIFACT,
+        "status": status,
         "run_id": run_id,
         "story_slug": sid,
         "worldline_id": wid,
@@ -111,24 +201,20 @@ def run_world_autopilot(
         "objective": objective_payload,
         "rounds_completed": len(checkpoints),
         "stop_reason": stop_reason,
+        "stop_condition": stop_condition,
         "task": {
             "task_id": task_id,
-            "status": "completed",
+            "status": status,
             "can_pause": True,
             "can_resume": True,
             "checkpoint_replay": True,
         },
-        "progress": {
-            "current_round": len(checkpoints),
-            "target_round": limit,
-            "percent": int((len(checkpoints) / max(1, limit)) * 100)
-            if len(checkpoints) < limit
-            else 100,
-        },
+        "progress": progress,
         "sandbox_runs": sandbox_runs,
         "checkpoints": checkpoints,
         "final_world_stage": _final_stage(checkpoints),
-        "overnight_report": _overnight_report(checkpoints),
+        "overnight_report": _overnight_report(checkpoints, recovery),
+        "recovery": recovery,
         "artifacts": {
             "autopilot_report": ARTIFACT,
             "checkpoints_dir": "checkpoints",
@@ -143,28 +229,42 @@ def run_world_autopilot(
             "后续可把事件和时间目标扩展为可视化时间轴与命中证据。",
         ],
     }
+    if failure is not None:
+        report["failure"] = failure
     (run_dir / ARTIFACT).write_text(
         json.dumps(report, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+    task_payload = {
+        "version": VERSION,
+        "task_id": task_id,
+        "status": status,
+        "story_slug": sid,
+        "worldline_id": wid,
+        "latest_report_run_id": run_id,
+        "created_at": report["created_at"],
+        "updated_at": report["created_at"],
+        "progress": progress,
+        "request": {
+            "seed_event": event,
+            "objective_type": objective,
+            "stop_event": target_event,
+            "time_limit": target_time,
+            "round_limit": limit,
+            "worldline_id": wid,
+        },
+        "resume_from_checkpoint": recovery.get("resume_from_checkpoint") or "",
+        "recovery": recovery,
+    }
+    if failure is not None:
+        task_payload["failure"] = failure
+    if recovery_source:
+        task_payload["recovered_from"] = recovery_source
     _write_task(
         sid,
         wid,
         task_id,
-        {
-            "version": VERSION,
-            "task_id": task_id,
-            "status": "completed",
-            "story_slug": sid,
-            "worldline_id": wid,
-            "latest_report_run_id": run_id,
-            "created_at": report["created_at"],
-            "updated_at": report["created_at"],
-            "progress": report["progress"],
-            "resume_from_checkpoint": (
-                checkpoints[-1].get("checkpoint_id") if checkpoints else ""
-            ),
-        },
+        task_payload,
         projects_dir=projects_dir,
     )
     return report
@@ -224,7 +324,43 @@ def resume_world_autopilot_task(
         outputs_dir=outputs_dir,
         worldline_id=worldline_id,
     )
-    task["status"] = "running" if task.get("status") == "paused" else task.get("status", "running")
+    if task.get("status") == "failed" and task.get("resume_from_checkpoint"):
+        request = task.get("request") if isinstance(task.get("request"), dict) else {}
+        progress = task.get("progress") if isinstance(task.get("progress"), dict) else {}
+        target_round = int(progress.get("target_round") or request.get("round_limit") or 1)
+        current_round = int(progress.get("current_round") or 0)
+        remaining_rounds = max(1, target_round - current_round)
+        report = run_world_autopilot(
+            story_slug,
+            seed_event=str(request.get("seed_event") or "从检查点继续世界自演。"),
+            objective_type=str(request.get("objective_type") or "rounds"),
+            stop_event=str(request.get("stop_event") or ""),
+            time_limit=str(request.get("time_limit") or ""),
+            round_limit=remaining_rounds,
+            projects_dir=projects_dir,
+            outputs_dir=outputs_dir,
+            worldline_id=worldline_id,
+            resume_from_run_id=str(task.get("latest_report_run_id") or ""),
+            resume_from_checkpoint=str(task.get("resume_from_checkpoint") or ""),
+        )
+        task["status"] = report.get("status", "completed")
+        task["updated_at"] = datetime.now().isoformat(timespec="seconds")
+        task["latest_report_run_id"] = report["run_id"]
+        task["progress"] = report.get("progress", {})
+        task["recovered_from"] = report.get("recovery", {}).get("resumed_from", {})
+        task["recovery_child_task_id"] = report.get("task", {}).get("task_id", "")
+        task.pop("failure", None)
+        _write_task(
+            story_slug,
+            worldline_id,
+            task_id,
+            task,
+            projects_dir=projects_dir,
+        )
+        return task
+    task["status"] = (
+        "running" if task.get("status") == "paused" else task.get("status", "running")
+    )
     task["updated_at"] = datetime.now().isoformat(timespec="seconds")
     _write_task(
         story_slug,
@@ -259,6 +395,7 @@ def replay_world_autopilot_checkpoint(
             "sandbox_run_id": checkpoint.get("sandbox_run_id") or "",
             "major_event": checkpoint.get("major_event") or "",
             "can_resume_from_here": True,
+            "resume_hint": f"可从 {checkpoint.get('checkpoint_id') or cid} 继续世界自演。",
         },
     }
 
@@ -336,6 +473,18 @@ def _time_limit_reached(round_index: int, target: str) -> bool:
     return round_index >= 2
 
 
+def _causal_debt_burst(
+    event: str,
+    sandbox: dict[str, Any],
+    checkpoint: dict[str, Any],
+) -> bool:
+    if any(token in event for token in ("因果债爆发", "因果债失控", "代偿爆发")):
+        return True
+    delta = sandbox["rounds"][0].get("world_state_delta", {})
+    debt = str(delta.get("causal_debt") or checkpoint.get("causal_debt") or "")
+    return any(token in debt for token in ("高", "爆发", "失控", "high", "critical"))
+
+
 def _awakening_detected(sandbox: dict[str, Any]) -> bool:
     actions = sandbox["rounds"][0].get("character_actions", [])
     return any(
@@ -380,13 +529,20 @@ def _objective(value: str) -> str:
     return "rounds"
 
 
-def _overnight_report(checkpoints: list[dict[str, Any]]) -> dict[str, Any]:
+def _overnight_report(
+    checkpoints: list[dict[str, Any]],
+    recovery: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    recovery = recovery or {}
     if not checkpoints:
         return {
             "what_happened": "世界自演未推进。",
             "who_remembered_what": [],
             "why_world_changed": "无检查点。",
             "where_to_continue": [],
+            "timeline": [],
+            "memory_changes": [],
+            "checkpoint_recovery": recovery,
         }
     last = checkpoints[-1]
     consequence = (
@@ -415,7 +571,100 @@ def _overnight_report(checkpoints: list[dict[str, Any]]) -> dict[str, Any]:
             }
             for checkpoint in checkpoints
         ],
+        "timeline": [
+            {
+                "round_index": checkpoint.get("round_index"),
+                "checkpoint_id": checkpoint.get("checkpoint_id"),
+                "major_event": checkpoint.get("major_event"),
+                "stage": checkpoint.get("stage"),
+                "causal_debt": checkpoint.get("causal_debt"),
+                "remembered_count": len(checkpoint.get("who_remembered_what", [])),
+            }
+            for checkpoint in checkpoints
+        ],
+        "memory_changes": [
+            item
+            for checkpoint in checkpoints
+            for item in checkpoint.get("who_remembered_what", [])
+            if isinstance(item, dict)
+        ],
+        "checkpoint_recovery": recovery,
     }
+
+
+def _stop_condition(
+    objective: str,
+    matched: bool,
+    checkpoint: dict[str, Any],
+    evidence: str,
+) -> dict[str, Any]:
+    return {
+        "type": objective,
+        "matched": matched,
+        "evidence": evidence,
+        "round_index": checkpoint.get("round_index", 0),
+        "checkpoint_id": checkpoint.get("checkpoint_id", ""),
+    }
+
+
+def _progress_percent(current_round: int, target_round: int, status: str) -> int:
+    if status == "completed" and current_round >= target_round:
+        return 100
+    return int((current_round / max(1, target_round)) * 100)
+
+
+def _recovery_payload(
+    checkpoints: list[dict[str, Any]],
+    *,
+    recovery_source: dict[str, Any] | None,
+    latest_report_run_id: str,
+) -> dict[str, Any]:
+    latest = checkpoints[-1] if checkpoints else {}
+    checkpoint_id = str(latest.get("checkpoint_id") or "")
+    payload: dict[str, Any] = {
+        "can_resume": bool(checkpoint_id),
+        "resume_from_checkpoint": checkpoint_id,
+        "latest_report_run_id": latest_report_run_id,
+        "resume_endpoint": "",
+    }
+    if checkpoint_id:
+        payload["resume_endpoint"] = (
+            "POST /api/stories/<slug>/worldlines/<worldline_id>/"
+            "world-autopilot/tasks/<task_id>/resume"
+        )
+    if recovery_source:
+        payload["resumed_from"] = recovery_source
+    return payload
+
+
+def _load_recovery_source(
+    run_id: str,
+    checkpoint_id: str,
+    *,
+    outputs_dir: Path,
+) -> dict[str, Any] | None:
+    if not run_id and not checkpoint_id:
+        return None
+    rid = _checked_id(run_id, "resume_from_run_id")
+    cid = _checked_id(checkpoint_id, "resume_from_checkpoint")
+    path = outputs_dir / rid / "checkpoints" / f"{cid}.json"
+    if not path.exists():
+        raise FileNotFoundError(f"恢复检查点不存在: {cid}")
+    checkpoint = _read_json(path)
+    return {
+        "run_id": rid,
+        "checkpoint_id": cid,
+        "round_index": checkpoint.get("round_index"),
+        "major_event": checkpoint.get("major_event") or "",
+        "stage": checkpoint.get("stage") or "",
+        "causal_debt": checkpoint.get("causal_debt") or "",
+    }
+
+
+def _resume_event(recovery_source: dict[str, Any]) -> str:
+    checkpoint_id = recovery_source.get("checkpoint_id") or "最近检查点"
+    stage = recovery_source.get("stage") or recovery_source.get("major_event") or "世界继续推进"
+    return f"从 {checkpoint_id} 继续：{stage}"
 
 
 def _task_path(

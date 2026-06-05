@@ -228,6 +228,22 @@ export function WorldlineDossierPage({
                       {task.latest_report_run_id && (
                         <p className="mono tiny">{task.latest_report_run_id}</p>
                       )}
+                      {task.failure?.message && (
+                        <p className="muted tiny">
+                          中断：{task.failure.message}；最近检查点：
+                          {task.failure.latest_checkpoint || "暂无"}
+                        </p>
+                      )}
+                      {task.resume_from_checkpoint && (
+                        <p className="muted tiny">
+                          可从 {task.resume_from_checkpoint} 恢复自演
+                        </p>
+                      )}
+                      {task.recovered_from?.checkpoint_id && (
+                        <p className="muted tiny">
+                          已从 {task.recovered_from.checkpoint_id} 接续
+                        </p>
+                      )}
                       {task.task_id && (
                         <div className="worldline-row-actions">
                           <button

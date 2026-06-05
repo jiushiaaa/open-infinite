@@ -149,6 +149,61 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     }
   }
 
+  async function updateAutopilotTask(action: "refresh" | "pause" | "resume") {
+    const taskId = autopilotReport?.task?.task_id;
+    const worldlineId = autopilotReport?.worldline_id || "main";
+    if (!taskId) return;
+    setAutopilotLoading(true);
+    setAutopilotError(null);
+    try {
+      const task =
+        action === "pause"
+          ? await api.pauseWorldAutopilotTask(slug, worldlineId, taskId)
+          : action === "resume"
+            ? await api.resumeWorldAutopilotTask(slug, worldlineId, taskId)
+            : await api.getWorldAutopilotTask(slug, worldlineId, taskId);
+      setAutopilotReport((current) =>
+        current
+          ? {
+              ...current,
+              task: {
+                ...(current.task ?? {}),
+                task_id: taskId,
+                status: String(task.status || current.task?.status || "unknown"),
+                can_pause: current.task?.can_pause ?? true,
+                can_resume: current.task?.can_resume ?? true,
+                checkpoint_replay: current.task?.checkpoint_replay ?? true,
+              },
+              progress:
+                typeof task.progress === "object" && task.progress
+                  ? {
+                      current_round: Number(
+                        (task.progress as { current_round?: number }).current_round ??
+                          current.progress?.current_round ??
+                          0,
+                      ),
+                      target_round: Number(
+                        (task.progress as { target_round?: number }).target_round ??
+                          current.progress?.target_round ??
+                          autopilotRounds,
+                      ),
+                      percent: Number(
+                        (task.progress as { percent?: number }).percent ??
+                          current.progress?.percent ??
+                          0,
+                      ),
+                    }
+                  : current.progress,
+            }
+          : current,
+      );
+    } catch (err) {
+      setAutopilotError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setAutopilotLoading(false);
+    }
+  }
+
   return (
     <div className="sandbox-page">
       <header className="sandbox-hero">
@@ -308,6 +363,8 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                 <option value="event">运行到事件</option>
                 <option value="time">运行到时间</option>
                 <option value="anchor_change">运行到锚点变化</option>
+                <option value="causal_debt">运行到因果债爆发</option>
+                <option value="awakening">运行到角色觉醒</option>
               </select>
             </label>
             {autopilotObjective === "event" && (
@@ -380,10 +437,36 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
               {autopilotReport.progress && (
                 <p className="muted tiny">
                   任务 {autopilotReport.task?.task_id ?? "本地任务"} ·{" "}
+                  {autopilotReport.task?.status ?? autopilotReport.status ?? "unknown"} ·{" "}
                   {autopilotReport.progress.current_round}/
                   {autopilotReport.progress.target_round} ·{" "}
                   {autopilotReport.progress.percent}%
                 </p>
+              )}
+              {autopilotReport.task?.task_id && (
+                <div className="sandbox-section__actions sandbox-task-actions">
+                  <button
+                    className="btn btn--ghost tiny"
+                    disabled={autopilotLoading}
+                    onClick={() => updateAutopilotTask("refresh")}
+                  >
+                    刷新进度
+                  </button>
+                  <button
+                    className="btn btn--ghost tiny"
+                    disabled={autopilotLoading}
+                    onClick={() => updateAutopilotTask("pause")}
+                  >
+                    暂停
+                  </button>
+                  <button
+                    className="btn btn--ghost tiny"
+                    disabled={autopilotLoading}
+                    onClick={() => updateAutopilotTask("resume")}
+                  >
+                    恢复
+                  </button>
+                </div>
               )}
               {autopilotReport.overnight_report && (
                 <div className="sandbox-callout">
@@ -392,8 +475,43 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   <p className="muted tiny">
                     {autopilotReport.overnight_report.why_world_changed}
                   </p>
+                  {autopilotReport.stop_condition?.evidence && (
+                    <p className="muted tiny">
+                      停止证据：{autopilotReport.stop_condition.evidence}
+                    </p>
+                  )}
+                  {autopilotReport.failure?.message && (
+                    <p className="muted tiny">
+                      中断原因：{autopilotReport.failure.message}；最近检查点：
+                      {autopilotReport.failure.latest_checkpoint || "暂无"}
+                    </p>
+                  )}
+                  {autopilotReport.overnight_report.checkpoint_recovery?.can_resume && (
+                    <p className="muted tiny">
+                      可从{" "}
+                      {
+                        autopilotReport.overnight_report.checkpoint_recovery
+                          .resume_from_checkpoint
+                      }{" "}
+                      恢复自演。
+                    </p>
+                  )}
                 </div>
               )}
+              {autopilotReport.overnight_report?.timeline?.length ? (
+                <div className="sandbox-timeline">
+                  {autopilotReport.overnight_report.timeline.map((item) => (
+                    <article key={`${item.round_index}-${item.checkpoint_id}`}>
+                      <span>第 {item.round_index} 轮</span>
+                      <strong>{item.stage}</strong>
+                      <p className="muted tiny">
+                        {item.major_event} · {item.causal_debt} · 写入{" "}
+                        {item.remembered_count ?? 0} 条记忆
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              ) : null}
               <p className="muted tiny">
                 {autopilotReport.stop_reason} · {autopilotReport.artifact}
               </p>

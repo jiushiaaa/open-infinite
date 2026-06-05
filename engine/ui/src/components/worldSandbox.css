@@ -570,6 +570,39 @@
   color: var(--jade);
 }
 
+.sandbox-task-actions {
+  justify-content: flex-start;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.sandbox-timeline {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.sandbox-timeline article {
+  border: 1px solid rgba(119, 84, 42, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.72);
+  padding: var(--space-3);
+}
+
+.sandbox-timeline span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sandbox-timeline strong {
+  display: block;
+  margin-top: 4px;
+}
+
+.sandbox-timeline p {
+  margin: 4px 0 0;
+}
+
 .sandbox-checkpoints {
   display: grid;
   gap: var(--space-3);

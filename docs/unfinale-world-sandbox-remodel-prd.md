@@ -38,7 +38,7 @@
 - S4 后半：新增 `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`，把来源干预、沉浸/AU 投放、L4/L5/AU 快照审计状态、因果债、分支承接和下一轮继续入口绑定到世界线；后续 `sandbox/run` 会读取同一世界线的状态。
 - S5：L5 觉醒会写入角色主观记忆，包含“我是小说人物/被高维操控”的高维认知、命痕、反抗行为、异常感和模因污染；角色可假意服从、拒绝、欺骗读者、保护他人或继续使命；高觉醒角色传播高维真相时，沙盘会记录传播来源、采信/存疑、可信度、人设/关系/已有记忆/异常感信号和反应类型。
 - S6：因果债、锚点状态和候选天命承载者进入 `worldline_state.json`，并在后续沙盘决策输入和 `world_state_delta` 中继续出现；已新增 `consequence_state` 六域代偿，把代偿代价具象为地点、资源、伤势、舆论、势力和环境状态。
-- S7：世界自演新增本地任务状态、进度、暂停/恢复和检查点回放，报告新增“醒来可读”的世界推进摘要。
+- S7：世界自演新增本地任务状态、进度、暂停/恢复和检查点回放，报告新增“醒来可读”的世界推进摘要；本次继续补上因果债爆发、角色觉醒停止条件、失败状态、最近检查点恢复和醒来时间线。
 - S8：多视角从 `character_lens_briefs.json` 扩展到 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文，并带沙盘轮次、主观记忆、世界状态 delta、干预/因果债证据链。
 - S9：作者采纳新增 `next_chapter_brief.json`、原大纲差异、伏笔调整和 Reviewer 建议，并把下一章入口回写世界线状态。
 - 真实模型 smoke：使用 `.env` 中真实 LLM 配置（`qwen3.5-plus`）小样本验收通过；模型提示风险是因果债若只停留在抽象解释，危机感容易被稀释。
@@ -251,7 +251,7 @@
 | 沙盘轮次 artifact | 已有 `sandbox_rounds.jsonl` 和 `sandbox_summary.json`；本轮新增显式 opt-in 的 `agent_decision_advisory.json`，可让真实 LLM 基于角色记忆、干预约束和世界线状态给出逐角色采信、欺骗、传播、反抗和临场判断，并进入行动/记忆/UI。 | 默认仍是 deterministic；真实 LLM 目前是单轮 advisory，不是完整多轮 runner。仍需复杂长期关系图、势力资源、跨轮策略规划和失败/误判后续结算。 |
 | 干预编译器 | 已有读取《天命书》的预编译 API，输出类型、层级、兼容性、转译、分支轴和因果债；L4/L5/AU 会写世界线《天命书》快照且不覆盖根文件。 | 目前主要靠关键词规则；仍需完整实现类型 x 层级 x 转译矩阵、用户确认界面和普通分支/AU 的后续落地执行。 |
 | 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入；本次新增 `consequence_state`，把代偿压力具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮决策、自演检查点、多视角正文和下一章 brief。 | 仍需让六域状态支持更细的数值/枚举演化、人工确认、跨章节归档和真实 LLM 决策消费。 |
-| 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放。 | 仍需真实后台队列、长时运行守护、失败自动恢复和更精确的停止条件命中。 |
+| 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化、因果债爆发和角色觉醒目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放；本次新增失败任务记录、最近检查点恢复、`stop_condition` 证据和醒来时间线。 | 仍需真实后台队列和跨进程长时运行守护；当前恢复是本地任务文件 + checkpoint 的第一版。 |
 | 多视角活体小说 | 已有 `character_lens_briefs.json`；第二轮新增 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷、事件多视角正文与证据链。 | 仍需更长正文、跨卷宗跳转、误会图谱和真实 LLM 文风控制。 |
 | 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态；已新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和页面草稿入口，把采纳结果生成为可读下一章正文；已新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者编辑确认入口，并回写后续沙盘入口；确认入卷还会生成 `confirmed_chapter_reading_trail.json`，把确认稿回读到世界正史卷、角色个人卷和事件多视角。已补强 `writing_plan` / `feed_forward`，让采纳、部分采纳、另开分支直接形成下一章生成输入和沙盘继续输入；另开分支会写作者分支状态，不覆盖根正史。已新增 `draft_revision_pack.json`，让草稿确认前具备局部改写建议、证据引用和确认 gate；本轮新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，把 S9 草稿与 S8 多视角卷宗编排为可按场景连续阅读的章节稿。 | 仍需自动局部重写、更强语义 Reviewer、真实长文文风控制和正文内跳转阅读。 |
 | UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台、世界线档案和检查点回放页面与入口。 | 仍未完整拆出 `WorldWorkspaceShell`、世界正史卷、主锚点卷、角色页、事件页和机制档案页。 |
@@ -343,7 +343,7 @@ POST /api/stories/<slug>/sandbox/run
   启动一次沙盘轮次。
 
 POST /api/stories/<slug>/world-autopilot/run
-  启动世界自演，可运行到轮数、事件、时间或锚点变化。
+  启动世界自演，可运行到轮数、事件、时间、锚点变化、因果债爆发或角色觉醒；可传 `resume_from_run_id` / `resume_from_checkpoint` 从检查点接续。
 
 GET /api/stories/<slug>/sandbox/runs/<run_id>
   读取沙盘轮次、记忆变化、世界状态 delta、事件材料和自演报告。
@@ -533,15 +533,16 @@ MechanismArchivePage.tsx
 
 目标：用户能设定运行目标，世界自动运行多轮并生成检查点。
 
-当前状态：已收口第一版。`POST /api/stories/<slug>/world-autopilot/run` 会连续复用沙盘轮次和主观记忆链，支持 `rounds`、`event`、`time`、`anchor_change` 四种目标，生成 `outputs/<run_id>/autopilot_report.json` 和 `checkpoints/checkpoint_*.json`。前端世界沙盘页新增“世界自演”控制，可展示昨夜世界演化报告、停止原因和每轮检查点；本次新增世界线档案页和检查点回放页，可从自演结果进入分支承接与检查点证据；不调用 `run_scene`，不覆盖既有核心 artifact。
+当前状态：已收口第一版。`POST /api/stories/<slug>/world-autopilot/run` 会连续复用沙盘轮次和主观记忆链，支持 `rounds`、`event`、`time`、`anchor_change`、`causal_debt`、`awakening` 目标，生成 `outputs/<run_id>/autopilot_report.json` 和 `checkpoints/checkpoint_*.json`。前端世界沙盘页新增“世界自演”控制，可展示昨夜世界演化报告、停止原因、停止证据、醒来时间线和每轮检查点；世界线档案页和检查点回放页可从自演结果进入分支承接与检查点证据；本次新增失败任务记录和最近检查点恢复，失败后 `resume` 会从最近 checkpoint 生成接续报告；不调用 `run_scene`，不覆盖既有核心 artifact。
 
 验收：
 
-- [x] 支持运行到轮数 / 事件 / 时间 / 锚点变化。
+- [x] 支持运行到轮数 / 事件 / 时间 / 锚点变化 / 因果债爆发 / 角色觉醒。
 - [x] 生成 `autopilot_report.json`。
 - [x] 生成 checkpoints。
 - [x] UI 展示昨夜世界演化报告。
 - [x] UI 可从世界线档案查看自演任务、检查点列表并进入单个检查点回放。
+- [x] UI 展示进度刷新、暂停、恢复、停止证据、失败原因、醒来时间线和可恢复检查点。
 
 ### v7：多视角活体小说
 
@@ -723,6 +724,12 @@ S1-S9 的完成标准必须从“最小闭环成立”升级为“产品能力�
 - 支持启动、暂停、恢复、查看进度和检查点回放。
 - 支持运行到“事件发生 / 时间到达 / 锚点变化 / 因果债爆发 / 角色觉醒”。
 - 自演过程能生成阶段性世界摘要、角色记忆变化和可读入口。
+
+当前状态：
+
+- `autopilot_report.json` 新增 `status`、`stop_condition`、`recovery`、`failure`、醒来时间线和 checkpoint recovery。
+- 本地任务文件保存原始请求、进度、失败原因和最近可恢复检查点；失败任务调用 resume 会从最近检查点继续生成新报告。
+- 世界沙盘页支持因果债爆发和角色觉醒目标，并在“昨夜世界演化报告”里展示任务状态、刷新/暂停/恢复、停止证据、失败原因、时间线和检查点回放。
 
 验收：
 
