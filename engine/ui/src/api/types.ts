@@ -1360,11 +1360,55 @@ export interface AuthorChapterDraftReport {
     evidence_refs: string[];
     boundaries: string[];
   };
+  continuous_reading_chapter?: ContinuousReadingChapter;
   artifacts: {
     next_chapter_draft: string;
     next_chapter_markdown: string;
     draft_revision_pack?: string;
+    continuous_reading_chapter?: string;
+    continuous_reading_markdown?: string;
   };
+  boundaries: string[];
+}
+
+export interface ContinuousReadingSection {
+  id: string;
+  title: string;
+  body: string;
+  narrative_role: string;
+  evidence_refs: string[];
+}
+
+export interface ContinuousReadingCrossVolumeRef {
+  id: string;
+  label: string;
+  title: string;
+  artifact: string;
+  evidence_refs: string[];
+  summary: string;
+}
+
+export interface ContinuousReadingChapter {
+  version: string;
+  artifact: string;
+  markdown_artifact: string;
+  status: "ready" | "partial" | string;
+  chapter_title: string;
+  reading_body_md: string;
+  reading_sections: ContinuousReadingSection[];
+  reading_flow: {
+    scene_count: number;
+    opening_hook: string;
+    turning_point: string;
+    next_chapter_hook: string;
+  };
+  s8_source: {
+    lens_run_id: string;
+    source_sandbox_run_id: string;
+    artifact: string;
+  };
+  cross_volume_refs: ContinuousReadingCrossVolumeRef[];
+  reader_guidance: string[];
   boundaries: string[];
 }
 

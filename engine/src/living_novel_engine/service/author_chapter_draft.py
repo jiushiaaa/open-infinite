@@ -17,6 +17,8 @@ VERSION = "author-chapter-draft-v1.2"
 ARTIFACT = "next_chapter_draft.json"
 MARKDOWN_ARTIFACT = "next_chapter_draft.md"
 REVISION_ARTIFACT = "draft_revision_pack.json"
+CONTINUOUS_READING_ARTIFACT = "continuous_reading_chapter.json"
+CONTINUOUS_READING_MARKDOWN_ARTIFACT = "continuous_reading_chapter.md"
 
 
 class AuthorChapterDraftRequestError(ValueError):
@@ -36,7 +38,8 @@ def generate_author_chapter_draft(
     sid = _checked_id(story_slug, "story_slug")
     rid = _checked_id(adoption_run_id, "adoption_run_id")
     story_path, source_kind = resolve_story_path(sid, projects_dir)
-    run_dir = (outputs_dir or default_outputs_dir()) / rid
+    root = outputs_dir or default_outputs_dir()
+    run_dir = root / rid
     record_path = run_dir / "author_adoption_record.json"
     brief_path = run_dir / "next_chapter_brief.json"
     if not record_path.exists() or not brief_path.exists():
@@ -64,6 +67,13 @@ def generate_author_chapter_draft(
         brief=brief,
         consequences=consequences,
         reviewer_checklist=reviewer_checklist,
+    )
+    continuous_reading = _continuous_reading_chapter(
+        record=record,
+        brief=brief,
+        chapter_text=chapter_text,
+        consequences=consequences,
+        outputs_root=root,
     )
     now = datetime.now().isoformat(timespec="seconds")
     report = {
@@ -106,10 +116,13 @@ def generate_author_chapter_draft(
         },
         "reviewer_checklist": reviewer_checklist,
         "revision_pack": revision_pack,
+        "continuous_reading_chapter": continuous_reading,
         "artifacts": {
             "next_chapter_draft": ARTIFACT,
             "next_chapter_markdown": MARKDOWN_ARTIFACT,
             "draft_revision_pack": REVISION_ARTIFACT,
+            "continuous_reading_chapter": CONTINUOUS_READING_ARTIFACT,
+            "continuous_reading_markdown": CONTINUOUS_READING_MARKDOWN_ARTIFACT,
         },
         "boundaries": [
             "章节草稿只写入作者采纳 run 目录，不覆盖正史 chapter.md。",
@@ -124,6 +137,14 @@ def generate_author_chapter_draft(
     (run_dir / MARKDOWN_ARTIFACT).write_text(_markdown(report), encoding="utf-8")
     (run_dir / REVISION_ARTIFACT).write_text(
         json.dumps(revision_pack, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    (run_dir / CONTINUOUS_READING_ARTIFACT).write_text(
+        json.dumps(continuous_reading, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    (run_dir / CONTINUOUS_READING_MARKDOWN_ARTIFACT).write_text(
+        continuous_reading["reading_body_md"],
         encoding="utf-8",
     )
     return report
@@ -209,6 +230,275 @@ def _deterministic_chapter_text(
             ),
         ]
     )
+
+
+def _continuous_reading_chapter(
+    *,
+    record: dict[str, Any],
+    brief: dict[str, Any],
+    chapter_text: str,
+    consequences: list[str],
+    outputs_root: Path,
+) -> dict[str, Any]:
+    adoption_entry = (
+        record.get("adoption_entry") if isinstance(record.get("adoption_entry"), dict) else {}
+    )
+    source_lens_run_id = safe_id(str(adoption_entry.get("source_run_id") or "").strip()) or ""
+    lens_payload = _read_lens_volumes(outputs_root, source_lens_run_id)
+    source = lens_payload.get("source") if isinstance(lens_payload.get("source"), dict) else {}
+    volumes = lens_payload.get("volumes") if isinstance(lens_payload.get("volumes"), list) else []
+    cross_volume_refs = _cross_volume_refs(
+        volumes=volumes,
+        lens_run_id=source_lens_run_id,
+        sandbox_run_id=str(source.get("sandbox_run_id") or ""),
+    )
+    reading_sections = _reading_sections(
+        chapter_text=chapter_text,
+        brief=brief,
+        consequences=consequences,
+        volumes=volumes,
+    )
+    status = "ready" if len(cross_volume_refs) >= 3 else "partial"
+    reading_body_md = _continuous_reading_markdown(
+        title=_chapter_title(brief),
+        sections=reading_sections,
+        cross_volume_refs=cross_volume_refs,
+    )
+    return {
+        "version": "continuous-reading-chapter-v1",
+        "artifact": CONTINUOUS_READING_ARTIFACT,
+        "markdown_artifact": CONTINUOUS_READING_MARKDOWN_ARTIFACT,
+        "status": status,
+        "chapter_title": _chapter_title(brief),
+        "reading_body_md": reading_body_md,
+        "reading_sections": reading_sections,
+        "reading_flow": {
+            "scene_count": len(reading_sections),
+            "opening_hook": str(brief.get("opening_scene") or reading_sections[0]["title"]),
+            "turning_point": str(brief.get("conflict_focus") or "信息差被推到明面"),
+            "next_chapter_hook": _next_chapter_hook(brief, consequences),
+        },
+        "s8_source": {
+            "lens_run_id": source_lens_run_id,
+            "source_sandbox_run_id": str(source.get("sandbox_run_id") or ""),
+            "artifact": (
+                f"outputs/{source_lens_run_id}/character_lens_volumes.json"
+                if source_lens_run_id
+                else ""
+            ),
+        },
+        "cross_volume_refs": cross_volume_refs,
+        "reader_guidance": [
+            "先按正文顺序阅读，不在段落中插入证据说明。",
+            "读完后再看卷宗引用，核对世界正史、角色个人卷和事件多视角。",
+            "下一章应从阅读流的末尾钩子和具象代偿继续，而不是另起素材集合。",
+        ],
+        "boundaries": [
+            "连续阅读稿只写入作者采纳 run 目录，不覆盖 next_chapter_draft.md。",
+            "正文引用 S8 多视角卷宗，但证据链保留在 JSON 与文末，不打断阅读。",
+            "缺少来源 character_lens_volumes.json 时降级为 partial，不阻断草稿生成。",
+        ],
+    }
+
+
+def _reading_sections(
+    *,
+    chapter_text: str,
+    brief: dict[str, Any],
+    consequences: list[str],
+    volumes: list[Any],
+) -> list[dict[str, Any]]:
+    paragraphs = _chapter_paragraphs(chapter_text)
+    world = _find_volume(volumes, "world_chronicle")
+    character = _find_volume(volumes, "character_volume")
+    event = _find_volume(volumes, "event_multi_perspective")
+    sections = [
+        {
+            "id": "opening_pressure",
+            "title": "一、雨声入局",
+            "body": paragraphs[0],
+            "narrative_role": "开场先落入现场，让角色在世界代偿里做选择。",
+            "evidence_refs": ["next_chapter_brief.json#opening_scene"],
+        },
+        {
+            "id": "character_misread",
+            "title": "二、各怀半句真话",
+            "body": paragraphs[1],
+            "narrative_role": "把角色个人卷的信息差写成对话和误读。",
+            "evidence_refs": _volume_evidence_refs(character, "character_volume"),
+        },
+        {
+            "id": "world_counterweight",
+            "title": "三、正史不替人辩解",
+            "body": _merge_body(paragraphs[2], world, consequences),
+            "narrative_role": "让世界状态和因果代偿成为场景压力。",
+            "evidence_refs": _volume_evidence_refs(world, "world_chronicle")
+            + ["worldline_state.json#consequence_state"],
+        },
+        {
+            "id": "next_round_hook",
+            "title": "四、余波写入下一轮",
+            "body": _merge_body(paragraphs[-1], event, consequences),
+            "narrative_role": "把确认稿末尾接回后续沙盘入口。",
+            "evidence_refs": _volume_evidence_refs(event, "event_multi_perspective")
+            + ["next_chapter_brief.json#feed_forward"],
+        },
+    ]
+    if len(paragraphs) > 4:
+        sections.insert(
+            3,
+            {
+                "id": "middle_turn",
+                "title": "三更、代价显形",
+                "body": paragraphs[3],
+                "narrative_role": "承接正文中段，把抽象因果债转成可见阻碍。",
+                "evidence_refs": ["next_chapter_brief.json#materialized_consequences"],
+            },
+        )
+    return sections
+
+
+def _continuous_reading_markdown(
+    *,
+    title: str,
+    sections: list[dict[str, Any]],
+    cross_volume_refs: list[dict[str, Any]],
+) -> str:
+    lines = [f"# {title}", ""]
+    for section in sections:
+        lines.extend([f"## {section['title']}", "", str(section["body"]).strip(), ""])
+    lines.extend(["## 卷宗回读", ""])
+    if cross_volume_refs:
+        for ref in cross_volume_refs:
+            lines.append(f"- {ref['label']}：{ref['artifact']}")
+    else:
+        lines.append("- 尚未绑定来源多视角卷宗；正文可读，证据回读降级为部分证据。")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _chapter_paragraphs(chapter_text: str) -> list[str]:
+    paragraphs = [
+        item.strip()
+        for item in str(chapter_text or "").split("\n\n")
+        if item.strip() and not item.strip().startswith("#")
+    ]
+    if len(paragraphs) >= 4:
+        return paragraphs
+    clean = " ".join(str(chapter_text or "").split())
+    return [clean] * 4
+
+
+def _merge_body(
+    paragraph: str,
+    volume: dict[str, Any],
+    consequences: list[str],
+) -> str:
+    prose = str(volume.get("prose") or "").strip() if volume else ""
+    consequence = consequences[0] if consequences else ""
+    parts = [paragraph.strip()]
+    if prose:
+        parts.append(_trim(prose, 220))
+    if consequence and consequence not in parts[0]:
+        parts.append(f"这一切还压着一层看得见的代价：{_trim(consequence, 120)}")
+    return "\n\n".join(part for part in parts if part)
+
+
+def _cross_volume_refs(
+    *,
+    volumes: list[Any],
+    lens_run_id: str,
+    sandbox_run_id: str,
+) -> list[dict[str, Any]]:
+    refs: list[dict[str, Any]] = []
+    for volume_type, label in (
+        ("world_chronicle", "世界正史卷"),
+        ("character_volume", "角色个人卷"),
+        ("event_multi_perspective", "事件多视角"),
+    ):
+        volume = _find_volume(volumes, volume_type)
+        if not volume:
+            continue
+        artifact = f"outputs/{lens_run_id}/character_lens_volumes.json#{volume_type}"
+        refs.append(
+            {
+                "id": volume_type,
+                "label": label,
+                "title": str(volume.get("title") or label),
+                "artifact": artifact,
+                "evidence_refs": _volume_evidence_refs(
+                    volume,
+                    volume_type,
+                    artifact=artifact,
+                    sandbox_run_id=sandbox_run_id,
+                ),
+                "summary": _trim(volume.get("prose") or "", 180),
+            }
+        )
+    return refs
+
+
+def _volume_evidence_refs(
+    volume: dict[str, Any],
+    volume_type: str,
+    *,
+    artifact: str = "",
+    sandbox_run_id: str = "",
+) -> list[str]:
+    if not volume:
+        return []
+    refs = [artifact] if artifact else []
+    if not refs and volume_type:
+        refs.append(f"character_lens_volumes.json#{volume_type}")
+    if sandbox_run_id:
+        refs.append(f"outputs/{sandbox_run_id}/sandbox_rounds.jsonl")
+    evidence_chain = (
+        volume.get("evidence_chain")
+        if isinstance(volume.get("evidence_chain"), dict)
+        else {}
+    )
+    if evidence_chain.get("subjective_memory_refs"):
+        refs.append("subjective_memory.jsonl")
+    if evidence_chain.get("consequence_state_refs"):
+        refs.append("worldline_state.json#consequence_state")
+    return list(dict.fromkeys(ref for ref in refs if ref))
+
+
+def _read_lens_volumes(outputs_root: Path, lens_run_id: str) -> dict[str, Any]:
+    if not lens_run_id:
+        return {}
+    path = outputs_root / lens_run_id / "character_lens_volumes.json"
+    if not path.exists():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return {}
+    return raw if isinstance(raw, dict) else {}
+
+
+def _find_volume(volumes: list[Any], volume_type: str) -> dict[str, Any]:
+    for volume in volumes:
+        if isinstance(volume, dict) and volume.get("volume_type") == volume_type:
+            return volume
+    return {}
+
+
+def _next_chapter_hook(brief: dict[str, Any], consequences: list[str]) -> str:
+    feed_forward = (
+        brief.get("feed_forward") if isinstance(brief.get("feed_forward"), dict) else {}
+    )
+    sandbox_inputs = (
+        feed_forward.get("sandbox_continuation_inputs")
+        if isinstance(feed_forward.get("sandbox_continuation_inputs"), dict)
+        else {}
+    )
+    major_event = str(sandbox_inputs.get("major_event") or "").strip()
+    if major_event:
+        return major_event
+    if consequences:
+        return f"下一轮从“{_trim(consequences[0], 80)}”继续。"
+    return "下一轮从确认稿余波和角色未说出口的判断继续。"
 
 
 def _reviewer_checklist(
@@ -436,6 +726,11 @@ def _markdown(report: dict[str, Any]) -> str:
                 f"- {row['id']}：{row['rewrite_instruction']}"
                 for row in report["revision_pack"]["localized_rewrites"]
             ),
+            "",
+            "## 连续阅读稿",
+            "",
+            f"- 正文：{report['artifacts']['continuous_reading_markdown']}",
+            f"- 证据：{report['artifacts']['continuous_reading_chapter']}",
             "",
         ]
     )

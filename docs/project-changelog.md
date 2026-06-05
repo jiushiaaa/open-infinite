@@ -2064,3 +2064,23 @@
   - 继续 S1/S2/S5：让 advisory 跨轮结算，形成长期关系图、势力资源和失败/误判后的后续策略。
   - 继续 S8/S9：提升长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
 
+### 2026-06-06 — S8/S9 Continuous Reading Chapter
+
+- **做了什么**：
+  - `author_chapter_draft` 在生成 `next_chapter_draft.json` / `next_chapter_draft.md` 与 `draft_revision_pack.json` 时，同步输出 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`。
+  - 连续阅读稿读取来源作者采纳记录、`next_chapter_brief.json`、具象代偿和 S8 `character_lens_volumes.json`，把世界正史卷、角色个人卷、事件多视角和草稿正文编排成 4 个以上阅读场景、阅读流、下一章钩子和卷宗证据。
+  - `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft` 继续返回同一草稿 report，新增 `continuous_reading_chapter` 与 artifacts 字段；缺少来源 lens run 时降级为 partial，不阻断草稿生成。
+  - 作者采纳台草稿区新增“连续阅读稿”，展示来源沙盘、阅读流、分场正文、S8 卷宗引用和证据 refs，让 S8/S9 产物更像可连续阅读的章节而不是素材集合。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/codex-handoff.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：在 `test_author_chapter_draft_turns_adoption_brief_into_readable_chapter` 中先要求 `continuous_reading_chapter` 与 `continuous_reading_chapter.json/md`，测试因缺少 artifact 字段失败。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **8 passed**。
+  - S8 focused：`cd engine && python -m pytest tests/test_character_lens_novel.py -q` -> **5 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **931 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 真实模型 smoke：临时项目执行 S8 lens -> S9 adopted -> `generate_author_chapter_draft(..., mock=False)`；真实 LLM 生成 1160 字正文，`continuous_reading_chapter.status=ready`，`scene_count=5`，绑定来源 lens run，未打印明文 key。
+- **边界**：
+  - 新 artifact、API 字段和 UI 均 additive；不改 `run_scene` 默认行为，不覆盖正史 `chapter.md` 或既有核心 artifact。
+  - 连续阅读稿是第一版编排层，不等于长正文质量完全完成；真实文风控制、章节级长文规划、正文内跳转和更强语义 Reviewer 仍需继续深化。
+  - 本刀聚焦 S8/S9 长正文与连续阅读第一刀，不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+

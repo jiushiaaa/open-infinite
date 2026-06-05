@@ -45,6 +45,8 @@ L5 觉醒、模因污染、角色反抗和假意服从
 
 2026-06-06 S1 真实 LLM 多 Agent 决策第一刀已经把“模板行动”往真实角色判断推进了一步：世界沙盘可显式启用 `llm_decision_mode=advisory`，让真实模型基于每个角色的记忆、欲望、干预约束和世界线状态，分别给出采信、欺骗、传播、反抗和临场判断，并写入 `agent_decision_advisory.json`、本轮行动、主观记忆和世界沙盘 UI。它仍不是完整愿景：advisory 只是单轮 opt-in 决策层，后续还需要多轮策略规划、长期心理记忆召回、势力资源博弈、六域状态机深化、长篇正文质量、局部重写、更强 Reviewer 和正文内跳转阅读继续打磨。
 
+2026-06-06 S8/S9 长正文与连续阅读第一刀开始把“正文 + 证据链”从素材集合往章节阅读推进：`author_chapter_draft` 会在 `next_chapter_draft.json` / `next_chapter_draft.md` 之外同步写入 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，读取 S8 `character_lens_volumes.json` 中的世界正史卷、角色个人卷和事件多视角，将 S9 草稿拆成开场、误判、世界代偿、下一轮钩子等连续场景，并在作者采纳台展示阅读流、来源沙盘和卷宗引用。它仍不是完整长篇正文愿景：后续还需要真实 LLM 文风控制、章节级长文规划、正文内跳转和更强语义 Reviewer。
+
 ## 1. 原始动机
 
 未终章最初来自一个阅读小说时产生的问题：

@@ -321,6 +321,25 @@
   gap: var(--space-2);
 }
 
+.adoption-reading-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.adoption-reading-flow span {
+  max-width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(250, 247, 239, 0.68);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 .adoption-reading__section {
   display: grid;
   gap: var(--space-1);

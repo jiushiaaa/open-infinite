@@ -187,9 +187,36 @@ def test_author_chapter_draft_turns_adoption_brief_into_readable_chapter(tmp_pat
     assert draft["artifacts"]["next_chapter_draft"] == "next_chapter_draft.json"
     assert draft["artifacts"]["next_chapter_markdown"] == "next_chapter_draft.md"
     assert draft["artifacts"]["draft_revision_pack"] == "draft_revision_pack.json"
+    assert draft["artifacts"]["continuous_reading_chapter"] == (
+        "continuous_reading_chapter.json"
+    )
+    assert draft["artifacts"]["continuous_reading_markdown"] == (
+        "continuous_reading_chapter.md"
+    )
+    reading = draft["continuous_reading_chapter"]
+    assert reading["artifact"] == "continuous_reading_chapter.json"
+    assert reading["status"] == "ready"
+    assert reading["chapter_title"] == draft["chapter_title"]
+    assert len(reading["reading_body_md"]) > 500
+    assert "##" in reading["reading_body_md"]
+    assert "赵轩" in reading["reading_body_md"]
+    assert "沈冰月" in reading["reading_body_md"]
+    assert len(reading["reading_sections"]) >= 4
+    assert reading["reading_flow"]["scene_count"] >= 4
+    assert reading["reading_flow"]["opening_hook"]
+    assert reading["reading_flow"]["next_chapter_hook"]
+    assert reading["s8_source"]["lens_run_id"] == lens["run_id"]
+    assert reading["s8_source"]["source_sandbox_run_id"] == lens["source"]["sandbox_run_id"]
+    assert any(
+        "character_lens_volumes.json" in ref
+        for section in reading["cross_volume_refs"]
+        for ref in section["evidence_refs"]
+    )
     assert (run_dir / "next_chapter_draft.json").exists()
     assert (run_dir / "next_chapter_draft.md").exists()
     assert (run_dir / "draft_revision_pack.json").exists()
+    assert (run_dir / "continuous_reading_chapter.json").exists()
+    assert (run_dir / "continuous_reading_chapter.md").exists()
 
 
 def test_author_chapter_confirmation_formalizes_edited_text_for_worldline(tmp_path):
@@ -476,6 +503,11 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         assert "赵轩" in draft["chapter_text"]
         assert draft["evidence_chain"]["next_chapter_brief"] == "next_chapter_brief.json"
         assert draft["evidence_chain"]["materialized_consequences"]
+        assert draft["artifacts"]["continuous_reading_chapter"] == (
+            "continuous_reading_chapter.json"
+        )
+        assert draft["continuous_reading_chapter"]["reading_flow"]["scene_count"] >= 4
+        assert "赵轩" in draft["continuous_reading_chapter"]["reading_body_md"]
         assert all(item["passed"] for item in draft["reviewer_checklist"])
 
         confirm_status, confirmation = _post(

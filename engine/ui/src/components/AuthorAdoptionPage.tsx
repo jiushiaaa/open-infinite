@@ -368,6 +368,69 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       <dd>{draft.artifacts.next_chapter_markdown}</dd>
                     </div>
                   </dl>
+                  {draft.continuous_reading_chapter && (
+                    <div className="adoption-reading">
+                      <div className="adoption-reading__head">
+                        <div>
+                          <h4>连续阅读稿</h4>
+                          <p className="muted tiny">
+                            来源沙盘：
+                            {draft.continuous_reading_chapter.s8_source
+                              .source_sandbox_run_id || "未绑定"}
+                          </p>
+                        </div>
+                        <span
+                          className={`badge ${
+                            draft.continuous_reading_chapter.status === "ready"
+                              ? "badge--jade"
+                              : "badge--gold"
+                          }`}
+                        >
+                          {readingTrailStatusLabel(draft.continuous_reading_chapter.status)}
+                        </span>
+                      </div>
+                      <div className="adoption-reading-flow">
+                        <span>
+                          {draft.continuous_reading_chapter.reading_flow.scene_count} 场
+                        </span>
+                        <span>
+                          {draft.continuous_reading_chapter.reading_flow.turning_point}
+                        </span>
+                        <span>
+                          {draft.continuous_reading_chapter.reading_flow.next_chapter_hook}
+                        </span>
+                      </div>
+                      <div className="adoption-reading__sections">
+                        {draft.continuous_reading_chapter.reading_sections.map((section) => (
+                          <div className="adoption-reading__section" key={section.id}>
+                            <div>
+                              <strong>{section.title}</strong>
+                              <span className="muted tiny">{section.narrative_role}</span>
+                            </div>
+                            <p>{section.body}</p>
+                            {section.evidence_refs.length > 0 && (
+                              <div className="adoption-reading__refs">
+                                {section.evidence_refs.map((ref) => (
+                                  <span className="badge" key={ref}>
+                                    {ref}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      {draft.continuous_reading_chapter.cross_volume_refs.length > 0 && (
+                        <div className="adoption-reading__refs">
+                          {draft.continuous_reading_chapter.cross_volume_refs.map((ref) => (
+                            <span className="badge" key={ref.id}>
+                              {ref.label} · {ref.artifact}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="adoption-draft__checks">
                     {draft.reviewer_checklist.map((item) => (
                       <span
