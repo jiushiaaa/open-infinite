@@ -12,6 +12,9 @@ from living_novel_engine.browser import server
 from living_novel_engine.service import import_novel_from_payload
 from living_novel_engine.service.author_adoption import record_author_adoption
 from living_novel_engine.service.author_chapter_draft import generate_author_chapter_draft
+from living_novel_engine.service.author_chapter_confirmation import (
+    confirm_author_chapter_entry,
+)
 from living_novel_engine.service.character_lens import generate_character_lens_briefs
 
 
@@ -179,6 +182,77 @@ def test_author_chapter_draft_turns_adoption_brief_into_readable_chapter(tmp_pat
     assert (run_dir / "next_chapter_draft.md").exists()
 
 
+def test_author_chapter_confirmation_formalizes_edited_text_for_worldline(tmp_path):
+    project_dir = _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+    lens = generate_character_lens_briefs(
+        "adoption-story",
+        source_event="风鸣铃现世，赵轩选择隐瞒，沈冰月误判他的真实立场。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    adoption = record_author_adoption(
+        "adoption-story",
+        source_run_id=lens["run_id"],
+        decision="partial",
+        original_outline="赵轩公开消息，沈冰月继续相信他。",
+        author_note="保留误判，把下一章写成世界线继续运行的入口。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    draft = generate_author_chapter_draft(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        mock=True,
+    )
+    edited = (
+        draft["chapter_text"]
+        + "\n\n作者确认：赵轩仍然隐瞒风鸣铃，沈冰月记住了这次信息差，"
+        "归云斋的因果债会推着下一轮沙盘继续运行。"
+    )
+
+    confirmation = confirm_author_chapter_entry(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        edited_chapter_text=edited,
+        author_note="确认入卷，下一轮从归云斋因果债继续。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    run_dir = outputs_dir / adoption["run_id"]
+    state_path = project_dir / "worldlines" / "branch_from_sandbox" / "worldline_state.json"
+
+    assert confirmation["version"] == "author-chapter-confirmation-v1"
+    assert confirmation["artifact"] == "confirmed_chapter_entry.json"
+    assert confirmation["source_adoption_run_id"] == adoption["run_id"]
+    assert confirmation["worldline_id"] == "branch_from_sandbox"
+    assert confirmation["edited"] is True
+    assert "作者确认" in confirmation["chapter_text"]
+    assert confirmation["evidence_chain"]["next_chapter_draft"] == "next_chapter_draft.json"
+    assert confirmation["evidence_chain"]["worldline_state_artifact"].endswith(
+        "worldline_state.json"
+    )
+    assert confirmation["continuation_effect"]["affects_future_sandbox"] is True
+    assert "归云斋因果债" in confirmation["continuation_effect"]["next_sandbox_entry"]["major_event"]
+    assert all(item["passed"] for item in confirmation["reviewer_checklist"])
+    assert (run_dir / "confirmed_chapter_entry.json").exists()
+    assert (run_dir / "confirmed_chapter.md").exists()
+    assert not (run_dir / "chapter.md").exists()
+
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert state["confirmed_chapter_entry"]["source_adoption_run_id"] == adoption["run_id"]
+    assert state["confirmed_chapter_entry"]["artifact"] == "confirmed_chapter_entry.json"
+    assert state["confirmed_chapter_entry"]["edited"] is True
+    assert state["confirmed_chapter_entry"]["affects_future_sandbox"] is True
+    assert state["confirmed_chapter_entries"][-1]["source_adoption_run_id"] == adoption["run_id"]
+    assert state["continuation_inputs"]["major_event_hint"].startswith("作者确认章节")
+
+
 def test_author_adoption_supports_allowed_decisions(tmp_path):
     _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"
@@ -256,6 +330,22 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         assert draft["evidence_chain"]["materialized_consequences"]
         assert all(item["passed"] for item in draft["reviewer_checklist"])
 
+        confirm_status, confirmation = _post(
+            port,
+            f"/api/stories/adoption-http/author-adoption/{adoption_run_id}/chapter-confirmation",
+            {
+                "edited_chapter_text": draft["chapter_text"]
+                + "\n\n作者确认：赵轩继续隐瞒风鸣铃，沈冰月记住信息差，归云斋因果债继续运行。",
+                "author_note": "确认入卷。",
+            },
+        )
+        assert confirm_status == 200
+        assert confirmation["artifact"] == "confirmed_chapter_entry.json"
+        assert confirmation["edited"] is True
+        assert confirmation["evidence_chain"]["next_chapter_draft"] == "next_chapter_draft.json"
+        assert confirmation["continuation_effect"]["affects_future_sandbox"] is True
+        assert all(item["passed"] for item in confirmation["reviewer_checklist"])
+
         bad_status, bad = _post(
             port,
             "/api/stories/..%2Fbad/author-adoption",
@@ -280,6 +370,14 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         assert bad_draft_status == 400
         assert "adoption_run_id" in bad_draft["error"] or "invalid" in bad_draft["error"]
 
+        bad_confirm_status, bad_confirm = _post(
+            port,
+            "/api/stories/adoption-http/author-adoption/..%2Fbad/chapter-confirmation",
+            {"edited_chapter_text": "赵轩隐瞒风鸣铃，沈冰月误判。"},
+        )
+        assert bad_confirm_status == 400
+        assert "adoption_run_id" in bad_confirm["error"] or "invalid" in bad_confirm["error"]
+
         missing_status, missing = _post(
             port,
             "/api/stories/adoption-http/author-adoption/adoption_missing/chapter-draft",
@@ -287,6 +385,14 @@ def test_author_adoption_http_statuses(tmp_path, monkeypatch):
         )
         assert missing_status == 404
         assert "不存在" in missing["error"]
+
+        missing_confirm_status, missing_confirm = _post(
+            port,
+            "/api/stories/adoption-http/author-adoption/adoption_missing/chapter-confirmation",
+            {"edited_chapter_text": "赵轩隐瞒风鸣铃，沈冰月误判。"},
+        )
+        assert missing_confirm_status == 404
+        assert "不存在" in missing_confirm["error"]
     finally:
         httpd.shutdown()
         httpd.server_close()

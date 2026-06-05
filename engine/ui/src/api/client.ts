@@ -3,6 +3,7 @@ import type {
   AnchorUpdateResponse,
   ApiContractReport,
   AuthorAdoptionReport,
+  AuthorChapterConfirmationReport,
   AuthorChapterDraftReport,
   AuthBoundaryChecklist,
   BillingAdapterBoundaryChecklist,
@@ -686,6 +687,18 @@ export const api = {
       `/api/stories/${encodeURIComponent(
         storySlug,
       )}/author-adoption/${encodeURIComponent(adoptionRunId)}/chapter-draft`,
+      req,
+    );
+  },
+  confirmAuthorChapterEntry(
+    storySlug: string,
+    adoptionRunId: string,
+    req: { edited_chapter_text?: string; author_note?: string },
+  ): Promise<AuthorChapterConfirmationReport> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(
+        storySlug,
+      )}/author-adoption/${encodeURIComponent(adoptionRunId)}/chapter-confirmation`,
       req,
     );
   },

@@ -79,7 +79,8 @@
 
 .adoption-panel input,
 .adoption-panel textarea,
-.adoption-compare textarea {
+.adoption-compare textarea,
+.adoption-editor textarea {
   width: 100%;
   border: 1px solid var(--line-strong);
   border-radius: 6px;
@@ -91,7 +92,8 @@
 }
 
 .adoption-panel textarea,
-.adoption-compare textarea {
+.adoption-compare textarea,
+.adoption-editor textarea {
   resize: vertical;
 }
 
@@ -188,7 +190,14 @@
   font-size: 18px;
 }
 
-.adoption-draft pre {
+.adoption-editor {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.adoption-draft pre,
+.adoption-editor textarea {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   margin: 0 0 var(--space-4);
@@ -200,8 +209,24 @@
   line-height: 1.9;
 }
 
+.adoption-editor textarea {
+  min-height: 180px;
+  border-left-color: var(--jade);
+}
+
 .adoption-draft dl {
   margin-bottom: var(--space-3);
+}
+
+.adoption-confirm,
+.adoption-confirmation {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--line);
+}
+
+.adoption-confirm .adoption-editor textarea {
+  min-height: 88px;
 }
 
 .adoption-draft__checks {

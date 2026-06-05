@@ -2,7 +2,7 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。本次 S9 新增正式下一章草稿入口：`next_chapter_draft.json` / `next_chapter_draft.md` 与作者采纳台生成按钮。后续官方主线继续真实 LLM 多 Agent 决策、长正文质量、作者可编辑确认和正式入卷。
+> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿与确认入卷入口：`next_chapter_draft.json` / `next_chapter_draft.md`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者采纳台编辑确认按钮。后续官方主线继续真实 LLM 多 Agent 决策、长正文质量、更强 Reviewer 和跨卷宗阅读。
 
 ## 1. 产品北极星
 
@@ -94,8 +94,9 @@
 | S6 Materialized Consequence State | 已收口第一版 | 新增 `worldline_state.consequence_state`，将因果债具象为地点、资源、伤势、舆论、势力和环境六域，保留近轮 ledger；后续沙盘会读取为 `decision_inputs.worldline_consequences`，自演 checkpoint/overnight report 会展示具象代偿，多视角正文 evidence chain 增加 `consequence_state_refs`，作者采纳后的 `next_chapter_brief.json` 增加 `materialized_consequences`。 |
 | Worldline Dossier / Checkpoint Replay Pages | 已收口第一版 | 新增 `worldline_dossier` service/API，聚合 `worldline_state.json`、天命快照审计、自演任务和 autopilot checkpoints；前端新增世界线独立页与检查点回放页，沙盘结果和自演检查点可跳转查看分支承接、来源干预、具象代偿、任务进度、暂停/恢复和回放入口。 |
 | S9 Author Chapter Draft Entry | 已收口第一版 | 新增 `author_chapter_draft` service/API/UI，读取作者采纳记录、`next_chapter_brief.json`、世界线状态和具象代偿，输出 `next_chapter_draft.json` / `next_chapter_draft.md`、证据链和 Reviewer 检查；真实 LLM smoke 使用 `qwen3.5-plus` 生成 1101 字正文并命中角色信息差与世界代偿，Reviewer 四项全通过。 |
+| S9 Author Chapter Confirmation Entry | 已收口第一版 | 新增 `author_chapter_confirmation` service/API/UI，作者可在采纳台编辑草稿并确认入卷，输出 `confirmed_chapter_entry.json` / `confirmed_chapter.md`，回写 `worldline_state.confirmed_chapter_entry`、确认历史和后续沙盘入口；不覆盖正史 `chapter.md`，不改 `run_scene` 默认行为。 |
 
-当前验证基线：后端 `925 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+当前验证基线：后端 `926 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
 ## 3. 当前自主迭代点
 
@@ -103,7 +104,7 @@
 
 当前官方下一步是：
 
-> 真实 LLM 多 Agent 决策、多视角/章节长正文质量、作者可编辑确认和正式入卷。
+> 真实 LLM 多 Agent 决策、多视角/章节长正文质量、更强 Reviewer 和跨卷宗阅读。
 
 后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。用户已允许真实 API 参与测试或联调；默认常规测试仍保持 deterministic/mockable，真实模型 smoke 只在显式 opt-in 时运行。
 

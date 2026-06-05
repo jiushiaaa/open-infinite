@@ -1246,6 +1246,48 @@ export interface AuthorChapterDraftReport {
   boundaries: string[];
 }
 
+export interface AuthorChapterConfirmationReport {
+  version: string;
+  artifact: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  source_adoption_run_id: string;
+  created_at: string;
+  edited: boolean;
+  chapter_title: string;
+  chapter_text: string;
+  author_note: string;
+  evidence_chain: {
+    adoption_record: string;
+    next_chapter_brief: string;
+    next_chapter_draft: string;
+    worldline_state_artifact: string;
+    sandbox_inputs: Record<string, string>;
+    materialized_consequences: string[];
+  };
+  continuation_effect: {
+    affects_future_sandbox: boolean;
+    worldline_state_artifact: string;
+    next_sandbox_entry: {
+      major_event: string;
+      worldline_id: string;
+      confirmed_chapter_artifact: string;
+      confirmed_chapter_markdown: string;
+      chapter_summary: string;
+    };
+  };
+  reviewer_checklist: Array<{
+    item: string;
+    passed: boolean;
+  }>;
+  artifacts: {
+    confirmed_chapter_entry: string;
+    confirmed_chapter_markdown: string;
+  };
+  boundaries: string[];
+}
+
 export interface ProjectWorkspaceCanonLedger {
   status: "ready" | "missing" | "damaged" | string;
   entry_count: number;

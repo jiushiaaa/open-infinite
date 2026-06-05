@@ -1658,6 +1658,10 @@ class BrowserHandler(BaseHTTPRequestHandler):
             ) and "/author-adoption/" in path:
                 return self._handle_author_chapter_draft(path)
             if path.startswith("/api/stories/") and path.endswith(
+                "/chapter-confirmation"
+            ) and "/author-adoption/" in path:
+                return self._handle_author_chapter_confirmation(path)
+            if path.startswith("/api/stories/") and path.endswith(
                 "/author-adoption"
             ):
                 rest = path[len("/api/stories/") :]
@@ -2221,6 +2225,37 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 mock=bool(body.get("mock", True)),
             )
         except AuthorChapterDraftRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+        return self._send_json(report)
+
+    def _handle_author_chapter_confirmation(self, path: str) -> None:
+        from living_novel_engine.service import (
+            AuthorChapterConfirmationRequestError,
+            confirm_author_chapter_entry,
+        )
+
+        prefix = "/api/stories/"
+        suffix = "/chapter-confirmation"
+        rest = path[len(prefix) : -len(suffix)]
+        slug_raw, marker, run_raw = rest.partition("/author-adoption/")
+        slug = safe_id(slug_raw.strip("/"))
+        adoption_run_id = safe_id(run_raw.strip("/"))
+        if not marker or slug is None or adoption_run_id is None:
+            return self._send_json({"error": "invalid slug or adoption_run_id"}, status=400)
+        try:
+            body = self._read_body_json()
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            return self._send_json({"error": f"invalid json: {exc}"}, status=400)
+        try:
+            report = confirm_author_chapter_entry(
+                slug,
+                adoption_run_id=adoption_run_id,
+                edited_chapter_text=str(body.get("edited_chapter_text") or ""),
+                author_note=str(body.get("author_note") or ""),
+            )
+        except AuthorChapterConfirmationRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         except FileNotFoundError as exc:
             return self._send_json({"error": str(exc)}, status=404)

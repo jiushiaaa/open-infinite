@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { api } from "../api/client";
-import type { AuthorAdoptionReport, AuthorChapterDraftReport } from "../api/types";
+import type {
+  AuthorAdoptionReport,
+  AuthorChapterConfirmationReport,
+  AuthorChapterDraftReport,
+} from "../api/types";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
 import "./authorAdoption.css";
@@ -28,6 +32,12 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [draftLoading, setDraftLoading] = useState(false);
   const [draftError, setDraftError] = useState<string | null>(null);
   const [draft, setDraft] = useState<AuthorChapterDraftReport | null>(null);
+  const [editedChapterText, setEditedChapterText] = useState("");
+  const [confirmationNote, setConfirmationNote] = useState("确认入卷，下一轮从本章余波继续。");
+  const [confirmationLoading, setConfirmationLoading] = useState(false);
+  const [confirmationError, setConfirmationError] = useState<string | null>(null);
+  const [confirmation, setConfirmation] =
+    useState<AuthorChapterConfirmationReport | null>(null);
 
   async function submitAdoption() {
     setLoading(true);
@@ -46,6 +56,9 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       );
       setDraft(null);
       setDraftError(null);
+      setEditedChapterText("");
+      setConfirmation(null);
+      setConfirmationError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -58,11 +71,33 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
     setDraftLoading(true);
     setDraftError(null);
     try {
-      setDraft(await api.generateAuthorChapterDraft(slug, report.run_id, { mock: true }));
+      const nextDraft = await api.generateAuthorChapterDraft(slug, report.run_id, { mock: true });
+      setDraft(nextDraft);
+      setEditedChapterText(nextDraft.chapter_text);
+      setConfirmation(null);
+      setConfirmationError(null);
     } catch (err) {
       setDraftError(err instanceof Error ? err.message : String(err));
     } finally {
       setDraftLoading(false);
+    }
+  }
+
+  async function confirmChapter() {
+    if (!report?.run_id || !draft) return;
+    setConfirmationLoading(true);
+    setConfirmationError(null);
+    try {
+      setConfirmation(
+        await api.confirmAuthorChapterEntry(slug, report.run_id, {
+          edited_chapter_text: editedChapterText.trim(),
+          author_note: confirmationNote.trim(),
+        }),
+      );
+    } catch (err) {
+      setConfirmationError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setConfirmationLoading(false);
     }
   }
 
@@ -240,7 +275,17 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                     <h3>{draft.chapter_title}</h3>
                     <span className="badge badge--gold">{draft.artifact}</span>
                   </div>
-                  <pre>{draft.chapter_text}</pre>
+                  <label className="adoption-editor">
+                    <span className="muted tiny">作者修订稿</span>
+                    <textarea
+                      value={editedChapterText}
+                      onChange={(event) => {
+                        setEditedChapterText(event.target.value);
+                        setConfirmation(null);
+                      }}
+                      rows={14}
+                    />
+                  </label>
                   <dl>
                     <div>
                       <dt>采纳记录</dt>
@@ -269,6 +314,67 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       </span>
                     ))}
                   </div>
+                  <div className="adoption-confirm">
+                    <label className="adoption-editor">
+                      <span className="muted tiny">确认备注</span>
+                      <textarea
+                        value={confirmationNote}
+                        onChange={(event) => setConfirmationNote(event.target.value)}
+                        rows={3}
+                      />
+                    </label>
+                    <button
+                      className="btn btn--primary"
+                      disabled={confirmationLoading || !editedChapterText.trim()}
+                      onClick={confirmChapter}
+                    >
+                      {confirmationLoading ? "正在确认…" : "确认入卷"}
+                    </button>
+                  </div>
+                  {confirmationError && (
+                    <ErrorState message={confirmationError} onRetry={confirmChapter} />
+                  )}
+                  {confirmation && (
+                    <div className="adoption-confirmation">
+                      <div className="adoption-draft__head">
+                        <h3>已确认入卷</h3>
+                        <span className="badge badge--jade">{confirmation.artifact}</span>
+                      </div>
+                      <dl>
+                        <div>
+                          <dt>正文</dt>
+                          <dd>{confirmation.artifacts.confirmed_chapter_markdown}</dd>
+                        </div>
+                        <div>
+                          <dt>状态</dt>
+                          <dd>{confirmation.continuation_effect.worldline_state_artifact}</dd>
+                        </div>
+                        <div>
+                          <dt>下一轮</dt>
+                          <dd>
+                            {confirmation.continuation_effect.next_sandbox_entry.major_event}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>编辑</dt>
+                          <dd>{confirmation.edited ? "已采用作者修订稿" : "沿用草稿"}</dd>
+                        </div>
+                      </dl>
+                      <p className="muted tiny">
+                        后续沙盘会读取已确认章节、采纳记录、下一章 brief 与世界线状态继续推进。
+                      </p>
+                      <div className="adoption-draft__checks">
+                        {confirmation.reviewer_checklist.map((item) => (
+                          <span
+                            key={item.item}
+                            className={`badge ${item.passed ? "badge--jade" : "badge--gold"}`}
+                          >
+                            {item.passed ? "通过" : "待补"} · {item.item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </section>

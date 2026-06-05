@@ -181,6 +181,66 @@ def apply_author_adoption_to_worldline_state(
     return state
 
 
+def apply_confirmed_chapter_to_worldline_state(
+    *,
+    story_path: Path,
+    worldline_id: str,
+    source_adoption_run_id: str,
+    chapter_title: str,
+    chapter_text: str,
+    author_note: str,
+    edited: bool,
+    artifact: str,
+    markdown_artifact: str,
+    next_sandbox_entry: dict[str, str],
+) -> dict[str, Any]:
+    wid = _checked_id(worldline_id, "worldline_id")
+    rid = _checked_id(source_adoption_run_id, "source_adoption_run_id")
+    state = load_worldline_state(story_path, wid)
+    now = datetime.now().isoformat(timespec="seconds")
+    entry = {
+        "source_adoption_run_id": rid,
+        "artifact": artifact,
+        "markdown_artifact": markdown_artifact,
+        "title": chapter_title,
+        "summary": _chapter_summary(chapter_text),
+        "author_note": author_note,
+        "edited": edited,
+        "affects_future_sandbox": True,
+        "updated_at": now,
+        "next_sandbox_entry": next_sandbox_entry,
+    }
+    history = state.get("confirmed_chapter_entries")
+    rows = [item for item in history if isinstance(item, dict)] if isinstance(history, list) else []
+    rows.append(entry)
+    state.update(
+        {
+            "version": VERSION,
+            "artifact": f"worldlines/{wid}/{ARTIFACT}",
+            "current_worldline": wid,
+            "status": "active",
+            "updated_at": now,
+            "confirmed_chapter_entry": entry,
+            "confirmed_chapter_entries": rows[-8:],
+        }
+    )
+    state.setdefault("branch_state", {})["continuation_status"] = "runnable"
+    state.setdefault("branch_state", {}).setdefault("next_round_reads", [])
+    reads = state["branch_state"]["next_round_reads"]
+    if isinstance(reads, list) and "confirmed_chapter_entry" not in reads:
+        reads.append("confirmed_chapter_entry")
+    state["continuation_inputs"] = {
+        "major_event_hint": next_sandbox_entry.get("major_event") or "",
+        "worldline_id": wid,
+        "source": "confirmed_chapter_entry",
+        "source_adoption_run_id": rid,
+    }
+    path = _state_path(story_path, wid)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+    return state
+
+
 def _empty_state(worldline_id: str) -> dict[str, Any]:
     return {
         "version": VERSION,
@@ -409,6 +469,11 @@ def _next_major_event(round_record: dict[str, Any], active: dict[str, Any]) -> s
         first = possibilities[0] if isinstance(possibilities[0], dict) else {}
         return str(first.get("brief") or first.get("title") or "")
     return str(round_record.get("major_event") or "")
+
+
+def _chapter_summary(chapter_text: str) -> str:
+    clean = " ".join(str(chapter_text or "").split())
+    return clean if len(clean) <= 180 else clean[:180] + "..."
 
 
 def _merge_lists(*values: object) -> list[str]:

@@ -2,7 +2,7 @@
 
 > 用途：给后续 Codex / Cursor / 其他开发 Agent 做开工前自检，避免继续沿着旧的工程化面板、provider spike 或检索评测方向跑偏。
 > 当前主 PRD：`unfinale-world-sandbox-remodel-prd.md`。
-> 2026-06-05 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。S4 后半到 S9 已补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。S6 进一步新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入后续沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。本次 S9 新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和作者采纳台草稿入口，采纳结果可生成可读下一章正文。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
+> 2026-06-05 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。S4 后半到 S9 已补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。S6 进一步新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入后续沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和作者采纳台草稿入口，采纳结果可生成可读下一章正文；本次继续新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者编辑确认入口，确认结果会回写世界线状态与后续沙盘入口。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
 
 ## 1. 开工前必读
 
@@ -96,7 +96,7 @@
 - `outputs/<run_id>/event_materials.json` 或等价事件材料账本，目前多视角 brief 已存在，但事件材料化还不够独立。
 - 世界线《天命书》快照第一刀已存在：L4/L5 / AU 预编译可写 `worldlines/<worldline_id>/tianming_snapshot.json` 且不覆盖根天命书；本次新增 `worldlines/<worldline_id>/worldline_state.json`，记录快照审计状态、来源干预、分支承接、因果债、锚点状态、候选承载者、模因污染和作者采纳反哺，后续沙盘会读取它。
 - 持久世界状态 ledger 已有第二轮：`worldline_state.json` 已成为下一轮沙盘输入；本次新增 `consequence_state`，将代偿代价具象为地点、资源、伤势、舆论、势力和环境六域，并保留近轮 ledger。
-- 章节 brief / 正文产物已有第一版：`character_lens_volumes.json` 生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文；`next_chapter_brief.json` 增加 `materialized_consequences` 并回写世界线状态；本次新增 `next_chapter_draft.json` / `next_chapter_draft.md`，把采纳 brief 生成可读下一章正文；仍需作者可编辑确认、正式入卷和真实 LLM 长文质量控制。
+- 章节 brief / 正文产物已有第一版：`character_lens_volumes.json` 生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文；`next_chapter_brief.json` 增加 `materialized_consequences` 并回写世界线状态；`next_chapter_draft.json` / `next_chapter_draft.md` 把采纳 brief 生成可读下一章正文；`confirmed_chapter_entry.json` / `confirmed_chapter.md` 支持作者编辑确认并正式入卷；仍需局部重写、更强 Reviewer 和真实 LLM 长文质量控制。
 
 ## 6. 已落地的第一批 API 与下一步
 
@@ -123,7 +123,7 @@
 - `GET /api/stories/<slug>/events/<event_id>/perspectives`：读取已发生事件的多视角和证据链，而不是每次生成新 brief。
 - `GET /api/stories/<slug>/character-lens/<character_id>`：读取某角色连续个人卷。
 - 世界自演任务的启动、暂停、恢复、进度查询、checkpoint 回放和世界线 dossier API 已有本地同步任务第一版；仍未做后台队列、长时运行守护和中断自动恢复。
-- 作者采纳后的章节 brief / 大纲差异 / Reviewer 修订 API 已有第一版；本次已接入章节草稿生成入口；仍需作者可编辑确认、正式入卷和更强 Reviewer。
+- 作者采纳后的章节 brief / 大纲差异 / Reviewer 修订 API 已有第一版；章节草稿生成和作者确认入卷入口已接入；仍需局部重写、更强 Reviewer 和跨卷宗连续阅读。
 
 API 规则沿用项目硬约束：identifier 安全校验；失败返回明确 400/404/409；坏 artifact 降级为空态或需修复，不白屏、不 500。
 
@@ -177,7 +177,7 @@ API 规则沿用项目硬约束：identifier 安全校验；失败返回明确 4
 4. Agent 决策继续加深：下一轮可在显式 opt-in 下接真实模型 runner smoke，但默认仍保留 deterministic/mockable 基线。
 5. 世界状态持久化：继续把 `consequence_state` 从固定六域描述升级为可累积、可确认、可用于真实 LLM 决策的状态机。
 6. 多视角正文：从 brief 升级到可读章节和连续角色个人卷。
-7. 作者采纳反哺：采纳结果能生成下一章 brief 和正文草稿，并影响后续沙盘。
+7. 作者采纳反哺：采纳结果能生成下一章 brief 和正文草稿，作者可编辑确认入卷，并影响后续沙盘。
 
 ## 9. 验收口径
 

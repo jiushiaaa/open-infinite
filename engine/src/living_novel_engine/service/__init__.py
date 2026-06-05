@@ -346,6 +346,10 @@ from .author_chapter_draft import (
     AuthorChapterDraftRequestError,
     generate_author_chapter_draft,
 )
+from .author_chapter_confirmation import (
+    AuthorChapterConfirmationRequestError,
+    confirm_author_chapter_entry,
+)
 from .tianming import (
     TianmingRequestError,
     confirm_tianming_book,
@@ -426,6 +430,7 @@ __all__ = [
     "CharacterLensRequestError",
     "AuthorAdoptionRequestError",
     "AuthorChapterDraftRequestError",
+    "AuthorChapterConfirmationRequestError",
     "generate_baseline",
     "get_baseline_report",
     "build_chapter_collection_export",
@@ -627,6 +632,7 @@ __all__ = [
     "generate_character_lens_briefs",
     "record_author_adoption",
     "generate_author_chapter_draft",
+    "confirm_author_chapter_entry",
     "mine_run_emergence",
     "VisualAssetPathError",
     "VisualAssetRequestError",

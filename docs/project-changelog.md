@@ -1937,3 +1937,27 @@
   - 增加作者可编辑确认、局部重写和正式入卷入口。
   - 加强多视角/章节长正文质量控制与跨卷宗连续阅读。
 
+### 2026-06-05 — S9 Author Chapter Confirmation Entry
+
+- **做了什么**：
+  - 新增 `author_chapter_confirmation` service，把作者采纳 run 的 `author_adoption_record.json`、`next_chapter_brief.json` 和 `next_chapter_draft.json` 确认为正式入卷记录。
+  - 新增 artifact：`outputs/<run_id>/confirmed_chapter_entry.json` 和 `outputs/<run_id>/confirmed_chapter.md`，包含作者编辑后的正文、证据链、Reviewer 检查、确认备注和下一轮沙盘入口。
+  - 新增世界线状态回写：`worldline_state.confirmed_chapter_entry`、`confirmed_chapter_entries` 和 `continuation_inputs`；`branch_state.next_round_reads` 新增 `confirmed_chapter_entry`，后续沙盘可读取确认后的章节入口。
+  - 新增 API：`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation`；坏 slug/run_id 返回 400，缺采纳 run 或缺草稿返回 404。
+  - 作者采纳台新增草稿编辑区、确认备注和“确认入卷”按钮，确认后展示入卷 artifact、世界线状态、下一轮沙盘入口和 Reviewer 检查。
+  - 同步 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增 `test_author_chapter_confirmation_formalizes_edited_text_for_worldline` 和 HTTP 确认入卷断言后，先因缺 `living_novel_engine.service.author_chapter_confirmation` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **6 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **926 passed**。第一次 5 分钟超时未得出结论，第二次用更长超时通过。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 真实模型 smoke：复用上一刀真实 LLM 草稿生成链路；确认环节不调用模型，只用真实模型生成的正文加作者编辑文本确认入卷，Reviewer 全通过，确认结果写入世界线状态并生成后续沙盘入口。
+- **边界**：
+  - 确认入卷只写入作者采纳 run 目录和 `worldline_state.json`，不覆盖正史 `chapter.md`，不调用 `run_scene`，不破坏既有核心 artifact。
+  - 新 API/UI/artifact 均 additive；默认 pytest 仍 mock-safe，真实模型 smoke 不进入默认测试。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+- **下一刀建议**：
+  - 继续真实 LLM 多 Agent 决策 smoke，让沙盘行动从模板进一步变成角色策略博弈。
+  - 加强章节草稿/确认稿的局部重写、更强 Reviewer 和长正文质量控制。
+  - 补跨卷宗连续阅读，让确认后的章节能跳回世界正史卷、角色个人卷和事件多视角证据。
+
