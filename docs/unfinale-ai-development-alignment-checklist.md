@@ -2,7 +2,7 @@
 
 > 用途：给后续 Codex / Cursor / 其他开发 Agent 做开工前自检，避免继续沿着旧的工程化面板、provider spike 或检索评测方向跑偏。
 > 当前主 PRD：`unfinale-world-sandbox-remodel-prd.md`。
-> 2026-06-05 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。本次继续补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
+> 2026-06-05 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。S4 后半到 S9 已补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。本次 S6 进一步新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入后续沙盘、自演检查点、多视角正文和下一章 brief。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
 
 ## 1. 开工前必读
 
@@ -92,8 +92,8 @@
 
 - `outputs/<run_id>/event_materials.json` 或等价事件材料账本，目前多视角 brief 已存在，但事件材料化还不够独立。
 - 世界线《天命书》快照第一刀已存在：L4/L5 / AU 预编译可写 `worldlines/<worldline_id>/tianming_snapshot.json` 且不覆盖根天命书；本次新增 `worldlines/<worldline_id>/worldline_state.json`，记录快照审计状态、来源干预、分支承接、因果债、锚点状态、候选承载者、模因污染和作者采纳反哺，后续沙盘会读取它。
-- 持久世界状态 ledger 已有第一版：`worldline_state.json` 已成为下一轮沙盘输入；仍需把代偿代价从文字解释进一步具象为地点、势力、资源、伤势、公开舆论等世界内状态。
-- 章节 brief / 正文产物已有第一版：`character_lens_volumes.json` 生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文；`next_chapter_brief.json` 由作者采纳生成并回写世界线状态；仍需接入更正式的章节生成入口和真实 LLM 长文质量控制。
+- 持久世界状态 ledger 已有第二轮：`worldline_state.json` 已成为下一轮沙盘输入；本次新增 `consequence_state`，将代偿代价具象为地点、资源、伤势、舆论、势力和环境六域，并保留近轮 ledger。
+- 章节 brief / 正文产物已有第一版：`character_lens_volumes.json` 生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文；本次 evidence chain 增加 `consequence_state_refs`，`next_chapter_brief.json` 增加 `materialized_consequences` 并回写世界线状态；仍需接入更正式的章节生成入口和真实 LLM 长文质量控制。
 
 ## 6. 已落地的第一批 API 与下一步
 
@@ -162,11 +162,11 @@ API 规则沿用项目硬约束：identifier 安全校验；失败返回明确 4
 
 后续任务优先选择以下方向：
 
-1. S4 分支持续运行 / 快照审计确认：在 S4 已能把编译结果投放进单轮沙盘并选择沉浸模式 / 暴走 AU 后，补用户确认后的分支持久继续运行、L4/L5 世界线快照审计确认和多轮分支追踪。
+1. 世界线 / 检查点独立页：在 `worldline_state.json`、`consequence_state` 和 checkpoint replay 已有能力层后，补用户可直接浏览和回放世界线/检查点的卷宗页。
 2. L5 觉醒反抗：让高觉醒角色能拒绝、假意服从、欺骗读者、保护他人或传播高维真相。
 3. 主观记忆继续加深：在 S2 已有误会/盲区字段后，补长期召回、记忆压缩/遗忘、压抑记忆爆发、误会图谱和“角色不知道的正史事实”对照。
 4. Agent 决策继续加深：下一轮可在显式 opt-in 下接真实模型 runner smoke，但默认仍保留 deterministic/mockable 基线。
-5. 世界状态持久化：世界线代偿、因果债和锚点变化能驱动后续轮次。
+5. 世界状态持久化：继续把 `consequence_state` 从固定六域描述升级为可累积、可确认、可用于真实 LLM 决策的状态机。
 6. 多视角正文：从 brief 升级到可读章节和连续角色个人卷。
 7. 作者采纳反哺：采纳结果能生成下一章 brief 并影响后续沙盘。
 

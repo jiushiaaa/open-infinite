@@ -271,6 +271,12 @@ def _checkpoint(
 ) -> dict[str, Any]:
     round_record = sandbox["rounds"][0]
     delta = round_record["world_state_delta"]
+    state = sandbox.get("worldline_state") if isinstance(sandbox.get("worldline_state"), dict) else {}
+    consequence = (
+        state.get("consequence_state")
+        if isinstance(state.get("consequence_state"), dict)
+        else {}
+    )
     return {
         "checkpoint_id": f"checkpoint_{round_index:03d}",
         "round_index": round_index,
@@ -280,6 +286,16 @@ def _checkpoint(
         "stage": f"第 {round_index} 轮后，{delta.get('trigger', '世界')} 已改变。",
         "anchor_pressure": delta.get("anchor_pressure"),
         "causal_debt": delta.get("causal_debt"),
+        "consequence_state": (
+            {
+                "status": consequence.get("status") or "active",
+                "summary": consequence.get("summary") or "",
+                "domains": consequence.get("domains") or {},
+                "next_round_hint": consequence.get("next_round_hint") or "",
+            }
+            if consequence
+            else {"status": "none", "summary": "", "domains": {}}
+        ),
         "character_action_count": len(round_record.get("character_actions", [])),
         "next_story_possibilities": round_record.get("next_story_possibilities", []),
         "who_remembered_what": [
@@ -373,6 +389,12 @@ def _overnight_report(checkpoints: list[dict[str, Any]]) -> dict[str, Any]:
             "where_to_continue": [],
         }
     last = checkpoints[-1]
+    consequence = (
+        last.get("consequence_state")
+        if isinstance(last.get("consequence_state"), dict)
+        else {}
+    )
+    consequence_summary = str(consequence.get("summary") or "").strip()
     return {
         "what_happened": f"世界推进到{last.get('stage')}，共留下 {len(checkpoints)} 个检查点。",
         "who_remembered_what": [
@@ -383,6 +405,7 @@ def _overnight_report(checkpoints: list[dict[str, Any]]) -> dict[str, Any]:
         ],
         "why_world_changed": (
             f"锚点压力 {last.get('anchor_pressure')}，因果债 {last.get('causal_debt')}。"
+            + (f"具象代偿：{consequence_summary}" if consequence_summary else "")
         ),
         "where_to_continue": [
             {

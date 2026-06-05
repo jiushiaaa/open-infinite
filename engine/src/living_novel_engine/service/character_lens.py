@@ -163,12 +163,13 @@ def _volumes(
     character_name = str(selected_action.get("character_name") or "角色")
     event_nodes = _character_event_nodes(selected_action, selected_memory, sandbox)
     evidence_chain = _evidence_chain(sandbox, round_record, memories)
+    consequence_text = _consequence_text(sandbox, round_record)
     world_prose = (
         f"【正史】{event}被写入世界正史时，并不采纳任何人的自我辩解。"
         f"正史只记录结果：{first_action.get('character_name')}先行动，"
         f"{len(actions)}名角色随后把同一事件推向不同解释。"
         f"锚点压力变为{delta.get('anchor_pressure')}，因果债显示为{delta.get('causal_debt')}。"
-        "这意味着世界并未因为外力投放而重置，反而把代价压回角色、关系网和势力秩序。"
+        f"{consequence_text}"
         "后续章节应从这些代价中生长，而不是另起一段孤立续写。"
     )
     character_prose = (
@@ -215,7 +216,7 @@ def _volumes(
             "prose": (
                 f"同一事件“{event}”在正史中是锚点压力，在{character_name}眼中却是"
                 "一段需要隐藏真实意图的私人记忆。其他角色是否相信他，不由全局摘要决定，"
-                "而由各自的误会、关系和秘密可见性决定。"
+                f"而由各自的误会、关系和秘密可见性决定。世界内代价是：{consequence_text}"
             ),
             "information_gap": {
                 "canon_vs_character": (
@@ -284,7 +285,71 @@ def _evidence_chain(
             if (sandbox.get("intervention_constraint") or {}).get("status") == "active"
             else []
         ),
+        "consequence_state_refs": _consequence_refs(sandbox, round_record),
     }
+
+
+def _consequence_text(sandbox: dict[str, Any], round_record: dict[str, Any]) -> str:
+    state = sandbox.get("worldline_state") if isinstance(sandbox.get("worldline_state"), dict) else {}
+    consequence = (
+        state.get("consequence_state")
+        if isinstance(state.get("consequence_state"), dict)
+        else {}
+    )
+    summary = str(consequence.get("summary") or "").strip()
+    if summary:
+        return f"世界把代价具象成：{summary}。"
+    delta = (
+        round_record.get("world_state_delta")
+        if isinstance(round_record.get("world_state_delta"), dict)
+        else {}
+    )
+    delta_consequence = (
+        delta.get("consequence_state")
+        if isinstance(delta.get("consequence_state"), dict)
+        else {}
+    )
+    delta_summary = str(delta_consequence.get("summary") or "").strip()
+    if delta_summary:
+        return f"世界把代价具象成：{delta_summary}。"
+    return "这意味着世界并未因为外力投放而重置，反而把代价压回角色、关系网和势力秩序。"
+
+
+def _consequence_refs(
+    sandbox: dict[str, Any], round_record: dict[str, Any]
+) -> list[dict[str, Any]]:
+    state = sandbox.get("worldline_state") if isinstance(sandbox.get("worldline_state"), dict) else {}
+    consequence = (
+        state.get("consequence_state")
+        if isinstance(state.get("consequence_state"), dict)
+        else {}
+    )
+    domains = consequence.get("domains") if isinstance(consequence.get("domains"), dict) else {}
+    if not domains:
+        delta = (
+            round_record.get("world_state_delta")
+            if isinstance(round_record.get("world_state_delta"), dict)
+            else {}
+        )
+        delta_consequence = (
+            delta.get("consequence_state")
+            if isinstance(delta.get("consequence_state"), dict)
+            else {}
+        )
+        domains = (
+            delta_consequence.get("domains")
+            if isinstance(delta_consequence.get("domains"), dict)
+            else {}
+        )
+    return [
+        {
+            "domain": key,
+            "current": value.get("current") or "",
+            "pressure": value.get("pressure") or "",
+        }
+        for key, value in domains.items()
+        if isinstance(value, dict)
+    ]
 
 
 def _briefs(

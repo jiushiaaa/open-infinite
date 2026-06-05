@@ -37,6 +37,15 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
 
   const round = report?.rounds[0] ?? null;
   const worldlineState = report?.worldline_state ?? null;
+  const consequenceDomains = worldlineState?.consequence_state?.domains
+    ? Object.entries(worldlineState.consequence_state.domains)
+    : [];
+  const latestConsequence =
+    worldlineState?.consequence_state?.ledger?.[
+      (worldlineState.consequence_state.ledger?.length ?? 1) - 1
+    ];
+  const consequenceNextRoundHint =
+    worldlineState?.consequence_state?.next_round_hint ?? "";
   const interventionConstraint =
     report?.intervention_constraint?.status === "active"
       ? report.intervention_constraint
@@ -424,6 +433,35 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                       </div>
                     )}
                   </dl>
+                  {consequenceDomains.length > 0 && (
+                    <div className="sandbox-consequences">
+                      <div className="sandbox-consequences__head">
+                        <strong>具象代偿账</strong>
+                        <span className="muted tiny">
+                          {latestConsequence?.source_run_id
+                            ? `来自 ${latestConsequence.source_run_id}`
+                            : "本轮世界状态"}
+                        </span>
+                      </div>
+                      <div className="sandbox-consequence-grid">
+                        {consequenceDomains.map(([key, item]) => (
+                          <article key={key}>
+                            <span>{item.label || key}</span>
+                            <strong>{item.current || "等待世界继续显形"}</strong>
+                            <p className="muted tiny">
+                              {item.pressure || "压力待定"}
+                              {item.bearer ? ` · 承压：${item.bearer}` : ""}
+                            </p>
+                          </article>
+                        ))}
+                      </div>
+                      {consequenceNextRoundHint && (
+                        <p className="muted tiny">
+                          {consequenceNextRoundHint}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </section>
               )}
               {worldlineState?.status && (

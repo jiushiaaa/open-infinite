@@ -505,6 +505,31 @@ export interface WorldSandboxInformationFlow {
   distortion: string;
 }
 
+export interface WorldlineConsequenceState {
+  status?: string;
+  summary?: string;
+  next_round_hint?: string;
+  domains?: Record<
+    string,
+    {
+      label?: string;
+      current?: string;
+      pressure?: string;
+      bearer?: string;
+    }
+  >;
+  ledger?: Array<{
+    source_run_id?: string;
+    major_event?: string;
+    debt_score?: number;
+    impacts?: Array<{
+      domain?: string;
+      current?: string;
+      pressure?: string;
+    }>;
+  }>;
+}
+
 export interface WorldSandboxRound {
   version: string;
   run_id: string;
@@ -531,6 +556,7 @@ export interface WorldSandboxRound {
       worldline_state_artifact?: string;
     };
     compensation_effects?: string[];
+    consequence_state?: WorldlineConsequenceState;
     meme_contamination?: {
       status?: string;
       source_character_id?: string;
@@ -705,6 +731,7 @@ export interface WorldlineState {
     spread_vector?: string[];
   };
   compensation_effects?: string[];
+  consequence_state?: WorldlineConsequenceState;
   continuation_inputs?: {
     major_event_hint?: string;
     worldline_id?: string;

@@ -104,6 +104,7 @@ def apply_sandbox_worldline_state(
                 "tianming_snapshot",
                 "causal_debt",
                 "branch_state",
+                "consequence_state",
                 "meme_contamination",
                 "author_adoption",
             ],
@@ -119,6 +120,7 @@ def apply_sandbox_worldline_state(
         "replacement_anchor_candidates": _replacement_candidates(actions),
         "meme_contamination": _meme_state(actions, previous),
         "compensation_effects": _compensation_effects(debt_score, actions),
+        "consequence_state": _consequence_state(previous, round_record, debt_score, actions),
         "continuation_inputs": {
             "major_event_hint": _next_major_event(round_record, active),
             "worldline_id": wid,
@@ -165,6 +167,10 @@ def apply_author_adoption_to_worldline_state(
                     else {}
                 ).get("major_event")
                 or "",
+                "materialized_consequences": next_chapter_brief.get(
+                    "materialized_consequences"
+                )
+                or [],
             },
         }
     )
@@ -297,6 +303,102 @@ def _compensation_effects(debt_score: int, actions: list[dict[str, Any]]) -> lis
     if debt_score >= 7:
         effects.append("候选天命承载者开始被世界推到台前，但仍可能因资源不足失败。")
     return effects
+
+
+def _consequence_state(
+    previous: dict[str, Any],
+    round_record: dict[str, Any],
+    debt_score: int,
+    actions: list[dict[str, Any]],
+) -> dict[str, Any]:
+    prior = (
+        previous.get("consequence_state")
+        if isinstance(previous.get("consequence_state"), dict)
+        else {}
+    )
+    prior_ledger = prior.get("ledger") if isinstance(prior.get("ledger"), list) else []
+    domains = _consequence_domains(round_record, debt_score, actions)
+    entry = {
+        "source_run_id": round_record.get("run_id") or "",
+        "major_event": round_record.get("major_event") or "",
+        "debt_score": debt_score,
+        "impacts": [
+            {
+                "domain": key,
+                "current": value.get("current") or "",
+                "pressure": value.get("pressure") or "",
+            }
+            for key, value in domains.items()
+        ],
+    }
+    ledger = [item for item in prior_ledger if isinstance(item, dict)][-5:]
+    ledger.append(entry)
+    return {
+        "status": "active",
+        "summary": _consequence_summary(domains),
+        "domains": domains,
+        "ledger": ledger,
+        "next_round_hint": "下一轮角色会把这些地点、资源、伤势、舆论、势力和环境代价当作行动前提。",
+    }
+
+
+def _consequence_domains(
+    round_record: dict[str, Any],
+    debt_score: int,
+    actions: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    event = str(round_record.get("major_event") or "本轮事件")
+    first = actions[0] if actions else {}
+    first_name = str(first.get("character_name") or "当前锚点")
+    first_id = str(first.get("character_id") or "unknown")
+    level = "高" if debt_score >= 7 else "中" if debt_score >= 3 else "低"
+    return {
+        "location": {
+            "label": "地点",
+            "current": f"归云斋与事发地因“{event}”被封锁复查，暗线出入需要留下证人。",
+            "pressure": f"{level}压",
+            "bearer": first_id,
+        },
+        "resource": {
+            "label": "资源",
+            "current": f"{first_name}可用资源被扣到明面：军需、情报和藏匿路线必须二选一。",
+            "pressure": f"{level}压",
+            "bearer": first_id,
+        },
+        "injury": {
+            "label": "伤势",
+            "current": "接触异物或异常线索的人留下灼伤、梦魇或灵识刺痛，不能再无代价行动。",
+            "pressure": "可见代价",
+            "bearer": first_id,
+        },
+        "public_opinion": {
+            "label": "舆论",
+            "current": "城中开始流传高维改命与归云斋藏器传闻，旁观者会按旧怨选择相信或造谣。",
+            "pressure": "外溢",
+            "bearer": "relationship_network",
+        },
+        "faction": {
+            "label": "势力",
+            "current": "朝堂、边军和归云斋各自派人追索异常来源，候选承载者必须证明自己能收束局面。",
+            "pressure": "争夺解释权",
+            "bearer": "factions",
+        },
+        "environment": {
+            "label": "环境",
+            "current": "夜雨、雷火与失序梦兆反复出现，世界用自然异象提醒锚点债务尚未清偿。",
+            "pressure": "世界回声",
+            "bearer": "environment",
+        },
+    }
+
+
+def _consequence_summary(domains: dict[str, dict[str, Any]]) -> str:
+    parts = [
+        str(domains[key].get("current") or "")
+        for key in ("location", "resource", "injury", "public_opinion", "faction", "environment")
+        if key in domains
+    ]
+    return "；".join(part for part in parts if part)
 
 
 def _next_major_event(round_record: dict[str, Any], active: dict[str, Any]) -> str:

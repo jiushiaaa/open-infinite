@@ -120,6 +120,25 @@ def test_character_lens_generates_readable_volumes_with_evidence_chain(tmp_path)
     assert event["evidence_chain"]["world_state_delta_refs"]
 
 
+def test_character_lens_volumes_include_materialized_consequence_refs(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = generate_character_lens_briefs(
+        "lens-story",
+        source_event="高维异器传闻传入归云斋，城中开始封锁库房并追索军需。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    world = next(volume for volume in report["volumes"] if volume["volume_type"] == "world_chronicle")
+    event = next(volume for volume in report["volumes"] if volume["volume_type"] == "event_multi_perspective")
+
+    assert "归云斋" in world["prose"]
+    assert "资源" in world["prose"]
+    assert event["evidence_chain"]["consequence_state_refs"]
+
+
 def test_character_lens_rejects_missing_event(tmp_path):
     _make_project(tmp_path)
 

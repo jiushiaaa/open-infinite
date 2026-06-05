@@ -13,6 +13,7 @@ from living_novel_engine.browser.validators import safe_id
 from living_novel_engine.service.project_health import resolve_story_path
 from living_novel_engine.service.worldline_state import (
     apply_author_adoption_to_worldline_state,
+    load_worldline_state,
 )
 
 VERSION = "author-adoption-desk-v1"
@@ -97,6 +98,9 @@ def record_author_adoption(
         source=source,
         comparison=comparison,
         author_note=_clean(author_note),
+        materialized_consequences=_materialized_consequences(
+            load_worldline_state(story_path, wid)
+        ),
     )
     outline_diff = _outline_diff(decision_key, comparison)
     foreshadowing_adjustments = _foreshadowing_adjustments(
@@ -175,6 +179,7 @@ def _next_chapter_brief(
     source: dict[str, str],
     comparison: dict[str, str],
     author_note: str,
+    materialized_consequences: list[str],
 ) -> dict[str, Any]:
     emergence = comparison["sandbox_emergence"]
     event = source.get("source_event") or _first_sentence(emergence)
@@ -199,12 +204,39 @@ def _next_chapter_brief(
             "worldline_id": worldline_id,
             "author_note": author_note,
         },
+        "materialized_consequences": materialized_consequences,
         "must_preserve": [
             "角色主观记忆和信息差",
-            "世界状态 delta 和因果债",
+            "世界状态 delta、因果债和具象代偿",
             "作者对原大纲的采纳范围",
         ],
     }
+
+
+def _materialized_consequences(worldline_state: dict[str, Any]) -> list[str]:
+    consequence = (
+        worldline_state.get("consequence_state")
+        if isinstance(worldline_state.get("consequence_state"), dict)
+        else {}
+    )
+    domains = (
+        consequence.get("domains")
+        if isinstance(consequence.get("domains"), dict)
+        else {}
+    )
+    rows = [
+        str(value.get("current") or "")
+        for key, value in domains.items()
+        if isinstance(value, dict) and key in {
+            "location",
+            "resource",
+            "injury",
+            "public_opinion",
+            "faction",
+            "environment",
+        }
+    ]
+    return [row for row in rows if row]
 
 
 def _outline_diff(decision: str, comparison: dict[str, str]) -> dict[str, str]:

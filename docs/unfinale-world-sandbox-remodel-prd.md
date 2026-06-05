@@ -43,6 +43,14 @@
 - S9：作者采纳新增 `next_chapter_brief.json`、原大纲差异、伏笔调整和 Reviewer 建议，并把下一章入口回写世界线状态。
 - 真实模型 smoke：使用 `.env` 中真实 LLM 配置（`qwen3.5-plus`）小样本验收通过；模型提示风险是因果债若只停留在抽象解释，危机感容易被稀释。
 
+2026-06-05 S6 具象代偿第一轮补强：
+
+- 新增 `worldline_state.consequence_state`，把因果债落到地点、资源、伤势、舆论、势力和环境六个世界内域，并保留近轮 ledger。
+- 后续 `sandbox/run` 会把这些具象代偿写入角色 `decision_inputs.worldline_consequences`，本轮 `world_state_delta.consequence_state` 也会展示继承后果。
+- 世界自演检查点和 overnight report 会记录这些具象代偿，醒来报告不再只显示因果债等级。
+- 多视角正文 evidence chain 新增 `consequence_state_refs`，世界正史卷会把封锁、资源扣押、伤势/梦魇、舆论、势力追索和环境异象写入可读正文。
+- 作者采纳后的 `next_chapter_brief.json` 新增 `materialized_consequences`，下一章方案必须延续这些世界内代价。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：
@@ -185,7 +193,7 @@
 | 角色主观记忆链 | 已有 `subjective_memory.jsonl`，每个角色/世界线独立追加，下一轮会读取上一条记忆。 | 仍需支持误会、秘密、压抑记忆、世界线残影、觉醒度、外在行动/真实意图分离和长期召回策略。 |
 | 沙盘轮次 artifact | 已有 `sandbox_rounds.jsonl` 和 `sandbox_summary.json`。 | 目前行动是 deterministic 模板，不是真正 LLM 多 Agent 高智商博弈；尚未接入多轮复杂目标、势力资源和策略欺骗。 |
 | 干预编译器 | 已有读取《天命书》的预编译 API，输出类型、层级、兼容性、转译、分支轴和因果债；L4/L5/AU 会写世界线《天命书》快照且不覆盖根文件。 | 目前主要靠关键词规则；仍需完整实现类型 x 层级 x 转译矩阵、用户确认界面和普通分支/AU 的后续落地执行。 |
-| 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入。 | 仍需把代偿压力从文字解释具象成可持续的地点、势力、资源、伤势、舆论和环境状态。 |
+| 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入；本次新增 `consequence_state`，把代偿压力具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮决策、自演检查点、多视角正文和下一章 brief。 | 仍需让六域状态支持更细的数值/枚举演化、人工确认、跨章节归档和真实 LLM 决策消费。 |
 | 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放。 | 仍需真实后台队列、长时运行守护、失败自动恢复和更精确的停止条件命中。 |
 | 多视角活体小说 | 已有 `character_lens_briefs.json`；第二轮新增 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷、事件多视角正文与证据链。 | 仍需更长正文、跨卷宗跳转、误会图谱和真实 LLM 文风控制。 |
 | 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态。 | 仍需把下一章 brief 接入正式章节生成入口和作者可编辑确认流程。 |
@@ -230,7 +238,7 @@ outputs/<run_id>/author_adoption_brief.md
     原大纲 vs 沙盘涌现剧情对照和作者采纳 brief。
 
 projects/<slug>/worldlines/<worldline_id>/worldline_state.json
-  世界线持续状态：来源干预、快照审计、因果债、锚点状态、候选承载者、模因污染、自演/采纳后的下一轮入口。
+  世界线持续状态：来源干预、快照审计、因果债、锚点状态、候选承载者、模因污染、具象代偿、自演/采纳后的下一轮入口。
 
 outputs/<run_id>/character_lens_volumes.json
   多视角正文：世界正史卷、主锚点卷、角色个人卷、事件多视角正文和证据链。

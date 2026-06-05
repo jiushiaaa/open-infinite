@@ -111,6 +111,8 @@ def test_author_adoption_feeds_next_chapter_brief_and_worldline_continuation(tmp
     assert report["next_chapter_brief"]["opening_scene"]
     assert report["next_chapter_brief"]["sandbox_inputs"]["major_event"]
     assert report["next_chapter_brief"]["sandbox_inputs"]["worldline_id"] == "branch_from_sandbox"
+    assert report["next_chapter_brief"]["materialized_consequences"]
+    assert any("归云斋" in item for item in report["next_chapter_brief"]["materialized_consequences"])
     assert report["outline_diff"]["status"] in {"aligned", "diverged", "partially_aligned"}
     assert report["foreshadowing_adjustments"]
     assert report["reviewer_suggestions"]

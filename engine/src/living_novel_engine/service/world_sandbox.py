@@ -758,10 +758,11 @@ def _constraint_from_worldline_state(state: dict[str, Any]) -> dict[str, Any]:
             else "",
             "causal_debt": state.get("causal_debt") or {},
             "branch_state": state.get("branch_state") or {},
+            "consequence_state": state.get("consequence_state") or {},
         },
         "boundaries": [
             "本约束来自可继续运行的 worldline_state.json。",
-            "后续沙盘轮次会持续读取干预、快照审计状态、因果债和分支状态。",
+            "后续沙盘轮次会持续读取干预、快照审计状态、因果债、分支状态和具象代偿。",
         ],
     }
 
@@ -773,17 +774,41 @@ def _worldline_decision_inputs(state: dict[str, Any]) -> dict[str, Any]:
             "worldline_tianming_snapshot_audit": "",
             "worldline_causal_debt": "",
             "branch_continuation_status": "",
+            "worldline_consequences": "",
         }
     source = state.get("source_intervention") if isinstance(state.get("source_intervention"), dict) else {}
     snapshot = state.get("tianming_snapshot") if isinstance(state.get("tianming_snapshot"), dict) else {}
     debt = state.get("causal_debt") if isinstance(state.get("causal_debt"), dict) else {}
     branch = state.get("branch_state") if isinstance(state.get("branch_state"), dict) else {}
+    consequence = (
+        state.get("consequence_state")
+        if isinstance(state.get("consequence_state"), dict)
+        else {}
+    )
     return {
         "worldline_intervention_memory": _text(source.get("content")),
         "worldline_tianming_snapshot_audit": _text(snapshot.get("audit_status")),
         "worldline_causal_debt": f"{debt.get('level', '')}/{debt.get('score', 0)}",
         "branch_continuation_status": _text(branch.get("continuation_status")),
+        "worldline_consequences": _consequence_input_text(consequence),
     }
+
+
+def _consequence_input_text(consequence: dict[str, Any]) -> str:
+    if not isinstance(consequence, dict) or consequence.get("status") != "active":
+        return ""
+    summary = _text(consequence.get("summary"))
+    if summary:
+        return summary
+    domains = consequence.get("domains")
+    if not isinstance(domains, dict):
+        return ""
+    parts = []
+    for key in ("location", "resource", "injury", "public_opinion", "faction", "environment"):
+        value = domains.get(key)
+        if isinstance(value, dict) and value.get("current"):
+            parts.append(_text(value.get("current")))
+    return "；".join(part for part in parts if part)
 
 
 def _awareness_signal(
@@ -1144,6 +1169,11 @@ def _world_state_delta(
     intervention_projection_mode = _text(first_inputs.get("intervention_projection_mode"))
     worldline_debt = _text(first_inputs.get("worldline_causal_debt"))
     continuation = _text(first_inputs.get("branch_continuation_status"))
+    consequence_state = (
+        worldline_state.get("consequence_state")
+        if isinstance(worldline_state.get("consequence_state"), dict)
+        else {}
+    )
     meme_actions = [
         action
         for action in actions
@@ -1187,6 +1217,16 @@ def _world_state_delta(
             f"因果债{worldline_debt or 'low/1'}先压向当前锚点，再外溢到关系网。",
             "候选天命承载者会因欲望、资源和阻力被推到台前或失败退场。",
         ],
+        "consequence_state": (
+            {
+                "status": "active",
+                "summary": _consequence_input_text(consequence_state),
+                "domains": consequence_state.get("domains") or {},
+                "next_round_hint": consequence_state.get("next_round_hint") or "",
+            }
+            if consequence_state.get("status") == "active"
+            else {"status": "none", "summary": "", "domains": {}}
+        ),
         "meme_contamination": (
             {
                 "status": "active",

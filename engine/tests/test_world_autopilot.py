@@ -65,6 +65,8 @@ def test_world_autopilot_writes_report_checkpoints_and_rounds(tmp_path):
     assert len(report["sandbox_runs"]) == 3
     assert len(report["checkpoints"]) == 3
     assert all(row["sandbox_run_id"] for row in report["checkpoints"])
+    assert report["checkpoints"][0]["consequence_state"]["status"] == "active"
+    assert report["checkpoints"][0]["consequence_state"]["domains"]["location"]["current"]
     assert report["final_world_stage"]["stage"] != "未启动"
 
 

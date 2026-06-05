@@ -1864,3 +1864,28 @@
   - 补世界线页/检查点页独立 UI 与采纳后章节生成入口。
   - 在 opt-in 小样本里继续接真实 LLM 多 Agent 决策和多视角长正文质量控制。
 
+### 2026-06-05 — S6 Materialized Consequence State
+
+- **做了什么**：
+  - 新增 `worldline_state.consequence_state`，把因果债从抽象文字说明具象为地点、资源、伤势、舆论、势力和环境六个世界内域，并保留近轮 ledger。
+  - 后续 `sandbox/run` 会读取同一世界线的具象代偿，写入角色 `decision_inputs.worldline_consequences`，并在 `world_state_delta.consequence_state` 中展示继承后果。
+  - 世界自演 checkpoint 和 overnight report 新增具象代偿状态，醒来报告能说明世界为何变化，而不只显示因果债等级。
+  - 多视角正文读取 `consequence_state`，世界正史卷会写出封锁、资源扣押、伤势/梦魇、舆论、势力追索和环境异象；evidence chain 新增 `consequence_state_refs`。
+  - 作者采纳后的 `next_chapter_brief.json` 新增 `materialized_consequences`，并回写 `worldline_state.next_chapter_brief`，下一章方案必须延续这些世界内代价。
+  - 世界沙盘页新增「具象代偿账」展示，用户可看到因果债落到哪些世界域上。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增世界线具象代偿、多视角 evidence、作者采纳 materialized consequences、自演 checkpoint 断言后，先分别因缺 `consequence_state`、缺 `consequence_state_refs`、缺 `materialized_consequences`、checkpoint 缺字段失败。
+  - GREEN：`cd engine && python -m pytest tests\test_world_sandbox.py tests\test_world_autopilot.py tests\test_character_lens_novel.py tests\test_author_adoption.py -q` -> **25 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **922 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - `git diff --check` 通过，仅有 CRLF 提示。
+  - 真实模型 smoke：使用 `.env` 中 `LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1` 与 `LLM_MODEL_NAME=qwen3.5-plus`，不打印明文 key；模型判断六域映射让债务具象为叙事阻力，因果债已内化为世界内后果，风险是多视角卷宗和下一章 brief 需要持续显化多个域，避免代价感知断裂。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 新 artifact/API/UI 字段均 additive；默认 pytest 仍 mock-safe。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+- **下一刀建议**：
+  - 补世界线页/检查点页独立 UI 与采纳后章节生成入口。
+  - 在 opt-in 小样本里继续接真实 LLM 多 Agent 决策和多视角长正文质量控制。
+

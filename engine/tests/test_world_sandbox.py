@@ -380,6 +380,62 @@ def test_intervention_worldline_state_persists_and_drives_next_round(tmp_path):
     )
 
 
+def test_causal_debt_materializes_into_persistent_world_consequences(tmp_path):
+    project_dir = _make_project(tmp_path)
+    generate_tianming_book("sandbox-story", projects_dir=tmp_path)
+    confirm_tianming_book("sandbox-story", confirm=True, projects_dir=tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    first = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩把高维武器带进归云斋，城中谣言和边境军需同时失控。",
+        intervention_content="给赵轩投放一把 AK47，并告诉他这是读者改写命运的证据。",
+        intervention_target="zhao_xuan",
+        intervention_projection_mode="wild_au",
+        worldline_id="debt_concrete",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+
+    consequence = first["worldline_state"]["consequence_state"]
+    assert consequence["status"] == "active"
+    assert consequence["ledger"]
+    assert set(consequence["domains"]) >= {
+        "location",
+        "resource",
+        "injury",
+        "public_opinion",
+        "faction",
+        "environment",
+    }
+    assert consequence["domains"]["location"]["current"]
+    assert consequence["domains"]["resource"]["current"]
+    assert consequence["domains"]["injury"]["current"]
+    assert consequence["domains"]["public_opinion"]["current"]
+    assert consequence["domains"]["faction"]["current"]
+    assert consequence["domains"]["environment"]["current"]
+
+    state_path = project_dir / "worldlines" / "debt_concrete" / "worldline_state.json"
+    persisted = json.loads(state_path.read_text(encoding="utf-8"))
+    assert persisted["consequence_state"]["ledger"][0]["source_run_id"] == first["run_id"]
+
+    second = run_sandbox_round(
+        "sandbox-story",
+        major_event="第二日，城中开始追查异器来源，归云斋封锁库房。",
+        worldline_id="debt_concrete",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    second_round = second["rounds"][0]
+    second_inputs = second_round["character_actions"][0]["decision_inputs"]
+
+    assert "归云斋" in second_inputs["worldline_consequences"]
+    assert "资源" in second_inputs["worldline_consequences"]
+    assert second_round["world_state_delta"]["consequence_state"]["status"] == "active"
+    assert second["worldline_state"]["consequence_state"]["ledger"][-1]["source_run_id"] == second["run_id"]
+    assert len(second["worldline_state"]["consequence_state"]["ledger"]) >= 2
+
+
 def test_l5_awareness_resistance_and_meme_contamination_enter_memory(tmp_path):
     project_dir = _make_project(tmp_path)
     generate_tianming_book("sandbox-story", projects_dir=tmp_path)
