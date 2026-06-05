@@ -1,7 +1,7 @@
 # Codex Handoff — 未终章
 
-> 用途：新开 Codex 窗口时的最小接力包。当前事实以 `../memory.md` 为准；文档分层以 `index.md` 为准；完整历史变更见 `project-changelog.md`；旧版长接力稿已归档到 `completed/codex-handoff-legacy-2026-06-01.md`。
-> 2026-06-06 文档治理口径：本文件提供接力摘要，不替代 `memory.md`。若下方历史阶段表与最新世界沙盘状态冲突，以 `memory.md`、`docs/index.md` 与 `unfinale-world-sandbox-remodel-prd.md` 为准。`completed/`、`project-changelog.md`、`后续增强清单.md` 和 `distribution-phase-plan.md` 只用于追溯或用户明确点名，不从中直接派生下一刀。
+> 用途：新开 Codex 窗口时的最小接力包。本文件只给启动摘要，不替代 `../memory.md`、`index.md` 或世界沙盘 PRD。
+> 完整历史见 `project-changelog.md`；旧长接力稿见 `completed/codex-handoff-legacy-2026-06-01.md`。
 
 ## 新窗口第一条消息建议
 
@@ -10,168 +10,73 @@
 - AGENTS.md
 - memory.md
 - docs/index.md
-- docs/codex-handoff.md
 - docs/unfinale-world-sandbox-remodel-prd.md
-- docs/unfinale-product-vision-correction-draft.md
 - docs/unfinale-ai-development-alignment-checklist.md
 - docs/living-novel-engine-iteration-plan.md
-- docs/productization-phase-map.md
-- docs/living-novel-engine-prd.md
-- docs/completed/v0.7-product-web-app-ui-spec.md
 - engine/README.md
 
-当前项目是 未终章（Unfinale），核心代码在 engine/；技术缩写、包名、CLI 和环境变量前缀仍沿用 LNE / `living_novel_engine`。
-产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑。
-当前 World Sandbox Loop / 世界沙盘改造 v1-v8 已形成第一版可运行闭环：主导航按“世界书架 -> 世界内部卷宗”组织，已具备《天命书》、沙盘轮次、角色主观记忆链、干预预编译、世界线代偿、世界自演、多视角活体小说和作者采纳台。S4 后半到 S9 已串成可持续世界线，S5 已把 L5 高维真相写入角色主观记忆、命痕、反抗行为和模因传播采信证据，传播接收者会记录来源、采信/存疑、可信度、人设/关系/记忆/异常感信号和反应类型；S6 因果债具象化已新增 `consequence_state` 六域代偿；随后已补 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`、世界线独立页和检查点回放页，沙盘和自演检查点可跳转查看分支承接、审计、任务和代偿证据。S9 已补作者采纳后的正式章节草稿、连续阅读稿、确认入卷和跨卷宗阅读链入口：`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft` 写 `next_chapter_draft.json` / `next_chapter_draft.md`、`draft_revision_pack.json`、`continuous_reading_chapter.json` / `continuous_reading_chapter.md`；`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation` 写 `confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 并回写 `worldline_state.confirmed_chapter_entry`，作者采纳台可编辑草稿、查看连续阅读稿、确认入卷、查看下一轮沙盘入口，并回读世界正史卷、角色个人卷和事件多视角证据。S9 feed-forward 已补：`POST /api/stories/<slug>/author-adoption` 会对采纳、部分采纳、另开分支生成 `next_chapter_brief.writing_plan` 与 `feed_forward`，写清原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入、后续沙盘入口和下一轮读取清单；另开分支会创建作者分支 `worldline_state.json`，根正史不覆盖。S1 真实 LLM 多 Agent 决策第一刀已补：`POST /api/stories/<slug>/sandbox/run` 可显式传 `llm_decision_mode=advisory`，写 `agent_decision_advisory.json`，并把逐角色采信、欺骗、传播、反抗、临场判断进入行动/主观记忆/UI；默认 deterministic 与 `run_scene` 不变。下一步不要从 v1 重做，也不要继续默认扩 Graph/provider/检索评测/工程看板；应按 PRD 继续补多轮策略规划、长期关系/势力博弈、多视角/章节长正文文风质量、更强 Reviewer 和正文内跳转阅读。
-本轮 A/B/C 深化已继续补：`agent_decision_advisory.json.strategy_board`、角色 `strategic_interaction`、信息流 `llm_strategy_probe` 和 `world_state_delta.strategy_game_effects`；`continuous_reading_chapter.json` v2 的默认小说阅读、视角 tab、证据开关、认知偏差、伏笔/回收和章节悬念；`draft_revision_pack.json` v2 的语义 Reviewer、审稿维度、局部改写原问题/修改意图/建议改写/角色与世界影响/采纳方向。下一步优先真实 LLM 小样本质量观察、正文内跳转阅读和更自然长文，不回支撑层。
-最新真实 smoke：已用本地真实模型 key 跑通 S5 觉醒/模因传播 -> 世界演化 -> S8 多视角正文 -> S9 作者采纳 -> 真实 LLM 下一章草稿/连续阅读 -> 确认入卷。首个修复点是传播证据可读性：新增 `meme_propagation_readout` 到行动、主观记忆和世界状态汇总，UI 优先展示真相载荷、采信标签、可信度、反应和摘要；原字段保持兼容。
-叙事节拍补强：为解决真实读感仍偏结构占位，`autopilot_report.json` 已新增 `overnight_report.narrative_timeline`，checkpoint 新增 `scene_beats` / `chapter_seed`；S8 `character_lens_volumes.json` 新增 `novel_scene_plan`；S9 `continuous_reading_chapter.json` 优先消费 S8 场景计划并记录 `story_beat_source`；`draft_revision_pack.json` 新增 `editorial_revision_draft`，让 Reviewer 产出可预览、可手动采纳、不自动覆盖正史的编辑应用稿。真实 LLM 小样本复测通过，并修复自演开场 hook 的重复角色名和双句号拼接。
-卷宗阅读页产品化：新增 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 和 `DossierReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/reading`。它只读聚合 `continuous_reading_chapter`、确认正文、`confirmed_chapter_reading_trail`、S8 `character_lens_volumes` 与 `worldline_dossier`，默认进入连续正文阅读，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿；认知偏差可见，证据链默认折叠。后续不要把阅读体验继续堆回 Workspace 或 JSON 面板。
-世界自演结果页可读入口：`autopilot_report.json` 新增 `readable_entry`，`GET /api/world-autopilot-runs/<run_id>/readable-entry` 与 checkpoint replay 可返回同一入口；世界沙盘结果页可直接进入最近关键检查点、角色个人卷、事件多视角和连续阅读，并展示世界状态为何改变、谁记住了什么、哪条因果债在发酵。世界线页也可直接跳连续阅读/角色个人卷/事件多视角，卷宗阅读路由支持 `/reading/<tab>` 精准落卷。
-Reviewer 局部重写采纳链：新增 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`、`accepted_local_rewrites.json`、`next_chapter_draft_revised.md`、`edited_final_chapter.json` 和 `edited_final_chapter.md`；作者采纳台可勾选片段级 Reviewer 建议，把原问题、修改意图、建议改写和影响范围写入兼容修订稿与编辑后定稿。确认入卷若未传手动正文，会自动采用 `edited_final_chapter.json`，并将 `edit_source=auto_reviewer_final`、已采纳改写 ids 和定稿 artifact 写入 confirmed entry、next sandbox entry 和 worldline state。后续剩余是整章风格润色和更强真实语义审稿。
-后续执行纪律：小步开发可以继续，但不要再以“最小闭环”作为产品完成标准。S1-S9 每一项必须验收到用户能感到对应能力真实成立；有 API、有测试、有页面、有 artifact 只是底线，不是收口理由。当前正在迭代的 S1-S9 先不打断，等完成后按此口径复盘，不合格则第三轮继续深化。
-真实模型验收纪律：用户已允许调用真实接入的模型 API。后续涉及 Agent 决策、叙事生成、章节 brief、多视角正文、Reviewer 或视觉质量时，mock/deterministic 只能作为回归底线；若 `.env` 已配置 key，应额外做小样本真实 API smoke，并记录真实输出质量。不要打印明文 key，不做大规模消耗，不把真实外网调用塞进默认全量 pytest。
-请不要只靠这段摘要；读完文档和相关代码后，再继续下一步。
+需要愿景判断时再读：
+- docs/unfinale-product-vision-correction-draft.md
+- docs/living-novel-engine-prd.md
+
+需要 UI 风格时再读：
+- docs/completed/v0.7-product-web-app-ui-spec.md
+- docs/image/README.md
+
+当前项目是未终章（Unfinale），核心代码在 engine/；技术缩写、包名、CLI 和环境变量前缀仍沿用 LNE / living_novel_engine。
+当前默认主线是 World Sandbox Loop / 小说世界沙盘，不是 provider、GraphRAG、检索评测、OpenAPI、发行或商业化。
+下一步应继续深化：真实 LLM 多 Agent 策略博弈、长正文/连续阅读质量、正文内证据锚点/误会图谱、更强真实语义 Reviewer、整章风格润色和世界状态长期发酵。
+请不要只靠这段摘要；读完文档和相关代码后再动手。
 ```
 
-如需追溯完整历史变更日志，再读 `docs/project-changelog.md`。日常接力优先以 `memory.md` 当前事实为准。
+## 当前事实速记
 
-## 当前项目状态
-
-未终章是 `D:\AI\open-infinite\engine` 下的故事世界运行时。核心闭环：
-
-```text
-文本输入 -> 世界锚定 -> 角色自主行动 -> 读者干预 -> 世界线分叉 -> 章节渲染 -> 可继续运行
-```
-
-历史底座截至 2026-06-01 的收口表如下；当前世界沙盘 S1-S9 与 2026-06-06 产品化闭环见上方摘要和 `memory.md`：
-
-| 阶段 | 状态 |
+| 分类 | 当前状态 |
 | --- | --- |
-| v0.7-v0.7.5 | 短中篇产品化 Web App 与交互增强已收口 |
-| v0.8-v0.8.10 | 长篇导入、分层记忆、账本、审计、项目工作台、状态 overlay 已收口 |
-| v0.9.0-alpha | 长篇共创闭环已整体收口：上传/创建 -> 记忆 -> 分支运行 -> 审计 -> 选择世界线 -> 导出 -> closeout record |
-| v0.9.1-v0.9.4 | Provider/Cost、MasterSetting、Graph Memory Evaluation、Advanced Runner Evaluation 均已收口 |
-| v1.0-beta | 本地优先商业化边界从 Scope-A 到 Billing Adapter Boundary-X 均已收口 |
-| v1.0-local | Model Configuration UX 与 Local Run Scripts 已收口 |
-| Runtime Preflight MVP | 后续增强第一刀已收口，创作前只读聚合关键运行证据 |
-| Projection Health MVP | 后续增强第二刀已收口，生成后只读聚合分支投影健康证据 |
-| Reader Panel / Adversarial Revision Lab MVP | 后续增强第三刀已收口，确定性读者评审与修订 brief |
-| Prompt Budget Pack MVP | 后续增强第四刀已收口，检索上下文预算包与压缩解释 |
-| LLM Profile Assignment MVP | 后续增强第五刀已收口，设置页只读展示任务级模型画像、温度、预算和降级策略 |
-| Cards Workspace MVP | 后续增强第六刀已收口，项目工作台只读展示世界卡、角色卡、风格卡设定资产 |
-| OpenAPI / Typed Client MVP | 后续增强第七刀已收口，设置页只读展示本地 API 契约、OpenAPI skeleton 与 typed client 映射 |
-| Bundled Release Readiness MVP | 后续增强第八刀已收口，设置页只读展示本地发行与桌面打包准备度 |
-| Embedding / Vector Retrieval Readiness Probe MVP | 后续增强第九刀已收口，项目工作台只读展示 BM25、账本、别名、失败样本与向量检索触发证据 |
-| Embedding Evaluation Samples MVP | 后续增强第十刀已收口，项目工作台只读评估失败样本、BM25 命中与 mock semantic oracle 差异 |
-| Retrieval Failure Sample Authoring MVP | 后续增强第十一刀已收口，项目工作台可安全追加本地检索失败样本并刷新 embedding 样本评估 |
-| Memory CLI MVP | 后续增强第十二刀已收口，命令行可追加、复跑和检查本地检索失败样本 |
-| Retrieval Sample Export Pack MVP | 后续增强第十三刀已收口，service/API/UI/CLI 可只读导出失败样本 Markdown/manifest |
-| Embedding Mock Evaluation Report MVP | 后续增强第十四刀已收口，service/API/UI/CLI 可只读生成 BM25 vs mock semantic oracle 对照报告 |
-| Retrieval Sample Replay Report MVP | 后续增强第十五刀已收口，service/API/UI/CLI 可只读复跑失败样本并输出 case report |
-| Retrieval Sample Migration Pack MVP | 后续增强第十六刀已收口，service/API/UI/CLI 可只读整理稳定 retrieval eval records 与 manifest |
-| Cross Project Retrieval Samples Index MVP | 后续增强第十七刀已收口，service/API/CLI/设置页可只读汇总跨项目 retrieval eval records |
-| Retrieval Samples Trend Snapshot MVP | 后续增强第十八刀已收口，service/API/CLI/设置页可只读输出样本覆盖、词面缺口、空样本项目和重型检索触发暂缓信号 |
-| GraphRAG / Zep Trigger Evidence MVP | 后续增强第十九刀已收口，service/API/CLI/项目工作台可只读聚合图记忆触发、retrieval probe、样本趋势和关系/因果/状态证据 |
-| Graph Memory Spike Design Pack MVP | 后续增强第二十刀已收口，service/API/CLI/项目工作台可只读展示 GraphRAG/Zep/Temporal Memory 设计包、验收门槛和 no-go 条件 |
-| Graph Memory Shadow Compare Pack MVP | 后续增强第二十一刀已收口，service/API/CLI/项目工作台可只读展示 GraphRAG/Zep/Temporal Memory 候选层 shadow 对照、样本案例、验收结果和 no-go 条件 |
-| Graph Memory Shadow Case Matrix MVP | 后续增强第二十二刀已收口，service/API/CLI/项目工作台可只读展示 eval case x 候选层矩阵、本地证据、缺口、收益/风险和 no-go 条件 |
-| Graph Memory Provider Boundary Matrix MVP | 后续增强第二十三刀已收口，service/API/CLI/项目工作台可只读展示 GraphRAG/Zep/Temporal Memory 的 opt-in provider 边界、成本、隐私、回滚和验收要求 |
-| Graph Memory Offline Shadow Replay Plan MVP | 后续增强第二十四刀已收口，service/API/CLI/项目工作台可只读展示高收益 case 的离线 replay 输入、验收、回滚、人工复核和 no-go 条件 |
-| Graph Memory Offline Shadow Replay Report MVP | 后续增强第二十五刀已收口，service/API/CLI/项目工作台可只读展示 mock replay 结果、候选收益、失败降级和人工复核结论 |
-| Graph Memory Provider Spike Fixture Pack MVP | 后续增强第二十六刀已收口，service/API/CLI/项目工作台可只读展示单 provider、单项目、单 fixture 的 dry-run 前置包、成本/隐私/回滚 checklist、人工验收和 no-go 条件 |
-| Graph Memory Provider Spike Readiness Gate MVP | 后续增强第二十七刀已收口，service/API/CLI/项目工作台可只读展示 provider spike readiness gate、人工复核项、no-go 和暂缓原因 |
-| Graph Memory Provider Spike Runbook MVP | 后续增强第二十八刀已收口，service/API/CLI/项目工作台可只读展示人工 opt-in dry-run SOP、验收/回滚/暂停条件和证据引用 |
-| Graph Memory Provider Spike Dry-run Result Template MVP | 后续增强第二十九刀已收口，service/API/CLI/项目工作台可只读展示人工 dry-run 结果记录模板、对比字段、暂停/升级判定和证据引用 |
-| Graph Memory Provider Spike Mock Result Report MVP | 后续增强第三十刀已收口，service/API/CLI/项目工作台可只读展示 mock 填充结果、收益/风险判定、人工复核摘要和暂停/升级建议 |
-| Graph Memory Provider Spike Review Gate MVP | 后续增强第三十一刀已收口，service/API/CLI/项目工作台可只读展示人工复核 gate、provider review rows、no-go 摘要和下一步分流 |
-| Graph Memory Provider Spike Manual Approval Pack MVP | 后续增强第三十二刀已收口，service/API/CLI/项目工作台可只读展示人工审批包、风险签收、回滚确认、opt-in 材料和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Manual Approval Evidence Checklist MVP | 后续增强第三十三刀已收口，service/API/CLI/项目工作台可只读展示审批证据核对表、待签收项、材料缺口、回滚材料缺口和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Opt-in Evidence Snapshot MVP | 后续增强第三十四刀已收口，service/API/CLI/项目工作台可只读展示 opt-in 证据快照、阻塞项摘要、签收待办和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Opt-in No-go Matrix MVP | 后续增强第三十五刀已收口，service/API/CLI/项目工作台可只读展示 no-go 分类矩阵、阻塞类别、签收/材料/回滚缺口分布和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Opt-in Operator Checklist MVP | 后续增强第三十六刀已收口，service/API/CLI/项目工作台可只读展示人工操作 checklist、暂停/升级判断、证据核对顺序和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Opt-in Review Packet MVP | 后续增强第三十七刀已收口，service/API/CLI/项目工作台可只读展示人工复核包、证据顺序、暂停材料、升级材料和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Opt-in Decision Ledger Preview MVP | 后续增强第三十八刀已收口，service/API/CLI/项目工作台可只读展示决策账本预览、待签收字段占位、阻塞行和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Opt-in Final Readiness Summary MVP | 后续增强第三十九刀已收口，service/API/CLI/项目工作台可只读展示最终就绪摘要、未签收字段、阻塞原因和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Opt-in Human Signoff Schema Draft MVP | 后续增强第四十刀已收口，service/API/CLI/项目工作台可只读展示人工签收 schema 草案、字段定义、校验规则和真实 provider 继续禁止边界 |
-| Graph Memory Provider Spike Opt-in Config Draft MVP | 后续增强第四十一刀已收口，service/API/CLI/项目工作台可只读展示本地 opt-in 配置草案、字段映射和 adapter 边界 |
-| Graph Memory Provider Spike Local Provider Contract / Adapter Boundary MVP | 后续增强第四十二刀已收口，service/API/CLI/项目工作台可只读展示本地 provider contract、adapter boundary 和 mock-only 方法约束 |
-| Graph Memory Provider Spike Single Fixture Dry-run Harness MVP | 后续增强第四十三刀已收口，service/API/CLI/项目工作台可只读展示单 fixture dry-run harness |
-| Graph Memory Provider Spike Mock-compatible Adapter MVP | 后续增强第四十四刀已收口，service/API/CLI/项目工作台可只读展示 mock-compatible adapter 规格、方法要求和 validation cases |
-| Graph Memory Provider Spike Manual Mock Adapter Review MVP | 后续增强第四十五刀已收口，service/API/CLI/项目工作台可只读展示 mock adapter 人工复核包、合规检查、阻断项和本刀后暂停建议 |
-| Retrieval Provider Real Connectivity MVP | 已收口，百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的脱敏配置、mock smoke 和真实 smoke 可用 |
-| Vector Retrieval Pipeline MVP | 已收口，API/UI 可显式写入 Zilliz collection、执行百炼 embedding + Zilliz + 百炼 rerank 检索预览；运行时需 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` opt-in |
+| 主线 | World Sandbox Loop / 小说世界沙盘体验深化 |
+| 已完成第一版 | S1-S9 世界沙盘链路、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳、编辑后定稿、确认入卷反哺下一轮入口 |
+| 当前测试基线 | `cd engine && python -m pytest -q` -> `947 passed`；`cd engine/ui && pnpm run build` 通过 |
+| 当前文档分层 | 入口事实看 `memory.md`；文档地图看 `docs/index.md`；路线看 `docs/living-novel-engine-iteration-plan.md` |
+| 支撑层 | v0.7-v1.0-local、后续增强四十五刀、真实 retrieval provider、Vector Retrieval Pipeline 都已收口为支撑层 |
 
-验证基线：后端 `cd engine && python -m pytest -q` 为 `947 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索烟测已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
+## 最近世界沙盘链路
 
-产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳。导入、配置、创作、干预、评审、导出、样本采集、Graph Memory 证据查看等用户级能力应优先通过 Web UI + API 完成；CLI 仅作为开发者、本地服务启动、自动化验收、批处理、JSON 输出和无人值守复跑的薄封装。
-
-## 当前自主迭代点
-
-用户已明确进入产品纠偏：下一步不是继续 provider、Graph Memory、真实向量检索评测或工程化面板，而是把现有底座改造成“小说世界沙盘 / 活体小说运行时”。
-
-当前改造主线：
-
-```text
-世界书架
-  -> 天命书
-  -> 世界沙盘
-  -> 角色主观记忆链
-  -> 世界自演检查点
-  -> 多视角活体小说
-  -> 世界线代偿 / 锚点转移
-  -> 作者采纳台
-```
-
-真实用户模型配置 UI、本地一键运行脚本、Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀、真实检索 provider 和 Vector Retrieval Pipeline 都已完成；这些现在统一视为支撑层。只有用户明确要求时，才继续评估 hybrid vector、GraphRAG/Zep 或 provider spike。
-
-可选后续方向只有在用户确认后再进入：
-
-- GitHub Release 安装包 / 内置 runtime。
-- 腾讯云或服务器单机在线体验。
-- 真实认证、对象存储、云端队列、配额执行或计费系统。
-
-当前不默认接 Zep / 图数据库 / GraphRAG / LangGraph / OASIS / CAMEL；这些保持触发式评估边界。不要继续往 `WorkspacePage.tsx` 堆工程面板，后续前端应按 `docs/unfinale-world-sandbox-remodel-prd.md` 拆成世界内部卷宗。
-
-## 开发硬约束
-
-- 不改 `run_scene` 默认行为，除非用户明确要求进入 runner 重构。
-- 不破坏既有 artifact 契约：`chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json`。
-- 新 artifact、API 字段、前端读取字段默认 additive。
-- 后端 HTTP-facing identifier 必须安全校验；非法输入返回明确 400/404/409 或前端空态。
-- 前端产品文案默认中文，不出现英文占位词。
-- 用户级能力不应只有 CLI 入口；新增普通用户需要理解或操作的功能时，先补 Web UI + API，再按自动化需要补 CLI 薄封装。
-- 不泄漏 API Key；设置页和日志只能展示脱敏尾号。
-- 默认全量测试要隔离环境，避免误打真实 LLM/Seedream 外网；但用户已允许产品验收阶段做小样本真实模型 smoke。
+- `run_sandbox_round()` / `POST /api/stories/<slug>/sandbox/run` 可显式启用 `llm_decision_mode=advisory`，写入 `agent_decision_advisory.json` 与 `strategy_board`；默认 deterministic 不变。
+- L5 觉醒和模因传播已写入角色主观记忆、世界线状态和 UI 可读传播读数。
+- `worldline_state.json` 与 `consequence_state` 让因果债、锚点、具象代偿、作者采纳和确认稿进入后续沙盘读取链。
+- `autopilot_report.json` 已有 `readable_entry`；世界沙盘结果页、检查点回放和世界线页都能导向最近关键检查点、角色个人卷、事件多视角和连续阅读。
+- `DossierReadingPage` / `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 已把连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和 worldline dossier 组织成默认正文阅读页。
+- 作者采纳台可从采纳结果生成 `next_chapter_brief.json`、`next_chapter_draft.json`、`continuous_reading_chapter.json`、`draft_revision_pack.json`。
+- Reviewer 片段级建议可由作者勾选，生成 `accepted_local_rewrites.json`、`next_chapter_draft_revised.md`、`edited_final_chapter.json` 和 `edited_final_chapter.md`；确认入卷未手改时会自动采用编辑后定稿。
 
 ## 当前真实未做项
 
-- 世界沙盘主线仍需深化：真实 LLM 多 Agent 多轮策略规划、长期关系/势力博弈、真实长正文文风、正文内证据锚点/误会图谱、整章风格润色、更强真实语义 Reviewer 和真实模型编辑器。
-- 已完成第一版但不要误判成完整愿景：卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳、编辑后定稿、确认入卷和下一轮入口反哺。
-- ChapterBrief 摘要质量仍偏规则化，未接真实 LLM 摘要。
-- `contract_audit` 主链路仍偏静态，未成为运行时强约束。
-- `state_execution_overlay.json` 不自动喂回下一轮 runner。
-- 运行后审计未写入正史账本。
-- Projection Health MVP 已形成独立只读健康报告/API/UI；真正 Chapter Commit 写后真源仍后置为 opt-in。
-- Reader Panel / Adversarial Revision Lab deterministic/mockable MVP 已有；自动改写、Elo 对比、voice fingerprint 仍后置。
-- Prompt Budget Pack 已形成独立只读预算包/压缩报告；真正接入 prompt 编排或 reranker 仍后置。
-- LLM Profile Assignment 已形成只读任务画像；opt-in profile 保存、版本化和真实模型实验仍后置。
-- Cards Workspace 已形成世界卡、角色卡、风格卡只读入口；独立卡片 artifact、版本化和批量编辑仍后置。
-- OpenAPI / Typed Client 已形成只读 API contract、OpenAPI skeleton 和前端 typed client 映射；字段级 schema、自动生成 client 和外部集成契约仍后置。
-- Bundled Release / Desktop Packaging 已形成只读发行准备评估；安装包、桌面壳、内置 runtime、签名和自动升级仍后置。
-- Embedding / Zilliz / reranker 已显式接入：配置页脱敏状态、mock/real smoke、项目工作台真实向量检索、Zilliz 索引写入、混合检索预览和运行时 opt-in 已可用。默认 BM25 仍不替换；GraphRAG/Zep/Temporal Memory 仍保持证据链和 mock adapter 复核边界，不自动接外部服务。
-- 云端多用户持久队列、真实对象存储 adapter、真实认证、真实计费仍未做。
-- 默认检索替换 / GraphRAG / Zep 只在真实失败样本证明收益明确后再评估。
+优先继续：
 
-## 文档同步规则
+- 真实 LLM 多 Agent 多轮策略规划、长期关系/势力博弈、稳定误判/隐瞒/试探和跨轮结算。
+- 长正文读感、正文内证据锚点、误会图谱、跨章伏笔回收和真实文风一致性。
+- Reviewer 整章风格润色、可回滚对照、真实模型编辑器和定稿质量门。
+- `consequence_state` 长期状态机、人工确认、跨章节发酵和真实 LLM 决策消费。
+- `WorldWorkspaceShell`、角色/势力独立页、事件详情页、阅读进度和机制档案页。
 
-完成有意义的开发、设计或验收任务后：
+不要默认继续：
 
-1. 更新 `memory.md` 当前状态和真实未做项。
-2. 如需记录历史过程，追加 `docs/project-changelog.md`。
-3. 若路线、PRD、README、UI spec 或本接力包发生事实变化，同步对应文档。
-4. 至少运行 `git diff --check`；改代码时按风险运行 pytest、前端 build 或 HTTP smoke。
-5. 独立切片完成且验证通过后，默认提交并推送远程。推送前检查 `git status`，只提交本轮负责的文件；如果存在用户或另一轮 AI 的未完成改动，不要混推，说明阻塞并等待隔离/收口。无远程、无上游、认证或网络失败时，明确记录未推送原因。
+- GraphRAG / Zep / Temporal Memory provider spike。
+- 默认 hybrid vector 替换 BM25。
+- OpenAPI / typed client 深化。
+- 发行安装包、云端部署、多租户、认证、对象存储、计费。
+- LangGraph / OASIS / CAMEL。
+- 继续往 `WorkspacePage.tsx` 堆工程面板。
+
+## 执行纪律
+
+- 不改 `run_scene` 默认行为，除非用户明确要求 runner 重构。
+- 新 artifact、API 字段、前端字段默认 additive。
+- 不破坏 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json`。
+- 用户级能力优先 Web UI + API；CLI 只做开发者/自动化外壳。
+- 不泄漏 API key；真实模型 smoke 不打印明文 key、不大规模消耗、不进入默认全量 pytest。
+- 每个独立切片完成后同步 `memory.md`、相关 PRD/README/本文件和 `project-changelog.md`。
+- 验证通过后默认提交并推送当前分支；不要提交 `.local-run/` 或 `engine/.local-run/`。
 
 ## 常用验证
 
@@ -185,3 +90,5 @@ pnpm run build
 cd D:\AI\open-infinite
 git diff --check
 ```
+
+docs-only 任务至少运行 `git diff --check`，并用 `rg` 搜索旧基线、旧下一刀和支撑层误导口径。

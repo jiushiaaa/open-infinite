@@ -2312,3 +2312,17 @@
 - **边界**：
   - 本轮 docs-only，不改产品代码、不移动 `docs/completed/` 文件、不改旧 changelog 历史事实、不改变 artifact/API 契约或 `run_scene` 默认行为。
 
+### 2026-06-06 — Route And Handoff Documentation Slimming
+
+- **做了什么**：
+  - 继续沿文档治理目标处理第二层路线文档，防止新会话读完入口后又被历史长表带回支撑层。
+  - 重写 `docs/living-novel-engine-iteration-plan.md`：从旧的阶段/支撑层长表改为当前路线判断，保留世界沙盘主线、已闭环等级、当前官方下一步、后置项、下一刀选择规则、验收命令和归档索引；历史长版继续指向 `docs/completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`。
+  - 重写 `docs/codex-handoff.md`：从新窗口长接力表收束为最小接力包，去掉后续增强四十五刀和 Graph/provider/retrieval 的长表，保留当前事实速记、最近世界沙盘链路、真实未做项、执行纪律和验证命令。
+  - 同步 `memory.md`，记录第二层路线/接力文档瘦身结果。
+- **验证**：
+  - 过期路线扫描：`rg "Graph Memory|Embedding|Retrieval|后续增强第|真实向量|provider spike|当前暂停|下一刀建议"` 在新路线图/接力包中只剩“已收口支撑层/不默认继续”的必要边界说明。
+  - 过期基线扫描：入口文档无 `946 passed`、`945 passed`、`944 passed`、`929 passed` 或“自动编辑后定稿未做”残留。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+- **边界**：
+  - 本轮仍是 docs-only，不移动历史归档、不改旧 changelog 记录、不改变代码、artifact、API 或 `run_scene` 默认行为。
+

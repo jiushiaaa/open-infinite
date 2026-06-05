@@ -13,6 +13,8 @@
 
 2026-06-06 文档治理收口：已扫描 `docs/` 根层、`docs/completed/`、论文/品牌/原型资产、根 README、`AGENTS.md`、`engine/README.md` 与 `engine/ui/README.md`。当前不批量移动历史文档，避免破坏既有链接；采用“入口事实层 -> 当前主线层 -> 路线/阶段层 -> 历史归档层 -> 支撑层 backlog -> 研究/品牌/原型资产 -> 运行说明层”的分层口径。下一次开工应先读 `AGENTS.md`、本文、`docs/index.md`、世界沙盘 PRD、AI 对齐清单、迭代计划和 `engine/README.md`；`docs/completed/`、`project-changelog.md`、`docs/后续增强清单.md` 与 `docs/distribution-phase-plan.md` 只用于追溯或用户明确点名，不作为默认下一刀来源。
 
+2026-06-06 第二层路线文档瘦身：`docs/living-novel-engine-iteration-plan.md` 已从历史阶段长表改为当前路线判断，只保留世界沙盘主线、已闭环等级、官方下一步、后置项、下一刀选择规则和验收命令；旧长版仍在 `docs/completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`。`docs/codex-handoff.md` 也已从支撑层长表收束为新窗口最小接力包，避免新会话被 Graph/provider/retrieval 历史清单带偏。
+
 ---
 
 ## 1. 当前状态（先读）
