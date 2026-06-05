@@ -497,6 +497,8 @@ workspace -> 世界内部卷宗首页
 #/world/<slug>/events
 #/world/<slug>/events/<event_id>
 #/world/<slug>/worldlines/<worldline_id>
+#/world/<slug>/worldlines/<worldline_id>/reading
+#/world/<slug>/worldlines/<worldline_id>/reading/<tab>
 #/world/<slug>/worldlines/<worldline_id>/checkpoints/<run_id>/<checkpoint_id>
 #/world/<slug>/author
 #/world/<slug>/mechanism
@@ -520,13 +522,16 @@ ChroniclePage.tsx
   世界正史卷。
 
 CharacterLensPage.tsx
-  角色个人卷和主观记忆。
+  角色个人卷和主观记忆；第一版已由 DossierReadingPage tab 承载连续阅读入口。
 
 EventPerspectivePage.tsx
-  事件多视角和误会图谱。
+  事件多视角和误会图谱；第一版已由 DossierReadingPage tab 承载事件多视角入口。
 
 WorldlineCompensationPage.tsx
-  世界线、锚点代偿、候选天命承载者。
+  世界线、锚点代偿、候选天命承载者；世界线档案页和检查点回放页已有第一版。
+
+DossierReadingPage.tsx
+  世界内部卷宗阅读页；已落地第一版，默认连续阅读，证据链折叠，可切换正史卷、主锚点卷、角色个人卷、事件多视角和确认正文。
 
 AuthorAdoptionPage.tsx
   作者采纳台。

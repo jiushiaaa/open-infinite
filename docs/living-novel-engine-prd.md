@@ -9,7 +9,7 @@
 | 产品名称 | 未终章 |
 | 英文名称 | Unfinale |
 | 文档类型 | 产品需求文档 PRD |
-| 当前版本 | v0.7-v1.0-local、后续增强四十五刀、Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP 均已收口为支撑层；World Sandbox Loop S1-S9、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳已形成第一版产品链路；最新事实以 `../memory.md` 为准 |
+| 当前版本 | v0.7-v1.0-local、后续增强四十五刀、Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP 均已收口为支撑层；World Sandbox Loop S1-S9、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳、编辑后定稿和确认入卷反哺下一轮入口已形成第一版产品链路；最新事实以 `../memory.md` 为准 |
 | 阶段 | 本地优先 alpha/beta 试用准备 + 世界沙盘主线体验深化 |
 | 目标用户 | 网文读者、同人创作者、原创作者、互动叙事爱好者 |
 | 核心命题 | 让小说从静态文本变成可运行、可干预、可分叉的故事世界 |

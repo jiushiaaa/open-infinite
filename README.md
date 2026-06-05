@@ -8,7 +8,7 @@
 
 ## 当前状态与文档入口
 
-当前项目已经不只是概念文档：`engine/` 下已有 Python service/API/CLI 与 React/Vite 本地产品工作台，World Sandbox Loop / 世界沙盘改造 S1-S9 已形成第一版可运行链路。最新事实、验证基线和未完成深水区以 [`memory.md`](./memory.md) 为准。
+当前项目已经不只是概念文档：`engine/` 下已有 Python service/API/CLI 与 React/Vite 本地产品工作台，World Sandbox Loop / 世界沙盘改造 S1-S9 已形成第一版可运行链路。卷宗阅读页、世界自演结果页可读入口、Reviewer 局部重写采纳和编辑后定稿也已完成第一版。最新事实、验证基线和未完成深水区以 [`memory.md`](./memory.md) 为准。
 
 2026-06-03 产品纠偏后，默认开发主线收束为 **World Sandbox Loop / 世界沙盘改造**：
 
@@ -31,6 +31,8 @@
 | [`docs/index.md`](./docs/index.md) | `docs/` 分类地图，说明哪些是当前主线、历史归档、支撑层或后置路径 |
 | [`docs/unfinale-world-sandbox-remodel-prd.md`](./docs/unfinale-world-sandbox-remodel-prd.md) | 当前世界沙盘主线 PRD |
 | [`docs/unfinale-ai-development-alignment-checklist.md`](./docs/unfinale-ai-development-alignment-checklist.md) | 后续 AI 开工前自检 |
+| [`engine/README.md`](./engine/README.md) | 后端运行、API、artifact 和验证命令 |
+| [`engine/ui/README.md`](./engine/ui/README.md) | 当前前端结构、路由和 UI 边界 |
 
 Graph/provider/真实向量检索/OpenAPI/发行/商业化边界已降为支撑层；除非用户明确要求，不再作为下一刀默认方向。`docs/completed/` 和 `docs/project-changelog.md` 保留历史证据，不承担当前待办来源。
 

@@ -1,12 +1,13 @@
-# 未终章 · v0.7 Product Web App（前端骨架）
+# 未终章 · 前端工作台
 
-古风纸面阅读工作台。第一刀打通**只读链路**：故事入口 → 阅读工作台 → 选择 run/branch
-→ 展示 chapter / state / retrieval / agent trace / intervention_compilation / causal_diff。
+> 当前口径：本前端已经不只是 v0.7 只读阅读器。它是本地产品入口，承载世界书架、世界锚定、世界沙盘、世界线/检查点、卷宗阅读、作者采纳台、设置和支撑层机制档案。最新事实以 `../../memory.md`、`../../docs/index.md` 和 `../README.md` 为准。
 
-- 不重写 engine 核心推演逻辑。
-- 不替换 `lne browse`：前端复用其只读 HTTP 端点（additive）。
-- `branch_a/b/c` 只是目录 ID，用户看到的是 `intervention_compilation.branch_axis` 的动态 label。
-- Causal Diff 是第一版核心展示。
+## 定位
+
+- 前端是普通用户入口；API 是能力层；CLI 是开发者和自动化外壳。
+- 当前默认主线是 World Sandbox Loop / 世界沙盘体验深化，不是继续堆 provider、Graph、检索评测、OpenAPI、发行或商业化面板。
+- UI 风格沿用古风纸面、克制系统感；新增用户可见文案默认中文。
+- 后续不要继续把新功能塞进 `WorkspacePage.tsx`。世界沙盘能力优先拆到世界内部卷宗、结果页和具体场景页。
 
 ## 运行
 
@@ -14,7 +15,7 @@
 
 ```bash
 # 在 engine/ 下
-lne browse            # 默认 127.0.0.1:8765
+lne browse
 ```
 
 再启动前端开发服务器：
@@ -22,37 +23,63 @@ lne browse            # 默认 127.0.0.1:8765
 ```bash
 # 在 engine/ui/ 下
 pnpm install
-pnpm run dev          # http://localhost:5173 ，/api 自动代理到 8765
+pnpm run dev
 ```
 
-代理目标可用环境变量覆盖：`LNE_API_TARGET=http://127.0.0.1:8765`。
-若前端独立部署到其它域，构建时用 `VITE_API_BASE` 指定后端绝对地址。
+默认开发地址是 `http://localhost:5173`，`/api` 会代理到 `http://127.0.0.1:8765`。代理目标可用 `LNE_API_TARGET` 覆盖；构建时可用 `VITE_API_BASE` 指定后端绝对地址。
 
 ## 校验
 
 ```bash
-pnpm run typecheck    # tsc -b --noEmit
-pnpm run build        # tsc -b && vite build
+pnpm run typecheck
+pnpm run build
 ```
+
+文档-only 任务通常不需要跑前端 build；改 TS/TSX、路由、类型或样式时必须至少跑 `pnpm run build`。
+
+## 当前主要页面
+
+| 页面/组件 | 当前职责 |
+| --- | --- |
+| `StoryEntryPage` | 世界书架入口，进入已有故事或新建/导入流程 |
+| `GenesisPage` | 主题创世 |
+| `ImportNovelPage` | 导入长篇文本 |
+| `WorldAnchorPage` | 世界锚定、设定确认与《天命书》相关入口 |
+| `SandboxWorldPage` | 世界沙盘、干预投放、真实 LLM 决策 advisory、世界自演结果 |
+| `WorldlineDossierPage` | 世界线档案，展示世界线状态、自演任务、检查点与可读入口 |
+| `CheckpointReplayPage` | 检查点回放，解释状态变化、记忆变化和因果债 |
+| `DossierReadingPage` | 世界内部卷宗阅读页，默认连续阅读，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认正文 |
+| `AuthorAdoptionPage` | 作者采纳台，覆盖采纳/部分采纳/另开分支、下一章 brief、草稿、连续阅读、Reviewer 局部重写、编辑后定稿和确认入卷 |
+| `SettingsDrawer` | 本地模型配置、provider 脱敏状态、任务模型画像、发行准备等设置/支撑层能力 |
+
+## 当前路由心智
+
+路由以 `hash` 为主，关键世界沙盘入口包括：
+
+- `#/`：故事入口。
+- `#/world/<slug>`：世界锚定/世界入口。
+- `#/world/<slug>/sandbox`：世界沙盘。
+- `#/world/<slug>/worldlines/<worldline_id>`：世界线档案。
+- `#/world/<slug>/worldlines/<worldline_id>/reading`：卷宗阅读，默认连续阅读。
+- `#/world/<slug>/worldlines/<worldline_id>/reading/<tab>`：精准落到某个卷宗 tab，例如 `character_volume` 或 `event_multi_perspective`。
+- `#/world/<slug>/worldlines/<worldline_id>/checkpoints/<run_id>/<checkpoint_id>`：检查点回放。
+- `#/world/<slug>/author-adoption/<adoption_run_id>`：作者采纳台。
 
 ## 结构
 
-```
+```text
 src/
-  api/            client.ts / types.ts —— 只读端点封装与契约类型
-  components/     AppShell / StoryEntryPage / WorkspacePage
-                  WorldlineTree / ChapterReader / CausalDiffBlock
-                  RightPanel + CompilationPanel / CharacterStatePanel
-                  / RetrievalPanel / AgentTracePanel / InterventionComposer
-  styles/         theme.css（古风纸面设计令牌） / global.css
-  branchLabels.ts 目录 ID → 动态分支 label 映射
-  markdown.tsx    极简小说正文渲染
-  routing.ts      hash 路由（entry / workspace）
+  api/            client.ts / types.ts，封装 HTTP API 与前端契约类型
+  components/     页面、卷宗、沙盘、作者台、设置和机制档案组件
+  styles/         theme.css / global.css，古风纸面设计令牌
+  routing.ts      hash 路由解析与构建
+  markdown.tsx    小说正文 Markdown 渲染
   motion.ts       强反馈动效降级开关
 ```
 
-## 边界（第一刀不做）
+## 当前边界
 
-- 自由干预的实际生成（`POST /api/interventions`）留待下一刀；输入抽屉与按钮先占位。
-- accept / reject / revert 命令未接后端，Diff 操作按钮 disabled 显示「即将支持」。
-- Seedream 视觉资产、世界锚定页完整实现留待后续；数据/路由已留位。
+- 不把 Graph/provider/检索评测/发行/商业化支撑层做成新的默认主体验。
+- 不打印或回显明文 API key；设置与日志只展示脱敏状态。
+- 不假装旧 workspace 面板就是最终产品结构；后续读者体验优先世界内部卷宗。
+- `DossierReadingPage`、世界自演可读入口和作者采纳台已完成第一版，但仍需正文内证据锚点、误会图谱、长正文文风和更强真实语义 Reviewer。

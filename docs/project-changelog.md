@@ -2294,3 +2294,21 @@
   - 新 artifact 和 API 字段均 additive；不改 `run_scene` 默认行为，不覆盖 `chapter.md`、原 `next_chapter_draft.md`、确认稿或正史。
   - 这不是更强真实语义 Reviewer 或整章风格润色；后续质量深化仍需真实模型 smoke 观察。
 
+### 2026-06-06 — Documentation Governance Full Triage
+
+- **做了什么**：
+  - 按用户要求复扫 `AGENTS.md`、`memory.md`、根 README、`docs/` 根层、`docs/completed/`、论文/品牌/原型资产、`engine/README.md` 和 `engine/ui/README.md`，确认文档物理目录不需要大搬迁；采用逻辑分层避免破坏历史链接。
+  - `memory.md` 新增本轮文档治理收口，明确下一次开工读取顺序和“入口事实层 -> 当前主线层 -> 路线/阶段层 -> 历史归档层 -> 支撑层 backlog -> 研究/品牌/原型资产 -> 运行说明层”的归类口径。
+  - `AGENTS.md` 增加统一文档状态标签：当前事实、当前主线、路线/阶段、历史归档、支撑层/后置、研究/资产，避免下一轮从旧专项或支撑层清单派生任务。
+  - `docs/index.md` 明确本次不合并 `completed/` 历史专项的原因，并把“自动编辑后定稿”从未完成项中移除，改为“整章风格润色、真实语义 Reviewer 和真实模型编辑器”。
+  - `docs/completed/README.md` 明确世界沙盘 S1-S9 当前主线暂不归入 completed；旧归档只作追溯，不承担下一刀来源。
+  - `docs/productization-phase-map.md`、`docs/living-novel-engine-prd.md`、`docs/后续增强清单.md`、`docs/codex-handoff.md` 和根 README 同步最新第一版闭环状态。
+  - `engine/ui/README.md` 从旧 v0.7 只读骨架重写为当前前端工作台说明，列出世界沙盘、世界线/检查点、卷宗阅读和作者采纳台等真实页面、路由和边界。
+  - `docs/unfinale-world-sandbox-remodel-prd.md` 补充已落地的卷宗阅读路由，并标注角色个人卷/事件多视角第一版由 `DossierReadingPage` tab 承载。
+- **验证**：
+  - 文档/代码事实扫描：`rg --files docs`、`rg` 搜索近期 artifact/API/UI/test 关键词，确认当前 S7/S8/S9 与 Reviewer 链路确有落地。
+  - 过期口径扫描：`rg "自动编辑后定稿|946 passed|第一刀不做|只读链路"`；命中只剩历史 changelog 或明确已完成/后续整章润色语境。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+- **边界**：
+  - 本轮 docs-only，不改产品代码、不移动 `docs/completed/` 文件、不改旧 changelog 历史事实、不改变 artifact/API 契约或 `run_scene` 默认行为。
+

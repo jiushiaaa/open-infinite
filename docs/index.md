@@ -2,6 +2,8 @@
 
 > 用途：说明 `docs/` 的文档分层、读取顺序和维护规则。进入项目时仍以根目录 `AGENTS.md` 与 `memory.md` 作为第一入口；本文件负责避免把历史归档、支撑层清单或后置发行路径误读成当前主线。
 
+> 2026-06-06 整理结论：本次扫描确认 `docs/` 物理目录无需大搬家；为了不破坏历史链接，继续用本索引和各目录 README 做逻辑归类。根层只保留当前主线、路线、阶段、接力和后置路径；`completed/` 是已收口归档；`article/`、`brand/`、`image/` 是资料资产；`后续增强清单.md` 与 `distribution-phase-plan.md` 只在用户明确点名支撑层或发行时进入。
+
 ## 0. 文档事实层级
 
 | 层级 | 文档 | 当前职责 |
@@ -16,6 +18,7 @@
 | 历史归档 | `completed/`、`project-changelog.md` | 已收口专项和完整历史日志，供追溯，不直接产生当前待办 |
 | 支撑层/后置路径 | `后续增强清单.md`、`distribution-phase-plan.md` | 支撑层 backlog 与发行路径；除非用户明确点名，不抢当前世界沙盘主线 |
 | 研究与资产 | `article/`、`brand/`、`image/` | 论文、品牌、原型图和视觉参考 |
+| 运行说明 | `../engine/README.md`、`../engine/ui/README.md` | 后端/API/artifact/验证与当前前端结构、路由、UI 边界 |
 
 ## 1. 推荐读取顺序
 
@@ -75,7 +78,7 @@
 | `productization-phase-map.md` | 阶段归类 | 解释技术 MVP、产品化 MVP、世界沙盘主线和商业化后置边界 |
 | `后续增强清单.md` | 支撑层 backlog | 记录已做 MVP 和可后置深化项；不是当前默认路线 |
 | `distribution-phase-plan.md` | 后置发行路径 | 本地 clone、Release 安装包、服务器在线体验；本地世界沙盘体验稳定前不抢优先级 |
-| `completed/` | 收口归档 | 已收口专项 PRD、release note、协议、UI spec 和版本审计 |
+| `completed/` | 收口归档 | 已收口专项 PRD、release note、协议、UI spec 和版本审计；旧“下一步”必须回到 `../memory.md` 复核 |
 | `article/` | 研究资料 | 论文 PDF 与研读报告 |
 | `brand/` | 品牌资产 | 未终章 / Unfinale 标识与概念稿 |
 | `image/` | UI 原型参考 | 世界书架、天命书、世界自演、干预编译器、多视角活体小说等原型图 |
@@ -86,8 +89,8 @@
 | --- | --- | --- |
 | 已闭环历史底座 | `completed/README.md`、`project-changelog.md` | v0.7 到 v1.0-local、后续增强四十五刀、真实 retrieval provider、Vector Retrieval Pipeline 均有历史记录和收口说明 |
 | 已闭环世界沙盘第一版 | `../memory.md`、`unfinale-world-sandbox-remodel-prd.md` | S1-S9 已具备 additive service/API/UI/artifact/tests；能跑通世界沙盘、觉醒传播、自演、多视角正文、作者采纳、卷宗阅读和局部重写采纳 |
-| 已产品化第一刀 | `../memory.md`、`../engine/README.md` | 卷宗阅读页、世界自演结果页可读入口、Reviewer 局部重写到作者采纳台再到下一章草稿已完成第一版 |
-| 仍需深入 | `../memory.md`、`living-novel-engine-iteration-plan.md` | 多轮策略规划、长期关系/势力博弈、真实长正文文风、正文内锚点/误会图谱、自动编辑后定稿、更强真实语义 Reviewer |
+| 已产品化第一刀 | `../memory.md`、`../engine/README.md` | 卷宗阅读页、世界自演结果页可读入口、Reviewer 局部重写到作者采纳台、编辑后定稿和确认入卷反哺下一轮入口已完成第一版 |
+| 仍需深入 | `../memory.md`、`living-novel-engine-iteration-plan.md` | 多轮策略规划、长期关系/势力博弈、真实长正文文风、正文内锚点/误会图谱、整章风格润色、更强真实语义 Reviewer 和真实模型编辑器 |
 | 明确后置 | `后续增强清单.md`、`distribution-phase-plan.md` | GraphRAG/Zep、默认 hybrid vector、真实商业化、对象存储、认证、计费、发行安装包和云端队列 |
 
 ## 4. completed/ 收口归档
@@ -124,3 +127,7 @@
 - 入口文档不要再复制完整历史状态表；用链接指向 `memory.md`、`completed/README.md` 和 `project-changelog.md`。
 - 新增论文原文放 `article/`，论文解读放 `article/reports/`，不要只放 PDF 不写报告。
 - 完成独立切片后同步顺序建议：`memory.md` 当前状态 -> `project-changelog.md` 历史记录 -> `living-novel-engine-iteration-plan.md` -> 相关 PRD/UI spec/README -> `codex-handoff.md` -> 本文件。
+
+## 7. 不再合并的原因
+
+本轮没有把 `completed/` 的 80+ 篇历史专项合并成单文件，原因是这些文档承担证据链和版本追溯职责，移动或合并会破坏旧链接和 changelog 语境。后续若要精简，只合并“入口摘要”，不要重写历史事实；当前读者只需从本索引进入，不需要逐篇打开历史归档。

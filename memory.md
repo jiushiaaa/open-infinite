@@ -2,7 +2,7 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-06（Reviewer 自动编辑后定稿收口）。当前事实：World Sandbox Loop / 世界沙盘改造 S1-S9 已有第一版可运行链路；最近几刀分别完成卷宗阅读页产品化、世界自演结果页可读入口、Reviewer 局部重写采纳和自动编辑后定稿。后续默认继续深化真实 LLM 多 Agent 策略、长正文/连续阅读质量、正文内证据锚点/误会图谱和更强真实语义 Reviewer，不回 provider、GraphRAG、检索评测、OpenAPI、发行或商业化主线。
+> **最后更新**：2026-06-06（文档治理与入口纠偏）。当前事实：World Sandbox Loop / 世界沙盘改造 S1-S9 已有第一版可运行链路；最近几刀分别完成卷宗阅读页产品化、世界自演结果页可读入口、Reviewer 局部重写采纳和自动编辑后定稿。后续默认继续深化真实 LLM 多 Agent 策略、长正文/连续阅读质量、正文内证据锚点/误会图谱、更强真实语义 Reviewer 和整章风格润色，不回 provider、GraphRAG、检索评测、OpenAPI、发行或商业化主线。
 > **文档治理口径**：本文件只写当前事实和真实未做项；完整历史见 `docs/project-changelog.md`，文档分类见 `docs/index.md`，已收口专项见 `docs/completed/README.md`。旧文档若和本文冲突，以本文为准。
 
 2026-06-06 卷宗阅读页产品化已完成第一版：新增 `dossier_reading` service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`，只读聚合同一世界线的 `continuous_reading_chapter`、`confirmed_chapter.md`、`confirmed_chapter_reading_trail`、S8 `character_lens_volumes` 和 `worldline_dossier`；前端新增 `DossierReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/reading`，默认进入连续阅读正文态，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认正文，认知偏差可见，证据链默认折叠。该刀不新增持久 artifact，不破坏既有 API/artifact，不改 `run_scene` 默认行为；后续仍需正文内锚点跳转、独立角色/势力页、误会图谱和真实长文文风控制。
@@ -10,6 +10,8 @@
 2026-06-06 世界自演结果页 -> 可读世界线入口已完成第一版：`autopilot_report.json` 新增 additive `readable_entry`，并新增 `GET /api/world-autopilot-runs/<run_id>/readable-entry`；检查点回放 API 同步返回同一入口。世界沙盘页的“昨夜世界演化报告”现在直接展示“醒来从这里读”，可跳最近关键检查点、角色个人卷、事件多视角和连续阅读，并在结果页解释为什么世界状态变了、谁记住了什么、哪条因果债在发酵；世界线档案页也可直接进入连续阅读/角色个人卷/事件多视角，卷宗阅读路由支持 `/reading/<tab>` 精准落卷。该刀不新增持久 artifact，不改旧字段，不往 `WorkspacePage` 继续堆面板；后续仍需正文内证据锚点、角色/势力独立页和误会图谱。
 
 2026-06-06 Reviewer 局部重写 -> 作者采纳台 -> 编辑后定稿 -> 下一章入口链已收口第一版：`author_chapter_rewrite_application` service 与 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` 支持作者在采纳台勾选 `draft_revision_pack.json` 中的片段级建议，生成 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md`，并新增 `edited_final_chapter.json` / `edited_final_chapter.md`。`edited_final_chapter` 会把选中的建议应用为可确认正文，不再把审稿清单当正文；`next_chapter_draft.json` additive 记录已采纳局部改写、`chapter_text_with_accepted_rewrites` 和 `edited_final_chapter` 摘要。若作者确认入卷时未继续手改，`author_chapter_confirmation` 会自动读取 `edited_final_chapter.json`，并把 `edit_source=auto_reviewer_final`、已采纳改写 ids 和定稿 artifact 写入 `confirmed_chapter_entry.json`、`continuation_effect.next_sandbox_entry` 和 `worldline_state.confirmed_chapter_entry`。UI 仍保持古风纸面风格，局部建议展示原问题、修改意图、建议改写、影响范围和采纳方向；采纳后正文编辑框优先显示编辑后定稿。后续仍需真实长文文风、更强语义 Reviewer 和自动整章风格润色。
+
+2026-06-06 文档治理收口：已扫描 `docs/` 根层、`docs/completed/`、论文/品牌/原型资产、根 README、`AGENTS.md`、`engine/README.md` 与 `engine/ui/README.md`。当前不批量移动历史文档，避免破坏既有链接；采用“入口事实层 -> 当前主线层 -> 路线/阶段层 -> 历史归档层 -> 支撑层 backlog -> 研究/品牌/原型资产 -> 运行说明层”的分层口径。下一次开工应先读 `AGENTS.md`、本文、`docs/index.md`、世界沙盘 PRD、AI 对齐清单、迭代计划和 `engine/README.md`；`docs/completed/`、`project-changelog.md`、`docs/后续增强清单.md` 与 `docs/distribution-phase-plan.md` 只用于追溯或用户明确点名，不作为默认下一刀来源。
 
 ---
 
@@ -353,6 +355,8 @@ lne memory index-samples --json
 | `docs/distribution-phase-plan.md` | 后置发行路径 |
 | `docs/completed/` | 已收口版本文档、PRD、Release Note、UI spec、工程协议 |
 | `docs/article/` | 论文 PDF 与研读报告 |
+| `docs/brand/`、`docs/image/` | 品牌资产与 UI 原型参考，不承担待办来源 |
+| `engine/README.md`、`engine/ui/README.md` | 后端/API/artifact/验证与当前前端结构说明 |
 | `Reference_projects/` | 参考开源项目，仅作设计参考 |
 
 ---

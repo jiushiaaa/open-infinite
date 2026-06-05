@@ -1,7 +1,7 @@
 # Codex Handoff — 未终章
 
 > 用途：新开 Codex 窗口时的最小接力包。当前事实以 `../memory.md` 为准；文档分层以 `index.md` 为准；完整历史变更见 `project-changelog.md`；旧版长接力稿已归档到 `completed/codex-handoff-legacy-2026-06-01.md`。
-> 2026-06-06 文档治理口径：本文件提供接力摘要，不替代 `memory.md`。若下方历史阶段表与最新世界沙盘状态冲突，以 `memory.md` 与 `unfinale-world-sandbox-remodel-prd.md` 为准。
+> 2026-06-06 文档治理口径：本文件提供接力摘要，不替代 `memory.md`。若下方历史阶段表与最新世界沙盘状态冲突，以 `memory.md`、`docs/index.md` 与 `unfinale-world-sandbox-remodel-prd.md` 为准。`completed/`、`project-changelog.md`、`后续增强清单.md` 和 `distribution-phase-plan.md` 只用于追溯或用户明确点名，不从中直接派生下一刀。
 
 ## 新窗口第一条消息建议
 
@@ -102,7 +102,7 @@ Reviewer 局部重写采纳链：新增 `POST /api/stories/<slug>/author-adoptio
 | Retrieval Provider Real Connectivity MVP | 已收口，百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的脱敏配置、mock smoke 和真实 smoke 可用 |
 | Vector Retrieval Pipeline MVP | 已收口，API/UI 可显式写入 Zilliz collection、执行百炼 embedding + Zilliz + 百炼 rerank 检索预览；运行时需 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` opt-in |
 
-验证基线：后端 `cd engine && python -m pytest -q` 为 `946 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索烟测已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
+验证基线：后端 `cd engine && python -m pytest -q` 为 `947 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索烟测已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
 
 产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳。导入、配置、创作、干预、评审、导出、样本采集、Graph Memory 证据查看等用户级能力应优先通过 Web UI + API 完成；CLI 仅作为开发者、本地服务启动、自动化验收、批处理、JSON 输出和无人值守复跑的薄封装。
 
@@ -146,6 +146,8 @@ Reviewer 局部重写采纳链：新增 `POST /api/stories/<slug>/author-adoptio
 
 ## 当前真实未做项
 
+- 世界沙盘主线仍需深化：真实 LLM 多 Agent 多轮策略规划、长期关系/势力博弈、真实长正文文风、正文内证据锚点/误会图谱、整章风格润色、更强真实语义 Reviewer 和真实模型编辑器。
+- 已完成第一版但不要误判成完整愿景：卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳、编辑后定稿、确认入卷和下一轮入口反哺。
 - ChapterBrief 摘要质量仍偏规则化，未接真实 LLM 摘要。
 - `contract_audit` 主链路仍偏静态，未成为运行时强约束。
 - `state_execution_overlay.json` 不自动喂回下一轮 runner。
