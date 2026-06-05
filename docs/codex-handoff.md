@@ -61,7 +61,7 @@
 
 不要默认继续：
 
-- GraphRAG / Zep / Temporal Memory provider spike。
+- GraphRAG / Zep / Temporal Memory 重型 provider 试验。
 - 默认 hybrid vector 替换 BM25。
 - OpenAPI / typed client 深化。
 - 发行安装包、云端部署、多租户、认证、对象存储、计费。

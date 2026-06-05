@@ -65,7 +65,7 @@ World Sandbox Loop S1-S9、卷宗阅读页、自演结果可读入口、Reviewer
 
 除非用户明确点名，以下都不是下一刀：
 
-- GraphRAG / Zep / Temporal Memory provider spike。
+- GraphRAG / Zep / Temporal Memory 重型 provider 试验。
 - 真实向量检索收益评测或默认 hybrid vector 替换 BM25。
 - provider / cost / route matrix 继续扩张。
 - OpenAPI / typed client 深化。

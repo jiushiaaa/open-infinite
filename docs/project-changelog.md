@@ -2374,3 +2374,15 @@
 - **边界**：
   - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
 
+### 2026-06-06 — World Sandbox PRD Current-State Rewrite
+
+- **做了什么**：
+  - 重写 `docs/unfinale-world-sandbox-remodel-prd.md`，把多日实现流水和长状态记录收束为当前 S1-S9 执行说明。
+  - 新文档保留目标、硬边界、世界内部卷宗主导航、第一版闭环表、核心 artifact/API、前端页面、S1-S9 后续验收和完成标准。
+  - 同步 `memory.md`，明确历史进展回指 changelog，当前执行以世界沙盘 PRD 的稳定结构为准。
+- **验证**：
+  - 非归档根层扫描：检查旧基线、旧下一刀、Graph/provider 扩张、后续增强逐刀历史和支撑层待办标签。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
+

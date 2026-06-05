@@ -200,7 +200,7 @@
 
 - GraphRAG / Zep / 图数据库。
 - 默认启用 hybrid vector 替换 BM25。
-- provider spike 和模型路由扩张。
+- 重型 provider 试验和模型路由扩张。
 - OpenAPI / typed client 面板深化。
 - 发行安装包、服务器在线体验、自动部署。
 - 真实认证、对象存储、云端队列、配额执行、计费和商业化平台。
