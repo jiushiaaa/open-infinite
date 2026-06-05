@@ -581,6 +581,102 @@ def test_author_can_apply_selected_rewrites_to_draft_and_confirmation_entry(tmp_
     )
 
 
+def test_author_rewrites_create_auto_edited_final_and_confirmation_uses_it(tmp_path):
+    project_dir = _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+    lens = generate_character_lens_briefs(
+        "adoption-story",
+        source_event="风鸣铃现世，赵轩选择隐瞒，沈冰月误判他的真实立场。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    adoption = record_author_adoption(
+        "adoption-story",
+        source_run_id=lens["run_id"],
+        decision="adopted",
+        original_outline="赵轩公开风鸣铃，沈冰月继续相信他。",
+        author_note="让 Reviewer 改写能自动形成编辑后定稿。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="branch_from_sandbox",
+    )
+    draft = generate_author_chapter_draft(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        mock=True,
+    )
+
+    application = apply_author_chapter_rewrites(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        rewrite_ids=["sharpen_character_misread", "materialize_consequence"],
+        author_note="自动套用这两处编辑建议，形成可确认正文。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    run_dir = outputs_dir / adoption["run_id"]
+    final = application["edited_final_chapter"]
+
+    assert final["status"] == "ready_for_confirmation"
+    assert final["artifact"] == "edited_final_chapter.json"
+    assert final["markdown_artifact"] == "edited_final_chapter.md"
+    assert final["applied_rewrite_ids"] == application["applied_rewrite_ids"]
+    assert final["quality_gate"]["ready_for_confirmation"] is True
+    assert final["final_chapter_text"] != draft["chapter_text"]
+    assert "## 已采纳的 Reviewer 局部重写" not in final["final_chapter_text"]
+    assert "沈冰月" in final["final_chapter_text"]
+    assert "归云斋" in final["final_chapter_text"]
+    assert (run_dir / "edited_final_chapter.json").exists()
+    assert (run_dir / "edited_final_chapter.md").exists()
+
+    draft_payload = json.loads(
+        (run_dir / "next_chapter_draft.json").read_text(encoding="utf-8")
+    )
+    assert draft_payload["edited_final_chapter"]["artifact"] == (
+        "edited_final_chapter.json"
+    )
+    assert draft_payload["artifacts"]["edited_final_chapter"] == (
+        "edited_final_chapter.json"
+    )
+
+    confirmation = confirm_author_chapter_entry(
+        "adoption-story",
+        adoption_run_id=adoption["run_id"],
+        author_note="不再手工复制改写稿，直接确认自动编辑后定稿。",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+
+    assert confirmation["edited"] is True
+    assert confirmation["edit_source"] == "auto_reviewer_final"
+    assert confirmation["chapter_text"] == final["final_chapter_text"]
+    assert confirmation["edited_final_chapter"]["artifact"] == (
+        "edited_final_chapter.json"
+    )
+    assert confirmation["evidence_chain"]["edited_final_chapter"] == (
+        "edited_final_chapter.json"
+    )
+    assert confirmation["continuation_effect"]["next_sandbox_entry"][
+        "edited_final_chapter"
+    ] == "edited_final_chapter.json"
+
+    state = json.loads(
+        (
+            project_dir
+            / "worldlines"
+            / "branch_from_sandbox"
+            / "worldline_state.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert state["confirmed_chapter_entry"]["accepted_rewrite_ids"] == (
+        application["applied_rewrite_ids"]
+    )
+
+
 def test_author_chapter_confirmation_links_back_to_cross_volume_evidence(tmp_path):
     _make_project(tmp_path)
     outputs_dir = tmp_path / "_outputs"

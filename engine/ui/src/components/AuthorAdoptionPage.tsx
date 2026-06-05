@@ -129,7 +129,10 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
         author_note: rewriteNote.trim(),
       });
       setRewriteApplication(application);
-      setEditedChapterText(application.revised_chapter_text);
+      setEditedChapterText(
+        application.edited_final_chapter?.final_chapter_text ||
+          application.revised_chapter_text,
+      );
       setConfirmation(null);
       setConfirmationError(null);
     } catch (err) {
@@ -144,11 +147,18 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
     setConfirmationLoading(true);
     setConfirmationError(null);
     try {
+      const autoFinalText =
+        rewriteApplication?.edited_final_chapter?.final_chapter_text.trim() || "";
+      const editedText = editedChapterText.trim();
+      const request =
+        autoFinalText && editedText === autoFinalText
+          ? { author_note: confirmationNote.trim() }
+          : {
+              edited_chapter_text: editedText,
+              author_note: confirmationNote.trim(),
+            };
       setConfirmation(
-        await api.confirmAuthorChapterEntry(slug, report.run_id, {
-          edited_chapter_text: editedChapterText.trim(),
-          author_note: confirmationNote.trim(),
-        }),
+        await api.confirmAuthorChapterEntry(slug, report.run_id, request),
       );
     } catch (err) {
       setConfirmationError(err instanceof Error ? err.message : String(err));
@@ -581,14 +591,22 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       {rewriteApplication && (
                         <div className="adoption-rewrite-result">
                           <div>
-                            <strong>已写入修订稿</strong>
+                            <strong>已写入编辑后定稿</strong>
                             <span className="badge badge--jade">
-                              {rewriteApplication.markdown_artifact}
+                              {rewriteApplication.edited_final_chapter?.markdown_artifact ||
+                                rewriteApplication.markdown_artifact}
                             </span>
                           </div>
                           <p>
-                            已采纳 {rewriteApplication.applied_rewrite_ids.length} 条局部重写，正文编辑框已换成可确认版本。
+                            已采纳 {rewriteApplication.applied_rewrite_ids.length} 条局部重写，正文编辑框已换成可直接确认入卷的编辑后定稿。
                           </p>
+                          {rewriteApplication.edited_final_chapter && (
+                            <p className="muted tiny">
+                              确认时若未继续手改，服务端会自动读取{" "}
+                              {rewriteApplication.edited_final_chapter.artifact}
+                              ，避免把审稿清单当正文入卷。
+                            </p>
+                          )}
                           <div className="adoption-reading__refs">
                             {rewriteApplication.applied_rewrite_ids.map((id) => (
                               <span className="badge" key={id}>
@@ -747,7 +765,13 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                         </div>
                         <div>
                           <dt>编辑</dt>
-                          <dd>{confirmation.edited ? "已采用作者修订稿" : "沿用草稿"}</dd>
+                          <dd>
+                            {confirmation.edit_source === "auto_reviewer_final"
+                              ? "已采用 Reviewer 编辑后定稿"
+                              : confirmation.edited
+                                ? "已采用作者修订稿"
+                                : "沿用草稿"}
+                          </dd>
                         </div>
                         <div>
                           <dt>局部改写</dt>

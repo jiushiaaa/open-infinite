@@ -2274,3 +2274,23 @@
 - **边界**：
   - 本轮仍是 docs-only，不改代码、不移动历史归档、不改变 artifact/API 契约。
 
+### 2026-06-06 — Reviewer Edited Final Chapter Loop
+
+- **做了什么**：
+  - 针对“Reviewer 局部重写 -> 作者采纳台 -> 下一章草稿”仍缺自动编辑后定稿的问题补闭环。
+  - `author_chapter_rewrite_application` 在生成 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` 的同时新增 `edited_final_chapter.json` / `edited_final_chapter.md`，把作者勾选的片段级建议应用成可确认正文，而不是把审稿清单追加进正文。
+  - `next_chapter_draft.json` additive 写入 `edited_final_chapter` 摘要和 artifact，保留原 `chapter_text`、原 Markdown 草稿、确认稿和正史不变。
+  - `author_chapter_confirmation` 在作者没有传手动 `edited_chapter_text` 时自动读取 `edited_final_chapter.json`，并把 `edit_source=auto_reviewer_final`、已采纳改写 ids 和 `edited_final_chapter` artifact 写入 `confirmed_chapter_entry.json`、`continuation_effect.next_sandbox_entry` 和 worldline state。
+  - 作者采纳台采纳局部重写后，正文编辑框优先显示编辑后定稿；确认时若用户未继续手改，前端让服务端自动消费定稿 artifact。
+  - 同步 `memory.md`、`AGENTS.md`、世界沙盘 PRD、愿景纠偏、AI 对齐清单、路线图、`engine/README.md`、`docs/codex-handoff.md` 和本 changelog。
+- **测试/验证**：
+  - RED：新增 `test_author_rewrites_create_auto_edited_final_and_confirmation_uses_it`，先因缺少 `edited_final_chapter` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_author_adoption.py::test_author_rewrites_create_auto_edited_final_and_confirmation_uses_it -q` -> **1 passed**。
+  - Focused：`cd engine && python -m pytest tests/test_author_adoption.py -q` -> **14 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **947 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 本刀仍要求作者显式勾选要采纳的局部重写；自动化只发生在“已采纳建议 -> 编辑后定稿 -> 未手改时确认入卷”之间。
+  - 新 artifact 和 API 字段均 additive；不改 `run_scene` 默认行为，不覆盖 `chapter.md`、原 `next_chapter_draft.md`、确认稿或正史。
+  - 这不是更强真实语义 Reviewer 或整章风格润色；后续质量深化仍需真实模型 smoke 观察。
+

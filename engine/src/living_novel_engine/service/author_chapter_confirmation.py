@@ -54,10 +54,13 @@ def confirm_author_chapter_entry(
         raise AuthorChapterConfirmationRequestError("adoption_run_id 不属于当前故事")
     worldline_id = _checked_id(str(record.get("worldline_id") or "main"), "worldline_id")
     draft_text = str(draft.get("chapter_text") or "")
-    chapter_text = _chapter_text(edited_chapter_text, draft_text)
-    edited = bool(_strip_text(edited_chapter_text)) and _strip_text(chapter_text) != _strip_text(
-        draft_text
+    edited_final_chapter = _edited_final_chapter(run_dir)
+    chapter_text, edit_source = _chapter_text(
+        edited_chapter_text,
+        draft_text,
+        str(edited_final_chapter.get("final_chapter_text") or ""),
     )
+    edited = edit_source != "draft" and _strip_text(chapter_text) != _strip_text(draft_text)
     note = _clean(author_note)
     title = str(draft.get("chapter_title") or _chapter_title(brief))
     accepted_rewrites = _accepted_local_rewrites(run_dir)
@@ -67,6 +70,7 @@ def confirm_author_chapter_entry(
         author_note=note,
         chapter_text=chapter_text,
         accepted_rewrites=accepted_rewrites,
+        edited_final_chapter=edited_final_chapter,
     )
     worldline_state = apply_confirmed_chapter_to_worldline_state(
         story_path=story_path,
@@ -101,13 +105,18 @@ def confirm_author_chapter_entry(
         "source_adoption_run_id": rid,
         "created_at": now,
         "edited": edited,
+        "edit_source": edit_source,
         "chapter_title": title,
         "chapter_text": chapter_text,
         "author_note": note,
+        "edited_final_chapter": edited_final_chapter,
         "evidence_chain": {
             "adoption_record": "author_adoption_record.json",
             "next_chapter_brief": "next_chapter_brief.json",
             "next_chapter_draft": "next_chapter_draft.json",
+            "edited_final_chapter": edited_final_chapter.get("artifact", "")
+            if edited_final_chapter
+            else "",
             "worldline_state_artifact": worldline_state.get("artifact") or "",
             "sandbox_inputs": brief.get("sandbox_inputs") or {},
             "materialized_consequences": brief.get("materialized_consequences") or [],
@@ -162,6 +171,9 @@ def _accepted_local_rewrites(run_dir: Path) -> dict[str, Any]:
     return {
         "artifact": str(payload.get("artifact") or "accepted_local_rewrites.json"),
         "markdown_artifact": str(payload.get("markdown_artifact") or ""),
+        "edited_final_chapter": payload.get("edited_final_chapter")
+        if isinstance(payload.get("edited_final_chapter"), dict)
+        else {},
         "applied_rewrite_ids": [str(item) for item in ids] if isinstance(ids, list) else [],
         "applied_rewrite_count": len(ids) if isinstance(ids, list) else 0,
         "applied_rewrites": rewrites if isinstance(rewrites, list) else [],
@@ -170,13 +182,48 @@ def _accepted_local_rewrites(run_dir: Path) -> dict[str, Any]:
     }
 
 
-def _chapter_text(edited: str, draft_text: str) -> str:
-    text = str(edited or "").strip() or str(draft_text or "").strip()
+def _edited_final_chapter(run_dir: Path) -> dict[str, Any]:
+    path = run_dir / "edited_final_chapter.json"
+    if not path.exists():
+        return {}
+    payload = _read_json(path)
+    text = str(payload.get("final_chapter_text") or "").strip()
+    if not text:
+        return {}
+    return {
+        "artifact": str(payload.get("artifact") or "edited_final_chapter.json"),
+        "markdown_artifact": str(payload.get("markdown_artifact") or ""),
+        "status": str(payload.get("status") or ""),
+        "applied_rewrite_ids": [
+            str(item)
+            for item in payload.get("applied_rewrite_ids", [])
+            if str(item or "")
+        ]
+        if isinstance(payload.get("applied_rewrite_ids"), list)
+        else [],
+        "final_chapter_text": text,
+        "quality_gate": payload.get("quality_gate")
+        if isinstance(payload.get("quality_gate"), dict)
+        else {},
+        "feeds": payload.get("feeds") if isinstance(payload.get("feeds"), list) else [],
+    }
+
+
+def _chapter_text(edited: str, draft_text: str, edited_final_text: str = "") -> tuple[str, str]:
+    if _strip_text(edited):
+        text = str(edited or "").strip()
+        source = "author_manual_edit"
+    elif _strip_text(edited_final_text):
+        text = str(edited_final_text or "").strip()
+        source = "auto_reviewer_final"
+    else:
+        text = str(draft_text or "").strip()
+        source = "draft"
     if len(_strip_text(text)) < 120:
         raise AuthorChapterConfirmationRequestError("确认章节正文过短，无法正式入卷")
     if len(text) > 20000:
         raise AuthorChapterConfirmationRequestError("确认章节正文过长，请先拆分章节")
-    return text
+    return text, source
 
 
 def _next_sandbox_entry(
@@ -186,6 +233,7 @@ def _next_sandbox_entry(
     author_note: str,
     chapter_text: str,
     accepted_rewrites: dict[str, Any] | None = None,
+    edited_final_chapter: dict[str, Any] | None = None,
 ) -> dict[str, str]:
     sandbox_inputs = brief.get("sandbox_inputs") if isinstance(brief.get("sandbox_inputs"), dict) else {}
     seed = author_note or str(sandbox_inputs.get("major_event") or title)
@@ -200,6 +248,8 @@ def _next_sandbox_entry(
         ids = accepted_rewrites.get("applied_rewrite_ids")
         entry["accepted_local_rewrites"] = str(accepted_rewrites.get("artifact") or "")
         entry["accepted_rewrite_ids"] = "、".join(str(item) for item in ids if item) if isinstance(ids, list) else ""
+    if edited_final_chapter:
+        entry["edited_final_chapter"] = str(edited_final_chapter.get("artifact") or "")
     return entry
 
 

@@ -14,6 +14,9 @@ from living_novel_engine.service.project_health import resolve_story_path
 VERSION = "author-chapter-rewrite-application-v1"
 ARTIFACT = "accepted_local_rewrites.json"
 MARKDOWN_ARTIFACT = "next_chapter_draft_revised.md"
+EDITED_FINAL_VERSION = "edited-final-chapter-v1"
+EDITED_FINAL_ARTIFACT = "edited_final_chapter.json"
+EDITED_FINAL_MARKDOWN_ARTIFACT = "edited_final_chapter.md"
 
 
 class AuthorChapterRewriteApplicationRequestError(ValueError):
@@ -69,10 +72,19 @@ def apply_author_chapter_rewrites(
     )
     now = datetime.now().isoformat(timespec="seconds")
     note = _clean(author_note)
+    edited_final_chapter = _edited_final_chapter(
+        chapter_text=str(draft.get("chapter_text") or ""),
+        applied_rewrites=applied_rewrites,
+        source_adoption_run_id=rid,
+        worldline_id=str(draft.get("worldline_id") or "main"),
+        author_note=note,
+        created_at=now,
+    )
     report = {
         "version": VERSION,
         "artifact": ARTIFACT,
         "markdown_artifact": MARKDOWN_ARTIFACT,
+        "edited_final_chapter": edited_final_chapter,
         "story_slug": sid,
         "worldline_id": str(draft.get("worldline_id") or "main"),
         "source_adoption_run_id": rid,
@@ -108,6 +120,14 @@ def apply_author_chapter_rewrites(
         encoding="utf-8",
     )
     (run_dir / MARKDOWN_ARTIFACT).write_text(_markdown(report), encoding="utf-8")
+    (run_dir / EDITED_FINAL_ARTIFACT).write_text(
+        json.dumps(edited_final_chapter, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    (run_dir / EDITED_FINAL_MARKDOWN_ARTIFACT).write_text(
+        _edited_final_markdown(edited_final_chapter),
+        encoding="utf-8",
+    )
 
     draft["accepted_local_rewrites"] = {
         "artifact": ARTIFACT,
@@ -119,12 +139,24 @@ def apply_author_chapter_rewrites(
         "feeds": report["feeds"],
         "does_not_overwrite": report["does_not_overwrite"],
     }
+    draft["edited_final_chapter"] = {
+        "artifact": EDITED_FINAL_ARTIFACT,
+        "markdown_artifact": EDITED_FINAL_MARKDOWN_ARTIFACT,
+        "status": edited_final_chapter["status"],
+        "applied_rewrite_ids": requested_ids,
+        "updated_at": now,
+        "feeds": edited_final_chapter["feeds"],
+        "quality_gate": edited_final_chapter["quality_gate"],
+        "preview_text": _trim(edited_final_chapter["final_chapter_text"], 180),
+    }
     draft["chapter_text_with_accepted_rewrites"] = revised_chapter_text
     artifacts = draft.get("artifacts") if isinstance(draft.get("artifacts"), dict) else {}
     artifacts.update(
         {
             "accepted_local_rewrites": ARTIFACT,
             "next_chapter_draft_revised": MARKDOWN_ARTIFACT,
+            "edited_final_chapter": EDITED_FINAL_ARTIFACT,
+            "edited_final_chapter_markdown": EDITED_FINAL_MARKDOWN_ARTIFACT,
         }
     )
     draft["artifacts"] = artifacts
@@ -214,6 +246,93 @@ def _revised_chapter_text(chapter_text: str, applied_rewrites: list[dict[str, An
     return f"{body}\n\n" + "\n".join(rows)
 
 
+def _edited_final_chapter(
+    *,
+    chapter_text: str,
+    applied_rewrites: list[dict[str, Any]],
+    source_adoption_run_id: str,
+    worldline_id: str,
+    author_note: str,
+    created_at: str,
+) -> dict[str, Any]:
+    final_text, application_rows = _apply_rewrites_as_final_text(
+        chapter_text,
+        applied_rewrites,
+    )
+    ready = (
+        len(_strip_text(final_text)) >= 120
+        and bool(applied_rewrites)
+        and "## 已采纳的 Reviewer 局部重写" not in final_text
+    )
+    return {
+        "version": EDITED_FINAL_VERSION,
+        "artifact": EDITED_FINAL_ARTIFACT,
+        "markdown_artifact": EDITED_FINAL_MARKDOWN_ARTIFACT,
+        "status": "ready_for_confirmation" if ready else "needs_author_review",
+        "source_adoption_run_id": source_adoption_run_id,
+        "source_draft_artifact": "next_chapter_draft.json",
+        "source_revision_pack": "draft_revision_pack.json",
+        "worldline_id": worldline_id,
+        "created_at": created_at,
+        "author_note": author_note,
+        "applied_rewrite_ids": [item["id"] for item in applied_rewrites],
+        "applied_rewrites": application_rows,
+        "final_chapter_text": final_text,
+        "quality_gate": {
+            "ready_for_confirmation": ready,
+            "keeps_original_chapter_body": bool(_strip_text(chapter_text))
+            and _strip_text(chapter_text)[:40] in _strip_text(final_text),
+            "applies_reviewer_rewrites": bool(application_rows),
+            "not_a_review_appendix": "## 已采纳的 Reviewer 局部重写" not in final_text,
+        },
+        "feeds": [
+            "author_adoption_desk",
+            "chapter_confirmation",
+            "next_chapter_draft",
+            "future_sandbox_entry",
+        ],
+        "does_not_overwrite": [
+            "next_chapter_draft.md",
+            "confirmed_chapter.md",
+            "chapter.md",
+        ],
+    }
+
+
+def _apply_rewrites_as_final_text(
+    chapter_text: str,
+    applied_rewrites: list[dict[str, Any]],
+) -> tuple[str, list[dict[str, Any]]]:
+    body = chapter_text.strip()
+    appended: list[str] = []
+    rows: list[dict[str, Any]] = []
+    for item in applied_rewrites:
+        target = str(item.get("target_text") or "").strip()
+        suggested = str(item.get("suggested_rewrite") or "").strip()
+        mode = "continuation_insert"
+        if target and target in body:
+            body = body.replace(target, suggested, 1)
+            mode = "targeted_replacement"
+        elif suggested:
+            appended.append(suggested)
+        rows.append(
+            {
+                "id": item["id"],
+                "mode": mode,
+                "original_problem": item["original_problem"],
+                "revision_intent": item["revision_intent"],
+                "target_text": target,
+                "suggested_rewrite": suggested,
+                "impact_on_characters": item["impact_on_characters"],
+                "impact_on_world_state": item["impact_on_world_state"],
+                "adoption_direction": item["adoption_direction"],
+            }
+        )
+    if appended:
+        body = f"{body}\n\n" + "\n\n".join(appended)
+    return body, rows
+
+
 def _markdown(report: dict[str, Any]) -> str:
     lines = [
         "# 已采纳的 Reviewer 局部重写",
@@ -228,6 +347,20 @@ def _markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _edited_final_markdown(report: dict[str, Any]) -> str:
+    lines = [
+        "# 编辑后定稿",
+        "",
+        f"- 状态：{report['status']}",
+        f"- 采纳建议：{'、'.join(report['applied_rewrite_ids'])}",
+        f"- 反哺：{' / '.join(report['feeds'])}",
+        "",
+        report["final_chapter_text"],
+        "",
+    ]
+    return "\n".join(lines)
+
+
 def _checked_id(value: str, field_name: str) -> str:
     checked = safe_id(str(value or "").strip())
     if checked is None:
@@ -237,6 +370,15 @@ def _checked_id(value: str, field_name: str) -> str:
 
 def _clean(text: str) -> str:
     return " ".join(str(text or "").strip().split())
+
+
+def _strip_text(text: object) -> str:
+    return "".join(str(text or "").split())
+
+
+def _trim(value: object, limit: int) -> str:
+    clean = _clean(str(value or ""))
+    return clean if len(clean) <= limit else clean[:limit] + "..."
 
 
 def _read_json(path: Path) -> dict[str, Any]:

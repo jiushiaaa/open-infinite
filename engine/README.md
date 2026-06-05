@@ -2,7 +2,7 @@
 
 未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。本文只负责 `engine/` 的运行、API 和 artifact 说明；当前事实、文档分层和历史收口请分别看 [`../memory.md`](../memory.md)、[`../docs/index.md`](../docs/index.md) 与 [`../docs/project-changelog.md`](../docs/project-changelog.md)。
 
-当前主线是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph、检索评测、发行或商业化面板。S1-S9 已形成第一版产品链路：世界沙盘、主观记忆、《天命书》、干预投放、L5 觉醒/模因传播、因果债具象化、世界自演、多视角正文、作者采纳、连续阅读、确认入卷和 Reviewer 局部重写采纳都已有 additive service/API/UI/artifact/tests。
+当前主线是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph、检索评测、发行或商业化面板。S1-S9 已形成第一版产品链路：世界沙盘、主观记忆、《天命书》、干预投放、L5 觉醒/模因传播、因果债具象化、世界自演、多视角正文、作者采纳、连续阅读、确认入卷、Reviewer 局部重写采纳和编辑后定稿都已有 additive service/API/UI/artifact/tests。
 
 最近产品化入口：
 
@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文，并可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿 | 正文内证据锚点、误会图谱、独立角色/势力卷 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |
-| Reviewer 局部重写采纳 | `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` 已写 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md`，确认入卷会携带已采纳改写 ids | 自动编辑后定稿、更强真实语义 Reviewer |
+| Reviewer 局部重写采纳 | `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` 已写 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json`，确认入卷可自动采用编辑后定稿并携带已采纳改写 ids | 更强真实语义 Reviewer、整章风格润色 |
 | 真实 LLM 策略建议 | `llm_decision_mode=advisory` 会写 `agent_decision_advisory.json`，展示采信、欺骗、传播、反抗和临场判断 | 多轮策略规划、长期关系/势力博弈 |
 
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
@@ -25,9 +25,9 @@
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
 | 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与最近三项阅读/自演/Reviewer 产品化入口已完成第一版 |
-| 后端验证基线 | `python -m pytest -q` -> `946 passed` |
+| 后端验证基线 | `python -m pytest -q` -> `947 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
-| 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、正文内锚点跳转/误会图谱和更强 Reviewer 是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
+| 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、正文内锚点跳转/误会图谱、更强 Reviewer 和整章风格润色是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
 
 仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、GraphRAG/Zep、高级 runner 默认替换，以及 hybrid vector 是否默认替换 BM25。
 
@@ -95,7 +95,7 @@
 - `POST /api/stories/<slug>/character-lens/generate`：从同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角 brief。
 - `POST /api/stories/<slug>/author-adoption`：作者采纳、部分采纳、另开分支或导出 brief，写入本地采纳账本，并生成 `next_chapter_brief.writing_plan` / `feed_forward` 作为下一章生成和后续沙盘入口；另开分支会创建作者分支世界线状态。
 - `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft`：把作者采纳后的下一章 brief、世界线状态和具象代偿生成可读下一章草稿，并同步生成连续阅读稿与 S8 卷宗引用；`mock=true` deterministic，`mock=false` 显式走真实 LLM smoke。
-- `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`：把作者选中的 Reviewer 局部重写建议写入 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md`，并 additive 反哺 `next_chapter_draft.json`、确认入卷和下一轮沙盘入口。
+- `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`：把作者选中的 Reviewer 局部重写建议写入 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json` / `edited_final_chapter.md`，并 additive 反哺 `next_chapter_draft.json`、确认入卷和下一轮沙盘入口。
 - `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation`：把作者编辑后的草稿确认入卷，写入确认记录、Markdown 正文和跨卷宗阅读链，并回写世界线状态与下一轮沙盘入口。
 - `projects/<slug>/tianming.json`：叙事吸引子、题材约束、锚点状态、合约压力和候选天命承载者。
 - `outputs/<run_id>/tianming_delta.json`：世界线代偿报告。
@@ -111,8 +111,9 @@
 - `outputs/<run_id>/next_chapter_draft.json`：作者采纳后的下一章正文草稿、证据链、Reviewer 检查和局部修订包引用。
 - `outputs/<run_id>/next_chapter_draft.md`：可阅读的下一章正文导出，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/draft_revision_pack.json`：下一章草稿的局部修订包，包含确认前 gate、语义 Reviewer、局部改写建议、编辑应用预览 `editorial_revision_draft` 和证据引用。
-- `outputs/<run_id>/accepted_local_rewrites.json`：作者勾选采纳的 Reviewer 局部重写，包含原问题、修改意图、建议改写、影响角色/世界状态、证据链和 feeds。
-- `outputs/<run_id>/next_chapter_draft_revised.md`：带已采纳局部重写的下一章修订稿，不覆盖原草稿 Markdown 或正史。
+- `outputs/<run_id>/accepted_local_rewrites.json`：作者勾选采纳的 Reviewer 局部重写，包含原问题、修改意图、建议改写、影响角色/世界状态、证据链、编辑后定稿摘要和 feeds。
+- `outputs/<run_id>/next_chapter_draft_revised.md`：带已采纳局部重写清单的兼容修订稿，不覆盖原草稿 Markdown 或正史。
+- `outputs/<run_id>/edited_final_chapter.json` / `edited_final_chapter.md`：把已采纳局部重写应用成可确认正文；确认入卷未传手动正文时会自动采用它，并记录 `edit_source=auto_reviewer_final`。
 - `outputs/<run_id>/continuous_reading_chapter.json`：连续阅读稿结构，包含阅读场景、阅读流、下一章钩子、来源 S8 场景计划 `story_beat_source`、卷宗和证据 refs。
 - `outputs/<run_id>/continuous_reading_chapter.md`：按场景连续阅读的章节稿，正文先读、证据后查，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。

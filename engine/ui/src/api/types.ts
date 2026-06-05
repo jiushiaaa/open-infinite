@@ -1657,6 +1657,21 @@ export interface AuthorChapterDraftReport {
     feeds?: string[];
     does_not_overwrite?: string[];
   };
+  edited_final_chapter?: {
+    artifact: string;
+    markdown_artifact: string;
+    status: string;
+    applied_rewrite_ids: string[];
+    updated_at?: string;
+    feeds?: string[];
+    quality_gate?: {
+      ready_for_confirmation: boolean;
+      keeps_original_chapter_body?: boolean;
+      applies_reviewer_rewrites?: boolean;
+      not_a_review_appendix?: boolean;
+    };
+    preview_text?: string;
+  };
   artifacts: {
     next_chapter_draft: string;
     next_chapter_markdown: string;
@@ -1665,8 +1680,44 @@ export interface AuthorChapterDraftReport {
     continuous_reading_markdown?: string;
     accepted_local_rewrites?: string;
     next_chapter_draft_revised?: string;
+    edited_final_chapter?: string;
+    edited_final_chapter_markdown?: string;
   };
   boundaries: string[];
+}
+
+export interface EditedFinalChapter {
+  version: string;
+  artifact: string;
+  markdown_artifact: string;
+  status: "ready_for_confirmation" | "needs_author_review" | string;
+  source_adoption_run_id: string;
+  source_draft_artifact: string;
+  source_revision_pack: string;
+  worldline_id: string;
+  created_at: string;
+  author_note: string;
+  applied_rewrite_ids: string[];
+  applied_rewrites: Array<{
+    id: string;
+    mode: "targeted_replacement" | "continuation_insert" | string;
+    original_problem: string;
+    revision_intent: string;
+    target_text: string;
+    suggested_rewrite: string;
+    impact_on_characters: string[];
+    impact_on_world_state: string;
+    adoption_direction: string;
+  }>;
+  final_chapter_text: string;
+  quality_gate: {
+    ready_for_confirmation: boolean;
+    keeps_original_chapter_body: boolean;
+    applies_reviewer_rewrites: boolean;
+    not_a_review_appendix: boolean;
+  };
+  feeds: string[];
+  does_not_overwrite: string[];
 }
 
 export interface AuthorChapterRewriteApplicationReport {
@@ -1679,6 +1730,7 @@ export interface AuthorChapterRewriteApplicationReport {
   created_at: string;
   author_note: string;
   applied_rewrite_ids: string[];
+  edited_final_chapter?: EditedFinalChapter;
   applied_rewrites: Array<{
     id: string;
     priority: "blocking" | "high" | "medium" | "low" | string;
@@ -1807,13 +1859,16 @@ export interface AuthorChapterConfirmationReport {
   source_adoption_run_id: string;
   created_at: string;
   edited: boolean;
+  edit_source?: "draft" | "author_manual_edit" | "auto_reviewer_final" | string;
   chapter_title: string;
   chapter_text: string;
   author_note: string;
+  edited_final_chapter?: Partial<EditedFinalChapter>;
   evidence_chain: {
     adoption_record: string;
     next_chapter_brief: string;
     next_chapter_draft: string;
+    edited_final_chapter?: string;
     worldline_state_artifact: string;
     sandbox_inputs: Record<string, string>;
     materialized_consequences: string[];
@@ -1840,6 +1895,7 @@ export interface AuthorChapterConfirmationReport {
       chapter_summary: string;
       accepted_local_rewrites?: string;
       accepted_rewrite_ids?: string;
+      edited_final_chapter?: string;
     };
   };
   reading_trail: ConfirmedChapterReadingTrail;

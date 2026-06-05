@@ -9,7 +9,7 @@
 > 叙事节拍补强：本轮继续修复结构占位感，`autopilot_report.json` 新增 `narrative_timeline`，checkpoint 新增 `scene_beats` / `chapter_seed`；S8 `character_lens_volumes.json` 新增 `novel_scene_plan`；S9 `continuous_reading_chapter.json` 优先消费 S8 场景计划，`draft_revision_pack.json` 新增 `editorial_revision_draft`。真实 LLM 小样本复测通过，并修复自演开场 hook 的重复角色名、双句号和模板拼接痕迹。
 > 卷宗阅读页产品化：新增 `dossier-reading` 只读 API 与 `DossierReadingPage`，将连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier 聚合成默认正文阅读页；用户可切换世界正史卷、主锚点卷、角色个人卷、事件多视角并查看认知偏差，证据链默认折叠。
 > 自演结果页可读入口：`autopilot_report.json` 新增 `readable_entry`，并新增 `GET /api/world-autopilot-runs/<run_id>/readable-entry`；世界沙盘结果页、检查点回放页和世界线页可直接进入最近检查点、角色个人卷、事件多视角和连续阅读，同时展示状态变化原因、记忆变化和发酵中的因果债。
-> Reviewer 局部重写采纳：新增 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` 与 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`；作者采纳台可勾选片段级 Reviewer 建议并写回修订稿，确认入卷会把已采纳改写 ids 写入 confirmed entry、next sandbox entry 和 worldline state。
+> Reviewer 局部重写采纳与编辑后定稿：新增 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json` / `edited_final_chapter.md` 与 `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`；作者采纳台可勾选片段级 Reviewer 建议并生成编辑后定稿，确认入卷会在无手动编辑时自动采用定稿，并把已采纳改写 ids 与定稿 artifact 写入 confirmed entry、next sandbox entry 和 worldline state。
 
 ## 1. 产品北极星
 
@@ -109,11 +109,11 @@
 | S9 Confirmed Chapter Reading Trail | 已收口第一版 | 确认入卷时新增 `confirmed_chapter_reading_trail.json`，把确认稿、世界线状态、来源作者采纳、多视角 `character_lens_volumes.json` 中的世界正史卷、角色个人卷和事件多视角串成可回读证据链；作者采纳台确认结果区可展示来源沙盘 run、阅读链状态、事件节点数和证据 refs。 |
 | S9 Author Adoption Feed-forward Pack | 已收口第一版 | `POST /api/stories/<slug>/author-adoption` 对采纳、部分采纳、另开分支生成 `next_chapter_brief.writing_plan` 与 `feed_forward`：可读下一章 brief、伏笔调整、原大纲差异、Reviewer 建议、`chapter_generation_inputs`、`sandbox_continuation_inputs` 和 `next_round_reads`。部分采纳保留待修订冲突；另开分支创建作者分支 `worldline_state.json`，后续入口指向作者分支且不覆盖根正史。作者采纳台展示“原大纲 vs 沙盘涌现剧情 vs 下一章可写方案”。 |
 | S9 Draft Revision Pack | 已收口第一版 | `author_chapter_draft` 生成 `draft_revision_pack.json`，包含确认前 gate、局部改写建议、建议改法、证据引用和边界说明；作者采纳台在草稿编辑区展示“局部修订包”。真实 LLM smoke 生成 1047 字正文，Reviewer 四项全通过，修订包 ready 且有 3 条局部建议。 |
-| S9 Reviewer Rewrite Adoption | 已收口第一版 | 新增 `author_chapter_rewrite_application` service/API/UI，作者可在采纳台勾选 `draft_revision_pack.json` 的片段级局部重写，生成 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md`，并 additive 反哺 `next_chapter_draft.json`、确认入卷和 `worldline_state.confirmed_chapter_entry.accepted_rewrite_ids`。 |
+| S9 Reviewer Rewrite Adoption / Edited Final | 已收口第一版 | 新增 `author_chapter_rewrite_application` service/API/UI，作者可在采纳台勾选 `draft_revision_pack.json` 的片段级局部重写，生成 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json` / `edited_final_chapter.md`，并 additive 反哺 `next_chapter_draft.json`、确认入卷、`continuation_effect.next_sandbox_entry.edited_final_chapter` 和 `worldline_state.confirmed_chapter_entry.accepted_rewrite_ids`；确认入卷在无手动编辑时自动采用编辑后定稿。 |
 | S8/S9 Continuous Reading Chapter | 已收口第一版 | `author_chapter_draft` 生成 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，读取 S8 `character_lens_volumes.json`、S9 草稿、具象代偿和下一章 brief，把世界正史卷、角色个人卷、事件多视角编排为 4 个以上连续阅读场景、阅读流、下一章钩子和卷宗证据；作者采纳台展示“连续阅读稿”。 |
 | Dossier Reading Page Productization | 已收口第一版 | 新增 `dossier_reading` service/API 与前端 `DossierReadingPage`，默认进入连续阅读正文态，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认正文；认知偏差可见，证据链折叠展示，不新增持久 artifact，不破坏既有 API/artifact。 |
 
-当前验证基线：后端 `946 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+当前验证基线：后端 `947 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
 ## 3. 当前自主迭代点
 
@@ -121,7 +121,7 @@
 
 当前官方下一步是：
 
-> 多轮策略规划、长期关系/势力博弈、多视角/章节长正文质量、正文内锚点跳转/误会图谱和自动编辑后定稿。
+> 多轮策略规划、长期关系/势力博弈、多视角/章节长正文质量、正文内锚点跳转/误会图谱、更强真实语义 Reviewer 和整章风格润色。
 
 后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。用户已允许真实 API 参与测试或联调；默认常规测试仍保持 deterministic/mockable，真实模型 smoke 只在显式 opt-in 时运行。
 
