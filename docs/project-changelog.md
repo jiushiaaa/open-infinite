@@ -2386,3 +2386,14 @@
 - **边界**：
   - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
 
+### 2026-06-06 — Entry Terminology Cleanup
+
+- **做了什么**：
+  - 清理 `AGENTS.md`、`memory.md` 与 `engine/README.md` 中残留的具体 Graph/provider spike 标签，统一改为“重型 provider 试验”“Graph/长期记忆支撑层”或“mock 复核链”。
+  - 目的不是改变历史事实，而是让下一次入口扫描不会把支撑层名称误读成当前下一刀。
+- **验证**：
+  - 根入口与 docs 非归档扫描：检查旧基线、旧下一刀、Graph/provider 扩张、后续增强逐刀历史和支撑层待办标签。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
+

@@ -100,7 +100,7 @@ memory.md
 
 ```text
 GraphRAG / Zep
-provider spike
+重型 provider 试验
 真实向量检索评测
 OpenAPI / typed client 面板
 发行准备
@@ -114,7 +114,7 @@ OpenAPI / typed client 面板
 
 | 分类 | 当前口径 |
 | --- | --- |
-| 已闭环支撑层 | v0.7-v1.0-local、Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review、真实 retrieval provider 和 opt-in Vector Retrieval Pipeline 均为已收口支撑层 |
+| 已闭环支撑层 | v0.7-v1.0-local、运行前体检至 Graph/长期记忆 mock 复核链、真实 retrieval provider 和 opt-in Vector Retrieval Pipeline 均为已收口支撑层 |
 | 世界沙盘主链第一版 | S1-S9 已有 service/API/UI/artifact/tests 第一版，包括 LLM decision advisory、主观记忆、天命书、干预投放、L5 觉醒/模因传播、因果债具象化、自演检查点、多视角正文和作者采纳 |
 | 最近产品化闭环 | 卷宗阅读页、世界自演结果页可读入口、Reviewer 局部重写到作者采纳台、编辑后定稿再到下一章入口，均已完成第一版 |
 | 仍需深入 | 多轮策略规划、长期关系/势力博弈、真实长正文文风、正文内锚点/误会图谱、更强真实语义 Reviewer 和整章风格润色 |
