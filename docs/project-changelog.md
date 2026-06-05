@@ -2338,3 +2338,15 @@
 - **边界**：
   - 本轮仍是 docs-only，不移动历史归档、不改代码、不改变 artifact/API 契约或 `run_scene` 默认行为。
 
+### 2026-06-06 — Main PRD Current-State Rewrite
+
+- **做了什么**：
+  - 重写 `docs/living-novel-engine-prd.md`，把它从混有 v0.8/v0.9/v1.0、检索、Graph/provider 和商业化边界长历史的综合文档，收束为当前产品 PRD。
+  - 新 PRD 只保留产品定位、用户价值、主体验、当前已闭环、真实未做项、明确后置项、非目标、验收口径和文档指路。
+  - 同步 `memory.md` 与 `docs/index.md`，明确历史逐刀细节回指 `project-changelog.md`、`completed/README.md` 和支撑层索引。
+- **验证**：
+  - 入口层过期口径扫描：确认主 PRD 不再包含旧 Graph/provider 长端点清单、旧 v0.8/v0.9 待办段或旧下一刀建议。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
+

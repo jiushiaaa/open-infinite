@@ -17,6 +17,8 @@
 
 2026-06-06 支撑层清单瘦身：`docs/后续增强清单.md` 已从逐刀长待办改为“LNE 支撑层与后置增强索引”，只保留已收口分组、触发式增强规则、研究参考和追溯入口。它现在用于证明 provider、Graph、检索、OpenAPI、发行、商业化等能力已作为支撑层收口，或在用户明确点名时判断触发条件；不能从中挑选默认下一刀。
 
+2026-06-06 主 PRD 瘦身：`docs/living-novel-engine-prd.md` 已从混有 v0.8/v0.9/v1.0 和 Graph/provider 长历史的综合长文，收束为当前产品 PRD；只保留定位、主体验、用户价值、已闭环、真实未做项、后置边界和验收口径。历史逐刀细节回指 `docs/project-changelog.md`、`docs/completed/README.md` 和 `docs/后续增强清单.md`。
+
 ---
 
 ## 1. 当前状态（先读）
