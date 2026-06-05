@@ -392,6 +392,7 @@ from .world_sandbox import (
 )
 from .world_autopilot import (
     WorldAutopilotRequestError,
+    get_world_autopilot_readable_entry,
     get_world_autopilot_task,
     pause_world_autopilot_task,
     replay_world_autopilot_checkpoint,
@@ -652,6 +653,7 @@ __all__ = [
     "WorldlineDossierRequestError",
     "DossierReadingRequestError",
     "get_character_subjective_memory",
+    "get_world_autopilot_readable_entry",
     "get_world_autopilot_task",
     "get_dossier_reading",
     "get_worldline_dossier",

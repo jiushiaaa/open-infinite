@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 // "#/world/<slug>/lens"         → 多视角活体小说
 // "#/world/<slug>/author"       → 作者采纳台
 // "#/world/<slug>/worldlines/<id>" → 世界线档案
-// "#/world/<slug>/worldlines/<id>/reading" → 世界内部卷宗阅读
+// "#/world/<slug>/worldlines/<id>/reading[/tab]" → 世界内部卷宗阅读
 // "#/world/<slug>/worldlines/<id>/checkpoints/<run>/<checkpoint>" → 检查点回放
 // "#/anchor/<slug>"             → 世界锚定页
 // "#/import"                    → 导入小说
@@ -21,7 +21,7 @@ export type Route =
   | { name: "lens"; slug: string }
   | { name: "author"; slug: string }
   | { name: "worldline"; slug: string; worldlineId: string }
-  | { name: "dossierReading"; slug: string; worldlineId: string }
+  | { name: "dossierReading"; slug: string; worldlineId: string; tab?: string }
   | {
       name: "checkpoint";
       slug: string;
@@ -66,6 +66,7 @@ function parseHash(): Route {
         name: "dossierReading",
         slug: decodeURIComponent(parts[1]),
         worldlineId: decodeURIComponent(parts[3]),
+        tab: parts[5] ? decodeURIComponent(parts[5]) : undefined,
       };
     }
     return {
@@ -110,6 +111,7 @@ export function navigate(route: Route): void {
     next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
       route.worldlineId,
     )}/reading`;
+    if (route.tab) next += `/${encodeURIComponent(route.tab)}`;
   }
   else if (route.name === "checkpoint") {
     next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(

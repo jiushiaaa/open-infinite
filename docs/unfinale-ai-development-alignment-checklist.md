@@ -7,6 +7,7 @@
 > 2026-06-06 真实 smoke 补充：S5 觉醒传播、世界演化、S8 多视角正文、S9 作者采纳到真实 LLM 草稿和确认入卷已做小样本端到端验收。首个修复点是新增 `meme_propagation_readout`，把模因传播的真相载荷、采信状态、反应和摘要作为可读字段暴露给 API/UI，避免真实报告看起来像只有空状态。
 > 2026-06-06 叙事占位修复补充：针对真实 smoke 暴露的“世界演化像账本、S8/S9 像卷宗、Reviewer 只列建议”的问题，已新增 `narrative_timeline`、checkpoint `scene_beats` / `chapter_seed`、S8 `novel_scene_plan`、连续阅读 `story_beat_source` 和 Reviewer `editorial_revision_draft`。后续开工要优先检查这些字段是否真的被正文消费，而不是只确认 artifact 存在。
 > 2026-06-06 卷宗阅读页补充：已新增 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 和 `DossierReadingPage`，把连续阅读稿、确认稿、阅读 trail、多视角卷宗和世界线 dossier 聚合为默认正文阅读页；可切换世界正史卷、主锚点卷、角色个人卷、事件多视角并看到认知偏差，证据链默认折叠。后续不要再把阅读体验继续堆回 Workspace 或 JSON 面板。
+> 2026-06-06 自演结果页补充：`autopilot_report.json` 已新增 `readable_entry`，`GET /api/world-autopilot-runs/<run_id>/readable-entry` 与 checkpoint replay 可返回同一“醒来从这里读”入口；世界沙盘结果页可直接跳最近检查点、角色个人卷、事件多视角和连续阅读，并展示状态变化原因、记忆变化和发酵中的因果债。后续不要把自演结果只做成 JSON/任务面板。
 
 ## 1. 开工前必读
 
@@ -87,7 +88,7 @@
 - `outputs/<run_id>/sandbox_rounds.jsonl`
 - `outputs/<run_id>/subjective_memory_delta.json`
 - `outputs/<run_id>/tianming_delta.json`
-- `outputs/<run_id>/autopilot_report.json`
+- `outputs/<run_id>/autopilot_report.json`（含 `readable_entry` 醒来阅读入口）
 - `outputs/<run_id>/character_lens_briefs.json`
 - `projects/<slug>/author_adoption_ledger.jsonl`
 - `outputs/<run_id>/author_adoption_record.json`
@@ -106,7 +107,7 @@
 - `outputs/<run_id>/event_materials.json` 或等价事件材料账本，目前多视角 brief 已存在，但事件材料化还不够独立。
 - 世界线《天命书》快照第一刀已存在：L4/L5 / AU 预编译可写 `worldlines/<worldline_id>/tianming_snapshot.json` 且不覆盖根天命书；本次新增 `worldlines/<worldline_id>/worldline_state.json`，记录快照审计状态、来源干预、分支承接、因果债、锚点状态、候选承载者、模因污染和作者采纳反哺，后续沙盘会读取它。
 - 持久世界状态 ledger 已有第二轮：`worldline_state.json` 已成为下一轮沙盘输入；本次新增 `consequence_state`，将代偿代价具象为地点、资源、伤势、舆论、势力和环境六域，并保留近轮 ledger。
-- 章节 brief / 正文产物已有第一版：`character_lens_volumes.json` 生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文；`next_chapter_brief.json` 已包含 `materialized_consequences`、`writing_plan` 和 `feed_forward`，能把采纳/部分采纳/另开分支转成下一章生成输入与后续沙盘入口；`next_chapter_draft.json` / `next_chapter_draft.md` 把采纳 brief 生成可读下一章正文；`continuous_reading_chapter.json` / `continuous_reading_chapter.md` 把草稿、S8 卷宗和具象代偿编排为可按场景连续阅读的章节稿；`confirmed_chapter_entry.json` / `confirmed_chapter.md` 支持作者编辑确认并正式入卷；`confirmed_chapter_reading_trail.json` 把确认稿回读到世界正史卷、角色个人卷和事件多视角证据；`dossier-reading` API 与卷宗阅读页把这些产物组织成默认小说阅读入口；仍需局部重写、更强 Reviewer、正文内锚点跳转和真实 LLM 长文质量控制。
+- 章节 brief / 正文产物已有第一版：`character_lens_volumes.json` 生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文；`next_chapter_brief.json` 已包含 `materialized_consequences`、`writing_plan` 和 `feed_forward`，能把采纳/部分采纳/另开分支转成下一章生成输入与后续沙盘入口；`next_chapter_draft.json` / `next_chapter_draft.md` 把采纳 brief 生成可读下一章正文；`continuous_reading_chapter.json` / `continuous_reading_chapter.md` 把草稿、S8 卷宗和具象代偿编排为可按场景连续阅读的章节稿；`confirmed_chapter_entry.json` / `confirmed_chapter.md` 支持作者编辑确认并正式入卷；`confirmed_chapter_reading_trail.json` 把确认稿回读到世界正史卷、角色个人卷和事件多视角证据；`dossier-reading` API 与卷宗阅读页把这些产物组织成默认小说阅读入口；`readable_entry` 把自演结果页、检查点、角色个人卷、事件多视角和连续阅读串成醒来后的阅读路径；仍需局部重写、更强 Reviewer、正文内锚点跳转和真实 LLM 长文质量控制。
 
 ## 6. 已落地的第一批 API 与下一步
 

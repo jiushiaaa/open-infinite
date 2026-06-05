@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { api } from "../api/client";
 import type {
   SubjectiveMemoryReport,
+  WorldAutopilotReadableEntry,
   WorldAutopilotReport,
   WorldSandboxRunReport,
 } from "../api/types";
@@ -10,6 +11,12 @@ import { ErrorState, EmptyState } from "./common/States";
 import "./worldSandbox.css";
 
 const DEFAULT_EVENT = "老皇帝驾崩，边境军报同时传入归云斋。";
+
+function openReadableRoute(route: string) {
+  if (route.startsWith("#/")) {
+    window.location.hash = route;
+  }
+}
 
 export function WorldSandboxPage({ slug }: { slug: string }) {
   const [majorEvent, setMajorEvent] = useState(DEFAULT_EVENT);
@@ -497,6 +504,9 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                     </p>
                   )}
                 </div>
+              )}
+              {autopilotReport.readable_entry && (
+                <WakeReadingEntry entry={autopilotReport.readable_entry} />
               )}
               {autopilotReport.overnight_report?.timeline?.length ? (
                 <div className="sandbox-timeline">
@@ -1175,6 +1185,82 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         </main>
       </div>
     </div>
+  );
+}
+
+function WakeReadingEntry({ entry }: { entry: WorldAutopilotReadableEntry }) {
+  const memoryRows = entry.memory_readout.who_remembered_what.slice(0, 4);
+  const domains = entry.causal_debt_readout.domains
+    ? Object.entries(entry.causal_debt_readout.domains).slice(0, 4)
+    : [];
+  return (
+    <section className="sandbox-wake-entry" aria-label="醒来阅读入口">
+      <div className="sandbox-section__title">
+        <div>
+          <h3>醒来从这里读</h3>
+          <p className="muted tiny">{entry.state_change_explanation.headline}</p>
+        </div>
+        <span className="badge badge--jade">
+          {entry.latest_checkpoint.checkpoint_id || "最新检查点"}
+        </span>
+      </div>
+
+      <div className="sandbox-wake-actions">
+        {entry.primary_actions.map((action) => (
+          <button
+            key={action.id}
+            className="btn btn--ghost"
+            onClick={() => openReadableRoute(action.route)}
+            title={action.reason}
+          >
+            {action.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="sandbox-wake-grid">
+        <article>
+          <span>为什么世界变了</span>
+          <strong>{entry.state_change_explanation.why_world_changed}</strong>
+          {entry.state_change_explanation.stop_evidence && (
+            <p className="muted tiny">
+              停止证据：{entry.state_change_explanation.stop_evidence}
+            </p>
+          )}
+        </article>
+        <article>
+          <span>谁记住了什么</span>
+          <strong>{entry.memory_readout.summary}</strong>
+          {memoryRows.map((item, index) => (
+            <p className="muted tiny" key={`${item.character_id}-${index}`}>
+              {item.character_id || "角色"}：{item.remembered || "记住了本轮变化"}
+            </p>
+          ))}
+        </article>
+        <article>
+          <span>哪条因果债在发酵</span>
+          <strong>{entry.causal_debt_readout.summary}</strong>
+          {entry.causal_debt_readout.next_round_hint && (
+            <p className="muted tiny">{entry.causal_debt_readout.next_round_hint}</p>
+          )}
+        </article>
+      </div>
+
+      {domains.length > 0 && (
+        <div className="sandbox-wake-domains">
+          {domains.map(([key, item]) => (
+            <article key={key}>
+              <span>{item.label || key}</span>
+              <strong>{item.current || "等待显形"}</strong>
+              <p className="muted tiny">
+                {item.pressure || "压力待定"}
+                {item.bearer ? ` · 承压：${item.bearer}` : ""}
+              </p>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

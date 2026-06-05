@@ -121,6 +121,7 @@ import type {
   VisualAssets,
   VisualAssetsGenerateRequest,
   WorldAnchor,
+  WorldAutopilotReadableEntry,
   WorldAutopilotReport,
   WorldAutopilotCheckpointReplayReport,
   WorldlineDossierReport,
@@ -658,6 +659,13 @@ export const api = {
       `/api/world-autopilot-runs/${encodeURIComponent(
         runId,
       )}/checkpoints/${encodeURIComponent(checkpointId)}`,
+    );
+  },
+  getWorldAutopilotReadableEntry(
+    runId: string,
+  ): Promise<WorldAutopilotReadableEntry> {
+    return getJson(
+      `/api/world-autopilot-runs/${encodeURIComponent(runId)}/readable-entry`,
     );
   },
   generateCharacterLens(

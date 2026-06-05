@@ -7,6 +7,7 @@
 > 真实 smoke 读数修复：S5/S8/S9 小样本端到端验收已确认真实链路成立，并补 `meme_propagation_readout`，让模因传播从底层字段升级为可读的真相载荷、采信状态、反应和摘要。
 > 叙事节拍补强：本轮继续修复结构占位感，`autopilot_report.json` 新增 `narrative_timeline`，checkpoint 新增 `scene_beats` / `chapter_seed`；S8 `character_lens_volumes.json` 新增 `novel_scene_plan`；S9 `continuous_reading_chapter.json` 优先消费 S8 场景计划，`draft_revision_pack.json` 新增 `editorial_revision_draft`。真实 LLM 小样本复测通过，并修复自演开场 hook 的重复角色名、双句号和模板拼接痕迹。
 > 卷宗阅读页产品化：新增 `dossier-reading` 只读 API 与 `DossierReadingPage`，将连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier 聚合成默认正文阅读页；用户可切换世界正史卷、主锚点卷、角色个人卷、事件多视角并查看认知偏差，证据链默认折叠。
+> 自演结果页可读入口：`autopilot_report.json` 新增 `readable_entry`，并新增 `GET /api/world-autopilot-runs/<run_id>/readable-entry`；世界沙盘结果页、检查点回放页和世界线页可直接进入最近检查点、角色个人卷、事件多视角和连续阅读，同时展示状态变化原因、记忆变化和发酵中的因果债。
 
 ## 1. 产品北极星
 
@@ -100,6 +101,7 @@
 | S6 Materialized Consequence State | 已收口第一版 | 新增 `worldline_state.consequence_state`，将因果债具象为地点、资源、伤势、舆论、势力和环境六域，保留近轮 ledger；后续沙盘会读取为 `decision_inputs.worldline_consequences`，自演 checkpoint/overnight report 会展示具象代偿，多视角正文 evidence chain 增加 `consequence_state_refs`，作者采纳后的 `next_chapter_brief.json` 增加 `materialized_consequences`。 |
 | S7 World Autopilot Unattended Recovery | 已收口第一版 | `world-autopilot/run` 支持 `causal_debt` 与 `awakening` 目标，`autopilot_report.json` 新增 `status`、`stop_condition`、`recovery`、失败记录、醒来时间线和 checkpoint recovery；本地任务保存原始请求、失败原因和最近检查点，失败后 resume 可从最近 checkpoint 生成接续报告；世界沙盘页展示进度刷新、暂停、恢复、停止证据、失败原因、时间线和回放入口。 |
 | Worldline Dossier / Checkpoint Replay Pages | 已收口第一版 | 新增 `worldline_dossier` service/API，聚合 `worldline_state.json`、天命快照审计、自演任务和 autopilot checkpoints；前端新增世界线独立页与检查点回放页，沙盘结果和自演检查点可跳转查看分支承接、来源干预、具象代偿、任务进度、暂停/恢复和回放入口。 |
+| World Autopilot Readable Entry | 已收口第一版 | `autopilot_report.json` 新增 `readable_entry`，并提供只读 API 复算；自演结果页展示“醒来从这里读”，可跳最近关键检查点、角色个人卷、事件多视角和连续阅读，检查点回放页也能继续导流。 |
 | S9 Author Chapter Draft Entry | 已收口第一版 | 新增 `author_chapter_draft` service/API/UI，读取作者采纳记录、`next_chapter_brief.json`、世界线状态和具象代偿，输出 `next_chapter_draft.json` / `next_chapter_draft.md`、证据链和 Reviewer 检查；真实 LLM smoke 使用 `qwen3.5-plus` 生成 1101 字正文并命中角色信息差与世界代偿，Reviewer 四项全通过。 |
 | S9 Author Chapter Confirmation Entry | 已收口第一版 | 新增 `author_chapter_confirmation` service/API/UI，作者可在采纳台编辑草稿并确认入卷，输出 `confirmed_chapter_entry.json` / `confirmed_chapter.md`，回写 `worldline_state.confirmed_chapter_entry`、确认历史和后续沙盘入口；不覆盖正史 `chapter.md`，不改 `run_scene` 默认行为。 |
 | S9 Confirmed Chapter Reading Trail | 已收口第一版 | 确认入卷时新增 `confirmed_chapter_reading_trail.json`，把确认稿、世界线状态、来源作者采纳、多视角 `character_lens_volumes.json` 中的世界正史卷、角色个人卷和事件多视角串成可回读证据链；作者采纳台确认结果区可展示来源沙盘 run、阅读链状态、事件节点数和证据 refs。 |
@@ -108,7 +110,7 @@
 | S8/S9 Continuous Reading Chapter | 已收口第一版 | `author_chapter_draft` 生成 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，读取 S8 `character_lens_volumes.json`、S9 草稿、具象代偿和下一章 brief，把世界正史卷、角色个人卷、事件多视角编排为 4 个以上连续阅读场景、阅读流、下一章钩子和卷宗证据；作者采纳台展示“连续阅读稿”。 |
 | Dossier Reading Page Productization | 已收口第一版 | 新增 `dossier_reading` service/API 与前端 `DossierReadingPage`，默认进入连续阅读正文态，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认正文；认知偏差可见，证据链折叠展示，不新增持久 artifact，不破坏既有 API/artifact。 |
 
-当前验证基线：后端 `944 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+当前验证基线：后端 `945 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
 ## 3. 当前自主迭代点
 

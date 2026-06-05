@@ -12,6 +12,8 @@
 
 本次卷宗阅读页产品化新增 `dossier-reading` 只读 API 与 `DossierReadingPage`：它聚合连续阅读稿、确认正文、跨卷宗阅读链、多视角卷宗和世界线 dossier，默认进入小说正文阅读；用户可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿，认知偏差可见，证据链默认折叠。该入口不新增持久 artifact，不覆盖既有章节产物。
 
+本次世界自演结果页补强新增 `readable_entry`：`autopilot_report.json` 会派生“醒来从这里读”的入口包，`GET /api/world-autopilot-runs/<run_id>/readable-entry` 可只读复算，checkpoint replay 也会返回同一入口。世界沙盘结果页可直接进入最近关键检查点、角色个人卷、事件多视角和连续阅读，并展示状态变化原因、角色记忆与发酵中的因果债；世界线页和卷宗阅读路由支持精准落到连续阅读/角色个人卷/事件多视角。
+
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
 当前事实、版本状态和暂停点以根目录 [`../memory.md`](../memory.md) 为准；历史版本细节在 [`../docs/completed/`](../docs/completed/README.md)。
@@ -85,6 +87,7 @@
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`：读取可持续世界线状态。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`：聚合世界线状态、天命审计、自演任务和检查点，供世界线档案页展示。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`：聚合连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier，供世界内部卷宗阅读页展示；不新增持久 artifact。
+- `GET /api/world-autopilot-runs/<run_id>/readable-entry`：读取或复算自演报告的可读世界线入口，返回最近检查点、角色个人卷、事件多视角、连续阅读路由以及状态变化/记忆/因果债摘要。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>`：读取自演任务进度。
 - `POST /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>/pause|resume`：暂停或恢复本地自演任务状态。
 - `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`：回放自演检查点。
@@ -94,7 +97,7 @@
 - `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation`：把作者编辑后的草稿确认入卷，写入确认记录、Markdown 正文和跨卷宗阅读链，并回写世界线状态与下一轮沙盘入口。
 - `projects/<slug>/tianming.json`：叙事吸引子、题材约束、锚点状态、合约压力和候选天命承载者。
 - `outputs/<run_id>/tianming_delta.json`：世界线代偿报告。
-- `outputs/<run_id>/autopilot_report.json`：世界自演报告，包含目标、状态、停止原因、停止证据、沙盘运行、最终阶段、醒来时间线、`narrative_timeline`、失败恢复信息和检查点索引；每个 checkpoint 额外带 `scene_beats` 与 `chapter_seed`。
+- `outputs/<run_id>/autopilot_report.json`：世界自演报告，包含目标、状态、停止原因、停止证据、沙盘运行、最终阶段、醒来时间线、`narrative_timeline`、失败恢复信息、检查点索引和 `readable_entry` 可读世界线入口；每个 checkpoint 额外带 `scene_beats` 与 `chapter_seed`。
 - `outputs/<run_id>/checkpoints/checkpoint_*.json`：每轮自演检查点，记录大事件、锚点压力、因果债、角色记忆变化和后续剧情可能性，可作为失败恢复入口。
 - `worldline_dossier`：只读 API 聚合，不新增持久 artifact；读取世界线状态、自演任务和检查点，驱动世界线页与检查点回放页。
 - `outputs/<run_id>/character_lens_briefs.json`：多视角活体小说 brief，记录世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角。
@@ -414,7 +417,7 @@ outputs/<run_id>/
 | 故事/项目 | `GET /api/stories`、`GET /api/stories/<slug>`、`GET /api/stories/<slug>/project-workspace`、`GET /api/stories/<slug>/runtime-preflight`、`GET /api/stories/<slug>/cards-workspace`、`GET /api/stories/<slug>/vector-retrieval-readiness`、`POST /api/stories/<slug>/vector-retrieval/index`、`POST /api/stories/<slug>/vector-retrieval/search`、`GET /api/stories/<slug>/embedding-evaluation-samples`、`GET /api/stories/<slug>/retrieval-sample-export-pack`、`GET /api/stories/<slug>/embedding-mock-evaluation-report`、`GET /api/stories/<slug>/retrieval-sample-replay-report`、`GET /api/stories/<slug>/retrieval-sample-migration-pack`、Graph Memory provider spike 系列端点（trigger/design/shadow/case/boundary/replay/fixture/readiness/runbook/result/mock/review/approval/opt-in/final/signoff/config/contract/harness/adapter/manual-mock-review）、`GET/POST /api/stories/<slug>/retrieval-failure-samples` |
 | 导入/创世/job | `POST /api/import-novel`、`POST /api/story-genesis`、`POST /api/jobs/import-novel`、`GET /api/jobs/<id>` |
 | 干预/续写 | `POST /api/interventions`、`POST /api/jobs/intervention`、`POST /api/jobs/resume-continue` |
-| 世界沙盘/卷宗 | `POST /api/stories/<slug>/sandbox/run`、`GET /api/sandbox-runs/<run_id>`、`GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`、`GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`、`POST /api/stories/<slug>/author-adoption` |
+| 世界沙盘/卷宗 | `POST /api/stories/<slug>/sandbox/run`、`GET /api/sandbox-runs/<run_id>`、`GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`、`GET /api/world-autopilot-runs/<run_id>/readable-entry`、`GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`、`POST /api/stories/<slug>/author-adoption` |
 | run/branch | `GET /api/runs`、`GET /api/runs/<run_id>`、`GET /api/runs/<run_id>/branches/<branch_id>`、`GET /api/runs/<run_id>/branches/<branch_id>/projection-health`、`GET /api/runs/<run_id>/branches/<branch_id>/reader-panel`、`GET /api/runs/<run_id>/branches/<branch_id>/prompt-budget-pack` |
 | 评估/审计 | baseline、canon replay、worldline judgement、replay audit、audit log、creation loop closeout |
 | 导出 | chapter export、chapter collection export、audit log export |

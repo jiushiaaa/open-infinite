@@ -1083,6 +1083,63 @@ export interface WorldAutopilotNarrativeTimelineItem {
   evidence_refs: string[];
 }
 
+export interface WorldAutopilotReadableEntry {
+  version: string;
+  story_slug: string;
+  worldline_id: string;
+  run_id: string;
+  latest_checkpoint: {
+    checkpoint_id: string;
+    round_index: number;
+    stage: string;
+    major_event: string;
+    sandbox_run_id: string;
+  };
+  protagonist: {
+    character_id?: string;
+    character_name?: string;
+  };
+  routes: {
+    worldline_dossier: string;
+    latest_checkpoint: string;
+    protagonist_volume: string;
+    event_multi_perspective: string;
+    continuous_reading: string;
+  };
+  primary_actions: Array<{
+    id: string;
+    label: string;
+    route: string;
+    reason: string;
+    status: string;
+  }>;
+  state_change_explanation: {
+    headline: string;
+    why_world_changed: string;
+    stop_evidence?: string;
+    narrative_thread: Array<{
+      round_index?: number;
+      checkpoint_id?: string;
+      scene_hook?: string;
+      turn?: string;
+      consequence?: string;
+      handoff?: string;
+    }>;
+  };
+  memory_readout: {
+    summary: string;
+    who_remembered_what: Array<{ character_id?: string; remembered?: string }>;
+  };
+  causal_debt_readout: {
+    summary: string;
+    level?: string;
+    next_round_hint?: string;
+    domains?: WorldlineConsequenceState["domains"];
+  };
+  context_bridge: string[];
+  boundaries: string[];
+}
+
 export interface WorldAutopilotReport {
   version: string;
   artifact: string;
@@ -1152,6 +1209,7 @@ export interface WorldAutopilotReport {
     checkpoint_recovery?: WorldAutopilotRecovery;
   };
   recovery?: WorldAutopilotRecovery;
+  readable_entry?: WorldAutopilotReadableEntry;
   failure?: {
     message?: string;
     failed_round?: number;
@@ -1326,6 +1384,7 @@ export interface WorldAutopilotCheckpointReplayReport {
     can_resume_from_here: boolean;
     resume_hint?: string;
   };
+  readable_entry?: WorldAutopilotReadableEntry;
 }
 
 export interface CharacterLensPerspective {

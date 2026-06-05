@@ -15,6 +15,7 @@ from living_novel_engine.service.world_sandbox import run_sandbox_round
 
 VERSION = "world-autopilot-v1"
 ARTIFACT = "autopilot_report.json"
+READABLE_ENTRY_VERSION = "world-autopilot-readable-entry-v1"
 
 
 class WorldAutopilotRequestError(ValueError):
@@ -229,6 +230,7 @@ def run_world_autopilot(
             "后续可把事件和时间目标扩展为可视化时间轴与命中证据。",
         ],
     }
+    report["readable_entry"] = _readable_entry(report)
     if failure is not None:
         report["failure"] = failure
     (run_dir / ARTIFACT).write_text(
@@ -386,6 +388,7 @@ def replay_world_autopilot_checkpoint(
     if not path.exists():
         raise FileNotFoundError(f"检查点不存在: {cid}")
     checkpoint = _read_json(path)
+    report = _read_autopilot_report(rid, root=root)
     return {
         "version": VERSION,
         "run_id": rid,
@@ -397,7 +400,24 @@ def replay_world_autopilot_checkpoint(
             "can_resume_from_here": True,
             "resume_hint": f"可从 {checkpoint.get('checkpoint_id') or cid} 继续世界自演。",
         },
+        "readable_entry": _readable_entry(report, focus_checkpoint_id=cid),
     }
+
+
+def get_world_autopilot_readable_entry(
+    run_id: str,
+    *,
+    outputs_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Return the wake-up reading entry for a world autopilot report."""
+
+    rid = _checked_id(run_id, "run_id")
+    root = outputs_dir or default_outputs_dir()
+    report = _read_autopilot_report(rid, root=root)
+    cached = report.get("readable_entry")
+    if isinstance(cached, dict) and cached.get("version") == READABLE_ENTRY_VERSION:
+        return cached
+    return _readable_entry(report)
 
 
 def _checkpoint(
@@ -683,6 +703,274 @@ def _final_stage(checkpoints: list[dict[str, Any]]) -> dict[str, str]:
     }
 
 
+def _readable_entry(
+    report: dict[str, Any],
+    *,
+    focus_checkpoint_id: str = "",
+) -> dict[str, Any]:
+    checkpoints = [
+        item
+        for item in report.get("checkpoints", [])
+        if isinstance(item, dict)
+    ]
+    latest = _pick_checkpoint(checkpoints, focus_checkpoint_id)
+    story_slug = str(report.get("story_slug") or "")
+    worldline_id = str(report.get("worldline_id") or "main")
+    run_id = str(report.get("run_id") or "")
+    checkpoint_id = str(latest.get("checkpoint_id") or "")
+    protagonist = _protagonist_from_checkpoint(latest)
+    routes = _readable_routes(
+        story_slug=story_slug,
+        worldline_id=worldline_id,
+        run_id=run_id,
+        checkpoint_id=checkpoint_id,
+    )
+    overnight = (
+        report.get("overnight_report")
+        if isinstance(report.get("overnight_report"), dict)
+        else {}
+    )
+    consequence = (
+        latest.get("consequence_state")
+        if isinstance(latest.get("consequence_state"), dict)
+        else {}
+    )
+    timeline = (
+        overnight.get("narrative_timeline")
+        if isinstance(overnight.get("narrative_timeline"), list)
+        else []
+    )
+    return {
+        "version": READABLE_ENTRY_VERSION,
+        "story_slug": story_slug,
+        "worldline_id": worldline_id,
+        "run_id": run_id,
+        "latest_checkpoint": {
+            "checkpoint_id": checkpoint_id,
+            "round_index": latest.get("round_index") or 0,
+            "stage": latest.get("stage") or "世界尚未留下检查点。",
+            "major_event": latest.get("major_event") or "",
+            "sandbox_run_id": latest.get("sandbox_run_id") or "",
+        },
+        "protagonist": protagonist,
+        "routes": routes,
+        "primary_actions": _readable_actions(
+            routes=routes,
+            latest=latest,
+            protagonist=protagonist,
+        ),
+        "state_change_explanation": {
+            "headline": overnight.get("what_happened")
+            or report.get("final_world_stage", {}).get("summary")
+            or "世界自演已结束。",
+            "why_world_changed": overnight.get("why_world_changed")
+            or _why_world_changed(latest),
+            "stop_evidence": (
+                report.get("stop_condition", {}).get("evidence")
+                if isinstance(report.get("stop_condition"), dict)
+                else ""
+            ),
+            "narrative_thread": _narrative_thread(timeline, latest),
+        },
+        "memory_readout": {
+            "summary": _memory_summary(latest),
+            "who_remembered_what": latest.get("who_remembered_what") or [],
+        },
+        "causal_debt_readout": {
+            "summary": consequence.get("summary")
+            or latest.get("causal_debt")
+            or "因果债尚未显形，但世界已经记账。",
+            "level": latest.get("causal_debt") or "",
+            "next_round_hint": consequence.get("next_round_hint") or "",
+            "domains": consequence.get("domains") or {},
+        },
+        "context_bridge": [
+            "从结果页先回放最近关键检查点，确认世界状态为何改变。",
+            "再进入角色个人卷，看主角记住了什么、误读了什么。",
+            "随后切到事件多视角，比较同一事件在不同角色心中的偏差。",
+            "最后回到连续阅读，沿下一章悬念继续读下去。",
+        ],
+        "boundaries": [
+            "readable_entry 只派生自 autopilot_report 与检查点，不改旧 artifact 契约。",
+            "连续阅读、角色个人卷和事件多视角入口可在资料未完备时先作为世界内部卷宗落点。",
+        ],
+    }
+
+
+def _pick_checkpoint(
+    checkpoints: list[dict[str, Any]],
+    focus_checkpoint_id: str,
+) -> dict[str, Any]:
+    if focus_checkpoint_id:
+        for checkpoint in checkpoints:
+            if checkpoint.get("checkpoint_id") == focus_checkpoint_id:
+                return checkpoint
+    return checkpoints[-1] if checkpoints else {}
+
+
+def _readable_routes(
+    *,
+    story_slug: str,
+    worldline_id: str,
+    run_id: str,
+    checkpoint_id: str,
+) -> dict[str, str]:
+    base = (
+        f"#/world/{story_slug}/worldlines/{worldline_id}"
+        if story_slug and worldline_id
+        else "#/"
+    )
+    return {
+        "worldline_dossier": base,
+        "latest_checkpoint": (
+            f"{base}/checkpoints/{run_id}/{checkpoint_id}"
+            if run_id and checkpoint_id
+            else base
+        ),
+        "protagonist_volume": f"{base}/reading/character_volume",
+        "event_multi_perspective": f"{base}/reading/event_multi_perspective",
+        "continuous_reading": f"{base}/reading/continuous_reading",
+    }
+
+
+def _readable_actions(
+    *,
+    routes: dict[str, str],
+    latest: dict[str, Any],
+    protagonist: dict[str, str],
+) -> list[dict[str, Any]]:
+    stage = str(latest.get("stage") or "最近检查点")
+    character_label = protagonist.get("character_name") or protagonist.get("character_id") or "主角"
+    return [
+        {
+            "id": "latest_checkpoint",
+            "label": "先看最近关键检查点",
+            "route": routes["latest_checkpoint"],
+            "reason": stage,
+            "status": "ready" if latest else "partial",
+        },
+        {
+            "id": "protagonist_volume",
+            "label": f"读{character_label}个人卷",
+            "route": routes["protagonist_volume"],
+            "reason": _memory_summary(latest),
+            "status": "ready",
+        },
+        {
+            "id": "event_multi_perspective",
+            "label": "比较关键事件多视角",
+            "route": routes["event_multi_perspective"],
+            "reason": "同一轮事件会带着各自的信息差、误判和隐瞒进入卷宗。",
+            "status": "ready",
+        },
+        {
+            "id": "continuous_reading",
+            "label": "继续下一段正文",
+            "route": routes["continuous_reading"],
+            "reason": _next_chapter_reason(latest),
+            "status": "ready",
+        },
+    ]
+
+
+def _protagonist_from_checkpoint(checkpoint: dict[str, Any]) -> dict[str, str]:
+    memories = checkpoint.get("who_remembered_what") or []
+    for item in memories if isinstance(memories, list) else []:
+        if not isinstance(item, dict):
+            continue
+        character_id = str(item.get("character_id") or "").strip()
+        if character_id:
+            return {
+                "character_id": character_id,
+                "character_name": character_id,
+            }
+    for beat in checkpoint.get("scene_beats") or []:
+        if not isinstance(beat, dict):
+            continue
+        character_id = str(beat.get("focus_character_id") or "").strip()
+        if character_id:
+            return {
+                "character_id": character_id,
+                "character_name": character_id,
+            }
+    return {"character_id": "", "character_name": "主角"}
+
+
+def _why_world_changed(checkpoint: dict[str, Any]) -> str:
+    if not checkpoint:
+        return "世界尚未推进。"
+    consequence = (
+        checkpoint.get("consequence_state")
+        if isinstance(checkpoint.get("consequence_state"), dict)
+        else {}
+    )
+    summary = str(consequence.get("summary") or "").strip()
+    return (
+        f"锚点压力 {checkpoint.get('anchor_pressure') or '未明'}，"
+        f"因果债 {checkpoint.get('causal_debt') or '未明'}。"
+        + (f"具象代偿：{summary}" if summary else "")
+    )
+
+
+def _memory_summary(checkpoint: dict[str, Any]) -> str:
+    memories = [
+        item
+        for item in checkpoint.get("who_remembered_what", [])
+        if isinstance(item, dict)
+    ]
+    if not memories:
+        return "本轮尚未留下明确主观记忆。"
+    first = memories[0]
+    who = first.get("character_id") or "角色"
+    remembered = first.get("remembered") or "记住了本轮变化"
+    suffix = f"；另有 {len(memories) - 1} 人留下记忆" if len(memories) > 1 else ""
+    return f"{who}记住：{remembered}{suffix}。"
+
+
+def _next_chapter_reason(checkpoint: dict[str, Any]) -> str:
+    seed = (
+        checkpoint.get("chapter_seed")
+        if isinstance(checkpoint.get("chapter_seed"), dict)
+        else {}
+    )
+    return (
+        seed.get("next_chapter_hook")
+        or seed.get("opening_hook")
+        or "从最近检查点留下的误会、代偿和因果债继续读。"
+    )
+
+
+def _narrative_thread(
+    timeline: list[Any],
+    latest: dict[str, Any],
+) -> list[dict[str, Any]]:
+    if timeline:
+        return [
+            {
+                "round_index": item.get("round_index"),
+                "checkpoint_id": item.get("checkpoint_id"),
+                "scene_hook": item.get("scene_hook") or "",
+                "turn": item.get("character_miscalculation") or "",
+                "consequence": item.get("materialized_consequence") or "",
+                "handoff": item.get("chapter_handoff") or "",
+            }
+            for item in timeline
+            if isinstance(item, dict)
+        ]
+    if not latest:
+        return []
+    return [
+        {
+            "round_index": latest.get("round_index"),
+            "checkpoint_id": latest.get("checkpoint_id"),
+            "scene_hook": latest.get("major_event") or "",
+            "turn": _memory_summary(latest),
+            "consequence": _why_world_changed(latest),
+            "handoff": _next_chapter_reason(latest),
+        }
+    ]
+
+
 def _objective(value: str) -> str:
     raw = str(value or "rounds").strip()
     if raw in {
@@ -891,6 +1179,14 @@ def _read_task(
     )
     if not path.exists():
         raise FileNotFoundError(f"世界自演任务不存在: {task_id}")
+    return _read_json(path)
+
+
+def _read_autopilot_report(run_id: str, *, root: Path) -> dict[str, Any]:
+    rid = _checked_id(run_id, "run_id")
+    path = root / rid / ARTIFACT
+    if not path.exists():
+        raise FileNotFoundError(f"世界自演报告不存在: {rid}")
     return _read_json(path)
 
 

@@ -27,9 +27,11 @@ const TAB_LABELS: Record<string, string> = {
 export function DossierReadingPage({
   slug,
   worldlineId,
+  initialTab,
 }: {
   slug: string;
   worldlineId: string;
+  initialTab?: string;
 }) {
   const [report, setReport] = useState<DossierReadingReport | null>(null);
   const [activeTab, setActiveTab] = useState<ReadingTab>("continuous_reading");
@@ -42,7 +44,7 @@ export function DossierReadingPage({
     try {
       const next = await api.getDossierReading(slug, worldlineId);
       setReport(next);
-      setActiveTab(next.default_tab || "continuous_reading");
+      setActiveTab(initialTab || next.default_tab || "continuous_reading");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -52,7 +54,7 @@ export function DossierReadingPage({
 
   useEffect(() => {
     void load();
-  }, [slug, worldlineId]);
+  }, [slug, worldlineId, initialTab]);
 
   const tabs = useMemo(() => readingTabs(report), [report]);
   const activeVolume = report?.volume_tabs.find((item) => item.id === activeTab);

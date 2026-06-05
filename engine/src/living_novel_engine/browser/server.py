@@ -1338,6 +1338,12 @@ class BrowserHandler(BaseHTTPRequestHandler):
 
             if (
                 path.startswith("/api/world-autopilot-runs/")
+                and path.endswith("/readable-entry")
+            ):
+                return self._handle_world_autopilot_readable_entry(path)
+
+            if (
+                path.startswith("/api/world-autopilot-runs/")
                 and "/checkpoints/" in path
             ):
                 return self._handle_world_autopilot_checkpoint_replay(path)
@@ -2051,6 +2057,24 @@ class BrowserHandler(BaseHTTPRequestHandler):
                     checkpoint_id=checkpoint_id,
                 )
             )
+        except WorldAutopilotRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+
+    def _handle_world_autopilot_readable_entry(self, path: str) -> None:
+        from living_novel_engine.service.world_autopilot import (
+            WorldAutopilotRequestError,
+            get_world_autopilot_readable_entry,
+        )
+
+        prefix = "/api/world-autopilot-runs/"
+        run_raw = path[len(prefix) : -len("/readable-entry")]
+        run_id = safe_id(run_raw.strip("/"))
+        if run_id is None:
+            return self._send_json({"error": "invalid run_id"}, status=400)
+        try:
+            return self._send_json(get_world_autopilot_readable_entry(run_id))
         except WorldAutopilotRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         except FileNotFoundError as exc:

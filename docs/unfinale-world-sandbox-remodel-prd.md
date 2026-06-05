@@ -136,6 +136,13 @@
 - 页面显式展示每个卷宗的认知偏差；证据链默认折叠在正文之后，保持“先读小说、再查证据”的体验，不再把连续阅读堆在 Workspace 或 JSON 面板里。
 - 本刀不新增持久 artifact，不覆盖既有章节/卷宗产物，不改变 `run_scene` 默认行为；缺少单个来源时阅读包降级为 partial/empty。
 
+2026-06-06 世界自演结果页 -> 可读世界线入口：
+
+- `autopilot_report.json` 新增 additive `readable_entry`，把最新关键检查点、主角个人卷、关键事件多视角和下一段连续阅读整理成“醒来从这里读”的入口包。
+- 新增 `GET /api/world-autopilot-runs/<run_id>/readable-entry`，检查点回放 API 也返回同一入口，刷新页面或从 checkpoint replay 继续阅读时不依赖前端内存状态。
+- 世界沙盘结果页在“昨夜世界演化报告”内展示四个阅读动作，并直接说明“为什么世界状态变了 / 谁记住了什么 / 哪条因果债在发酵”；世界线页可直接跳连续阅读、角色个人卷和事件多视角。
+- 卷宗阅读路由新增兼容路径 `#/world/<slug>/worldlines/<worldline_id>/reading/<tab>`，可精准落到 `continuous_reading`、`character_volume` 或 `event_multi_perspective`，原 `/reading` 保持默认连续阅读。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：
@@ -279,10 +286,10 @@
 | 沙盘轮次 artifact | 已有 `sandbox_rounds.jsonl` 和 `sandbox_summary.json`；本轮新增显式 opt-in 的 `agent_decision_advisory.json`，可让真实 LLM 基于角色记忆、干预约束和世界线状态给出逐角色采信、欺骗、传播、反抗和临场判断，并进入行动/记忆/UI。 | 默认仍是 deterministic；真实 LLM 目前是单轮 advisory，不是完整多轮 runner。仍需复杂长期关系图、势力资源、跨轮策略规划和失败/误判后续结算。 |
 | 干预编译器 | 已有读取《天命书》的预编译 API，输出类型、层级、兼容性、转译、分支轴和因果债；L4/L5/AU 会写世界线《天命书》快照且不覆盖根文件。 | 目前主要靠关键词规则；仍需完整实现类型 x 层级 x 转译矩阵、用户确认界面和普通分支/AU 的后续落地执行。 |
 | 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入；本次新增 `consequence_state`，把代偿压力具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮决策、自演检查点、多视角正文和下一章 brief。 | 仍需让六域状态支持更细的数值/枚举演化、人工确认、跨章节归档和真实 LLM 决策消费。 |
-| 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化、因果债爆发和角色觉醒目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放；本次新增失败任务记录、最近检查点恢复、`stop_condition` 证据和醒来时间线。 | 仍需真实后台队列和跨进程长时运行守护；当前恢复是本地任务文件 + checkpoint 的第一版。 |
+| 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化、因果债爆发和角色觉醒目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放；本次新增失败任务记录、最近检查点恢复、`stop_condition` 证据、醒来时间线和 `readable_entry` 可读世界线入口。 | 仍需真实后台队列和跨进程长时运行守护；当前恢复是本地任务文件 + checkpoint 的第一版。 |
 | 多视角活体小说 | 已有 `character_lens_briefs.json`；第二轮新增 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷、事件多视角正文与证据链。 | 仍需更长正文、跨卷宗跳转、误会图谱和真实 LLM 文风控制。 |
 | 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态；已新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和页面草稿入口，把采纳结果生成为可读下一章正文；已新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者编辑确认入口，并回写后续沙盘入口；确认入卷还会生成 `confirmed_chapter_reading_trail.json`，把确认稿回读到世界正史卷、角色个人卷和事件多视角。已补强 `writing_plan` / `feed_forward`，让采纳、部分采纳、另开分支直接形成下一章生成输入和沙盘继续输入；另开分支会写作者分支状态，不覆盖根正史。已新增 `draft_revision_pack.json`，让草稿确认前具备局部改写建议、证据引用和确认 gate；本轮新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，把 S9 草稿与 S8 多视角卷宗编排为可按场景连续阅读的章节稿。 | 仍需自动局部重写、更强语义 Reviewer、真实长文文风控制和更细的正文内跳转。 |
-| UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台、世界线档案、检查点回放和卷宗阅读页面与入口；卷宗阅读页默认正文阅读，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角，并折叠证据链。 | 仍未完整拆出 `WorldWorkspaceShell`、独立角色页、势力页、事件误会图谱和机制档案页。 |
+| UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台、世界线档案、检查点回放和卷宗阅读页面与入口；卷宗阅读页默认正文阅读，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角，并折叠证据链；自演结果页可直接进入最近检查点、角色个人卷、事件多视角和连续阅读。 | 仍未完整拆出 `WorldWorkspaceShell`、独立角色页、势力页、事件误会图谱和机制档案页。 |
 
 ## 5. 目标 artifact
 
@@ -310,7 +317,7 @@ outputs/<run_id>/tianming_delta.json
   本次 run 是否造成锚点偏移、因果债变化、吸引子权重变化。
 
 outputs/<run_id>/autopilot_report.json
-  世界自演报告：运行目标、轮次、检查点、关键变化、可读文本入口。
+  世界自演报告：运行目标、轮次、检查点、关键变化、readable_entry 可读世界线入口。
 
   outputs/<run_id>/character_lens_briefs.json
     同一事件在不同角色视角中的 brief。
@@ -354,6 +361,8 @@ outputs/<run_id>/confirmed_chapter_reading_trail.json
 
 `dossier_reading` 当前是只读 API 聚合，不新增持久 artifact；它读取连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和 `worldline_dossier`，为前端卷宗阅读页提供小说优先的页面级数据。
 
+`readable_entry` 当前写在 `autopilot_report.json` 并可通过只读 API 复算，不新增独立持久 artifact；它负责把自演结果页、检查点回放、角色个人卷、事件多视角和连续阅读串成醒来后的阅读路径。
+
 第一版可以先把 `subjective_memory.jsonl` 放在 project 下的轻量目录，不急着上 GraphRAG / Zep。只有当本地 JSONL 无法支撑召回和关系推理时，再重新评估图记忆。
 
 ## 6. 目标 API
@@ -390,8 +399,11 @@ GET /api/stories/<slug>/worldlines/<worldline_id>/dossier
 GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading
   聚合连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier，供世界内部卷宗阅读页展示；不新增持久 artifact。
 
+GET /api/world-autopilot-runs/<run_id>/readable-entry
+  读取或复算世界自演报告的可读世界线入口，返回最近关键检查点、角色个人卷、事件多视角、连续阅读路由以及状态变化/记忆/因果债摘要。
+
 GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>
-  回放某个世界自演检查点。
+  回放某个世界自演检查点，并返回同一 `readable_entry` 供用户继续阅读。
 
 GET /api/stories/<slug>/events/<event_id>/perspectives
   读取事件多视角：世界正史、角色主观记忆、误会图谱、叙事去向。

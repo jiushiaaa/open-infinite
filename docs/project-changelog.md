@@ -2204,3 +2204,24 @@
   - 不改变 `run_scene` 默认行为，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
   - 浏览器插件未暴露本地页面截图工具，Playwright 也不在本地依赖中；本轮以 production build 和 HTTP route/API smoke 验证前端可达性。
 
+### 2026-06-06 — World Autopilot Readable Entry
+
+- **做了什么**：
+  - 针对“世界自演结果页 -> 可读世界线入口”补闭环：`autopilot_report.json` 新增 additive `readable_entry`，把最近关键检查点、角色个人卷、事件多视角和连续阅读整理成“醒来从这里读”的入口包。
+  - 新增 `GET /api/world-autopilot-runs/<run_id>/readable-entry`，可在页面刷新后只读复算同一入口；checkpoint replay API 同步返回 `readable_entry`，用户从检查点页也能继续进卷宗阅读。
+  - 世界沙盘结果页新增醒来阅读入口区，展示四个阅读动作，并在同屏说明“为什么世界状态变了 / 谁记住了什么 / 哪条因果债在发酵”。
+  - 世界线档案页新增连续阅读、角色个人卷、事件多视角直达按钮；卷宗阅读路由支持 `#/world/<slug>/worldlines/<worldline_id>/reading/<tab>`，原 `/reading` 默认行为保持兼容。
+  - 同步前端类型、API client、结果页/检查点页/世界线页 UI 和 `memory.md`、世界沙盘 PRD、愿景纠偏、AI 对齐清单、路线图、`engine/README.md`、`docs/codex-handoff.md`。
+- **测试/验证**：
+  - RED：新增 `test_world_autopilot_report_exposes_wake_reading_entry`，先因缺少 `get_world_autopilot_readable_entry` 失败。
+  - GREEN：`cd D:\AI\open-infinite && python -m pytest engine/tests/test_world_autopilot.py::test_world_autopilot_report_exposes_wake_reading_entry -q` -> **1 passed**。
+  - Focused：`python -m pytest engine/tests/test_world_autopilot.py -q` -> **10 passed**。
+  - Focused combined：`python -m pytest engine/tests/test_world_autopilot.py engine/tests/test_dossier_reading.py engine/tests/test_worldline_dossier.py -q` -> **14 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **945 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - UI smoke：临时启动 Vite，`http://127.0.0.1:5177/#/world/autopilot-http/worldlines/main/reading/character_volume` 返回 200 且包含 React root；随后已停止临时进程。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+- **边界**：
+  - 新字段和 API 均 additive；不新增独立持久 artifact，不改旧 `autopilot_report` 字段含义，不改 `run_scene` 默认行为。
+  - 本刀不往 `WorkspacePage` 继续堆面板，只在世界沙盘结果页、世界线页、检查点页和卷宗阅读路由内组织入口。
+

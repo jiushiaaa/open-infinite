@@ -15,7 +15,10 @@ from living_novel_engine.service.tianming import (
     generate_tianming_book,
 )
 from living_novel_engine.service import world_autopilot
-from living_novel_engine.service.world_autopilot import run_world_autopilot
+from living_novel_engine.service.world_autopilot import (
+    get_world_autopilot_readable_entry,
+    run_world_autopilot,
+)
 
 
 def _chapters(n: int = 6) -> list[dict]:
@@ -309,6 +312,55 @@ def test_world_autopilot_records_task_progress_pause_resume_and_checkpoint_repla
     assert replay["replay"]["sandbox_run_id"]
 
 
+def test_world_autopilot_report_exposes_wake_reading_entry(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = run_world_autopilot(
+        "autopilot-story",
+        seed_event="归云斋夜雨封山，赵轩把风鸣铃藏进旧祠。",
+        objective_type="causal_debt",
+        round_limit=3,
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="wake_branch",
+    )
+
+    entry = report["readable_entry"]
+    assert entry["version"] == "world-autopilot-readable-entry-v1"
+    assert entry["story_slug"] == "autopilot-story"
+    assert entry["worldline_id"] == "wake_branch"
+    latest_checkpoint_id = report["checkpoints"][-1]["checkpoint_id"]
+    assert entry["latest_checkpoint"]["checkpoint_id"] == latest_checkpoint_id
+    assert entry["state_change_explanation"]["why_world_changed"]
+    assert entry["memory_readout"]["who_remembered_what"]
+    assert entry["causal_debt_readout"]["summary"]
+    assert {
+        action["id"] for action in entry["primary_actions"]
+    } >= {
+        "latest_checkpoint",
+        "protagonist_volume",
+        "event_multi_perspective",
+        "continuous_reading",
+    }
+    assert entry["routes"]["latest_checkpoint"].endswith(
+        "/checkpoints/{}/{}".format(report["run_id"], latest_checkpoint_id)
+    )
+    assert entry["routes"]["protagonist_volume"].endswith("/reading/character_volume")
+    assert entry["routes"]["event_multi_perspective"].endswith(
+        "/reading/event_multi_perspective"
+    )
+    assert entry["routes"]["continuous_reading"].endswith(
+        "/reading/continuous_reading"
+    )
+
+    loaded = get_world_autopilot_readable_entry(
+        report["run_id"],
+        outputs_dir=outputs_dir,
+    )
+    assert loaded == entry
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))
@@ -388,6 +440,17 @@ def test_world_autopilot_http_statuses(tmp_path, monkeypatch):
         )
         assert replay_status == 200
         assert replay["checkpoint"]["round_index"] == 1
+        assert replay["readable_entry"]["routes"]["continuous_reading"].endswith(
+            "/reading/continuous_reading"
+        )
+
+        entry_status, entry = _get(
+            port,
+            f"/api/world-autopilot-runs/{body['run_id']}/readable-entry",
+        )
+        assert entry_status == 200
+        assert entry["primary_actions"][0]["id"] == "latest_checkpoint"
+        assert entry["state_change_explanation"]["why_world_changed"]
 
         bad_status, bad = _post(
             port,

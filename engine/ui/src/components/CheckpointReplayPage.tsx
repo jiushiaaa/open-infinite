@@ -39,6 +39,7 @@ export function CheckpointReplayPage({
   }, [runId, checkpointId]);
 
   const checkpoint = report?.checkpoint;
+  const readableEntry = report?.readable_entry;
   const consequenceDomains = checkpoint?.consequence_state?.domains
     ? Object.entries(checkpoint.consequence_state.domains)
     : [];
@@ -80,6 +81,37 @@ export function CheckpointReplayPage({
         {error && <ErrorState message={error} onRetry={load} />}
         {!loading && !error && report && checkpoint && (
           <>
+            {readableEntry && (
+              <section className="worldline-section worldline-wake-bridge">
+                <div className="worldline-section__title">
+                  <div>
+                    <h2>从这个检查点继续读</h2>
+                    <p className="muted tiny">
+                      {readableEntry.state_change_explanation.why_world_changed}
+                    </p>
+                  </div>
+                </div>
+                <div className="worldline-action-row">
+                  {readableEntry.primary_actions
+                    .filter((action) => action.id !== "latest_checkpoint")
+                    .map((action) => (
+                      <button
+                        key={action.id}
+                        className="btn btn--ghost"
+                        onClick={() => {
+                          if (action.route.startsWith("#/")) {
+                            window.location.hash = action.route;
+                          }
+                        }}
+                        title={action.reason}
+                      >
+                        {action.label}
+                      </button>
+                    ))}
+                </div>
+              </section>
+            )}
+
             <section className="worldline-section worldline-summary">
               <div className="worldline-section__title">
                 <h2>回放摘要</h2>

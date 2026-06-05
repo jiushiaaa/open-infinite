@@ -75,6 +75,45 @@ export function WorldlineDossierPage({
           </button>
           <button
             className="btn btn--ghost"
+            onClick={() =>
+              navigate({
+                name: "dossierReading",
+                slug,
+                worldlineId,
+                tab: "continuous_reading",
+              })
+            }
+          >
+            连续阅读
+          </button>
+          <button
+            className="btn btn--ghost"
+            onClick={() =>
+              navigate({
+                name: "dossierReading",
+                slug,
+                worldlineId,
+                tab: "character_volume",
+              })
+            }
+          >
+            角色个人卷
+          </button>
+          <button
+            className="btn btn--ghost"
+            onClick={() =>
+              navigate({
+                name: "dossierReading",
+                slug,
+                worldlineId,
+                tab: "event_multi_perspective",
+              })
+            }
+          >
+            事件多视角
+          </button>
+          <button
+            className="btn btn--ghost"
             onClick={() => navigate({ name: "sandbox", slug })}
           >
             继续沙盘

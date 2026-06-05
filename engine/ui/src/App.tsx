@@ -26,7 +26,11 @@ export function App() {
         <WorldlineDossierPage slug={route.slug} worldlineId={route.worldlineId} />
       )}
       {route.name === "dossierReading" && (
-        <DossierReadingPage slug={route.slug} worldlineId={route.worldlineId} />
+        <DossierReadingPage
+          slug={route.slug}
+          worldlineId={route.worldlineId}
+          initialTab={route.tab}
+        />
       )}
       {route.name === "checkpoint" && (
         <CheckpointReplayPage
