@@ -36,6 +36,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [autopilotReport, setAutopilotReport] = useState<WorldAutopilotReport | null>(null);
 
   const round = report?.rounds[0] ?? null;
+  const worldlineState = report?.worldline_state ?? null;
   const interventionConstraint =
     report?.intervention_constraint?.status === "active"
       ? report.intervention_constraint
@@ -54,6 +55,20 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       [
         "干预投放",
         round.world_state_delta.intervention_effects?.join("；") || "本轮未投放干预",
+      ],
+      [
+        "分支承接",
+        round.world_state_delta.branch_state?.continuation_status || "runnable",
+      ],
+      [
+        "世界代偿",
+        round.world_state_delta.compensation_effects?.join("；") || "因果债尚未外溢",
+      ],
+      [
+        "模因污染",
+        round.world_state_delta.meme_contamination?.status === "active"
+          ? round.world_state_delta.meme_contamination.belief_payload || "高维真相正在传播"
+          : "未触发",
       ],
     ];
   }, [round]);
@@ -234,6 +249,12 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                     <dd>{report.artifacts.intervention_constraint}</dd>
                   </div>
                 )}
+                {report.worldline_state?.artifact && (
+                  <div>
+                    <dt>世界线</dt>
+                    <dd>{report.worldline_state.artifact}</dd>
+                  </div>
+                )}
               </dl>
             </div>
           )}
@@ -294,7 +315,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
               {autopilotLoading ? "世界自演中…" : "启动自演"}
             </button>
             <p className="muted tiny">
-              自演会连续运行沙盘轮次，写入检查点和 autopilot_report.json。
+              自演会连续运行沙盘轮次，写入任务进度、检查点和 autopilot_report.json。
             </p>
           </div>
         </aside>
@@ -311,6 +332,23 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                 </span>
               </div>
               <p>{autopilotReport.final_world_stage.summary}</p>
+              {autopilotReport.progress && (
+                <p className="muted tiny">
+                  任务 {autopilotReport.task?.task_id ?? "本地任务"} ·{" "}
+                  {autopilotReport.progress.current_round}/
+                  {autopilotReport.progress.target_round} ·{" "}
+                  {autopilotReport.progress.percent}%
+                </p>
+              )}
+              {autopilotReport.overnight_report && (
+                <div className="sandbox-callout">
+                  <strong>醒来可读</strong>
+                  <p>{autopilotReport.overnight_report.what_happened}</p>
+                  <p className="muted tiny">
+                    {autopilotReport.overnight_report.why_world_changed}
+                  </p>
+                </div>
+              )}
               <p className="muted tiny">
                 {autopilotReport.stop_reason} · {autopilotReport.artifact}
               </p>
@@ -388,6 +426,50 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   </dl>
                 </section>
               )}
+              {worldlineState?.status && (
+                <section className="sandbox-section sandbox-intervention">
+                  <div className="sandbox-section__title">
+                    <h2>世界线承接</h2>
+                    <span className="badge badge--jade">
+                      {worldlineState.branch_state?.continuation_status ?? "runnable"}
+                    </span>
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>当前世界线</dt>
+                      <dd>{worldlineState.current_worldline}</dd>
+                    </div>
+                    <div>
+                      <dt>来源干预</dt>
+                      <dd>
+                        {worldlineState.source_intervention?.content ||
+                          "本轮未继承干预"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>快照审计</dt>
+                      <dd>
+                        {worldlineState.tianming_snapshot?.audit_status ||
+                          "无需快照审计"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>因果债</dt>
+                      <dd>
+                        {worldlineState.causal_debt?.level}/
+                        {worldlineState.causal_debt?.score}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>下一轮</dt>
+                      <dd>
+                        {worldlineState.continuation_inputs?.major_event_hint ||
+                          "继续消化本轮选择"}
+                      </dd>
+                    </div>
+                  </dl>
+                </section>
+              )}
               <section className="sandbox-section">
                 <div className="sandbox-section__title">
                   <h2>角色行动链</h2>
@@ -412,6 +494,20 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                       <p>{item.visible_action ?? item.action}</p>
                       {item.true_intent && (
                         <p className="muted tiny">真实意图：{item.true_intent}</p>
+                      )}
+                      {item.awareness?.level === "L5" && (
+                        <div className="sandbox-callout">
+                          <strong>命痕觉醒 · {item.resistance_behavior?.label}</strong>
+                          <p>{item.awareness.abnormality}</p>
+                          <p className="muted tiny">
+                            {item.resistance_behavior?.description}
+                          </p>
+                        </div>
+                      )}
+                      {item.meme_contamination?.status === "active" && (
+                        <p className="muted tiny">
+                          模因传播：{item.meme_contamination.spread_vector?.join("；")}
+                        </p>
                       )}
                       <p className="muted tiny">{item.reason}</p>
                       {item.decision_inputs && (

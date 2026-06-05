@@ -33,6 +33,16 @@
   -> 升级为记忆驱动、天命书驱动、可持续状态驱动、可产出章节 brief 的活体小说运行时。
 ```
 
+2026-06-05 第二轮强化进展：
+
+- S4 后半：新增 `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`，把来源干预、沉浸/AU 投放、L4/L5/AU 快照审计状态、因果债、分支承接和下一轮继续入口绑定到世界线；后续 `sandbox/run` 会读取同一世界线的状态。
+- S5：L5 觉醒会写入角色主观记忆，包含“我是小说人物/被高维操控”的高维认知、命痕、反抗行为、异常感和模因污染；角色可假意服从、拒绝、欺骗读者、保护他人或继续使命。
+- S6：因果债、锚点状态和候选天命承载者进入 `worldline_state.json`，并在后续沙盘决策输入和 `world_state_delta` 中继续出现；当前仍偏文字解释，下一轮应把代偿代价具象为世界内状态。
+- S7：世界自演新增本地任务状态、进度、暂停/恢复和检查点回放，报告新增“醒来可读”的世界推进摘要。
+- S8：多视角从 `character_lens_briefs.json` 扩展到 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文，并带沙盘轮次、主观记忆、世界状态 delta、干预/因果债证据链。
+- S9：作者采纳新增 `next_chapter_brief.json`、原大纲差异、伏笔调整和 Reviewer 建议，并把下一章入口回写世界线状态。
+- 真实模型 smoke：使用 `.env` 中真实 LLM 配置（`qwen3.5-plus`）小样本验收通过；模型提示风险是因果债若只停留在抽象解释，危机感容易被稀释。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：
@@ -175,10 +185,10 @@
 | 角色主观记忆链 | 已有 `subjective_memory.jsonl`，每个角色/世界线独立追加，下一轮会读取上一条记忆。 | 仍需支持误会、秘密、压抑记忆、世界线残影、觉醒度、外在行动/真实意图分离和长期召回策略。 |
 | 沙盘轮次 artifact | 已有 `sandbox_rounds.jsonl` 和 `sandbox_summary.json`。 | 目前行动是 deterministic 模板，不是真正 LLM 多 Agent 高智商博弈；尚未接入多轮复杂目标、势力资源和策略欺骗。 |
 | 干预编译器 | 已有读取《天命书》的预编译 API，输出类型、层级、兼容性、转译、分支轴和因果债；L4/L5/AU 会写世界线《天命书》快照且不覆盖根文件。 | 目前主要靠关键词规则；仍需完整实现类型 x 层级 x 转译矩阵、用户确认界面和普通分支/AU 的后续落地执行。 |
-| 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力。 | 代偿目前是报告，不会持续驱动后续世界状态；仍需让代偿压力进入后续沙盘轮次、角色关系和章节 brief。 |
-| 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化目标。 | 目前自演只是连续调用沙盘轮次；仍需真正运行到阶段变化、支持睡眠式长时任务、暂停/恢复/回放和失败恢复。 |
-| 多视角活体小说 | 已有 `character_lens_briefs.json`，能生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角 brief。 | 仍需从 brief 升级为可读章节正文，支持角色连续个人卷、事件证据链、误会图谱和跨卷宗跳转。 |
-| 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`。 | 仍需把采纳结果反哺下一章 brief、原大纲差异、Reviewer 修订和后续世界线继续运行。 |
+| 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入。 | 仍需把代偿压力从文字解释具象成可持续的地点、势力、资源、伤势、舆论和环境状态。 |
+| 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放。 | 仍需真实后台队列、长时运行守护、失败自动恢复和更精确的停止条件命中。 |
+| 多视角活体小说 | 已有 `character_lens_briefs.json`；第二轮新增 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷、事件多视角正文与证据链。 | 仍需更长正文、跨卷宗跳转、误会图谱和真实 LLM 文风控制。 |
+| 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态。 | 仍需把下一章 brief 接入正式章节生成入口和作者可编辑确认流程。 |
 | UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台页面和入口。 | 仍未完整拆出 `WorldWorkspaceShell`、世界正史卷、主锚点卷、角色页、事件页、世界线页、检查点页和机制档案页。 |
 
 ## 5. 目标 artifact
@@ -216,8 +226,17 @@ outputs/<run_id>/autopilot_report.json
     作者采纳、部分采纳、另开分支或导出 brief 的本地账本。
 
   outputs/<run_id>/author_adoption_record.json
-  outputs/<run_id>/author_adoption_brief.md
+outputs/<run_id>/author_adoption_brief.md
     原大纲 vs 沙盘涌现剧情对照和作者采纳 brief。
+
+projects/<slug>/worldlines/<worldline_id>/worldline_state.json
+  世界线持续状态：来源干预、快照审计、因果债、锚点状态、候选承载者、模因污染、自演/采纳后的下一轮入口。
+
+outputs/<run_id>/character_lens_volumes.json
+  多视角正文：世界正史卷、主锚点卷、角色个人卷、事件多视角正文和证据链。
+
+outputs/<run_id>/next_chapter_brief.json
+  作者采纳后的下一章 brief、沙盘继续入口和必须保留的记忆/因果债/采纳范围。
   ```
 
 第一版可以先把 `subjective_memory.jsonl` 放在 project 下的轻量目录，不急着上 GraphRAG / Zep。只有当本地 JSONL 无法支撑召回和关系推理时，再重新评估图记忆。

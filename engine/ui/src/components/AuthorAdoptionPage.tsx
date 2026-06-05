@@ -160,11 +160,54 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                   <dt>导出</dt>
                   <dd>{report.artifacts.author_adoption_brief}</dd>
                 </div>
+                {report.artifacts.next_chapter_brief && (
+                  <div>
+                    <dt>下一章</dt>
+                    <dd>{report.artifacts.next_chapter_brief}</dd>
+                  </div>
+                )}
                 <div>
                   <dt>运行</dt>
                   <dd className="mono">{report.run_id}</dd>
                 </div>
               </dl>
+              {report.next_chapter_brief && (
+                <div className="adoption-next">
+                  <h3>下一章可写方案</h3>
+                  <p>{report.next_chapter_brief.opening_scene}</p>
+                  <p className="muted tiny">
+                    冲突焦点：{report.next_chapter_brief.conflict_focus}
+                  </p>
+                  <p className="muted tiny">
+                    后续沙盘入口：{report.next_chapter_brief.sandbox_inputs.major_event}
+                  </p>
+                </div>
+              )}
+              {report.foreshadowing_adjustments && (
+                <div className="adoption-next">
+                  <h3>伏笔调整</h3>
+                  <ul>
+                    {report.foreshadowing_adjustments.map((item) => (
+                      <li key={`${item.type}-${item.text}`}>{item.text}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {report.reviewer_suggestions && (
+                <div className="adoption-next">
+                  <h3>Reviewer 建议</h3>
+                  <ul>
+                    {report.reviewer_suggestions.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {report.continuation_effect?.affects_future_sandbox && (
+                <p className="muted tiny">
+                  已写入 {report.continuation_effect.worldline_state_artifact}，后续沙盘会读取本次采纳结果。
+                </p>
+              )}
             </section>
           )}
         </main>

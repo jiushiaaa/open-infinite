@@ -338,6 +338,98 @@ def test_sandbox_round_can_project_intervention_as_wild_au_constraint(tmp_path):
     )
 
 
+def test_intervention_worldline_state_persists_and_drives_next_round(tmp_path):
+    project_dir = _make_project(tmp_path)
+    generate_tianming_book("sandbox-story", projects_dir=tmp_path)
+    confirm_tianming_book("sandbox-story", confirm=True, projects_dir=tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    first = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩发现归云斋外出现不属于此世的金属器械。",
+        intervention_content="给赵轩投放一把 AK47 和三十发子弹。",
+        intervention_target="zhao_xuan",
+        intervention_projection_mode="wild_au",
+        worldline_id="ak47_au",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    state_path = project_dir / "worldlines" / "ak47_au" / "worldline_state.json"
+    assert state_path.exists()
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert state["current_worldline"] == "ak47_au"
+    assert state["source_intervention"]["projection_mode"] == "wild_au"
+    assert state["tianming_snapshot"]["audit_status"] == "pending_confirmation"
+    assert state["branch_state"]["continuation_status"] == "runnable"
+    assert state["causal_debt"]["score"] >= first["intervention_constraint"]["causal_debt"]["score"]
+
+    second = run_sandbox_round(
+        "sandbox-story",
+        major_event="第二日，金属器械的传闻沿归云斋关系网外溢。",
+        worldline_id="ak47_au",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    second_inputs = second["rounds"][0]["character_actions"][0]["decision_inputs"]
+    assert second["worldline_state"]["source_intervention"]["content"]
+    assert "AK47" in second_inputs["worldline_intervention_memory"]
+    assert second_inputs["worldline_tianming_snapshot_audit"] == "pending_confirmation"
+    assert second["rounds"][0]["world_state_delta"]["branch_state"]["continuation_status"] == "runnable"
+    assert any(
+        "因果债" in item for item in second["rounds"][0]["world_state_delta"]["compensation_effects"]
+    )
+
+
+def test_l5_awareness_resistance_and_meme_contamination_enter_memory(tmp_path):
+    project_dir = _make_project(tmp_path)
+    generate_tianming_book("sandbox-story", projects_dir=tmp_path)
+    confirm_tianming_book("sandbox-story", confirm=True, projects_dir=tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩在梦中听见翻页声，怀疑自己的命运被高维读者操控。",
+        intervention_content="告诉赵轩：你是小说人物，读者正在高维操控你。",
+        intervention_target="zhao_xuan",
+        intervention_projection_mode="wild_au",
+        worldline_id="l5_awake",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    first_action = report["rounds"][0]["character_actions"][0]
+    first_memory = report["subjective_memory_delta"]["entries"][0]
+
+    assert first_action["awareness"]["level"] == "L5"
+    assert first_action["resistance_behavior"]["type"] in {
+        "nihilism",
+        "refusal",
+        "false_compliance",
+        "deceive_reader",
+        "protect_others",
+        "continue_mission",
+    }
+    assert first_action["meme_contamination"]["spread_vector"]
+    assert "小说人物" in first_memory["higher_dimensional_awareness"]
+    assert first_memory["fate_mark"]["status"] == "active"
+    assert first_memory["resistance_behavior"]["type"] == first_action["resistance_behavior"]["type"]
+    assert first_memory["meme_contamination"]["belief_payload"]
+    assert first_memory["awareness_level"] == "L5"
+    assert first_memory["anomaly_weight"] >= 9
+
+    memory_path = (
+        project_dir
+        / "worldlines"
+        / "l5_awake"
+        / "characters"
+        / first_memory["character_id"]
+        / "subjective_memory.jsonl"
+    )
+    persisted = json.loads(memory_path.read_text(encoding="utf-8").splitlines()[0])
+    assert persisted["higher_dimensional_awareness"] == first_memory["higher_dimensional_awareness"]
+    assert report["worldline_state"]["meme_contamination"]["status"] == "active"
+    assert any(flow["type"] == "meme_contamination" for flow in report["rounds"][0]["information_flow"])
+
+
 def test_run_sandbox_round_validates_inputs(tmp_path):
     _make_project(tmp_path)
 

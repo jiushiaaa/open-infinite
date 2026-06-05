@@ -131,13 +131,28 @@
   line-height: 1.7;
 }
 
-.lens-briefs {
+.lens-briefs,
+.lens-volumes {
   display: grid;
   gap: var(--space-3);
 }
 
-.lens-brief {
+.lens-brief,
+.lens-volume {
   padding: var(--space-4);
+}
+
+.lens-volume {
+  background: rgba(255, 252, 244, 0.86);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+}
+
+.lens-volume > p {
+  margin: var(--space-3) 0 0;
+  line-height: 1.9;
+  font-family: var(--font-serif);
 }
 
 .lens-brief__head {

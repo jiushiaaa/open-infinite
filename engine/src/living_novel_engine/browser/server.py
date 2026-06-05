@@ -88,6 +88,39 @@ class BrowserHandler(BaseHTTPRequestHandler):
         branch_id = safe_id(branch_raw)
         return run_id, branch_id
 
+    def _extract_story_worldline_for_suffix(
+        self, path: str, suffix: str
+    ) -> tuple[str, str] | None:
+        rest = path[len("/api/stories/") : -len(suffix)]
+        story_raw, marker, tail = rest.partition("/worldlines/")
+        if not marker:
+            return None
+        slug = safe_id(story_raw.strip("/"))
+        worldline_id = safe_id(tail.strip("/"))
+        if slug is None or worldline_id is None:
+            return None
+        return slug, worldline_id
+
+    def _extract_autopilot_task_path(
+        self, path: str
+    ) -> tuple[str, str, str] | None:
+        prefix = "/api/stories/"
+        if not path.startswith(prefix):
+            return None
+        rest = path[len(prefix) :]
+        story_raw, marker, tail = rest.partition("/worldlines/")
+        if not marker:
+            return None
+        worldline_raw, marker, task_tail = tail.partition("/world-autopilot/tasks/")
+        if not marker:
+            return None
+        slug = safe_id(story_raw.strip("/"))
+        worldline_id = safe_id(worldline_raw.strip("/"))
+        task_id = safe_id(task_tail.strip("/"))
+        if slug is None or worldline_id is None or task_id is None:
+            return None
+        return slug, worldline_id, task_id
+
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
         path = parsed.path
@@ -1278,6 +1311,26 @@ class BrowserHandler(BaseHTTPRequestHandler):
             if (
                 path.startswith("/api/stories/")
                 and "/worldlines/" in path
+                and path.endswith("/worldline-state")
+            ):
+                return self._handle_worldline_state_get(path)
+
+            if (
+                path.startswith("/api/stories/")
+                and "/worldlines/" in path
+                and "/world-autopilot/tasks/" in path
+            ):
+                return self._handle_world_autopilot_task_get(path)
+
+            if (
+                path.startswith("/api/world-autopilot-runs/")
+                and "/checkpoints/" in path
+            ):
+                return self._handle_world_autopilot_checkpoint_replay(path)
+
+            if (
+                path.startswith("/api/stories/")
+                and "/worldlines/" in path
                 and path.endswith("/subjective-memory")
             ):
                 return self._handle_subjective_memory_get(path)
@@ -1571,6 +1624,20 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 if slug is None:
                     return self._send_json({"error": "invalid slug"}, status=400)
                 return self._handle_world_autopilot_run(slug)
+            if (
+                path.startswith("/api/stories/")
+                and "/worldlines/" in path
+                and path.endswith("/pause")
+                and "/world-autopilot/tasks/" in path
+            ):
+                return self._handle_world_autopilot_task_pause(path)
+            if (
+                path.startswith("/api/stories/")
+                and "/worldlines/" in path
+                and path.endswith("/resume")
+                and "/world-autopilot/tasks/" in path
+            ):
+                return self._handle_world_autopilot_task_resume(path)
             if path.startswith("/api/stories/") and path.endswith(
                 "/character-lens/generate"
             ):
@@ -1811,6 +1878,121 @@ class BrowserHandler(BaseHTTPRequestHandler):
         except FileNotFoundError as exc:
             return self._send_json({"error": str(exc)}, status=404)
         return self._send_json(report)
+
+    def _handle_worldline_state_get(self, path: str) -> None:
+        from living_novel_engine.service.worldline_state import (
+            WorldlineStateRequestError,
+            get_worldline_state,
+        )
+
+        ids = self._extract_story_worldline_for_suffix(path, "/worldline-state")
+        if ids is None:
+            return self._send_json({"error": "invalid slug or worldline id"}, status=400)
+        slug, worldline_id = ids
+        try:
+            return self._send_json(
+                get_worldline_state(slug, worldline_id=worldline_id)
+            )
+        except WorldlineStateRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+
+    def _handle_world_autopilot_task_get(self, path: str) -> None:
+        from living_novel_engine.service.world_autopilot import (
+            WorldAutopilotRequestError,
+            get_world_autopilot_task,
+        )
+
+        parsed = self._extract_autopilot_task_path(path)
+        if parsed is None:
+            return self._send_json({"error": "invalid slug, worldline, or task id"}, status=400)
+        slug, worldline_id, task_id = parsed
+        try:
+            return self._send_json(
+                get_world_autopilot_task(
+                    slug,
+                    task_id,
+                    worldline_id=worldline_id,
+                )
+            )
+        except WorldAutopilotRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+
+    def _handle_world_autopilot_task_pause(self, path: str) -> None:
+        from living_novel_engine.service.world_autopilot import (
+            WorldAutopilotRequestError,
+            pause_world_autopilot_task,
+        )
+
+        parsed = self._extract_autopilot_task_path(path[: -len("/pause")])
+        if parsed is None:
+            return self._send_json({"error": "invalid slug, worldline, or task id"}, status=400)
+        slug, worldline_id, task_id = parsed
+        try:
+            return self._send_json(
+                pause_world_autopilot_task(
+                    slug,
+                    task_id,
+                    worldline_id=worldline_id,
+                )
+            )
+        except WorldAutopilotRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+
+    def _handle_world_autopilot_task_resume(self, path: str) -> None:
+        from living_novel_engine.service.world_autopilot import (
+            WorldAutopilotRequestError,
+            resume_world_autopilot_task,
+        )
+
+        parsed = self._extract_autopilot_task_path(path[: -len("/resume")])
+        if parsed is None:
+            return self._send_json({"error": "invalid slug, worldline, or task id"}, status=400)
+        slug, worldline_id, task_id = parsed
+        try:
+            return self._send_json(
+                resume_world_autopilot_task(
+                    slug,
+                    task_id,
+                    worldline_id=worldline_id,
+                )
+            )
+        except WorldAutopilotRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+
+    def _handle_world_autopilot_checkpoint_replay(self, path: str) -> None:
+        from living_novel_engine.service.world_autopilot import (
+            WorldAutopilotRequestError,
+            replay_world_autopilot_checkpoint,
+        )
+
+        prefix = "/api/world-autopilot-runs/"
+        rest = path[len(prefix) :]
+        if "/checkpoints/" not in rest:
+            return self._send_json({"error": "invalid run_id or checkpoint_id"}, status=400)
+        run_raw, checkpoint_raw = rest.split("/checkpoints/", 1)
+        run_id = safe_id(run_raw.strip("/"))
+        checkpoint_id = safe_id(checkpoint_raw.strip("/"))
+        if run_id is None or checkpoint_id is None:
+            return self._send_json({"error": "invalid run_id or checkpoint_id"}, status=400)
+        try:
+            return self._send_json(
+                replay_world_autopilot_checkpoint(
+                    run_id,
+                    checkpoint_id=checkpoint_id,
+                )
+            )
+        except WorldAutopilotRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
 
     def _handle_tianming_get(self, slug: str) -> None:
         from living_novel_engine.service import TianmingRequestError, get_tianming_book

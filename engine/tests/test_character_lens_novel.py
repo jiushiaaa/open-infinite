@@ -79,6 +79,47 @@ def test_character_lens_writes_briefs_from_sandbox_and_subjective_memory(tmp_pat
     assert all(item["character_id"] for item in perspective["perspectives"])
 
 
+def test_character_lens_generates_readable_volumes_with_evidence_chain(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = generate_character_lens_briefs(
+        "lens-story",
+        source_event="风鸣铃现世，赵轩连续三次隐瞒消息，沈冰月误以为他投向暗线。",
+        character_id="zhao_xuan",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+    run_dir = outputs_dir / report["run_id"]
+
+    assert report["artifacts"]["character_lens_volumes"] == "character_lens_volumes.json"
+    assert (run_dir / "character_lens_volumes.json").exists()
+    assert report["volume_count"] >= 4
+    volume_types = {volume["volume_type"] for volume in report["volumes"]}
+    assert volume_types >= {
+        "world_chronicle",
+        "anchor_volume",
+        "character_volume",
+        "event_multi_perspective",
+    }
+
+    world = next(volume for volume in report["volumes"] if volume["volume_type"] == "world_chronicle")
+    character = next(volume for volume in report["volumes"] if volume["volume_type"] == "character_volume")
+    event = next(volume for volume in report["volumes"] if volume["volume_type"] == "event_multi_perspective")
+
+    assert len(world["prose"]) > 120
+    assert len(character["prose"]) > 120
+    assert world["prose"] != character["prose"]
+    assert "正史" in world["prose"]
+    assert "我" in character["prose"]
+    assert len(character["event_nodes"]) >= 3
+    assert all(node["evidence_refs"] for node in character["event_nodes"])
+    assert event["information_gap"]["canon_vs_character"]
+    assert event["evidence_chain"]["sandbox_round_id"] == report["source"]["sandbox_run_id"]
+    assert event["evidence_chain"]["subjective_memory_refs"]
+    assert event["evidence_chain"]["world_state_delta_refs"]
+
+
 def test_character_lens_rejects_missing_event(tmp_path):
     _make_project(tmp_path)
 

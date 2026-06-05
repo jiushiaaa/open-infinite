@@ -2,7 +2,7 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口：沙盘行动读取决策输入，主观记忆记录心理/信息差，《天命书》支持吸引子权重、多锚点、四档合约压力和 L4/L5/AU 世界线快照，普通干预可经天命书编译后作为下一轮沙盘约束投放，AK47 等异物可选择本土化重释或暴走 AU。后续官方主线继续 S4 分支持续运行 / 快照审计确认、S5 觉醒反抗、S2 深层召回/误会图谱和跨卷宗串联。
+> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。后续官方主线继续因果债具象化、世界线/检查点独立页、真实 LLM 多 Agent 决策和章节生成入口。
 
 ## 1. 产品北极星
 
@@ -90,6 +90,7 @@
 | S3 Tianming Worldline Constitution MVP | 已收口 | S3 深化第一刀：`tianming.json` 新增 `constitution_schema_version`、吸引子权重/类别、多锚点结构和四档合约压力；旧版已确认天命书会保守补齐 S3 字段；L4/L5/AU 干预可写 `worldlines/<worldline_id>/tianming_snapshot.json`，根《天命书》保持不覆盖，天命书页可指定世界线并展示快照产物。 |
 | S4 Intervention Execution Constraint MVP | 已收口 | S4 深化第一刀：`POST /api/stories/<slug>/sandbox/run` 可选接收 `intervention_content` / `intervention_target`，即时读取《天命书》编译为本轮 `intervention_constraint.json`；约束进入 `sandbox_rounds.jsonl`、角色 `decision_inputs`、行动结果、冲突原因、信息流和世界状态 delta，世界沙盘页可填写并查看已投放干预约束；根《天命书》不被覆盖。 |
 | S4 Immersive / Wild AU Projection MVP | 已收口 | S4 深化第二刀：`compile_intervention_against_tianming()`、`POST /api/stories/<slug>/tianming/intervention-compile` 和 `POST /api/stories/<slug>/sandbox/run` 支持 `projection_mode` / `intervention_projection_mode`；沉浸模式会把 AK47 等异物标记为异物入侵并本土化重释，暴走 AU 会保留异物入侵、生成世界线《天命书》快照并进入本轮沙盘 `intervention_constraint` 与世界状态 delta；根《天命书》仍不被覆盖。 |
+| S4-S9 Continuous Worldline Productization | 已收口第一版 | 第二轮强化：新增 `worldline_state.json` 让 S4 干预、L4/L5/AU 快照审计、因果债、锚点状态、候选承载者、模因污染和作者采纳结果成为后续沙盘输入；S5 L5 觉醒会写入主观记忆、命痕、反抗行为和模因污染；S7 自演新增本地任务状态、进度、暂停/恢复和 checkpoint replay；S8 多视角新增 `character_lens_volumes.json` 可读正文与证据链；S9 作者采纳新增 `next_chapter_brief.json`、原大纲差异、伏笔调整和 Reviewer 建议，并回写世界线状态。真实 LLM smoke 使用 `qwen3.5-plus` 成功，主要风险是因果债仍需更具象。 |
 
 当前验证基线：后端 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
@@ -99,7 +100,7 @@
 
 当前官方下一步是：
 
-> S4 分支持续运行 / L4-L5 快照审计确认、S5 觉醒反抗，或 S2 深层召回/误会图谱。
+> 因果债具象化、世界线/检查点独立页、真实 LLM 多 Agent 决策与多视角正文质量、作者采纳后的章节生成入口。
 
 后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。用户已允许真实 API 参与测试或联调；默认常规测试仍保持 deterministic/mockable，真实模型 smoke 只在显式 opt-in 时运行。
 

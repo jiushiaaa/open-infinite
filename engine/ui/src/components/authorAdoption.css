@@ -150,6 +150,24 @@
   overflow-wrap: anywhere;
 }
 
+.adoption-next {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--line);
+}
+
+.adoption-next h3 {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-size: 16px;
+}
+
+.adoption-next ul {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.8;
+}
+
 @media (max-width: 960px) {
   .adoption-hero,
   .adoption-layout,

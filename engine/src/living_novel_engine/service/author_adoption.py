@@ -11,10 +11,14 @@ from typing import Any
 from living_novel_engine.browser.paths import outputs_dir as default_outputs_dir
 from living_novel_engine.browser.validators import safe_id
 from living_novel_engine.service.project_health import resolve_story_path
+from living_novel_engine.service.worldline_state import (
+    apply_author_adoption_to_worldline_state,
+)
 
 VERSION = "author-adoption-desk-v1"
 ARTIFACT = "author_adoption_record.json"
 BRIEF_ARTIFACT = "author_adoption_brief.md"
+NEXT_CHAPTER_ARTIFACT = "next_chapter_brief.json"
 LEDGER = "author_adoption_ledger.jsonl"
 
 _DECISIONS = {
@@ -86,6 +90,30 @@ def record_author_adoption(
         "author_note": _clean(author_note),
     }
     _append_ledger(story_path / LEDGER, entry)
+    next_chapter_brief = _next_chapter_brief(
+        story_slug=sid,
+        worldline_id=wid,
+        decision=decision_key,
+        source=source,
+        comparison=comparison,
+        author_note=_clean(author_note),
+    )
+    outline_diff = _outline_diff(decision_key, comparison)
+    foreshadowing_adjustments = _foreshadowing_adjustments(
+        comparison,
+        decision_key,
+    )
+    reviewer_suggestions = _reviewer_suggestions(
+        comparison,
+        next_chapter_brief,
+    )
+    worldline_state = apply_author_adoption_to_worldline_state(
+        story_path=story_path,
+        worldline_id=wid,
+        decision=decision_key,
+        source_run_id=run_id,
+        next_chapter_brief=next_chapter_brief,
+    )
 
     report = {
         "version": VERSION,
@@ -98,10 +126,20 @@ def record_author_adoption(
         "decision": decision_key,
         "mode_label": _DECISIONS[decision_key],
         "comparison": comparison,
+        "outline_diff": outline_diff,
+        "foreshadowing_adjustments": foreshadowing_adjustments,
+        "reviewer_suggestions": reviewer_suggestions,
+        "next_chapter_brief": next_chapter_brief,
+        "continuation_effect": {
+            "affects_future_sandbox": decision_key in {"adopted", "partial", "new_branch"},
+            "worldline_state_artifact": worldline_state.get("artifact") or "",
+            "next_sandbox_entry": next_chapter_brief["sandbox_inputs"],
+        },
         "adoption_entry": entry,
         "artifacts": {
             "author_adoption_record": ARTIFACT,
             "author_adoption_brief": BRIEF_ARTIFACT,
+            "next_chapter_brief": NEXT_CHAPTER_ARTIFACT,
             "ledger": LEDGER,
         },
         "boundaries": [
@@ -111,7 +149,7 @@ def record_author_adoption(
         ],
         "next_steps": [
             "可把采纳记录接入章节 brief 生成。",
-            "可在作者模式展示原大纲与沙盘涌现剧情的持续对照。",
+            "后续沙盘可读取 worldline_state.json 中的 next_chapter_brief。",
         ],
     }
     (run_dir / ARTIFACT).write_text(
@@ -122,7 +160,114 @@ def record_author_adoption(
         _brief_markdown(report),
         encoding="utf-8",
     )
+    (run_dir / NEXT_CHAPTER_ARTIFACT).write_text(
+        json.dumps(next_chapter_brief, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     return report
+
+
+def _next_chapter_brief(
+    *,
+    story_slug: str,
+    worldline_id: str,
+    decision: str,
+    source: dict[str, str],
+    comparison: dict[str, str],
+    author_note: str,
+) -> dict[str, Any]:
+    emergence = comparison["sandbox_emergence"]
+    event = source.get("source_event") or _first_sentence(emergence)
+    opening = (
+        f"下一章从“{event}”之后开场：角色先按沙盘涌现剧情承担误会与因果债，"
+        "再让原大纲中仍可保留的目标以伏笔形式回流。"
+    )
+    if decision == "new_branch":
+        opening = f"另开分支后，下一章以“{event}”作为分歧点，明确标记原大纲已退为参照。"
+    if decision == "export_brief":
+        opening = f"导出 brief 后，下一章暂不写入主线，只把“{event}”整理为作者可选素材。"
+    return {
+        "version": VERSION,
+        "story_slug": story_slug,
+        "worldline_id": worldline_id,
+        "decision": decision,
+        "opening_scene": opening,
+        "chapter_goal": "把沙盘涌现剧情写成可继续运行的一章，而不是孤立摘要。",
+        "conflict_focus": _conflict_focus(emergence),
+        "sandbox_inputs": {
+            "major_event": event or "作者采纳后的世界线继续运转。",
+            "worldline_id": worldline_id,
+            "author_note": author_note,
+        },
+        "must_preserve": [
+            "角色主观记忆和信息差",
+            "世界状态 delta 和因果债",
+            "作者对原大纲的采纳范围",
+        ],
+    }
+
+
+def _outline_diff(decision: str, comparison: dict[str, str]) -> dict[str, str]:
+    difference = comparison["difference"]
+    if "基本贴合" in difference:
+        status = "aligned"
+    elif decision == "partial":
+        status = "partially_aligned"
+    else:
+        status = "diverged"
+    return {
+        "status": status,
+        "summary": difference,
+        "original_outline": comparison["original_outline"],
+        "sandbox_emergence": comparison["sandbox_emergence"],
+    }
+
+
+def _foreshadowing_adjustments(
+    comparison: dict[str, str],
+    decision: str,
+) -> list[dict[str, str]]:
+    return [
+        {
+            "type": "preserve",
+            "text": "保留原大纲中仍成立的目标，但把达成路径改为沙盘涌现后的代价链。",
+        },
+        {
+            "type": "add",
+            "text": "补一处角色误会或隐瞒的伏笔，让下一轮主观记忆继续驱动行动。",
+        },
+        {
+            "type": "branch" if decision == "new_branch" else "adjust",
+            "text": "标记原大纲与沙盘涌现剧情的差异，避免下一章忽略世界线偏移。",
+        },
+    ]
+
+
+def _reviewer_suggestions(
+    comparison: dict[str, str],
+    next_chapter_brief: dict[str, Any],
+) -> list[str]:
+    return [
+        "开章先写角色行动，不要先解释系统规则。",
+        "至少保留一个角色不知道的正史事实，形成信息差。",
+        f"下一章冲突焦点应落在：{next_chapter_brief['conflict_focus']}。",
+    ]
+
+
+def _first_sentence(text: str) -> str:
+    clean = _clean(text)
+    for sep in ("。", "\n", "；"):
+        if sep in clean:
+            return clean.split(sep)[0]
+    return clean[:80]
+
+
+def _conflict_focus(text: str) -> str:
+    if "隐瞒" in text or "误判" in text:
+        return "隐瞒与误判如何改变关系信任"
+    if "因果债" in text:
+        return "因果债如何压向当前锚点"
+    return "原大纲目标与沙盘涌现选择之间的偏移"
 
 
 def _source_material(
@@ -199,6 +344,14 @@ def _brief_markdown(report: dict[str, Any]) -> str:
             "## 对照判断",
             "",
             comparison["difference"],
+            "",
+            "## 下一章可写方案",
+            "",
+            report["next_chapter_brief"]["opening_scene"],
+            "",
+            "## Reviewer 建议",
+            "",
+            "\n".join(f"- {item}" for item in report["reviewer_suggestions"]),
             "",
             "## 作者备注",
             "",

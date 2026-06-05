@@ -18,6 +18,7 @@ from living_novel_engine.service.world_sandbox import (
 
 VERSION = "character-lens-novel-v1"
 ARTIFACT = "character_lens_briefs.json"
+VOLUME_ARTIFACT = "character_lens_volumes.json"
 
 
 class CharacterLensRequestError(ValueError):
@@ -84,6 +85,15 @@ def generate_character_lens_briefs(
         selected_memory=selected_memory,
         memories=memories,
     )
+    volumes = _volumes(
+        event=event,
+        sandbox=sandbox,
+        round_record=round_record,
+        actions=actions,
+        selected_action=selected_action,
+        selected_memory=selected_memory,
+        memories=memories,
+    )
     report = {
         "version": VERSION,
         "artifact": ARTIFACT,
@@ -98,8 +108,11 @@ def generate_character_lens_briefs(
         },
         "brief_count": len(briefs),
         "briefs": briefs,
+        "volume_count": len(volumes),
+        "volumes": volumes,
         "artifacts": {
             "character_lens_briefs": ARTIFACT,
+            "character_lens_volumes": VOLUME_ARTIFACT,
         },
         "boundaries": [
             "多视角 brief 读取沙盘轮次和主观记忆链，不调用外部 provider。",
@@ -115,7 +128,163 @@ def generate_character_lens_briefs(
         json.dumps(report, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+    (run_dir / VOLUME_ARTIFACT).write_text(
+        json.dumps(
+            {
+                "version": VERSION,
+                "artifact": VOLUME_ARTIFACT,
+                "run_id": run_id,
+                "story_slug": sid,
+                "worldline_id": str(sandbox.get("worldline_id") or wid),
+                "source": report["source"],
+                "volume_count": len(volumes),
+                "volumes": volumes,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     return report
+
+
+def _volumes(
+    *,
+    event: str,
+    sandbox: dict[str, Any],
+    round_record: dict[str, Any],
+    actions: list[dict[str, Any]],
+    selected_action: dict[str, Any],
+    selected_memory: dict[str, Any],
+    memories: dict[str, list[dict[str, Any]]],
+) -> list[dict[str, Any]]:
+    delta = round_record.get("world_state_delta", {})
+    first_action = actions[0]
+    character_name = str(selected_action.get("character_name") or "角色")
+    event_nodes = _character_event_nodes(selected_action, selected_memory, sandbox)
+    evidence_chain = _evidence_chain(sandbox, round_record, memories)
+    world_prose = (
+        f"【正史】{event}被写入世界正史时，并不采纳任何人的自我辩解。"
+        f"正史只记录结果：{first_action.get('character_name')}先行动，"
+        f"{len(actions)}名角色随后把同一事件推向不同解释。"
+        f"锚点压力变为{delta.get('anchor_pressure')}，因果债显示为{delta.get('causal_debt')}。"
+        "这意味着世界并未因为外力投放而重置，反而把代价压回角色、关系网和势力秩序。"
+        "后续章节应从这些代价中生长，而不是另起一段孤立续写。"
+    )
+    character_prose = (
+        f"【{character_name}个人卷】我记得的不是正史。"
+        f"我先看见“{_join(selected_memory.get('saw'))}”，又亲手做下“{_join(selected_memory.get('did'))}”。"
+        f"我对自己的解释是：{selected_memory.get('new_belief') or selected_action.get('true_intent')}。"
+        f"可我并不知道正史里谁真正触发了这件事，也不知道别人是否把我的沉默当作背叛。"
+        "因此我只能把真实意图藏在外在行动之后，继续沿着误会、秘密和异常感往前走。"
+        "如果下一轮世界继续运行，我会先保护自己的退路，再决定是否公开真相。"
+    )
+    return [
+        {
+            "volume_type": "world_chronicle",
+            "title": "世界正史卷",
+            "prose": world_prose,
+            "evidence_chain": evidence_chain,
+        },
+        {
+            "volume_type": "anchor_volume",
+            "title": "主锚点卷",
+            "character_id": first_action.get("character_id"),
+            "character_name": first_action.get("character_name"),
+            "prose": (
+                f"【主锚点卷】{first_action.get('character_name')}不是被系统推着走，"
+                f"而是在{first_action.get('decision_inputs', {}).get('tianming_pressure')}下选择"
+                f"{first_action.get('stance')}。他的外在行动是：{first_action.get('visible_action')} "
+                f"真实意图却是：{first_action.get('true_intent')}。"
+                "锚点若继续承压，世界会优先让他付出代价；若他失败，候选承载者才会被推上来。"
+            ),
+            "evidence_chain": evidence_chain,
+        },
+        {
+            "volume_type": "character_volume",
+            "title": f"{character_name}个人卷",
+            "character_id": selected_action.get("character_id"),
+            "character_name": character_name,
+            "prose": character_prose,
+            "event_nodes": event_nodes,
+            "evidence_chain": evidence_chain,
+        },
+        {
+            "volume_type": "event_multi_perspective",
+            "title": "事件多视角",
+            "prose": (
+                f"同一事件“{event}”在正史中是锚点压力，在{character_name}眼中却是"
+                "一段需要隐藏真实意图的私人记忆。其他角色是否相信他，不由全局摘要决定，"
+                "而由各自的误会、关系和秘密可见性决定。"
+            ),
+            "information_gap": {
+                "canon_vs_character": (
+                    "正史知道世界状态已经改变；角色个人卷只知道自己看见和误解的部分。"
+                ),
+                "misbeliefs": _join(selected_memory.get("misbeliefs")),
+                "unknown_canon_facts": _join(selected_memory.get("unknown_canon_facts")),
+            },
+            "evidence_chain": evidence_chain,
+        },
+    ]
+
+
+def _character_event_nodes(
+    selected_action: dict[str, Any],
+    selected_memory: dict[str, Any],
+    sandbox: dict[str, Any],
+) -> list[dict[str, Any]]:
+    run_id = sandbox.get("run_id") or ""
+    return [
+        {
+            "id": "node_saw",
+            "title": "看见的事件",
+            "body": _join(selected_memory.get("saw")),
+            "evidence_refs": [f"{run_id}:sandbox_rounds.jsonl", "subjective_memory.jsonl:saw"],
+        },
+        {
+            "id": "node_did",
+            "title": "做出的行动",
+            "body": selected_action.get("visible_action") or _join(selected_memory.get("did")),
+            "evidence_refs": [f"{run_id}:sandbox_rounds.jsonl", "subjective_memory.jsonl:did"],
+        },
+        {
+            "id": "node_belief",
+            "title": "形成的误会或信念",
+            "body": selected_memory.get("new_belief") or selected_action.get("true_intent") or "",
+            "evidence_refs": [
+                f"{run_id}:subjective_memory_delta.json",
+                "world_state_delta",
+            ],
+        },
+    ]
+
+
+def _evidence_chain(
+    sandbox: dict[str, Any],
+    round_record: dict[str, Any],
+    memories: dict[str, list[dict[str, Any]]],
+) -> dict[str, Any]:
+    return {
+        "sandbox_round_id": sandbox.get("run_id") or "",
+        "sandbox_round_refs": ["sandbox_rounds.jsonl", "sandbox_summary.json"],
+        "subjective_memory_refs": [
+            {
+                "character_id": cid,
+                "source_run_id": rows[-1].get("source_run_id") if rows else "",
+                "source_round_index": rows[-1].get("source_round_index") if rows else "",
+            }
+            for cid, rows in memories.items()
+        ],
+        "world_state_delta_refs": list(
+            (round_record.get("world_state_delta") or {}).keys()
+        ),
+        "intervention_refs": (
+            ["intervention_constraint.json"]
+            if (sandbox.get("intervention_constraint") or {}).get("status") == "active"
+            else []
+        ),
+    }
 
 
 def _briefs(

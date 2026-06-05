@@ -108,8 +108,17 @@ export function CharacterLensPage({ slug }: { slug: string }) {
               </div>
               <div>
                 <dt>卷宗</dt>
-                <dd>{report.brief_count} 篇</dd>
+                <dd>
+                  {report.brief_count} 篇 brief
+                  {report.volume_count ? ` / ${report.volume_count} 篇正文` : ""}
+                </dd>
               </div>
+              {report.artifacts.character_lens_volumes && (
+                <div>
+                  <dt>正文</dt>
+                  <dd>{report.artifacts.character_lens_volumes}</dd>
+                </div>
+              )}
             </dl>
           )}
         </aside>
@@ -131,6 +140,46 @@ export function CharacterLensPage({ slug }: { slug: string }) {
                 </div>
                 <span className="badge badge--jade">{report.worldline_id}</span>
               </section>
+
+              {report.volumes && report.volumes.length > 0 && (
+                <section className="lens-volumes">
+                  {report.volumes.map((volume) => (
+                    <article className="lens-volume" key={volume.volume_type}>
+                      <div className="lens-brief__head">
+                        <span className="lens-brief__seal" aria-hidden>
+                          {LENS_LABELS[volume.volume_type]?.slice(0, 1) ?? "卷"}
+                        </span>
+                        <div>
+                          <h2>{LENS_LABELS[volume.volume_type] ?? volume.title}</h2>
+                          {volume.character_name && (
+                            <p className="muted tiny">{volume.character_name}</p>
+                          )}
+                        </div>
+                        <span className="badge badge--gold">正文</span>
+                      </div>
+                      <p>{volume.prose}</p>
+                      {volume.event_nodes && (
+                        <div className="lens-perspectives">
+                          {volume.event_nodes.map((node) => (
+                            <div key={node.id}>
+                              <strong>{node.title}</strong>
+                              <p>{node.body}</p>
+                              <span className="muted tiny">
+                                {node.evidence_refs.join(" / ")}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {volume.information_gap?.canon_vs_character && (
+                        <p className="muted tiny">
+                          信息差：{volume.information_gap.canon_vs_character}
+                        </p>
+                      )}
+                    </article>
+                  ))}
+                </section>
+              )}
 
               <section className="lens-briefs">
                 {report.briefs.map((brief) => (

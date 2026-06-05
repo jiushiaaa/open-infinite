@@ -458,6 +458,26 @@ export interface WorldSandboxCharacterAction {
     reason?: string;
     cost?: string;
   };
+  awareness?: {
+    level?: string;
+    abnormality?: string;
+    belief_payload?: string;
+  };
+  resistance_behavior?: {
+    type?: string;
+    label?: string;
+    description?: string;
+  };
+  meme_contamination?: {
+    status?: string;
+    belief_payload?: string;
+    spread_vector?: string[];
+  };
+  fate_mark?: {
+    status?: string;
+    label?: string;
+    description?: string;
+  };
   reason: string;
   stance: string;
   emotion_delta: string;
@@ -478,6 +498,7 @@ export interface WorldSandboxConflict {
 }
 
 export interface WorldSandboxInformationFlow {
+  type?: string;
   from: string;
   to: string;
   content: string;
@@ -505,6 +526,16 @@ export interface WorldSandboxRound {
     anchor_pressure: string;
     causal_debt: string;
     intervention_effects?: string[];
+    branch_state?: {
+      continuation_status?: string;
+      worldline_state_artifact?: string;
+    };
+    compensation_effects?: string[];
+    meme_contamination?: {
+      status?: string;
+      source_character_id?: string;
+      belief_payload?: string;
+    };
   };
   next_story_possibilities: Array<{
     id: string;
@@ -540,6 +571,7 @@ export interface WorldSandboxRunReport {
     intervention_constraint?: string;
   };
   intervention_constraint?: WorldSandboxInterventionConstraint;
+  worldline_state?: WorldlineState;
   rounds: WorldSandboxRound[];
   subjective_memory_delta: {
     entry_count?: number;
@@ -601,6 +633,84 @@ export interface SubjectiveMemoryEntry {
     reason?: string;
     cost?: string;
   };
+  higher_dimensional_awareness?: string;
+  fate_mark?: {
+    status?: string;
+    label?: string;
+    description?: string;
+  };
+  resistance_behavior?: {
+    type?: string;
+    label?: string;
+    description?: string;
+  };
+  meme_contamination?: {
+    status?: string;
+    belief_payload?: string;
+    spread_vector?: string[];
+  };
+}
+
+export interface WorldlineState {
+  version?: string;
+  artifact?: string;
+  current_worldline?: string;
+  status?: string;
+  source_intervention?: {
+    status?: string;
+    content?: string;
+    target?: string;
+    projection_mode?: string;
+    intervention_level?: string;
+  };
+  tianming_snapshot?: {
+    artifact?: string;
+    status?: string;
+    audit_status?: string;
+    requires_confirmation?: boolean;
+    root_tianming_mutated?: boolean;
+  };
+  branch_state?: {
+    continuation_status?: string;
+    projection_mode?: string;
+    next_round_reads?: string[];
+  };
+  causal_debt?: {
+    score?: number;
+    level?: string;
+    pressure_order?: string[];
+    spread?: string[];
+  };
+  anchor_status?: {
+    status?: string;
+    current_anchor?: string;
+    current_anchor_pressure?: string;
+    no_qualified_anchor?: boolean;
+    ensemble_without_mainline?: boolean;
+  };
+  replacement_anchor_candidates?: Array<{
+    character_id?: string;
+    character_name?: string;
+    score?: number;
+    desire?: string;
+    capability?: string;
+    resources?: string;
+    resistance?: string;
+    explanation?: string;
+  }>;
+  meme_contamination?: {
+    status?: string;
+    source_character_id?: string;
+    belief_payload?: string;
+    spread_vector?: string[];
+  };
+  compensation_effects?: string[];
+  continuation_inputs?: {
+    major_event_hint?: string;
+    worldline_id?: string;
+  };
+  author_adoption?: Record<string, unknown>;
+  next_chapter_brief?: Record<string, unknown>;
 }
 
 export interface SubjectiveMemoryReport {
@@ -802,6 +912,7 @@ export interface NarrativeCompensationReport {
 }
 
 export interface WorldAutopilotCheckpoint {
+  checkpoint_id?: string;
   round_index: number;
   sandbox_run_id: string;
   major_event: string;
@@ -815,6 +926,7 @@ export interface WorldAutopilotCheckpoint {
     title: string;
     brief: string;
   }>;
+  who_remembered_what?: Array<{ character_id?: string; remembered?: string }>;
 }
 
 export interface WorldAutopilotReport {
@@ -833,6 +945,18 @@ export interface WorldAutopilotReport {
     };
   rounds_completed: number;
   stop_reason: string;
+  task?: {
+    task_id: string;
+    status: string;
+    can_pause: boolean;
+    can_resume: boolean;
+    checkpoint_replay: boolean;
+  };
+  progress?: {
+    current_round: number;
+    target_round: number;
+    percent: number;
+  };
   sandbox_runs: Array<{
     round_index: number;
     sandbox_run_id: string;
@@ -843,6 +967,16 @@ export interface WorldAutopilotReport {
   final_world_stage: {
     stage: string;
     summary: string;
+  };
+  overnight_report?: {
+    what_happened: string;
+    who_remembered_what: Array<{ character_id?: string; remembered?: string }>;
+    why_world_changed: string;
+    where_to_continue: Array<{
+      checkpoint_id?: string;
+      sandbox_run_id?: string;
+      label?: string;
+    }>;
   };
   artifacts: {
     autopilot_report: string;
@@ -887,8 +1021,25 @@ export interface CharacterLensReport {
   };
   brief_count: number;
   briefs: CharacterLensBrief[];
+  volume_count?: number;
+  volumes?: Array<{
+    volume_type: string;
+    title: string;
+    prose: string;
+    character_id?: string;
+    character_name?: string;
+    event_nodes?: Array<{
+      id: string;
+      title: string;
+      body: string;
+      evidence_refs: string[];
+    }>;
+    information_gap?: Record<string, string>;
+    evidence_chain?: Record<string, unknown>;
+  }>;
   artifacts: {
     character_lens_briefs: string;
+    character_lens_volumes?: string;
   };
   boundaries: string[];
   next_steps: string[];
@@ -909,6 +1060,30 @@ export interface AuthorAdoptionReport {
     sandbox_emergence: string;
     difference: string;
   };
+  outline_diff?: {
+    status: string;
+    summary: string;
+    original_outline: string;
+    sandbox_emergence: string;
+  };
+  foreshadowing_adjustments?: Array<{ type: string; text: string }>;
+  reviewer_suggestions?: string[];
+  next_chapter_brief?: {
+    opening_scene: string;
+    chapter_goal: string;
+    conflict_focus: string;
+    sandbox_inputs: {
+      major_event: string;
+      worldline_id: string;
+      author_note?: string;
+    };
+    must_preserve: string[];
+  };
+  continuation_effect?: {
+    affects_future_sandbox: boolean;
+    worldline_state_artifact: string;
+    next_sandbox_entry: Record<string, string>;
+  };
   adoption_entry: {
     version: string;
     created_at: string;
@@ -926,6 +1101,7 @@ export interface AuthorAdoptionReport {
   artifacts: {
     author_adoption_record: string;
     author_adoption_brief: string;
+    next_chapter_brief?: string;
     ledger: string;
   };
   boundaries: string[];

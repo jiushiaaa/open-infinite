@@ -119,6 +119,7 @@ import type {
   VisualAssetsGenerateRequest,
   WorldAnchor,
   WorldAutopilotReport,
+  WorldlineState,
   WorldSandboxRunReport,
   WorldSandboxRunRequest,
   WorldlineSelectionRequest,
@@ -530,6 +531,13 @@ export const api = {
       )}/characters/${encodeURIComponent(characterId)}/subjective-memory`,
     );
   },
+  getWorldlineState(storySlug: string, worldlineId: string): Promise<WorldlineState> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/worldline-state`,
+    );
+  },
   getTianmingBook(storySlug: string): Promise<TianmingBook> {
     return getJson(`/api/stories/${encodeURIComponent(storySlug)}/tianming`);
   },
@@ -580,6 +588,51 @@ export const api = {
       req,
       );
     },
+  getWorldAutopilotTask(
+    storySlug: string,
+    worldlineId: string,
+    taskId: string,
+  ): Promise<Record<string, unknown>> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/world-autopilot/tasks/${encodeURIComponent(taskId)}`,
+    );
+  },
+  pauseWorldAutopilotTask(
+    storySlug: string,
+    worldlineId: string,
+    taskId: string,
+  ): Promise<Record<string, unknown>> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/world-autopilot/tasks/${encodeURIComponent(taskId)}/pause`,
+      {},
+    );
+  },
+  resumeWorldAutopilotTask(
+    storySlug: string,
+    worldlineId: string,
+    taskId: string,
+  ): Promise<Record<string, unknown>> {
+    return postJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/world-autopilot/tasks/${encodeURIComponent(taskId)}/resume`,
+      {},
+    );
+  },
+  replayWorldAutopilotCheckpoint(
+    runId: string,
+    checkpointId: string,
+  ): Promise<Record<string, unknown>> {
+    return getJson(
+      `/api/world-autopilot-runs/${encodeURIComponent(
+        runId,
+      )}/checkpoints/${encodeURIComponent(checkpointId)}`,
+    );
+  },
   generateCharacterLens(
     storySlug: string,
     req: {

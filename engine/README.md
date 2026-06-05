@@ -2,7 +2,7 @@
 
 未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。当前已经从早期 Phase 0 CLI 演进到 v1.0-local + 后续增强四十五刀：支持小说导入、长篇记忆、读者干预、多世界线生成、审计评估、章节导出、模型配置、本地一键运行、运行前体检、生成后投影健康、读者修订评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、样本趋势快照，以及 Graph Memory provider spike 到 Manual Mock Adapter Review 的只读证据链。用户明确要求后，百炼 embedding、Zilliz Cloud 和百炼 reranker 的真实向量检索 Pipeline 已可显式使用。
 
-2026-06-03 产品纠偏后，上述 provider、Graph、检索评测、发行和商业化能力全部降为支撑层。当前默认开发主线是 **World Sandbox Loop / 世界沙盘改造**。2026-06-04 已完成 World Sandbox Loop v1-v8：用户可从世界书架进入“世界沙盘”“天命书”“多视角活体小说”和“作者采纳台”，看到角色行动、世界变化、角色主观记忆、干预分支轴、因果债、世界线代偿、世界自演检查点、多视角卷宗和作者采纳账本；S1/S2/S3/S4 深化已让沙盘行动记录展示决策输入、外在行动、真实意图、风险和行动结果，让主观记忆展示角色感知、内心想法、推测动机、误会、未知正史、秘密可见性和异常权重，让《天命书》展示吸引子权重、多锚点、四档合约压力和 L4/L5/AU 世界线快照，让普通干预经天命书编译后作为下一轮沙盘约束投放，并让 AK47 等异物干预可选择沉浸模式本土化重释或暴走 AU 世界线快照；旧版已确认天命书会保守补齐 S3 字段。后续进入 S4 分支持续运行 / 快照审计确认、S5 觉醒反抗、闭环体验打磨、采纳后章节 brief 和跨卷宗串联，而不是回到 provider/Graph/检索评测堆叠。具体改造 PRD 见 [`../docs/unfinale-world-sandbox-remodel-prd.md`](../docs/unfinale-world-sandbox-remodel-prd.md)。
+2026-06-03 产品纠偏后，上述 provider、Graph、检索评测、发行和商业化能力全部降为支撑层。当前默认开发主线是 **World Sandbox Loop / 世界沙盘改造**。2026-06-04 已完成 World Sandbox Loop v1-v8：用户可从世界书架进入“世界沙盘”“天命书”“多视角活体小说”和“作者采纳台”，看到角色行动、世界变化、角色主观记忆、干预分支轴、因果债、世界线代偿、世界自演检查点、多视角卷宗和作者采纳账本；S1/S2/S3/S4 深化已让沙盘行动记录展示决策输入、外在行动、真实意图、风险和行动结果，让主观记忆展示角色感知、内心想法、推测动机、误会、未知正史、秘密可见性和异常权重，让《天命书》展示吸引子权重、多锚点、四档合约压力和 L4/L5/AU 世界线快照，让普通干预经天命书编译后作为下一轮沙盘约束投放，并让 AK47 等异物干预可选择沉浸模式本土化重释或暴走 AU 世界线快照；旧版已确认天命书会保守补齐 S3 字段。2026-06-05 第二轮强化已把 S4 后半和 S5-S9 串成可持续世界线：`worldline_state.json` 让干预、快照审计、因果债、锚点、候选承载者和采纳结果进入后续沙盘；L5 觉醒写入命痕、反抗行为和模因污染；世界自演新增本地任务状态、暂停/恢复和检查点回放；多视角新增可读正文 `character_lens_volumes.json`；作者采纳新增 `next_chapter_brief.json` 并反哺下一轮。真实 LLM smoke 使用 `qwen3.5-plus` 成功，提示下一步应把因果债代价具象化。后续继续打磨体验，而不是回到 provider/Graph/检索评测堆叠。具体改造 PRD 见 [`../docs/unfinale-world-sandbox-remodel-prd.md`](../docs/unfinale-world-sandbox-remodel-prd.md)。
 
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
@@ -48,9 +48,12 @@
 - `outputs/<run_id>/autopilot_report.json`
 - `outputs/<run_id>/checkpoints/checkpoint_*.json`
 - `outputs/<run_id>/character_lens_briefs.json`
+- `outputs/<run_id>/character_lens_volumes.json`
 - `projects/<slug>/author_adoption_ledger.jsonl`
 - `outputs/<run_id>/author_adoption_record.json`
 - `outputs/<run_id>/author_adoption_brief.md`
+- `outputs/<run_id>/next_chapter_brief.json`
+- `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`
 
 已实现第一版：
 
@@ -65,6 +68,10 @@
 - 旧版已确认 `tianming.json` 会在生成或读取时补齐 S3 宪法字段，同时保留既有吸引子。
 - `POST /api/stories/<slug>/narrative-compensation/run`：生成世界线代偿 delta，解释锚点转移、候选承载者、因果债扩散和世界内压力。
 - `POST /api/stories/<slug>/world-autopilot/run`：连续运行沙盘轮次，支持轮数、事件、时间或锚点变化目标，生成世界自演报告与检查点。
+- `GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`：读取可持续世界线状态。
+- `GET /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>`：读取自演任务进度。
+- `POST /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>/pause|resume`：暂停或恢复本地自演任务状态。
+- `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`：回放自演检查点。
 - `POST /api/stories/<slug>/character-lens/generate`：从同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角 brief。
 - `POST /api/stories/<slug>/author-adoption`：作者采纳、部分采纳、另开分支或导出 brief，并写入本地采纳账本。
 - `projects/<slug>/tianming.json`：叙事吸引子、题材约束、锚点状态、合约压力和候选天命承载者。
@@ -72,9 +79,12 @@
 - `outputs/<run_id>/autopilot_report.json`：世界自演报告，包含目标、停止原因、沙盘运行、最终阶段和检查点索引。
 - `outputs/<run_id>/checkpoints/checkpoint_*.json`：每轮自演检查点，记录大事件、锚点压力、因果债和后续剧情可能性。
 - `outputs/<run_id>/character_lens_briefs.json`：多视角活体小说 brief，记录世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角。
+- `outputs/<run_id>/character_lens_volumes.json`：多视角正文，记录世界正史卷、主锚点卷、角色个人卷和事件多视角的可读正文及证据链。
 - `projects/<slug>/author_adoption_ledger.jsonl`：作者采纳账本，记录采纳、部分采纳、另开分支或导出 brief。
 - `outputs/<run_id>/author_adoption_record.json`：单次作者采纳记录和原大纲 vs 沙盘涌现剧情对照。
 - `outputs/<run_id>/author_adoption_brief.md`：可交给后续章节 brief 或人工整理的采纳说明。
+- `outputs/<run_id>/next_chapter_brief.json`：作者采纳后的下一章 brief、伏笔保留项和后续沙盘入口。
+- `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`：干预、快照审计、因果债、锚点状态、候选承载者、模因污染和作者采纳结果的后续沙盘输入。
 - `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、决策输入、外在行动、真实意图、风险、行动结果、冲突、信息传播和世界状态 delta。
 - `outputs/<run_id>/intervention_constraint.json`：当本轮沙盘带干预文本时写入，记录天命书编译出的投放方式、异物入侵标记、法则吸收、分支轴、因果债、世界线快照和普通干预不覆盖根天命书边界。
 - `outputs/<run_id>/sandbox_summary.json`：聚合本轮摘要、边界和下一步故事可能性。

@@ -384,7 +384,15 @@ from .world_sandbox import (
 )
 from .world_autopilot import (
     WorldAutopilotRequestError,
+    get_world_autopilot_task,
+    pause_world_autopilot_task,
+    replay_world_autopilot_checkpoint,
+    resume_world_autopilot_task,
     run_world_autopilot,
+)
+from .worldline_state import (
+    WorldlineStateRequestError,
+    get_worldline_state,
 )
 
 __all__ = [
@@ -620,12 +628,18 @@ __all__ = [
     "WorldlineSelectionRequestError",
     "WorldSandboxRequestError",
     "WorldAutopilotRequestError",
+    "WorldlineStateRequestError",
     "get_character_subjective_memory",
+    "get_world_autopilot_task",
+    "get_worldline_state",
     "get_worldline_judgement",
     "get_selected_worldline",
     "get_sandbox_run",
     "judge_worldline",
     "select_worldline",
+    "pause_world_autopilot_task",
+    "replay_world_autopilot_checkpoint",
+    "resume_world_autopilot_task",
     "run_sandbox_round",
     "run_world_autopilot",
 ]

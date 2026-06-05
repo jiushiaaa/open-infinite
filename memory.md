@@ -2,7 +2,7 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-05（World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1 Agent Decision Deepening、S2 Subjective Memory Psychology、S3 Tianming Worldline Constitution、S4 Intervention Execution Constraint 与 S4 Immersive / Wild AU Projection 第一刀已收口：沙盘行动读取决策输入，主观记忆记录心理/信息差，《天命书》支持世界线宪法字段；普通干预可经天命书编译后作为下一轮沙盘约束进入行动、冲突、信息流和世界状态 delta；AK47 等异物干预可选择沉浸模式本土化重释或暴走 AU，暴走 AU 会写世界线《天命书》快照且不覆盖根文件。下一步继续 S4 分支持续运行 / L4-L5 快照审计确认，或推进 S5 L5 觉醒反抗，而不是回到 provider/Graph/检索评测堆叠。）
+> **最后更新**：2026-06-05（World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1 Agent Decision Deepening、S2 Subjective Memory Psychology、S3 Tianming Worldline Constitution、S4 Intervention Execution Constraint 与 S4 Immersive / Wild AU Projection 第一刀已收口。本次继续把 S4 后半、S5、S6、S7、S8、S9 串成同一条可持续世界线：干预和 AU/L5 快照会写入 `worldline_state.json` 并被后续沙盘读取；L5 觉醒会进入角色主观记忆、命痕、反抗行为和模因污染；因果债、锚点状态、候选承载者和分支承接成为后续轮次输入；世界自演新增本地任务进度、暂停/恢复和检查点回放；多视角从 brief 扩为 `character_lens_volumes.json` 可读正文与证据链；作者采纳新增 `next_chapter_brief.json` 并回写世界线状态。真实 LLM smoke 使用 `qwen3.5-plus` 成功，提示“因果债若表现太抽象，危机感易稀释”。下一步应继续把代偿代价具象化、补 UI 世界线/检查点独立页和更真实的 LLM 多 Agent 决策，而不是回到 provider/Graph/检索评测堆叠。）
 
 ---
 
@@ -15,7 +15,7 @@
 | 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已收口；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8（Sandbox Round、Subjective Memory Chain、Tianming Book、Intervention Compiler、Narrative Compensation、World Autopilot、Character Lens Novel、Author Adoption Desk）已收口 |
 | 产品入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能必须优先通过 Web UI + API 完成，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑 |
 | 测试基线 | `cd engine && python -m pytest -q` -> `872 passed`；`cd engine/ui && pnpm run build` 通过 |
-| 官方下一步 | **S4 深化 / S5 觉醒反抗**：S4 已让 `sandbox/run` 可选接收 `intervention_content` / `intervention_target` / `intervention_projection_mode`，即时读取《天命书》编译为 `intervention_constraint.json`；沉浸模式会把 AK47 等异物本土化重释，暴走 AU 会写 `worldlines/<worldline_id>/tianming_snapshot.json` 且根《天命书》不被覆盖；下一步补分支持续运行、L4/L5 快照审计确认或 L5 觉醒反抗；不默认回到 provider/Graph/检索评测主线 |
+| 官方下一步 | **S6/S7/S8/S9 体验加深**：S4 后半与 S5/S6/S7/S8/S9 已形成一条可继续运行的产品链路，新增 `worldline_state.json`、自演任务状态、检查点回放、多视角正文和下一章 brief；下一步优先把因果债代价具象化、补世界线/检查点独立页、加强真实 LLM 决策/正文质量和作者采纳后的章节生成入口；不默认回到 provider/Graph/检索评测主线 |
 | 当前主导航决策 | 一级按“世界书架”组织；进入某世界后使用“天命书、世界沙盘、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、世界线、检查点、作者采纳台”。“沙盘/阅读/干预/作者”是场景能力，不做一级工作区 |
 | 支撑层边界 | GraphRAG/Zep、provider spike、真实向量检索、OpenAPI、发行、计费、对象存储、认证都已降为支撑层；除非用户明确要求，不继续扩展这些方向 |
 

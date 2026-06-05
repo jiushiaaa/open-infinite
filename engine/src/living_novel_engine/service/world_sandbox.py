@@ -17,6 +17,10 @@ from living_novel_engine.service.tianming_intervention_compiler import (
     TianmingInterventionCompilerRequestError,
     compile_intervention_against_tianming,
 )
+from living_novel_engine.service.worldline_state import (
+    apply_sandbox_worldline_state,
+    load_worldline_state,
+)
 
 VERSION = "world-sandbox-round-v1"
 _ROUNDS_ARTIFACT = "sandbox_rounds.jsonl"
@@ -60,6 +64,7 @@ def run_sandbox_round(
     selected = _select_characters(characters)
     previous_memories = _load_latest_subjective_memories(story_path, wid, selected)
     tianming_pressure = _load_tianming_pressure(story_path)
+    worldline_state = load_worldline_state(story_path, wid)
     constraint = _build_intervention_constraint(
         story_slug=sid,
         worldline_id=wid,
@@ -69,6 +74,8 @@ def run_sandbox_round(
         raw_constraint=intervention_constraint,
         projects_dir=projects_dir,
     )
+    if constraint.get("status") != "active":
+        constraint = _constraint_from_worldline_state(worldline_state)
     created_at = datetime.now().isoformat(timespec="seconds")
     run_id = _new_run_id()
     root = outputs_dir or default_outputs_dir()
@@ -85,6 +92,7 @@ def run_sandbox_round(
         previous_memories=previous_memories,
         tianming_pressure=tianming_pressure,
         intervention_constraint=constraint,
+        worldline_state=worldline_state,
         created_at=created_at,
     )
     _write_jsonl(run_dir / _ROUNDS_ARTIFACT, [round_record])
@@ -97,6 +105,12 @@ def run_sandbox_round(
         story_path=story_path,
         run_dir=run_dir,
         round_record=round_record,
+    )
+    updated_worldline_state = apply_sandbox_worldline_state(
+        story_path=story_path,
+        worldline_id=wid,
+        round_record=round_record,
+        intervention_constraint=constraint,
     )
     meta = {
         "kind": "world_sandbox_round",
@@ -129,6 +143,7 @@ def run_sandbox_round(
         rounds=[round_record],
         subjective_memory_delta=memory_delta,
         intervention_constraint=constraint,
+        worldline_state=updated_worldline_state,
     )
     (run_dir / "sandbox_summary.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2),
@@ -172,6 +187,7 @@ def get_sandbox_run(
         intervention_constraint=_read_optional_json(
             run_dir / _INTERVENTION_CONSTRAINT_ARTIFACT
         ),
+        worldline_state={},
     )
 
 
@@ -238,6 +254,7 @@ def _build_round_record(
     previous_memories: dict[str, dict[str, Any]],
     tianming_pressure: dict[str, Any],
     intervention_constraint: dict[str, Any],
+    worldline_state: dict[str, Any],
     created_at: str,
 ) -> dict[str, Any]:
     actions = [
@@ -248,6 +265,7 @@ def _build_round_record(
             previous_memories=previous_memories,
             tianming_pressure=tianming_pressure,
             intervention_constraint=intervention_constraint,
+            worldline_state=worldline_state,
         )
         for idx, character in enumerate(characters)
     ]
@@ -264,7 +282,7 @@ def _build_round_record(
         "character_actions": actions,
         "conflicts": _conflicts(actions, major_event),
         "information_flow": _information_flow(actions, major_event),
-        "world_state_delta": _world_state_delta(actions, major_event),
+        "world_state_delta": _world_state_delta(actions, major_event, worldline_state),
         "next_story_possibilities": _next_story_possibilities(actions, major_event),
         "boundaries": [
             "本轮只写 sandbox_rounds.jsonl 和 sandbox_summary.json。",
@@ -282,6 +300,7 @@ def _character_action(
     previous_memories: dict[str, dict[str, Any]],
     tianming_pressure: dict[str, Any],
     intervention_constraint: dict[str, Any],
+    worldline_state: dict[str, Any],
 ) -> dict[str, Any]:
     character_id = _safe_character_id(character, index)
     name = _text(character.get("name")) or character_id
@@ -313,6 +332,13 @@ def _character_action(
     intervention_debt = _intervention_causal_debt_text(intervention_constraint)
     intervention_target = _text(intervention_constraint.get("target"))
     intervention_projection_mode = _text(intervention_constraint.get("projection_mode"))
+    worldline_inputs = _worldline_decision_inputs(worldline_state)
+    awareness = _awareness_signal(
+        character_id=character_id,
+        index=index,
+        intervention_constraint=intervention_constraint,
+        worldline_state=worldline_state,
+    )
     decision = _deterministic_decision(
         name=name,
         location=location,
@@ -324,6 +350,7 @@ def _character_action(
         pressure_text=pressure_text,
         intervention_text=intervention_text,
         intervention_axis=intervention_axis,
+        awareness=awareness,
     )
     memory_influence = (
         f"上一轮认知“{previous_belief}”与异常感“{previous_anomaly}”改变本轮选择。"
@@ -345,8 +372,9 @@ def _character_action(
         "intervention_causal_debt": intervention_debt,
         "intervention_target": intervention_target,
         "intervention_projection_mode": intervention_projection_mode,
+        **worldline_inputs,
     }
-    return {
+    action = {
         "character_id": character_id,
         "character_name": name,
         "narrative_role": role,
@@ -384,6 +412,18 @@ def _character_action(
             "inferred": [decision["new_belief"]],
         },
     }
+    if awareness.get("level") == "L5":
+        resistance = _resistance_behavior(name, index)
+        meme = _meme_contamination(name, character_id, awareness)
+        action["awareness"] = awareness
+        action["resistance_behavior"] = resistance
+        action["meme_contamination"] = meme
+        action["fate_mark"] = {
+            "status": "active",
+            "label": "命痕",
+            "description": f"{name}把异常归因于高维读者或作者的操控。",
+        }
+    return action
 
 
 def _append_subjective_memory_delta(
@@ -462,6 +502,14 @@ def _subjective_memory_entry(
         "risk": action.get("risk") or "",
         "memory_influence": action.get("memory_influence") or "",
         "action_outcome": action.get("action_outcome") or {},
+        "higher_dimensional_awareness": (
+            action.get("awareness", {}).get("belief_payload")
+            if isinstance(action.get("awareness"), dict)
+            else ""
+        ),
+        "fate_mark": action.get("fate_mark") or {"status": "inactive"},
+        "resistance_behavior": action.get("resistance_behavior") or {},
+        "meme_contamination": action.get("meme_contamination") or {"status": "none"},
         **psychology,
     }
 
@@ -556,7 +604,10 @@ def _subjective_memory_psychology(
         "emotional_impact": _emotional_impact(action, perspective_index),
         "trust_shift": _text(action.get("relationship_delta"))
         or "信任关系出现轻微偏移",
-        "anomaly_weight": min(9, 3 + perspective_index),
+        "anomaly_weight": 10
+        if isinstance(action.get("awareness"), dict)
+        and action["awareness"].get("level") == "L5"
+        else min(9, 3 + perspective_index),
         "secret_visibility": secret_visibility,
         "known_truths": known_information[:3],
         "misbeliefs": [misbelief],
@@ -574,7 +625,14 @@ def _subjective_memory_psychology(
             if perspective_index % 3 == 0
             else "暂无明确世界线残影"
         ),
-        "awareness_level": "ordinary" if perspective_index < 3 else "uneasy",
+        "awareness_level": (
+            "L5"
+            if isinstance(action.get("awareness"), dict)
+            and action["awareness"].get("level") == "L5"
+            else "ordinary"
+            if perspective_index < 3
+            else "uneasy"
+        ),
     }
 
 
@@ -660,6 +718,131 @@ def _build_intervention_constraint(
             "本约束来自《天命书》干预编译结果。",
             "它只影响本次沙盘轮次，不覆盖根 tianming.json。",
             "普通干预进入 Divergent Worldline；L4/L5/AU 仍需单独确认快照。",
+        ],
+    }
+
+
+def _constraint_from_worldline_state(state: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(state, dict):
+        return {"status": "none", "source": "none", "content": "", "target": ""}
+    source = state.get("source_intervention")
+    if not isinstance(source, dict) or source.get("status") != "active":
+        return {"status": "none", "source": "none", "content": "", "target": ""}
+    return {
+        "status": "active",
+        "source": "worldline_state",
+        "content": source.get("content") or "",
+        "target": source.get("target") or "",
+        "projection_mode": source.get("projection_mode") or "immersive",
+        "intervention_level": source.get("intervention_level") or "",
+        "branch_axis": source.get("branch_axis") or {},
+        "causal_debt": source.get("causal_debt") or {},
+        "worldline_tianming_snapshot": (
+            {
+                "artifact": state.get("tianming_snapshot", {}).get("artifact"),
+                "status": state.get("tianming_snapshot", {}).get("status"),
+                "requires_confirmation": state.get("tianming_snapshot", {}).get(
+                    "requires_confirmation"
+                ),
+            }
+            if isinstance(state.get("tianming_snapshot"), dict)
+            and state.get("tianming_snapshot", {}).get("artifact")
+            else None
+        ),
+        "persisted_worldline_state": {
+            "artifact": state.get("artifact") or "",
+            "tianming_snapshot_audit": state.get("tianming_snapshot", {}).get(
+                "audit_status"
+            )
+            if isinstance(state.get("tianming_snapshot"), dict)
+            else "",
+            "causal_debt": state.get("causal_debt") or {},
+            "branch_state": state.get("branch_state") or {},
+        },
+        "boundaries": [
+            "本约束来自可继续运行的 worldline_state.json。",
+            "后续沙盘轮次会持续读取干预、快照审计状态、因果债和分支状态。",
+        ],
+    }
+
+
+def _worldline_decision_inputs(state: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(state, dict) or state.get("status") == "new":
+        return {
+            "worldline_intervention_memory": "",
+            "worldline_tianming_snapshot_audit": "",
+            "worldline_causal_debt": "",
+            "branch_continuation_status": "",
+        }
+    source = state.get("source_intervention") if isinstance(state.get("source_intervention"), dict) else {}
+    snapshot = state.get("tianming_snapshot") if isinstance(state.get("tianming_snapshot"), dict) else {}
+    debt = state.get("causal_debt") if isinstance(state.get("causal_debt"), dict) else {}
+    branch = state.get("branch_state") if isinstance(state.get("branch_state"), dict) else {}
+    return {
+        "worldline_intervention_memory": _text(source.get("content")),
+        "worldline_tianming_snapshot_audit": _text(snapshot.get("audit_status")),
+        "worldline_causal_debt": f"{debt.get('level', '')}/{debt.get('score', 0)}",
+        "branch_continuation_status": _text(branch.get("continuation_status")),
+    }
+
+
+def _awareness_signal(
+    *,
+    character_id: str,
+    index: int,
+    intervention_constraint: dict[str, Any],
+    worldline_state: dict[str, Any],
+) -> dict[str, Any]:
+    text = _text(intervention_constraint.get("content"))
+    target = _text(intervention_constraint.get("target"))
+    prior = (
+        worldline_state.get("meme_contamination")
+        if isinstance(worldline_state.get("meme_contamination"), dict)
+        else {}
+    )
+    tokens = ("小说人物", "高维", "读者", "作者", "操控", "大纲")
+    l5 = (
+        any(token in text for token in tokens)
+        or _text(intervention_constraint.get("intervention_level")) == "L5"
+        or prior.get("status") == "active"
+    )
+    if not l5:
+        return {"level": "ordinary", "abnormality": ""}
+    direct = not target or target == character_id or index == 0
+    return {
+        "level": "L5" if direct else "contaminated",
+        "abnormality": "意识到自己可能是小说人物，命运正在被高维读者或作者触碰。",
+        "belief_payload": "我是小说人物，读者正在高维操控我。",
+        "direct_target": direct,
+    }
+
+
+def _resistance_behavior(name: str, index: int) -> dict[str, str]:
+    options = [
+        ("false_compliance", "假意服从", f"{name}表面按命运线行动，暗中把读者给的信息拆成诱饵。"),
+        ("refusal", "拒绝", f"{name}拒绝把高维命令当作真理，宁愿让主线暂时失速。"),
+        ("deceive_reader", "欺骗读者", f"{name}故意做出顺从姿态，诱使读者误判自己的下一步。"),
+        ("protect_others", "保护他人", f"{name}把高维真相藏起来，避免同伴被异常感拖垮。"),
+        ("continue_mission", "继续使命", f"{name}承认世界异常，但仍选择完成自己的旧使命。"),
+        ("nihilism", "虚无", f"{name}短暂怀疑一切选择是否有意义，行动变得危险而冷静。"),
+    ]
+    kind, label, description = options[index % len(options)]
+    return {"type": kind, "label": label, "description": description}
+
+
+def _meme_contamination(
+    name: str,
+    character_id: str,
+    awareness: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "status": "active",
+        "source_character_id": character_id,
+        "belief_payload": awareness.get("belief_payload") or "世界可能被高维叙事操控。",
+        "spread_vector": [
+            f"{name}的异常言行",
+            "梦兆、密信与同伴的误读",
+            "关系网中关于高维真相的传闻",
         ],
     }
 
@@ -750,9 +933,31 @@ def _deterministic_decision(
     pressure_text: str,
     intervention_text: str,
     intervention_axis: str,
+    awareness: dict[str, Any],
 ) -> dict[str, Any]:
     has_memory = bool(previous_belief or previous_anomaly)
     has_intervention = bool(intervention_text)
+    if awareness.get("level") == "L5":
+        return {
+            "stance": "假意服从",
+            "visible_action": (
+                f"{name}在{location}假意服从命运，把“{target_hint}”当作正常线索处理，"
+                "却故意留下一个只有同伴能看懂的破绽。"
+            ),
+            "true_intent": (
+                f"{name}意识到自己可能是小说人物，不再把高维指令当作真理，"
+                "而是试图保护同伴并反向欺骗读者。"
+            ),
+            "expected_outcome": "让世界以为锚点仍在前进，同时给角色保留反抗和自救空间。",
+            "risk": "高维真相会污染关系网，其他角色可能把异常感误读为背叛或疯癫。",
+            "relationship_delta": "表面顺从，暗中保护同伴，信任关系进入异常压力",
+            "new_belief": f"{name}把“我是小说人物/被高维操控”的认知藏进主观记忆。",
+            "action_outcome": {
+                "status": "misjudged",
+                "reason": "角色没有机械服从高维干预，而是把干预转化为反抗策略。",
+                "cost": "命痕激活，模因污染开始沿关系网传播。",
+            },
+        }
     if not has_memory:
         if has_intervention:
             axis = intervention_axis or "干预变量"
@@ -886,6 +1091,7 @@ def _information_flow(
 ) -> list[dict[str, Any]]:
     rows = [
         {
+            "type": "world_event",
             "from": "world_event",
             "to": action["character_id"],
             "content": _event_hint(major_event),
@@ -902,18 +1108,31 @@ def _information_flow(
     intervention_axis = _text(first_inputs.get("intervention_branch_axis"))
     if intervention_text:
         rows.append(
-            {
-                "from": "reader_intervention",
+                {
+                    "type": "reader_intervention",
+                    "from": "reader_intervention",
                 "to": first_inputs.get("intervention_target") or "worldline",
                 "content": intervention_text,
                 "distortion": intervention_axis or "本土化转译",
             }
         )
+    for action in actions:
+        meme = action.get("meme_contamination")
+        if isinstance(meme, dict) and meme.get("status") == "active":
+            rows.append(
+                {
+                    "type": "meme_contamination",
+                    "from": action.get("character_id"),
+                    "to": "relationship_network",
+                    "content": meme.get("belief_payload") or "世界可能被高维操控。",
+                    "distortion": "其他角色会按人设、记忆和关系决定是否相信。",
+                }
+            )
     return rows
 
 
 def _world_state_delta(
-    actions: list[dict[str, Any]], major_event: str
+    actions: list[dict[str, Any]], major_event: str, worldline_state: dict[str, Any]
 ) -> dict[str, Any]:
     first_inputs = (
         actions[0].get("decision_inputs")
@@ -923,6 +1142,14 @@ def _world_state_delta(
     intervention_text = _text(first_inputs.get("intervention_constraint"))
     intervention_axis = _text(first_inputs.get("intervention_branch_axis"))
     intervention_projection_mode = _text(first_inputs.get("intervention_projection_mode"))
+    worldline_debt = _text(first_inputs.get("worldline_causal_debt"))
+    continuation = _text(first_inputs.get("branch_continuation_status"))
+    meme_actions = [
+        action
+        for action in actions
+        if isinstance(action.get("meme_contamination"), dict)
+        and action["meme_contamination"].get("status") == "active"
+    ]
     projection_effect = (
         "暴走 AU 已开启：异物入侵保留为异设世界线压力，并要求世界线《天命书》快照确认"
         if intervention_projection_mode == "wild_au"
@@ -952,6 +1179,25 @@ def _world_state_delta(
         "anchor_pressure": "上升",
         "causal_debt": "低到中：世界开始要求角色为各自选择付出代价",
         "intervention_effects": intervention_effects,
+        "branch_state": {
+            "continuation_status": continuation or "runnable",
+            "worldline_state_artifact": worldline_state.get("artifact", ""),
+        },
+        "compensation_effects": [
+            f"因果债{worldline_debt or 'low/1'}先压向当前锚点，再外溢到关系网。",
+            "候选天命承载者会因欲望、资源和阻力被推到台前或失败退场。",
+        ],
+        "meme_contamination": (
+            {
+                "status": "active",
+                "source_character_id": meme_actions[0].get("character_id"),
+                "belief_payload": meme_actions[0]["meme_contamination"].get(
+                    "belief_payload"
+                ),
+            }
+            if meme_actions
+            else {"status": "none"}
+        ),
     }
 
 
@@ -984,6 +1230,7 @@ def _build_report(
     rounds: list[dict[str, Any]],
     subjective_memory_delta: dict[str, Any] | None = None,
     intervention_constraint: dict[str, Any] | None = None,
+    worldline_state: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     actions = [
         action
@@ -1023,6 +1270,7 @@ def _build_report(
         },
         "artifacts": artifacts,
         "intervention_constraint": active_constraint,
+        "worldline_state": worldline_state or {},
         "rounds": rounds,
         "subjective_memory_delta": subjective_memory_delta or {},
         "next_steps": [

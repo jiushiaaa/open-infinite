@@ -185,7 +185,7 @@ OpenAPI / typed client 面板
 
 当前验证基线：后端 `cd engine && python -m pytest -q` 为 `872 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索 smoke 已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
 
-官方下一步：**World Sandbox Loop / 世界沙盘改造 v1-v8 已形成第一版可运行闭环**。真实检索 provider 和向量检索 Pipeline 已显式接入，但当前只作为支撑层；恢复开发时不要继续默认评估 hybrid vector、GraphRAG、Zep 或 provider spike，也不要从 v1 重新做一遍。应优先沿 `docs/unfinale-world-sandbox-remodel-prd.md` 的 S1-S9 深化方向推进：Agent 决策加深、主观记忆心理模型、动态《天命书》、干预执行投放、L5 觉醒反抗、世界线代偿持续驱动、自演任务化、多视角正文和作者采纳反哺章节 brief。
+官方下一步：**World Sandbox Loop / 世界沙盘改造 v1-v8 已形成第一版可运行闭环，S4 后半与 S5-S9 已完成连续世界线产品化第一版**。真实检索 provider 和向量检索 Pipeline 已显式接入，但当前只作为支撑层；恢复开发时不要继续默认评估 hybrid vector、GraphRAG、Zep 或 provider spike，也不要从 v1 重新做一遍。当前世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文和作者采纳反哺下一章 brief 已有 additive service/API/UI/artifact/tests 第一版。后续应优先沿 `docs/unfinale-world-sandbox-remodel-prd.md` 继续把因果债具象化、补世界线/检查点独立页、加强真实 LLM 多 Agent 决策与正文质量、接作者采纳后的章节生成入口。
 
 S1-S9 后续验收纪律：允许用小步切片降低工程风险，但不要把“最小实现”当成阶段完成。每个切片完成后必须继续向该阶段深挖，直到对应产品能力成立；`service/API/UI/artifact/tests` 齐全只是基础门槛。判定完成时要问：用户是否能真实感到角色被记忆驱动、干预进入世界、世界状态持续变化、角色可能反抗、章节来自世界演化。当前正在跑的 S1-S9 不被中途打断；等该轮完成后，复盘和第三轮迭代按此口径检查。
 

@@ -1837,3 +1837,30 @@
   - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
 - **下一刀建议**：继续 S4 的分支持续运行、L4/L5 世界线快照审计确认和多轮分支追踪，或进入 `S5 L5 Awareness and Resistance MVP`。
 
+### 2026-06-05 — S4-S9 Continuous Worldline Productization
+
+- **做了什么**：
+  - 新增 `worldline_state` service 与 `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`，把来源干预、沉浸/AU 投放、L4/L5/AU 快照审计状态、因果债、锚点状态、候选天命承载者、模因污染和作者采纳结果绑定为可继续运行的世界线状态。
+  - `run_sandbox_round()` 会在同一世界线后续轮次读取 `worldline_state.json`；若没有新干预，也会继续消费旧干预约束、天命书快照审计状态、因果债和分支承接。
+  - L5 干预会让角色行动和主观记忆写入高维觉醒、命痕、反抗行为、异常感、模因污染；角色可假意服从、拒绝、欺骗读者、保护他人或继续使命，世界以关系网/势力/环境代偿而非管理员重置。
+  - 世界状态 delta 新增分支承接、代偿效果和模因污染；因果债先压向当前锚点，再外溢到关系网、势力和环境，候选承载者上位或失败有欲望、资源、能力和阻力解释。
+  - 世界自演新增本地任务状态、进度、暂停/恢复和 checkpoint replay；`autopilot_report.json` 新增“醒来可读”的 overnight report。
+  - 多视角活体小说从 `character_lens_briefs.json` 扩展为 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文，并带沙盘轮次、主观记忆、世界状态 delta、干预/因果债证据链。
+  - 作者采纳台新增 `next_chapter_brief.json`、原大纲差异、伏笔调整和 Reviewer 建议，并把下一章 brief 回写 `worldline_state.json`，后续沙盘可读取采纳结果。
+  - 新增 API：`GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`、自演任务查询/暂停/恢复、`GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`。
+  - 前端世界沙盘页展示世界线承接、快照审计、因果债、下一轮继续、L5 命痕/反抗、模因传播和自演任务进度；多视角页展示正文卷宗；作者采纳台展示下一章可写方案、伏笔调整和 Reviewer 建议。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增世界线状态持续、L5 觉醒反抗、自演任务/检查点回放、多视角正文证据链、作者采纳反哺测试，先分别因缺 `worldline_state.json`、缺 `awareness`、缺自演 `task`、缺 `character_lens_volumes`、缺 `next_chapter_brief` 失败。
+  - GREEN：`cd engine && python -m pytest tests\test_world_sandbox.py tests\test_world_autopilot.py tests\test_character_lens_novel.py tests\test_author_adoption.py -q` -> **23 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 真实模型 smoke：使用 `.env` 中 `LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1` 与 `LLM_MODEL_NAME=qwen3.5-plus`，不打印明文 key；模型判断 L5 假意服从/保护同伴、世界内因果债代偿和沈冰月误判形成的信息差基本成立，提示风险是“因果债若表现太抽象，危机感易稀释”。
+- **边界**：
+  - 不调用 `run_scene`，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 新 artifact/API/UI 字段均 additive；默认 pytest 仍 mock-safe，真实模型 smoke 不进入默认测试。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+- **下一刀建议**：
+  - 把因果债从文字解释具象为可持续的地点、资源、伤势、舆论、势力行动和环境变化。
+  - 补世界线页/检查点页独立 UI 与采纳后章节生成入口。
+  - 在 opt-in 小样本里继续接真实 LLM 多 Agent 决策和多视角长正文质量控制。
+

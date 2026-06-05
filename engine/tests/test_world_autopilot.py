@@ -14,6 +14,7 @@ from living_novel_engine.service.tianming import (
     confirm_tianming_book,
     generate_tianming_book,
 )
+from living_novel_engine.service import world_autopilot
 from living_novel_engine.service.world_autopilot import run_world_autopilot
 
 
@@ -118,6 +119,65 @@ def test_world_autopilot_supports_event_and_time_objectives(tmp_path):
     assert time_report["rounds_completed"] == 2
 
 
+def test_world_autopilot_records_task_progress_pause_resume_and_checkpoint_replay(tmp_path):
+    _make_project(tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = run_world_autopilot(
+        "autopilot-story",
+        seed_event="赵轩拒绝主线召唤，沈冰月把风鸣铃藏入旧祠。",
+        objective_type="awakening",
+        round_limit=3,
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="awake_branch",
+    )
+    task = report["task"]
+
+    assert task["task_id"]
+    assert task["status"] == "completed"
+    assert report["progress"]["current_round"] == report["rounds_completed"]
+    assert report["progress"]["percent"] == 100
+    assert report["overnight_report"]["what_happened"]
+    assert report["overnight_report"]["who_remembered_what"]
+    assert report["overnight_report"]["where_to_continue"]
+    assert report["stop_reason"] in {"character_awareness_detected", "round_limit_reached"}
+
+    loaded = world_autopilot.get_world_autopilot_task(
+        "autopilot-story",
+        task["task_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="awake_branch",
+    )
+    assert loaded["task_id"] == task["task_id"]
+    assert loaded["latest_report_run_id"] == report["run_id"]
+
+    paused = world_autopilot.pause_world_autopilot_task(
+        "autopilot-story",
+        task["task_id"],
+        projects_dir=tmp_path,
+        worldline_id="awake_branch",
+    )
+    assert paused["status"] == "paused"
+    resumed = world_autopilot.resume_world_autopilot_task(
+        "autopilot-story",
+        task["task_id"],
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+        worldline_id="awake_branch",
+    )
+    assert resumed["status"] in {"completed", "running"}
+
+    replay = world_autopilot.replay_world_autopilot_checkpoint(
+        report["run_id"],
+        checkpoint_id="checkpoint_002",
+        outputs_dir=outputs_dir,
+    )
+    assert replay["checkpoint"]["round_index"] == 2
+    assert replay["replay"]["sandbox_run_id"]
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))
@@ -134,6 +194,14 @@ def _post(port: int, path: str, body: dict) -> tuple[int, dict]:
     )
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
+            return resp.status, json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        return exc.code, json.loads(exc.read().decode("utf-8"))
+
+
+def _get(port: int, path: str) -> tuple[int, dict]:
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}{path}", timeout=10) as resp:
             return resp.status, json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         return exc.code, json.loads(exc.read().decode("utf-8"))
@@ -158,6 +226,37 @@ def test_world_autopilot_http_statuses(tmp_path, monkeypatch):
         assert status == 200
         assert body["rounds_completed"] == 2
         assert body["artifact"] == "autopilot_report.json"
+        task_id = body["task"]["task_id"]
+
+        task_status, task = _get(
+            port,
+            f"/api/stories/autopilot-http/worldlines/main/world-autopilot/tasks/{task_id}",
+        )
+        assert task_status == 200
+        assert task["latest_report_run_id"] == body["run_id"]
+
+        pause_status, pause = _post(
+            port,
+            f"/api/stories/autopilot-http/worldlines/main/world-autopilot/tasks/{task_id}/pause",
+            {},
+        )
+        assert pause_status == 200
+        assert pause["status"] == "paused"
+
+        resume_status, resume = _post(
+            port,
+            f"/api/stories/autopilot-http/worldlines/main/world-autopilot/tasks/{task_id}/resume",
+            {},
+        )
+        assert resume_status == 200
+        assert resume["status"] in {"running", "completed"}
+
+        replay_status, replay = _get(
+            port,
+            f"/api/world-autopilot-runs/{body['run_id']}/checkpoints/checkpoint_001",
+        )
+        assert replay_status == 200
+        assert replay["checkpoint"]["round_index"] == 1
 
         bad_status, bad = _post(
             port,
