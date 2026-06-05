@@ -2,7 +2,7 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、确认入卷和确认稿跨卷宗阅读链：`next_chapter_draft.json` / `next_chapter_draft.md`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮。后续官方主线继续真实 LLM 多 Agent 决策、长正文质量、更强 Reviewer 和跨卷宗跳转阅读。
+> 版本：2026-06-05，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染，并新增可追踪传播来源、采信/存疑、可信度与反应类型；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、确认入卷和确认稿跨卷宗阅读链：`next_chapter_draft.json` / `next_chapter_draft.md`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮。后续官方主线继续真实 LLM 多 Agent 决策、长正文质量、更强 Reviewer 和跨卷宗跳转阅读。
 
 ## 1. 产品北极星
 
@@ -91,13 +91,14 @@
 | S4 Intervention Execution Constraint MVP | 已收口 | S4 深化第一刀：`POST /api/stories/<slug>/sandbox/run` 可选接收 `intervention_content` / `intervention_target`，即时读取《天命书》编译为本轮 `intervention_constraint.json`；约束进入 `sandbox_rounds.jsonl`、角色 `decision_inputs`、行动结果、冲突原因、信息流和世界状态 delta，世界沙盘页可填写并查看已投放干预约束；根《天命书》不被覆盖。 |
 | S4 Immersive / Wild AU Projection MVP | 已收口 | S4 深化第二刀：`compile_intervention_against_tianming()`、`POST /api/stories/<slug>/tianming/intervention-compile` 和 `POST /api/stories/<slug>/sandbox/run` 支持 `projection_mode` / `intervention_projection_mode`；沉浸模式会把 AK47 等异物标记为异物入侵并本土化重释，暴走 AU 会保留异物入侵、生成世界线《天命书》快照并进入本轮沙盘 `intervention_constraint` 与世界状态 delta；根《天命书》仍不被覆盖。 |
 | S4-S9 Continuous Worldline Productization | 已收口第一版 | 第二轮强化：新增 `worldline_state.json` 让 S4 干预、L4/L5/AU 快照审计、因果债、锚点状态、候选承载者、模因污染和作者采纳结果成为后续沙盘输入；S5 L5 觉醒会写入主观记忆、命痕、反抗行为和模因污染；S7 自演新增本地任务状态、进度、暂停/恢复和 checkpoint replay；S8 多视角新增 `character_lens_volumes.json` 可读正文与证据链；S9 作者采纳新增 `next_chapter_brief.json`、原大纲差异、伏笔调整和 Reviewer 建议，并回写世界线状态。真实 LLM smoke 使用 `qwen3.5-plus` 成功，主要风险是因果债仍需更具象。 |
+| S5 L5 Meme Propagation Memory MVP | 已收口第一版 | L5 高维真相会进入直接觉醒者和传播接收者的 `subjective_memory.jsonl`；`meme_propagation` 记录传播来源、采信/存疑/拒信、可信度、人设/关系/记忆/异常感信号和反应类型，并同步到 `worldline_state.meme_contamination.propagation` 与世界沙盘 UI；当前仍是 deterministic 规则版，后续需真实 LLM 心理推演和长期思想瘟疫演化。 |
 | S6 Materialized Consequence State | 已收口第一版 | 新增 `worldline_state.consequence_state`，将因果债具象为地点、资源、伤势、舆论、势力和环境六域，保留近轮 ledger；后续沙盘会读取为 `decision_inputs.worldline_consequences`，自演 checkpoint/overnight report 会展示具象代偿，多视角正文 evidence chain 增加 `consequence_state_refs`，作者采纳后的 `next_chapter_brief.json` 增加 `materialized_consequences`。 |
 | Worldline Dossier / Checkpoint Replay Pages | 已收口第一版 | 新增 `worldline_dossier` service/API，聚合 `worldline_state.json`、天命快照审计、自演任务和 autopilot checkpoints；前端新增世界线独立页与检查点回放页，沙盘结果和自演检查点可跳转查看分支承接、来源干预、具象代偿、任务进度、暂停/恢复和回放入口。 |
 | S9 Author Chapter Draft Entry | 已收口第一版 | 新增 `author_chapter_draft` service/API/UI，读取作者采纳记录、`next_chapter_brief.json`、世界线状态和具象代偿，输出 `next_chapter_draft.json` / `next_chapter_draft.md`、证据链和 Reviewer 检查；真实 LLM smoke 使用 `qwen3.5-plus` 生成 1101 字正文并命中角色信息差与世界代偿，Reviewer 四项全通过。 |
 | S9 Author Chapter Confirmation Entry | 已收口第一版 | 新增 `author_chapter_confirmation` service/API/UI，作者可在采纳台编辑草稿并确认入卷，输出 `confirmed_chapter_entry.json` / `confirmed_chapter.md`，回写 `worldline_state.confirmed_chapter_entry`、确认历史和后续沙盘入口；不覆盖正史 `chapter.md`，不改 `run_scene` 默认行为。 |
 | S9 Confirmed Chapter Reading Trail | 已收口第一版 | 确认入卷时新增 `confirmed_chapter_reading_trail.json`，把确认稿、世界线状态、来源作者采纳、多视角 `character_lens_volumes.json` 中的世界正史卷、角色个人卷和事件多视角串成可回读证据链；作者采纳台确认结果区可展示来源沙盘 run、阅读链状态、事件节点数和证据 refs。 |
 
-当前验证基线：后端 `927 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+当前验证基线：后端 `929 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
 ## 3. 当前自主迭代点
 

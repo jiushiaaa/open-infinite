@@ -21,7 +21,7 @@
 
 当前项目是 未终章（Unfinale），核心代码在 engine/；技术缩写、包名、CLI 和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑。
-当前 World Sandbox Loop / 世界沙盘改造 v1-v8 已形成第一版可运行闭环：主导航按“世界书架 -> 世界内部卷宗”组织，已具备《天命书》、沙盘轮次、角色主观记忆链、干预预编译、世界线代偿、世界自演、多视角活体小说和作者采纳台。S4 后半到 S9 已串成可持续世界线，S6 因果债具象化已新增 `consequence_state` 六域代偿；随后已补 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`、世界线独立页和检查点回放页，沙盘和自演检查点可跳转查看分支承接、审计、任务和代偿证据。S9 已补作者采纳后的正式章节草稿、确认入卷和跨卷宗阅读链入口：`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft` 写 `next_chapter_draft.json` / `next_chapter_draft.md`；`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation` 写 `confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 并回写 `worldline_state.confirmed_chapter_entry`，作者采纳台可编辑草稿、确认入卷、查看下一轮沙盘入口，并回读世界正史卷、角色个人卷和事件多视角证据。下一步不要从 v1 重做，也不要继续默认扩 Graph/provider/检索评测/工程看板；应按 PRD 继续补真实 LLM 多 Agent 决策、多视角/章节长正文质量、更强 Reviewer 和跨卷宗跳转阅读。
+当前 World Sandbox Loop / 世界沙盘改造 v1-v8 已形成第一版可运行闭环：主导航按“世界书架 -> 世界内部卷宗”组织，已具备《天命书》、沙盘轮次、角色主观记忆链、干预预编译、世界线代偿、世界自演、多视角活体小说和作者采纳台。S4 后半到 S9 已串成可持续世界线，S5 已把 L5 高维真相写入角色主观记忆、命痕、反抗行为和模因传播采信证据，传播接收者会记录来源、采信/存疑、可信度、人设/关系/记忆/异常感信号和反应类型；S6 因果债具象化已新增 `consequence_state` 六域代偿；随后已补 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`、世界线独立页和检查点回放页，沙盘和自演检查点可跳转查看分支承接、审计、任务和代偿证据。S9 已补作者采纳后的正式章节草稿、确认入卷和跨卷宗阅读链入口：`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft` 写 `next_chapter_draft.json` / `next_chapter_draft.md`；`POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation` 写 `confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 并回写 `worldline_state.confirmed_chapter_entry`，作者采纳台可编辑草稿、确认入卷、查看下一轮沙盘入口，并回读世界正史卷、角色个人卷和事件多视角证据。下一步不要从 v1 重做，也不要继续默认扩 Graph/provider/检索评测/工程看板；应按 PRD 继续补真实 LLM 多 Agent 决策、多视角/章节长正文质量、更强 Reviewer 和跨卷宗跳转阅读。
 后续执行纪律：小步开发可以继续，但不要再以“最小闭环”作为产品完成标准。S1-S9 每一项必须验收到用户能感到对应能力真实成立；有 API、有测试、有页面、有 artifact 只是底线，不是收口理由。当前正在迭代的 S1-S9 先不打断，等完成后按此口径复盘，不合格则第三轮继续深化。
 真实模型验收纪律：用户已允许调用真实接入的模型 API。后续涉及 Agent 决策、叙事生成、章节 brief、多视角正文、Reviewer 或视觉质量时，mock/deterministic 只能作为回归底线；若 `.env` 已配置 key，应额外做小样本真实 API smoke，并记录真实输出质量。不要打印明文 key，不做大规模消耗，不把真实外网调用塞进默认全量 pytest。
 请不要只靠这段摘要；读完文档和相关代码后，再继续下一步。
@@ -95,7 +95,7 @@
 | Retrieval Provider Real Connectivity MVP | 已收口，百炼 `text-embedding-v3`、Zilliz Cloud、百炼 `gte-rerank-v2` 的脱敏配置、mock smoke 和真实 smoke 可用 |
 | Vector Retrieval Pipeline MVP | 已收口，API/UI 可显式写入 Zilliz collection、执行百炼 embedding + Zilliz + 百炼 rerank 检索预览；运行时需 `LNE_RETRIEVAL_STRATEGY=hybrid_vector` opt-in |
 
-验证基线：后端 `cd engine && python -m pytest -q` 为 `925 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索烟测已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
+验证基线：后端 `cd engine && python -m pytest -q` 为 `929 passed`；前端 `cd engine/ui && pnpm run build` 通过。真实检索烟测已确认 `v090-alpha-proof` 可写入 `unfinale_memory` 20 条，并以 `hybrid_vector_rerank` 模式返回 5 条检索结果，embedding、Zilliz 和 reranker 均实际参与且不返回明文密钥。
 
 产品入口边界：前端是产品入口，API 是能力层，CLI 是工程外壳。导入、配置、创作、干预、评审、导出、样本采集、Graph Memory 证据查看等用户级能力应优先通过 Web UI + API 完成；CLI 仅作为开发者、本地服务启动、自动化验收、批处理、JSON 输出和无人值守复跑的薄封装。
 

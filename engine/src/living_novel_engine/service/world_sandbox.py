@@ -269,6 +269,7 @@ def _build_round_record(
         )
         for idx, character in enumerate(characters)
     ]
+    _apply_meme_propagation(actions, previous_memories)
     return {
         "version": VERSION,
         "run_id": run_id,
@@ -510,6 +511,7 @@ def _subjective_memory_entry(
         "fate_mark": action.get("fate_mark") or {"status": "inactive"},
         "resistance_behavior": action.get("resistance_behavior") or {},
         "meme_contamination": action.get("meme_contamination") or {"status": "none"},
+        "meme_propagation": action.get("meme_propagation") or {"status": "none"},
         **psychology,
     }
 
@@ -604,10 +606,7 @@ def _subjective_memory_psychology(
         "emotional_impact": _emotional_impact(action, perspective_index),
         "trust_shift": _text(action.get("relationship_delta"))
         or "信任关系出现轻微偏移",
-        "anomaly_weight": 10
-        if isinstance(action.get("awareness"), dict)
-        and action["awareness"].get("level") == "L5"
-        else min(9, 3 + perspective_index),
+        "anomaly_weight": _memory_anomaly_weight(action, perspective_index),
         "secret_visibility": secret_visibility,
         "known_truths": known_information[:3],
         "misbeliefs": [misbelief],
@@ -625,15 +624,31 @@ def _subjective_memory_psychology(
             if perspective_index % 3 == 0
             else "暂无明确世界线残影"
         ),
-        "awareness_level": (
-            "L5"
-            if isinstance(action.get("awareness"), dict)
-            and action["awareness"].get("level") == "L5"
-            else "ordinary"
-            if perspective_index < 3
-            else "uneasy"
-        ),
+        "awareness_level": _memory_awareness_level(action, perspective_index),
     }
+
+
+def _memory_anomaly_weight(action: dict[str, Any], perspective_index: int) -> int:
+    awareness = action.get("awareness") if isinstance(action.get("awareness"), dict) else {}
+    if awareness.get("level") == "L5":
+        return 10
+    if awareness.get("level") == "contaminated":
+        propagation = (
+            action.get("meme_propagation")
+            if isinstance(action.get("meme_propagation"), dict)
+            else {}
+        )
+        believed = propagation.get("belief_decision") == "accepted"
+        return 9 if believed else 8
+    return min(9, 3 + perspective_index)
+
+
+def _memory_awareness_level(action: dict[str, Any], perspective_index: int) -> str:
+    awareness = action.get("awareness") if isinstance(action.get("awareness"), dict) else {}
+    level = _text(awareness.get("level"))
+    if level:
+        return level
+    return "ordinary" if perspective_index < 3 else "uneasy"
 
 
 def _perspective_index(character_id: str) -> int:
@@ -870,6 +885,150 @@ def _meme_contamination(
             "关系网中关于高维真相的传闻",
         ],
     }
+
+
+def _apply_meme_propagation(
+    actions: list[dict[str, Any]],
+    previous_memories: dict[str, dict[str, Any]],
+) -> None:
+    source = next(
+        (
+            action
+            for action in actions
+            if isinstance(action.get("meme_contamination"), dict)
+            and action["meme_contamination"].get("status") == "active"
+            and isinstance(action.get("awareness"), dict)
+            and action["awareness"].get("level") == "L5"
+        ),
+        None,
+    )
+    if not source:
+        return
+    meme = source.get("meme_contamination") or {}
+    source_reaction = source.get("resistance_behavior") or _resistance_behavior(
+        _text(source.get("character_name")) or "觉醒者",
+        0,
+    )
+    source["meme_propagation"] = {
+        "status": "source",
+        "source_character_id": source.get("character_id") or "",
+        "source_character_name": source.get("character_name") or "",
+        "belief_payload": meme.get("belief_payload") or "我是小说人物，读者正在高维操控我。",
+        "belief_decision": "accepted",
+        "belief_reason": "亲历命痕觉醒，已把高维真相写入主观记忆。",
+        "credibility_score": 10,
+        "source_channel": "命痕、异常言行与刻意留下的破绽",
+        "signals": {
+            "persona": "亲历高维干预",
+            "relationship": "向关系网投放试探",
+            "previous_memory": source.get("previous_subjective_memory") or "本轮首次觉醒",
+            "anomaly": source.get("awareness", {}).get("abnormality") or "",
+        },
+        "reaction": source_reaction,
+    }
+    for idx, action in enumerate(actions):
+        if action is source:
+            continue
+        character_id = _text(action.get("character_id"))
+        name = _text(action.get("character_name")) or character_id
+        inputs = action.get("decision_inputs") if isinstance(action.get("decision_inputs"), dict) else {}
+        previous = previous_memories.get(character_id) or {}
+        propagation = _meme_propagation_record(
+            action=action,
+            source=source,
+            meme=meme,
+            previous_memory=previous,
+            ordinal=idx,
+        )
+        reaction = propagation["reaction"]
+        action["meme_propagation"] = propagation
+        action["awareness"] = {
+            "level": "contaminated",
+            "abnormality": "听见高维真相后，开始怀疑自身命运被读者或作者触碰。",
+            "belief_payload": propagation["belief_payload"],
+            "direct_target": False,
+        }
+        action["resistance_behavior"] = reaction
+        action["fate_mark"] = {
+            "status": "suspected" if propagation["belief_decision"] != "accepted" else "active",
+            "label": "命痕回声",
+            "description": f"{name}从{source.get('character_name')}处接触高维真相。",
+            "source_character_id": source.get("character_id") or "",
+            "belief_decision": propagation["belief_decision"],
+        }
+        action["known_information"].append(
+            f"模因来源：{source.get('character_name')}传来“{propagation['belief_payload']}”"
+        )
+        inputs["meme_source"] = source.get("character_id") or ""
+        inputs["meme_belief_decision"] = propagation["belief_decision"]
+        inputs["meme_credibility_score"] = propagation["credibility_score"]
+        inputs["meme_reaction"] = reaction.get("label") or ""
+
+
+def _meme_propagation_record(
+    *,
+    action: dict[str, Any],
+    source: dict[str, Any],
+    meme: dict[str, Any],
+    previous_memory: dict[str, Any],
+    ordinal: int,
+) -> dict[str, Any]:
+    character_id = _text(action.get("character_id"))
+    name = _text(action.get("character_name")) or character_id
+    inputs = action.get("decision_inputs") if isinstance(action.get("decision_inputs"), dict) else {}
+    persona_signal = _text(inputs.get("desire")) or "保住自身主动权"
+    relationship_signal = _text(inputs.get("relationship_signal")) or "关系信号缺失"
+    previous_signal = _previous_memory_reference(previous_memory)
+    anomaly_signal = _text(previous_memory.get("anomaly_delta")) or _text(action.get("risk")) or "本轮异常刚出现"
+    score = 4 + (ordinal % 3)
+    if "信任" in relationship_signal or "牵动" in relationship_signal:
+        score += 1
+    if previous_memory:
+        score += 1
+    if "异常" in anomaly_signal or "高维" in anomaly_signal:
+        score += 1
+    score = min(10, score)
+    decision = "accepted" if ordinal % 2 == 1 else "doubted"
+    if score <= 4:
+        decision = "rejected"
+    reaction_index = [3, 5, 2, 0, 4][ordinal % 5]
+    reaction = _resistance_behavior(name, reaction_index)
+    return {
+        "status": "received",
+        "source_character_id": source.get("character_id") or "",
+        "source_character_name": source.get("character_name") or "",
+        "belief_payload": meme.get("belief_payload") or "世界可能被高维叙事操控。",
+        "source_channel": "异常言行、密信和关系网耳语",
+        "belief_decision": decision,
+        "belief_reason": _meme_belief_reason(name, decision, persona_signal, relationship_signal, anomaly_signal),
+        "credibility_score": score,
+        "signals": {
+            "persona": persona_signal,
+            "relationship": relationship_signal,
+            "previous_memory": previous_signal,
+            "anomaly": anomaly_signal,
+        },
+        "reaction": reaction,
+    }
+
+
+def _meme_belief_reason(
+    name: str,
+    decision: str,
+    persona_signal: str,
+    relationship_signal: str,
+    anomaly_signal: str,
+) -> str:
+    if decision == "accepted":
+        return (
+            f"{name}把自身欲望“{persona_signal}”、关系信号“{relationship_signal}”"
+            f"和异常感“{anomaly_signal}”合在一起，暂时采信高维真相。"
+        )
+    if decision == "doubted":
+        return (
+            f"{name}承认异常感存在，但仍怀疑这可能是同伴或世界线制造的心理诱饵。"
+        )
+    return f"{name}把高维真相视为危险谣言，只记录来源，不让它接管行动。"
 
 
 def _intervention_constraint_text(constraint: dict[str, Any]) -> str:
@@ -1153,6 +1312,20 @@ def _information_flow(
                     "distortion": "其他角色会按人设、记忆和关系决定是否相信。",
                 }
             )
+        propagation = action.get("meme_propagation")
+        if isinstance(propagation, dict) and propagation.get("status") == "received":
+            rows.append(
+                {
+                    "type": "meme_propagation",
+                    "from": propagation.get("source_character_id") or "unknown",
+                    "to": action.get("character_id"),
+                    "content": propagation.get("belief_payload") or "世界可能被高维操控。",
+                    "distortion": (
+                        f"{propagation.get('belief_decision') or 'unknown'}："
+                        f"{propagation.get('belief_reason') or '未记录采信原因'}"
+                    ),
+                }
+            )
     return rows
 
 
@@ -1179,6 +1352,12 @@ def _world_state_delta(
         for action in actions
         if isinstance(action.get("meme_contamination"), dict)
         and action["meme_contamination"].get("status") == "active"
+    ]
+    propagation_rows = [
+        action["meme_propagation"]
+        for action in actions
+        if isinstance(action.get("meme_propagation"), dict)
+        and action["meme_propagation"].get("status") in {"source", "received"}
     ]
     projection_effect = (
         "暴走 AU 已开启：异物入侵保留为异设世界线压力，并要求世界线《天命书》快照确认"
@@ -1234,6 +1413,7 @@ def _world_state_delta(
                 "belief_payload": meme_actions[0]["meme_contamination"].get(
                     "belief_payload"
                 ),
+                "propagation": propagation_rows,
             }
             if meme_actions
             else {"status": "none"}

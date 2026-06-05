@@ -592,10 +592,52 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                           </p>
                         </div>
                       )}
+                      {item.awareness?.level === "contaminated" && (
+                        <div className="sandbox-callout sandbox-callout--quiet">
+                          <strong>
+                            命痕回声 · {item.meme_propagation?.reaction?.label ?? "反应未明"}
+                          </strong>
+                          <p>{item.awareness.abnormality}</p>
+                          <p className="muted tiny">
+                            来源：{item.meme_propagation?.source_character_name ?? "未知"} ·
+                            {beliefDecisionLabel(item.meme_propagation?.belief_decision)}
+                            {typeof item.meme_propagation?.credibility_score === "number"
+                              ? ` · 可信度 ${item.meme_propagation.credibility_score}`
+                              : ""}
+                          </p>
+                        </div>
+                      )}
                       {item.meme_contamination?.status === "active" && (
                         <p className="muted tiny">
                           模因传播：{item.meme_contamination.spread_vector?.join("；")}
                         </p>
+                      )}
+                      {item.meme_propagation?.status === "received" && (
+                        <div className="sandbox-action__meme">
+                          <span>模因采信</span>
+                          <strong>
+                            {beliefDecisionLabel(item.meme_propagation.belief_decision)}
+                          </strong>
+                          <p>{item.meme_propagation.belief_reason}</p>
+                          <dl>
+                            <div>
+                              <dt>传播来源</dt>
+                              <dd>{item.meme_propagation.source_character_name}</dd>
+                            </div>
+                            <div>
+                              <dt>真相载荷</dt>
+                              <dd>{item.meme_propagation.belief_payload}</dd>
+                            </div>
+                            <div>
+                              <dt>人设信号</dt>
+                              <dd>{item.meme_propagation.signals?.persona}</dd>
+                            </div>
+                            <div>
+                              <dt>异常感</dt>
+                              <dd>{item.meme_propagation.signals?.anomaly}</dd>
+                            </div>
+                          </dl>
+                        </div>
                       )}
                       <p className="muted tiny">{item.reason}</p>
                       {item.decision_inputs && (
@@ -755,6 +797,48 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                                 : ""}
                             </dd>
                           </div>
+                          {entry.fate_mark?.status && entry.fate_mark.status !== "inactive" && (
+                            <div>
+                              <dt>命痕</dt>
+                              <dd>
+                                {entry.fate_mark.label ?? "命痕"} ·{" "}
+                                {entry.awareness_level ?? "未记录"}
+                              </dd>
+                            </div>
+                          )}
+                          {entry.higher_dimensional_awareness && (
+                            <div className="sandbox-memory__wide">
+                              <dt>高维真相</dt>
+                              <dd>{entry.higher_dimensional_awareness}</dd>
+                            </div>
+                          )}
+                          {entry.meme_propagation?.status === "received" && (
+                            <>
+                              <div>
+                                <dt>传播来源</dt>
+                                <dd>{entry.meme_propagation.source_character_name}</dd>
+                              </div>
+                              <div>
+                                <dt>是否采信</dt>
+                                <dd>
+                                  {beliefDecisionLabel(entry.meme_propagation.belief_decision)}
+                                  {typeof entry.meme_propagation.credibility_score === "number"
+                                    ? ` · 可信度 ${entry.meme_propagation.credibility_score}`
+                                    : ""}
+                                </dd>
+                              </div>
+                              <div className="sandbox-memory__wide">
+                                <dt>采信原因</dt>
+                                <dd>{entry.meme_propagation.belief_reason}</dd>
+                              </div>
+                              <div>
+                                <dt>反应</dt>
+                                <dd>
+                                  {entry.meme_propagation.reaction?.label ?? "未记录"}
+                                </dd>
+                              </div>
+                            </>
+                          )}
                         </dl>
                       </article>
                     ))}
@@ -822,4 +906,11 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
 
 function projectionModeLabel(mode?: string) {
   return mode === "wild_au" ? "暴走 AU" : "沉浸模式";
+}
+
+function beliefDecisionLabel(decision?: string) {
+  if (decision === "accepted") return "采信";
+  if (decision === "doubted") return "存疑";
+  if (decision === "rejected") return "拒信";
+  return "未判定";
 }

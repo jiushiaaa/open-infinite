@@ -343,11 +343,18 @@ def _meme_state(actions: list[dict[str, Any]], previous: dict[str, Any]) -> dict
     ]
     if active_actions:
         first = active_actions[0]
+        propagation = [
+            action["meme_propagation"]
+            for action in actions
+            if isinstance(action.get("meme_propagation"), dict)
+            and action["meme_propagation"].get("status") in {"source", "received"}
+        ]
         return {
             "status": "active",
             "source_character_id": first.get("character_id") or "",
             "belief_payload": first["meme_contamination"].get("belief_payload") or "",
             "spread_vector": first["meme_contamination"].get("spread_vector") or [],
+            "propagation": propagation,
         }
     prior = previous.get("meme_contamination")
     return deepcopy(prior) if isinstance(prior, dict) else {"status": "none"}

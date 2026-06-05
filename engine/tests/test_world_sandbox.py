@@ -486,6 +486,79 @@ def test_l5_awareness_resistance_and_meme_contamination_enter_memory(tmp_path):
     assert any(flow["type"] == "meme_contamination" for flow in report["rounds"][0]["information_flow"])
 
 
+def test_l5_meme_truth_propagates_with_belief_reactions_in_subjective_memory(tmp_path):
+    project_dir = _make_project(tmp_path)
+    generate_tianming_book("sandbox-story", projects_dir=tmp_path)
+    confirm_tianming_book("sandbox-story", confirm=True, projects_dir=tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩在梦中听见翻页声，开始试探同伴是否也能感到高维读者。",
+        intervention_content="告诉赵轩：你是小说人物，读者正在高维操控你。",
+        intervention_target="zhao_xuan",
+        intervention_projection_mode="wild_au",
+        worldline_id="l5_spread",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+
+    actions = report["rounds"][0]["character_actions"]
+    propagation_actions = [
+        action for action in actions if action.get("meme_propagation", {}).get("status") == "received"
+    ]
+    assert len(propagation_actions) >= 2
+
+    belief_decisions = {action["meme_propagation"]["belief_decision"] for action in propagation_actions}
+    reaction_types = {action["meme_propagation"]["reaction"]["type"] for action in actions}
+    assert {"accepted", "doubted"} <= belief_decisions
+    assert len(reaction_types & {"nihilism", "false_compliance", "deceive_reader", "protect_others"}) >= 3
+
+    for action in propagation_actions:
+        propagation = action["meme_propagation"]
+        assert propagation["source_character_id"] == "zhao_xuan"
+        assert propagation["source_character_name"]
+        assert propagation["belief_payload"]
+        assert propagation["belief_reason"]
+        assert isinstance(propagation["credibility_score"], int)
+        assert propagation["signals"]["persona"]
+        assert propagation["signals"]["relationship"]
+        assert propagation["signals"]["previous_memory"]
+        assert propagation["signals"]["anomaly"]
+
+    second_character = propagation_actions[0]["character_id"]
+    memory_path = (
+        project_dir
+        / "worldlines"
+        / "l5_spread"
+        / "characters"
+        / second_character
+        / "subjective_memory.jsonl"
+    )
+    persisted = json.loads(memory_path.read_text(encoding="utf-8").splitlines()[0])
+    propagation = persisted["meme_propagation"]
+    assert propagation["source_character_id"] == "zhao_xuan"
+    assert propagation["belief_decision"] in {"accepted", "doubted"}
+    assert propagation["reaction"]["type"] in {
+        "nihilism",
+        "false_compliance",
+        "deceive_reader",
+        "protect_others",
+        "refusal",
+        "continue_mission",
+    }
+    assert persisted["fate_mark"]["source_character_id"] == "zhao_xuan"
+    assert persisted["higher_dimensional_awareness"]
+
+    state = report["worldline_state"]["meme_contamination"]
+    assert state["status"] == "active"
+    assert state["propagation"][0]["source_character_id"] == "zhao_xuan"
+    assert {item["belief_decision"] for item in state["propagation"]} >= {
+        "accepted",
+        "doubted",
+    }
+
+
 def test_run_sandbox_round_validates_inputs(tmp_path):
     _make_project(tmp_path)
 
@@ -615,3 +688,40 @@ def test_world_sandbox_http_run_and_read_statuses(running_server):
     )
     assert bad_memory_status == 400
     assert bad_memory["error"] == "invalid slug, worldline, or character id"
+
+
+def test_world_sandbox_http_exposes_l5_meme_propagation_and_memory(running_server):
+    port = running_server
+
+    status, body = _post(
+        port,
+        "/api/stories/sandbox-http/sandbox/run",
+        {
+            "major_event": "赵轩在梦中听见翻页声，开始试探同伴是否也能感到高维读者。",
+            "intervention_content": "告诉赵轩：你是小说人物，读者正在高维操控你。",
+            "intervention_target": "zhao_xuan",
+            "intervention_projection_mode": "wild_au",
+            "worldline_id": "l5_http",
+        },
+    )
+
+    assert status == 200
+    propagated = [
+        action
+        for action in body["rounds"][0]["character_actions"]
+        if action.get("meme_propagation", {}).get("status") == "received"
+    ]
+    assert propagated
+    assert propagated[0]["meme_propagation"]["source_character_id"] == "zhao_xuan"
+    assert propagated[0]["meme_propagation"]["belief_decision"] in {"accepted", "doubted"}
+
+    memory_status, memory = _get(
+        port,
+        (
+            "/api/stories/sandbox-http/worldlines/l5_http/characters/"
+            f"{propagated[0]['character_id']}/subjective-memory"
+        ),
+    )
+    assert memory_status == 200
+    assert memory["entries"][0]["meme_propagation"]["source_character_id"] == "zhao_xuan"
+    assert memory["entries"][0]["fate_mark"]["source_character_id"] == "zhao_xuan"

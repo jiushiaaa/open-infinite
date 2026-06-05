@@ -2,7 +2,7 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-05（World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1 Agent Decision Deepening、S2 Subjective Memory Psychology、S3 Tianming Worldline Constitution、S4 Intervention Execution Constraint 与 S4 Immersive / Wild AU Projection 第一刀已收口。S4 后半、S5、S6、S7、S8、S9 已串成同一条可持续世界线：干预和 AU/L5 快照会写入 `worldline_state.json` 并被后续沙盘读取；L5 觉醒会进入角色主观记忆、命痕、反抗行为和模因污染；因果债、锚点状态、候选承载者和分支承接成为后续轮次输入；世界自演新增本地任务进度、暂停/恢复和检查点回放；多视角从 brief 扩为 `character_lens_volumes.json` 可读正文与证据链；作者采纳新增 `next_chapter_brief.json` 并回写世界线状态。S6 已把因果债具象为 `consequence_state` 六域代偿并进入后续沙盘、自演检查点、多视角正文证据链和下一章 brief；世界线页补上 `worldline_dossier` 只读聚合 API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、作者确认入卷和确认稿跨卷宗阅读链：作者采纳 run 可生成 `next_chapter_draft.json` / `next_chapter_draft.md`，作者采纳台可编辑草稿并确认写入 `confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json`，确认结果回写 `worldline_state.confirmed_chapter_entry` 与后续沙盘入口，并可回读世界正史卷、角色个人卷和事件多视角证据；真实 LLM smoke 使用 `qwen3.5-plus` 成功生成正文并通过 Reviewer。下一步应继续真实 LLM 多 Agent 决策、长正文质量、更强 Reviewer 和跨卷宗跳转阅读，而不是回到 provider/Graph/检索评测堆叠。）
+> **最后更新**：2026-06-05（World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1 Agent Decision Deepening、S2 Subjective Memory Psychology、S3 Tianming Worldline Constitution、S4 Intervention Execution Constraint 与 S4 Immersive / Wild AU Projection 第一刀已收口。S4 后半、S5、S6、S7、S8、S9 已串成同一条可持续世界线：干预和 AU/L5 快照会写入 `worldline_state.json` 并被后续沙盘读取；L5 觉醒会进入角色主观记忆、命痕、反抗行为和模因污染，模因传播会记录传播来源、采信/存疑、可信度、人设/关系/记忆/异常感信号和反应类型；因果债、锚点状态、候选承载者和分支承接成为后续轮次输入；世界自演新增本地任务进度、暂停/恢复和检查点回放；多视角从 brief 扩为 `character_lens_volumes.json` 可读正文与证据链；作者采纳新增 `next_chapter_brief.json` 并回写世界线状态。S6 已把因果债具象为 `consequence_state` 六域代偿并进入后续沙盘、自演检查点、多视角正文证据链和下一章 brief；世界线页补上 `worldline_dossier` 只读聚合 API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、作者确认入卷和确认稿跨卷宗阅读链：作者采纳 run 可生成 `next_chapter_draft.json` / `next_chapter_draft.md`，作者采纳台可编辑草稿并确认写入 `confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json`，确认结果回写 `worldline_state.confirmed_chapter_entry` 与后续沙盘入口，并可回读世界正史卷、角色个人卷和事件多视角证据；真实 LLM smoke 使用 `qwen3.5-plus` 成功生成正文并通过 Reviewer。下一步应继续真实 LLM 多 Agent 决策、长正文质量、更强 Reviewer 和跨卷宗跳转阅读，而不是回到 provider/Graph/检索评测堆叠。）
 
 ---
 
@@ -14,7 +14,7 @@
 | 北极星 | 文本输入 -> 世界锚定 -> 角色自主行动 -> 读者干预 -> 世界线分叉 -> 章节渲染 -> 可继续运行 |
 | 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强 Runtime Preflight 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀已收口；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8（Sandbox Round、Subjective Memory Chain、Tianming Book、Intervention Compiler、Narrative Compensation、World Autopilot、Character Lens Novel、Author Adoption Desk）已收口 |
 | 产品入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能必须优先通过 Web UI + API 完成，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑 |
-| 测试基线 | `cd engine && python -m pytest -q` -> `927 passed`；`cd engine/ui && pnpm run build` 通过 |
+| 测试基线 | `cd engine && python -m pytest -q` -> `929 passed`；`cd engine/ui && pnpm run build` 通过 |
 | 官方下一步 | **真实模型决策 + 长正文质量 + 更强 Reviewer**：S4 后半与 S5/S6/S7/S8/S9 已形成一条可继续运行的产品链路，新增 `worldline_state.json`、`consequence_state` 六域代偿、自演任务状态、检查点回放、多视角正文、下一章 brief、正式下一章草稿、作者确认入卷和确认稿跨卷宗阅读链；世界线/检查点独立页已补第一版 dossier 与回放入口；下一步优先加强真实 LLM 多 Agent 决策、长正文质量、更强 Reviewer 和跨卷宗跳转阅读；不默认回到 provider/Graph/检索评测主线 |
 | 当前主导航决策 | 一级按“世界书架”组织；进入某世界后使用“天命书、世界沙盘、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、世界线、检查点、作者采纳台”。“沙盘/阅读/干预/作者”是场景能力，不做一级工作区 |
 | 支撑层边界 | GraphRAG/Zep、provider spike、真实向量检索、OpenAPI、发行、计费、对象存储、认证都已降为支撑层；除非用户明确要求，不继续扩展这些方向 |
@@ -54,7 +54,7 @@
 
 ```text
 1. 沙盘轮次：sandbox_rounds.jsonl 已有第一版，记录每轮角色意图、行动、冲突、信息传播和世界状态 delta；API 为 `POST /api/stories/<slug>/sandbox/run`，前端入口为“世界书架 -> 世界沙盘”。
-2. 主观记忆链：每个角色在每条世界线拥有独立 subjective_memory.jsonl；每轮后写入看到、做了、新认知、情绪/信任/异常感变化，并已扩展 perceived_event、inner_thought、inferred_motive、emotional_impact、trust_shift、anomaly_weight、secret_visibility、misbeliefs、unknown_canon_facts 等字段，下一轮行动和冲突会引用上一轮记忆/误会。
+2. 主观记忆链：每个角色在每条世界线拥有独立 subjective_memory.jsonl；每轮后写入看到、做了、新认知、情绪/信任/异常感变化，并已扩展 perceived_event、inner_thought、inferred_motive、emotional_impact、trust_shift、anomaly_weight、secret_visibility、misbeliefs、unknown_canon_facts、L5 高维真相、命痕、模因传播来源、是否采信、可信度和反应类型等字段，下一轮行动和冲突会引用上一轮记忆/误会。
 3. 《天命书》：tianming.json 已有第一版，并已加深为世界线宪法雏形；`narrative_attractors` 有权重/类别，`anchor_status.anchors` 支持角色/势力/谜团/地点多锚点，`contract_pressure.pressure_tiers` 支持轻微/重大/时代/世界崩坏四档；旧版已确认天命书再次读取或生成时会补齐 S3 字段，同时保留既有吸引子。
 4. 干预编译器读天命书并可投放沙盘：自由干预可预编译为干预类型、层级、兼容性、转译策略、Divergent/AU、分支轴和因果债；普通干预不改写 `tianming.json`，L4/L5/AU 可写 `projects/<slug>/worldlines/<worldline_id>/tianming_snapshot.json` 且不覆盖根天命书；`POST /api/stories/<slug>/sandbox/run` 已可选接收干预文本并写 `intervention_constraint.json`，让编译结果成为本轮沙盘约束；新增 `projection_mode` / `intervention_projection_mode` 支持沉浸模式和暴走 AU，AK47 等异物会被标记为异物入侵并可选择本土化重释或保留为 AU 入侵。
 5. 世界线代偿：可生成 `tianming_delta.json`，解释锚点稳定/转移/失锚、候选天命承载者、因果债扩散和世界内压力事件。

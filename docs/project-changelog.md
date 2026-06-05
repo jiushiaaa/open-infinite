@@ -1985,3 +1985,20 @@
   - 加强章节草稿/确认稿的局部重写、更强 Reviewer 和长正文质量控制。
   - 把 reading trail 从证据列表升级为正文内跳转阅读，直接打开世界正史卷、角色个人卷和事件多视角对应段落。
 
+### 2026-06-05 — S5 L5 Meme Propagation Memory MVP
+
+- **做了什么**：
+  - 在 `world_sandbox` 中补齐 L5 高维真相传播链：直接觉醒者写入命痕、反抗行为和模因污染后，会向其他角色传播“我是小说人物/被高维操控”的真相。
+  - 新增 `meme_propagation` additive 字段，记录传播来源、真相载荷、采信/存疑/拒信、可信度、人设/关系/上一轮记忆/异常感信号和反应类型。
+  - 同一份传播证据写入 `sandbox_rounds.jsonl`、`subjective_memory_delta.json`、角色 `subjective_memory.jsonl`、`worldline_state.meme_contamination.propagation` 和 `information_flow`。
+  - 世界沙盘页和角色个人卷雏形新增命痕回声、觉醒度、传播来源、是否采信、可信度、采信原因和反应展示。
+  - 同步 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增 `test_l5_meme_truth_propagates_with_belief_reactions_in_subjective_memory` 后，先因没有 `meme_propagation.status=received` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_world_sandbox.py -q` -> **13 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+- **边界**：
+  - 本刀不调用 LLM、不改 `run_scene` 默认行为，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 当前采信判断仍是 deterministic 规则版，证明传播证据链和主观记忆写入成立；真实 LLM 心理推演、长期思想瘟疫演化和跨轮政治/宗门/战争压力仍需后续深化。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+
