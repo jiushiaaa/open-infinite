@@ -2,7 +2,7 @@
 
 > 用途：给后续 Codex / Cursor / 其他开发 Agent 做开工前自检，避免继续沿着旧的工程化面板、provider spike 或检索评测方向跑偏。
 > 当前主 PRD：`unfinale-world-sandbox-remodel-prd.md`。
-> 2026-06-05 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。S4 后半到 S9 已补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。本次 S6 进一步新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入后续沙盘、自演检查点、多视角正文和下一章 brief。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
+> 2026-06-05 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。S4 后半到 S9 已补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。S6 进一步新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入后续沙盘、自演检查点、多视角正文和下一章 brief。本次补上 `worldline_dossier` API、世界线独立页和检查点回放页。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
 
 ## 1. 开工前必读
 
@@ -108,6 +108,9 @@
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective-memory`
 - `POST /api/stories/<slug>/narrative-compensation/run`
 - `POST /api/stories/<slug>/world-autopilot/run`
+- `GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`
+- `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`
+- `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`
 - `POST /api/stories/<slug>/character-lens/generate`
 - `POST /api/stories/<slug>/author-adoption`
 
@@ -115,7 +118,7 @@
 
 - `GET /api/stories/<slug>/events/<event_id>/perspectives`：读取已发生事件的多视角和证据链，而不是每次生成新 brief。
 - `GET /api/stories/<slug>/character-lens/<character_id>`：读取某角色连续个人卷。
-- 世界自演任务的启动、暂停、恢复、进度查询和 checkpoint 回放 API 已有本地同步任务第一版；仍未做后台队列、长时运行守护和中断自动恢复。
+- 世界自演任务的启动、暂停、恢复、进度查询、checkpoint 回放和世界线 dossier API 已有本地同步任务第一版；仍未做后台队列、长时运行守护和中断自动恢复。
 - 作者采纳后的章节 brief / 大纲差异 / Reviewer 修订 API 已有第一版；仍需接入章节生成入口和更强 Reviewer。
 
 API 规则沿用项目硬约束：identifier 安全校验；失败返回明确 400/404/409；坏 artifact 降级为空态或需修复，不白屏、不 500。
@@ -148,6 +151,8 @@ API 规则沿用项目硬约束：identifier 安全校验；失败返回明确 4
 - 天命书页。
 - 多视角活体小说页。
 - 作者采纳台页。
+- 世界线档案页。
+- 检查点回放页。
 
 仍需补齐：
 

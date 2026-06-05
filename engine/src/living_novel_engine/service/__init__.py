@@ -394,6 +394,10 @@ from .worldline_state import (
     WorldlineStateRequestError,
     get_worldline_state,
 )
+from .worldline_dossier import (
+    WorldlineDossierRequestError,
+    get_worldline_dossier,
+)
 
 __all__ = [
     "VALID_ACTIONS",
@@ -629,8 +633,10 @@ __all__ = [
     "WorldSandboxRequestError",
     "WorldAutopilotRequestError",
     "WorldlineStateRequestError",
+    "WorldlineDossierRequestError",
     "get_character_subjective_memory",
     "get_world_autopilot_task",
+    "get_worldline_dossier",
     "get_worldline_state",
     "get_worldline_judgement",
     "get_selected_worldline",

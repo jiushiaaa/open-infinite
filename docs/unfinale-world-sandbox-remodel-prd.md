@@ -37,7 +37,7 @@
 
 - S4 后半：新增 `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`，把来源干预、沉浸/AU 投放、L4/L5/AU 快照审计状态、因果债、分支承接和下一轮继续入口绑定到世界线；后续 `sandbox/run` 会读取同一世界线的状态。
 - S5：L5 觉醒会写入角色主观记忆，包含“我是小说人物/被高维操控”的高维认知、命痕、反抗行为、异常感和模因污染；角色可假意服从、拒绝、欺骗读者、保护他人或继续使命。
-- S6：因果债、锚点状态和候选天命承载者进入 `worldline_state.json`，并在后续沙盘决策输入和 `world_state_delta` 中继续出现；当前仍偏文字解释，下一轮应把代偿代价具象为世界内状态。
+- S6：因果债、锚点状态和候选天命承载者进入 `worldline_state.json`，并在后续沙盘决策输入和 `world_state_delta` 中继续出现；已新增 `consequence_state` 六域代偿，把代偿代价具象为地点、资源、伤势、舆论、势力和环境状态。
 - S7：世界自演新增本地任务状态、进度、暂停/恢复和检查点回放，报告新增“醒来可读”的世界推进摘要。
 - S8：多视角从 `character_lens_briefs.json` 扩展到 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷和事件多视角正文，并带沙盘轮次、主观记忆、世界状态 delta、干预/因果债证据链。
 - S9：作者采纳新增 `next_chapter_brief.json`、原大纲差异、伏笔调整和 Reviewer 建议，并把下一章入口回写世界线状态。
@@ -50,6 +50,12 @@
 - 世界自演检查点和 overnight report 会记录这些具象代偿，醒来报告不再只显示因果债等级。
 - 多视角正文 evidence chain 新增 `consequence_state_refs`，世界正史卷会把封锁、资源扣押、伤势/梦魇、舆论、势力追索和环境异象写入可读正文。
 - 作者采纳后的 `next_chapter_brief.json` 新增 `materialized_consequences`，下一章方案必须延续这些世界内代价。
+
+2026-06-05 世界线 / 检查点独立页第一轮补强：
+
+- 新增 `worldline_dossier` 只读聚合 API，集中返回 `worldline_state.json`、天命快照审计、自演任务和 autopilot checkpoints。
+- 前端新增世界线独立页，展示当前世界线、来源干预、投放方式、快照审计、因果债、下一轮读取字段、具象代偿、自演任务和检查点列表。
+- 前端新增检查点回放页，展示本轮大事件、世界阶段、谁记住了什么、具象代偿和后续可写方向；沙盘自演结果可直接跳转。
 
 ## 1. 改造结论
 
@@ -197,7 +203,7 @@
 | 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放。 | 仍需真实后台队列、长时运行守护、失败自动恢复和更精确的停止条件命中。 |
 | 多视角活体小说 | 已有 `character_lens_briefs.json`；第二轮新增 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷、事件多视角正文与证据链。 | 仍需更长正文、跨卷宗跳转、误会图谱和真实 LLM 文风控制。 |
 | 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态。 | 仍需把下一章 brief 接入正式章节生成入口和作者可编辑确认流程。 |
-| UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台页面和入口。 | 仍未完整拆出 `WorldWorkspaceShell`、世界正史卷、主锚点卷、角色页、事件页、世界线页、检查点页和机制档案页。 |
+| UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台、世界线档案和检查点回放页面与入口。 | 仍未完整拆出 `WorldWorkspaceShell`、世界正史卷、主锚点卷、角色页、事件页和机制档案页。 |
 
 ## 5. 目标 artifact
 
@@ -247,6 +253,8 @@ outputs/<run_id>/next_chapter_brief.json
   作者采纳后的下一章 brief、沙盘继续入口和必须保留的记忆/因果债/采纳范围。
   ```
 
+`worldline_dossier` 当前是只读 API 聚合，不新增持久 artifact；它读取上述 worldline/autopilot 产物，为前端世界线页与检查点页提供页面级数据。
+
 第一版可以先把 `subjective_memory.jsonl` 放在 project 下的轻量目录，不急着上 GraphRAG / Zep。只有当本地 JSONL 无法支撑召回和关系推理时，再重新评估图记忆。
 
 ## 6. 目标 API
@@ -274,6 +282,15 @@ GET /api/stories/<slug>/sandbox/runs/<run_id>
 GET /api/stories/<slug>/worldlines/<worldline_id>/characters/<character_id>/memories
   读取某角色在某世界线上的主观记忆链。
 
+GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state
+  读取某条世界线的持续状态：来源干预、快照审计、因果债、锚点、具象代偿和下一轮入口。
+
+GET /api/stories/<slug>/worldlines/<worldline_id>/dossier
+  聚合世界线状态、自演任务和 checkpoints，供世界线独立页展示。
+
+GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>
+  回放某个世界自演检查点。
+
 GET /api/stories/<slug>/events/<event_id>/perspectives
   读取事件多视角：世界正史、角色主观记忆、误会图谱、叙事去向。
 
@@ -294,6 +311,7 @@ GET/POST tianming
 POST sandbox/run
 GET sandbox/run detail
 GET character memories
+GET worldline dossier / checkpoint replay
 ```
 
 ## 7. 目标 UI 骨架
@@ -331,8 +349,8 @@ workspace -> 世界内部卷宗首页
 #/world/<slug>/characters/<character_id>
 #/world/<slug>/events
 #/world/<slug>/events/<event_id>
-#/world/<slug>/worldlines
-#/world/<slug>/checkpoints
+#/world/<slug>/worldlines/<worldline_id>
+#/world/<slug>/worldlines/<worldline_id>/checkpoints/<run_id>/<checkpoint_id>
 #/world/<slug>/author
 #/world/<slug>/mechanism
 ```
@@ -440,7 +458,7 @@ MechanismArchivePage.tsx
 
 目标：用户能设定运行目标，世界自动运行多轮并生成检查点。
 
-当前状态：已收口第一版。`POST /api/stories/<slug>/world-autopilot/run` 会连续复用沙盘轮次和主观记忆链，支持 `rounds`、`event`、`time`、`anchor_change` 四种目标，生成 `outputs/<run_id>/autopilot_report.json` 和 `checkpoints/checkpoint_*.json`。前端世界沙盘页新增“世界自演”控制，可展示昨夜世界演化报告、停止原因和每轮检查点；不调用 `run_scene`，不覆盖既有核心 artifact。
+当前状态：已收口第一版。`POST /api/stories/<slug>/world-autopilot/run` 会连续复用沙盘轮次和主观记忆链，支持 `rounds`、`event`、`time`、`anchor_change` 四种目标，生成 `outputs/<run_id>/autopilot_report.json` 和 `checkpoints/checkpoint_*.json`。前端世界沙盘页新增“世界自演”控制，可展示昨夜世界演化报告、停止原因和每轮检查点；本次新增世界线档案页和检查点回放页，可从自演结果进入分支承接与检查点证据；不调用 `run_scene`，不覆盖既有核心 artifact。
 
 验收：
 
@@ -448,6 +466,7 @@ MechanismArchivePage.tsx
 - [x] 生成 `autopilot_report.json`。
 - [x] 生成 checkpoints。
 - [x] UI 展示昨夜世界演化报告。
+- [x] UI 可从世界线档案查看自演任务、检查点列表并进入单个检查点回放。
 
 ### v7：多视角活体小说
 

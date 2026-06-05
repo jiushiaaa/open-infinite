@@ -1889,3 +1889,27 @@
   - 补世界线页/检查点页独立 UI 与采纳后章节生成入口。
   - 在 opt-in 小样本里继续接真实 LLM 多 Agent 决策和多视角长正文质量控制。
 
+### 2026-06-05 — Worldline Dossier / Checkpoint Replay Pages
+
+- **做了什么**：
+  - 新增 `worldline_dossier` service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`，只读聚合 `worldline_state.json`、天命快照审计、自演任务和 autopilot checkpoints。
+  - dossier 返回下一步动作：继续沙盘、管理自演任务、回放最新检查点，帮助用户理解“这条世界线下一轮如何继续”。
+  - 前端新增 `#/world/<slug>/worldlines/<worldline_id>` 世界线档案页，展示来源干预、投放方式、快照审计、因果债、下一轮读取字段、具象代偿、自演任务、暂停/恢复和检查点列表。
+  - 前端新增 `#/world/<slug>/worldlines/<worldline_id>/checkpoints/<run_id>/<checkpoint_id>` 检查点回放页，展示大事件、世界阶段、谁记住了什么、具象代偿和后续可写方向。
+  - 世界沙盘页和自演检查点卡片新增跳转入口；顶栏新增“世界线”入口，不再只把世界线状态藏在沙盘结果区。
+  - 同步 `memory.md`、`AGENTS.md`、`docs/codex-handoff.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/living-novel-engine-iteration-plan.md` 和 `engine/README.md`。
+- **测试/验证**：
+  - RED：新增 `tests/test_worldline_dossier.py` 后，先因缺 `living_novel_engine.service.worldline_dossier` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_worldline_dossier.py -q` -> **2 passed**。
+  - Focused：`cd engine && python -m pytest tests/test_world_autopilot.py tests/test_worldline_dossier.py -q` -> **7 passed**；`cd engine && python -m pytest tests/test_world_sandbox.py tests/test_worldline_dossier.py tests/test_v075_worldline_judge.py -q` -> **22 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 浏览器：本地打开 `#/world/v090-alpha-proof/worldlines/main`，确认世界线页标题、分支状态和下一步区域可见；截图保存到 `.local-run/worldline-dossier-page.png`（不提交）。
+- **边界**：
+  - dossier 是只读聚合，不写新 artifact，不覆盖根《天命书》，不调用 `run_scene`。
+  - 新 API/UI 字段均 additive；坏 slug/worldline 返回 400，缺项目返回 404。
+  - 本刀是页面与聚合入口，不涉及新的叙事生成质量调用；真实模型 smoke 仍沿用上一刀 S6 的结果，本刀未额外消耗。
+  - 不接 GraphRAG/Zep、provider spike、真实向量检索评测、OpenAPI、发行、计费或工程健康面板。
+- **下一刀建议**：
+  - 接作者采纳后的正式章节生成入口。
+  - 在 opt-in 小样本里继续接真实 LLM 多 Agent 决策和多视角长正文质量控制。
+

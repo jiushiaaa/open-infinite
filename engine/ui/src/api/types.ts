@@ -947,6 +947,7 @@ export interface WorldAutopilotCheckpoint {
   stage: string;
   anchor_pressure: string;
   causal_debt: string;
+  consequence_state?: WorldlineConsequenceState;
   character_action_count: number;
   next_story_possibilities: Array<{
     id: string;
@@ -1011,6 +1012,77 @@ export interface WorldAutopilotReport {
   };
   boundaries: string[];
   next_steps: string[];
+}
+
+export interface WorldlineDossierCheckpoint {
+  run_id: string;
+  created_at?: string;
+  checkpoint_id: string;
+  round_index: number;
+  sandbox_run_id: string;
+  major_event: string;
+  stage: string;
+  anchor_pressure?: string;
+  causal_debt?: string;
+  consequence_state?: WorldlineConsequenceState;
+  who_remembered_what?: Array<{ character_id?: string; remembered?: string }>;
+  next_story_possibilities?: Array<{
+    id?: string;
+    title?: string;
+    brief?: string;
+  }>;
+}
+
+export interface WorldlineDossierReport {
+  version: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  worldline_state: WorldlineState;
+  tianming_audit: {
+    status: string;
+    audit_status: string;
+    requires_confirmation: boolean;
+    root_tianming_mutated: boolean;
+    artifact?: string;
+  };
+  task_count: number;
+  tasks: Array<{
+    task_id?: string;
+    status?: string;
+    latest_report_run_id?: string;
+    created_at?: string;
+    updated_at?: string;
+    progress?: {
+      current_round?: number;
+      target_round?: number;
+      percent?: number;
+    };
+    resume_from_checkpoint?: string;
+  }>;
+  checkpoint_count: number;
+  checkpoints: WorldlineDossierCheckpoint[];
+  next_actions: Array<{
+    action: string;
+    label: string;
+    reason: string;
+    worldline_id?: string;
+    run_id?: string;
+    checkpoint_id?: string;
+  }>;
+  boundaries: string[];
+}
+
+export interface WorldAutopilotCheckpointReplayReport {
+  version: string;
+  run_id: string;
+  checkpoint_id: string;
+  checkpoint: WorldAutopilotCheckpoint;
+  replay: {
+    sandbox_run_id: string;
+    major_event: string;
+    can_resume_from_here: boolean;
+  };
 }
 
 export interface CharacterLensPerspective {

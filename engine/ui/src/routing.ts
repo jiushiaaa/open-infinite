@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 // "#/world/<slug>/tianming"     → 天命书
 // "#/world/<slug>/lens"         → 多视角活体小说
 // "#/world/<slug>/author"       → 作者采纳台
+// "#/world/<slug>/worldlines/<id>" → 世界线档案
+// "#/world/<slug>/worldlines/<id>/checkpoints/<run>/<checkpoint>" → 检查点回放
 // "#/anchor/<slug>"             → 世界锚定页
 // "#/import"                    → 导入小说
 // "#/genesis"                   → 主题创世
@@ -17,6 +19,14 @@ export type Route =
   | { name: "tianming"; slug: string }
   | { name: "lens"; slug: string }
   | { name: "author"; slug: string }
+  | { name: "worldline"; slug: string; worldlineId: string }
+  | {
+      name: "checkpoint";
+      slug: string;
+      worldlineId: string;
+      runId: string;
+      checkpointId: string;
+    }
   | { name: "anchor"; slug: string }
   | { name: "import" }
   | { name: "genesis" };
@@ -38,6 +48,22 @@ function parseHash(): Route {
   }
   if (parts[0] === "world" && parts[1] && parts[2] === "author") {
     return { name: "author", slug: decodeURIComponent(parts[1]) };
+  }
+  if (parts[0] === "world" && parts[1] && parts[2] === "worldlines" && parts[3]) {
+    if (parts[4] === "checkpoints" && parts[5] && parts[6]) {
+      return {
+        name: "checkpoint",
+        slug: decodeURIComponent(parts[1]),
+        worldlineId: decodeURIComponent(parts[3]),
+        runId: decodeURIComponent(parts[5]),
+        checkpointId: decodeURIComponent(parts[6]),
+      };
+    }
+    return {
+      name: "worldline",
+      slug: decodeURIComponent(parts[1]),
+      worldlineId: decodeURIComponent(parts[3]),
+    };
   }
   if (parts[0] === "anchor" && parts[1]) {
     return { name: "anchor", slug: decodeURIComponent(parts[1]) };
@@ -65,6 +91,18 @@ export function navigate(route: Route): void {
   }
   else if (route.name === "author") {
     next = `#/world/${encodeURIComponent(route.slug)}/author`;
+  }
+  else if (route.name === "worldline") {
+    next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
+      route.worldlineId,
+    )}`;
+  }
+  else if (route.name === "checkpoint") {
+    next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
+      route.worldlineId,
+    )}/checkpoints/${encodeURIComponent(route.runId)}/${encodeURIComponent(
+      route.checkpointId,
+    )}`;
   }
   else if (route.name === "anchor") next = `#/anchor/${encodeURIComponent(route.slug)}`;
   else if (route.name === "import") next = "#/import";

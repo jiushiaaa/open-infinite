@@ -172,6 +172,12 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           </button>
           <button
             className="btn btn--ghost"
+            onClick={() => navigate({ name: "worldline", slug, worldlineId: "main" })}
+          >
+            世界线
+          </button>
+          <button
+            className="btn btn--ghost"
             onClick={() => navigate({ name: "workspace", slug })}
           >
             返回正史卷
@@ -336,9 +342,23 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
             <section className="sandbox-section sandbox-autopilot-report">
               <div className="sandbox-section__title">
                 <h2>昨夜世界演化报告</h2>
-                <span className="badge badge--gold">
-                  {autopilotReport.rounds_completed} 个检查点
-                </span>
+                <div className="sandbox-section__actions">
+                  <button
+                    className="btn btn--ghost tiny"
+                    onClick={() =>
+                      navigate({
+                        name: "worldline",
+                        slug,
+                        worldlineId: autopilotReport.worldline_id || "main",
+                      })
+                    }
+                  >
+                    查看世界线
+                  </button>
+                  <span className="badge badge--gold">
+                    {autopilotReport.rounds_completed} 个检查点
+                  </span>
+                </div>
               </div>
               <p>{autopilotReport.final_world_stage.summary}</p>
               {autopilotReport.progress && (
@@ -372,6 +392,22 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                     </div>
                     <p>{checkpoint.stage}</p>
                     <p className="muted tiny">{checkpoint.causal_debt}</p>
+                    {checkpoint.checkpoint_id && (
+                      <button
+                        className="btn btn--ghost tiny"
+                        onClick={() =>
+                          navigate({
+                            name: "checkpoint",
+                            slug,
+                            worldlineId: autopilotReport.worldline_id || "main",
+                            runId: autopilotReport.run_id,
+                            checkpointId: checkpoint.checkpoint_id || "",
+                          })
+                        }
+                      >
+                        回放检查点
+                      </button>
+                    )}
                   </article>
                 ))}
               </div>
@@ -468,9 +504,23 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                 <section className="sandbox-section sandbox-intervention">
                   <div className="sandbox-section__title">
                     <h2>世界线承接</h2>
-                    <span className="badge badge--jade">
-                      {worldlineState.branch_state?.continuation_status ?? "runnable"}
-                    </span>
+                    <div className="sandbox-section__actions">
+                      <button
+                        className="btn btn--ghost tiny"
+                        onClick={() =>
+                          navigate({
+                            name: "worldline",
+                            slug,
+                            worldlineId: worldlineState.current_worldline || "main",
+                          })
+                        }
+                      >
+                        打开世界线档案
+                      </button>
+                      <span className="badge badge--jade">
+                        {worldlineState.branch_state?.continuation_status ?? "runnable"}
+                      </span>
+                    </div>
                   </div>
                   <dl>
                     <div>

@@ -119,6 +119,8 @@ import type {
   VisualAssetsGenerateRequest,
   WorldAnchor,
   WorldAutopilotReport,
+  WorldAutopilotCheckpointReplayReport,
+  WorldlineDossierReport,
   WorldlineState,
   WorldSandboxRunReport,
   WorldSandboxRunRequest,
@@ -538,6 +540,16 @@ export const api = {
       )}/worldline-state`,
     );
   },
+  getWorldlineDossier(
+    storySlug: string,
+    worldlineId: string,
+  ): Promise<WorldlineDossierReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/dossier`,
+    );
+  },
   getTianmingBook(storySlug: string): Promise<TianmingBook> {
     return getJson(`/api/stories/${encodeURIComponent(storySlug)}/tianming`);
   },
@@ -626,7 +638,7 @@ export const api = {
   replayWorldAutopilotCheckpoint(
     runId: string,
     checkpointId: string,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<WorldAutopilotCheckpointReplayReport> {
     return getJson(
       `/api/world-autopilot-runs/${encodeURIComponent(
         runId,

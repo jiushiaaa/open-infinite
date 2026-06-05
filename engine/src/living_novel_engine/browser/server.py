@@ -1311,6 +1311,13 @@ class BrowserHandler(BaseHTTPRequestHandler):
             if (
                 path.startswith("/api/stories/")
                 and "/worldlines/" in path
+                and path.endswith("/dossier")
+            ):
+                return self._handle_worldline_dossier_get(path)
+
+            if (
+                path.startswith("/api/stories/")
+                and "/worldlines/" in path
                 and path.endswith("/worldline-state")
             ):
                 return self._handle_worldline_state_get(path)
@@ -1894,6 +1901,25 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 get_worldline_state(slug, worldline_id=worldline_id)
             )
         except WorldlineStateRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+
+    def _handle_worldline_dossier_get(self, path: str) -> None:
+        from living_novel_engine.service.worldline_dossier import (
+            WorldlineDossierRequestError,
+            get_worldline_dossier,
+        )
+
+        ids = self._extract_story_worldline_for_suffix(path, "/dossier")
+        if ids is None:
+            return self._send_json({"error": "invalid slug or worldline id"}, status=400)
+        slug, worldline_id = ids
+        try:
+            return self._send_json(
+                get_worldline_dossier(slug, worldline_id=worldline_id)
+            )
+        except WorldlineDossierRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         except FileNotFoundError as exc:
             return self._send_json({"error": str(exc)}, status=404)

@@ -58,6 +58,16 @@ export function AppShell({
               作者采纳台 · {route.slug}
             </span>
           )}
+          {route.name === "worldline" && (
+            <span className="topbar__crumb muted tiny">
+              世界线 · {route.slug} · {route.worldlineId}
+            </span>
+          )}
+          {route.name === "checkpoint" && (
+            <span className="topbar__crumb muted tiny">
+              检查点 · {route.slug} · {route.checkpointId}
+            </span>
+          )}
           {route.name === "anchor" && (
             <span className="topbar__crumb muted tiny">世界锚定 · {route.slug}</span>
           )}
@@ -88,6 +98,21 @@ export function AppShell({
               title="生成并轻量确认这部故事的天命书"
             >
               天命书
+            </button>
+          )}
+          {(route.name === "workspace" ||
+            route.name === "sandbox" ||
+            route.name === "tianming" ||
+            route.name === "lens" ||
+            route.name === "author") && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() =>
+                navigate({ name: "worldline", slug: route.slug, worldlineId: "main" })
+              }
+              title="查看当前世界线、来源干预、因果债、任务与检查点"
+            >
+              世界线
             </button>
           )}
           {(route.name === "workspace" ||
@@ -135,6 +160,28 @@ export function AppShell({
               onClick={() => navigate({ name: "lens", slug: route.slug })}
             >
               多视角卷
+            </button>
+          )}
+          {route.name === "worldline" && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate({ name: "sandbox", slug: route.slug })}
+            >
+              继续沙盘
+            </button>
+          )}
+          {route.name === "checkpoint" && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() =>
+                navigate({
+                  name: "worldline",
+                  slug: route.slug,
+                  worldlineId: route.worldlineId,
+                })
+              }
+            >
+              返回世界线
             </button>
           )}
           {route.name === "anchor" && (
