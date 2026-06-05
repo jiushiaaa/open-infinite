@@ -9,6 +9,7 @@ import { TianmingPage } from "./components/TianmingPage";
 import { CharacterLensPage } from "./components/CharacterLensPage";
 import { AuthorAdoptionPage } from "./components/AuthorAdoptionPage";
 import { WorldlineDossierPage } from "./components/WorldlineDossierPage";
+import { DossierReadingPage } from "./components/DossierReadingPage";
 import { CheckpointReplayPage } from "./components/CheckpointReplayPage";
 import { useRoute } from "./routing";
 
@@ -23,6 +24,9 @@ export function App() {
       {route.name === "author" && <AuthorAdoptionPage slug={route.slug} />}
       {route.name === "worldline" && (
         <WorldlineDossierPage slug={route.slug} worldlineId={route.worldlineId} />
+      )}
+      {route.name === "dossierReading" && (
+        <DossierReadingPage slug={route.slug} worldlineId={route.worldlineId} />
       )}
       {route.name === "checkpoint" && (
         <CheckpointReplayPage

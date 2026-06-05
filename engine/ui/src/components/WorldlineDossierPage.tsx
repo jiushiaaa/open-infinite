@@ -69,6 +69,12 @@ export function WorldlineDossierPage({
         <div className="worldline-hero__actions">
           <button
             className="btn btn--ghost"
+            onClick={() => navigate({ name: "dossierReading", slug, worldlineId })}
+          >
+            卷宗阅读
+          </button>
+          <button
+            className="btn btn--ghost"
             onClick={() => navigate({ name: "sandbox", slug })}
           >
             继续沙盘

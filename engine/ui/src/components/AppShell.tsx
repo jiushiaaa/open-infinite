@@ -63,6 +63,11 @@ export function AppShell({
               世界线 · {route.slug} · {route.worldlineId}
             </span>
           )}
+          {route.name === "dossierReading" && (
+            <span className="topbar__crumb muted tiny">
+              卷宗阅读 · {route.slug} · {route.worldlineId}
+            </span>
+          )}
           {route.name === "checkpoint" && (
             <span className="topbar__crumb muted tiny">
               检查点 · {route.slug} · {route.checkpointId}
@@ -104,11 +109,17 @@ export function AppShell({
             route.name === "sandbox" ||
             route.name === "tianming" ||
             route.name === "lens" ||
-            route.name === "author") && (
+            route.name === "author" ||
+            route.name === "dossierReading") && (
             <button
               className="btn btn--ghost tiny"
               onClick={() =>
-                navigate({ name: "worldline", slug: route.slug, worldlineId: "main" })
+                navigate({
+                  name: "worldline",
+                  slug: route.slug,
+                  worldlineId:
+                    route.name === "dossierReading" ? route.worldlineId : "main",
+                })
               }
               title="查看当前世界线、来源干预、因果债、任务与检查点"
             >
@@ -136,6 +147,26 @@ export function AppShell({
               title="采纳、部分采纳、另开分支或导出沙盘涌现剧情"
             >
               作者采纳台
+            </button>
+          )}
+          {(route.name === "workspace" ||
+            route.name === "sandbox" ||
+            route.name === "tianming" ||
+            route.name === "lens" ||
+            route.name === "author" ||
+            route.name === "worldline") && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() =>
+                navigate({
+                  name: "dossierReading",
+                  slug: route.slug,
+                  worldlineId: route.name === "worldline" ? route.worldlineId : "main",
+                })
+              }
+              title="进入世界内部卷宗阅读页，默认按连续正文阅读"
+            >
+              卷宗阅读
             </button>
           )}
           {route.name === "tianming" && (
@@ -168,6 +199,20 @@ export function AppShell({
               onClick={() => navigate({ name: "sandbox", slug: route.slug })}
             >
               继续沙盘
+            </button>
+          )}
+          {route.name === "dossierReading" && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() =>
+                navigate({
+                  name: "worldline",
+                  slug: route.slug,
+                  worldlineId: route.worldlineId,
+                })
+              }
+            >
+              返回世界线
             </button>
           )}
           {route.name === "checkpoint" && (

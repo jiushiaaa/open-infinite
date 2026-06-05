@@ -129,6 +129,13 @@
 - `draft_revision_pack.json` 新增 `editorial_revision_draft`，把语义 Reviewer 的局部建议合成为不覆盖草稿/确认稿/正史的编辑应用预览，并在作者采纳台展示。
 - 真实 LLM 小样本复测通过 S5 觉醒传播、世界演化小说节拍、S8 场景计划和 S9 真实草稿/连续阅读/Reviewer 预览；复测同时修复自演开场 hook 的角色名重复、双句号和“推到明面”模板痕迹。
 
+2026-06-06 卷宗阅读页产品化：
+
+- 新增 `dossier_reading` 只读 service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`，聚合同一世界线最新 `continuous_reading_chapter.json`、`confirmed_chapter.md`、`confirmed_chapter_reading_trail.json`、`character_lens_volumes.json` 和 `worldline_dossier`。
+- 前端新增 `DossierReadingPage` 与 `#/world/<slug>/worldlines/<worldline_id>/reading`，默认进入“连续阅读”正文态，左侧可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认正文。
+- 页面显式展示每个卷宗的认知偏差；证据链默认折叠在正文之后，保持“先读小说、再查证据”的体验，不再把连续阅读堆在 Workspace 或 JSON 面板里。
+- 本刀不新增持久 artifact，不覆盖既有章节/卷宗产物，不改变 `run_scene` 默认行为；缺少单个来源时阅读包降级为 partial/empty。
+
 ## 1. 改造结论
 
 未终章不需要推倒重做。当前项目已经有大量可复用底座：
@@ -274,8 +281,8 @@
 | 世界线代偿 | 已有 `tianming_delta.json`，解释锚点转移、候选承载者、因果债和世界内压力；第二轮已把因果债、锚点状态、候选承载者和分支承接写入 `worldline_state.json` 并作为后续沙盘输入；本次新增 `consequence_state`，把代偿压力具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮决策、自演检查点、多视角正文和下一章 brief。 | 仍需让六域状态支持更细的数值/枚举演化、人工确认、跨章节归档和真实 LLM 决策消费。 |
 | 世界自演 | 已有 `autopilot_report.json` 和 checkpoints，支持轮数、事件、时间、锚点变化、因果债爆发和角色觉醒目标；第二轮新增本地任务状态、进度、暂停/恢复和检查点回放；本次新增失败任务记录、最近检查点恢复、`stop_condition` 证据和醒来时间线。 | 仍需真实后台队列和跨进程长时运行守护；当前恢复是本地任务文件 + checkpoint 的第一版。 |
 | 多视角活体小说 | 已有 `character_lens_briefs.json`；第二轮新增 `character_lens_volumes.json`，生成世界正史卷、主锚点卷、角色个人卷、事件多视角正文与证据链。 | 仍需更长正文、跨卷宗跳转、误会图谱和真实 LLM 文风控制。 |
-| 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态；已新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和页面草稿入口，把采纳结果生成为可读下一章正文；已新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者编辑确认入口，并回写后续沙盘入口；确认入卷还会生成 `confirmed_chapter_reading_trail.json`，把确认稿回读到世界正史卷、角色个人卷和事件多视角。已补强 `writing_plan` / `feed_forward`，让采纳、部分采纳、另开分支直接形成下一章生成输入和沙盘继续输入；另开分支会写作者分支状态，不覆盖根正史。已新增 `draft_revision_pack.json`，让草稿确认前具备局部改写建议、证据引用和确认 gate；本轮新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，把 S9 草稿与 S8 多视角卷宗编排为可按场景连续阅读的章节稿。 | 仍需自动局部重写、更强语义 Reviewer、真实长文文风控制和正文内跳转阅读。 |
-| UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台、世界线档案和检查点回放页面与入口。 | 仍未完整拆出 `WorldWorkspaceShell`、世界正史卷、主锚点卷、角色页、事件页和机制档案页。 |
+| 作者采纳台 | 已有 `author_adoption_ledger.jsonl`、`author_adoption_record.json`、`author_adoption_brief.md`；第二轮新增 `next_chapter_brief.json`、原大纲差异、伏笔调整、Reviewer 建议，并回写世界线状态；已新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和页面草稿入口，把采纳结果生成为可读下一章正文；已新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者编辑确认入口，并回写后续沙盘入口；确认入卷还会生成 `confirmed_chapter_reading_trail.json`，把确认稿回读到世界正史卷、角色个人卷和事件多视角。已补强 `writing_plan` / `feed_forward`，让采纳、部分采纳、另开分支直接形成下一章生成输入和沙盘继续输入；另开分支会写作者分支状态，不覆盖根正史。已新增 `draft_revision_pack.json`，让草稿确认前具备局部改写建议、证据引用和确认 gate；本轮新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，把 S9 草稿与 S8 多视角卷宗编排为可按场景连续阅读的章节稿。 | 仍需自动局部重写、更强语义 Reviewer、真实长文文风控制和更细的正文内跳转。 |
+| UI 信息架构 | 已新增世界沙盘、天命书、多视角、作者采纳台、世界线档案、检查点回放和卷宗阅读页面与入口；卷宗阅读页默认正文阅读，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角，并折叠证据链。 | 仍未完整拆出 `WorldWorkspaceShell`、独立角色页、势力页、事件误会图谱和机制档案页。 |
 
 ## 5. 目标 artifact
 
@@ -345,6 +352,8 @@ outputs/<run_id>/confirmed_chapter_reading_trail.json
 
 `worldline_dossier` 当前是只读 API 聚合，不新增持久 artifact；它读取上述 worldline/autopilot 产物，为前端世界线页与检查点页提供页面级数据。
 
+`dossier_reading` 当前是只读 API 聚合，不新增持久 artifact；它读取连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和 `worldline_dossier`，为前端卷宗阅读页提供小说优先的页面级数据。
+
 第一版可以先把 `subjective_memory.jsonl` 放在 project 下的轻量目录，不急着上 GraphRAG / Zep。只有当本地 JSONL 无法支撑召回和关系推理时，再重新评估图记忆。
 
 ## 6. 目标 API
@@ -377,6 +386,9 @@ GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state
 
 GET /api/stories/<slug>/worldlines/<worldline_id>/dossier
   聚合世界线状态、自演任务和 checkpoints，供世界线独立页展示。
+
+GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading
+  聚合连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier，供世界内部卷宗阅读页展示；不新增持久 artifact。
 
 GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>
   回放某个世界自演检查点。

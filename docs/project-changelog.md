@@ -2182,3 +2182,25 @@
   - Reviewer 只生成编辑应用预览，仍由作者手动采纳和确认入卷；不自动覆盖正史。
   - 本刀继续服务世界沙盘主线，不接 GraphRAG/Zep、provider spike、检索评测、OpenAPI、发行、商业化或工程面板。
 
+### 2026-06-06 — Dossier Reading Page Productization
+
+- **做了什么**：
+  - 新增 `dossier_reading` service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`，只读聚合同一世界线最新 `continuous_reading_chapter`、确认稿、`confirmed_chapter_reading_trail`、S8 `character_lens_volumes` 和 `worldline_dossier`。
+  - 前端新增 `DossierReadingPage` 与 `#/world/<slug>/worldlines/<worldline_id>/reading`，默认进入连续阅读正文态，不再把连续阅读继续堆在 Workspace 或 JSON 面板。
+  - 页面可切换“连续阅读 / 世界正史卷 / 主锚点卷 / 角色个人卷 / 事件多视角 / 确认正文”，并显示每个视角的认知偏差。
+  - 证据链默认折叠在正文之后，保留来源 artifact refs 和 `confirmed_chapter_reading_trail` 分区，服务“先读小说、再查证据”的阅读体验。
+  - 顶栏与世界线页新增卷宗阅读入口；前端类型和 API client 同步新增 `DossierReadingReport`。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/codex-handoff.md`、`engine/README.md` 和本 changelog。
+- **测试/验证**：
+  - RED：新增 `test_dossier_reading_prefers_novel_mode_and_keeps_evidence_folded`，先因缺少 `living_novel_engine.service.dossier_reading` 失败。
+  - GREEN：`cd D:\AI\open-infinite && python -m pytest engine/tests/test_dossier_reading.py -q` -> **2 passed**。
+  - Focused：`python -m pytest engine/tests/test_dossier_reading.py engine/tests/test_worldline_dossier.py engine/tests/test_author_adoption.py::test_continuous_reading_packet_tracks_viewpoints_bias_and_evidence_toggle engine/tests/test_author_adoption.py::test_author_chapter_confirmation_links_back_to_cross_volume_evidence -q` -> **6 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **944 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+  - HTTP smoke：在 `.local-run/dossier-page-smoke` 生成临时样本，启动 `lne browse` 与 Vite，`/dossier-reading` 返回 `ready`、默认 `continuous_reading`、四类卷宗齐全、证据默认折叠；Vite 新 hash route 返回 200。
+- **边界**：
+  - 本刀不新增持久 artifact，只读聚合既有 continuous reading、confirmed chapter、reading trail、多视角卷宗和 worldline dossier。
+  - 不改变 `run_scene` 默认行为，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 浏览器插件未暴露本地页面截图工具，Playwright 也不在本地依赖中；本轮以 production build 和 HTTP route/API smoke 验证前端可达性。
+

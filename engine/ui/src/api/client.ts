@@ -75,6 +75,7 @@ import type {
   MasterSettingPatch,
   MasterSettingUpdateResponse,
   DeploymentObservabilityChecklist,
+  DossierReadingReport,
   LLMProfileAssignmentReport,
   LocalSmokeChecklist,
   ObjectStorageBoundaryChecklist,
@@ -550,6 +551,16 @@ export const api = {
       `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
         worldlineId,
       )}/dossier`,
+    );
+  },
+  getDossierReading(
+    storySlug: string,
+    worldlineId: string,
+  ): Promise<DossierReadingReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/dossier-reading`,
     );
   },
   getTianmingBook(storySlug: string): Promise<TianmingBook> {

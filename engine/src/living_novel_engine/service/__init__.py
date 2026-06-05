@@ -406,6 +406,10 @@ from .worldline_dossier import (
     WorldlineDossierRequestError,
     get_worldline_dossier,
 )
+from .dossier_reading import (
+    DossierReadingRequestError,
+    get_dossier_reading,
+)
 
 __all__ = [
     "VALID_ACTIONS",
@@ -646,8 +650,10 @@ __all__ = [
     "WorldAutopilotRequestError",
     "WorldlineStateRequestError",
     "WorldlineDossierRequestError",
+    "DossierReadingRequestError",
     "get_character_subjective_memory",
     "get_world_autopilot_task",
+    "get_dossier_reading",
     "get_worldline_dossier",
     "get_worldline_state",
     "get_worldline_judgement",

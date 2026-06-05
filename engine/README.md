@@ -2,13 +2,15 @@
 
 未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。当前已经从早期 Phase 0 CLI 演进到 v1.0-local + 后续增强四十五刀：支持小说导入、长篇记忆、读者干预、多世界线生成、审计评估、章节导出、模型配置、本地一键运行、运行前体检、生成后投影健康、读者修订评审、检索上下文预算包、任务模型画像、设定卡片、本地 API 契约、发行准备清单、向量检索就绪探针、embedding 样本评估、失败样本采集、Memory CLI、失败样本导出包、mock 对照报告、replay case report、migration pack、跨项目样本索引、样本趋势快照，以及 Graph Memory provider spike 到 Manual Mock Adapter Review 的只读证据链。用户明确要求后，百炼 embedding、Zilliz Cloud 和百炼 reranker 的真实向量检索 Pipeline 已可显式使用。
 
-2026-06-03 产品纠偏后，上述 provider、Graph、检索评测、发行和商业化能力全部降为支撑层。当前默认开发主线是 **World Sandbox Loop / 世界沙盘改造**。2026-06-04 已完成 World Sandbox Loop v1-v8：用户可从世界书架进入“世界沙盘”“天命书”“多视角活体小说”和“作者采纳台”，看到角色行动、世界变化、角色主观记忆、干预分支轴、因果债、世界线代偿、世界自演检查点、多视角卷宗和作者采纳账本；S1/S2/S3/S4 深化已让沙盘行动记录展示决策输入、外在行动、真实意图、风险和行动结果，让主观记忆展示角色感知、内心想法、推测动机、误会、未知正史、秘密可见性和异常权重，让《天命书》展示吸引子权重、多锚点、四档合约压力和 L4/L5/AU 世界线快照，让普通干预经天命书编译后作为下一轮沙盘约束投放，并让 AK47 等异物干预可选择沉浸模式本土化重释或暴走 AU 世界线快照；旧版已确认天命书会保守补齐 S3 字段。2026-06-05 第二轮强化已把 S4 后半和 S5-S9 串成可持续世界线：`worldline_state.json` 让干预、快照审计、因果债、锚点、候选承载者和采纳结果进入后续沙盘；L5 觉醒写入命痕、反抗行为和模因污染，且模因传播会记录来源角色、采信/存疑、可信度、人设/关系/记忆/异常感信号和反应类型；世界自演新增本地任务状态、暂停/恢复和检查点回放；多视角新增可读正文 `character_lens_volumes.json`；作者采纳新增 `next_chapter_brief.json` 并反哺下一轮。S6 继续新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief。随后补上 `worldline_dossier` 聚合 API、世界线独立页和检查点回放页，让用户能从沙盘/自演结果查看分支承接、来源干预、天命审计、任务和代偿证据。本次 S7 补强把自演目标扩到因果债爆发和角色觉醒，`autopilot_report.json` 会记录 `status`、`stop_condition`、`recovery`、失败原因、醒来时间线和可恢复检查点；失败任务可从最近 checkpoint 接续生成新报告。S9 新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和作者采纳台“生成下一章草稿”入口，让采纳结果不只停在 brief，而能产出可读正文、证据链和 Reviewer 检查；草稿生成会同步写入 `draft_revision_pack.json` 和 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，在作者确认前给出局部改写建议，并把 S8 多视角卷宗、具象代偿和下一章钩子编排成可连续阅读的章节稿；继续新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者采纳台“确认入卷”入口，作者可编辑草稿并把确认结果回写世界线状态与后续沙盘入口；已新增 `confirmed_chapter_reading_trail.json` 与作者采纳台跨卷宗阅读链，让确认稿回读世界正史卷、角色个人卷和事件多视角证据。2026-06-06 新增 S1 `LLM Agent Decision Advisory` 第一刀：世界沙盘 API/UI 可显式启用真实模型逐角色决策建议，写入 `agent_decision_advisory.json`，并把采信、欺骗、传播、反抗和临场判断进入本轮行动与主观记忆；默认 deterministic 与 `run_scene` 不变。后续继续打磨多轮策略规划、长期关系/势力博弈、长正文文风质量、正文内跳转阅读和更深层 Reviewer/局部重写，而不是回到 provider/Graph/检索评测堆叠。具体改造 PRD 见 [`../docs/unfinale-world-sandbox-remodel-prd.md`](../docs/unfinale-world-sandbox-remodel-prd.md)。
+2026-06-03 产品纠偏后，上述 provider、Graph、检索评测、发行和商业化能力全部降为支撑层。当前默认开发主线是 **World Sandbox Loop / 世界沙盘改造**。2026-06-04 已完成 World Sandbox Loop v1-v8：用户可从世界书架进入“世界沙盘”“天命书”“多视角活体小说”和“作者采纳台”，看到角色行动、世界变化、角色主观记忆、干预分支轴、因果债、世界线代偿、世界自演检查点、多视角卷宗和作者采纳账本；S1/S2/S3/S4 深化已让沙盘行动记录展示决策输入、外在行动、真实意图、风险和行动结果，让主观记忆展示角色感知、内心想法、推测动机、误会、未知正史、秘密可见性和异常权重，让《天命书》展示吸引子权重、多锚点、四档合约压力和 L4/L5/AU 世界线快照，让普通干预经天命书编译后作为下一轮沙盘约束投放，并让 AK47 等异物干预可选择沉浸模式本土化重释或暴走 AU 世界线快照；旧版已确认天命书会保守补齐 S3 字段。2026-06-05 第二轮强化已把 S4 后半和 S5-S9 串成可持续世界线：`worldline_state.json` 让干预、快照审计、因果债、锚点、候选承载者和采纳结果进入后续沙盘；L5 觉醒写入命痕、反抗行为和模因污染，且模因传播会记录来源角色、采信/存疑、可信度、人设/关系/记忆/异常感信号和反应类型；世界自演新增本地任务状态、暂停/恢复和检查点回放；多视角新增可读正文 `character_lens_volumes.json`；作者采纳新增 `next_chapter_brief.json` 并反哺下一轮。S6 继续新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief。随后补上 `worldline_dossier` 聚合 API、世界线独立页和检查点回放页，让用户能从沙盘/自演结果查看分支承接、来源干预、天命审计、任务和代偿证据。本次 S7 补强把自演目标扩到因果债爆发和角色觉醒，`autopilot_report.json` 会记录 `status`、`stop_condition`、`recovery`、失败原因、醒来时间线和可恢复检查点；失败任务可从最近 checkpoint 接续生成新报告。S9 新增 `next_chapter_draft.json` / `next_chapter_draft.md` 和作者采纳台“生成下一章草稿”入口，让采纳结果不只停在 brief，而能产出可读正文、证据链和 Reviewer 检查；草稿生成会同步写入 `draft_revision_pack.json` 和 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，在作者确认前给出局部改写建议，并把 S8 多视角卷宗、具象代偿和下一章钩子编排成可连续阅读的章节稿；继续新增 `confirmed_chapter_entry.json` / `confirmed_chapter.md` 和作者采纳台“确认入卷”入口，作者可编辑草稿并把确认结果回写世界线状态与后续沙盘入口；已新增 `confirmed_chapter_reading_trail.json` 与作者采纳台跨卷宗阅读链，让确认稿回读世界正史卷、角色个人卷和事件多视角证据。2026-06-06 新增 S1 `LLM Agent Decision Advisory` 第一刀：世界沙盘 API/UI 可显式启用真实模型逐角色决策建议，写入 `agent_decision_advisory.json`，并把采信、欺骗、传播、反抗和临场判断进入本轮行动与主观记忆；默认 deterministic 与 `run_scene` 不变。后续继续打磨多轮策略规划、长期关系/势力博弈、长正文文风质量、正文内锚点跳转/误会图谱和更深层 Reviewer/局部重写，而不是回到 provider/Graph/检索评测堆叠。具体改造 PRD 见 [`../docs/unfinale-world-sandbox-remodel-prd.md`](../docs/unfinale-world-sandbox-remodel-prd.md)。
 
 本轮 A/B/C 深化继续限定在世界沙盘主线内：`agent_decision_advisory.json` 新增 `strategy_board`，角色行动、主观记忆、信息流和 `world_state_delta.strategy_game_effects` 会展示算计对象、筹码、误判、风险和预期世界影响；`continuous_reading_chapter.json` 升级为 v2，默认小说阅读、证据默认收起，并新增视角 tab、认知偏差、伏笔/回收和悬念字段；`draft_revision_pack.json` 升级为 v2，新增语义 Reviewer 与可采纳局部改写字段，写清原问题、修改意图、建议改写、影响角色/世界状态和采纳方向。
 
 真实小样本端到端 smoke 已覆盖 S5 觉醒传播、世界演化、S8 多视角正文、S9 作者采纳到真实 LLM 草稿和确认入卷。为修复真实报告里模因传播证据不够直观的问题，角色行动、主观记忆和 `world_state_delta.meme_contamination` 现在会额外暴露 `meme_propagation_readout`，统一展示真相载荷、采信状态、可信度、反应和可读摘要；原 `meme_propagation` 字段保持不变。
 
 针对真实 smoke 暴露的结构占位感，本轮继续把世界演化和长正文链路改为“叙事节拍优先”：`autopilot_report.json` 的醒来报告新增 `narrative_timeline`，checkpoint 新增 `scene_beats` 与 `chapter_seed`；`character_lens_volumes.json` 新增 `novel_scene_plan` 与小说优先阅读模式；`continuous_reading_chapter.json` 新增 `story_beat_source` 并优先消费 S8 场景计划；`draft_revision_pack.json` 新增 `editorial_revision_draft`，把 Reviewer 局部建议合成为不覆盖正文的编辑应用预览。真实 LLM 小样本复测通过，且已修复自演开场 hook 的角色名重复和双句号拼接痕迹。
+
+本次卷宗阅读页产品化新增 `dossier-reading` 只读 API 与 `DossierReadingPage`：它聚合连续阅读稿、确认正文、跨卷宗阅读链、多视角卷宗和世界线 dossier，默认进入小说正文阅读；用户可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿，认知偏差可见，证据链默认折叠。该入口不新增持久 artifact，不覆盖既有章节产物。
 
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
@@ -22,9 +24,9 @@
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
 | 当前收口 | v1.0-local Model Configuration UX + Local Run Scripts；Runtime Preflight MVP 至 Graph Memory Provider Spike Manual Mock Adapter Review MVP 共四十五刀；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8 MVP |
-| 后端验证基线 | `python -m pytest -q` -> `931 passed` |
+| 后端验证基线 | `python -m pytest -q` -> `944 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
-| 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、作者确认和跨卷宗跳转阅读是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
+| 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、正文内锚点跳转/误会图谱和更强 Reviewer 是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
 
 仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、GraphRAG/Zep、高级 runner 默认替换，以及 hybrid vector 是否默认替换 BM25。
 
@@ -82,6 +84,7 @@
 - `POST /api/stories/<slug>/world-autopilot/run`：连续运行沙盘轮次，支持轮数、事件、时间、锚点变化、因果债爆发或角色觉醒目标，生成世界自演报告与检查点；可传 `resume_from_run_id` / `resume_from_checkpoint` 从检查点接续。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`：读取可持续世界线状态。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`：聚合世界线状态、天命审计、自演任务和检查点，供世界线档案页展示。
+- `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`：聚合连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier，供世界内部卷宗阅读页展示；不新增持久 artifact。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>`：读取自演任务进度。
 - `POST /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>/pause|resume`：暂停或恢复本地自演任务状态。
 - `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`：回放自演检查点。
@@ -108,6 +111,7 @@
 - `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。
 - `outputs/<run_id>/confirmed_chapter.md`：作者确认后的可读正文导出，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/confirmed_chapter_reading_trail.json`：确认稿跨卷宗阅读链，引用世界线状态、来源采纳记录、世界正史卷、角色个人卷和事件多视角证据。
+- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页默认正文阅读、卷宗切换和折叠证据链。
 - `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`：干预、快照审计、因果债、锚点状态、候选承载者、模因污染传播、具象代偿和作者采纳结果的后续沙盘输入；另开作者分支时会写入新分支状态和来源世界线，不覆盖根正史。
 - `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、决策输入、外在行动、真实意图、风险、行动结果、冲突、信息传播和世界状态 delta。
 - `outputs/<run_id>/agent_decision_advisory.json`：显式启用 `llm_decision_mode=advisory` 时写入，记录真实 LLM 对逐角色采信、欺骗、传播、反抗、临场判断、信任移动和记忆种子的建议；失败时沙盘保留 deterministic 行动。
@@ -410,6 +414,7 @@ outputs/<run_id>/
 | 故事/项目 | `GET /api/stories`、`GET /api/stories/<slug>`、`GET /api/stories/<slug>/project-workspace`、`GET /api/stories/<slug>/runtime-preflight`、`GET /api/stories/<slug>/cards-workspace`、`GET /api/stories/<slug>/vector-retrieval-readiness`、`POST /api/stories/<slug>/vector-retrieval/index`、`POST /api/stories/<slug>/vector-retrieval/search`、`GET /api/stories/<slug>/embedding-evaluation-samples`、`GET /api/stories/<slug>/retrieval-sample-export-pack`、`GET /api/stories/<slug>/embedding-mock-evaluation-report`、`GET /api/stories/<slug>/retrieval-sample-replay-report`、`GET /api/stories/<slug>/retrieval-sample-migration-pack`、Graph Memory provider spike 系列端点（trigger/design/shadow/case/boundary/replay/fixture/readiness/runbook/result/mock/review/approval/opt-in/final/signoff/config/contract/harness/adapter/manual-mock-review）、`GET/POST /api/stories/<slug>/retrieval-failure-samples` |
 | 导入/创世/job | `POST /api/import-novel`、`POST /api/story-genesis`、`POST /api/jobs/import-novel`、`GET /api/jobs/<id>` |
 | 干预/续写 | `POST /api/interventions`、`POST /api/jobs/intervention`、`POST /api/jobs/resume-continue` |
+| 世界沙盘/卷宗 | `POST /api/stories/<slug>/sandbox/run`、`GET /api/sandbox-runs/<run_id>`、`GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`、`GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`、`GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`、`POST /api/stories/<slug>/author-adoption` |
 | run/branch | `GET /api/runs`、`GET /api/runs/<run_id>`、`GET /api/runs/<run_id>/branches/<branch_id>`、`GET /api/runs/<run_id>/branches/<branch_id>/projection-health`、`GET /api/runs/<run_id>/branches/<branch_id>/reader-panel`、`GET /api/runs/<run_id>/branches/<branch_id>/prompt-budget-pack` |
 | 评估/审计 | baseline、canon replay、worldline judgement、replay audit、audit log、creation loop closeout |
 | 导出 | chapter export、chapter collection export、audit log export |

@@ -1248,6 +1248,73 @@ export interface WorldlineDossierReport {
   boundaries: string[];
 }
 
+export interface DossierReadingVolumeTab {
+  id: "world_chronicle" | "anchor_volume" | "character_volume" | "event_multi_perspective" | string;
+  label: string;
+  title: string;
+  body_md: string;
+  character_id?: string;
+  character_name?: string;
+  cognitive_bias: string;
+  evidence_refs: string[];
+  artifact: string;
+  default_open: boolean;
+}
+
+export interface DossierReadingConfirmedChapter {
+  artifact: string;
+  markdown_artifact: string;
+  chapter_title: string;
+  body_md: string;
+  edited: boolean;
+  author_note: string;
+  continuation_effect: Record<string, unknown>;
+  evidence_chain: Record<string, unknown>;
+}
+
+export interface DossierReadingReport {
+  version: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  status: "ready" | "partial" | "empty" | string;
+  default_mode: "novel" | string;
+  default_tab:
+    | "continuous_reading"
+    | "confirmed_chapter"
+    | "world_chronicle"
+    | "anchor_volume"
+    | "character_volume"
+    | "event_multi_perspective"
+    | string;
+  title: string;
+  source_runs: {
+    adoption_run_id?: string;
+    draft_run_id?: string;
+    confirmation_run_id?: string;
+    lens_run_id?: string;
+  };
+  continuous_reading?: ContinuousReadingChapter;
+  confirmed_chapter?: DossierReadingConfirmedChapter;
+  reading_trail?: ConfirmedChapterReadingTrail;
+  volume_tabs: DossierReadingVolumeTab[];
+  perspective_biases: Array<{
+    id: string;
+    label: string;
+    cognitive_bias: string;
+    source: string;
+  }>;
+  evidence_panel: {
+    default_open: boolean;
+    label: string;
+    description: string;
+    ref_count: number;
+    refs: string[];
+  };
+  worldline_dossier?: Partial<WorldlineDossierReport>;
+  boundaries: string[];
+}
+
 export interface WorldAutopilotCheckpointReplayReport {
   version: string;
   run_id: string;

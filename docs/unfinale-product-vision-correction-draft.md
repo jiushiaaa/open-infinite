@@ -53,6 +53,8 @@ L5 觉醒、模因污染、角色反抗和假意服从
 
 2026-06-06 继续针对“仍偏结构占位”的真实读感做上游补强：世界自演醒来报告新增 `narrative_timeline`，checkpoint 新增 `scene_beats` / `chapter_seed`，先把世界状态变化编译成开场钩子、人物误判、代偿显形、冲突升级和下一章悬念；S8 `character_lens_volumes.json` 新增 `novel_scene_plan`，让多视角卷宗不只是说明文；S9 `continuous_reading_chapter.json` 优先消费这些场景节拍生成正文 section；语义 Reviewer 新增 `editorial_revision_draft`，把局部建议合成为作者可预览、可手动采纳、不会自动覆盖正史的编辑应用稿。真实 LLM 小样本复测通过，并修复自演 hook 的角色名重复和模板拼接痕迹。
 
+2026-06-06 卷宗阅读页产品化继续把“正文 + 证据链”从作者台里的附属区推进为独立阅读入口：新增 `dossier-reading` 只读 API 和 `DossierReadingPage`，把 `continuous_reading_chapter`、确认正文、`confirmed_chapter_reading_trail`、S8 多视角卷宗和世界线 dossier 组织为世界内部卷宗页。用户默认进入连续阅读正文，可切换世界正史卷、主锚点卷、角色个人卷和事件多视角，并看到每个视角的认知偏差；证据链默认折叠，不打断阅读。这一刀让用户更接近“把它当小说继续读”，但仍不是完整终局：后续还需要正文内锚点跳转、角色/势力独立卷宗页、误会图谱和更稳定的真实 LLM 长文文风。
+
 ## 1. 原始动机
 
 未终章最初来自一个阅读小说时产生的问题：

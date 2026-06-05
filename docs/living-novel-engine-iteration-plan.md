@@ -2,10 +2,11 @@
 
 > 用途：作为当前路线图入口，说明阶段状态、下一步原则和后续触发条件。完整历史实施清单已归档到 `completed/living-novel-engine-iteration-plan-legacy-2026-06-01.md`；最新事实以 `../memory.md` 为准。
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
-> 版本：2026-06-06，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染，并新增可追踪传播来源、采信/存疑、可信度与反应类型；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、连续阅读稿、确认入卷、确认稿跨卷宗阅读链和草稿局部修订包：`next_chapter_draft.json` / `next_chapter_draft.md`、`continuous_reading_chapter.json` / `continuous_reading_chapter.md`、`draft_revision_pack.json`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮；采纳、部分采纳、另开分支都会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact。本轮新增 S1 `LLM Agent Decision Advisory` 第一刀：世界沙盘 API/UI 可显式启用真实模型逐角色决策建议并写 `agent_decision_advisory.json`，默认 deterministic 不变。后续官方主线继续多轮策略规划、长期关系/势力博弈、长正文文风质量、正文内跳转阅读和更深层 Reviewer/局部重写。
-> A/B/C 深化：本轮在不改默认 `run_scene` 和不扩支撑层的前提下，补强三项官方主线：S1 advisory 新增策略互动板与世界状态影响；S8/S9 连续阅读稿升级为 v2，默认小说阅读、证据默认收起，并带视角 tab、认知偏差、伏笔/回收和悬念；S9 修订包升级为 v2，新增语义 Reviewer 和可采纳局部改写字段。后续优先真实 LLM 小样本质量观察和正文内跳转阅读，不回 Graph/provider/检索评测。
+> 版本：2026-06-06，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染，并新增可追踪传播来源、采信/存疑、可信度与反应类型；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、连续阅读稿、确认入卷、确认稿跨卷宗阅读链和草稿局部修订包：`next_chapter_draft.json` / `next_chapter_draft.md`、`continuous_reading_chapter.json` / `continuous_reading_chapter.md`、`draft_revision_pack.json`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮；采纳、部分采纳、另开分支都会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact。本轮新增 S1 `LLM Agent Decision Advisory` 第一刀：世界沙盘 API/UI 可显式启用真实模型逐角色决策建议并写 `agent_decision_advisory.json`，默认 deterministic 不变。后续官方主线继续多轮策略规划、长期关系/势力博弈、长正文文风质量、正文内锚点跳转/误会图谱和更深层 Reviewer/局部重写。
+> A/B/C 深化：本轮在不改默认 `run_scene` 和不扩支撑层的前提下，补强三项官方主线：S1 advisory 新增策略互动板与世界状态影响；S8/S9 连续阅读稿升级为 v2，默认小说阅读、证据默认收起，并带视角 tab、认知偏差、伏笔/回收和悬念；S9 修订包升级为 v2，新增语义 Reviewer 和可采纳局部改写字段。后续优先真实 LLM 小样本质量观察、正文内锚点跳转和误会图谱，不回 Graph/provider/检索评测。
 > 真实 smoke 读数修复：S5/S8/S9 小样本端到端验收已确认真实链路成立，并补 `meme_propagation_readout`，让模因传播从底层字段升级为可读的真相载荷、采信状态、反应和摘要。
 > 叙事节拍补强：本轮继续修复结构占位感，`autopilot_report.json` 新增 `narrative_timeline`，checkpoint 新增 `scene_beats` / `chapter_seed`；S8 `character_lens_volumes.json` 新增 `novel_scene_plan`；S9 `continuous_reading_chapter.json` 优先消费 S8 场景计划，`draft_revision_pack.json` 新增 `editorial_revision_draft`。真实 LLM 小样本复测通过，并修复自演开场 hook 的重复角色名、双句号和模板拼接痕迹。
+> 卷宗阅读页产品化：新增 `dossier-reading` 只读 API 与 `DossierReadingPage`，将连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier 聚合成默认正文阅读页；用户可切换世界正史卷、主锚点卷、角色个人卷、事件多视角并查看认知偏差，证据链默认折叠。
 
 ## 1. 产品北极星
 
@@ -105,8 +106,9 @@
 | S9 Author Adoption Feed-forward Pack | 已收口第一版 | `POST /api/stories/<slug>/author-adoption` 对采纳、部分采纳、另开分支生成 `next_chapter_brief.writing_plan` 与 `feed_forward`：可读下一章 brief、伏笔调整、原大纲差异、Reviewer 建议、`chapter_generation_inputs`、`sandbox_continuation_inputs` 和 `next_round_reads`。部分采纳保留待修订冲突；另开分支创建作者分支 `worldline_state.json`，后续入口指向作者分支且不覆盖根正史。作者采纳台展示“原大纲 vs 沙盘涌现剧情 vs 下一章可写方案”。 |
 | S9 Draft Revision Pack | 已收口第一版 | `author_chapter_draft` 生成 `draft_revision_pack.json`，包含确认前 gate、局部改写建议、建议改法、证据引用和边界说明；作者采纳台在草稿编辑区展示“局部修订包”。真实 LLM smoke 生成 1047 字正文，Reviewer 四项全通过，修订包 ready 且有 3 条局部建议。 |
 | S8/S9 Continuous Reading Chapter | 已收口第一版 | `author_chapter_draft` 生成 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，读取 S8 `character_lens_volumes.json`、S9 草稿、具象代偿和下一章 brief，把世界正史卷、角色个人卷、事件多视角编排为 4 个以上连续阅读场景、阅读流、下一章钩子和卷宗证据；作者采纳台展示“连续阅读稿”。 |
+| Dossier Reading Page Productization | 已收口第一版 | 新增 `dossier_reading` service/API 与前端 `DossierReadingPage`，默认进入连续阅读正文态，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认正文；认知偏差可见，证据链折叠展示，不新增持久 artifact，不破坏既有 API/artifact。 |
 
-当前验证基线：后端 `931 passed`；前端 `cd engine/ui && pnpm run build` 通过。
+当前验证基线：后端 `944 passed`；前端 `cd engine/ui && pnpm run build` 通过。
 
 ## 3. 当前自主迭代点
 
@@ -114,7 +116,7 @@
 
 当前官方下一步是：
 
-> 多轮策略规划、长期关系/势力博弈、多视角/章节长正文质量、正文内跳转阅读和更深层 Reviewer/局部重写。
+> 多轮策略规划、长期关系/势力博弈、多视角/章节长正文质量、正文内锚点跳转/误会图谱和更深层 Reviewer/局部重写。
 
 后续不再默认沿着 provider、Graph Memory、真实向量检索评测、OpenAPI、发行准备或商业化边界继续扩张。每一刀必须让用户看到角色行动、主观记忆、世界状态变化、世界线代偿或章节从沙盘演化中生长。用户已允许真实 API 参与测试或联调；默认常规测试仍保持 deterministic/mockable，真实模型 smoke 只在显式 opt-in 时运行。
 
