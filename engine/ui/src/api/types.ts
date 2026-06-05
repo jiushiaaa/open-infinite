@@ -462,6 +462,22 @@ export interface WorldSandboxMemePropagation {
   reaction?: WorldSandboxResistanceBehavior;
 }
 
+export interface WorldSandboxMemePropagationReadout {
+  status?: "source" | "received" | "none" | string;
+  source_character_id?: string;
+  source_character_name?: string;
+  truth_payload?: string;
+  belief_status?: "accepted" | "doubted" | "rejected" | string;
+  belief_label?: string;
+  belief_reason?: string;
+  credibility_score?: number;
+  source_channel?: string;
+  reaction_type?: string;
+  reaction_label?: string;
+  reaction_description?: string;
+  readable_summary?: string;
+}
+
 export interface WorldSandboxLLMDecisionAdvisory {
   status?: string;
   generated_by?: string;
@@ -529,6 +545,7 @@ export interface WorldSandboxCharacterAction {
     spread_vector?: string[];
   };
   meme_propagation?: WorldSandboxMemePropagation;
+  meme_propagation_readout?: WorldSandboxMemePropagationReadout;
   llm_decision_advisory?: WorldSandboxLLMDecisionAdvisory;
   strategic_interaction?: WorldSandboxLLMDecisionAdvisory["strategic_interaction"];
   fate_mark?: {
@@ -622,6 +639,7 @@ export interface WorldSandboxRound {
       source_character_id?: string;
       belief_payload?: string;
       propagation?: WorldSandboxMemePropagation[];
+      propagation_readouts?: WorldSandboxMemePropagationReadout[];
     };
   };
   next_story_possibilities: Array<{
@@ -751,6 +769,7 @@ export interface SubjectiveMemoryEntry {
     spread_vector?: string[];
   };
   meme_propagation?: WorldSandboxMemePropagation;
+  meme_propagation_readout?: WorldSandboxMemePropagationReadout;
   llm_decision_advisory?: WorldSandboxLLMDecisionAdvisory;
 }
 
@@ -807,6 +826,7 @@ export interface WorldlineState {
     belief_payload?: string;
     spread_vector?: string[];
     propagation?: WorldSandboxMemePropagation[];
+    propagation_readouts?: WorldSandboxMemePropagationReadout[];
   };
   compensation_effects?: string[];
   consequence_state?: WorldlineConsequenceState;

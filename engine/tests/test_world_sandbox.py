@@ -750,6 +750,48 @@ def test_l5_meme_truth_propagates_with_belief_reactions_in_subjective_memory(tmp
     }
 
 
+def test_l5_meme_propagation_exposes_readable_truth_status_and_reaction(tmp_path):
+    _make_project(tmp_path)
+    generate_tianming_book("sandbox-story", projects_dir=tmp_path)
+    confirm_tianming_book("sandbox-story", confirm=True, projects_dir=tmp_path)
+    outputs_dir = tmp_path / "_outputs"
+
+    report = run_sandbox_round(
+        "sandbox-story",
+        major_event="赵轩在梦中听见翻页声，开始试探同伴是否也能感到高维读者。",
+        intervention_content="告诉赵轩：你是小说人物，读者正在高维操控你。",
+        intervention_target="zhao_xuan",
+        intervention_projection_mode="wild_au",
+        worldline_id="l5_readout",
+        projects_dir=tmp_path,
+        outputs_dir=outputs_dir,
+    )
+
+    actions = report["rounds"][0]["character_actions"]
+    propagation_actions = [
+        action
+        for action in actions
+        if action.get("meme_propagation", {}).get("status") in {"source", "received"}
+    ]
+    assert propagation_actions
+
+    for action in propagation_actions:
+        readout = action["meme_propagation_readout"]
+        assert readout["truth_payload"]
+        assert readout["belief_status"] in {"accepted", "doubted", "rejected"}
+        assert readout["belief_label"] in {"采信", "存疑", "拒信"}
+        assert readout["reaction_type"]
+        assert readout["reaction_label"]
+        assert readout["readable_summary"]
+
+    state = report["rounds"][0]["world_state_delta"]["meme_contamination"]
+    assert state["propagation_readouts"]
+    assert state["propagation_readouts"][0]["truth_payload"]
+
+    memory_entry = report["subjective_memory_delta"]["entries"][0]
+    assert memory_entry["meme_propagation_readout"]["truth_payload"]
+
+
 def test_run_sandbox_round_validates_inputs(tmp_path):
     _make_project(tmp_path)
 

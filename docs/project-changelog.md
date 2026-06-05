@@ -2129,3 +2129,26 @@
   - 默认 pytest 仍 mock-safe；真实 LLM smoke 只做小样本质量验收，不打印明文 key，不进入默认全量测试。
   - 本刀只做用户限定的真实 LLM 多 Agent 策略博弈、长正文/连续阅读、语义 Reviewer/局部重写；不接 GraphRAG/Zep、provider spike、检索评测、OpenAPI、发行、商业化或工程面板。
 
+### 2026-06-06 — S5/S8/S9 Real E2E Smoke and Meme Readout
+
+- **做了什么**：
+  - 用本地真实模型 key 跑了一条小样本端到端世界线：生成并确认《天命书》 -> L5 干预沙盘 + `llm_decision_mode=advisory` -> 世界演化 -> S8 多视角正文 -> S9 作者采纳 -> 真实 LLM 下一章草稿 / 连续阅读稿 -> 作者确认入卷。
+  - smoke 记录写入 `engine/.local-run/real-e2e-s5-s8-s9-20260606_021128/real_e2e_smoke_report.md` 和 `.json`，未打印明文 key。
+  - 真实输出确认：S5 中赵轩 L5 觉醒，沈冰月与韩无归收到模因传播并分别采信/存疑；S8 生成世界正史卷、角色个人卷和事件多视角；S9 生成 1090 字真实 LLM 正文、连续阅读 v2、语义 Reviewer、3 条局部重写建议和确认入卷回写。
+  - 首个暴露的问题：模因传播底层 artifact 具备 `belief_payload`、`belief_decision`、`credibility_score` 和 `reaction`，但对烟测/阅读报告不够直观，容易看成“传播状态有了但真相/采信/反应为空”。
+  - 修复：新增 `meme_propagation_readout`，把传播记录归一成真相载荷、采信状态、采信标签、采信原因、可信度、反应类型、反应标签、反应说明和可读摘要；写入角色行动、主观记忆和 `world_state_delta.meme_contamination.propagation_readouts`。
+  - 世界沙盘 UI 的角色行动卡、命痕回声和个人卷回读优先展示 readout，同时保留旧 `meme_propagation` 字段兼容。
+  - 同步 `memory.md`、`docs/unfinale-world-sandbox-remodel-prd.md`、`docs/unfinale-product-vision-correction-draft.md`、`docs/unfinale-ai-development-alignment-checklist.md`、`docs/living-novel-engine-iteration-plan.md`、`docs/codex-handoff.md`、`engine/README.md` 和本 changelog。
+- **测试/验证**：
+  - RED：新增 `test_l5_meme_propagation_exposes_readable_truth_status_and_reaction`，先因缺少 `meme_propagation_readout` 失败。
+  - GREEN：`cd engine && python -m pytest tests/test_world_sandbox.py::test_l5_meme_propagation_exposes_readable_truth_status_and_reaction -q` -> **1 passed**。
+  - Focused：`cd engine && python -m pytest tests/test_world_sandbox.py -q` -> **16 passed**。
+  - Focused：`cd engine && python -m pytest tests/test_world_sandbox.py::test_l5_meme_propagation_exposes_readable_truth_status_and_reaction tests/test_world_sandbox.py::test_l5_meme_truth_propagates_with_belief_reactions_in_subjective_memory tests/test_author_adoption.py::test_author_chapter_draft_turns_adoption_brief_into_readable_chapter -q` -> **3 passed**。
+  - 完整后端：`cd engine && python -m pytest -q` -> **937 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过，仅有 Windows 换行提示。
+- **边界**：
+  - 新字段 additive；不改 `run_scene` 默认行为，不覆盖 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json` 或 `causal_diff.json`。
+  - 真实 smoke 只做小样本质量验收，不打印明文 key，不进入默认全量 pytest。
+  - 本刀只修 S5/S8/S9 主线体验证据，不接 GraphRAG/Zep、provider spike、检索评测、OpenAPI、发行、商业化或工程面板。
+

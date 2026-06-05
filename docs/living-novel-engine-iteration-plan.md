@@ -4,6 +4,7 @@
 > 品牌口径：产品名为“未终章”，英文名为 “Unfinale”；代码包名、CLI、artifact 与环境变量前缀仍沿用 LNE / `living_novel_engine`。
 > 版本：2026-06-06，World Sandbox Loop / 世界沙盘改造 v1-v8 已形成可运行闭环；S1/S2/S3/S4 第一刀已收口，S4 沉浸/AU 投放第一刀也已收口。第二轮继续补齐可持续世界线：`worldline_state.json` 绑定干预、快照审计、因果债、锚点和分支承接；L5 觉醒进入命痕、反抗行为和模因污染，并新增可追踪传播来源、采信/存疑、可信度与反应类型；世界自演新增任务进度、暂停/恢复和检查点回放；多视角新增 `character_lens_volumes.json` 正文与证据链；作者采纳新增 `next_chapter_brief.json` 并反哺后续沙盘。S6 新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入下一轮沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S9 已新增正式下一章草稿、连续阅读稿、确认入卷、确认稿跨卷宗阅读链和草稿局部修订包：`next_chapter_draft.json` / `next_chapter_draft.md`、`continuous_reading_chapter.json` / `continuous_reading_chapter.md`、`draft_revision_pack.json`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台编辑确认按钮；采纳、部分采纳、另开分支都会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact。本轮新增 S1 `LLM Agent Decision Advisory` 第一刀：世界沙盘 API/UI 可显式启用真实模型逐角色决策建议并写 `agent_decision_advisory.json`，默认 deterministic 不变。后续官方主线继续多轮策略规划、长期关系/势力博弈、长正文文风质量、正文内跳转阅读和更深层 Reviewer/局部重写。
 > A/B/C 深化：本轮在不改默认 `run_scene` 和不扩支撑层的前提下，补强三项官方主线：S1 advisory 新增策略互动板与世界状态影响；S8/S9 连续阅读稿升级为 v2，默认小说阅读、证据默认收起，并带视角 tab、认知偏差、伏笔/回收和悬念；S9 修订包升级为 v2，新增语义 Reviewer 和可采纳局部改写字段。后续优先真实 LLM 小样本质量观察和正文内跳转阅读，不回 Graph/provider/检索评测。
+> 真实 smoke 读数修复：S5/S8/S9 小样本端到端验收已确认真实链路成立，并补 `meme_propagation_readout`，让模因传播从底层字段升级为可读的真相载荷、采信状态、反应和摘要。
 
 ## 1. 产品北极星
 

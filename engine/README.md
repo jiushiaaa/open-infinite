@@ -6,6 +6,8 @@
 
 本轮 A/B/C 深化继续限定在世界沙盘主线内：`agent_decision_advisory.json` 新增 `strategy_board`，角色行动、主观记忆、信息流和 `world_state_delta.strategy_game_effects` 会展示算计对象、筹码、误判、风险和预期世界影响；`continuous_reading_chapter.json` 升级为 v2，默认小说阅读、证据默认收起，并新增视角 tab、认知偏差、伏笔/回收和悬念字段；`draft_revision_pack.json` 升级为 v2，新增语义 Reviewer 与可采纳局部改写字段，写清原问题、修改意图、建议改写、影响角色/世界状态和采纳方向。
 
+真实小样本端到端 smoke 已覆盖 S5 觉醒传播、世界演化、S8 多视角正文、S9 作者采纳到真实 LLM 草稿和确认入卷。为修复真实报告里模因传播证据不够直观的问题，角色行动、主观记忆和 `world_state_delta.meme_contamination` 现在会额外暴露 `meme_propagation_readout`，统一展示真相载荷、采信状态、可信度、反应和可读摘要；原 `meme_propagation` 字段保持不变。
+
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
 当前事实、版本状态和暂停点以根目录 [`../memory.md`](../memory.md) 为准；历史版本细节在 [`../docs/completed/`](../docs/completed/README.md)。

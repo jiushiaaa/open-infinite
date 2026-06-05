@@ -4,6 +4,7 @@
 > 当前主 PRD：`unfinale-world-sandbox-remodel-prd.md`。
 > 2026-06-06 状态：World Sandbox Loop v1-v8 已完成第一版可运行闭环；S4 已新增沉浸模式 / 暴走 AU 投放选择，AK47 等异物干预可本土化重释或写世界线《天命书》快照。S4 后半到 S9 已补上可持续世界线状态、L5 觉醒反抗、因果债持续驱动、自演任务状态、多视角正文证据链和作者采纳反哺下一章 brief。S6 进一步新增 `consequence_state`，把因果债具象为地点、资源、伤势、舆论、势力和环境六域，并进入后续沙盘、自演检查点、多视角正文和下一章 brief；世界线页补上 `worldline_dossier` API、世界线独立页和检查点回放页。S7 已补无人值守自演恢复：支持因果债爆发/角色觉醒停止条件，`autopilot_report.json` 记录 `stop_condition`、失败原因、醒来时间线和 checkpoint recovery，失败任务可从最近检查点 resume。S9 已新增 `next_chapter_draft.json` / `next_chapter_draft.md`、`draft_revision_pack.json`、`continuous_reading_chapter.json` / `continuous_reading_chapter.md`、`confirmed_chapter_entry.json` / `confirmed_chapter.md` / `confirmed_chapter_reading_trail.json` 和作者采纳台草稿/连续阅读/确认/跨卷宗阅读链。S9 采纳、部分采纳、另开分支会生成 `writing_plan` / `feed_forward`，把原大纲差异、伏笔调整、Reviewer 建议、下一章生成输入和后续沙盘入口写入可审计 artifact；另开分支写作者分支状态，不覆盖根正史。本轮新增 S1 真实 LLM 多 Agent 决策第一刀：世界沙盘 API/UI 可显式启用 `llm_decision_mode=advisory`，写 `agent_decision_advisory.json`，让模型给出逐角色采信、欺骗、传播、反抗和临场判断；默认 deterministic 不变。本清单后续用于判断“是否在加深活体小说体验”，而不是继续证明这些模块是否存在。
 > 2026-06-06 A/B/C 补充：本轮继续限定在真实 LLM 多 Agent 策略博弈、长正文/连续阅读、语义 Reviewer/局部重写三项内。新增 `strategy_board`、`world_state_delta.strategy_game_effects`、连续阅读 v2 视角/证据/伏笔元数据、`draft_revision_pack` v2 语义审稿和可采纳局部改写字段；这些只服务角色自主、信息差、章节可读性和作者确认前打磨，不代表进入 provider/Graph/检索/发行方向。
+> 2026-06-06 真实 smoke 补充：S5 觉醒传播、世界演化、S8 多视角正文、S9 作者采纳到真实 LLM 草稿和确认入卷已做小样本端到端验收。首个修复点是新增 `meme_propagation_readout`，把模因传播的真相载荷、采信状态、反应和摘要作为可读字段暴露给 API/UI，避免真实报告看起来像只有空状态。
 
 ## 1. 开工前必读
 

@@ -916,6 +916,8 @@ def _subjective_memory_entry(
         "resistance_behavior": action.get("resistance_behavior") or {},
         "meme_contamination": action.get("meme_contamination") or {"status": "none"},
         "meme_propagation": action.get("meme_propagation") or {"status": "none"},
+        "meme_propagation_readout": action.get("meme_propagation_readout")
+        or _meme_propagation_readout(action.get("meme_propagation") or {}),
         "llm_decision_advisory": action.get("llm_decision_advisory") or {},
         "strategic_interaction": action.get("strategic_interaction") or {},
         **psychology,
@@ -1332,6 +1334,9 @@ def _apply_meme_propagation(
         },
         "reaction": source_reaction,
     }
+    source["meme_propagation_readout"] = _meme_propagation_readout(
+        source["meme_propagation"]
+    )
     for idx, action in enumerate(actions):
         if action is source:
             continue
@@ -1348,6 +1353,7 @@ def _apply_meme_propagation(
         )
         reaction = propagation["reaction"]
         action["meme_propagation"] = propagation
+        action["meme_propagation_readout"] = _meme_propagation_readout(propagation)
         action["awareness"] = {
             "level": "contaminated",
             "abnormality": "听见高维真相后，开始怀疑自身命运被读者或作者触碰。",
@@ -1416,6 +1422,55 @@ def _meme_propagation_record(
         },
         "reaction": reaction,
     }
+
+
+def _meme_propagation_readout(propagation: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(propagation, dict) or propagation.get("status") not in {
+        "source",
+        "received",
+    }:
+        return {"status": "none"}
+    reaction = (
+        propagation.get("reaction")
+        if isinstance(propagation.get("reaction"), dict)
+        else {}
+    )
+    status = _text(propagation.get("status"))
+    truth = _text(propagation.get("belief_payload"))
+    belief = _text(propagation.get("belief_decision"))
+    reaction_label = _text(reaction.get("label"))
+    source = _text(propagation.get("source_character_name"))
+    summary_parts = [
+        f"传播内容：{truth}" if truth else "",
+        f"来源：{source}" if source else "",
+        f"采信：{_belief_decision_label(belief)}" if belief else "",
+        f"反应：{reaction_label}" if reaction_label else "",
+    ]
+    return {
+        "status": status,
+        "source_character_id": _text(propagation.get("source_character_id")),
+        "source_character_name": source,
+        "truth_payload": truth,
+        "belief_status": belief,
+        "belief_label": _belief_decision_label(belief),
+        "belief_reason": _text(propagation.get("belief_reason")),
+        "credibility_score": propagation.get("credibility_score"),
+        "source_channel": _text(propagation.get("source_channel")),
+        "reaction_type": _text(reaction.get("type")),
+        "reaction_label": reaction_label,
+        "reaction_description": _text(reaction.get("description")),
+        "readable_summary": "；".join(part for part in summary_parts if part),
+    }
+
+
+def _belief_decision_label(decision: str) -> str:
+    if decision == "accepted":
+        return "采信"
+    if decision == "doubted":
+        return "存疑"
+    if decision == "rejected":
+        return "拒信"
+    return "未判定"
 
 
 def _meme_belief_reason(
@@ -1807,6 +1862,13 @@ def _world_state_delta(
         if isinstance(action.get("meme_propagation"), dict)
         and action["meme_propagation"].get("status") in {"source", "received"}
     ]
+    propagation_readouts = [
+        action.get("meme_propagation_readout")
+        or _meme_propagation_readout(action.get("meme_propagation") or {})
+        for action in actions
+        if isinstance(action.get("meme_propagation"), dict)
+        and action["meme_propagation"].get("status") in {"source", "received"}
+    ]
     strategy_effects = _strategy_game_effects(actions)
     projection_effect = (
         "暴走 AU 已开启：异物入侵保留为异设世界线压力，并要求世界线《天命书》快照确认"
@@ -1864,6 +1926,7 @@ def _world_state_delta(
                     "belief_payload"
                 ),
                 "propagation": propagation_rows,
+                "propagation_readouts": propagation_readouts,
             }
             if meme_actions
             else {"status": "none"}

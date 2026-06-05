@@ -750,18 +750,42 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                       {item.awareness?.level === "contaminated" && (
                         <div className="sandbox-callout sandbox-callout--quiet">
                           <strong>
-                            命痕回声 · {item.meme_propagation?.reaction?.label ?? "反应未明"}
+                            命痕回声 ·{" "}
+                            {item.meme_propagation_readout?.reaction_label ??
+                              item.meme_propagation?.reaction?.label ??
+                              "反应未明"}
                           </strong>
                           <p>{item.awareness.abnormality}</p>
                           <p className="muted tiny">
-                            来源：{item.meme_propagation?.source_character_name ?? "未知"} ·
-                            {beliefDecisionLabel(item.meme_propagation?.belief_decision)}
-                            {typeof item.meme_propagation?.credibility_score === "number"
-                              ? ` · 可信度 ${item.meme_propagation.credibility_score}`
-                              : ""}
+                            来源：
+                            {item.meme_propagation_readout?.source_character_name ??
+                              item.meme_propagation?.source_character_name ??
+                              "未知"}{" "}
+                            ·
+                            {item.meme_propagation_readout?.belief_label ??
+                              beliefDecisionLabel(item.meme_propagation?.belief_decision)}
+                            {typeof item.meme_propagation_readout?.credibility_score ===
+                            "number"
+                              ? ` · 可信度 ${item.meme_propagation_readout.credibility_score}`
+                              : typeof item.meme_propagation?.credibility_score === "number"
+                                ? ` · 可信度 ${item.meme_propagation.credibility_score}`
+                                : ""}
                           </p>
+                          {item.meme_propagation_readout?.truth_payload && (
+                            <p className="muted tiny">
+                              真相：{item.meme_propagation_readout.truth_payload}
+                            </p>
+                          )}
                         </div>
                       )}
+                      {item.awareness?.level === "L5" &&
+                        item.meme_propagation_readout?.truth_payload && (
+                          <p className="muted tiny">
+                            觉醒传播：
+                            {item.meme_propagation_readout.readable_summary ||
+                              item.meme_propagation_readout.truth_payload}
+                          </p>
+                        )}
                       {item.meme_contamination?.status === "active" && (
                         <p className="muted tiny">
                           模因传播：{item.meme_contamination.spread_vector?.join("；")}
@@ -771,17 +795,35 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                         <div className="sandbox-action__meme">
                           <span>模因采信</span>
                           <strong>
-                            {beliefDecisionLabel(item.meme_propagation.belief_decision)}
+                            {item.meme_propagation_readout?.belief_label ??
+                              beliefDecisionLabel(item.meme_propagation.belief_decision)}
                           </strong>
-                          <p>{item.meme_propagation.belief_reason}</p>
+                          <p>
+                            {item.meme_propagation_readout?.belief_reason ??
+                              item.meme_propagation.belief_reason}
+                          </p>
                           <dl>
                             <div>
                               <dt>传播来源</dt>
-                              <dd>{item.meme_propagation.source_character_name}</dd>
+                              <dd>
+                                {item.meme_propagation_readout?.source_character_name ??
+                                  item.meme_propagation.source_character_name}
+                              </dd>
                             </div>
                             <div>
                               <dt>真相载荷</dt>
-                              <dd>{item.meme_propagation.belief_payload}</dd>
+                              <dd>
+                                {item.meme_propagation_readout?.truth_payload ??
+                                  item.meme_propagation.belief_payload}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>反应</dt>
+                              <dd>
+                                {item.meme_propagation_readout?.reaction_label ??
+                                  item.meme_propagation.reaction?.label ??
+                                  "未记录"}
+                              </dd>
                             </div>
                             <div>
                               <dt>人设信号</dt>
@@ -1015,25 +1057,44 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                             <>
                               <div>
                                 <dt>传播来源</dt>
-                                <dd>{entry.meme_propagation.source_character_name}</dd>
+                                <dd>
+                                  {entry.meme_propagation_readout?.source_character_name ??
+                                    entry.meme_propagation.source_character_name}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>真相载荷</dt>
+                                <dd>
+                                  {entry.meme_propagation_readout?.truth_payload ??
+                                    entry.meme_propagation.belief_payload}
+                                </dd>
                               </div>
                               <div>
                                 <dt>是否采信</dt>
                                 <dd>
-                                  {beliefDecisionLabel(entry.meme_propagation.belief_decision)}
-                                  {typeof entry.meme_propagation.credibility_score === "number"
+                                  {entry.meme_propagation_readout?.belief_label ??
+                                    beliefDecisionLabel(entry.meme_propagation.belief_decision)}
+                                  {typeof entry.meme_propagation_readout?.credibility_score ===
+                                  "number"
+                                    ? ` · 可信度 ${entry.meme_propagation_readout.credibility_score}`
+                                    : typeof entry.meme_propagation.credibility_score === "number"
                                     ? ` · 可信度 ${entry.meme_propagation.credibility_score}`
                                     : ""}
                                 </dd>
                               </div>
                               <div className="sandbox-memory__wide">
                                 <dt>采信原因</dt>
-                                <dd>{entry.meme_propagation.belief_reason}</dd>
+                                <dd>
+                                  {entry.meme_propagation_readout?.belief_reason ??
+                                    entry.meme_propagation.belief_reason}
+                                </dd>
                               </div>
                               <div>
                                 <dt>反应</dt>
                                 <dd>
-                                  {entry.meme_propagation.reaction?.label ?? "未记录"}
+                                  {entry.meme_propagation_readout?.reaction_label ??
+                                    entry.meme_propagation.reaction?.label ??
+                                    "未记录"}
                                 </dd>
                               </div>
                             </>
