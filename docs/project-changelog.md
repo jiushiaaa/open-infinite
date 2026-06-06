@@ -2397,3 +2397,16 @@
 - **边界**：
   - 本轮仍是 docs-only；不改变产品代码、artifact/API 契约、历史 changelog 事实或 `run_scene` 默认行为。
 
+### 2026-06-06 — Memory Current-State Audit
+
+- **做了什么**：
+  - 按用户要求深度扫描 `memory.md` 当前状态段、入口文档、路线文档、近期代码/API/UI/tests 和验证基线。
+  - 确认卷宗阅读页、自演可读入口、Reviewer 局部重写、编辑后定稿、真实 LLM advisory、连续阅读稿等近期主线能力均有 service/API/UI/types/tests 证据。
+  - 将 `memory.md` 中残留的 `World Sandbox Loop v1-v8` 与“当前正在进行的 S1-S9”旧表述收束为 `World Sandbox Loop S1-S9 第一版已收口，后续继续深化体验`。
+- **验证**：
+  - 后端：`cd engine && python -X utf8 -m pytest -q` -> **947 passed**。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮只做 `memory.md` 当前状态口径修正和 changelog 记录；不改产品代码、artifact/API 契约、历史旧条目或 `run_scene` 默认行为。
+

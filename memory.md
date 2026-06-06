@@ -33,7 +33,7 @@
 | --- | --- |
 | 项目 | 未终章（Unfinale）；技术缩写、Python 包、CLI 与环境变量前缀仍沿用 LNE / `living_novel_engine`，核心代码在 `D:\AI\open-infinite\engine` |
 | 北极星 | 文本输入 -> 世界锚定 -> 角色自主行动 -> 读者干预 -> 世界线分叉 -> 章节渲染 -> 可继续运行 |
-| 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强运行前体检至 Graph/长期记忆 mock 复核链共四十五刀已收口；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop v1-v8（Sandbox Round、Subjective Memory Chain、Tianming Book、Intervention Compiler、Narrative Compensation、World Autopilot、Character Lens Novel、Author Adoption Desk）已收口 |
+| 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强运行前体检至 Graph/长期记忆 mock 复核链共四十五刀已收口；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop S1-S9（Sandbox Round、Subjective Memory Chain、Tianming Book、Intervention Compiler、Narrative Compensation、World Autopilot、Character Lens Novel、Author Adoption Desk、Reviewer/Edited Final Chapter）第一版已收口 |
 | 产品入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能必须优先通过 Web UI + API 完成，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑 |
 | 测试基线 | `cd engine && python -m pytest -q` -> `947 passed`；`cd engine/ui && pnpm run build` 通过 |
 | 官方下一步 | **真实模型决策 + 长正文质量 + 更强 Reviewer**：S4 后半与 S5/S6/S7/S8/S9 已形成一条可继续运行的产品链路，新增 `worldline_state.json`、`consequence_state` 六域代偿、自演任务状态、检查点回放、因果债/觉醒停止条件、失败后检查点恢复、多视角正文、下一章 brief、正式下一章草稿、作者确认入卷、确认稿跨卷宗阅读链和 `draft_revision_pack.json` 局部修订包；采纳/部分采纳/另开分支已能生成 `writing_plan` 与 `feed_forward` 并影响章节生成或后续沙盘入口；世界线/检查点独立页已补第一版 dossier 与回放入口；S1 已新增显式 opt-in 的真实 LLM 逐角色决策建议，产出 `agent_decision_advisory.json` 并进入沙盘行动/主观记忆/UI；S8/S9 已新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，并已通过 `dossier-reading` API 与卷宗阅读页组织成默认小说阅读入口；Reviewer 局部重写已可由作者勾选、生成编辑后定稿并反哺确认入卷和下一轮入口；下一步优先加强多轮策略规划、长期关系/势力博弈、长正文文风质量、正文内锚点跳转/误会图谱、更强真实语义 Reviewer 和整章风格润色；不默认回到 provider/Graph/检索评测主线 |
@@ -53,7 +53,7 @@
 
 注意：World Sandbox Loop 的“已收口”是第一版产品链路闭环口径，证明 service/API/UI/artifact/tests 与小样本真实 LLM smoke 能把世界沙盘、觉醒传播、自演、连续阅读、作者采纳、局部重写和编辑后定稿串起来；但这不等于完整愿景已经完成。真实高智商多 Agent 决策、长期心理记忆、L5 觉醒反抗、代偿持续驱动、无人值守自演体验、多视角长正文、真实语义 Reviewer 和整章文风润色仍是后续深化方向。
 
-后续迭代纪律：工程实现可以继续小步安全推进，但产品完成标准不能再停在“最小切片闭环”。一次 S1-S9 切片只有在用户能真实感到对应能力成立时才算通过，例如角色决策真的被记忆改变、干预真的进入下一轮沙盘、代偿压力真的持续影响世界状态、采纳真的反哺下一章 brief。`有 API / 有测试 / 有页面 / 有 artifact` 只能算底线，不等于产品能力完成。当前正在进行的 S1-S9 先不打断；等该轮完成后，下一轮复盘和第三轮迭代必须按这个口径验收。真实模型/API 可在用户明确允许时作为 opt-in smoke 或 LLM runner 联调使用，但默认 pytest 仍应保留 deterministic/mockable 基线，避免外网与额度依赖污染常规验证。
+后续迭代纪律：工程实现可以继续小步安全推进，但产品完成标准不能再停在“最小切片闭环”。S1-S9 第一版已收口，后续深化切片只有在用户能真实感到对应能力成立时才算通过，例如角色决策真的被记忆改变、干预真的进入下一轮沙盘、代偿压力真的持续影响世界状态、采纳真的反哺下一章 brief。`有 API / 有测试 / 有页面 / 有 artifact` 只能算底线，不等于产品能力完成。下一轮复盘和后续迭代必须按这个口径验收。真实模型/API 可在用户明确允许时作为 opt-in smoke 或 LLM runner 联调使用，但默认 pytest 仍应保留 deterministic/mockable 基线，避免外网与额度依赖污染常规验证。
 
 真实模型验收口径：用户已明确允许在本项目测试中调用其真实接入的模型 API。后续涉及叙事生成、Agent 决策、章节 brief、多视角正文、Reviewer 或视觉生成质量的切片，不能只用 mock/deterministic 测试宣布体验合格；应在常规 mock 回归之外，使用 `.env` 中已配置的真实 `LLM_API_KEY` / `SEEDREAM_API_KEY` 做小样本 smoke，并记录真实输出质量、失败原因和是否回退。单元测试仍应 mock-safe、可复现；真实 API smoke 是产品验收补充，不打印明文 key，不做大规模消耗，不把真实外网调用塞进默认全量 pytest。
 
@@ -146,7 +146,7 @@
 
 - 产品纠偏已完成；当前自主迭代点是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph Memory、真实向量检索评测或工程化面板。
 - 已完成的真实 embedding、Zilliz、reranker、Graph/provider 证据链、OpenAPI、发行和商业化边界全部保留为支撑层；除非用户明确点名，不作为下一刀默认方向。
-- 后续如继续，优先沿 `docs/unfinale-world-sandbox-remodel-prd.md` 打磨 v1-v8 闭环：真实 LLM 决策、章节草稿质量、作者可编辑确认、角色个人卷连续阅读和事件多视角证据链。
+- 后续如继续，优先沿 `docs/unfinale-world-sandbox-remodel-prd.md` 打磨 S1-S9 第一版闭环：真实 LLM 决策、章节草稿质量、作者可编辑确认、角色个人卷连续阅读和事件多视角证据链。
 
 ---
 
