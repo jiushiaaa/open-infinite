@@ -36,6 +36,164 @@
   justify-content: flex-end;
 }
 
+.lens-command {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.85fr) minmax(0, 1.15fr) minmax(160px, auto);
+  gap: var(--space-4);
+  align-items: stretch;
+  max-width: 1320px;
+  margin: 0 auto var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid rgba(115, 89, 48, 0.24);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 252, 244, 0.96), rgba(236, 244, 235, 0.62)),
+    var(--paper-raised);
+  box-shadow: var(--shadow-card);
+}
+
+.lens-command__lead,
+.lens-command__step,
+.lens-command__actions,
+.lens-command__proof {
+  min-width: 0;
+}
+
+.lens-command__lead {
+  display: grid;
+  align-content: center;
+  gap: var(--space-2);
+}
+
+.lens-command__eyebrow,
+.lens-command__lead h2,
+.lens-command__lead p {
+  margin: 0;
+}
+
+.lens-command__lead h2 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.lens-command__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.lens-command__steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.lens-command__step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.74);
+}
+
+.lens-command__step.is-active {
+  border-color: rgba(164, 120, 45, 0.7);
+  background: rgba(245, 238, 220, 0.9);
+}
+
+.lens-command__step.is-done {
+  border-color: rgba(71, 128, 95, 0.38);
+  background: rgba(236, 244, 235, 0.6);
+}
+
+.lens-command__step > span {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.lens-command__step.is-active > span {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
+
+.lens-command__step.is-done > span {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+
+.lens-command__step p,
+.lens-command__step small {
+  margin: 0;
+}
+
+.lens-command__step strong {
+  display: block;
+  margin: 2px 0 4px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.lens-command__step small {
+  display: block;
+  color: var(--ink-faint);
+  font-size: 12px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.lens-command__actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.lens-command__actions .btn {
+  justify-content: center;
+  white-space: normal;
+}
+
+.lens-command__proof {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr)) minmax(220px, 1.5fr);
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--line);
+}
+
+.lens-command__proof > div,
+.lens-command__proof > p {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.62);
+}
+
+.lens-command__proof strong {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-serif);
+  font-size: 18px;
+}
+
+.lens-command__proof p {
+  color: var(--ink-soft);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
 .lens-layout {
   display: grid;
   grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
@@ -200,6 +358,7 @@
 
 @media (max-width: 960px) {
   .lens-hero,
+  .lens-command,
   .lens-layout,
   .lens-source {
     display: grid;
@@ -210,7 +369,42 @@
     justify-content: flex-start;
   }
 
+  .lens-command__actions {
+    order: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .lens-command__steps {
+    order: 3;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lens-command__proof {
+    order: 4;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .lens-perspectives {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .lens-page {
+    padding: var(--space-3);
+  }
+
+  .lens-command {
+    padding: var(--space-3);
+  }
+
+  .lens-command__actions .btn {
+    width: 100%;
+  }
+
+  .lens-command__proof {
     grid-template-columns: 1fr;
   }
 }

@@ -21,6 +21,48 @@ export function CharacterLensPage({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<CharacterLensReport | null>(null);
+  const volumeCount = report?.volume_count ?? report?.volumes?.length ?? 0;
+  const perspectiveCount =
+    report?.briefs.reduce((total, brief) => total + (brief.perspectives?.length ?? 0), 0) ??
+    0;
+  const nextActionLabel = report ? "进入卷宗阅读" : "生成多视角";
+  const nextActionHint = report
+    ? "多视角卷已经写入；下一步可以按连续正文阅读，或把这次涌现剧情送到作者采纳台。"
+    : "把一个沙盘事件投进不同角色和势力的视角里，让用户看见同一事实如何分裂成误会、隐瞒和立场。";
+  const lensSteps = [
+    {
+      label: "事件",
+      title: "选择观察点",
+      detail: report ? report.source.source_event : "输入一件值得被多方误读的沙盘事件。",
+      active: !report,
+      done: !!report,
+    },
+    {
+      label: "分卷",
+      title: "生成五类卷宗",
+      detail: report
+        ? `${report.brief_count} 篇 brief${volumeCount ? ` / ${volumeCount} 篇正文` : ""}`
+        : "世界正史、锚点、角色、势力和事件多视角。",
+      active: !!report,
+      done: !!report,
+    },
+    {
+      label: "差异",
+      title: "阅读信息差",
+      detail: report
+        ? `${perspectiveCount || "多"} 个角色立场可核对`
+        : "比较谁知道真相、谁误判、谁在隐瞒。",
+      active: false,
+      done: !!report && perspectiveCount > 0,
+    },
+    {
+      label: "续写",
+      title: "送入作者台",
+      detail: report ? "把 lens run 作为采纳来源。" : "生成后可变成下一章材料。",
+      active: false,
+      done: false,
+    },
+  ];
 
   async function generateLens() {
     if (!sourceEvent.trim()) return;
@@ -72,6 +114,87 @@ export function CharacterLensPage({ slug }: { slug: string }) {
           </button>
         </div>
       </header>
+
+      <section className="lens-command" aria-label="多视角工作流总览">
+        <div className="lens-command__lead">
+          <p className="muted lens-command__eyebrow">当前下一步</p>
+          <h2>{nextActionLabel}</h2>
+          <p className="muted">{nextActionHint}</p>
+          <div className="lens-command__meta">
+            <span className="badge badge--jade">世界线 main</span>
+            <span className="badge">
+              {report ? report.run_id : characterId || "角色个人卷"}
+            </span>
+            {report && <span className="badge badge--gold">{report.artifact}</span>}
+          </div>
+        </div>
+
+        <div className="lens-command__steps">
+          {lensSteps.map((item, index) => (
+            <article
+              className={`lens-command__step ${
+                item.active ? "is-active" : item.done ? "is-done" : ""
+              }`}
+              key={item.label}
+            >
+              <span>{index + 1}</span>
+              <div>
+                <p className="muted tiny">{item.label}</p>
+                <strong>{item.title}</strong>
+                <small>{item.detail}</small>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="lens-command__actions">
+          {!report && (
+            <button
+              className="btn btn--primary"
+              disabled={loading || !sourceEvent.trim()}
+              onClick={generateLens}
+            >
+              {loading ? "正在分镜…" : "生成多视角"}
+            </button>
+          )}
+          {report && (
+            <button
+              className="btn btn--primary"
+              onClick={() =>
+                navigate({ name: "dossierReading", slug, worldlineId: "main" })
+              }
+            >
+              去卷宗阅读
+            </button>
+          )}
+          {report && (
+            <button className="btn btn--ghost" onClick={() => navigate({ name: "author", slug })}>
+              作者采纳台
+            </button>
+          )}
+          <button className="btn btn--ghost" onClick={() => navigate({ name: "sandbox", slug })}>
+            世界沙盘
+          </button>
+        </div>
+
+        {report && (
+          <div className="lens-command__proof" aria-label="多视角生成摘要">
+            <div>
+              <span className="muted tiny">卷宗 brief</span>
+              <strong>{report.brief_count}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">小说正文</span>
+              <strong>{volumeCount || "待生成"}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">角色立场</span>
+              <strong>{perspectiveCount || "已归档"}</strong>
+            </div>
+            <p>{report.source.source_event}</p>
+          </div>
+        )}
+      </section>
 
       <div className="lens-layout">
         <aside className="lens-panel">
