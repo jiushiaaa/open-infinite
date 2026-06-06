@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   AnchorCharacter,
   AnchorPatch,
@@ -8,6 +8,7 @@ import type {
 } from "../api/types";
 import { ApiError, api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
+import { readRecentReading, type RecentReading } from "../readingProgress";
 import { navigate } from "../routing";
 import { BaselineCanonPanel } from "./BaselineCanonPanel";
 import { CharacterProbePanel } from "./CharacterProbePanel";
@@ -72,9 +73,14 @@ export function WorldAnchorPage({ slug }: { slug: string }) {
   const [saving, setSaving] = useState(false);
   const [saveErr, setSaveErr] = useState<string | null>(null);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  const [recentReading, setRecentReading] = useState<RecentReading | null>(null);
 
   const data = anchorReq.data;
   const health = healthReq.data;
+
+  useEffect(() => {
+    setRecentReading(readRecentReading(window.localStorage, slug));
+  }, [slug]);
 
   if (anchorReq.loading) return <Loading label="正在锚定世界…" />;
   if (anchorReq.error) return <ErrorState message={anchorReq.error} onRetry={anchorReq.reload} />;
@@ -154,6 +160,7 @@ export function WorldAnchorPage({ slug }: { slug: string }) {
           visual={visualReq.data}
           visualLoading={visualReq.loading}
           onVisualReload={visualReq.reload}
+          recentReading={recentReading}
         />
       </aside>
       <section className="anchor__center">
@@ -215,6 +222,7 @@ function LeftColumn({
   visual,
   visualLoading,
   onVisualReload,
+  recentReading,
 }: {
   data: WorldAnchor;
   health?: ProjectHealth | null;
@@ -229,6 +237,7 @@ function LeftColumn({
   visual?: VisualAssets | null;
   visualLoading: boolean;
   onVisualReload: () => void;
+  recentReading: RecentReading | null;
 }) {
   const w = data.world;
   const brokenFiles = health
@@ -251,14 +260,42 @@ function LeftColumn({
       <section className="anchor__launch" aria-label="启动世界">
         <div>
           <span className="muted tiny">世界启动</span>
-          <strong>先确认天命，再让角色行动</strong>
+          <strong>{recentReading ? "从上次读到的地方继续" : "先确认天命，再让角色行动"}</strong>
           <p className="muted tiny">
-            锚定页负责校准设定；真正体验从天命书、沙盘和卷宗阅读继续。
+            {recentReading
+              ? "系统已记住你最近打开的世界卷宗；回来时可以先续读，再决定是否运行沙盘或写下一章。"
+              : "锚定页负责校准设定；真正体验从天命书、沙盘和卷宗阅读继续。"}
           </p>
         </div>
-        <div className="anchor__launch-actions">
+        {recentReading && (
           <button
-            className="btn btn--primary tiny"
+            className="anchor__resume-card"
+            onClick={() => {
+              window.location.hash = recentReading.hash;
+            }}
+            type="button"
+          >
+            <span className="muted tiny">上次读到</span>
+            <strong>{recentReading.title}</strong>
+            <small>
+              {recentReading.label} · {recentReading.worldlineId}
+            </small>
+            <em>{recentReading.action}</em>
+          </button>
+        )}
+        <div className="anchor__launch-actions">
+          {recentReading && (
+            <button
+              className="btn btn--primary tiny"
+              onClick={() => {
+                window.location.hash = recentReading.hash;
+              }}
+            >
+              继续阅读
+            </button>
+          )}
+          <button
+            className={`btn ${recentReading ? "btn--ghost" : "btn--primary"} tiny`}
             onClick={() => navigate({ name: "tianming", slug: data.slug })}
           >
             天命书

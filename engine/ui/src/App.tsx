@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AppShell } from "./components/AppShell";
 import { StoryEntryPage } from "./components/StoryEntryPage";
 import { WorkspacePage } from "./components/WorkspacePage";
@@ -15,10 +16,15 @@ import { CharacterVolumePage } from "./components/CharacterVolumePage";
 import { FactionVolumePage } from "./components/FactionVolumePage";
 import { EventPerspectivePage } from "./components/EventPerspectivePage";
 import { CheckpointReplayPage } from "./components/CheckpointReplayPage";
+import { writeRecentReading } from "./readingProgress";
 import { useRoute } from "./routing";
 
 export function App() {
   const route = useRoute();
+  useEffect(() => {
+    writeRecentReading(window.localStorage, route);
+  }, [route]);
+
   return (
     <AppShell route={route}>
       {route.name === "workspace" && <WorkspacePage slug={route.slug} />}

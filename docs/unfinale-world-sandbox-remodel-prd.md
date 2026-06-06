@@ -149,7 +149,7 @@ POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
 仍可继续补强：
 
 - `GET /api/stories/<slug>/character-lens/<character_id>`：读取某角色连续个人卷。
-- 更深跨章误会网络、跨章节回收和用户阅读进度持久化。
+- 更深跨章误会网络、跨章节回收和账号级用户阅读进度持久化。
 - 世界自演后台队列、长时运行守护和中断自动恢复。
 
 ## 7. 前端页面
@@ -166,7 +166,7 @@ POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
 - 作者采纳台：首屏工作流中枢前置对照、入账、修订、入卷状态和下一步动作，并保留采纳、草稿、局部重写、编辑后定稿、确认入卷全链路。
 - 世界内导览层 `WorldRunway`，在世界沙盘、卷宗阅读、世界线档案、检查点回放和作者采纳台统一呈现当前位置、理解路径和下一步行动。
 - 世界沙盘页运行导览：把“投放事件 -> 观察角色 -> 进入阅读”的使用路径前置到首屏；空态聚焦运行台，出结果后引导到卷宗阅读、世界线档案和多视角卷。
-- 世界锚定页启动卡、世界卷宗总览与移动端保功能布局：天命书、世界沙盘和卷宗阅读在锚定首屏可见；锚定页把天命书、沙盘、阅读、世界线、多视角、作者台和机制档案串成可点击世界内地图；窄屏不再隐藏视觉/审计/角色功能。
+- 世界锚定页启动卡、最近阅读续航、世界卷宗总览与移动端保功能布局：天命书、世界沙盘和卷宗阅读在锚定首屏可见；阅读类路由会写入本机最近阅读记录，锚定页可一键续读；锚定页把天命书、沙盘、阅读、世界线、多视角、作者台和机制档案串成可点击世界内地图；窄屏不再隐藏视觉/审计/角色功能。
 - 角色个人卷页：`#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 复用 `dossier-reading` 与主观记忆 API，展示单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点；锚定页角色卡、沙盘角色行动卡、多视角角色卷和卷宗阅读角色卷都能进入。
 - 势力卷页：`#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 复用世界锚定、`dossier-reading` 与 `worldline_state` API，展示势力卷正文、势力目录、资源/秘密再分配、因果压力域、最近 ledger 和证据锚点；锚定页势力标签、多视角势力卷和卷宗阅读势力卷都能进入。
 - 事件多视角详情页：`#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 复用 `event-perspective` API，把同一事件组织成事件节拍、正文、信息差、误读列表、证据链和卷宗阅读/角色卷/世界线/作者台下一步动作；卷宗阅读事件 tab 和多视角页事件正文都能进入。
@@ -180,7 +180,7 @@ POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
 - 角色个人卷跨章长线阅读页。
 - 势力卷跨章长线阅读页。
 - 更深跨章误会网络与跨章节回收。
-- 用户阅读进度持久化。
+- 账号级用户阅读进度持久化。
 - 机制档案分区，把旧工程面板继续收纳为支撑层。
 
 ## 8. S1-S9 后续验收

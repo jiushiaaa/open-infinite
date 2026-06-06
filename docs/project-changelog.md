@@ -2777,3 +2777,17 @@
 - **边界**：
   - 本轮不改 `run_scene` 默认行为，不新增持久 artifact，不破坏既有 API/artifact 契约；只把已有误会材料补成用户能理解、能核对、能继续写下一章的回收台。
 
+### 2026-06-07 — Local Recent Reading Resume
+
+- **做了什么**：
+  - 前端新增 `readingProgress` helper 与 `check:reading-progress` 轻量检查脚本，识别卷宗阅读、长线卷、角色卷、势力卷、事件卷和检查点回放等阅读类路由，并写入浏览器本机 `localStorage`。
+  - `App` 在阅读类路由变化时自动记录最近阅读位置；`WorldAnchorPage` 的“世界启动”区在有记录时显示“从上次读到的地方继续”续读卡和“继续阅读”主动作。
+  - 保留原有天命书、世界沙盘、卷宗阅读、世界卷宗总览、视觉资产、基线回放、角色卡、编辑锚定和所有路由入口；没有本机记录时锚定页保持原启动文案。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把“本机最近阅读续航”记为当前事实，同时把跨设备/账号级阅读进度继续保留为后续。
+- **验证**：
+  - Red/green helper：先跑 `tsc ... src\readingProgress.ts && node scripts\check-reading-progress.mjs`，确认缺 helper 失败；实现后 `pnpm.cmd run check:reading-progress` -> `reading progress helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome 桌面与精确 390px 设备模拟：先访问 `#/world/my-story/worldlines/main/longline`，确认 `localStorage.unfinale.recentReading.v1` 写入“继续读长线卷”；再访问 `#/anchor/my-story`，显示“从上次读到的地方继续 / 继续读长线卷 / 继续阅读”，无水平溢出，点击“继续阅读”回到长线卷。
+- **边界**：
+  - 本轮不改后端、不新增 API 或持久 artifact，不做账号/跨设备同步；只把本地产品体验补成回来后不迷路的第一版续读能力。
+

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "check:reading-progress": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-reading-progress src/readingProgress.ts && node scripts/check-reading-progress.mjs",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview"
   },
