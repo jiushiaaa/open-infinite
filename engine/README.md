@@ -2,7 +2,7 @@
 
 未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。本文只负责 `engine/` 的运行、API 和 artifact 说明；当前事实、文档分层和历史收口请分别看 [`../memory.md`](../memory.md)、[`../docs/index.md`](../docs/index.md) 与 [`../docs/project-changelog.md`](../docs/project-changelog.md)。
 
-当前主线是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph、检索评测、发行或商业化面板。S1-S9 已形成第一版产品链路：世界沙盘、主观记忆、《天命书》、干预投放、L5 觉醒/模因传播、因果债具象化、世界自演、多视角正文、作者采纳、连续阅读、确认入卷、Reviewer 局部重写采纳和编辑后定稿都已有 additive service/API/UI/artifact/tests；世界沙盘页运行台已重组为“写事件 / 可选干预 / 启动推演”三步控制台。
+当前主线是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph、检索评测、发行或商业化面板。S1-S9 已形成第一版产品链路：世界沙盘、主观记忆、《天命书》、干预投放、L5 觉醒/模因传播、因果债具象化、世界自演、多视角正文、作者采纳、连续阅读、确认入卷、Reviewer 局部重写采纳和编辑后定稿都已有 additive service/API/UI/artifact/tests；世界沙盘页运行台已重组为“写事件 / 可选干预 / 启动推演”控制台，并前置到首屏。
 
 最近产品化入口：
 

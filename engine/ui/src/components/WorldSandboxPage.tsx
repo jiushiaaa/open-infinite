@@ -20,7 +20,7 @@ function openReadableRoute(route: string) {
 }
 
 export function WorldSandboxPage({ slug }: { slug: string }) {
-  const controlRef = useRef<HTMLElement | null>(null);
+  const controlRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLElement | null>(null);
   const [majorEvent, setMajorEvent] = useState(DEFAULT_EVENT);
   const [interventionContent, setInterventionContent] = useState("");
@@ -277,16 +277,107 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     }
   }
 
+  const runnerPanel = (
+    <div className="sandbox-panel sandbox-runner" ref={controlRef}>
+      <div className="sandbox-runner__head">
+        <span className="sandbox-runner__eyebrow">一轮沙盘</span>
+        <h2>投放事件</h2>
+        <p className="muted tiny">
+          先写世界刚刚发生了什么；读者干预是可选项，默认不会覆盖世界规则。
+        </p>
+      </div>
+      <div className="sandbox-runner__steps" aria-label="本轮运行步骤">
+        <span className="is-active">
+          <em>1</em>
+          <strong>写事件</strong>
+        </span>
+        <span>
+          <em>2</em>
+          <strong>可选干预</strong>
+        </span>
+        <span>
+          <em>3</em>
+          <strong>启动推演</strong>
+        </span>
+      </div>
+      <label className="sandbox-runner__field sandbox-runner__field--event">
+        <span>世界刚刚发生了什么</span>
+        <textarea
+          value={majorEvent}
+          onChange={(event) => setMajorEvent(event.target.value)}
+          rows={5}
+          placeholder="例如：老皇帝驾崩，边境军报同时传入归云斋。"
+        />
+      </label>
+      <button
+        className="btn btn--primary sandbox-runner__submit"
+        disabled={!canRun}
+        onClick={runRound}
+      >
+        {loading ? "沙盘推演中…" : "启动一轮推演"}
+      </button>
+      <details className="sandbox-runner__advanced">
+        <summary>
+          <span>可选：投放读者干预</span>
+          <small>梦兆、密信、谣言、资源，或一条会被世界吸收的异物。</small>
+        </summary>
+        <label>
+          <span className="muted tiny">本轮干预</span>
+          <textarea
+            value={interventionContent}
+            onChange={(event) => setInterventionContent(event.target.value)}
+            rows={4}
+            placeholder="写下要投放进本轮世界线的内容"
+          />
+        </label>
+        <label>
+          <span className="muted tiny">投放对象</span>
+          <input
+            value={interventionTarget}
+            onChange={(event) => setInterventionTarget(event.target.value)}
+            placeholder="可选：角色 id，例如 zhao_xuan"
+          />
+        </label>
+        <label>
+          <span className="muted tiny">投放方式</span>
+          <select
+            value={interventionProjectionMode}
+            onChange={(event) =>
+              setInterventionProjectionMode(
+                event.target.value === "wild_au" ? "wild_au" : "immersive",
+              )
+            }
+          >
+            <option value="immersive">沉浸模式：本土化重释</option>
+            <option value="wild_au">暴走 AU：保留异物入侵</option>
+          </select>
+        </label>
+      </details>
+      <label className="sandbox-check sandbox-runner__model">
+        <input
+          type="checkbox"
+          checked={llmDecisionAdvisory}
+          onChange={(event) => setLlmDecisionAdvisory(event.target.checked)}
+        />
+        <span>启用真实模型决策建议</span>
+      </label>
+      <p className="muted tiny">
+        不填干预也能直接运行；勾选模型建议后，本轮会额外让模型给出采信、欺骗、传播、反抗和临场判断，失败则保留原沙盘行动。
+      </p>
+    </div>
+  );
+
   return (
     <div className="sandbox-page">
       <header className="sandbox-hero">
-        <div>
+        <div className="sandbox-hero__copy">
           <p className="sandbox-hero__eyebrow muted">世界内部卷宗 · 世界沙盘</p>
           <h1>让世界先动一轮</h1>
           <p className="muted">
             输入一个大事件，观察角色各自的意图、行动、冲突、信息传播和世界状态变化。
           </p>
         </div>
+        <div className="sandbox-hero__control">{runnerPanel}</div>
         <div className="sandbox-hero__actions">
           <button
             className="btn btn--ghost"
@@ -352,95 +443,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       />
 
       <div className="sandbox-layout">
-        <aside className="sandbox-control" ref={controlRef}>
-          <div className="sandbox-panel sandbox-runner">
-            <div className="sandbox-runner__head">
-              <span className="sandbox-runner__eyebrow">一轮沙盘</span>
-              <h2>投放事件</h2>
-              <p className="muted tiny">
-                先写世界刚刚发生了什么；读者干预是可选项，默认不会覆盖世界规则。
-              </p>
-            </div>
-            <div className="sandbox-runner__steps" aria-label="本轮运行步骤">
-              <span className="is-active">
-                <em>1</em>
-                <strong>写事件</strong>
-              </span>
-              <span>
-                <em>2</em>
-                <strong>可选干预</strong>
-              </span>
-              <span>
-                <em>3</em>
-                <strong>启动推演</strong>
-              </span>
-            </div>
-            <label className="sandbox-runner__field sandbox-runner__field--event">
-              <span>世界刚刚发生了什么</span>
-              <textarea
-                value={majorEvent}
-                onChange={(event) => setMajorEvent(event.target.value)}
-                rows={5}
-                placeholder="例如：老皇帝驾崩，边境军报同时传入归云斋。"
-              />
-            </label>
-            <details className="sandbox-runner__advanced">
-              <summary>
-                <span>可选：投放读者干预</span>
-                <small>梦兆、密信、谣言、资源，或一条会被世界吸收的异物。</small>
-              </summary>
-              <label>
-                <span className="muted tiny">本轮干预</span>
-                <textarea
-                  value={interventionContent}
-                  onChange={(event) => setInterventionContent(event.target.value)}
-                  rows={4}
-                  placeholder="写下要投放进本轮世界线的内容"
-                />
-              </label>
-              <label>
-                <span className="muted tiny">投放对象</span>
-                <input
-                  value={interventionTarget}
-                  onChange={(event) => setInterventionTarget(event.target.value)}
-                  placeholder="可选：角色 id，例如 zhao_xuan"
-                />
-              </label>
-              <label>
-                <span className="muted tiny">投放方式</span>
-                <select
-                  value={interventionProjectionMode}
-                  onChange={(event) =>
-                    setInterventionProjectionMode(
-                      event.target.value === "wild_au" ? "wild_au" : "immersive",
-                    )
-                  }
-                >
-                  <option value="immersive">沉浸模式：本土化重释</option>
-                  <option value="wild_au">暴走 AU：保留异物入侵</option>
-                </select>
-              </label>
-            </details>
-            <label className="sandbox-check sandbox-runner__model">
-              <input
-                type="checkbox"
-                checked={llmDecisionAdvisory}
-                onChange={(event) => setLlmDecisionAdvisory(event.target.checked)}
-              />
-              <span>启用真实模型决策建议</span>
-            </label>
-            <button
-              className="btn btn--primary sandbox-runner__submit"
-              disabled={!canRun}
-              onClick={runRound}
-            >
-              {loading ? "沙盘推演中…" : "启动一轮推演"}
-            </button>
-            <p className="muted tiny">
-              不填干预也能直接运行；勾选模型建议后，本轮会额外让模型给出采信、欺骗、传播、反抗和临场判断，失败则保留原沙盘行动。
-            </p>
-          </div>
-
+        <aside className="sandbox-control">
           {report && (
             <div className="sandbox-panel sandbox-proof">
               <h2>本地产物</h2>

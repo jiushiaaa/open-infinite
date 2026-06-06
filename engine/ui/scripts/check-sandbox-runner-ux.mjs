@@ -21,11 +21,19 @@ for (const [marker, message] of requiredPageMarkers) {
   }
 }
 
+const runnerIndex = page.indexOf('className="sandbox-panel sandbox-runner"');
+const runwayIndex = page.indexOf("<WorldRunway");
+if (runnerIndex === -1 || runwayIndex === -1 || runnerIndex > runwayIndex) {
+  failures.push("runner should be before the explanatory runway so mobile users can start in the first screen");
+}
+
 const requiredCssMarkers = [
   [".sandbox-runner__head", "runner header styling is missing"],
   [".sandbox-runner__steps", "runner step track styling is missing"],
   [".sandbox-runner__advanced summary", "optional intervention summary styling is missing"],
   [".sandbox-runner__submit", "runner primary action styling is missing"],
+  [".sandbox-hero__control", "hero runner placement styling is missing"],
+  [".sandbox-hero .sandbox-runner__field--event textarea", "mobile-first runner textarea override is missing"],
 ];
 
 for (const [marker, message] of requiredCssMarkers) {

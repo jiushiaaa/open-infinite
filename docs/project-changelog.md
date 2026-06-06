@@ -2942,3 +2942,17 @@
 - **边界**：
   - 本轮只改前端入口理解、样式和检查脚本，不新增后端 API、不改变 artifact，不删任何旧入口。
 
+### 2026-06-07 — Sandbox Hero Runner
+
+- **做了什么**：
+  - `WorldSandboxPage` 将现有“写事件 / 可选干预 / 启动推演”运行台从导览层下方提升到首屏 hero；桌面在右侧，移动端排在标题说明后、导览之前。
+  - 默认路径调整为先写大事件并立即可点“启动一轮推演”；读者干预、投放对象、投放方式和真实模型建议仍保留在可选区。
+  - `check:sandbox-runner-ux` 增加顺序约束，锁定运行台必须出现在 `WorldRunway` 前，并补 hero 运行台样式 marker。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把沙盘页首屏运行台前置记为当前事实。
+- **验证**：
+  - Red/green helper：先扩展 `check:sandbox-runner-ux`，确认旧布局因运行台在导览后、缺 hero 样式而失败；实现后同命令 -> `sandbox runner ux structure ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面与 390px 访问 `#/world/my-story/sandbox` 均只有 1 个运行台且在导览前；390px 下“启动一轮推演”按钮完整进入 844px 首屏（bottom=823），展开可选干预后仍 `overflow=0`；天命书、多视角、世界线和机制档案入口仍保留。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS 和检查脚本，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
+
