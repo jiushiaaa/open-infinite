@@ -4,6 +4,7 @@ export interface WorldRouteContext {
   sectionLabel: string;
   title: string;
   description: string;
+  workspaceSummary: WorldWorkspaceSummary;
   primaryActionLabel: string;
   primaryRoute: Route;
   secondaryActionLabel?: string;
@@ -39,6 +40,14 @@ export interface WorldRouteDossierLink {
   title: string;
   status: WorldRouteDossierStatus;
   route: Route;
+}
+
+export interface WorldWorkspaceSummary {
+  stageLabel: string;
+  stageTitle: string;
+  worldlineLabel: string;
+  nextStepLabel: string;
+  why: string;
 }
 
 function worldlineId(route: Route): string {
@@ -195,6 +204,39 @@ function buildDossiers(route: Route, slug: string, currentWorldline: string): Wo
   }));
 }
 
+function workspaceWhy(route: Route): string {
+  if (route.name === "anchor") return "先定界，再运行；用户不用从机制档案猜入口。";
+  if (route.name === "tianming") return "宪法确认后，干预和沙盘才有边界。";
+  if (route.name === "sandbox") return "本轮行动会进入记忆、代偿和下一章材料。";
+  if (route.name === "dossierReading") return "先读正文，证据和误会按需展开。";
+  if (route.name === "longlineReading") return "把误会、压力和未解线索回收成后续剧情。";
+  if (route.name === "characterVolume") return "角色的记忆、误会和秘密会解释下一轮行动。";
+  if (route.name === "factionVolume") return "势力压力和资源流向会牵动世界代偿。";
+  if (route.name === "eventPerspective") return "同一事件的视角差会暴露谁误读了真相。";
+  if (route.name === "worldline") return "分支状态、检查点和代偿决定世界怎么继续。";
+  if (route.name === "checkpoint") return "醒来后先接回阅读，再查证谁记住了什么。";
+  if (route.name === "lens") return "多视角卷把沙盘事实变成可读小说材料。";
+  if (route.name === "author") return "把涌现剧情、Reviewer 和定稿接回下一轮沙盘。";
+  return "机制档案只负责追溯，主旅程仍回到世界卷宗。";
+}
+
+function buildWorkspaceSummary(
+  route: Route,
+  stages: WorldRouteStage[],
+  currentWorldline: string,
+  primaryActionLabel: string,
+): WorldWorkspaceSummary {
+  const activeStage = stages.find((stage) => stage.status === "active") ?? stages[0];
+
+  return {
+    stageLabel: activeStage.label,
+    stageTitle: activeStage.title,
+    worldlineLabel: `世界线 ${currentWorldline}`,
+    nextStepLabel: primaryActionLabel,
+    why: workspaceWhy(route),
+  };
+}
+
 export function getWorldRouteContext(route: Route): WorldRouteContext | null {
   if (route.name === "entry" || route.name === "import" || route.name === "genesis") {
     return null;
@@ -224,11 +266,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
   const dossiers = buildDossiers(route, slug, currentWorldline);
 
   if (route.name === "anchor") {
+    const primaryActionLabel = "确认天命书";
     return {
       sectionLabel: "入口",
       title: "世界锚定",
       description: "校准角色、规则和卷宗地图，决定先确认天命还是继续上次阅读。",
-      primaryActionLabel: "确认天命书",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: { name: "tianming", slug },
       secondaryActionLabel: "运行沙盘",
       secondaryRoute: sandboxRoute,
@@ -237,11 +281,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "tianming") {
+    const primaryActionLabel = "进入世界沙盘";
     return {
       sectionLabel: "定界",
       title: "天命书",
       description: "先确认世界宪法、锚点和干预边界，再让角色按规则行动。",
-      primaryActionLabel: "进入世界沙盘",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: sandboxRoute,
       secondaryActionLabel: "回世界锚定",
       secondaryRoute: { name: "anchor", slug },
@@ -250,11 +296,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "sandbox") {
+    const primaryActionLabel = "进入卷宗阅读";
     return {
       sectionLabel: "运行",
       title: "世界沙盘",
       description: "让角色行动、记忆发酵并把干预投放进世界状态。",
-      primaryActionLabel: "进入卷宗阅读",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: readingRoute,
       secondaryActionLabel: "查看世界线",
       secondaryRoute: worldlineRoute,
@@ -263,11 +311,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "dossierReading") {
+    const primaryActionLabel = "追跨事件长线";
     return {
       sectionLabel: "阅读",
       title: "卷宗阅读",
       description: "先读连续正文，再按证据、误会和角色视角查清世界发生了什么。",
-      primaryActionLabel: "追跨事件长线",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: longlineRoute,
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
@@ -276,11 +326,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "longlineReading") {
+    const primaryActionLabel = "送往作者台";
     return {
       sectionLabel: "长线",
       title: "跨事件长线卷",
       description: "把事件、误会、角色记忆和势力压力连成可回收的后续线索。",
-      primaryActionLabel: "送往作者台",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: authorRoute,
       secondaryActionLabel: "回卷宗阅读",
       secondaryRoute: readingRoute,
@@ -289,11 +341,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "characterVolume") {
+    const primaryActionLabel = "继续沙盘";
     return {
       sectionLabel: "角色卷",
       title: "角色个人卷",
       description: "查看这个角色的主观记忆、误会、秘密可见性和下一轮行动理由。",
-      primaryActionLabel: "继续沙盘",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: sandboxRoute,
       secondaryActionLabel: "去多视角",
       secondaryRoute: lensRoute,
@@ -302,11 +356,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "factionVolume") {
+    const primaryActionLabel = "继续沙盘";
     return {
       sectionLabel: "势力卷",
       title: "势力卷",
       description: "查看势力立场、资源压力、代偿账和它会怎样牵动下一章。",
-      primaryActionLabel: "继续沙盘",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: sandboxRoute,
       secondaryActionLabel: "去多视角",
       secondaryRoute: lensRoute,
@@ -315,11 +371,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "eventPerspective") {
+    const primaryActionLabel = "追长线卷";
     return {
       sectionLabel: "事件卷",
       title: "事件多视角",
       description: "拆开同一事件里的信息差、误读和证据，判断谁看见了哪一部分真相。",
-      primaryActionLabel: "追长线卷",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: longlineRoute,
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
@@ -328,11 +386,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "worldline") {
+    const primaryActionLabel = "进入卷宗阅读";
     return {
       sectionLabel: "世界线",
       title: "世界线档案",
       description: "查看分支状态、因果债、检查点和世界自演留下的承接关系。",
-      primaryActionLabel: "进入卷宗阅读",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: readingRoute,
       secondaryActionLabel: "追长线卷",
       secondaryRoute: longlineRoute,
@@ -341,11 +401,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "checkpoint") {
+    const primaryActionLabel = "继续读正文";
     return {
       sectionLabel: "检查点",
       title: "醒来回放",
       description: "回看这一夜世界如何变化、谁记住了什么，以及后果该往哪里接。",
-      primaryActionLabel: "继续读正文",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: readingRoute,
       secondaryActionLabel: "回世界线",
       secondaryRoute: worldlineRoute,
@@ -354,11 +416,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "lens") {
+    const primaryActionLabel = "进入卷宗阅读";
     return {
       sectionLabel: "多视角",
       title: "活体小说",
       description: "生成世界正史卷、角色个人卷、势力卷和事件多视角，暴露信息差。",
-      primaryActionLabel: "进入卷宗阅读",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: readingRoute,
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
@@ -367,11 +431,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "author") {
+    const primaryActionLabel = "继续沙盘";
     return {
       sectionLabel: "作者",
       title: "作者采纳台",
       description: "把沙盘涌现、Reviewer 建议和编辑后定稿写成下一章入口。",
-      primaryActionLabel: "继续沙盘",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      primaryActionLabel,
       primaryRoute: sandboxRoute,
       secondaryActionLabel: "回卷宗阅读",
       secondaryRoute: readingRoute,
@@ -380,11 +446,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
 
+  const primaryActionLabel = "确认天命书";
   return {
     sectionLabel: "机制",
     title: "机制档案",
     description: "旧正史、支撑层和运行证据都收在这里；主旅程仍回到世界内部卷宗。",
-    primaryActionLabel: "确认天命书",
+    workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+    primaryActionLabel,
     primaryRoute: { name: "tianming", slug },
     secondaryActionLabel: "进入卷宗阅读",
     secondaryRoute: readingRoute,

@@ -271,6 +271,24 @@ export function AppShell({
             <strong>{routeContext.title}</strong>
             <span>{routeContext.description}</span>
           </div>
+          <div className="shell-context__workspace" aria-label="世界工作区总览">
+            <span>
+              <small>当前环节</small>
+              <strong>
+                {routeContext.workspaceSummary.stageLabel} ·{" "}
+                {routeContext.workspaceSummary.stageTitle}
+              </strong>
+            </span>
+            <span>
+              <small>承接世界线</small>
+              <strong>{routeContext.workspaceSummary.worldlineLabel}</strong>
+            </span>
+            <span>
+              <small>下一步为什么做</small>
+              <strong>{routeContext.workspaceSummary.nextStepLabel}</strong>
+              <em>{routeContext.workspaceSummary.why}</em>
+            </span>
+          </div>
           <div className="shell-context__stages" aria-label="世界体验轨道">
             {routeContext.stages.map((stage) => (
               <button

@@ -48,6 +48,37 @@ if (!/grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/.test(mobileSta
   failures.push("mobile stage switcher should stay in one row for the four world scenes");
 }
 
+const appShellPath = resolve("src/components/AppShell.tsx");
+const appShell = readFileSync(appShellPath, "utf8");
+
+if (!appShell.includes("shell-context__workspace")) {
+  failures.push("AppShell should render the world workspace summary inside the shared context bar");
+}
+
+if (
+  !appShell.includes("当前环节") ||
+  !appShell.includes("承接世界线") ||
+  !appShell.includes("下一步为什么做")
+) {
+  failures.push("world workspace summary should explain stage, worldline and next-step rationale");
+}
+
+const contextPath = resolve("src/worldRouteContext.ts");
+const context = readFileSync(contextPath, "utf8");
+if (!context.includes("workspaceSummary")) {
+  failures.push("world route context should provide semantic summary data for AppShell");
+}
+
+const workspaceRule = findRule(".shell-context__workspace");
+if (!/grid-template-columns:\s*0\.75fr\s+0\.75fr\s+minmax\(0,\s*1\.5fr\)/.test(workspaceRule)) {
+  failures.push("desktop workspace summary should keep stage, worldline and next-step rationale in one compact row");
+}
+
+const mobileWorkspaceRule = findRule(".shell-context__workspace", mobileIndex);
+if (!/grid-template-columns:\s*1fr/.test(mobileWorkspaceRule)) {
+  failures.push("mobile workspace summary should stack into one column instead of squeezing text");
+}
+
 const narrowOverrides = css.slice(css.indexOf("@media (max-width: 520px)"));
 if (/\.world-nav\s*\{[^}]*grid-template-columns:\s*repeat\((2|3),\s*minmax\(0,\s*1fr\)\)/s.test(narrowOverrides)) {
   failures.push("narrow mobile overrides should not expand the world nav back to 3+ rows");

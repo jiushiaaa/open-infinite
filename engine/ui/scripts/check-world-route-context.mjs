@@ -15,6 +15,13 @@ assert.deepEqual(context?.primaryRoute, {
   worldlineId: "main",
 });
 assert.equal(context?.primaryActionLabel, "进入卷宗阅读");
+assert.deepEqual(context?.workspaceSummary, {
+  stageLabel: "运行",
+  stageTitle: "世界沙盘",
+  worldlineLabel: "世界线 main",
+  nextStepLabel: "进入卷宗阅读",
+  why: "本轮行动会进入记忆、代偿和下一章材料。",
+});
 assert.deepEqual(
   context?.stages.map((stage) => [stage.key, stage.label, stage.status]),
   [
@@ -63,6 +70,9 @@ assert.deepEqual(character?.primaryRoute, {
   slug: "my-story",
 });
 assert.equal(character?.secondaryActionLabel, "去多视角");
+assert.equal(character?.workspaceSummary.stageLabel, "阅读");
+assert.equal(character?.workspaceSummary.worldlineLabel, "世界线 branch-a");
+assert.match(character?.workspaceSummary.why ?? "", /记忆、误会和秘密/);
 assert.deepEqual(character?.secondaryRoute, {
   name: "lens",
   slug: "my-story",

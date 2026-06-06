@@ -3212,6 +3212,21 @@
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端作者采纳 JSX/CSS、检查脚本和文档，不新增后端 API、不改变采纳/草稿/Reviewer/确认入卷契约、不改 artifact。
+### 2026-06-07 — AppShell World Workspace Summary
+
+- **做了什么**：
+  - `worldRouteContext` 为所有世界内路由新增 `workspaceSummary`，统一输出当前环节、承接世界线、下一步动作和为什么做。
+  - `AppShell` 的世界位置条新增“当前环节 / 承接世界线 / 下一步为什么做”三枚纸面信息签，帮助用户跨天命书、沙盘、阅读、长线、角色/势力/事件卷、世界线、检查点、多视角、作者台和机制档案时理解自己在世界旅程中的位置。
+  - 保留原有顶栏世界导航、“定界 / 运行 / 阅读 / 采纳”体验轨道、全局继续阅读、主次动作和八个卷宗速览入口；移动端总览改为单列，不挤掉既有入口。
+  - 扩展 `check:world-route-context` 和 `check:app-shell-mobile-layout`，锁定工作区总览语义、移动端布局和既有导航不丢。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff，把 AppShell 世界工作区总览记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端共享壳层、路由语境 helper、样式、检查脚本和文档，不新增后端 API、不改变世界线/阅读/作者采纳路由契约、不改 artifact。
+
 ### 2026-06-07 — Checkpoint Replay Mode Switch
 
 - **做了什么**：
