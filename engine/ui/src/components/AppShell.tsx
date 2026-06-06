@@ -10,6 +10,54 @@ const MOTION_LABEL: Record<string, string> = {
   reduced: "动效·弱",
 };
 
+const ROUTE_LABELS: Partial<Record<Route["name"], string>> = {
+  workspace: "正史与机制",
+  sandbox: "世界沙盘",
+  tianming: "天命书",
+  lens: "多视角",
+  author: "作者采纳台",
+  worldline: "世界线",
+  dossierReading: "卷宗阅读",
+  checkpoint: "检查点",
+  anchor: "世界锚定",
+  import: "导入小说",
+  genesis: "主题创世",
+};
+
+function worldSlug(route: Route): string | null {
+  if (
+    route.name === "workspace" ||
+    route.name === "sandbox" ||
+    route.name === "tianming" ||
+    route.name === "lens" ||
+    route.name === "author" ||
+    route.name === "worldline" ||
+    route.name === "dossierReading" ||
+    route.name === "checkpoint" ||
+    route.name === "anchor"
+  ) {
+    return route.slug;
+  }
+  return null;
+}
+
+function worldlineId(route: Route): string {
+  if (
+    route.name === "worldline" ||
+    route.name === "dossierReading" ||
+    route.name === "checkpoint"
+  ) {
+    return route.worldlineId;
+  }
+  return "main";
+}
+
+function activeSection(route: Route): string {
+  if (route.name === "checkpoint") return "worldline";
+  if (route.name === "dossierReading") return "reading";
+  return route.name;
+}
+
 export function AppShell({
   route,
   children,
@@ -19,6 +67,9 @@ export function AppShell({
 }) {
   const [motion, setMotion] = useMotionPref();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const slug = worldSlug(route);
+  const currentWorldline = worldlineId(route);
+  const active = activeSection(route);
 
   const cycleMotion = () =>
     setMotion(motion === "auto" ? "full" : motion === "full" ? "reduced" : "auto");
@@ -33,213 +84,88 @@ export function AppShell({
             title="返回故事入口"
           >
             <span className="brand__seal" aria-hidden>
-              墨
+              未
             </span>
-            <span className="brand__name">活体小说引擎</span>
+            <span className="brand__copy">
+              <span className="brand__name">未终章</span>
+              <span className="brand__tag">世界沙盘</span>
+            </span>
           </button>
-          {route.name === "workspace" && (
-            <span className="topbar__crumb muted tiny">
-              阅读工作台 · {route.slug}
-            </span>
-          )}
-          {route.name === "sandbox" && (
-            <span className="topbar__crumb muted tiny">世界沙盘 · {route.slug}</span>
-          )}
-          {route.name === "tianming" && (
-            <span className="topbar__crumb muted tiny">天命书 · {route.slug}</span>
-          )}
-          {route.name === "lens" && (
-            <span className="topbar__crumb muted tiny">
-              多视角活体小说 · {route.slug}
-            </span>
-          )}
-          {route.name === "author" && (
-            <span className="topbar__crumb muted tiny">
-              作者采纳台 · {route.slug}
-            </span>
-          )}
-          {route.name === "worldline" && (
-            <span className="topbar__crumb muted tiny">
-              世界线 · {route.slug} · {route.worldlineId}
-            </span>
-          )}
-          {route.name === "dossierReading" && (
-            <span className="topbar__crumb muted tiny">
-              卷宗阅读 · {route.slug} · {route.worldlineId}
-            </span>
-          )}
-          {route.name === "checkpoint" && (
-            <span className="topbar__crumb muted tiny">
-              检查点 · {route.slug} · {route.checkpointId}
-            </span>
-          )}
-          {route.name === "anchor" && (
-            <span className="topbar__crumb muted tiny">世界锚定 · {route.slug}</span>
-          )}
+          <span className="topbar__crumb muted tiny">
+            {slug
+              ? `${slug} · ${ROUTE_LABELS[route.name] ?? "世界卷宗"}`
+              : ROUTE_LABELS[route.name] ?? "世界书架"}
+          </span>
         </div>
         <div className="topbar__right">
-          {route.name === "workspace" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "sandbox", slug: route.slug })}
-              title="进入世界沙盘，输入大事件并观察角色行动"
-            >
-              世界沙盘
-            </button>
+          {slug && (
+            <nav className="world-nav" aria-label="世界内部卷宗">
+              <button
+                className={active === "anchor" ? "is-active" : ""}
+                onClick={() => navigate({ name: "anchor", slug })}
+                title="回到世界锚定，检查角色、规则和导入结果"
+              >
+                锚定
+              </button>
+              <button
+                className={active === "tianming" ? "is-active" : ""}
+                onClick={() => navigate({ name: "tianming", slug })}
+                title="确认叙事吸引子、锚点和干预边界"
+              >
+                天命书
+              </button>
+              <button
+                className={active === "sandbox" ? "is-active" : ""}
+                onClick={() => navigate({ name: "sandbox", slug })}
+                title="运行角色行动、干预投放和世界自演"
+              >
+                沙盘
+              </button>
+              <button
+                className={active === "reading" ? "is-active" : ""}
+                onClick={() =>
+                  navigate({
+                    name: "dossierReading",
+                    slug,
+                    worldlineId: currentWorldline,
+                  })
+                }
+                title="按小说正文和卷宗视角阅读世界结果"
+              >
+                阅读
+              </button>
+              <button
+                className={active === "worldline" ? "is-active" : ""}
+                onClick={() =>
+                  navigate({ name: "worldline", slug, worldlineId: currentWorldline })
+                }
+                title="查看因果债、检查点和世界线承接"
+              >
+                世界线
+              </button>
+              <button
+                className={active === "lens" ? "is-active" : ""}
+                onClick={() => navigate({ name: "lens", slug })}
+                title="生成世界正史卷、角色个人卷和事件多视角"
+              >
+                多视角
+              </button>
+              <button
+                className={active === "author" ? "is-active" : ""}
+                onClick={() => navigate({ name: "author", slug })}
+                title="把沙盘涌现剧情采纳为下一章材料"
+              >
+                作者台
+              </button>
+              <button
+                className={active === "workspace" ? "is-active" : ""}
+                onClick={() => navigate({ name: "workspace", slug })}
+                title="查看旧正史、机制档案和支撑层入口"
+              >
+                机制档案
+              </button>
+            </nav>
           )}
-          {route.name === "sandbox" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "workspace", slug: route.slug })}
-              title="返回阅读工作台"
-            >
-              世界正史卷
-            </button>
-          )}
-          {(route.name === "workspace" || route.name === "sandbox") && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "tianming", slug: route.slug })}
-              title="生成并轻量确认这部故事的天命书"
-            >
-              天命书
-            </button>
-          )}
-          {(route.name === "workspace" ||
-            route.name === "sandbox" ||
-            route.name === "tianming" ||
-            route.name === "lens" ||
-            route.name === "author" ||
-            route.name === "dossierReading") && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() =>
-                navigate({
-                  name: "worldline",
-                  slug: route.slug,
-                  worldlineId:
-                    route.name === "dossierReading" ? route.worldlineId : "main",
-                })
-              }
-              title="查看当前世界线、来源干预、因果债、任务与检查点"
-            >
-              世界线
-            </button>
-          )}
-          {(route.name === "workspace" ||
-            route.name === "sandbox" ||
-            route.name === "tianming") && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "lens", slug: route.slug })}
-              title="把同一事件生成世界正史、角色个人卷和事件多视角"
-            >
-              多视角
-            </button>
-          )}
-          {(route.name === "workspace" ||
-            route.name === "sandbox" ||
-            route.name === "tianming" ||
-            route.name === "lens") && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "author", slug: route.slug })}
-              title="采纳、部分采纳、另开分支或导出沙盘涌现剧情"
-            >
-              作者采纳台
-            </button>
-          )}
-          {(route.name === "workspace" ||
-            route.name === "sandbox" ||
-            route.name === "tianming" ||
-            route.name === "lens" ||
-            route.name === "author" ||
-            route.name === "worldline") && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() =>
-                navigate({
-                  name: "dossierReading",
-                  slug: route.slug,
-                  worldlineId: route.name === "worldline" ? route.worldlineId : "main",
-                })
-              }
-              title="进入世界内部卷宗阅读页，默认按连续正文阅读"
-            >
-              卷宗阅读
-            </button>
-          )}
-          {route.name === "tianming" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "sandbox", slug: route.slug })}
-            >
-              世界沙盘
-            </button>
-          )}
-          {route.name === "lens" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "sandbox", slug: route.slug })}
-            >
-              世界沙盘
-            </button>
-          )}
-          {route.name === "author" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "lens", slug: route.slug })}
-            >
-              多视角卷
-            </button>
-          )}
-          {route.name === "worldline" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "sandbox", slug: route.slug })}
-            >
-              继续沙盘
-            </button>
-          )}
-          {route.name === "dossierReading" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() =>
-                navigate({
-                  name: "worldline",
-                  slug: route.slug,
-                  worldlineId: route.worldlineId,
-                })
-              }
-            >
-              返回世界线
-            </button>
-          )}
-          {route.name === "checkpoint" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() =>
-                navigate({
-                  name: "worldline",
-                  slug: route.slug,
-                  worldlineId: route.worldlineId,
-                })
-              }
-            >
-              返回世界线
-            </button>
-          )}
-          {route.name === "anchor" && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate({ name: "workspace", slug: route.slug })}
-            >
-              返回阅读
-            </button>
-          )}
-          <span className="badge badge--gold tiny" title="推荐榜占位（v0.7 后续）">
-            推荐榜 · 待启
-          </span>
           <button
             className="btn btn--ghost tiny"
             onClick={cycleMotion}

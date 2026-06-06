@@ -155,7 +155,7 @@ export function WorkspacePage({ slug }: { slug: string }) {
         {!tree.loading && !tree.error && nodes.length === 0 && (
           <EmptyState
             title="尚无世界线"
-            hint="这部故事还没有任何 run。先用 CLI 跑一次 intervene。"
+            hint="可以先去天命书确认世界边界，或进入世界沙盘运行第一轮。"
           />
         )}
         {!tree.loading && !tree.error && nodes.length > 0 && (
@@ -183,7 +183,7 @@ export function WorkspacePage({ slug }: { slug: string }) {
           />
         )}
         {!sel && !project.loading && !project.error && !project.data && (
-          <EmptyState title="项目工作台为空" hint="暂未读到可展示的长篇资料。" />
+          <EmptyState title="机制档案为空" hint="暂未读到可展示的正史、运行记录或支撑层资料。" />
         )}
         {sel && branch.loading && <Loading />}
         {sel && branch.error && (
@@ -251,11 +251,11 @@ function ProjectWorkspaceOverview({
     <div className="project-workspace">
       <header className="project-workspace__header">
         <div>
-          <p className="tiny muted">长篇项目工作台</p>
+          <p className="tiny muted">世界正史与机制档案</p>
           <h1>{data.display_name}</h1>
           <p className="project-workspace__meta">
             {sourceLabel} · {data.chapter_overview.total_characters} 字 ·{" "}
-            {data.run_count} 条运行记录
+            {data.run_count} 条运行记录 · 支撑层资料在此收纳
           </p>
         </div>
         <div className="project-workspace__actions">
@@ -266,13 +266,40 @@ function ProjectWorkspaceOverview({
           >
             世界锚定
           </button>
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={() => navigate({ name: "tianming", slug: data.slug })}
+          >
+            天命书
+          </button>
+          <button
+            type="button"
+            className="workspace-btn workspace-btn--primary"
+            onClick={() => navigate({ name: "sandbox", slug: data.slug })}
+          >
+            运行沙盘
+          </button>
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={() =>
+              navigate({
+                name: "dossierReading",
+                slug: data.slug,
+                worldlineId: "main",
+              })
+            }
+          >
+            卷宗阅读
+          </button>
           {firstSelection && (
             <button
               type="button"
-              className="workspace-btn workspace-btn--primary"
+              className="workspace-btn"
               onClick={() => onSelectFirst(firstSelection)}
             >
-              继续阅读
+              查看旧分支
             </button>
           )}
         </div>

@@ -418,6 +418,36 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         <main className="sandbox-main">
           {error && <ErrorState message={error} onRetry={runRound} />}
           {autopilotError && <ErrorState message={autopilotError} onRetry={runAutopilot} />}
+          {!error && !round && !autopilotReport && (
+            <section className="sandbox-section sandbox-journey">
+              <div className="sandbox-section__title">
+                <h2>这一页的世界回路</h2>
+                <span className="badge badge--jade">从事件到正文</span>
+              </div>
+              <div className="sandbox-journey__grid">
+                <article>
+                  <strong>先让角色行动</strong>
+                  <p className="muted tiny">大事件会变成意图、行动、冲突和记忆写入。</p>
+                </article>
+                <article>
+                  <strong>再看世界承接</strong>
+                  <p className="muted tiny">因果债、锚点压力和检查点会进入世界线。</p>
+                </article>
+                <article>
+                  <strong>最后回到阅读</strong>
+                  <p className="muted tiny">生成多视角卷或进入卷宗阅读，把结果当小说读。</p>
+                  <button
+                    className="btn btn--ghost tiny"
+                    onClick={() =>
+                      navigate({ name: "dossierReading", slug, worldlineId: "main" })
+                    }
+                  >
+                    打开卷宗阅读
+                  </button>
+                </article>
+              </div>
+            </section>
+          )}
           {autopilotReport && (
             <section className="sandbox-section sandbox-autopilot-report">
               <div className="sandbox-section__title">

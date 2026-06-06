@@ -2338,6 +2338,21 @@
 - **边界**：
   - 本轮仍是 docs-only，不移动历史归档、不改代码、不改变 artifact/API 契约或 `run_scene` 默认行为。
 
+### 2026-06-06 — Frontend World Journey Shell Pass
+
+- **做了什么**：
+  - 将 `StoryEntryPage` 从历史版本入口改为“未终章 · 世界书架”，新增“确认天命 -> 运行沙盘 -> 阅读卷宗 -> 采纳续写”主旅程，并让故事卡默认进入天命书。
+  - 将 `AppShell` 改为“未终章 / 世界沙盘”品牌与世界内卷宗导航，统一露出锚定、天命书、沙盘、阅读、世界线、多视角、作者台和机制档案，移除推荐榜占位。
+  - 将 `WorkspacePage` 降级为“世界正史与机制档案”，保留旧正史、机制档案和支撑层入口，同时增加天命书、运行沙盘和卷宗阅读主动作。
+  - 将 `WorldAnchorPage` 的下一步接到天命书；在 `WorldSandboxPage` 空态增加从事件到正文的世界回路导引。
+  - 同步 `memory.md`、`engine/ui/README.md` 与 `docs/living-novel-engine-iteration-plan.md`，明确这是前端入口/导航第一轮改造，不代表完整愿景完成。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+  - 入口词扫描：确认用户可见入口不再残留“活体小说引擎”“推荐榜”“CLI 跑一次”“阅读工作台”等旧心智。
+- **边界**：
+  - 本轮不改后端、不删功能、不改变 API/artifact 契约、不改 `run_scene` 默认行为；支撑层仍保留在机制档案与设置入口。
+
 ### 2026-06-06 — Main PRD Current-State Rewrite
 
 - **做了什么**：

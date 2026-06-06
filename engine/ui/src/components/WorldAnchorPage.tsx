@@ -323,9 +323,9 @@ function LeftColumn({
 
       <button
         className="btn btn--primary anchor__back"
-        onClick={() => navigate({ name: "workspace", slug: data.slug })}
+        onClick={() => navigate({ name: "tianming", slug: data.slug })}
       >
-        进入阅读工作台
+        进入天命书
       </button>
     </div>
   );

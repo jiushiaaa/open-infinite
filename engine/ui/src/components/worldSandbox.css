@@ -417,6 +417,35 @@
   background: rgba(255, 252, 244, 0.64);
 }
 
+.sandbox-journey {
+  border-color: rgba(72, 114, 92, 0.25);
+  background:
+    linear-gradient(90deg, rgba(221, 233, 224, 0.36), transparent 44%),
+    var(--paper-raised);
+}
+
+.sandbox-journey__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.sandbox-journey__grid article {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.66);
+}
+
+.sandbox-journey__grid p {
+  margin: 0;
+  line-height: 1.65;
+}
+
 .sandbox-list__item strong,
 .sandbox-possibilities h3 {
   display: block;
@@ -710,6 +739,10 @@
   }
 
   .sandbox-possibilities {
+    grid-template-columns: 1fr;
+  }
+
+  .sandbox-journey__grid {
     grid-template-columns: 1fr;
   }
 
