@@ -720,6 +720,96 @@
   line-height: 1.65;
 }
 
+.dossier-carry {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
+  gap: var(--space-4);
+  align-items: stretch;
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  border: 1px solid rgba(122, 59, 42, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(236, 224, 196, 0.5), rgba(255, 252, 244, 0.86)),
+    var(--paper);
+}
+
+.dossier-carry__copy {
+  display: grid;
+  align-content: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.dossier-carry__copy p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.dossier-carry__copy h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 21px;
+  line-height: 1.35;
+}
+
+.dossier-carry__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.dossier-carry__action {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(45, 104, 92, 0.18);
+  border-radius: 7px;
+  background: rgba(250, 247, 239, 0.72);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dossier-carry__action:hover,
+.dossier-carry__action:focus-visible {
+  border-color: var(--jade);
+  background: var(--jade-wash);
+}
+
+.dossier-carry__action--primary {
+  border-color: rgba(122, 59, 42, 0.28);
+  background:
+    linear-gradient(135deg, rgba(122, 59, 42, 0.08), rgba(236, 224, 196, 0.48)),
+    var(--paper-raised);
+}
+
+.dossier-carry__action span,
+.dossier-carry__action strong,
+.dossier-carry__action small {
+  display: block;
+}
+
+.dossier-carry__action span {
+  color: var(--jade);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dossier-carry__action strong {
+  margin-top: 4px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.dossier-carry__action small {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 @media (max-width: 960px) {
   .dossier-hero,
   .dossier-layout {
@@ -759,6 +849,10 @@
   .dossier-flow div {
     grid-template-columns: 1fr;
     gap: var(--space-1);
+  }
+
+  .dossier-carry {
+    grid-template-columns: 1fr;
   }
 
   .dossier-reading-map {
@@ -869,6 +963,14 @@
   }
 
   .dossier-cross-refs > div {
+    grid-template-columns: 1fr;
+  }
+
+  .dossier-carry {
+    padding: var(--space-3);
+  }
+
+  .dossier-carry__actions {
     grid-template-columns: 1fr;
   }
 }

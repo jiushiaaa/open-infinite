@@ -3125,3 +3125,17 @@
   - Chrome CDP smoke：390px 访问 `#/workspace/my-story`，导读条位于 631-782px 且 display 为 `grid`，位于完整档案中枢前；真实坐标点击“查证据”把证据指标区带入可见区；页面宽度保持 390px，无水平溢出。
 - **边界**：
   - 本轮只改前端机制档案 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 archive、settings、Graph 或 retrieval 契约、不改 artifact。
+
+### 2026-06-07 — Dossier Reading Afterglow Actions
+
+- **做了什么**：
+  - `DossierReadingPage` 在连续阅读正文、关联卷宗之后和证据附录之前新增“读完之后，世界还在继续”余波承接台。
+  - 四个入口分别复用现有功能：回看误会图谱、追踪跨事件长线卷、继续一轮世界沙盘、把涌现剧情送到作者采纳台。
+  - 扩展 `check:dossier-reading-ux`，锁定承接台位于证据附录之前、包含四个动作，并在窄屏下折为单列。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把卷宗阅读余波承接台记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - `git diff --check` 通过；仅有 Windows CRLF 提示。
+- **边界**：
+  - 本轮只改前端卷宗阅读 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。

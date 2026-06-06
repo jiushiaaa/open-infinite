@@ -17,7 +17,7 @@
 | 事件多视角详情页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 与 `EventPerspectivePage` / `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 已复用 `dossier-reading` 与 `character_lens_volumes`，把同一事件的节拍、正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/长线卷/作者台动作组织成独立页面；移动端首屏已有“读事件 / 看信息差 / 查证据 / 作者台”导读条 | 更深跨章误会网络 |
 | 多视角生成页 | `POST /api/stories/<slug>/character-lens/generate` 与 `CharacterLensPage` 已把同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角；移动端首屏已有“生成 / 改事件 / 读卷宗 / 作者台”分镜导读条 | 更自然长正文、多视角证据质量 |
 | 跨事件长线卷 | `GET /api/stories/<slug>/worldlines/<worldline_id>/longline-reading` 与 `LonglineReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/longline` 已复用 `dossier-reading`、`worldline_dossier`、连续阅读场景、卷宗、确认入卷和证据链，把事件、误会、角色记忆、势力压力和作者承接组织成可点击长线时间线，并已新增阅读进度、多事件索引、误会回收台、未解线索跳转和移动端“读长线 / 按事件追 / 回收误会 / 作者台”首屏导读条 | 更深跨章误会网络、跨章节回收 |
-| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点、当前场景导读条和可点击误会图谱，并可切换世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角和确认稿；移动端首屏已有“开始读正文 / 查卷宗 / 作者台”导读条；阅读类路由会写入前端本机最近阅读续航，锚定页和 AppShell 都能一键回到最近阅读位置 | 更深跨章误会网络、账号级用户阅读进度持久化 |
+| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点、当前场景导读条和可点击误会图谱，并可切换世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角和确认稿；移动端首屏已有“开始读正文 / 查卷宗 / 作者台”导读条；正文和关联卷宗之后新增“读完之后”余波承接台，可回看误会图谱、追长线卷、继续沙盘或送作者台；阅读类路由会写入前端本机最近阅读续航，锚定页和 AppShell 都能一键回到最近阅读位置 | 更深跨章误会网络、账号级用户阅读进度持久化 |
 | 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作，并可进入长线卷；移动端 hero 后新增“回放 / 看代偿 / 看任务 / 长线卷”承接导读条 | 醒来报告文学化、跨章节回收 |
 | 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口；移动端 hero 后新增“继续读 / 看记忆 / 看代偿 / 作者台”醒来导读条，可直接进入连续阅读、角色记忆、具象代偿或作者采纳台 | 醒来报告文学化、长线阅读进度 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |
@@ -135,7 +135,7 @@
 - `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。
 - `outputs/<run_id>/confirmed_chapter.md`：作者确认后的可读正文导出，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/confirmed_chapter_reading_trail.json`：确认稿跨卷宗阅读链，引用世界线状态、来源采纳记录、世界正史卷、角色个人卷和事件多视角证据。
-- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页默认正文阅读、卷宗切换、误会图谱和折叠证据链。
+- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页默认正文阅读、卷宗切换、误会图谱、读完后的余波承接台和折叠证据链。
 - `longline_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读场景、卷宗、检查点、确认入卷和证据链，驱动长线卷的跨事件时间线、阅读进度、多事件索引、误会回收台、五条发酵线、未解线索和下一步动作。
 - `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`：干预、快照审计、因果债、锚点状态、候选承载者、模因污染传播、具象代偿和作者采纳结果的后续沙盘输入；另开作者分支时会写入新分支状态和来源世界线，不覆盖根正史。
 - `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、决策输入、外在行动、真实意图、风险、行动结果、冲突、信息传播和世界状态 delta。

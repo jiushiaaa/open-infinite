@@ -606,6 +606,57 @@ export function DossierReadingPage({
                   </section>
                 )}
 
+              {activeTab === "continuous_reading" && (
+                <section className="dossier-carry" aria-label="读完这一卷之后">
+                  <div className="dossier-carry__copy">
+                    <p className="tiny muted">读完之后，世界还在继续</p>
+                    <h2>把这卷余波接回下一轮</h2>
+                    <p>
+                      {report.continuous_reading?.reading_flow?.next_chapter_hook ||
+                        "这段正文已经留下误会、证据和下一轮沙盘材料；可以继续追长线，也可以交给作者台写入下一章。"}
+                    </p>
+                  </div>
+                  <div className="dossier-carry__actions">
+                    <button
+                      type="button"
+                      className="dossier-carry__action"
+                      onClick={() => scrollToPageItem(".dossier-misbelief-map")}
+                    >
+                      <span>误会</span>
+                      <strong>回看误会图谱</strong>
+                      <small>{misbeliefNodes.length} 条偏差会影响后续行动</small>
+                    </button>
+                    <button
+                      type="button"
+                      className="dossier-carry__action"
+                      onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}
+                    >
+                      <span>长线</span>
+                      <strong>追踪跨事件余波</strong>
+                      <small>看事件、记忆和势力压力如何发酵</small>
+                    </button>
+                    <button
+                      type="button"
+                      className="dossier-carry__action"
+                      onClick={() => navigate({ name: "sandbox", slug })}
+                    >
+                      <span>运行</span>
+                      <strong>继续一轮沙盘</strong>
+                      <small>让角色带着本卷记忆继续行动</small>
+                    </button>
+                    <button
+                      type="button"
+                      className="dossier-carry__action dossier-carry__action--primary"
+                      onClick={() => navigate({ name: "author", slug })}
+                    >
+                      <span>作者</span>
+                      <strong>写成下一章材料</strong>
+                      <small>把涌现剧情送到作者采纳台</small>
+                    </button>
+                  </div>
+                </section>
+              )}
+
               <details className="dossier-evidence" open={report.evidence_panel.default_open}>
                 <summary>
                   {report.evidence_panel.label} · {report.evidence_panel.ref_count}
