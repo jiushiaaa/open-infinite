@@ -33,6 +33,64 @@ export function TianmingPage({ slug }: { slug: string }) {
   const [compensationError, setCompensationError] = useState<string | null>(null);
   const [compensationReport, setCompensationReport] =
     useState<NarrativeCompensationReport | null>(null);
+  const activeTier = book?.contract_pressure.pressure_tiers?.find((item) => item.active);
+  const commandStage = !book
+    ? "generate"
+    : book.requires_confirmation
+      ? "confirm"
+      : "ready";
+  const nextActionLabel = loading
+    ? "正在读取天命书"
+    : !book
+      ? "生成天命书草案"
+      : book.requires_confirmation
+        ? "确认这卷天命"
+        : "进入世界沙盘";
+  const nextActionHint = loading
+    ? "正在检查这个世界是否已有天命书。"
+    : !book
+      ? "先让系统抽出吸引子、锚点和干预边界，世界才有可运行的内在规则。"
+      : book.requires_confirmation
+        ? "确认后，普通干预只会制造分叉和因果债，不会静默改写根天命书。"
+        : "天命书已成为世界宪法，可以把读者干预投放进沙盘观察角色如何消化。";
+  const commandSteps = [
+    {
+      label: "立宪",
+      title: "生成草案",
+      detail: book ? book.artifact : "抽取叙事吸引子、题材约束和锚点。",
+      active: commandStage === "generate",
+      done: !!book,
+    },
+    {
+      label: "确认",
+      title: "锁定根天命",
+      detail: book?.requires_confirmation
+        ? "等待作者轻量确认。"
+        : book
+          ? book.confirmed_at
+            ? `已确认于 ${book.confirmed_at}`
+            : "已确认"
+          : "确认后才进入稳定沙盘。",
+      active: commandStage === "confirm",
+      done: !!book && !book.requires_confirmation,
+    },
+    {
+      label: "投放",
+      title: "编译干预",
+      detail: compileReport
+        ? `${compileReport.worldline_judgement.kind} · ${compileReport.causal_debt.level}`
+        : "用天命书判断自由干预如何进入世界。",
+      active: !!compileReport,
+      done: !!compileReport,
+    },
+    {
+      label: "运行",
+      title: "进入沙盘",
+      detail: book && !book.requires_confirmation ? "让角色在天命压力下自主行动。" : "确认后继续。",
+      active: commandStage === "ready" && !compileReport,
+      done: false,
+    },
+  ];
 
   useEffect(() => {
     let cancelled = false;
@@ -149,6 +207,100 @@ export function TianmingPage({ slug }: { slug: string }) {
           </button>
         </div>
       </header>
+
+      <section className="tianming-command" aria-label="天命书工作流总览">
+        <div className="tianming-command__lead">
+          <p className="muted tianming-command__eyebrow">当前下一步</p>
+          <h2>{nextActionLabel}</h2>
+          <p className="muted">{nextActionHint}</p>
+          <div className="tianming-command__meta">
+            <span
+              className={`badge ${
+                book?.status === "confirmed" ? "badge--jade" : "badge--gold"
+              }`}
+            >
+              {book ? (book.status === "confirmed" ? "已确认" : "待确认") : "未生成"}
+            </span>
+            {book?.anchor_status.current_anchor_name && (
+              <span className="badge">{book.anchor_status.current_anchor_name}</span>
+            )}
+            {book?.contract_pressure.level && (
+              <span className="badge badge--gold">
+                压力 {pressureLabel(book.contract_pressure.level)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="tianming-command__steps">
+          {commandSteps.map((item, index) => (
+            <article
+              className={`tianming-command__step ${
+                item.active ? "is-active" : item.done ? "is-done" : ""
+              }`}
+              key={item.label}
+            >
+              <span>{index + 1}</span>
+              <div>
+                <p className="muted tiny">{item.label}</p>
+                <strong>{item.title}</strong>
+                <small>{item.detail}</small>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="tianming-command__actions">
+          {!book && (
+            <button className="btn btn--primary" disabled={busy || loading} onClick={generate}>
+              {busy ? "生成中…" : "生成草案"}
+            </button>
+          )}
+          {book?.requires_confirmation && (
+            <button className="btn btn--primary" disabled={busy} onClick={confirm}>
+              {busy ? "确认中…" : "确认天命"}
+            </button>
+          )}
+          {book && !book.requires_confirmation && (
+            <button
+              className="btn btn--primary"
+              onClick={() => navigate({ name: "sandbox", slug })}
+            >
+              去世界沙盘
+            </button>
+          )}
+          {book && (
+            <button
+              className="btn btn--ghost"
+              onClick={() =>
+                document
+                  .querySelector(".tianming-compiler")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" })
+              }
+            >
+              预编译干预
+            </button>
+          )}
+        </div>
+
+        {book && (
+          <div className="tianming-command__constitution" aria-label="天命书摘要">
+            <div>
+              <span className="muted tiny">叙事吸引子</span>
+              <strong>{book.narrative_attractors.length}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">多锚点</span>
+              <strong>{book.anchor_status.anchors?.length || 0}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">当前压力档</span>
+              <strong>{activeTier?.label || pressureLabel(book.contract_pressure.level)}</strong>
+            </div>
+            <p>{book.anchor_status.risk}</p>
+          </div>
+        )}
+      </section>
 
       {loading && <Loading label="正在查找天命书…" />}
       {error && <ErrorState message={error} onRetry={generate} />}
@@ -517,4 +669,11 @@ function anchorStatusLabel(value: string): string {
 
 function projectionModeLabel(value?: string): string {
   return value === "wild_au" ? "暴走 AU" : "沉浸模式";
+}
+
+function pressureLabel(value: string): string {
+  if (value === "low") return "低";
+  if (value === "medium") return "中";
+  if (value === "high") return "高";
+  return value || "未知";
 }
