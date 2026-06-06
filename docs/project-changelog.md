@@ -2455,3 +2455,16 @@
 - **边界**：
   - 本轮不改后端、不删任何页面或路由、不改变 API/artifact 契约；只统一世界内理解路径和行动入口。
 
+### 2026-06-06 — World Anchor Startup And Mobile Preservation
+
+- **做了什么**：
+  - `WorldAnchorPage` 左栏新增“世界启动”行动卡，把天命书、世界沙盘和卷宗阅读前置到锚定页首屏。
+  - `worldAnchor.css` 将窄屏布局从隐藏左栏/右栏改为纵向排布，移动端继续保留视觉资产、基线与正史回放、实体别名、世界合约、角色卡和角色探针。
+  - 同步 `memory.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是锚定页启动体验与移动端保功能切片。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Chrome DevTools 设备度量截图：桌面锚定页显示启动卡；390px 移动端 `documentElement.scrollWidth === innerWidth`，左栏/右栏 `display=block`，4 张角色卡仍在页面流中。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不删旧入口、不改变 API/artifact 契约；只提升锚定页启动路径和移动端功能保留。
+

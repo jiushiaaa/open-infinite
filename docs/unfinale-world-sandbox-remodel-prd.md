@@ -161,6 +161,7 @@ POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
 - 多视角活体小说页。
 - 作者采纳台。
 - 世界内导览层 `WorldRunway`，在卷宗阅读、世界线档案、检查点回放和作者采纳台统一呈现当前位置、理解路径和下一步行动。
+- 世界锚定页启动卡与移动端保功能布局：天命书、世界沙盘和卷宗阅读在锚定首屏可见，窄屏不再隐藏视觉/审计/角色功能。
 
 继续深化方向：
 

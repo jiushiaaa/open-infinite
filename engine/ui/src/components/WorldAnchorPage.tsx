@@ -248,6 +248,42 @@ function LeftColumn({
       </div>
       <p className="muted tiny mono anchor__slug">{data.slug}</p>
 
+      <section className="anchor__launch" aria-label="启动世界">
+        <div>
+          <span className="muted tiny">世界启动</span>
+          <strong>先确认天命，再让角色行动</strong>
+          <p className="muted tiny">
+            锚定页负责校准设定；真正体验从天命书、沙盘和卷宗阅读继续。
+          </p>
+        </div>
+        <div className="anchor__launch-actions">
+          <button
+            className="btn btn--primary tiny"
+            onClick={() => navigate({ name: "tianming", slug: data.slug })}
+          >
+            天命书
+          </button>
+          <button
+            className="btn btn--ghost tiny"
+            onClick={() => navigate({ name: "sandbox", slug: data.slug })}
+          >
+            世界沙盘
+          </button>
+          <button
+            className="btn btn--ghost tiny"
+            onClick={() =>
+              navigate({
+                name: "dossierReading",
+                slug: data.slug,
+                worldlineId: "main",
+              })
+            }
+          >
+            卷宗阅读
+          </button>
+        </div>
+      </section>
+
       <VisualAssetsControls
         slug={data.slug}
         visual={visual}

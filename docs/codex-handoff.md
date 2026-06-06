@@ -34,7 +34,7 @@
 | 分类 | 当前状态 |
 | --- | --- |
 | 主线 | World Sandbox Loop / 小说世界沙盘体验深化 |
-| 已完成第一版 | S1-S9 世界沙盘链路、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳、编辑后定稿、确认入卷反哺下一轮入口、世界内导览层 `WorldRunway` |
+| 已完成第一版 | S1-S9 世界沙盘链路、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳、编辑后定稿、确认入卷反哺下一轮入口、世界内导览层 `WorldRunway`、锚定页启动卡与移动端保功能布局 |
 | 当前测试基线 | `cd engine && python -m pytest -q` -> `947 passed`；`cd engine/ui && pnpm run build` 通过 |
 | 当前文档分层 | 入口事实看 `memory.md`；文档地图看 `docs/index.md`；路线看 `docs/living-novel-engine-iteration-plan.md` |
 | 支撑层 | v0.7-v1.0-local、后续增强四十五刀、真实 retrieval provider、Vector Retrieval Pipeline 都已收口为支撑层 |
@@ -47,6 +47,7 @@
 - `autopilot_report.json` 已有 `readable_entry`；世界沙盘结果页、检查点回放和世界线页都能导向最近关键检查点、角色个人卷、事件多视角和连续阅读。
 - `DossierReadingPage` / `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 已把连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和 worldline dossier 组织成默认正文阅读页。
 - `WorldRunway` 已接入卷宗阅读、世界线档案、检查点回放和作者采纳台，用统一纸面导览说明当前位置、三步理解路径和下一步行动。
+- `WorldAnchorPage` 已把天命书、世界沙盘和卷宗阅读前置为“世界启动”行动卡；窄屏下不再隐藏锚定侧栏或角色栏，移动端仍能访问视觉资产、基线回放、实体别名、角色卡和角色探针。
 - 作者采纳台可从采纳结果生成 `next_chapter_brief.json`、`next_chapter_draft.json`、`continuous_reading_chapter.json`、`draft_revision_pack.json`。
 - Reviewer 片段级建议可由作者勾选，生成 `accepted_local_rewrites.json`、`next_chapter_draft_revised.md`、`edited_final_chapter.json` 和 `edited_final_chapter.md`；确认入卷未手改时会自动采用编辑后定稿。
 
