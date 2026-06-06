@@ -54,7 +54,7 @@ pnpm run build
 | `CharacterVolumePage` | 角色个人卷独立页，复用卷宗阅读和主观记忆 API，展示单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性、卷内证据和去沙盘/多视角/作者台动作 |
 | `FactionVolumePage` | 势力卷独立页，复用世界锚定、卷宗阅读和世界线状态 API，展示势力卷正文、势力目录、因果压力域、最近 ledger、卷内证据和去沙盘/多视角/作者台动作 |
 | `EventPerspectivePage` | 事件多视角详情页，复用事件多视角 API，展示同一事件的节拍、正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/作者台动作 |
-| `LonglineReadingPage` | 跨事件长线卷，复用长线卷 API，展示世界线时间线、当前长线节点、误会/角色记忆/势力压力/事件裂缝/作者承接五条发酵线、证据链和下一步动作 |
+| `LonglineReadingPage` | 跨事件长线卷，复用长线卷 API，展示阅读进度、多事件索引、世界线时间线、当前长线节点、误会/角色记忆/势力压力/事件裂缝/作者承接五条发酵线、未解线索、证据链和下一步动作 |
 | `CharacterLensPage` | 多视角活体小说页，首屏工作流中枢前置生成多视角、阅读信息差、卷宗阅读和作者台出口；保留事件材料、brief、世界正史卷、主锚点卷、角色卷、势力卷和事件多视角正文 |
 | `AuthorAdoptionPage` | 作者采纳台，首屏工作流中枢展示对照/入账/修订/入卷状态和下一步动作；覆盖采纳/部分采纳/另开分支、下一章 brief、草稿、连续阅读、Reviewer 局部重写、编辑后定稿和确认入卷 |
 | `WorldRunway` | 世界内导览组件，用同一套纸面导览说明当前世界线、三步理解路径和下一步行动，已接入世界沙盘、卷宗阅读、世界线、检查点和作者采纳台 |
@@ -73,7 +73,7 @@ pnpm run build
 - `#/world/<slug>/worldlines/<worldline_id>`：世界线档案。
 - `#/world/<slug>/worldlines/<worldline_id>/reading`：卷宗阅读，默认连续阅读。
 - `#/world/<slug>/worldlines/<worldline_id>/reading/<tab>`：精准落到某个卷宗 tab，例如 `character_volume` 或 `event_multi_perspective`。
-- `#/world/<slug>/worldlines/<worldline_id>/longline`：跨事件长线卷，读取事件、误会、角色记忆、势力压力和作者承接如何持续发酵。
+- `#/world/<slug>/worldlines/<worldline_id>/longline`：跨事件长线卷，读取事件、误会、角色记忆、势力压力和作者承接如何持续发酵，并提供阅读进度、多事件索引和未解线索跳转。
 - `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>`：角色个人卷，读取该角色主观记忆链并展示个人卷正文或明确空态。
 - `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>`：势力卷，读取势力正文、因果压力域和最近代偿记录。
 - `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives`：事件多视角详情，读取同一事件的节拍、信息差和证据链。
@@ -97,4 +97,4 @@ src/
 - 不把 Graph/provider/检索评测/发行/商业化支撑层做成新的默认主体验。
 - 不打印或回显明文 API key；设置与日志只展示脱敏状态。
 - 不假装旧 workspace 面板就是最终产品结构；它现在只是机制档案入口，后续读者体验优先世界内部卷宗。
-- `ImportNovelPage`、`GenesisPage`、`DossierReadingPage`、`CharacterVolumePage`、`FactionVolumePage`、`EventPerspectivePage`、`LonglineReadingPage`、世界自演可读入口、天命书页、世界线页、检查点页、多视角页、机制档案页和作者采纳台已完成第一版首屏理解切片；卷宗阅读正文证据锚点、阅读进度、误会图谱、角色个人卷入口、势力卷入口、事件详情入口和长线卷入口也已完成第一版；但仍需跨章误会回收、多事件索引深化、长正文文风、整章风格润色和更强真实语义 Reviewer。
+- `ImportNovelPage`、`GenesisPage`、`DossierReadingPage`、`CharacterVolumePage`、`FactionVolumePage`、`EventPerspectivePage`、`LonglineReadingPage`、世界自演可读入口、天命书页、世界线页、检查点页、多视角页、机制档案页和作者采纳台已完成第一版首屏理解切片；卷宗阅读正文证据锚点、阅读进度、误会图谱、角色个人卷入口、势力卷入口、事件详情入口、长线卷入口、长线阅读进度、多事件索引和未解线索也已完成第一版；但仍需跨章误会回收、跨章节回收、长正文文风、整章风格润色和更强真实语义 Reviewer。

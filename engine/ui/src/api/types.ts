@@ -1462,6 +1462,45 @@ export interface LonglineThread {
   source_count: number;
 }
 
+export interface LonglineReadingProgress {
+  label: string;
+  current_sequence: number;
+  total_entries: number;
+  percent: number;
+  current_entry_id: string;
+  current_title: string;
+  next_entry_id: string;
+  next_title: string;
+  active_thread_count: number;
+  unresolved_thread_count: number;
+  summary: string;
+}
+
+export interface LonglineEventIndexItem {
+  id: string;
+  label: string;
+  title: string;
+  summary: string;
+  phase: string;
+  route: string;
+  entry_ids: string[];
+  thread_ids: string[];
+  evidence_count: number;
+  unresolved_count: number;
+}
+
+export interface LonglineEventIndex {
+  label: string;
+  description: string;
+  event_count: number;
+  items: LonglineEventIndexItem[];
+}
+
+export interface LonglineOpenThread extends LonglineThread {
+  next_route: string;
+  reason: string;
+}
+
 export interface LonglineReadingReport {
   version: string;
   story_slug: string;
@@ -1482,8 +1521,11 @@ export interface LonglineReadingReport {
     primary_misbelief?: string;
     next_chapter_hook?: string;
   };
+  reading_progress: LonglineReadingProgress;
+  event_index: LonglineEventIndex;
   timeline_entries: LonglineTimelineEntry[];
   longline_threads: LonglineThread[];
+  open_threads: LonglineOpenThread[];
   evidence_panel: {
     default_open: boolean;
     label: string;

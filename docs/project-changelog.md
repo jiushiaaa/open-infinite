@@ -2745,3 +2745,19 @@
 - **边界**：
   - 本轮不改 `run_scene` 默认行为，不新增持久 artifact，不破坏既有 API/artifact 契约；只把已有世界线材料组织成用户能读懂、能跳转、能继续推进的跨事件长线卷。
 
+### 2026-06-07 — Longline Progress And Event Index
+
+- **做了什么**：
+  - `longline_reading` 只读聚合包新增 additive `reading_progress`、`event_index` 和 `open_threads`，不新增持久 artifact。
+  - `LonglineReadingPage` 首屏新增“长线阅读进度、按事件追长线、未解线索”三块纸面面板，让用户先看自己读到哪、有哪些事件、哪些线仍需追踪。
+  - 多事件索引按钮可定位对应长线节点；未解线索可跳回卷宗阅读、角色卷、势力卷、事件详情或作者台，保留原有长线时间线、五条发酵线、证据链和下一步动作。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把长线阅读进度与多事件索引从待办改为当前事实。
+- **验证**：
+  - Red/green focused 后端：先补 `engine\tests\test_longline_reading.py` 断言新字段，确认缺 `reading_progress` 失败；实现后同命令 -> `2 passed`。
+  - 相邻链路：`python -m pytest -q engine\tests\test_longline_reading.py engine\tests\test_event_perspective.py engine\tests\test_dossier_reading.py` -> `6 passed`。
+  - 后端全量：`cd engine && python -m pytest -q` -> `951 passed`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome 桌面与精确 390px 设备模拟：`#/world/my-story/worldlines/main/longline` 显示长线阅读进度、按事件追长线、未解线索、长线时间线和正在发酵的线，无水平溢出；点击第二个事件索引可切换当前长线节点，点击未解线索可跳回世界内页面。
+- **边界**：
+  - 本轮不改 `run_scene` 默认行为，不新增持久 artifact，不破坏既有 API/artifact 契约；只把已有长线材料补成更易理解、更可操作的阅读状态和事件索引。
+

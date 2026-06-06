@@ -107,12 +107,23 @@ def test_longline_reading_builds_cross_event_worldline_packet(tmp_path):
         "confirmation",
     }
     assert packet["timeline_entries"][0]["route"].startswith("#/world/longline-story")
+    assert packet["reading_progress"]["current_sequence"] == 1
+    assert packet["reading_progress"]["total_entries"] == len(packet["timeline_entries"])
+    assert packet["reading_progress"]["percent"] > 0
+    assert packet["reading_progress"]["current_title"] == packet["timeline_entries"][0]["title"]
+    assert packet["event_index"]["label"] == "多事件索引"
+    assert packet["event_index"]["event_count"] >= 1
+    assert packet["event_index"]["items"][0]["entry_ids"]
+    assert packet["event_index"]["items"][0]["thread_ids"]
     assert {thread["id"] for thread in packet["longline_threads"]} >= {
         "misbelief",
         "character_memory",
         "faction_pressure",
         "author_continuation",
     }
+    assert packet["open_threads"]
+    assert {thread["id"] for thread in packet["open_threads"]} >= {"misbelief", "author_continuation"}
+    assert all(thread["next_route"].startswith("#/world/longline-story") for thread in packet["open_threads"])
     assert packet["current_tension"]["summary"]
     assert packet["evidence_panel"]["default_open"] is False
     assert packet["evidence_panel"]["ref_count"] >= 3
@@ -153,6 +164,9 @@ def test_longline_reading_http_statuses(tmp_path, monkeypatch):
         assert status == 200
         assert body["status"] == "ready"
         assert body["timeline_entries"]
+        assert body["reading_progress"]["total_entries"] == len(body["timeline_entries"])
+        assert body["event_index"]["items"]
+        assert body["open_threads"]
 
         bad_status, bad = _get(
             port,

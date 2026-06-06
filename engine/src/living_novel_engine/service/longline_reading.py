@@ -35,6 +35,7 @@ def get_longline_reading(
         outputs_dir=root,
     )
     timeline_entries = _timeline_entries(sid, wid, dossier)
+    longline_threads = _longline_threads(dossier)
     evidence_refs = _evidence_refs(dossier, timeline_entries)
     status = "ready" if timeline_entries else "empty"
     if timeline_entries and dossier.get("status") != "ready":
@@ -51,8 +52,11 @@ def get_longline_reading(
         "subtitle": "把事件、误会、角色记忆、势力代偿和作者下一章串成一条可继续阅读的世界长线。",
         "source_runs": dossier.get("source_runs") or {},
         "current_tension": _current_tension(dossier),
+        "reading_progress": _reading_progress(timeline_entries, longline_threads),
+        "event_index": _event_index(timeline_entries, longline_threads),
         "timeline_entries": timeline_entries,
-        "longline_threads": _longline_threads(dossier),
+        "longline_threads": longline_threads,
+        "open_threads": _open_threads(sid, wid, longline_threads),
         "evidence_panel": {
             "default_open": False,
             "label": "长线证据链",
@@ -189,6 +193,103 @@ def _timeline_entries(
             }
         )
     return rows
+
+
+def _reading_progress(
+    timeline_entries: list[dict[str, Any]],
+    threads: list[dict[str, Any]],
+) -> dict[str, Any]:
+    total = len(timeline_entries)
+    active = timeline_entries[0] if timeline_entries else {}
+    next_entry = timeline_entries[1] if len(timeline_entries) > 1 else {}
+    active_threads = [thread for thread in threads if thread.get("status") == "active"]
+    return {
+        "label": "长线阅读进度",
+        "current_sequence": int(active.get("sequence") or 0),
+        "total_entries": total,
+        "percent": round((1 / total) * 100) if total else 0,
+        "current_entry_id": str(active.get("id") or ""),
+        "current_title": str(active.get("title") or "等待长线节点"),
+        "next_entry_id": str(next_entry.get("id") or ""),
+        "next_title": str(next_entry.get("title") or "等待下一段发酵"),
+        "active_thread_count": len(active_threads),
+        "unresolved_thread_count": len([thread for thread in threads if thread.get("status") != "closed"]),
+        "summary": (
+            f"已整理 {total} 个长线节点，{len(active_threads)} 条发酵线正在显形。"
+            if total
+            else "还没有可追踪的长线节点。"
+        ),
+    }
+
+
+def _event_index(
+    timeline_entries: list[dict[str, Any]],
+    threads: list[dict[str, Any]],
+) -> dict[str, Any]:
+    open_thread_ids = [str(thread.get("id") or "") for thread in threads if thread.get("status") != "closed"]
+    items: list[dict[str, Any]] = []
+    for entry in timeline_entries:
+        if not isinstance(entry, dict):
+            continue
+        thread_ids = _thread_ids_for_entry(entry, open_thread_ids)
+        items.append(
+            {
+                "id": f"event_{entry.get('sequence') or len(items) + 1}",
+                "label": str(entry.get("label") or "长线事件"),
+                "title": str(entry.get("title") or "未命名事件"),
+                "summary": _compact_text(str(entry.get("body") or entry.get("consequence_hint") or "")),
+                "phase": str(entry.get("phase") or ""),
+                "route": str(entry.get("route") or ""),
+                "entry_ids": [str(entry.get("id") or "")],
+                "thread_ids": thread_ids,
+                "evidence_count": len(_as_str_list(entry.get("evidence_refs"))),
+                "unresolved_count": len(thread_ids),
+            }
+        )
+    return {
+        "label": "多事件索引",
+        "description": "把长线卷拆成可扫读的事件目录，先定位事件，再回到正文、角色卷或证据链。",
+        "event_count": len(items),
+        "items": items,
+    }
+
+
+def _open_threads(
+    story_slug: str,
+    worldline_id: str,
+    threads: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    routes = {
+        "misbelief": f"#/world/{story_slug}/worldlines/{worldline_id}/reading",
+        "character_memory": f"#/world/{story_slug}/worldlines/{worldline_id}/reading/character_volume",
+        "faction_pressure": f"#/world/{story_slug}/worldlines/{worldline_id}/reading/faction_volume",
+        "event_chain": f"#/world/{story_slug}/worldlines/{worldline_id}/events/main/perspectives",
+        "author_continuation": f"#/world/{story_slug}/author",
+    }
+    reasons = {
+        "misbelief": "回到误会图谱，追踪哪句话被角色误读。",
+        "character_memory": "进入角色卷，查看误会如何写进主观记忆。",
+        "faction_pressure": "进入势力卷，查看事件如何变成资源和立场压力。",
+        "event_chain": "拆开事件现场，核对同一事件的多视角差异。",
+        "author_continuation": "送到作者台，把长线张力写进下一章。",
+    }
+    result: list[dict[str, Any]] = []
+    for thread in threads:
+        if not isinstance(thread, dict) or thread.get("status") == "closed":
+            continue
+        tid = str(thread.get("id") or "")
+        result.append(
+            {
+                "id": tid,
+                "label": str(thread.get("label") or tid),
+                "status": str(thread.get("status") or "pending"),
+                "summary": str(thread.get("summary") or ""),
+                "source_count": int(thread.get("source_count") or 0),
+                "next_route": routes.get(tid, f"#/world/{story_slug}/worldlines/{worldline_id}/longline"),
+                "reason": reasons.get(tid, "继续追踪这条长线。"),
+            }
+        )
+    return result
 
 
 def _longline_threads(dossier: dict[str, Any]) -> list[dict[str, Any]]:
@@ -359,6 +460,31 @@ def _first_paragraph(markdown: str) -> str:
         if text:
             return text
     return ""
+
+
+def _compact_text(text: str, limit: int = 96) -> str:
+    clean = " ".join(text.split())
+    if len(clean) <= limit:
+        return clean
+    return clean[: limit - 1].rstrip() + "…"
+
+
+def _thread_ids_for_entry(entry: dict[str, Any], fallback_ids: list[str]) -> list[str]:
+    phase = str(entry.get("phase") or "")
+    source = str(entry.get("source") or "")
+    result: list[str] = []
+    if phase == "scene":
+        result.extend(["misbelief", "author_continuation"])
+    if source == "character_volume":
+        result.append("character_memory")
+    if source == "faction_volume":
+        result.append("faction_pressure")
+    if source == "event_multi_perspective" or phase == "checkpoint":
+        result.append("event_chain")
+    if phase == "confirmation":
+        result.append("author_continuation")
+    clean = [item for item in result if item in fallback_ids]
+    return clean or fallback_ids[:2]
 
 
 def _names_from_text(text: str) -> list[str]:

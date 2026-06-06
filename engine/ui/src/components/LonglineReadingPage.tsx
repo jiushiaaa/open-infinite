@@ -50,6 +50,19 @@ export function LonglineReadingPage({
     [activeEntryId, report],
   );
   const activeThreads = report?.longline_threads.filter((thread) => thread.status === "active") || [];
+  const activeEvent = report?.event_index.items.find((item) =>
+    activeEntry ? item.entry_ids.includes(activeEntry.id) : false,
+  );
+
+  function focusEntry(entryId: string) {
+    setActiveEntryId(entryId);
+    window.requestAnimationFrame(() => {
+      document.querySelector(".longline-current")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }
 
   if (loading) return <Loading label="正在铺开长线卷…" />;
 
@@ -138,6 +151,84 @@ export function LonglineReadingPage({
             ]}
           />
 
+          <section className="longline-briefing" aria-label="长线阅读状态">
+            <article className="longline-progress">
+              <div className="longline-section-title">
+                <div>
+                  <p className="muted tiny">{report.reading_progress.label}</p>
+                  <h2>{report.reading_progress.current_title}</h2>
+                </div>
+                <span className="badge badge--jade">{report.reading_progress.percent}%</span>
+              </div>
+              <div className="longline-progress__bar" aria-hidden="true">
+                <span style={{ width: `${Math.min(100, report.reading_progress.percent)}%` }} />
+              </div>
+              <p>{report.reading_progress.summary}</p>
+              <dl>
+                <div>
+                  <dt>当前位置</dt>
+                  <dd>
+                    {report.reading_progress.current_sequence}/
+                    {report.reading_progress.total_entries || 0}
+                  </dd>
+                </div>
+                <div>
+                  <dt>正在发酵</dt>
+                  <dd>{report.reading_progress.active_thread_count} 条</dd>
+                </div>
+                <div>
+                  <dt>下一段</dt>
+                  <dd>{report.reading_progress.next_title}</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article className="longline-event-index">
+              <div className="longline-section-title">
+                <div>
+                  <p className="muted tiny">{report.event_index.label}</p>
+                  <h2>按事件追长线</h2>
+                </div>
+                <span className="badge">{report.event_index.event_count} 件</span>
+              </div>
+              <p>{report.event_index.description}</p>
+              <div className="longline-event-index__list">
+                {report.event_index.items.slice(0, 6).map((item) => (
+                  <button
+                    key={item.id}
+                    className={activeEvent?.id === item.id ? "is-active" : ""}
+                    onClick={() => focusEntry(item.entry_ids[0])}
+                  >
+                    <span>{PHASE_LABELS[item.phase] || item.label}</span>
+                    <strong>{item.title}</strong>
+                    <small>
+                      {item.unresolved_count} 条线 · {item.evidence_count} 证据
+                    </small>
+                  </button>
+                ))}
+              </div>
+            </article>
+
+            <article className="longline-open-threads">
+              <div className="longline-section-title">
+                <div>
+                  <p className="muted tiny">未解线索</p>
+                  <h2>下一步该追哪里</h2>
+                </div>
+                <span className="badge badge--gold">{report.open_threads.length} 条</span>
+              </div>
+              <div className="longline-open-threads__list">
+                {report.open_threads.slice(0, 5).map((thread) => (
+                  <button key={thread.id} onClick={() => openRoute(thread.next_route)}>
+                    <strong>{thread.label}</strong>
+                    <span>{thread.reason}</span>
+                    <small>{thread.source_count} 个来源</small>
+                  </button>
+                ))}
+              </div>
+            </article>
+          </section>
+
           <main className="longline-layout">
             <aside className="longline-timeline" aria-label="长线时间线">
               <div className="longline-timeline__head">
@@ -152,7 +243,7 @@ export function LonglineReadingPage({
                     <button
                       key={entry.id}
                       className={entry.id === activeEntry?.id ? "is-active" : ""}
-                      onClick={() => setActiveEntryId(entry.id)}
+                      onClick={() => focusEntry(entry.id)}
                     >
                       <span>{String(entry.sequence).padStart(2, "0")}</span>
                       <strong>{entry.title}</strong>
