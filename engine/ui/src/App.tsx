@@ -10,6 +10,7 @@ import { CharacterLensPage } from "./components/CharacterLensPage";
 import { AuthorAdoptionPage } from "./components/AuthorAdoptionPage";
 import { WorldlineDossierPage } from "./components/WorldlineDossierPage";
 import { DossierReadingPage } from "./components/DossierReadingPage";
+import { CharacterVolumePage } from "./components/CharacterVolumePage";
 import { CheckpointReplayPage } from "./components/CheckpointReplayPage";
 import { useRoute } from "./routing";
 
@@ -30,6 +31,13 @@ export function App() {
           slug={route.slug}
           worldlineId={route.worldlineId}
           initialTab={route.tab}
+        />
+      )}
+      {route.name === "characterVolume" && (
+        <CharacterVolumePage
+          slug={route.slug}
+          worldlineId={route.worldlineId}
+          characterId={route.characterId}
         />
       )}
       {route.name === "checkpoint" && (

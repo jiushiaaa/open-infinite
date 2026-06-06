@@ -299,6 +299,21 @@ export function CharacterLensPage({ slug }: { slug: string }) {
                           信息差：{volume.information_gap.canon_vs_character}
                         </p>
                       )}
+                      {volume.volume_type === "character_volume" && volume.character_id && (
+                        <button
+                          className="btn btn--ghost tiny"
+                          onClick={() =>
+                            navigate({
+                              name: "characterVolume",
+                              slug,
+                              worldlineId: report.worldline_id || "main",
+                              characterId: volume.character_id!,
+                            })
+                          }
+                        >
+                          进入角色个人卷
+                        </button>
+                      )}
                     </article>
                   ))}
                 </section>

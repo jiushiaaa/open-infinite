@@ -1085,14 +1085,29 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                       <p className="muted tiny">
                         {item.memory_influence ?? item.previous_subjective_memory}
                       </p>
-                      <button
-                        className={`btn btn--ghost sandbox-action__button ${
-                          selectedCharacterId === item.character_id ? "is-active" : ""
-                        }`}
-                        onClick={() => loadMemory(item.character_id, round.worldline_id)}
-                      >
-                        查看个人记忆
-                      </button>
+                      <div className="sandbox-action__buttons">
+                        <button
+                          className={`btn btn--ghost sandbox-action__button ${
+                            selectedCharacterId === item.character_id ? "is-active" : ""
+                          }`}
+                          onClick={() => loadMemory(item.character_id, round.worldline_id)}
+                        >
+                          查看个人记忆
+                        </button>
+                        <button
+                          className="btn btn--ghost sandbox-action__button"
+                          onClick={() =>
+                            navigate({
+                              name: "characterVolume",
+                              slug,
+                              worldlineId: round.worldline_id,
+                              characterId: item.character_id,
+                            })
+                          }
+                        >
+                          打开角色卷
+                        </button>
+                      </div>
                     </article>
                   ))}
                 </div>

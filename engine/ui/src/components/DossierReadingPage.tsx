@@ -341,6 +341,21 @@ export function DossierReadingPage({
                   >
                     作者台
                   </button>
+                  {activeVolume?.character_id && (
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() =>
+                        navigate({
+                          name: "characterVolume",
+                          slug,
+                          worldlineId,
+                          characterId: activeVolume.character_id!,
+                        })
+                      }
+                    >
+                      角色个人卷
+                    </button>
+                  )}
                 </div>
                 <dl className="dossier-reader__stats">
                   {activeContext.stats.map((stat) => (

@@ -793,6 +793,24 @@ function CharacterCard({
       {!editing && <Tags label="欲望" items={c.persona.desires} />}
       {!editing && <Tags label="恐惧" items={c.persona.fears} />}
 
+      {!editing && (
+        <div className="char-card__actions">
+          <button
+            className="btn btn--ghost tiny"
+            onClick={() =>
+              navigate({
+                name: "characterVolume",
+                slug,
+                worldlineId: "main",
+                characterId: c.id,
+              })
+            }
+          >
+            角色个人卷
+          </button>
+        </div>
+      )}
+
       <div className="char-card__bounds">
         <span className="char-card__bounds-title">行为边界</span>
         {editing && draft ? (

@@ -18,6 +18,7 @@ const ROUTE_LABELS: Partial<Record<Route["name"], string>> = {
   author: "作者采纳台",
   worldline: "世界线",
   dossierReading: "卷宗阅读",
+  characterVolume: "角色个人卷",
   checkpoint: "检查点",
   anchor: "世界锚定",
   import: "导入小说",
@@ -33,6 +34,7 @@ function worldSlug(route: Route): string | null {
     route.name === "author" ||
     route.name === "worldline" ||
     route.name === "dossierReading" ||
+    route.name === "characterVolume" ||
     route.name === "checkpoint" ||
     route.name === "anchor"
   ) {
@@ -45,6 +47,7 @@ function worldlineId(route: Route): string {
   if (
     route.name === "worldline" ||
     route.name === "dossierReading" ||
+    route.name === "characterVolume" ||
     route.name === "checkpoint"
   ) {
     return route.worldlineId;
@@ -54,6 +57,7 @@ function worldlineId(route: Route): string {
 
 function activeSection(route: Route): string {
   if (route.name === "checkpoint") return "worldline";
+  if (route.name === "characterVolume") return "character";
   if (route.name === "dossierReading") return "reading";
   return route.name;
 }
@@ -134,6 +138,22 @@ export function AppShell({
               >
                 阅读
               </button>
+              {route.name === "characterVolume" && (
+                <button
+                  className="is-active"
+                  onClick={() =>
+                    navigate({
+                      name: "characterVolume",
+                      slug,
+                      worldlineId: currentWorldline,
+                      characterId: route.characterId,
+                    })
+                  }
+                  title="查看这个角色的主观记忆、误会和个人卷"
+                >
+                  角色卷
+                </button>
+              )}
               <button
                 className={active === "worldline" ? "is-active" : ""}
                 onClick={() =>

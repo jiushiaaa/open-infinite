@@ -2674,3 +2674,19 @@
 - **边界**：
   - 本轮不改后端、不新增路由、不改变 API/artifact 契约；只提升世界锚定页的理解路径和跨页面入口组织。
 
+### 2026-06-06 — Character Volume Dossier Page
+
+- **做了什么**：
+  - 新增 `CharacterVolumePage` 与 `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 路由，作为世界内部“角色个人卷”独立页面。
+  - 页面复用既有 `dossier-reading` 与 `subjective-memory` API，展示单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性、卷内证据和去沙盘/多视角/作者台动作。
+  - 没有 `character_lens_volumes` 正文时，会用主观记忆兜底生成当前角色索引，并显示明确空态，不让用户误以为角色资料不存在。
+  - 锚定页角色卡、卷宗阅读角色卷、多视角角色卷和沙盘角色行动卡都新增进入角色个人卷的入口；原有查看个人记忆、卷宗 tab、生成多视角和作者采纳动作全部保留。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录角色个人卷独立页第一版已收口。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过。
+  - Chrome 桌面：`#/world/my-story/worldlines/main/characters/zhao_xuan` 显示“赵轩”、角色个人卷、主观记忆链和 5 条记忆，无水平溢出，顶栏激活“角色卷”。
+  - Chrome 精确 390px 设备模拟：角色卷页无水平溢出，角色名、主动作、导览和主观记忆链可见。
+  - UI smoke：`#/anchor/my-story` 的角色卡“角色个人卷”按钮能进入 `#/world/my-story/worldlines/main/characters/zhao_xuan`。
+- **边界**：
+  - 本轮不改后端、不新增持久 artifact、不改变 API/artifact 契约；只把已有角色卷与主观记忆能力组织成可理解、可进入的产品页面。
+
