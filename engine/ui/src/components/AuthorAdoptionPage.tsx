@@ -21,6 +21,10 @@ const DECISIONS = [
   ["export_brief", "导出 brief"],
 ] as const;
 
+function decisionLabel(value: string) {
+  return DECISIONS.find(([decision]) => decision === value)?.[1] || value || "待选择";
+}
+
 function readingTrailStatusLabel(status: string) {
   return status === "ready" ? "可回读" : "部分证据";
 }
@@ -57,6 +61,73 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [confirmationError, setConfirmationError] = useState<string | null>(null);
   const [confirmation, setConfirmation] =
     useState<AuthorChapterConfirmationReport | null>(null);
+  const selectedRewriteCount = selectedRewriteIds.length;
+  const localizedRewriteCount = draft?.revision_pack?.localized_rewrites.length ?? 0;
+  const workflowStage = confirmation
+    ? "confirmed"
+    : draft
+      ? "draft"
+      : report
+        ? "adopted"
+        : "compare";
+  const nextActionLabel = confirmation
+    ? "去卷宗阅读"
+    : draft && selectedRewriteCount > 0 && !rewriteApplication
+      ? "先采纳选中改写"
+      : draft
+        ? "确认入卷"
+        : report
+          ? "生成下一章草稿"
+          : "写入采纳台";
+  const nextActionHint = confirmation
+    ? "已进入正史卷与连续阅读链，可回到 main 世界线阅读。"
+    : draft && selectedRewriteCount > 0 && !rewriteApplication
+      ? "Reviewer 的高优先级局部改写已被勾选，先反哺修订稿会更稳。"
+      : draft
+        ? "正文编辑框里的内容会成为本章入卷文本。"
+        : report
+          ? "采纳记录已入账，下一步把 brief 变成可编辑章节。"
+          : "先把原大纲与沙盘涌现差异写入采纳账本。";
+  const workflowCards = [
+    {
+      key: "compare",
+      label: "对照",
+      title: "确认差异",
+      detail: report ? report.comparison.difference : "比较原大纲和沙盘涌现剧情。",
+      done: !!report,
+      active: workflowStage === "compare",
+    },
+    {
+      key: "adopted",
+      label: "入账",
+      title: "作者决策",
+      detail: report
+        ? `${decisionLabel(report.decision)} · ${report.artifacts.author_adoption_record}`
+        : `${decisionLabel(decision)} · 不覆盖正史`,
+      done: !!report,
+      active: workflowStage === "adopted",
+    },
+    {
+      key: "draft",
+      label: "修订",
+      title: "下一章草稿",
+      detail: draft
+        ? `${draft.chapter_title} · ${selectedRewriteCount}/${localizedRewriteCount} 条改写已选`
+        : "生成草稿后可手改、采纳局部改写。",
+      done: !!draft,
+      active: workflowStage === "draft",
+    },
+    {
+      key: "confirmed",
+      label: "入卷",
+      title: "确认正史",
+      detail: confirmation
+        ? `${confirmation.artifact} · 下一轮沙盘已可继续`
+        : "定稿确认后进入阅读链和下一轮世界状态。",
+      done: !!confirmation,
+      active: workflowStage === "confirmed",
+    },
+  ];
 
   async function submitAdoption() {
     setLoading(true);
@@ -179,6 +250,81 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
           </p>
         </div>
       </header>
+
+      <section className="adoption-command" aria-label="作者采纳工作流总览">
+        <div className="adoption-command__lead">
+          <p className="adoption-command__eyebrow muted">当前下一步</p>
+          <h2>{nextActionLabel}</h2>
+          <p className="muted">{nextActionHint}</p>
+          <div className="adoption-command__meta">
+            <span className="badge badge--jade">世界线 main</span>
+            <span className="badge">{decisionLabel(report?.decision || decision)}</span>
+            {report?.run_id && <span className="badge badge--gold">{report.run_id}</span>}
+          </div>
+        </div>
+
+        <div className="adoption-command__steps">
+          {workflowCards.map((item, index) => (
+            <article
+              className={`adoption-command__step ${
+                item.active ? "is-active" : item.done ? "is-done" : ""
+              }`}
+              key={item.key}
+            >
+              <span className="adoption-command__index">{index + 1}</span>
+              <div>
+                <span className="muted tiny">{item.label}</span>
+                <strong>{item.title}</strong>
+                <p>{item.detail}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="adoption-command__actions">
+          {!confirmation && !draft && !report && (
+            <button className="btn btn--primary" disabled={loading} onClick={submitAdoption}>
+              {loading ? "正在入账…" : "写入采纳台"}
+            </button>
+          )}
+          {!confirmation && report && !draft && (
+            <button className="btn btn--primary" disabled={draftLoading} onClick={generateDraft}>
+              {draftLoading ? "正在生成…" : "生成草稿"}
+            </button>
+          )}
+          {!confirmation && draft && selectedRewriteCount > 0 && !rewriteApplication && (
+            <button
+              className="btn btn--primary"
+              disabled={rewriteLoading}
+              onClick={applySelectedRewrites}
+            >
+              {rewriteLoading ? "正在采纳…" : "采纳选中改写"}
+            </button>
+          )}
+          {!confirmation && draft && (
+            <button
+              className="btn btn--ghost"
+              disabled={confirmationLoading || !editedChapterText.trim()}
+              onClick={confirmChapter}
+            >
+              {confirmationLoading ? "正在确认…" : "确认入卷"}
+            </button>
+          )}
+          {confirmation && (
+            <button
+              className="btn btn--primary"
+              onClick={() =>
+                navigate({ name: "dossierReading", slug, worldlineId: "main" })
+              }
+            >
+              去卷宗阅读
+            </button>
+          )}
+          <button className="btn btn--ghost" onClick={() => navigate({ name: "sandbox", slug })}>
+            回世界沙盘
+          </button>
+        </div>
+      </section>
 
       <WorldRunway
         eyebrow="作者工作流"
