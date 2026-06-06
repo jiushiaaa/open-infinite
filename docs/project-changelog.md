@@ -3083,3 +3083,17 @@
   - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main`，导读条位于 573-743px 首屏内且 display 为 `grid`，位于完整工作流中枢和 `WorldRunway` 前；点击“看代偿 / 看任务”分别把具象代偿账和自演任务/检查点区带入可见区；页面宽度保持 390px，无业务内容横向溢出。
 - **边界**：
   - 本轮只改前端世界线页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `worldline_dossier` 契约、不改 artifact。
+
+### 2026-06-07 — Character Lens Mobile Guide
+
+- **做了什么**：
+  - 新增 `check:character-lens-ux` 检查脚本，锁定多视角页移动端分镜导读条存在、位于完整工作流中枢前，并只在移动端显示。
+  - `CharacterLensPage` 在移动端 hero 后新增“生成 / 改事件 / 读卷宗 / 作者台”四格导读条；生成后主按钮会切换为“看结果”，桌面仍保持原多视角工作台。
+  - 四个入口分别复用现有操作/路由/滚动：生成多视角、滚到事件材料表单、进入卷宗阅读、进入作者采纳台。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把多视角移动端分镜导读条记为当前事实。
+- **验证**：
+  - Red/green helper：先新增 `check:character-lens-ux`，确认旧多视角页因缺移动端导读条失败；实现后同命令 -> `character lens ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：390px 访问 `#/world/my-story/lens`，导读条位于 689-841px 首屏内且 display 为 `grid`，位于完整工作流中枢前；点击“改事件”把事件材料表单带入可见区；页面宽度保持 390px，无业务内容横向溢出。
+- **边界**：
+  - 本轮只改前端多视角页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `character_lens` 契约、不改 artifact。

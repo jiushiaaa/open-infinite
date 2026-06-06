@@ -16,6 +16,7 @@
     "check:character-volume-ux": "node scripts/check-character-volume-ux.mjs",
     "check:event-perspective-ux": "node scripts/check-event-perspective-ux.mjs",
     "check:faction-volume-ux": "node scripts/check-faction-volume-ux.mjs",
+    "check:character-lens-ux": "node scripts/check-character-lens-ux.mjs",
     "check:checkpoint-replay-ux": "node scripts/check-checkpoint-replay-ux.mjs",
     "check:worldline-dossier-ux": "node scripts/check-worldline-dossier-ux.mjs",
     "check:sandbox-runner-ux": "node scripts/check-sandbox-runner-ux.mjs",

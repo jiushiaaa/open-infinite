@@ -82,6 +82,9 @@ export function CharacterLensPage({ slug }: { slug: string }) {
       setLoading(false);
     }
   }
+  const scrollToLensItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="lens-page">
@@ -114,6 +117,37 @@ export function CharacterLensPage({ slug }: { slug: string }) {
           </button>
         </div>
       </header>
+
+      <section className="lens-mobile-guide" aria-label="移动端多视角导读">
+        <div>
+          <p className="muted tiny">先把事件分成可读卷宗</p>
+          <strong>{report ? "多视角已生成，可以继续阅读或采纳" : "从一件沙盘事件开始分镜"}</strong>
+        </div>
+        <div className="lens-mobile-guide__actions">
+          <button
+            className="btn btn--primary"
+            disabled={loading || !sourceEvent.trim()}
+            onClick={report ? () => scrollToLensItem(".lens-output-section") : generateLens}
+          >
+            {report ? "看结果" : "生成"}
+          </button>
+          <button
+            className="btn btn--ghost"
+            onClick={() => scrollToLensItem(".lens-form-section")}
+          >
+            改事件
+          </button>
+          <button
+            className="btn btn--ghost"
+            onClick={() => navigate({ name: "dossierReading", slug, worldlineId: "main" })}
+          >
+            读卷宗
+          </button>
+          <button className="btn btn--ghost" onClick={() => navigate({ name: "author", slug })}>
+            作者台
+          </button>
+        </div>
+      </section>
 
       <section className="lens-command" aria-label="多视角工作流总览">
         <div className="lens-command__lead">
@@ -197,7 +231,7 @@ export function CharacterLensPage({ slug }: { slug: string }) {
       </section>
 
       <div className="lens-layout">
-        <aside className="lens-panel">
+        <aside className="lens-panel lens-form-section">
           <h2>事件材料</h2>
           <textarea
             value={sourceEvent}
@@ -246,7 +280,7 @@ export function CharacterLensPage({ slug }: { slug: string }) {
           )}
         </aside>
 
-        <main className="lens-main">
+        <main className="lens-main lens-output-section">
           {error && <ErrorState message={error} onRetry={generateLens} />}
           {!error && !report && (
             <EmptyState

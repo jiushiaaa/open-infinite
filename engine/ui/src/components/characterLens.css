@@ -194,6 +194,10 @@
   overflow-wrap: anywhere;
 }
 
+.lens-mobile-guide {
+  display: none;
+}
+
 .lens-layout {
   display: grid;
   grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
@@ -388,6 +392,45 @@
 
   .lens-perspectives {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .lens-mobile-guide {
+    display: grid;
+    gap: 8px;
+    max-width: 1320px;
+    margin: 0 auto var(--space-4);
+    padding: var(--space-2);
+    border: 1px solid rgba(45, 104, 92, 0.24);
+    border-radius: 8px;
+    background: rgba(245, 251, 246, 0.76);
+  }
+
+  .lens-mobile-guide p,
+  .lens-mobile-guide strong {
+    margin: 0;
+  }
+
+  .lens-mobile-guide strong {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .lens-mobile-guide__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .lens-mobile-guide__actions .btn {
+    justify-content: center;
+    min-height: 36px;
+    padding-inline: 8px;
+    white-space: normal;
   }
 }
 
