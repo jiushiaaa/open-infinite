@@ -176,7 +176,8 @@ def _volume_tabs(payload: dict[str, Any], lens_run_id: str) -> list[dict[str, An
         "world_chronicle": 0,
         "anchor_volume": 1,
         "character_volume": 2,
-        "event_multi_perspective": 3,
+        "faction_volume": 3,
+        "event_multi_perspective": 4,
     }
     for volume in volumes:
         if not isinstance(volume, dict):
@@ -225,6 +226,8 @@ def _volume_bias(volume_type: str, volume: dict[str, Any]) -> str:
     if volume_type == "character_volume":
         name = str(volume.get("character_name") or "角色")
         return f"{name}只相信自己看见和记住的部分，容易把别人的沉默误读成背叛或试探。"
+    if volume_type == "faction_volume":
+        return "势力卷只关心资源、解释权和公开姿态，容易把个人的真实意图压成阵营利益。"
     return "事件多视角保留多人的误读，同一动作会被不同角色解释成算计、退让或隐瞒。"
 
 
@@ -363,6 +366,7 @@ def _volume_label(volume_type: str) -> str:
         "world_chronicle": "世界正史卷",
         "anchor_volume": "主锚点卷",
         "character_volume": "角色个人卷",
+        "faction_volume": "势力卷",
         "event_multi_perspective": "事件多视角",
     }.get(volume_type, volume_type)
 

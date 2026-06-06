@@ -451,7 +451,21 @@ function CenterColumn({
         ) : (
           <div className="chip-row">
             {w.factions.map((f, i) => (
-              <span key={i} className="badge">{f}</span>
+              <button
+                key={i}
+                className="badge anchor__faction-link"
+                onClick={() =>
+                  navigate({
+                    name: "factionVolume",
+                    slug: data.slug,
+                    worldlineId: "main",
+                    factionId: f,
+                  })
+                }
+                type="button"
+              >
+                {f}
+              </button>
             ))}
           </div>
         )}
@@ -559,7 +573,7 @@ function WorldDossierGateway({
       key: "lens",
       label: "多视角",
       title: "拆开同一事件的信息差",
-      desc: "生成世界正史、主锚点、角色个人卷和事件多视角，找出谁误会了谁。",
+      desc: "生成世界正史、主锚点、角色个人卷、势力卷和事件多视角，找出谁误会了谁。",
       meta: `${data.world.factions.length} 个势力`,
       action: "生成视角",
       onClick: () => navigate({ name: "lens", slug: data.slug }),

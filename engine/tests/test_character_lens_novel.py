@@ -94,17 +94,19 @@ def test_character_lens_generates_readable_volumes_with_evidence_chain(tmp_path)
 
     assert report["artifacts"]["character_lens_volumes"] == "character_lens_volumes.json"
     assert (run_dir / "character_lens_volumes.json").exists()
-    assert report["volume_count"] >= 4
+    assert report["volume_count"] >= 5
     volume_types = {volume["volume_type"] for volume in report["volumes"]}
     assert volume_types >= {
         "world_chronicle",
         "anchor_volume",
         "character_volume",
+        "faction_volume",
         "event_multi_perspective",
     }
 
     world = next(volume for volume in report["volumes"] if volume["volume_type"] == "world_chronicle")
     character = next(volume for volume in report["volumes"] if volume["volume_type"] == "character_volume")
+    faction = next(volume for volume in report["volumes"] if volume["volume_type"] == "faction_volume")
     event = next(volume for volume in report["volumes"] if volume["volume_type"] == "event_multi_perspective")
 
     assert len(world["prose"]) > 120
@@ -112,6 +114,7 @@ def test_character_lens_generates_readable_volumes_with_evidence_chain(tmp_path)
     assert world["prose"] != character["prose"]
     assert "正史" in world["prose"]
     assert "我" in character["prose"]
+    assert "势力" in faction["prose"]
     assert len(character["event_nodes"]) >= 3
     assert all(node["evidence_refs"] for node in character["event_nodes"])
     assert event["information_gap"]["canon_vs_character"]

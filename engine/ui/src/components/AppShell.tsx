@@ -19,6 +19,7 @@ const ROUTE_LABELS: Partial<Record<Route["name"], string>> = {
   worldline: "世界线",
   dossierReading: "卷宗阅读",
   characterVolume: "角色个人卷",
+  factionVolume: "势力卷",
   checkpoint: "检查点",
   anchor: "世界锚定",
   import: "导入小说",
@@ -35,6 +36,7 @@ function worldSlug(route: Route): string | null {
     route.name === "worldline" ||
     route.name === "dossierReading" ||
     route.name === "characterVolume" ||
+    route.name === "factionVolume" ||
     route.name === "checkpoint" ||
     route.name === "anchor"
   ) {
@@ -48,6 +50,7 @@ function worldlineId(route: Route): string {
     route.name === "worldline" ||
     route.name === "dossierReading" ||
     route.name === "characterVolume" ||
+    route.name === "factionVolume" ||
     route.name === "checkpoint"
   ) {
     return route.worldlineId;
@@ -58,6 +61,7 @@ function worldlineId(route: Route): string {
 function activeSection(route: Route): string {
   if (route.name === "checkpoint") return "worldline";
   if (route.name === "characterVolume") return "character";
+  if (route.name === "factionVolume") return "faction";
   if (route.name === "dossierReading") return "reading";
   return route.name;
 }
@@ -152,6 +156,22 @@ export function AppShell({
                   title="查看这个角色的主观记忆、误会和个人卷"
                 >
                   角色卷
+                </button>
+              )}
+              {route.name === "factionVolume" && (
+                <button
+                  className="is-active"
+                  onClick={() =>
+                    navigate({
+                      name: "factionVolume",
+                      slug,
+                      worldlineId: currentWorldline,
+                      factionId: route.factionId,
+                    })
+                  }
+                  title="查看势力的立场、资源压力和世界代偿"
+                >
+                  势力卷
                 </button>
               )}
               <button

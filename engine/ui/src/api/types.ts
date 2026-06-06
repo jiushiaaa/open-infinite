@@ -1307,12 +1307,20 @@ export interface WorldlineDossierReport {
 }
 
 export interface DossierReadingVolumeTab {
-  id: "world_chronicle" | "anchor_volume" | "character_volume" | "event_multi_perspective" | string;
+  id:
+    | "world_chronicle"
+    | "anchor_volume"
+    | "character_volume"
+    | "faction_volume"
+    | "event_multi_perspective"
+    | string;
   label: string;
   title: string;
   body_md: string;
   character_id?: string;
   character_name?: string;
+  faction_id?: string;
+  faction_name?: string;
   cognitive_bias: string;
   evidence_refs: string[];
   artifact: string;
@@ -1343,6 +1351,7 @@ export interface DossierReadingReport {
     | "world_chronicle"
     | "anchor_volume"
     | "character_volume"
+    | "faction_volume"
     | "event_multi_perspective"
     | string;
   title: string;

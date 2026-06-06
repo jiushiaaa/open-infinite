@@ -314,6 +314,21 @@ export function CharacterLensPage({ slug }: { slug: string }) {
                           进入角色个人卷
                         </button>
                       )}
+                      {volume.volume_type === "faction_volume" && (
+                        <button
+                          className="btn btn--ghost tiny"
+                          onClick={() =>
+                            navigate({
+                              name: "factionVolume",
+                              slug,
+                              worldlineId: report.worldline_id || "main",
+                              factionId: volume.title || "势力卷",
+                            })
+                          }
+                        >
+                          进入势力卷
+                        </button>
+                      )}
                     </article>
                   ))}
                 </section>
@@ -345,6 +360,21 @@ export function CharacterLensPage({ slug }: { slug: string }) {
                           </div>
                         ))}
                       </div>
+                    )}
+                    {brief.lens_type === "faction_volume" && (
+                      <button
+                        className="btn btn--ghost tiny"
+                        onClick={() =>
+                          navigate({
+                            name: "factionVolume",
+                            slug,
+                            worldlineId: report.worldline_id || "main",
+                            factionId: brief.title || "势力卷",
+                          })
+                        }
+                      >
+                        进入势力卷
+                      </button>
                     )}
                   </article>
                 ))}

@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 // "#/world/<slug>/worldlines/<id>" → 世界线档案
 // "#/world/<slug>/worldlines/<id>/reading[/tab]" → 世界内部卷宗阅读
 // "#/world/<slug>/worldlines/<id>/characters/<char>" → 角色个人卷
+// "#/world/<slug>/worldlines/<id>/factions/<faction>" → 势力卷
 // "#/world/<slug>/worldlines/<id>/checkpoints/<run>/<checkpoint>" → 检查点回放
 // "#/anchor/<slug>"             → 世界锚定页
 // "#/import"                    → 导入小说
@@ -24,6 +25,7 @@ export type Route =
   | { name: "worldline"; slug: string; worldlineId: string }
   | { name: "dossierReading"; slug: string; worldlineId: string; tab?: string }
   | { name: "characterVolume"; slug: string; worldlineId: string; characterId: string }
+  | { name: "factionVolume"; slug: string; worldlineId: string; factionId: string }
   | {
       name: "checkpoint";
       slug: string;
@@ -60,6 +62,14 @@ function parseHash(): Route {
         slug: decodeURIComponent(parts[1]),
         worldlineId: decodeURIComponent(parts[3]),
         characterId: decodeURIComponent(parts[5]),
+      };
+    }
+    if (parts[4] === "factions" && parts[5]) {
+      return {
+        name: "factionVolume",
+        slug: decodeURIComponent(parts[1]),
+        worldlineId: decodeURIComponent(parts[3]),
+        factionId: decodeURIComponent(parts[5]),
       };
     }
     if (parts[4] === "checkpoints" && parts[5] && parts[6]) {
@@ -127,6 +137,11 @@ export function navigate(route: Route): void {
     next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
       route.worldlineId,
     )}/characters/${encodeURIComponent(route.characterId)}`;
+  }
+  else if (route.name === "factionVolume") {
+    next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
+      route.worldlineId,
+    )}/factions/${encodeURIComponent(route.factionId)}`;
   }
   else if (route.name === "checkpoint") {
     next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(

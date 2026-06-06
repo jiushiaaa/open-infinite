@@ -110,6 +110,7 @@ def test_dossier_reading_prefers_novel_mode_and_keeps_evidence_folded(tmp_path):
         "world_chronicle",
         "anchor_volume",
         "character_volume",
+        "faction_volume",
         "event_multi_perspective",
     }
     character_tab = next(tab for tab in packet["volume_tabs"] if tab["id"] == "character_volume")

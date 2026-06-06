@@ -2690,3 +2690,21 @@
 - **边界**：
   - 本轮不改后端、不新增持久 artifact、不改变 API/artifact 契约；只把已有角色卷与主观记忆能力组织成可理解、可进入的产品页面。
 
+### 2026-06-06 — Faction Volume Dossier Page
+
+- **做了什么**：
+  - `character_lens_volumes.json` 新增 additive `faction_volume` 正文卷，使用同一份沙盘轮次、主观记忆、世界状态 delta 和 `consequence_state` 证据链，不改变既有四类卷宗字段。
+  - `dossier-reading` 聚合新增势力卷 tab、中文标签和认知偏差说明，卷宗阅读页可切到“势力卷”并进入独立势力卷页面。
+  - 新增 `FactionVolumePage` 与 `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 路由，聚合世界锚定、卷宗阅读和 `worldline_state`，展示势力卷正文、势力目录、因果压力域、最近 ledger、卷内证据和去沙盘/多视角/作者台动作。
+  - 世界锚定页的势力标签、多视角页的势力卷正文/brief、卷宗阅读页的势力卷和顶栏导航都能进入势力卷；无正文时显示明确空态。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把势力卷独立页第一版从待办改为当前事实。
+- **验证**：
+  - Focused 后端：`python -m pytest -q engine\tests\test_character_lens_novel.py engine\tests\test_dossier_reading.py` -> `8 passed`。
+  - 后端全量：`cd engine && python -m pytest -q` -> `947 passed`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过。
+  - Chrome 桌面与精确 390px 设备模拟：`#/world/my-story/worldlines/main/factions/苍澜派` 显示势力卷标题、势力目录、阅读正文区域、势力代偿面板和 `WorldRunway`，无水平溢出。
+  - UI smoke：`#/anchor/my-story` 的势力标签可进入 `#/world/my-story/worldlines/main/factions/苍澜派`。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改 `run_scene` 默认行为，不新增持久 artifact 类型，不破坏既有 API/artifact 契约；只把势力卷从已有多视角能力补成可读、可进入、可理解的产品页面。
+

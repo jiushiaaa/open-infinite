@@ -11,6 +11,7 @@ import { AuthorAdoptionPage } from "./components/AuthorAdoptionPage";
 import { WorldlineDossierPage } from "./components/WorldlineDossierPage";
 import { DossierReadingPage } from "./components/DossierReadingPage";
 import { CharacterVolumePage } from "./components/CharacterVolumePage";
+import { FactionVolumePage } from "./components/FactionVolumePage";
 import { CheckpointReplayPage } from "./components/CheckpointReplayPage";
 import { useRoute } from "./routing";
 
@@ -38,6 +39,13 @@ export function App() {
           slug={route.slug}
           worldlineId={route.worldlineId}
           characterId={route.characterId}
+        />
+      )}
+      {route.name === "factionVolume" && (
+        <FactionVolumePage
+          slug={route.slug}
+          worldlineId={route.worldlineId}
+          factionId={route.factionId}
         />
       )}
       {route.name === "checkpoint" && (

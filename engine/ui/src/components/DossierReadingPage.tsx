@@ -17,6 +17,7 @@ type ReadingTab =
   | "world_chronicle"
   | "anchor_volume"
   | "character_volume"
+  | "faction_volume"
   | "event_multi_perspective"
   | string;
 
@@ -38,6 +39,7 @@ const TAB_LABELS: Record<string, string> = {
   world_chronicle: "世界正史卷",
   anchor_volume: "主锚点卷",
   character_volume: "角色个人卷",
+  faction_volume: "势力卷",
   event_multi_perspective: "事件多视角",
 };
 
@@ -208,10 +210,11 @@ export function DossierReadingPage({
           },
           {
             label: "查卷宗",
-            detail: "切到角色、锚点或事件多视角核对误会。",
+            detail: "切到角色、锚点、势力或事件多视角核对误会。",
             active:
               activeTab === "character_volume" ||
               activeTab === "anchor_volume" ||
+              activeTab === "faction_volume" ||
               activeTab === "event_multi_perspective",
           },
           {
@@ -354,6 +357,25 @@ export function DossierReadingPage({
                       }
                     >
                       角色个人卷
+                    </button>
+                  )}
+                  {activeVolume?.id === "faction_volume" && (
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() =>
+                        navigate({
+                          name: "factionVolume",
+                          slug,
+                          worldlineId,
+                          factionId:
+                            activeVolume.faction_id ||
+                            activeVolume.faction_name ||
+                            activeVolume.title ||
+                            "势力卷",
+                        })
+                      }
+                    >
+                      势力卷
                     </button>
                   )}
                 </div>
@@ -663,6 +685,29 @@ function readingContext(
         {
           label: "世界线",
           value: report.worldline_id,
+        },
+      ],
+    };
+  }
+
+  if (activeTab === "faction_volume") {
+    return {
+      title: activeVolume?.title || "势力卷",
+      summary:
+        activeVolume?.cognitive_bias ||
+        "这一卷从资源、秘密、公开姿态和因果代偿解释同一段世界演化。",
+      stats: [
+        {
+          label: "卷宗",
+          value: activeVolume?.label || "势力卷",
+        },
+        {
+          label: "证据",
+          value: `${activeVolume?.evidence_refs.length ?? 0} 条`,
+        },
+        {
+          label: "下一步",
+          value: "进入势力卷",
         },
       ],
     };

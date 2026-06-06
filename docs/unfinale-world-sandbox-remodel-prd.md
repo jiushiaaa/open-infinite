@@ -68,7 +68,7 @@
 | S5 觉醒/模因 | L5 觉醒写入角色命痕、反抗、模因传播和 `meme_propagation_readout` | 真实心理博弈、思想瘟疫长期演化、假意服从和反向利用 |
 | S6 代偿状态 | `worldline_state.json` 与 `consequence_state` 六域代偿被下一轮沙盘、自演、正文和 brief 消费 | 可累积状态机、真实 LLM 决策消费、代偿长期发酵 |
 | S7 世界自演 | `autopilot_report.json`、checkpoints、任务状态、暂停/恢复、`readable_entry` 已有 | 醒来报告文学化、长时运行守护、中断自动恢复 |
-| S8 多视角正文 | `character_lens_volumes.json`、`novel_scene_plan`、世界正史卷/主锚点卷/角色个人卷/事件多视角第一版已有；角色个人卷独立页已能读取角色卷正文和主观记忆链 | 势力独立卷、跨章角色长线阅读、正文内证据锚点、跨章节回收 |
+| S8 多视角正文 | `character_lens_volumes.json`、`novel_scene_plan`、世界正史卷/主锚点卷/角色个人卷/势力卷/事件多视角第一版已有；角色个人卷独立页已能读取角色卷正文和主观记忆链，势力卷独立页已能读取势力卷正文和世界线代偿压力 | 跨章角色/势力长线阅读、事件详情页、跨章节回收 |
 | S9 作者采纳 | `next_chapter_brief`、草稿、连续阅读、局部重写采纳、编辑后定稿、确认入卷和 reading trail 已有 | 更强 Reviewer、整章风格润色、真实模型编辑器 |
 
 ## 5. 核心 artifact
@@ -165,6 +165,7 @@ POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
 - 世界沙盘页运行导览：把“投放事件 -> 观察角色 -> 进入阅读”的使用路径前置到首屏；空态聚焦运行台，出结果后引导到卷宗阅读、世界线档案和多视角卷。
 - 世界锚定页启动卡、世界卷宗总览与移动端保功能布局：天命书、世界沙盘和卷宗阅读在锚定首屏可见；锚定页把天命书、沙盘、阅读、世界线、多视角、作者台和机制档案串成可点击世界内地图；窄屏不再隐藏视觉/审计/角色功能。
 - 角色个人卷页：`#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 复用 `dossier-reading` 与主观记忆 API，展示单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点；锚定页角色卡、沙盘角色行动卡、多视角角色卷和卷宗阅读角色卷都能进入。
+- 势力卷页：`#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 复用世界锚定、`dossier-reading` 与 `worldline_state` API，展示势力卷正文、势力目录、资源/秘密再分配、因果压力域、最近 ledger 和证据锚点；锚定页势力标签、多视角势力卷和卷宗阅读势力卷都能进入。
 - 机制档案页：首屏档案中枢把旧正史、运行记录、记忆层、检索与审计证据接回天命书、世界沙盘、卷宗阅读和旧分支追溯；不再伪装成主线工作区。
 
 继续深化方向：
@@ -172,7 +173,7 @@ POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
 - `WorldWorkspaceShell`：统一世界内部卷宗壳；锚定页世界卷宗总览只是第一步。
 - 世界正史卷 / 主锚点卷独立页面。
 - 角色个人卷跨章长线阅读页。
-- 势力卷。
+- 势力卷跨章长线阅读页。
 - 事件多视角详情页。
 - 更深跨章误会图谱与更长线阅读进度。
 - 机制档案分区，把旧工程面板继续收纳为支撑层。

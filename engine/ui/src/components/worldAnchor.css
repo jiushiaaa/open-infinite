@@ -38,6 +38,16 @@
   gap: 6px;
 }
 
+.anchor__faction-link {
+  border: 1px solid rgba(45, 104, 92, 0.18);
+  cursor: pointer;
+}
+
+.anchor__faction-link:hover {
+  border-color: var(--jade);
+  background: var(--jade-wash);
+}
+
 .anchor__edit-soon {
   margin-left: auto;
   color: var(--ink-ghost);

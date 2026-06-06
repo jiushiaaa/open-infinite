@@ -194,6 +194,15 @@ def _volumes(
         "因此我只能把真实意图藏在外在行动之后，继续沿着误会、秘密和异常感往前走。"
         "如果下一轮世界继续运行，我会先保护自己的退路，再决定是否公开真相。"
     )
+    faction_prose = (
+        f"【势力卷】{event}落入势力秩序时，已经不只是某个角色的选择。"
+        f"{character_name}的外在行动把资源、秘密和关系重新分配："
+        f"{_join(delta.get('resource_changes')) or '资源变化尚未明示'}；"
+        f"{_join(delta.get('secret_changes')) or '秘密变化仍在暗处'}。"
+        f"{consequence_text}"
+        "势力不会像角色那样解释自己的委屈，它们只会在下一轮把压力转成结盟、封锁、试探或公开表态。"
+        "读这一卷时，要先看谁获得解释权，再看谁承担代偿，最后判断哪一方会把个人误会放大成世界秩序的裂缝。"
+    )
     return [
         {
             "volume_type": "world_chronicle",
@@ -226,6 +235,14 @@ def _volumes(
             "character_name": character_name,
             "prose": character_prose,
             "event_nodes": event_nodes,
+            "reading_mode": reading_mode,
+            "novel_scene_plan": novel_scene_plan,
+            "evidence_chain": evidence_chain,
+        },
+        {
+            "volume_type": "faction_volume",
+            "title": "势力卷",
+            "prose": faction_prose,
             "reading_mode": reading_mode,
             "novel_scene_plan": novel_scene_plan,
             "evidence_chain": evidence_chain,

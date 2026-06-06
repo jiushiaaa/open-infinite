@@ -8,10 +8,11 @@
 
 | 能力 | 当前状态 | 继续深入 |
 | --- | --- | --- |
-| 世界锚定页 | `WorldAnchorPage` 已把世界启动、世界卷宗总览、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面中栏展示世界内地图，移动端在启动卡后前置紧凑总览 | 完整 `WorldWorkspaceShell`、角色/势力独立卷、事件详情页 |
-| 角色个人卷页 | `CharacterVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 已复用 `dossier-reading` 与 `subjective-memory`，把单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点组织成可读页面；锚定页、沙盘页、多视角页和卷宗阅读页都有入口 | 势力独立卷、跨章角色长线阅读、跨卷证据联动 |
-| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点和可点击误会图谱，并可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿 | 势力独立卷、跨章误会关系、长线阅读进度 |
-| 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作 | 事件详情页、独立角色/势力卷、醒来报告文学化 |
+| 世界锚定页 | `WorldAnchorPage` 已把世界启动、世界卷宗总览、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面中栏展示世界内地图，移动端在启动卡后前置紧凑总览，势力标签可进入势力卷 | 完整 `WorldWorkspaceShell`、事件详情页 |
+| 角色个人卷页 | `CharacterVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 已复用 `dossier-reading` 与 `subjective-memory`，把单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点组织成可读页面；锚定页、沙盘页、多视角页和卷宗阅读页都有入口 | 跨章角色长线阅读、跨卷证据联动 |
+| 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、事件详情页 |
+| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点和可点击误会图谱，并可切换世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角和确认稿 | 跨章误会关系、长线阅读进度 |
+| 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作 | 事件详情页、醒来报告文学化 |
 | 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口 | 醒来报告文学化、长线阅读进度、事件详情页 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |
 | Reviewer 局部重写采纳 | `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` 已写 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json`，确认入卷可自动采用编辑后定稿并携带已采纳改写 ids | 更强真实语义 Reviewer、整章风格润色 |
@@ -47,6 +48,7 @@
   -> 世界正史卷
   -> 主锚点卷
   -> 角色个人卷
+  -> 势力卷
   -> 事件多视角
   -> 世界线 / 检查点
   -> 作者采纳台
@@ -107,7 +109,7 @@
 - `outputs/<run_id>/checkpoints/checkpoint_*.json`：每轮自演检查点，记录大事件、锚点压力、因果债、角色记忆变化和后续剧情可能性，可作为失败恢复入口。
 - `worldline_dossier`：只读 API 聚合，不新增持久 artifact；读取世界线状态、自演任务和检查点，驱动世界线页与检查点回放页。
 - `outputs/<run_id>/character_lens_briefs.json`：多视角活体小说 brief，记录世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角。
-- `outputs/<run_id>/character_lens_volumes.json`：多视角正文，记录世界正史卷、主锚点卷、角色个人卷和事件多视角的可读正文、`novel_scene_plan` 和证据链。
+- `outputs/<run_id>/character_lens_volumes.json`：多视角正文，记录世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角的可读正文、`novel_scene_plan` 和证据链。
 - `projects/<slug>/author_adoption_ledger.jsonl`：作者采纳账本，记录采纳、部分采纳、另开分支或导出 brief。
 - `outputs/<run_id>/author_adoption_record.json`：单次作者采纳记录和原大纲 vs 沙盘涌现剧情对照。
 - `outputs/<run_id>/author_adoption_brief.md`：可交给后续章节 brief 或人工整理的采纳说明。
@@ -332,7 +334,7 @@ pnpm run dev -- --host 127.0.0.1 --port 5173
 
 产品纠偏后的前端目标态：
 
-- 一级主导航按“世界书架”组织；进入某个世界后再出现天命书、世界沙盘、正史卷、角色个人卷、事件多视角、世界线、检查点和作者采纳台。
+- 一级主导航按“世界书架”组织；进入某个世界后再出现天命书、世界沙盘、正史卷、角色个人卷、势力卷、事件多视角、世界线、检查点和作者采纳台。
 - “沙盘 / 阅读 / 干预 / 作者”不是一级工作区，而是同一个世界内部的场景能力。
 - `WorkspacePage.tsx` 已承载过多工程支撑面板；后续改造应拆出世界内部卷宗壳和具体页面，不继续堆 Graph/provider/报告 UI。
 - 已有检索、Graph/provider、OpenAPI、发行、计费面板保留为支撑层，默认不作为下一刀产品主线。
