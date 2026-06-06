@@ -2482,3 +2482,17 @@
 - **边界**：
   - 本轮不改后端、不删旧入口、不改变 API/artifact 契约；只提升沙盘页的理解路径、下一步行动和移动端可用性。
 
+### 2026-06-06 — Mobile World Navigation Tray
+
+- **做了什么**：
+  - `appShell.css` 将窄屏下的世界内部顶栏导航从横向滚动改成可换行卷宗盘。
+  - 保留锚定、天命书、沙盘、阅读、世界线、多视角、作者台和机制档案 8 个入口，并保留动效与设置按钮。
+  - 桌面顶栏仍保持原一行布局；移动端只调整排列和密度，不改变路由或功能。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Chrome 精确 390px 设备模拟：`documentElement.scrollWidth === innerWidth`，`world-nav` 内容不溢出，8 个导航按钮文字不截断。
+  - Chrome headless 桌面截图：1366px 顶栏保持一行世界卷宗导航。
+  - HTTP smoke：`http://localhost:5174/#/world/my-story/sandbox` 返回 200 并加载前端 root。
+- **边界**：
+  - 本轮不改后端、不删入口、不改变 API/artifact 契约；只修正跨页面移动端导航可见性和可用性。
+
