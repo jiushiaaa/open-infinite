@@ -34,7 +34,7 @@
 | 分类 | 当前状态 |
 | --- | --- |
 | 主线 | World Sandbox Loop / 小说世界沙盘体验深化 |
-| 已完成第一版 | S1-S9 世界沙盘链路、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳、编辑后定稿、确认入卷反哺下一轮入口、天命书首屏宪法封面、世界线首屏工作流中枢、检查点首屏醒来回放中枢、多视角首屏工作流中枢、世界内导览层 `WorldRunway`、作者采纳台工作流中枢、锚定页启动卡、沙盘运行导览、移动端世界卷宗导航盘与移动端保功能布局 |
+| 已完成第一版 | S1-S9 世界沙盘链路、卷宗阅读页、自演结果可读入口、Reviewer 局部重写采纳、编辑后定稿、确认入卷反哺下一轮入口、天命书首屏宪法封面、世界线首屏工作流中枢、检查点首屏醒来回放中枢、多视角首屏工作流中枢、机制档案首屏中枢、世界内导览层 `WorldRunway`、作者采纳台工作流中枢、锚定页启动卡、沙盘运行导览、移动端世界卷宗导航盘与移动端保功能布局 |
 | 当前测试基线 | `cd engine && python -m pytest -q` -> `947 passed`；`cd engine/ui && pnpm run build` 通过 |
 | 当前文档分层 | 入口事实看 `memory.md`；文档地图看 `docs/index.md`；路线看 `docs/living-novel-engine-iteration-plan.md` |
 | 支撑层 | v0.7-v1.0-local、后续增强四十五刀、真实 retrieval provider、Vector Retrieval Pipeline 都已收口为支撑层 |
@@ -53,6 +53,7 @@
 - `WorldlineDossierPage` 已有首屏工作流中枢，按确认分支状态、查看代偿、回放最近变化、进入连续正文组织状态和主动作；无检查点时主行动为继续沙盘，有检查点时主行动切到回放最近检查点。
 - `CheckpointReplayPage` 已有首屏醒来回放中枢，按确认大事件、查看角色记忆、承接因果代偿、进入连续正文组织状态和主动作；同时保留返回世界线、继续沙盘和作者采纳台出口。
 - `CharacterLensPage` 已有首屏工作流中枢，按选择观察点、生成五类卷宗、阅读信息差、送入作者台组织状态和主动作；生成后会前置卷宗阅读、作者采纳台和世界沙盘出口。
+- `WorkspacePage` 已作为“世界正史与机制档案”保留旧正史、旧分支、导入检查、检索/Graph 支撑层和审计等能力；首屏档案中枢按定界、运行、阅读、追溯把用户接回天命书、世界沙盘、卷宗阅读和旧分支查看。
 - 作者采纳台可从采纳结果生成 `next_chapter_brief.json`、`next_chapter_draft.json`、`continuous_reading_chapter.json`、`draft_revision_pack.json`。
 - Reviewer 片段级建议可由作者勾选，生成 `accepted_local_rewrites.json`、`next_chapter_draft_revised.md`、`edited_final_chapter.json` 和 `edited_final_chapter.md`；确认入卷未手改时会自动采用编辑后定稿。
 - 作者采纳台首屏已有“当前下一步”工作流中枢，按对照、入账、修订、入卷展示状态，并把写入采纳台、生成草稿、采纳局部改写、确认入卷和回世界沙盘动作前置。

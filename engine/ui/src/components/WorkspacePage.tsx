@@ -240,11 +240,53 @@ function ProjectWorkspaceOverview({
   const issueCount = data.audit.summary.issue_count ?? 0;
   const sourceLabel = sourceTypeLabel(data.source.type || data.source_kind);
   const metrics = [
-    { label: "章节", value: data.chapter_overview.total_chapters },
-    { label: "记忆层", value: data.memory.layer_count },
-    { label: "正史", value: data.canon_ledger.entry_count },
-    { label: "审计", value: issueCount },
-    { label: "检索", value: data.retrieval.hit_count },
+    { label: "可读章节", value: data.chapter_overview.total_chapters, detail: "原文与旧正史材料" },
+    { label: "运行记录", value: data.run_count, detail: "旧分支与回放线索" },
+    {
+      label: "记忆 / 正史",
+      value: `${data.memory.layer_count} / ${data.canon_ledger.entry_count}`,
+      detail: "机制档案证据",
+    },
+    { label: "需留意", value: issueCount, detail: "导入与审计风险" },
+  ];
+  const archiveSteps = [
+    {
+      label: "定界",
+      title: "先确认世界边界",
+      detail: "锚定设定与天命书决定这部小说世界如何运行。",
+      action: "天命书",
+      onClick: () => navigate({ name: "tianming", slug: data.slug }),
+    },
+    {
+      label: "运行",
+      title: "让角色继续行动",
+      detail: "把事件投进沙盘，观察记忆、代偿和世界线变化。",
+      action: "运行沙盘",
+      primary: true,
+      onClick: () => navigate({ name: "sandbox", slug: data.slug }),
+    },
+    {
+      label: "阅读",
+      title: "回到连续正文",
+      detail: "把世界演化接回小说阅读，而不是停在机制数据。",
+      action: "卷宗阅读",
+      onClick: () =>
+        navigate({
+          name: "dossierReading",
+          slug: data.slug,
+          worldlineId: "main",
+        }),
+    },
+    {
+      label: "追溯",
+      title: "再查旧分支证据",
+      detail: firstSelection
+        ? "需要核对旧分支时，可以打开旧阅读工作台。"
+        : "暂无可直接打开的旧分支，先运行沙盘生成材料。",
+      action: firstSelection ? "查看旧分支" : "等待分支",
+      disabled: !firstSelection,
+      onClick: () => firstSelection && onSelectFirst(firstSelection),
+    },
   ];
 
   return (
@@ -305,11 +347,48 @@ function ProjectWorkspaceOverview({
         </div>
       </header>
 
+      <section className="project-workspace__command" aria-label="机制档案工作流总览">
+        <div className="project-workspace__command-lead">
+          <p className="tiny muted">当前下一步</p>
+          <h2>把档案接回世界，而不是停在资料堆里</h2>
+          <p>
+            这里收纳旧正史、运行记录、记忆层、检索与审计证据；真正的主旅程仍从天命书、
+            世界沙盘和卷宗阅读继续。
+          </p>
+        </div>
+        <div className="project-workspace__command-steps">
+          {archiveSteps.map((step, index) => (
+            <article
+              className={`project-workspace__command-step ${
+                step.primary ? "is-primary" : ""
+              }`}
+              key={step.label}
+            >
+              <span>{index + 1}</span>
+              <div>
+                <p className="tiny muted">{step.label}</p>
+                <strong>{step.title}</strong>
+                <small>{step.detail}</small>
+                <button
+                  type="button"
+                  className={`workspace-btn ${step.primary ? "workspace-btn--primary" : ""}`}
+                  onClick={step.onClick}
+                  disabled={step.disabled}
+                >
+                  {step.action}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <div className="project-workspace__metrics">
         {metrics.map((m) => (
           <div className="project-workspace__metric" key={m.label}>
             <span>{m.label}</span>
             <strong>{m.value}</strong>
+            <small>{m.detail}</small>
           </div>
         ))}
       </div>
