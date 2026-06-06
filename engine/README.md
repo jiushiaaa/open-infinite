@@ -8,7 +8,7 @@
 
 | 能力 | 当前状态 | 继续深入 |
 | --- | --- | --- |
-| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文，并可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿 | 正文内证据锚点、误会图谱、独立角色/势力卷 |
+| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折和段内证据锚点，并可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿 | 误会图谱、独立角色/势力卷、长线阅读进度 |
 | 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作 | 事件详情页、独立角色/势力卷、醒来报告文学化 |
 | 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口 | 醒来报告文学化、长线阅读进度、事件详情页 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |

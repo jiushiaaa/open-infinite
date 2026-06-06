@@ -2622,3 +2622,21 @@
 - **边界**：
   - 本轮不改后端、不删旧入口、不改变路由/API/artifact 契约；只提升导入小说页与主题创世页的首屏理解、下一步行动和移动端可用性。
 
+### 2026-06-06 — Dossier Reading Evidence Anchors
+
+- **做了什么**：
+  - `DossierReadingPage` 连续阅读态改为按 `continuous_reading.reading_sections` 分场景渲染正文，每一场展示场景标题、视角/叙事角色、认知偏差和冲突转折。
+  - 侧栏新增“阅读进度”书签和进度条，点击场景可跳转并高亮当前正文段落。
+  - 正文场景内新增证据锚点，直接展示该场对应的 `evidence_refs` / `evidence_mode.refs`，不再只把证据集中在底部折叠区。
+  - 连续阅读态新增关联卷宗卡片，前置展示跨卷宗引用的标题、摘要和证据数量；原有卷宗 tab、认知偏差列表、底部证据面板、世界线/沙盘/作者台动作全部保留。
+  - 修复 `0 && <...>` 条件渲染导致“0 条证据”在正文里显示成裸 `0` 的阅读瑕疵。
+  - 同步 `memory.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是卷宗阅读正文证据锚点切片。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 后端：`cd engine && python -m pytest -q` -> `947 passed`。
+  - Chrome 桌面与精确 390px 设备模拟：`#/world/my-story/worldlines/main/reading` 无水平溢出，5 个阅读场景、4 个段内证据锚点和阅读进度书签均可见。
+  - UI smoke：点击第二个阅读书签后，侧栏 active 项和正文高亮均切到“二、各怀半句真话”；裸 `0` 不再出现。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不改变 API/artifact 契约、不删旧卷宗 tab 或底部证据面板；只提升卷宗阅读页的正文内证据、阅读进度和移动端可用性。
+

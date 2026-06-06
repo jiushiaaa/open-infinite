@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api/client";
-import type { DossierReadingReport, DossierReadingVolumeTab } from "../api/types";
+import type {
+  ContinuousReadingSection,
+  DossierReadingReport,
+  DossierReadingVolumeTab,
+} from "../api/types";
 import { renderProse } from "../markdown";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
@@ -36,9 +40,11 @@ export function DossierReadingPage({
 }) {
   const [report, setReport] = useState<DossierReadingReport | null>(null);
   const [activeTab, setActiveTab] = useState<ReadingTab>("continuous_reading");
+  const [activeSectionId, setActiveSectionId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const readerRef = useRef<HTMLElement | null>(null);
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   async function load() {
     setLoading(true);
@@ -63,8 +69,52 @@ export function DossierReadingPage({
   const activeBody = bodyForTab(report, activeTab, activeVolume);
   const activeBias = biasForTab(report, activeTab, activeVolume);
   const activeContext = readingContext(report, activeTab, activeVolume);
+  const continuousSections =
+    activeTab === "continuous_reading"
+      ? report?.continuous_reading?.reading_sections ?? []
+      : [];
+  const activeSectionIndex = Math.max(
+    0,
+    continuousSections.findIndex((section) => section.id === activeSectionId),
+  );
+  const readingProgress =
+    continuousSections.length > 0
+      ? Math.round(((activeSectionIndex + 1) / continuousSections.length) * 100)
+      : 0;
   const focusReader = () =>
     readerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToSection = (id: string) =>
+    sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  useEffect(() => {
+    const firstSection = continuousSections[0]?.id || "";
+    if (!firstSection) {
+      setActiveSectionId("");
+      return;
+    }
+    if (!continuousSections.some((section) => section.id === activeSectionId)) {
+      setActiveSectionId(firstSection);
+    }
+  }, [activeSectionId, continuousSections]);
+
+  useEffect(() => {
+    if (continuousSections.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        const id = visible?.target.getAttribute("data-section-id");
+        if (id) setActiveSectionId(id);
+      },
+      { rootMargin: "-20% 0px -48% 0px", threshold: [0.2, 0.45, 0.7] },
+    );
+    for (const section of continuousSections) {
+      const node = sectionRefs.current[section.id];
+      if (node) observer.observe(node);
+    }
+    return () => observer.disconnect();
+  }, [continuousSections]);
 
   return (
     <div className="dossier-page">
@@ -173,6 +223,34 @@ export function DossierReadingPage({
                   ))}
                 </section>
               )}
+
+              {continuousSections.length > 0 && (
+                <section className="dossier-reading-map" aria-label="阅读进度">
+                  <div className="dossier-reading-map__head">
+                    <h2>阅读进度</h2>
+                    <span className="tiny muted">{readingProgress}%</span>
+                  </div>
+                  <div className="dossier-reading-map__bar" aria-hidden>
+                    <span style={{ width: `${readingProgress}%` }} />
+                  </div>
+                  <div className="dossier-reading-map__list">
+                    {continuousSections.map((section, index) => (
+                      <button
+                        key={section.id}
+                        className={section.id === activeSectionId ? "is-active" : ""}
+                        onClick={() => scrollToSection(section.id)}
+                      >
+                        <span>{String(index + 1).padStart(2, "0")}</span>
+                        <strong>{section.title || `第 ${index + 1} 场`}</strong>
+                        <small>
+                          {section.viewpoint || section.narrative_role || "正文场景"} ·{" "}
+                          {section.evidence_refs.length} 证据
+                        </small>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
             </aside>
 
             <article className="dossier-reader" ref={readerRef}>
@@ -226,7 +304,62 @@ export function DossierReadingPage({
                 </div>
               )}
 
-              {activeBody ? (
+              {activeTab === "continuous_reading" && continuousSections.length > 0 ? (
+                <div className="dossier-section-stack">
+                  {continuousSections.map((section, index) => {
+                    const evidenceRefs = sectionEvidenceRefs(section);
+                    return (
+                      <section
+                        className={`dossier-section ${
+                          section.id === activeSectionId ? "is-current" : ""
+                        }`}
+                        data-section-id={section.id}
+                        id={`reading-section-${section.id}`}
+                        key={section.id}
+                        ref={(node) => {
+                          sectionRefs.current[section.id] = node;
+                        }}
+                      >
+                        <header className="dossier-section__head">
+                          <span className="dossier-section__index">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <div>
+                            <h3>{section.title || `第 ${index + 1} 场`}</h3>
+                            <p>
+                              {section.viewpoint || "未标注视角"}
+                              {section.source_beat_type ? ` · ${section.source_beat_type}` : ""}
+                              {section.narrative_role ? ` · ${section.narrative_role}` : ""}
+                            </p>
+                          </div>
+                        </header>
+
+                        {section.cognitive_bias && (
+                          <p className="dossier-section__bias">{section.cognitive_bias}</p>
+                        )}
+                        {section.conflict_turn && (
+                          <p className="dossier-section__turn">{section.conflict_turn}</p>
+                        )}
+
+                        <div className="prose dossier-prose dossier-section__body">
+                          {renderProse(section.body)}
+                        </div>
+
+                        {evidenceRefs.length > 0 && (
+                          <aside className="dossier-section__evidence">
+                            <span>证据锚点</span>
+                            <div>
+                              {evidenceRefs.map((ref) => (
+                                <code key={ref}>{ref}</code>
+                              ))}
+                            </div>
+                          </aside>
+                        )}
+                      </section>
+                    );
+                  })}
+                </div>
+              ) : activeBody ? (
                 <div className="prose dossier-prose">{renderProse(activeBody)}</div>
               ) : (
                 <EmptyState title="这一卷还没有正文" hint="生成多视角卷或作者确认后会在这里出现。" />
@@ -251,6 +384,24 @@ export function DossierReadingPage({
                   </dl>
                 </section>
               )}
+
+              {report.continuous_reading?.cross_volume_refs &&
+                report.continuous_reading.cross_volume_refs.length > 0 &&
+                activeTab === "continuous_reading" && (
+                  <section className="dossier-cross-refs">
+                    <h2>关联卷宗</h2>
+                    <div>
+                      {report.continuous_reading.cross_volume_refs.slice(0, 4).map((item) => (
+                        <article key={item.id}>
+                          <span className="tiny muted">{item.label}</span>
+                          <strong>{item.title}</strong>
+                          <p>{item.summary}</p>
+                          <small>{item.evidence_refs.length} 条证据</small>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                )}
 
               <details className="dossier-evidence" open={report.evidence_panel.default_open}>
                 <summary>
@@ -309,6 +460,13 @@ function readingTabs(report: DossierReadingReport | null) {
     });
   }
   return tabs;
+}
+
+function sectionEvidenceRefs(section: ContinuousReadingSection): string[] {
+  const refs = section.evidence_mode?.refs.length
+    ? section.evidence_mode.refs
+    : section.evidence_refs;
+  return refs.filter((ref) => ref.trim().length > 0);
 }
 
 function bodyForTab(
