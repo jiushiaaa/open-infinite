@@ -48,6 +48,11 @@
   background: rgba(255, 252, 244, 0.78);
 }
 
+.tianming-empty-action {
+  justify-self: center;
+  min-width: 180px;
+}
+
 .tianming-panel h2 {
   margin: 0;
   font-size: 18px;

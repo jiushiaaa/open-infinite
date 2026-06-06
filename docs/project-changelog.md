@@ -2425,3 +2425,17 @@
 - **边界**：
   - 本轮只做 `memory.md` 当前状态口径修正和 changelog 记录；不改产品代码、artifact/API 契约、历史旧条目或 `run_scene` 默认行为。
 
+### 2026-06-06 — Frontend First-Run QA Polish
+
+- **做了什么**：
+  - 将前端浏览器标题从旧“阅读工作台”改为“未终章 · 世界书架”。
+  - 修正 `TianmingPage` 对后端“天命书不存在”响应的判断：内置样例没有天命书时展示可生成空态，而不是错误页。
+  - 收紧世界书架入口的移动端宽度约束，保证真实 390px 设备度量下标题、说明文案和四步旅程自然换行。
+  - 同步 `memory.md`、`engine/ui/README.md` 与 `docs/living-novel-engine-iteration-plan.md`，记录这是首屏 QA 修正，不代表完整 UI 愿景完成。
+- **验证**：
+  - Chrome DevTools 设备度量截图：390px 移动端 `StoryEntryPage` 无水平溢出；桌面 `TianmingPage` 缺失天命书时展示“生成天命书草案”空态。
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不删路由、不改变 API/artifact 契约；只处理真实首屏使用和理解上的 QA 问题。
+

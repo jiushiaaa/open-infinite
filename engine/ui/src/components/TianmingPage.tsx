@@ -47,7 +47,9 @@ export function TianmingPage({ slug }: { slug: string }) {
         if (!cancelled) {
           setBook(null);
           const message = err instanceof Error ? err.message : String(err);
-          if (!message.includes("404")) setError(message);
+          if (!message.includes("404") && !message.includes("不存在")) {
+            setError(message);
+          }
         }
       })
       .finally(() => {
@@ -157,7 +159,11 @@ export function TianmingPage({ slug }: { slug: string }) {
         />
       )}
       {!loading && !error && !book && (
-        <button className="btn btn--primary" disabled={busy} onClick={generate}>
+        <button
+          className="btn btn--primary tianming-empty-action"
+          disabled={busy}
+          onClick={generate}
+        >
           {busy ? "生成中…" : "生成天命书草案"}
         </button>
       )}
