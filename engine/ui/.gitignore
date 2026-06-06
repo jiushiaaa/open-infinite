@@ -4,6 +4,7 @@ dist-ssr
 *.local
 .vite
 *.tsbuildinfo
+.tmp-dossier-reading-focus
 .tmp-reading-progress
 .tmp-world-route-context
 .tmp-world-journey

@@ -5,6 +5,7 @@ import type {
   DossierReadingReport,
   DossierReadingVolumeTab,
 } from "../api/types";
+import { deriveDossierReadingFocus } from "../dossierReadingFocus";
 import { renderProse } from "../markdown";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
@@ -89,6 +90,16 @@ export function DossierReadingPage({
     activeTab === "continuous_reading"
       ? report?.continuous_reading?.reading_sections ?? []
       : [];
+  const readingFocus = useMemo(
+    () =>
+      deriveDossierReadingFocus({
+        sections: continuousSections,
+        activeSectionId,
+        totalEvidenceCount: report?.evidence_panel.ref_count ?? 0,
+        misbeliefCount: misbeliefNodes.length,
+      }),
+    [activeSectionId, continuousSections, misbeliefNodes.length, report?.evidence_panel.ref_count],
+  );
   const activeSectionIndex = Math.max(
     0,
     continuousSections.findIndex((section) => section.id === activeSectionId),
@@ -103,6 +114,9 @@ export function DossierReadingPage({
     sectionFocusLockRef.current = { id, until: Date.now() + 900 };
     setActiveSectionId(id);
     sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  const scrollToPageItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   const activeMisbeliefId =
     activeTab === "continuous_reading" && activeSectionId
@@ -421,6 +435,52 @@ export function DossierReadingPage({
                   <span className="tiny muted mono">{report.source_runs.adoption_run_id}</span>
                 )}
               </div>
+
+              {activeTab === "continuous_reading" && readingFocus && (
+                <section className="dossier-focus" aria-label="当前阅读场景导读">
+                  <div className="dossier-focus__copy">
+                    <span>{readingFocus.positionLabel}</span>
+                    <strong>{readingFocus.title}</strong>
+                    <small>
+                      {readingFocus.roleLabel} · {readingFocus.evidenceLabel} ·{" "}
+                      {readingFocus.misbeliefLabel}
+                    </small>
+                  </div>
+                  <div className="dossier-focus__actions">
+                    <button
+                      className="btn btn--ghost tiny"
+                      disabled={!readingFocus.previousSectionId}
+                      onClick={() =>
+                        readingFocus.previousSectionId &&
+                        scrollToSection(readingFocus.previousSectionId)
+                      }
+                    >
+                      上一场
+                    </button>
+                    <button
+                      className="btn btn--ghost tiny"
+                      disabled={!readingFocus.nextSectionId}
+                      onClick={() =>
+                        readingFocus.nextSectionId && scrollToSection(readingFocus.nextSectionId)
+                      }
+                    >
+                      下一场
+                    </button>
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() => scrollToPageItem(".dossier-evidence")}
+                    >
+                      看证据
+                    </button>
+                    <button
+                      className="btn btn--primary tiny"
+                      onClick={() => scrollToPageItem(".dossier-misbelief-map")}
+                    >
+                      追误会
+                    </button>
+                  </div>
+                </section>
+              )}
 
               {activeBias && (
                 <div className="dossier-bias-note">

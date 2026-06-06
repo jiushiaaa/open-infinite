@@ -2820,3 +2820,17 @@
 - **边界**：
   - 本轮只改前端壳层理解、样式和路由动作，不新增后端 API、不改变持久 artifact、不宣布完整 `WorldWorkspaceShell` 已完成。
 
+### 2026-06-07 — Dossier Reading Focus Bar
+
+- **做了什么**：
+  - 前端新增 `dossierReadingFocus` helper 与 `check:dossier-reading-focus` 轻量检查脚本，按连续阅读场景、当前场景、证据数量和误会数量推导当前阅读导读状态。
+  - `DossierReadingPage` 连续阅读态新增“当前阅读场景导读”纸面条，显示当前场次、场景标题、视角/叙事角色、本场/全卷证据和误会数量。
+  - 导读条提供“上一场 / 下一场 / 看证据 / 追误会”动作；上一场/下一场复用既有分场景滚动定位，看证据/追误会滚到已有证据链和误会图谱。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把卷宗阅读当前场景导读条记为当前事实。
+- **验证**：
+  - Red/green helper：先跑 `pnpm.cmd run check:dossier-reading-focus`，确认缺 `src/dossierReadingFocus.ts` 失败；实现后同命令 -> `dossier reading focus helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面访问 `#/world/my-story/worldlines/main/reading` 显示 `01 / 05` 导读条，点击“下一场”切到 `02 / 05`，点击“看证据”滚到证据区；390px 移动端导读条完整显示“上一场 / 下一场 / 看证据 / 追误会”，`mobileOverflow=0`。
+- **边界**：
+  - 本轮只改前端阅读交互和样式，不新增后端 API、不改变持久 artifact、不删现有卷宗目录、误会图谱或证据链。
+
