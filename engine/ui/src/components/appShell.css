@@ -362,7 +362,8 @@
 
 @media (max-width: 640px) {
   .topbar {
-    padding: var(--space-3);
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
   }
 
   .topbar__left {
@@ -376,31 +377,36 @@
   .topbar__right {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2);
+    gap: var(--space-1);
   }
 
   .world-nav {
     display: grid;
     grid-column: 1 / -1;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--space-1);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3px;
     width: 100%;
-    padding: var(--space-1);
+    padding: 3px;
   }
 
   .world-nav button {
     min-width: 0;
-    padding: 7px var(--space-1);
+    padding: 5px 2px;
+    font-size: 11.5px;
+    line-height: 1.25;
     text-align: center;
   }
 
   .topbar__right > .btn {
     width: 100%;
     min-width: 0;
+    justify-content: center;
+    padding: 6px 8px;
   }
 
   .shell-context {
-    padding: var(--space-3);
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
   }
 
   .shell-context__copy {
@@ -410,12 +416,21 @@
 
   .shell-context__actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
     width: 100%;
   }
 
   .shell-context__stages {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .shell-context__stages button {
+    padding: 5px 4px;
+    text-align: center;
+  }
+
+  .shell-context__stages strong {
+    font-size: 11.5px;
   }
 
   .shell-context__dossiers {
@@ -433,17 +448,7 @@
   .shell-context__actions .btn {
     width: 100%;
     min-width: 0;
-  }
-}
-
-@media (max-width: 520px) {
-  .world-nav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 360px) {
-  .world-nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: center;
+    padding: 6px 8px;
   }
 }

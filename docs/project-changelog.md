@@ -2886,3 +2886,17 @@
 - **边界**：
   - 这是 `WorldWorkspaceShell` 的壳层切片，不代表完整世界内部工作区完成；角色/势力跨章长线阅读、跨章节回收和更深误会网络仍需继续。
 
+### 2026-06-07 — AppShell Mobile Shell Density
+
+- **做了什么**：
+  - 新增 `check:app-shell-mobile-layout` 检查脚本，锁定 640px 以下世界导航、体验轨道和窄屏 override 的密度规则，避免移动端又把世界入口撑成三行以上。
+  - `appShell.css` 压缩移动端顶栏、按钮、体验轨道、动作区和位置条间距；9 个世界入口保持两行直接可见，4 个“定界 / 运行 / 阅读 / 采纳”阶段保持一行，8 个卷宗入口保持两行短标签。
+  - 保留原有顶栏导航、世界位置条、体验轨道、主动作/次动作、全局继续阅读、卷宗速览盘和所有路由；本轮不新增后端 API、不改 artifact。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把 AppShell 移动端壳层压缩记为当前事实。
+- **验证**：
+  - Red/green helper：先跑 `pnpm.cmd run check:app-shell-mobile-layout`，确认当前 CSS 因世界导航 4/3/2 列、阶段两行而失败；实现后同命令 -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：访问 `#/world/my-story/sandbox`，390px 与 360px 均显示 9 个顶栏入口、4 个阶段和 8 个卷宗入口，`overflow=0`；390px 主标题起点从约 524px 提前到 417px。
+- **边界**：
+  - 本轮只改前端壳层 CSS 与检查脚本，不新增世界能力、不改变 API/artifact 契约、不删任何入口。
+
