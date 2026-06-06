@@ -54,6 +54,9 @@ export function EventPerspectivePage({
   const eventVolume = report?.event_volume as DossierReadingVolumeTab | undefined;
   const volumeBody = eventVolume?.body_md || "";
   const gap = report?.information_gap || {};
+  const scrollToEventItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (loading) return <Loading label="正在翻开事件多视角…" />;
 
@@ -93,6 +96,29 @@ export function EventPerspectivePage({
       {error && <ErrorState message={error} onRetry={load} />}
       {!error && report && (
         <>
+          <nav className="event-perspective-mobile-guide" aria-label="移动端事件导读">
+            <button type="button" onClick={() => scrollToEventItem(".event-perspective-cover")}>
+              <span>01</span>
+              <strong>读事件</strong>
+              <small>先看这一刻发生了什么</small>
+            </button>
+            <button type="button" onClick={() => scrollToEventItem(".event-perspective-gap")}>
+              <span>02</span>
+              <strong>看信息差</strong>
+              <small>理解谁误读了它</small>
+            </button>
+            <button type="button" onClick={() => scrollToEventItem(".event-perspective-evidence")}>
+              <span>03</span>
+              <strong>查证据</strong>
+              <small>核对沙盘和卷宗来源</small>
+            </button>
+            <button type="button" onClick={() => navigate({ name: "author", slug })}>
+              <span>04</span>
+              <strong>作者台</strong>
+              <small>送去采纳续写</small>
+            </button>
+          </nav>
+
           <WorldRunway
             eyebrow="事件卷案"
             title="先看这一刻怎样发生，再看它如何被误读和代偿"

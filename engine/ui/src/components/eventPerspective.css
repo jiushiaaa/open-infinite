@@ -33,6 +33,48 @@
   gap: 10px;
 }
 
+.event-perspective-mobile-guide {
+  display: none;
+}
+
+.event-perspective-mobile-guide button {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(126, 43, 30, 0.18);
+  background:
+    linear-gradient(135deg, rgba(250, 245, 233, 0.72), rgba(255, 253, 246, 0.9)),
+    rgba(255, 253, 246, 0.9);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.event-perspective-mobile-guide span,
+.event-perspective-mobile-guide strong,
+.event-perspective-mobile-guide small {
+  display: block;
+}
+
+.event-perspective-mobile-guide span {
+  color: #8d3428;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.event-perspective-mobile-guide strong {
+  margin-top: 3px;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.event-perspective-mobile-guide small {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
 .event-perspective-layout {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(260px, 340px);
@@ -276,6 +318,12 @@
     padding: 18px;
   }
 
+  .event-perspective-mobile-guide {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
   .event-perspective-hero__actions {
     justify-content: flex-start;
   }
@@ -288,5 +336,52 @@
   .event-perspective-index,
   .event-perspective-aside {
     position: static;
+  }
+}
+
+@media (max-width: 620px) {
+  .event-perspective-page {
+    gap: 12px;
+  }
+
+  .event-perspective-hero {
+    padding: 14px;
+  }
+
+  .event-perspective-hero h1 {
+    font-size: 1.45rem;
+    line-height: 1.16;
+  }
+
+  .event-perspective-hero p {
+    line-height: 1.55;
+  }
+
+  .event-perspective-hero__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .event-perspective-hero__actions .btn {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .event-perspective-mobile-guide {
+    gap: 6px;
+  }
+
+  .event-perspective-mobile-guide button {
+    padding: 8px 7px;
+  }
+
+  .event-perspective-mobile-guide strong {
+    font-size: 0.84rem;
+  }
+
+  .event-perspective-mobile-guide small {
+    display: none;
   }
 }

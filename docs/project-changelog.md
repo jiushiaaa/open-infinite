@@ -3010,3 +3010,18 @@
   - Chrome CDP smoke：390px 访问 `#/anchor/my-story`，状态条位于 468-726px 首屏内，点击“下一步”进入最近阅读；1366px 桌面状态条位于中栏总览顶部；两种宽度 `scrollWidth === clientWidth` 且无业务内容水平溢出。
 - **边界**：
   - 本轮只改前端锚定页 JSX/CSS、检查脚本和文档，不新增后端 API、不改 artifact，不删除既有世界锚定、视觉资产、基线回放、实体别名、角色栏或卷宗入口。
+
+### 2026-06-07 — Event Perspective Mobile Guide
+
+- **做了什么**：
+  - 新增 `check:event-perspective-ux` 检查脚本，锁定事件多视角移动端导读条存在、位于 `WorldRunway` 前，并只在移动端显示。
+  - `EventPerspectivePage` 在移动端首屏新增“读事件 / 看信息差 / 查证据 / 作者台”四格导读条；桌面仍保持原事件三栏工作台。
+  - 四个入口分别复用现有滚动/路由：读事件滚到当前事件，看信息差滚到信息差，查证据滚到证据链，作者台进入作者采纳台。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把事件多视角移动端导读条记为当前事实。
+- **验证**：
+  - Red/green helper：先新增 `check:event-perspective-ux`，确认旧事件页因缺直接滚动导读失败；实现后同命令 -> `event perspective ux structure ok`。
+  - 相邻阅读导读检查：`pnpm.cmd run check:longline-reading-ux` -> `longline reading ux structure ok`；`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/events/main/perspectives`，导读条位于 653-706px 首屏内且 display 为 `grid`；点击“看信息差 / 查证据”分别把信息差和证据链带入可见区；1366px 桌面导读条隐藏，两个尺寸均无水平溢出。
+- **边界**：
+  - 本轮只改前端事件页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `event-perspective` 契约、不改 artifact。
