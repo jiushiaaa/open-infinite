@@ -86,6 +86,9 @@ export function FactionVolumePage({
   const resourceSignals = anchor?.world.factions.length ?? entries.length;
   const activeName = activeEntry?.name || activeVolume?.faction_name || activeVolume?.title || factionId;
   const hasVolume = Boolean(activeVolume?.body_md);
+  const scrollToFactionItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (loading) return <Loading label="正在翻开势力卷…" />;
 
@@ -128,6 +131,29 @@ export function FactionVolumePage({
               <p>{partialError}</p>
             </div>
           )}
+
+          <nav className="faction-volume-mobile-guide" aria-label="移动端势力卷导读">
+            <button type="button" onClick={() => scrollToFactionItem(".faction-volume-cover")}>
+              <span>01</span>
+              <strong>看站位</strong>
+              <small>先看这支势力如何解释事件</small>
+            </button>
+            <button type="button" onClick={() => scrollToFactionItem(".faction-volume-state")}>
+              <span>02</span>
+              <strong>查代偿</strong>
+              <small>核对压力域和最近记录</small>
+            </button>
+            <button type="button" onClick={() => scrollToFactionItem(".faction-volume-index")}>
+              <span>03</span>
+              <strong>换势力</strong>
+              <small>切到其他秩序视角</small>
+            </button>
+            <button type="button" onClick={() => navigate({ name: "author", slug })}>
+              <span>04</span>
+              <strong>作者台</strong>
+              <small>把势力压力写进下一章</small>
+            </button>
+          </nav>
 
           <WorldRunway
             eyebrow="势力压力链"

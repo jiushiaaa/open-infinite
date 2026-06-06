@@ -3040,3 +3040,18 @@
   - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/characters/zhao_xuan`，导读条位于 592-646px 首屏内且 display 为 `grid`；点击“查记忆 / 换角色”分别把主观记忆链和角色目录带入可见区；1366px 桌面导读条隐藏，两个尺寸均无水平溢出。
 - **边界**：
   - 本轮只改前端角色卷 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 或 `subjective-memory` 契约、不改 artifact。
+
+### 2026-06-07 — Faction Volume Mobile Guide
+
+- **做了什么**：
+  - 新增 `check:faction-volume-ux` 检查脚本，锁定势力卷移动端导读条存在、位于 `WorldRunway` 前，并只在移动端显示。
+  - `FactionVolumePage` 在移动端首屏新增“看站位 / 查代偿 / 换势力 / 作者台”四格导读条；桌面仍保持原势力卷工作台。
+  - 四个入口分别复用现有滚动/路由：看站位滚到当前势力，查代偿滚到势力代偿状态，换势力滚到势力目录，作者台进入作者采纳台。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把势力卷移动端导读条记为当前事实。
+- **验证**：
+  - Red/green helper：先新增 `check:faction-volume-ux`，确认旧势力卷因缺直接滚动导读失败；实现后同命令 -> `faction volume ux structure ok`。
+  - 相邻阅读导读检查：`pnpm.cmd run check:character-volume-ux` -> `character volume ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/factions/苍澜派`，导读条位于 592-646px 首屏内且 display 为 `grid`；点击“查代偿 / 换势力”分别把势力代偿和势力目录带入可见区；1366px 桌面导读条隐藏，两个尺寸均无水平溢出。
+- **边界**：
+  - 本轮只改前端势力卷 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 或 `worldline-state` 契约、不改 artifact。

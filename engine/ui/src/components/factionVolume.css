@@ -60,6 +60,51 @@
   line-height: 1.6;
 }
 
+.faction-volume-mobile-guide {
+  display: none;
+  max-width: 1320px;
+  margin: 0 auto var(--space-4);
+}
+
+.faction-volume-mobile-guide button {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(156, 124, 60, 0.24);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(236, 224, 196, 0.58), rgba(255, 252, 244, 0.88)),
+    var(--paper);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.faction-volume-mobile-guide span,
+.faction-volume-mobile-guide strong,
+.faction-volume-mobile-guide small {
+  display: block;
+}
+
+.faction-volume-mobile-guide span {
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.faction-volume-mobile-guide strong {
+  margin-top: 3px;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.faction-volume-mobile-guide small {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
 .faction-volume-layout {
   display: grid;
   grid-template-columns: minmax(220px, 260px) minmax(0, 700px) minmax(260px, 320px);
@@ -308,6 +353,12 @@
     justify-content: flex-start;
   }
 
+  .faction-volume-mobile-guide {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
   .faction-volume-layout {
     display: flex;
     flex-direction: column;
@@ -333,5 +384,55 @@
 
   .faction-volume-cover dl {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .faction-volume-page {
+    padding: var(--space-3);
+  }
+
+  .faction-volume-hero {
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+
+  .faction-volume-hero h1 {
+    font-size: 26px;
+    line-height: 1.16;
+  }
+
+  .faction-volume-hero p {
+    line-height: 1.58;
+  }
+
+  .faction-volume-hero__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .faction-volume-hero__actions .btn {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .faction-volume-mobile-guide {
+    gap: 6px;
+    margin-bottom: var(--space-3);
+  }
+
+  .faction-volume-mobile-guide button {
+    padding: 8px 7px;
+  }
+
+  .faction-volume-mobile-guide strong {
+    font-size: 0.84rem;
+  }
+
+  .faction-volume-mobile-guide small {
+    display: none;
   }
 }
