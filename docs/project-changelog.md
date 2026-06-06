@@ -2468,3 +2468,17 @@
 - **边界**：
   - 本轮不改后端、不删旧入口、不改变 API/artifact 契约；只提升锚定页启动路径和移动端功能保留。
 
+### 2026-06-06 — World Sandbox Runway Guidance
+
+- **做了什么**：
+  - `WorldSandboxPage` 接入 `WorldRunway`，把“投放事件 -> 观察角色 -> 进入阅读”的路径前置到世界沙盘首屏。
+  - 空态下主行动聚焦运行台、天命书和卷宗阅读；已有沙盘或自演结果时，主行动切到卷宗阅读、世界线档案和多视角卷。
+  - 补充沙盘页移动端按钮栅格、内边距和滚动定位约束，避免首屏操作按钮把页面撑宽。
+  - 同步 `memory.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是沙盘运行导览切片。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Chrome headless 截图：桌面沙盘首屏显示运行导览；390px 移动端沙盘页按钮栅格换行，沙盘页本体无水平溢出。
+  - HTTP smoke：`http://localhost:5174/#/world/my-story/sandbox` 返回 200 并加载前端 root。
+- **边界**：
+  - 本轮不改后端、不删旧入口、不改变 API/artifact 契约；只提升沙盘页的理解路径、下一步行动和移动端可用性。
+

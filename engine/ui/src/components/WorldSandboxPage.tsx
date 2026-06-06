@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { api } from "../api/client";
 import type {
   SubjectiveMemoryReport,
@@ -8,6 +8,7 @@ import type {
 } from "../api/types";
 import { navigate } from "../routing";
 import { ErrorState, EmptyState } from "./common/States";
+import { WorldRunway } from "./WorldRunway";
 import "./worldSandbox.css";
 
 const DEFAULT_EVENT = "老皇帝驾崩，边境军报同时传入归云斋。";
@@ -19,6 +20,8 @@ function openReadableRoute(route: string) {
 }
 
 export function WorldSandboxPage({ slug }: { slug: string }) {
+  const controlRef = useRef<HTMLElement | null>(null);
+  const resultsRef = useRef<HTMLElement | null>(null);
   const [majorEvent, setMajorEvent] = useState(DEFAULT_EVENT);
   const [interventionContent, setInterventionContent] = useState("");
   const [interventionTarget, setInterventionTarget] = useState("");
@@ -62,6 +65,69 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         : null;
   const canRun = majorEvent.trim().length > 0 && !loading;
   const actionCount = round?.character_actions.length ?? 0;
+  const memoryEntries = report?.summary.subjective_memory_entries_written ?? 0;
+  const hasReadableResult = Boolean(round || autopilotReport);
+  const focusControl = () =>
+    controlRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const focusResults = () =>
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const sandboxRunwayMeta = report ? (
+    <>
+      <span className="badge badge--jade">{actionCount} 个角色行动</span>
+      <span className="badge badge--gold">{memoryEntries} 条主观记忆</span>
+      <span className="badge">世界线 {report.worldline_id}</span>
+    </>
+  ) : autopilotReport ? (
+    <>
+      <span className="badge badge--jade">{autopilotReport.rounds_completed} 个检查点</span>
+      <span className="badge badge--gold">
+        {autopilotReport.task?.status ?? autopilotReport.status ?? "ready"}
+      </span>
+      <span className="badge">世界线 {autopilotReport.worldline_id}</span>
+    </>
+  ) : (
+    <>
+      <span className="badge badge--jade">待投放事件</span>
+      <span className="badge">main 世界线</span>
+    </>
+  );
+  const sandboxRunwayActions = hasReadableResult
+    ? [
+        {
+          label: "卷宗阅读",
+          detail: "把本轮结果当小说读",
+          primary: true,
+          onClick: () => navigate({ name: "dossierReading", slug, worldlineId: "main" }),
+        },
+        {
+          label: "世界线档案",
+          detail: "看因果债与锚点变化",
+          onClick: () => navigate({ name: "worldline", slug, worldlineId: "main" }),
+        },
+        {
+          label: "多视角卷",
+          detail: "进入事件多视角正文",
+          onClick: () => navigate({ name: "lens", slug }),
+        },
+      ]
+    : [
+        {
+          label: "运行台",
+          detail: "先写事件并启动一轮",
+          primary: true,
+          onClick: focusControl,
+        },
+        {
+          label: "天命书",
+          detail: "查看世界预抽命运",
+          onClick: () => navigate({ name: "tianming", slug }),
+        },
+        {
+          label: "卷宗阅读",
+          detail: "进入世界可读出口",
+          onClick: () => navigate({ name: "dossierReading", slug, worldlineId: "main" }),
+        },
+      ];
   const deltaItems = useMemo(() => {
     if (!round) return [];
     return [
@@ -249,8 +315,44 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         </div>
       </header>
 
+      <WorldRunway
+        eyebrow="沙盘运行导览"
+        title={hasReadableResult ? "世界已经给出回响" : "从一个事件开始，让角色自己走"}
+        summary={
+          hasReadableResult
+            ? "本轮结果已经写入行动、记忆和世界线；你可以继续查看证据，也可以把它转成可读卷宗。"
+            : "先投放一个大事件；系统会让每个角色按自己的立场行动，再把后果写回世界状态。"
+        }
+        meta={sandboxRunwayMeta}
+        steps={[
+          {
+            label: "投放事件",
+            detail: "写下大事件，也可以加入读者干预",
+            active: !hasReadableResult,
+            onClick: focusControl,
+          },
+          {
+            label: "观察角色",
+            detail: hasReadableResult
+              ? `${actionCount || autopilotReport?.rounds_completed || 0} 条世界回响已生成`
+              : "运行后会出现行动、冲突和记忆",
+            active: Boolean(round),
+            onClick: hasReadableResult ? focusResults : focusControl,
+          },
+          {
+            label: "进入阅读",
+            detail: "把沙盘后果带回卷宗、世界线和多视角正文",
+            active: hasReadableResult,
+            onClick: hasReadableResult
+              ? () => navigate({ name: "dossierReading", slug, worldlineId: "main" })
+              : undefined,
+          },
+        ]}
+        actions={sandboxRunwayActions}
+      />
+
       <div className="sandbox-layout">
-        <aside className="sandbox-control">
+        <aside className="sandbox-control" ref={controlRef}>
           <div className="sandbox-panel">
             <h2>本轮大事件</h2>
             <textarea
@@ -415,7 +517,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           </div>
         </aside>
 
-        <main className="sandbox-main">
+        <main className="sandbox-main" ref={resultsRef}>
           {error && <ErrorState message={error} onRetry={runRound} />}
           {autopilotError && <ErrorState message={autopilotError} onRetry={runAutopilot} />}
           {!error && !round && !autopilotReport && (
