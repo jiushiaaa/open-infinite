@@ -20,6 +20,7 @@ export function CheckpointReplayPage({
   const [report, setReport] = useState<WorldAutopilotCheckpointReplayReport | null>(
     null,
   );
+  const [replayMode, setReplayMode] = useState<"report" | "evidence">("report");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,6 +102,14 @@ export function CheckpointReplayPage({
   const scrollToCheckpointItem = (selector: string) => {
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const openReportMode = () => {
+    setReplayMode("report");
+    window.setTimeout(() => scrollToCheckpointItem(".worldline-wake-bridge"), 80);
+  };
+  const openEvidenceMode = (selector = ".worldline-summary") => {
+    setReplayMode("evidence");
+    window.setTimeout(() => scrollToCheckpointItem(selector), 80);
+  };
 
   return (
     <div className="worldline-page">
@@ -126,13 +135,13 @@ export function CheckpointReplayPage({
             </button>
             <button
               className="btn btn--ghost"
-              onClick={() => scrollToCheckpointItem(".worldline-memory-section")}
+              onClick={() => openEvidenceMode(".worldline-memory-section")}
             >
               看记忆
             </button>
             <button
               className="btn btn--ghost"
-              onClick={() => scrollToCheckpointItem(".worldline-consequence-section")}
+              onClick={() => openEvidenceMode(".worldline-consequence-section")}
             >
               看代偿
             </button>
@@ -153,6 +162,22 @@ export function CheckpointReplayPage({
               <span className="badge badge--jade">{checkpoint.stage}</span>
               <span className="badge">{worldlineId}</span>
               <span className="badge badge--gold">{checkpoint.causal_debt}</span>
+            </div>
+            <div className="checkpoint-replay-mode" aria-label="检查点回放模式">
+              <button
+                type="button"
+                className={replayMode === "report" ? "is-active" : ""}
+                onClick={openReportMode}
+              >
+                读报告
+              </button>
+              <button
+                type="button"
+                className={replayMode === "evidence" ? "is-active" : ""}
+                onClick={() => openEvidenceMode()}
+              >
+                查证据
+              </button>
             </div>
           </div>
 
@@ -271,7 +296,7 @@ export function CheckpointReplayPage({
         ]}
       />
 
-      <main className="worldline-layout">
+      <main className={`worldline-layout worldline-layout--${replayMode}`}>
         {loading && <EmptyState title="正在回放检查点" hint="正在读取本地检查点证据。" />}
         {error && <ErrorState message={error} onRetry={load} />}
         {!loading && !error && report && checkpoint && (
@@ -392,7 +417,7 @@ export function CheckpointReplayPage({
               )}
             </section>
 
-            <section className="worldline-section">
+            <section className="worldline-section checkpoint-next-section">
               <div className="worldline-section__title">
                 <h2>下一步可写方向</h2>
                 <button

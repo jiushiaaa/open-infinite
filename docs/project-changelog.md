@@ -3212,3 +3212,17 @@
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端作者采纳 JSX/CSS、检查脚本和文档，不新增后端 API、不改变采纳/草稿/Reviewer/确认入卷契约、不改 artifact。
+### 2026-06-07 — Checkpoint Replay Mode Switch
+
+- **做了什么**：
+  - `CheckpointReplayPage` 顶部醒来回放中枢新增“读报告 / 查证据”模式切换。
+  - 默认“读报告”模式隐藏回放摘要、角色记忆和具象代偿证据区，聚焦“从这个检查点继续读”和“下一步可写方向”。
+  - “查证据”模式恢复回放摘要、角色记忆和具象代偿；移动端“看记忆 / 看代偿”会先切到查证据再滚动到对应区块。
+  - 扩展 `check:checkpoint-replay-ux`，锁定模式状态、布局切换、移动端证据入口和证据区保留。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把检查点回放模式切换记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:checkpoint-replay-ux` -> `checkpoint replay ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - `git diff --check` 通过；仅有 Windows CRLF 提示。
+- **边界**：
+  - 本轮只改前端检查点回放 JSX、共用世界线 CSS、检查脚本和文档，不新增后端 API、不改变自演检查点或 `readable_entry` 契约、不改 artifact。
