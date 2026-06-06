@@ -165,6 +165,41 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       ]
     : [];
   const resultBridgeSignals = deltaItems.slice(0, 4);
+  const strategyInteractions = useMemo(() => {
+    if (!round) return [];
+    const characterNameById = new Map(
+      round.character_actions.map((item) => [item.character_id, item.character_name]),
+    );
+    return round.character_actions
+      .flatMap((item) => {
+        const strategy =
+          item.strategic_interaction ?? item.llm_decision_advisory?.strategic_interaction;
+        if (!strategy?.target_character_id) return [];
+        return [
+          {
+            actorId: item.character_id,
+            actorName: item.character_name,
+            targetName:
+              characterNameById.get(strategy.target_character_id) ||
+              strategy.target_character_id,
+            tactic: strategy.tactic || "暗中试探",
+            privateGoal: strategy.private_goal || item.true_intent || item.intent,
+            leverage: strategy.perceived_leverage || "筹码尚未明示",
+            misread: strategy.assumed_misread || "误判还未显形",
+            risk: strategy.risk_assessment || item.risk || "风险待观察",
+            effect:
+              strategy.expected_world_effect ||
+              item.expected_outcome ||
+              "继续改变世界状态",
+            hook:
+              strategy.outcome_hook ||
+              round.next_story_possibilities[0]?.brief ||
+              "下一轮继续观察这条暗线",
+          },
+        ];
+      })
+      .slice(0, 4);
+  }, [round]);
 
   async function runRound() {
     if (!majorEvent.trim()) return;
@@ -831,6 +866,60 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   </button>
                 </div>
               </section>
+              {strategyInteractions.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-board"
+                  aria-label="本轮策略棋盘"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">策略棋盘</p>
+                      <h2>谁在算计谁，以及世界会怎么被推歪</h2>
+                    </div>
+                    <span className="badge badge--gold">
+                      {strategyInteractions.length} 条暗线
+                    </span>
+                  </div>
+                  <div className="sandbox-strategy-board__grid">
+                    {strategyInteractions.map((item) => (
+                      <article
+                        className="sandbox-strategy-card"
+                        key={`${item.actorId}-${item.targetName}-${item.tactic}`}
+                      >
+                        <div className="sandbox-strategy-card__route">
+                          <strong>{item.actorName}</strong>
+                          <span aria-hidden>→</span>
+                          <strong>{item.targetName}</strong>
+                        </div>
+                        <p>{item.tactic}</p>
+                        <dl>
+                          <div>
+                            <dt>私下目的</dt>
+                            <dd>{item.privateGoal}</dd>
+                          </div>
+                          <div>
+                            <dt>手里筹码</dt>
+                            <dd>{item.leverage}</dd>
+                          </div>
+                          <div>
+                            <dt>可能误判</dt>
+                            <dd>{item.misread}</dd>
+                          </div>
+                          <div>
+                            <dt>风险</dt>
+                            <dd>{item.risk}</dd>
+                          </div>
+                        </dl>
+                        <div className="sandbox-strategy-card__effect">
+                          <span>世界影响</span>
+                          <strong>{item.effect}</strong>
+                          <p>{item.hook}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
               {interventionConstraint && (
                 <section className="sandbox-section sandbox-intervention">
                   <div className="sandbox-section__title">

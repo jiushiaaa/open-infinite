@@ -3154,3 +3154,17 @@
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
+
+### 2026-06-07 — Sandbox Strategy Board
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“本轮已发生”结果承接台之后、角色行动链之前新增“策略棋盘”。
+  - 当真实模型 advisory 写出 `strategic_interaction` 时，策略棋盘会把谁在算计谁、策略、私下目的、筹码、误判、风险和预期世界影响整理为可扫读卡片，让用户先看懂本轮博弈，再进入角色明细。
+  - 原有角色行动链里的模型临场判断、采信、欺骗、传播、反抗和策略明细仍保留。
+  - 扩展 `check:sandbox-runner-ux`，锁定策略棋盘必须位于结果总览和角色行动链之间，并覆盖平板/移动端单列布局。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把沙盘策略棋盘记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
