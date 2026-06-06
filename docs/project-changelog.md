@@ -2900,3 +2900,17 @@
 - **边界**：
   - 本轮只改前端壳层 CSS 与检查脚本，不新增世界能力、不改变 API/artifact 契约、不删任何入口。
 
+### 2026-06-07 — Sandbox Runner Step Console
+
+- **做了什么**：
+  - 新增 `check:sandbox-runner-ux` 检查脚本，锁定沙盘运行台必须有专属产品壳、三步轨道、可选干预分组和“启动一轮推演”主动作。
+  - `WorldSandboxPage` 的本轮运行面板从普通表单重组为“写事件 / 可选干预 / 启动推演”三步控制台；默认只要求用户写大事件。
+  - 读者干预、投放对象和投放方式收进可选折叠区；真实模型决策建议、事件输入、启动按钮和原 `runRound` 请求字段全部保留。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把沙盘运行台分步化记为当前事实。
+- **验证**：
+  - Red/green helper：先跑 `pnpm.cmd run check:sandbox-runner-ux`，确认旧运行台缺结构失败；实现后同命令 -> `sandbox runner ux structure ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面与 390px 访问 `#/world/my-story/sandbox` 均显示“写事件 / 可选干预 / 启动推演”、主按钮“启动一轮推演”；点击可选干预后 textarea 可见，展开前后 `overflow=0`。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS 和检查脚本，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
+

@@ -2,7 +2,7 @@
 
 未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。本文只负责 `engine/` 的运行、API 和 artifact 说明；当前事实、文档分层和历史收口请分别看 [`../memory.md`](../memory.md)、[`../docs/index.md`](../docs/index.md) 与 [`../docs/project-changelog.md`](../docs/project-changelog.md)。
 
-当前主线是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph、检索评测、发行或商业化面板。S1-S9 已形成第一版产品链路：世界沙盘、主观记忆、《天命书》、干预投放、L5 觉醒/模因传播、因果债具象化、世界自演、多视角正文、作者采纳、连续阅读、确认入卷、Reviewer 局部重写采纳和编辑后定稿都已有 additive service/API/UI/artifact/tests。
+当前主线是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph、检索评测、发行或商业化面板。S1-S9 已形成第一版产品链路：世界沙盘、主观记忆、《天命书》、干预投放、L5 觉醒/模因传播、因果债具象化、世界自演、多视角正文、作者采纳、连续阅读、确认入卷、Reviewer 局部重写采纳和编辑后定稿都已有 additive service/API/UI/artifact/tests；世界沙盘页运行台已重组为“写事件 / 可选干预 / 启动推演”三步控制台。
 
 最近产品化入口：
 
@@ -33,7 +33,7 @@
 | 后端 | Python package + `lne` CLI + 本地 HTTP API |
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
-| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与世界入口旅程状态、最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版 |
+| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与世界入口旅程状态、沙盘运行台、最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版 |
 | 后端验证基线 | `python -m pytest -q` -> `951 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
 | 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、更深跨章误会回收、更强 Reviewer 和整章风格润色是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |

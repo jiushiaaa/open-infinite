@@ -62,6 +62,126 @@
   padding: var(--space-4);
 }
 
+.sandbox-runner {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sandbox-runner__head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.sandbox-runner__head p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.sandbox-runner__eyebrow {
+  color: var(--cinnabar-dark);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.sandbox-runner__steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: var(--space-3);
+  padding: 3px;
+  border: 1px solid rgba(196, 184, 156, 0.72);
+  border-radius: 8px;
+  background: rgba(250, 246, 236, 0.7);
+}
+
+.sandbox-runner__steps span {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 0;
+  border-radius: 6px;
+  padding: 7px 4px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.sandbox-runner__steps span.is-active {
+  background: var(--ink);
+  color: var(--paper-raised);
+}
+
+.sandbox-runner__steps em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(141, 50, 37, 0.1);
+  color: inherit;
+  font-style: normal;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.sandbox-runner__steps strong {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.sandbox-runner__field > span {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.sandbox-runner__field--event textarea {
+  min-height: 132px;
+}
+
+.sandbox-runner__advanced {
+  margin-top: var(--space-3);
+  border: 1px solid rgba(196, 184, 156, 0.72);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.62);
+}
+
+.sandbox-runner__advanced summary {
+  display: grid;
+  gap: 3px;
+  cursor: pointer;
+  padding: var(--space-3);
+  color: var(--ink);
+  list-style-position: inside;
+}
+
+.sandbox-runner__advanced summary span {
+  font-weight: 700;
+}
+
+.sandbox-runner__advanced summary small {
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.sandbox-runner__advanced label {
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.sandbox-runner__model {
+  padding: var(--space-2) 0 0;
+  border-top: 1px dashed var(--line);
+}
+
+.sandbox-runner__submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--space-3);
+}
+
 .sandbox-panel h2,
 .sandbox-section h2 {
   margin: 0;
