@@ -2657,3 +2657,20 @@
 - **边界**：
   - 本轮不改后端、不改变 API/artifact 契约、不新增持久 artifact；只提升卷宗阅读页的误会理解、点击定位和移动端阅读稳定性。
 
+### 2026-06-06 — World Anchor Dossier Gateway
+
+- **做了什么**：
+  - `WorldAnchorPage` 新增“世界卷宗总览”，把天命书、世界沙盘、卷宗阅读、世界线、多视角和作者台组织成“定界 -> 运行 -> 阅读 -> 采纳”的世界内地图。
+  - 每个入口展示用途说明、当前读数和可点击动作，并复用现有路由；总览头部保留“机制档案”出口。
+  - 桌面端在中栏显示完整卷宗地图；移动端在“世界启动”卡后显示紧凑总览，避免用户先被视觉资产和旧机制信息淹没。
+  - 原有“世界启动”行动卡、编辑锚定、视觉资产、基线回放、实体别名、世界合约、角色卡和角色探针全部保留。
+  - 同步 `memory.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是世界内部卷宗壳的第一步。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过。
+  - 后端：`cd engine && python -m pytest -q` -> `947 passed`。
+  - Chrome 桌面与精确 390px 设备模拟：`#/anchor/my-story` 仅显示一套可见总览，6 个入口齐全，无水平溢出；移动端总览起点位于首屏内。
+  - UI smoke：点击“卷宗阅读”进入 `#/world/my-story/worldlines/main/reading`；点击“机制档案”进入 `#/workspace/my-story`。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不新增路由、不改变 API/artifact 契约；只提升世界锚定页的理解路径和跨页面入口组织。
+

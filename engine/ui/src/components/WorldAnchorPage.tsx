@@ -284,6 +284,8 @@ function LeftColumn({
         </div>
       </section>
 
+      <WorldDossierGateway data={data} compact />
+
       <VisualAssetsControls
         slug={data.slug}
         visual={visual}
@@ -383,6 +385,8 @@ function CenterColumn({
   const w = data.world;
   return (
     <div className="anchor__scroll">
+      <WorldDossierGateway data={data} />
+
       {data.import_review && (
         <section className="anchor__block">
           <ImportReviewPanel review={data.import_review} />
@@ -498,6 +502,121 @@ function CenterColumn({
         )}
       </section>
     </div>
+  );
+}
+
+function WorldDossierGateway({
+  data,
+  compact = false,
+}: {
+  data: WorldAnchor;
+  compact?: boolean;
+}) {
+  const worldlineId = "main";
+  const portals = [
+    {
+      key: "tianming",
+      label: "天命书",
+      title: "先看世界宪法",
+      desc: "确认锚点、合约压力和干预边界，避免角色变成无条件执行命令的工具。",
+      meta: `${data.open_threads.length} 条伏笔`,
+      action: "确认天命",
+      primary: true,
+      onClick: () => navigate({ name: "tianming", slug: data.slug }),
+    },
+    {
+      key: "sandbox",
+      label: "世界沙盘",
+      title: "让角色自己行动",
+      desc: "投放事件或干预，观察角色基于欲望、记忆、误判和利益做出的选择。",
+      meta: `${data.characters.length} 个角色`,
+      action: "运行一轮",
+      onClick: () => navigate({ name: "sandbox", slug: data.slug }),
+    },
+    {
+      key: "reading",
+      label: "卷宗阅读",
+      title: "像读小说一样进入结果",
+      desc: "连续正文、误会图谱、证据锚点和多卷宗视角都在这里汇合。",
+      meta:
+        data.world.current_chapter != null
+          ? `第 ${data.world.current_chapter} 章`
+          : "主线卷",
+      action: "开始阅读",
+      onClick: () =>
+        navigate({ name: "dossierReading", slug: data.slug, worldlineId }),
+    },
+    {
+      key: "worldline",
+      label: "世界线",
+      title: "检查分支和代偿",
+      desc: "看当前世界线是否还能继续、因果债压在哪里、最近检查点发生了什么。",
+      meta: `${data.run_count} 次运行`,
+      action: "查看世界线",
+      onClick: () => navigate({ name: "worldline", slug: data.slug, worldlineId }),
+    },
+    {
+      key: "lens",
+      label: "多视角",
+      title: "拆开同一事件的信息差",
+      desc: "生成世界正史、主锚点、角色个人卷和事件多视角，找出谁误会了谁。",
+      meta: `${data.world.factions.length} 个势力`,
+      action: "生成视角",
+      onClick: () => navigate({ name: "lens", slug: data.slug }),
+    },
+    {
+      key: "author",
+      label: "作者台",
+      title: "把涌现剧情写成下一章",
+      desc: "采纳沙盘结果，生成 brief、草稿、Reviewer 修订和确认入卷材料。",
+      meta: "定稿入口",
+      action: "进入作者台",
+      onClick: () => navigate({ name: "author", slug: data.slug }),
+    },
+  ];
+  return (
+    <section
+      className={`anchor__dossier-gateway ${
+        compact ? "anchor__dossier-gateway--compact" : "anchor__dossier-gateway--full"
+      }`}
+      aria-label="世界卷宗总览"
+    >
+      <div className="anchor__gateway-head">
+        <div>
+          <span className="muted tiny">世界卷宗总览</span>
+          <h2>从这里选择你要如何理解这个世界</h2>
+        </div>
+        <button
+          className="btn btn--ghost tiny"
+          onClick={() => navigate({ name: "workspace", slug: data.slug })}
+        >
+          机制档案
+        </button>
+      </div>
+      <div className="anchor__gateway-flow" aria-label="推荐路径">
+        <span>定界</span>
+        <span>运行</span>
+        <span>阅读</span>
+        <span>采纳</span>
+      </div>
+      <div className="anchor__portal-grid">
+        {portals.map((portal) => (
+          <button
+            key={portal.key}
+            className={`anchor__portal ${portal.primary ? "anchor__portal--primary" : ""}`}
+            onClick={portal.onClick}
+          >
+            <span className="anchor__portal-label">{portal.label}</span>
+            <strong>{portal.title}</strong>
+            <small>{portal.desc}</small>
+            <em>
+              <span>{portal.meta}</span>
+              <span>{portal.action}</span>
+            </em>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 

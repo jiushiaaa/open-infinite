@@ -145,6 +145,120 @@
   gap: var(--space-2);
 }
 
+/* ── 世界卷宗总览 ───────────────────────────── */
+.anchor__dossier-gateway {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.anchor__dossier-gateway--compact {
+  display: none;
+}
+
+.anchor__gateway-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.anchor__gateway-head h2 {
+  margin-top: 2px;
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height: 1.35;
+  max-width: 560px;
+}
+
+.anchor__gateway-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.anchor__gateway-flow span {
+  padding: 6px var(--space-2);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 12px;
+  text-align: center;
+}
+
+.anchor__portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.anchor__portal {
+  display: grid;
+  gap: 6px;
+  min-height: 178px;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(250, 246, 236, 0.88), rgba(244, 239, 227, 0.72)),
+    var(--paper);
+  color: var(--ink);
+  text-align: left;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease;
+}
+
+.anchor__portal:hover {
+  border-color: var(--jade);
+  background: var(--paper-raised);
+}
+
+.anchor__portal:active {
+  transform: translateY(1px);
+}
+
+.anchor__portal--primary {
+  border-color: var(--jade-soft);
+  background:
+    linear-gradient(135deg, rgba(221, 233, 224, 0.72), rgba(250, 246, 236, 0.86)),
+    var(--paper-raised);
+}
+
+.anchor__portal-label {
+  color: var(--jade);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.anchor__portal strong {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.anchor__portal small {
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.anchor__portal em {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-self: end;
+  margin-top: var(--space-2);
+  color: var(--ink-faint);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.anchor__portal em span:last-child {
+  color: var(--jade);
+  font-weight: 700;
+}
+
 /* ── 通用块 ────────────────────────────────── */
 .anchor__block {
   margin-bottom: var(--space-5);
@@ -576,5 +690,41 @@
   .anchor__left {
     border-right: none;
     border-bottom: 1px solid var(--line-strong);
+  }
+
+  .anchor__dossier-gateway--full {
+    display: none;
+  }
+
+  .anchor__dossier-gateway--compact {
+    display: grid;
+    margin: var(--space-4) 0;
+    padding-bottom: var(--space-4);
+  }
+
+  .anchor__gateway-head {
+    display: grid;
+  }
+
+  .anchor__gateway-head .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .anchor__gateway-flow,
+  .anchor__portal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .anchor__gateway-flow {
+    gap: 0;
+  }
+
+  .anchor__gateway-flow span {
+    text-align: left;
+  }
+
+  .anchor__portal {
+    min-height: 0;
   }
 }
