@@ -24,6 +24,10 @@ const requiredPageMarkers = [
   ["私下目的", "strategy board should explain each actor's private goal"],
   ["可能误判", "strategy board should show the misread that can move the world"],
   ["世界影响", "strategy board should connect tactics to world consequences"],
+  ["queueNextPossibility", "next story possibilities should be reusable as the next sandbox event"],
+  ["作为下一轮事件", "possibility cards should let users continue the world loop"],
+  ["不沿用上轮临时干预", "possibility continuation should avoid replaying stale intervention text"],
+  ["已放入运行台", "possibility continuation should give feedback after queuing an event"],
 ];
 
 for (const [marker, message] of requiredPageMarkers) {
@@ -41,6 +45,8 @@ if (runnerIndex === -1 || runwayIndex === -1 || runnerIndex > runwayIndex) {
 const resultBridgeIndex = page.indexOf("sandbox-result-bridge");
 const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
 const actionChainIndex = page.indexOf("角色行动链");
+const possibilitiesIndex = page.indexOf("后续剧情可能性");
+const queuePossibilityIndex = page.indexOf("queueNextPossibility");
 if (resultBridgeIndex === -1 || actionChainIndex === -1 || resultBridgeIndex > actionChainIndex) {
   failures.push("completed round result bridge should appear before detailed action chains");
 }
@@ -52,6 +58,15 @@ if (
   strategyBoardIndex > actionChainIndex
 ) {
   failures.push("strategy board should bridge from result summary to detailed action chains");
+}
+if (
+  actionChainIndex === -1 ||
+  possibilitiesIndex === -1 ||
+  queuePossibilityIndex === -1 ||
+  possibilitiesIndex < actionChainIndex ||
+  queuePossibilityIndex > possibilitiesIndex
+) {
+  failures.push("possibility continuation helper should power the post-action next-round cards");
 }
 
 const requiredCssMarkers = [
@@ -70,6 +85,8 @@ const requiredCssMarkers = [
   [".sandbox-strategy-card__route", "strategy card route styling is missing"],
   [".sandbox-strategy-card dl", "strategy card detail grid styling is missing"],
   [".sandbox-strategy-card__effect", "strategy card consequence styling is missing"],
+  [".sandbox-possibility__actions", "possibility continuation action styling is missing"],
+  [".sandbox-possibility__actions .btn", "possibility continuation buttons should have stable sizing"],
 ];
 
 for (const [marker, message] of requiredCssMarkers) {
@@ -86,11 +103,15 @@ if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
 const tabletMediaIndex = css.indexOf("@media (max-width: 960px)");
 const tabletStrategyIndex = css.indexOf(".sandbox-strategy-board__grid", tabletMediaIndex);
 const mobileStrategyDetailIndex = css.indexOf(".sandbox-strategy-card dl", mobileMediaIndex);
+const mobilePossibilityActionsIndex = css.indexOf(".sandbox-possibility__actions", mobileMediaIndex);
 if (tabletMediaIndex === -1 || tabletStrategyIndex === -1) {
   failures.push("strategy board should collapse to one column on tablet widths");
 }
 if (mobileMediaIndex === -1 || mobileStrategyDetailIndex === -1) {
   failures.push("strategy card details should collapse on narrow mobile widths");
+}
+if (mobileMediaIndex === -1 || mobilePossibilityActionsIndex === -1) {
+  failures.push("possibility continuation actions should collapse on narrow mobile widths");
 }
 
 if (failures.length > 0) {

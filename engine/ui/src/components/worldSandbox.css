@@ -864,6 +864,19 @@
   margin: 0;
 }
 
+.sandbox-possibility__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+
+.sandbox-possibility__actions .btn {
+  min-width: 136px;
+  justify-content: center;
+}
+
 .sandbox-memory {
   display: grid;
   gap: var(--space-3);
@@ -1210,6 +1223,15 @@
   .sandbox-result-bridge__stats,
   .sandbox-result-bridge__actions {
     grid-template-columns: 1fr;
+  }
+
+  .sandbox-possibility__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .sandbox-possibility__actions .btn {
+    width: 100%;
   }
 
   .sandbox-strategy-card dl {

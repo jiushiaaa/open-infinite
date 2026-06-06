@@ -32,6 +32,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
+  const [queuedPossibilityTitle, setQueuedPossibilityTitle] = useState("");
   const [memoryReport, setMemoryReport] = useState<SubjectiveMemoryReport | null>(null);
   const [memoryLoading, setMemoryLoading] = useState(false);
   const [memoryError, setMemoryError] = useState<string | null>(null);
@@ -205,6 +206,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     if (!majorEvent.trim()) return;
     setLoading(true);
     setError(null);
+    setQueuedPossibilityTitle("");
     try {
       const next = await api.runSandboxRound(slug, {
         major_event: majorEvent.trim(),
@@ -320,6 +322,14 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     } finally {
       setAutopilotLoading(false);
     }
+  }
+
+  function queueNextPossibility(title: string, brief: string) {
+    setMajorEvent(`${title}：${brief}`);
+    setInterventionContent("");
+    setInterventionTarget("");
+    setQueuedPossibilityTitle(title);
+    focusControl();
   }
 
   const runnerPanel = (
@@ -1525,13 +1535,29 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
 
               <section className="sandbox-section">
                 <div className="sandbox-section__title">
-                  <h2>后续剧情可能性</h2>
+                  <div>
+                    <h2>后续剧情可能性</h2>
+                    {queuedPossibilityTitle && (
+                      <p className="muted tiny">
+                        已放入运行台：{queuedPossibilityTitle}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="sandbox-possibilities">
                   {round.next_story_possibilities.map((item) => (
                     <article key={item.id}>
                       <h3>{item.title}</h3>
                       <p className="muted">{item.brief}</p>
+                      <div className="sandbox-possibility__actions">
+                        <button
+                          className="btn btn--ghost tiny"
+                          onClick={() => queueNextPossibility(item.title, item.brief)}
+                        >
+                          作为下一轮事件
+                        </button>
+                        <span className="muted tiny">不沿用上轮临时干预</span>
+                      </div>
                     </article>
                   ))}
                 </div>

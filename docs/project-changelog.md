@@ -3155,6 +3155,20 @@
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
 
+### 2026-06-07 — Sandbox Next-Round Handoff
+
+- **做了什么**：
+  - `WorldSandboxPage` 将“后续剧情可能性”从静态卡片升级为下一轮承接入口。
+  - 每条可能性新增“作为下一轮事件”动作，点击后把标题和 brief 回填到首屏运行台的大事件输入框，并滚回运行台。
+  - 回填时会清空上一轮临时干预内容和投放对象，避免用户在折叠的可选干预区里误重复投放旧干预；页面会显示“已放入运行台”反馈。
+  - 扩展 `check:sandbox-runner-ux`，锁定后续可能性可回填下一轮、提示不沿用上轮临时干预，并覆盖窄屏动作布局。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把沙盘下一轮承接记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
+
 ### 2026-06-07 — Sandbox Strategy Board
 
 - **做了什么**：
