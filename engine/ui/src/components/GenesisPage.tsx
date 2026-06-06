@@ -19,6 +19,7 @@ export function GenesisPage() {
   const [error, setError] = useState<string | null>(null);
   const [exists, setExists] = useState(false);
   const stoppedRef = useRef(false);
+  const premiseRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -39,6 +40,29 @@ export function GenesisPage() {
 
   const slugOk = /^[a-z0-9][a-z0-9-]*$/.test(name);
   const canSubmit = slugOk && premise.trim().length > 0 && !busy;
+  const premiseReady = premise.trim().length > 0;
+  const genesisSteps = [
+    {
+      title: "命名世界",
+      detail: slugOk ? name.trim() : "先给世界一个英文代号",
+      done: slugOk,
+    },
+    {
+      title: "写下冲突",
+      detail: premiseReady ? "主题已经可以创世" : "一句话也可以开始",
+      done: premiseReady,
+    },
+    {
+      title: "补足手感",
+      detail: protagonist || style ? "主角或文风已有提示" : "主角与文风可选",
+      done: !!(protagonist.trim() || style.trim()),
+    },
+    {
+      title: "进入锚定",
+      detail: mock ? "模拟创世后先确认世界" : "真实模型创世后确认世界",
+      done: false,
+    },
+  ];
 
   async function submit() {
     if (!canSubmit) return;
@@ -86,6 +110,44 @@ export function GenesisPage() {
           </p>
         </header>
 
+        <section className="gen__command" aria-label="创世工作流总览">
+          <div className="gen__command-copy">
+            <span className="gen__eyebrow">无稿创世台</span>
+            <h2>从一个故事念头生成世界雏形</h2>
+            <p>
+              适合还没有正文、只有题材或冲突的时候。引擎会先生成初始世界、角色与第一章，
+              再把你带到「世界锚定」页确认，不会直接把世界丢进沙盘乱跑。
+            </p>
+          </div>
+          <div className="gen__status-grid">
+            {genesisSteps.map((step, index) => (
+              <article
+                className={`gen__step ${step.done ? "is-done" : index === 1 ? "is-active" : ""}`}
+                key={step.title}
+              >
+                <span className="gen__step-index">{String(index + 1).padStart(2, "0")}</span>
+                <strong>{step.title}</strong>
+                <span>{step.detail}</span>
+              </article>
+            ))}
+          </div>
+          <div className="gen__quick-actions">
+            <button className="btn btn--primary" disabled={!canSubmit} onClick={submit}>
+              {busy ? "创世中…" : "创世并锚定"}
+            </button>
+            <button
+              className="btn btn--ghost"
+              disabled={busy}
+              onClick={() => premiseRef.current?.focus()}
+            >
+              填写主题
+            </button>
+            <button className="btn btn--ghost" onClick={() => navigate({ name: "entry" })}>
+              返回书架
+            </button>
+          </div>
+        </section>
+
         <section className="gen__form">
           <div className="gen__row">
             <label className="gen__label" htmlFor="gen-name">
@@ -111,6 +173,7 @@ export function GenesisPage() {
               主题 / 想看的故事 <span className="gen__req">必填</span>
             </label>
             <textarea
+              ref={premiseRef}
               id="gen-premise"
               className="gen__textarea"
               placeholder="例：一名守陵人发现先祖留下的禁忌封印松动，必须在城破之前找出真相。"

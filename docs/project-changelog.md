@@ -2604,3 +2604,21 @@
 - **边界**：
   - 本轮不改后端、不新增支撑层面板、不改变路由/API/artifact 契约；只提升旧机制档案入口的首屏理解、下一步行动和移动端可用性。
 
+### 2026-06-06 — Import And Genesis Intake Command Centers
+
+- **做了什么**：
+  - `ImportNovelPage` 首屏新增“开卷前台”，把命名世界、放入正文、抽取世界和进入锚定四步前置。
+  - 导入页新增首屏主动作：导入并锚定、选择文件、填写章节；原有文件上传、可恢复分片、章节粘贴、mock/真实模型、允许覆盖、错误提示和 job polling 全部保留。
+  - `GenesisPage` 首屏新增“无稿创世台”，把命名世界、写下冲突、补足手感和进入锚定四步前置。
+  - 创世页新增首屏主动作：创世并锚定、填写主题、返回书架；原有主题创世、主角/文风提示、mock/真实模型、允许覆盖、错误提示和 job polling 全部保留。
+  - 移动端只调整展示顺序：先给出主动作，再展示完整流程卡，避免用户在入口页先读完所有状态卡才能操作。
+  - 同步 `memory.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是导入/创世入口体验切片。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 后端：`cd engine && python -m pytest -q` -> `947 passed`。
+  - Chrome 桌面与精确 390px 设备模拟：导入页和创世页无水平溢出，开卷中枢存在，空表单主按钮保持禁用。
+  - Chrome 精确 390px 设备模拟复查：移动端主动作位于流程卡之前，`scrollWidth === clientWidth`。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不删旧入口、不改变路由/API/artifact 契约；只提升导入小说页与主题创世页的首屏理解、下一步行动和移动端可用性。
+

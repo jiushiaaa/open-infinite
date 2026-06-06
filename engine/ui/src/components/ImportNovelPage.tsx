@@ -37,6 +37,8 @@ export function ImportNovelPage() {
   const [error, setError] = useState<string | null>(null);
   const [exists, setExists] = useState(false);
   const stoppedRef = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const chaptersRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -63,6 +65,33 @@ export function ImportNovelPage() {
     slugOk &&
     !busy &&
     (useUpload ? uploadOk : filled.length >= MIN_CH && filled.length <= MAX_CH);
+  const sourceLabel = useUpload
+    ? uploadOk
+      ? `文件已就绪，约 ${chunkCount(uploadFile.size)} 片`
+      : "文件格式待确认"
+    : `已填写 ${filled.length} / 至少 ${MIN_CH} 章`;
+  const importSteps = [
+    {
+      title: "命名世界",
+      detail: slugOk ? name.trim() : "先给世界一个英文代号",
+      done: slugOk,
+    },
+    {
+      title: "放入正文",
+      detail: sourceLabel,
+      done: useUpload ? uploadOk : filled.length >= MIN_CH,
+    },
+    {
+      title: "抽取世界",
+      detail: mock ? "模拟抽取，适合先试流程" : "真实模型抽取，适合正式导入",
+      done: canSubmit,
+    },
+    {
+      title: "进入锚定",
+      detail: "确认世界、角色与伏笔后再开跑",
+      done: false,
+    },
+  ];
 
   function setContent(id: number, content: string) {
     setChapters((prev) => prev.map((c) => (c.id === id ? { ...c, content } : c)));
@@ -154,6 +183,52 @@ export function ImportNovelPage() {
           </p>
         </header>
 
+        <section className="import__command" aria-label="导入工作流总览">
+          <div className="import__command-copy">
+            <span className="import__eyebrow">开卷前台</span>
+            <h2>把小说导成可运行的世界</h2>
+            <p>
+              这里不是单纯上传文件，而是把正文交给引擎拆解成世界书、角色卷、伏笔与锚点。
+              完成后会进入「世界锚定」，让你确认这个世界是否值得开始自演。
+            </p>
+          </div>
+          <div className="import__status-grid">
+            {importSteps.map((step, index) => (
+              <article
+                className={`import__step ${step.done ? "is-done" : index === 1 ? "is-active" : ""}`}
+                key={step.title}
+              >
+                <span className="import__step-index">{String(index + 1).padStart(2, "0")}</span>
+                <strong>{step.title}</strong>
+                <span>{step.detail}</span>
+              </article>
+            ))}
+          </div>
+          <div className="import__quick-actions">
+            <button
+              className="btn btn--primary"
+              disabled={!canSubmit}
+              onClick={submit}
+            >
+              {busy ? "导入中…" : useUpload ? "上传并锚定" : "导入并锚定"}
+            </button>
+            <button
+              className="btn btn--ghost"
+              disabled={busy}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              选择文件
+            </button>
+            <button
+              className="btn btn--ghost"
+              disabled={busy || useUpload}
+              onClick={() => chaptersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            >
+              填写章节
+            </button>
+          </div>
+        </section>
+
         <section className="import__form">
           <div className="import__row">
             <label className="import__label" htmlFor="imp-name">
@@ -218,6 +293,7 @@ export function ImportNovelPage() {
               </p>
             </div>
             <input
+              ref={fileInputRef}
               id="imp-file"
               className="import__file"
               type="file"
@@ -250,7 +326,7 @@ export function ImportNovelPage() {
           </section>
 
           {!useUpload && (
-            <div className="import__chapters">
+            <div className="import__chapters" ref={chaptersRef}>
               <div className="import__chapters-head">
                 <label className="import__label">
                   章节正文 <span className="muted tiny">已填 {filled.length} / 需 {MIN_CH}–{MAX_CH}</span>
