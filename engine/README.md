@@ -9,6 +9,7 @@
 | 能力 | 当前状态 | 继续深入 |
 | --- | --- | --- |
 | 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文，并可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿 | 正文内证据锚点、误会图谱、独立角色/势力卷 |
+| 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作 | 事件详情页、独立角色/势力卷、醒来报告文学化 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |
 | Reviewer 局部重写采纳 | `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` 已写 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json`，确认入卷可自动采用编辑后定稿并携带已采纳改写 ids | 更强真实语义 Reviewer、整章风格润色 |
 | 真实 LLM 策略建议 | `llm_decision_mode=advisory` 会写 `agent_decision_advisory.json`，展示采信、欺骗、传播、反抗和临场判断 | 多轮策略规划、长期关系/势力博弈 |

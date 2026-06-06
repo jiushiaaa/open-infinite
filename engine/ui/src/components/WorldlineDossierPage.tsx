@@ -56,6 +56,58 @@ export function WorldlineDossierPage({
     ? Object.entries(state.consequence_state.domains)
     : [];
   const latestCheckpoint = report?.checkpoints[0];
+  const latestTask = report?.tasks[0];
+  const branchStatus = state?.branch_state?.continuation_status ?? state?.status ?? "new";
+  const causalDebt = `${causalDebtLevelLabel(state?.causal_debt?.level)} / ${
+    state?.causal_debt?.score ?? 0
+  }`;
+  const nextRoundReads = state?.branch_state?.next_round_reads ?? [];
+  const commandTitle = latestCheckpoint
+    ? "从最近检查点续读世界线"
+    : latestTask
+      ? "等待自演把世界推向下一轮"
+      : "把这条世界线交回沙盘";
+  const commandHint = latestCheckpoint
+    ? "这条世界线已经留下可回放节点；先看最近一轮谁记住了什么，再进入连续阅读或继续沙盘。"
+    : latestTask
+      ? "自演任务已经登记；先看任务状态，再决定暂停、恢复或回到沙盘继续推进。"
+      : "这条世界线还缺少可读检查点；下一步应先运行沙盘，让角色行动和代偿状态继续发酵。";
+  const commandSteps = [
+    {
+      label: "承接",
+      title: "确认分支状态",
+      detail: branchStatus,
+      active: true,
+      done: !!report,
+    },
+    {
+      label: "代偿",
+      title: "看世界如何补偿",
+      detail: consequenceDomains.length
+        ? `${consequenceDomains.length} 个世界域正在承压`
+        : "地点、资源、伤势、舆论、势力和环境等待显形。",
+      active: false,
+      done: consequenceDomains.length > 0,
+    },
+    {
+      label: "检查点",
+      title: "回放最近变化",
+      detail: latestCheckpoint
+        ? latestCheckpoint.major_event
+        : "世界自演完成一轮后会出现可回放节点。",
+      active: !!latestCheckpoint,
+      done: !!latestCheckpoint,
+    },
+    {
+      label: "阅读",
+      title: "进入连续正文",
+      detail: latestCheckpoint
+        ? `${report?.checkpoint_count ?? 0} 个检查点可回读`
+        : "先运行沙盘，再进入卷宗阅读。",
+      active: false,
+      done: !!latestCheckpoint,
+    },
+  ];
 
   return (
     <div className="worldline-page">
@@ -68,6 +120,103 @@ export function WorldlineDossierPage({
           </p>
         </div>
       </header>
+
+      {!loading && !error && report && (
+        <section className="worldline-command" aria-label="世界线工作流总览">
+          <div className="worldline-command__lead">
+            <p className="muted worldline-command__eyebrow">当前下一步</p>
+            <h2>{commandTitle}</h2>
+            <p className="muted">{commandHint}</p>
+            <div className="worldline-command__meta">
+              <span className="badge badge--jade">{branchStatus}</span>
+              <span className="badge">{report.worldline_id}</span>
+              <span className="badge badge--gold">因果债 {causalDebt}</span>
+            </div>
+          </div>
+
+          <div className="worldline-command__steps">
+            {commandSteps.map((item, index) => (
+              <article
+                className={`worldline-command__step ${
+                  item.active ? "is-active" : item.done ? "is-done" : ""
+                }`}
+                key={item.label}
+              >
+                <span>{index + 1}</span>
+                <div>
+                  <p className="muted tiny">{item.label}</p>
+                  <strong>{item.title}</strong>
+                  <small>{item.detail}</small>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="worldline-command__actions">
+            {latestCheckpoint && (
+              <button
+                className="btn btn--primary"
+                onClick={() =>
+                  navigate({
+                    name: "checkpoint",
+                    slug,
+                    worldlineId,
+                    runId: latestCheckpoint.run_id,
+                    checkpointId: latestCheckpoint.checkpoint_id,
+                  })
+                }
+              >
+                回放最近检查点
+              </button>
+            )}
+            {!latestCheckpoint && (
+              <button
+                className="btn btn--primary"
+                onClick={() => navigate({ name: "sandbox", slug })}
+              >
+                继续沙盘
+              </button>
+            )}
+            <button
+              className="btn btn--ghost"
+              onClick={() => navigate({ name: "dossierReading", slug, worldlineId })}
+            >
+              卷宗阅读
+            </button>
+            {latestCheckpoint && (
+              <button
+                className="btn btn--ghost"
+                onClick={() => navigate({ name: "sandbox", slug })}
+              >
+                继续沙盘
+              </button>
+            )}
+            <button className="btn btn--ghost" onClick={() => navigate({ name: "lens", slug })}>
+              多视角
+            </button>
+          </div>
+
+          <div className="worldline-command__proof" aria-label="世界线摘要">
+            <div>
+              <span className="muted tiny">检查点</span>
+              <strong>{report.checkpoint_count}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">自演任务</span>
+              <strong>{report.task_count}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">代偿域</span>
+              <strong>{consequenceDomains.length || "待显形"}</strong>
+            </div>
+            <p>
+              {state?.source_intervention?.content ||
+                nextRoundReads.join("；") ||
+                "这条世界线等待下一轮沙盘写入新的承接材料。"}
+            </p>
+          </div>
+        </section>
+      )}
 
       <WorldRunway
         eyebrow="世界线导览"
@@ -372,4 +521,12 @@ function projectionModeLabel(mode?: string) {
   if (mode === "wild_au") return "暴走 AU";
   if (mode === "immersive") return "沉浸模式";
   return "普通世界线";
+}
+
+function causalDebtLevelLabel(level?: string) {
+  if (level === "low") return "低";
+  if (level === "medium") return "中";
+  if (level === "high") return "高";
+  if (level === "critical") return "极高";
+  return "未知";
 }

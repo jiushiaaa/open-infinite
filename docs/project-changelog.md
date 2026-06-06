@@ -2556,3 +2556,19 @@
 - **边界**：
   - 本轮不改后端、不删旧入口、不改变路由/API/artifact 契约；只提升多视角页的首屏理解、下一步行动和移动端可用性。
 
+### 2026-06-06 — Worldline Dossier Workflow Command Center
+
+- **做了什么**：
+  - `WorldlineDossierPage` 首屏新增“当前下一步”工作流中枢，把确认分支状态、查看代偿、回放最近变化和进入连续正文四步前置。
+  - 无检查点时主行动是继续沙盘；有检查点时主行动会切到回放最近检查点，同时保留卷宗阅读、多视角和沙盘出口。
+  - 中枢摘要展示世界线状态、中文因果债等级、检查点数、自演任务数、代偿域数量和来源承接材料；原有分支状态、下一轮行动、具象代偿账、自演任务、检查点和最近世界推进模块全部保留。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是世界线档案体验切片。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Chrome 桌面：1366px 页面无水平溢出，世界线中枢位于首屏上方。
+  - Chrome 精确 390px 设备模拟：世界线页无水平溢出，主操作按钮在首屏内，按钮顺序为继续沙盘、卷宗阅读、多视角，因果债等级显示中文。
+  - UI smoke：打开 `#/world/my-story/worldlines/main`，点击中枢里的“卷宗阅读”，页面进入 `#/world/my-story/worldlines/main/reading`，无页面错误。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不删旧入口、不改变路由/API/artifact 契约；只提升世界线档案页的首屏理解、下一步行动和移动端可用性。
+
