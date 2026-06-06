@@ -2914,3 +2914,17 @@
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS 和检查脚本，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
 
+### 2026-06-07 — World Anchor Pulse Strip
+
+- **做了什么**：
+  - `worldJourney` 新增 `deriveWorldPulse`，把当前正文、可行动角色、开放伏笔和沙盘运行次数整理成四个可扫读的世界状态项。
+  - `WorldAnchorPage` 在世界卷宗总览中新增“世界脉搏”卡片条，让用户进入某个世界后先看见世界活到哪一步，再选择天命书、沙盘、卷宗阅读、世界线、多视角或作者台。
+  - 移动端复用紧凑卷宗总览，保留原世界启动卡、本机续读、旅程状态、编辑锚定、视觉资产、角色栏、势力入口和所有旧路由。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把世界脉搏记为当前事实。
+- **验证**：
+  - Red/green helper：先扩展 `check:world-journey` 断言 `deriveWorldPulse`，确认缺 export 失败；实现后 `pnpm.cmd run check:world-journey` -> `world journey helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面与 390px 访问 `#/anchor/my-story` 均只有 4 张可见脉搏卡，显示当前正文、可行动角色、开放伏笔和沙盘运行；桌面只显示 full gateway，390px 只显示 compact gateway，`overflow=0`。
+- **边界**：
+  - 本轮只改前端状态推导、锚定页 JSX/CSS 和检查脚本，不新增后端 API、不改变 artifact，不删除编辑锚定、视觉资产、角色栏或既有入口。
+

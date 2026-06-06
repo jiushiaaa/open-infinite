@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { deriveWorldJourney } from "../.tmp-world-journey/worldJourney.js";
+import { deriveWorldJourney, deriveWorldPulse } from "../.tmp-world-journey/worldJourney.js";
 
 const base = {
   slug: "my-story",
@@ -43,5 +43,14 @@ const sparse = deriveWorldJourney({
 });
 assert.equal(sparse.steps[0].summary, "0 条伏笔");
 assert.equal(sparse.steps[1].status, "waiting");
+
+const pulse = deriveWorldPulse({ ...base, runCount: 2 });
+assert.equal(pulse.length, 4);
+assert.deepEqual(
+  pulse.map((item) => item.key),
+  ["chapter", "characters", "threads", "runs"],
+);
+assert.equal(pulse[0].value, "第 1 章");
+assert.match(pulse[3].hint, /沙盘/);
 
 console.log("world journey helper ok");

@@ -14,7 +14,11 @@ import { BaselineCanonPanel } from "./BaselineCanonPanel";
 import { CharacterProbePanel } from "./CharacterProbePanel";
 import { CharacterAvatar, VisualAssetsControls } from "./VisualAssetPanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
-import { deriveWorldJourney, type WorldJourneyStepKey } from "../worldJourney";
+import {
+  deriveWorldJourney,
+  deriveWorldPulse,
+  type WorldJourneyStepKey,
+} from "../worldJourney";
 import "./worldAnchor.css";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -584,6 +588,15 @@ function WorldDossierGateway({
     currentChapter: data.world.current_chapter,
     hasRecentReading: Boolean(recentReading),
   });
+  const pulse = deriveWorldPulse({
+    slug: data.slug,
+    runCount: data.run_count,
+    characterCount: data.characters.length,
+    openThreadCount: data.open_threads.length,
+    factionCount: data.world.factions.length,
+    currentChapter: data.world.current_chapter,
+    hasRecentReading: Boolean(recentReading),
+  });
   const navigateJourneyStep = (key: WorldJourneyStepKey) => {
     if (key === "tianming") navigate({ name: "tianming", slug: data.slug });
     else if (key === "sandbox") navigate({ name: "sandbox", slug: data.slug });
@@ -674,6 +687,18 @@ function WorldDossierGateway({
         >
           机制档案
         </button>
+      </div>
+      <div className="anchor__pulse" aria-label="世界脉搏">
+        {pulse.map((item) => (
+          <article
+            key={item.key}
+            className={`anchor__pulse-card anchor__pulse-card--${item.tone}`}
+          >
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+            <small>{item.hint}</small>
+          </article>
+        ))}
       </div>
       <div className="anchor__journey" aria-label="世界旅程状态">
         <div className="anchor__journey-copy">

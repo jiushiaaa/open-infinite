@@ -28,10 +28,58 @@ export interface WorldJourney {
   steps: WorldJourneyStep[];
 }
 
+export interface WorldPulseItem {
+  key: "chapter" | "characters" | "threads" | "runs";
+  label: string;
+  value: string;
+  hint: string;
+  tone: "jade" | "gold" | "cinnabar" | "ink";
+}
+
 function statusLabel(status: WorldJourneyStatus): string {
   if (status === "next") return "下一步";
   if (status === "ready") return "可用";
   return "待生成";
+}
+
+export function deriveWorldPulse(input: WorldJourneyInput): WorldPulseItem[] {
+  const hasChapter = input.currentChapter != null && input.currentChapter > 0;
+  const chapterValue = hasChapter ? `第 ${input.currentChapter} 章` : "待成章";
+  const runHint =
+    input.runCount > 0
+      ? "沙盘已经留下世界线痕迹"
+      : "还没运行沙盘，先从天命书定界";
+
+  return [
+    {
+      key: "chapter",
+      label: "当前正文",
+      value: chapterValue,
+      hint: hasChapter ? "可进入卷宗继续阅读" : "等待沙盘生成可读材料",
+      tone: "ink",
+    },
+    {
+      key: "characters",
+      label: "可行动角色",
+      value: `${input.characterCount}`,
+      hint: input.characterCount > 0 ? "角色会按记忆和利益行动" : "需要先补足角色卡",
+      tone: "jade",
+    },
+    {
+      key: "threads",
+      label: "开放伏笔",
+      value: `${input.openThreadCount}`,
+      hint: input.openThreadCount > 0 ? "这些线索会牵引天命书" : "伏笔为空，世界张力偏弱",
+      tone: "gold",
+    },
+    {
+      key: "runs",
+      label: "沙盘运行",
+      value: `${input.runCount}`,
+      hint: runHint,
+      tone: input.runCount > 0 ? "cinnabar" : "ink",
+    },
+  ];
 }
 
 export function deriveWorldJourney(input: WorldJourneyInput): WorldJourney {
