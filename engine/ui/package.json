@@ -10,6 +10,7 @@
     "check:dossier-reading-focus": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-dossier-reading-focus src/dossierReadingFocus.ts && node scripts/check-dossier-reading-focus.mjs",
     "check:reading-progress": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-reading-progress src/readingProgress.ts && node scripts/check-reading-progress.mjs",
     "check:app-shell-mobile-layout": "node scripts/check-app-shell-mobile-layout.mjs",
+    "check:dossier-reading-ux": "node scripts/check-dossier-reading-ux.mjs",
     "check:sandbox-runner-ux": "node scripts/check-sandbox-runner-ux.mjs",
     "check:story-shelf-focus": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-story-shelf-focus src/storyShelfFocus.ts && node scripts/check-story-shelf-focus.mjs",
     "check:world-route-context": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-world-route-context src/worldRouteContext.ts && node scripts/check-world-route-context.mjs",

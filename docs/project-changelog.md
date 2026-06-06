@@ -2956,3 +2956,16 @@
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS 和检查脚本，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
 
+### 2026-06-07 — Dossier Reading Mobile Guide
+
+- **做了什么**：
+  - 新增 `check:dossier-reading-ux` 检查脚本，锁定卷宗阅读移动端导读条存在、位于 `WorldRunway` 前，并只在移动/平板宽度显示。
+  - `DossierReadingPage` 在移动端首屏新增“开始读正文 / 查卷宗 / 作者台”三步导读条；桌面仍保持原阅读工作台。
+  - 三个入口分别复用现有滚动/路由：开始读正文滚到正文卡，查卷宗滚到卷宗目录，作者台进入作者采纳台。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把卷宗阅读移动端导读条记为当前事实。
+- **验证**：
+  - Red/green helper：先新增 `check:dossier-reading-ux`，确认旧阅读页因缺移动端导读条失败；实现后同命令 -> `dossier reading ux structure ok`。
+  - 阅读 helper：`pnpm.cmd run check:dossier-reading-focus` -> `dossier reading focus helper ok`。
+  - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/reading`，导读条在首屏内且 display 为 `grid`；点击“开始读正文”后正文卡进入可见区，点击“查卷宗”后卷宗目录进入可见区，点击“作者台”进入 `#/world/my-story/author`；页面宽度保持 390px。
+- **边界**：
+  - 本轮只改前端卷宗阅读页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。

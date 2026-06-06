@@ -195,6 +195,24 @@ export function DossierReadingPage({
         </div>
       </header>
 
+      <nav className="dossier-mobile-guide" aria-label="移动端阅读导读">
+        <button type="button" onClick={focusReader}>
+          <span>01</span>
+          <strong>开始读正文</strong>
+          <small>进入当前阅读场景</small>
+        </button>
+        <button type="button" onClick={() => scrollToPageItem(".dossier-sidebar")}>
+          <span>02</span>
+          <strong>查卷宗</strong>
+          <small>切换角色、事件和证据</small>
+        </button>
+        <button type="button" onClick={() => navigate({ name: "author", slug })}>
+          <span>03</span>
+          <strong>作者台</strong>
+          <small>采纳为下一章材料</small>
+        </button>
+      </nav>
+
       <WorldRunway
         eyebrow="当前世界线"
         title="先按正文读，再回卷宗查证据"
