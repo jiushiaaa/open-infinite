@@ -3097,3 +3097,17 @@
   - Chrome CDP smoke：390px 访问 `#/world/my-story/lens`，导读条位于 689-841px 首屏内且 display 为 `grid`，位于完整工作流中枢前；点击“改事件”把事件材料表单带入可见区；页面宽度保持 390px，无业务内容横向溢出。
 - **边界**：
   - 本轮只改前端多视角页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `character_lens` 契约、不改 artifact。
+
+### 2026-06-07 — Tianming Mobile Constitution Guide
+
+- **做了什么**：
+  - 新增 `check:tianming-mobile-guide` 检查脚本，锁定天命书移动端宪法速断条存在、位于完整工作流中枢前，并只在移动端显示。
+  - `TianmingPage` 在移动端 hero 后新增“生成/确认/沙盘 / 看锚点 / 投干预 / 去沙盘”四格速断条；桌面仍保持原天命书工作台。
+  - 主按钮随状态生成草案、确认根天命或进入沙盘；辅助入口分别滚到锚点/状态区、干预预编译区，或直接进入世界沙盘。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把天命书移动端宪法速断条记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:tianming-mobile-guide` -> `tianming mobile guide structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：390px 访问 `#/world/my-story/tianming`，速断条位于 640-788px 首屏内且 display 为 `grid`，位于完整工作流中枢前；真实坐标点击“投干预”把干预预编译区带入可见区；页面宽度保持 390px，无业务内容横向溢出。
+- **边界**：
+  - 本轮只改前端天命书 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `tianming`、干预编译或 narrative compensation 契约、不改 artifact。

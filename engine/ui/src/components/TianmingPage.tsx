@@ -181,6 +181,29 @@ export function TianmingPage({ slug }: { slug: string }) {
     }
   }
 
+  const scrollToTianmingItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const runPrimaryTianmingAction = () => {
+    if (loading || busy) return;
+    if (!book) {
+      void generate();
+      return;
+    }
+    if (book.requires_confirmation) {
+      void confirm();
+      return;
+    }
+    navigate({ name: "sandbox", slug });
+  };
+
+  const mobilePrimaryLabel = !book
+    ? "生成"
+    : book.requires_confirmation
+      ? "确认"
+      : "沙盘";
+
   return (
     <div className="tianming-page">
       <header className="tianming-hero">
@@ -207,6 +230,46 @@ export function TianmingPage({ slug }: { slug: string }) {
           </button>
         </div>
       </header>
+
+      <section className="tianming-mobile-guide" aria-label="移动端天命书速断">
+        <div>
+          <p className="muted tiny">先确认世界宪法</p>
+          <strong>{nextActionLabel}</strong>
+          <span>
+            {book?.anchor_status.current_anchor_name || "锚点待抽取"} ·{" "}
+            {book ? pressureLabel(book.contract_pressure.level) : "压力待生成"}
+          </span>
+        </div>
+        <div className="tianming-mobile-guide__actions">
+          <button
+            className="btn btn--primary"
+            disabled={loading || busy}
+            onClick={runPrimaryTianmingAction}
+          >
+            {loading ? "读取" : mobilePrimaryLabel}
+          </button>
+          <button
+            className="btn btn--ghost"
+            disabled={!book}
+            onClick={() => scrollToTianmingItem(".tianming-anchor-section")}
+          >
+            看锚点
+          </button>
+          <button
+            className="btn btn--ghost"
+            disabled={!book}
+            onClick={() => scrollToTianmingItem(".tianming-compiler")}
+          >
+            投干预
+          </button>
+          <button
+            className="btn btn--ghost"
+            onClick={() => navigate({ name: "sandbox", slug })}
+          >
+            去沙盘
+          </button>
+        </div>
+      </section>
 
       <section className="tianming-command" aria-label="天命书工作流总览">
         <div className="tianming-command__lead">
@@ -322,7 +385,7 @@ export function TianmingPage({ slug }: { slug: string }) {
 
       {book && (
         <main className="tianming-layout">
-          <section className="tianming-panel tianming-status">
+          <section className="tianming-panel tianming-status tianming-anchor-section">
             <div>
               <p className="muted tiny">状态</p>
               <h2>{book.status === "confirmed" ? "已确认" : "待确认"}</h2>
@@ -369,7 +432,7 @@ export function TianmingPage({ slug }: { slug: string }) {
           </section>
 
           {book.anchor_status.anchors?.length ? (
-            <section className="tianming-panel">
+            <section className="tianming-panel tianming-anchor-section">
               <h2>多锚点结构</h2>
               <div className="tianming-anchors">
                 {book.anchor_status.anchors.map((item) => (
