@@ -2872,3 +2872,17 @@
 - **边界**：
   - 本轮不改后端、不新增 API 或持久 artifact，不做账号/跨设备同步；只复用浏览器 localStorage，把同一世界内的“回到刚才读哪儿”补到全局壳层。
 
+### 2026-06-07 — AppShell Dossier Quick Switch
+
+- **做了什么**：
+  - `worldRouteContext` 新增 `dossiers` 语义，统一输出“正文 / 正史 / 锚点 / 角色 / 势力 / 事件 / 长线 / 世界线”八个卷宗入口、目标路由和当前高亮。
+  - `AppShell` 在世界位置条下方新增全局卷宗速览盘；桌面展示短标签与卷宗全名，390px 移动端压成两行短标签，避免继续增高世界壳层。
+  - 保留原有顶栏导航、世界体验轨道、主动作/次动作、全局继续阅读和所有页面路由；本轮不新增后端 API、不改 artifact。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把 AppShell 卷宗速览盘记为当前事实。
+- **验证**：
+  - Red/green helper：先扩展 `check:world-route-context` 断言 `dossiers`，确认缺字段失败；实现后 `pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面访问 `#/world/my-story/sandbox` 显示 8 个卷宗入口，点击“事件”进入 `#/world/my-story/worldlines/main/reading/event_multi_perspective`；访问 `#/world/my-story/worldlines/main/reading/character_volume` 时“角色”高亮；390px 移动端 8 个短标签完整可见，`mobileOverflow=0`。
+- **边界**：
+  - 这是 `WorldWorkspaceShell` 的壳层切片，不代表完整世界内部工作区完成；角色/势力跨章长线阅读、跨章节回收和更深误会网络仍需继续。
+

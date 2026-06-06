@@ -29,6 +29,25 @@ assert.deepEqual(context?.stages[2].route, {
   slug: "my-story",
   worldlineId: "main",
 });
+assert.deepEqual(
+  context?.dossiers.map((item) => [item.key, item.label, item.status]),
+  [
+    ["continuous", "正文", "ready"],
+    ["world", "正史", "ready"],
+    ["anchor", "锚点", "ready"],
+    ["character", "角色", "ready"],
+    ["faction", "势力", "ready"],
+    ["event", "事件", "ready"],
+    ["longline", "长线", "ready"],
+    ["worldline", "世界线", "ready"],
+  ],
+);
+assert.deepEqual(context?.dossiers[3].route, {
+  name: "dossierReading",
+  slug: "my-story",
+  worldlineId: "main",
+  tab: "character_volume",
+});
 
 const character = getWorldRouteContext({
   name: "characterVolume",
@@ -52,6 +71,21 @@ assert.equal(character?.stages.find((stage) => stage.key === "reading")?.status,
 assert.deepEqual(character?.stages.find((stage) => stage.key === "sandbox")?.route, {
   name: "sandbox",
   slug: "my-story",
+});
+assert.equal(character?.dossiers.find((item) => item.key === "character")?.status, "active");
+
+const longline = getWorldRouteContext({
+  name: "longlineReading",
+  slug: "my-story",
+  worldlineId: "branch-a",
+});
+
+assert.equal(longline?.dossiers.find((item) => item.key === "longline")?.status, "active");
+assert.deepEqual(longline?.dossiers.find((item) => item.key === "world")?.route, {
+  name: "dossierReading",
+  slug: "my-story",
+  worldlineId: "branch-a",
+  tab: "world_chronicle",
 });
 
 const entry = getWorldRouteContext({ name: "entry" });

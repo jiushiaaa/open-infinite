@@ -9,16 +9,35 @@ export interface WorldRouteContext {
   secondaryActionLabel?: string;
   secondaryRoute?: Route;
   stages: WorldRouteStage[];
+  dossiers: WorldRouteDossierLink[];
 }
 
 export type WorldRouteStageKey = "tianming" | "sandbox" | "reading" | "author";
 export type WorldRouteStageStatus = "ready" | "active";
+export type WorldRouteDossierKey =
+  | "continuous"
+  | "world"
+  | "anchor"
+  | "character"
+  | "faction"
+  | "event"
+  | "longline"
+  | "worldline";
+export type WorldRouteDossierStatus = "ready" | "active";
 
 export interface WorldRouteStage {
   key: WorldRouteStageKey;
   label: string;
   title: string;
   status: WorldRouteStageStatus;
+  route: Route;
+}
+
+export interface WorldRouteDossierLink {
+  key: WorldRouteDossierKey;
+  label: string;
+  title: string;
+  status: WorldRouteDossierStatus;
   route: Route;
 }
 
@@ -89,6 +108,93 @@ function buildStages(route: Route, slug: string, currentWorldline: string): Worl
   }));
 }
 
+function dossierKey(route: Route): WorldRouteDossierKey | null {
+  if (route.name === "longlineReading") return "longline";
+  if (route.name === "worldline" || route.name === "checkpoint") return "worldline";
+  if (route.name === "characterVolume") return "character";
+  if (route.name === "factionVolume") return "faction";
+  if (route.name === "eventPerspective") return "event";
+  if (route.name !== "dossierReading") return null;
+  if (route.tab === "world_chronicle") return "world";
+  if (route.tab === "anchor_volume") return "anchor";
+  if (route.tab === "character_volume") return "character";
+  if (route.tab === "faction_volume") return "faction";
+  if (route.tab === "event_multi_perspective") return "event";
+  return "continuous";
+}
+
+function dossierReadingRoute(
+  slug: string,
+  worldlineId: string,
+  tab?: string,
+): Route {
+  return {
+    name: "dossierReading",
+    slug,
+    worldlineId,
+    tab,
+  };
+}
+
+function buildDossiers(route: Route, slug: string, currentWorldline: string): WorldRouteDossierLink[] {
+  const active = dossierKey(route);
+  const dossiers: Array<Omit<WorldRouteDossierLink, "status">> = [
+    {
+      key: "continuous",
+      label: "正文",
+      title: "连续阅读",
+      route: dossierReadingRoute(slug, currentWorldline),
+    },
+    {
+      key: "world",
+      label: "正史",
+      title: "世界正史卷",
+      route: dossierReadingRoute(slug, currentWorldline, "world_chronicle"),
+    },
+    {
+      key: "anchor",
+      label: "锚点",
+      title: "主锚点卷",
+      route: dossierReadingRoute(slug, currentWorldline, "anchor_volume"),
+    },
+    {
+      key: "character",
+      label: "角色",
+      title: "角色个人卷",
+      route: dossierReadingRoute(slug, currentWorldline, "character_volume"),
+    },
+    {
+      key: "faction",
+      label: "势力",
+      title: "势力卷",
+      route: dossierReadingRoute(slug, currentWorldline, "faction_volume"),
+    },
+    {
+      key: "event",
+      label: "事件",
+      title: "事件多视角",
+      route: dossierReadingRoute(slug, currentWorldline, "event_multi_perspective"),
+    },
+    {
+      key: "longline",
+      label: "长线",
+      title: "跨事件长线卷",
+      route: { name: "longlineReading", slug, worldlineId: currentWorldline },
+    },
+    {
+      key: "worldline",
+      label: "世界线",
+      title: "世界线档案",
+      route: { name: "worldline", slug, worldlineId: currentWorldline },
+    },
+  ];
+
+  return dossiers.map((dossier) => ({
+    ...dossier,
+    status: dossier.key === active ? "active" : "ready",
+  }));
+}
+
 export function getWorldRouteContext(route: Route): WorldRouteContext | null {
   if (route.name === "entry" || route.name === "import" || route.name === "genesis") {
     return null;
@@ -115,6 +221,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     worldlineId: currentWorldline,
   };
   const stages = buildStages(route, slug, currentWorldline);
+  const dossiers = buildDossiers(route, slug, currentWorldline);
 
   if (route.name === "anchor") {
     return {
@@ -126,6 +233,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "运行沙盘",
       secondaryRoute: sandboxRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "tianming") {
@@ -138,6 +246,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "回世界锚定",
       secondaryRoute: { name: "anchor", slug },
       stages,
+      dossiers,
     };
   }
   if (route.name === "sandbox") {
@@ -150,6 +259,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "查看世界线",
       secondaryRoute: worldlineRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "dossierReading") {
@@ -162,6 +272,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "longlineReading") {
@@ -174,6 +285,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "回卷宗阅读",
       secondaryRoute: readingRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "characterVolume") {
@@ -186,6 +298,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "去多视角",
       secondaryRoute: lensRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "factionVolume") {
@@ -198,6 +311,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "去多视角",
       secondaryRoute: lensRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "eventPerspective") {
@@ -210,6 +324,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "worldline") {
@@ -222,6 +337,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "追长线卷",
       secondaryRoute: longlineRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "checkpoint") {
@@ -234,6 +350,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "回世界线",
       secondaryRoute: worldlineRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "lens") {
@@ -246,6 +363,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
       stages,
+      dossiers,
     };
   }
   if (route.name === "author") {
@@ -258,6 +376,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       secondaryActionLabel: "回卷宗阅读",
       secondaryRoute: readingRoute,
       stages,
+      dossiers,
     };
   }
 
@@ -270,5 +389,6 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     secondaryActionLabel: "进入卷宗阅读",
     secondaryRoute: readingRoute,
     stages,
+    dossiers,
   };
 }

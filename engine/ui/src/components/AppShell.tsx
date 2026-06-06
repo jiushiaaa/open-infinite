@@ -284,6 +284,20 @@ export function AppShell({
               </button>
             ))}
           </div>
+          <nav className="shell-context__dossiers" aria-label="世界卷宗速览">
+            {routeContext.dossiers.map((dossier) => (
+              <button
+                key={dossier.key}
+                className={dossier.status === "active" ? "is-active" : ""}
+                onClick={() => navigate(dossier.route)}
+                title={dossier.title}
+                type="button"
+              >
+                <span>{dossier.label}</span>
+                <strong>{dossier.title}</strong>
+              </button>
+            ))}
+          </nav>
           <div className="shell-context__actions">
             {showRecentReading && recentReading && (
               <button

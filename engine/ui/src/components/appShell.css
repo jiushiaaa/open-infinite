@@ -92,9 +92,12 @@
 
 .shell-context {
   flex: 0 0 auto;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "copy stages actions"
+    "dossiers dossiers dossiers";
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-3);
   padding: 9px var(--space-5);
   background:
@@ -104,6 +107,7 @@
 }
 
 .shell-context__copy {
+  grid-area: copy;
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
   align-items: baseline;
@@ -137,6 +141,7 @@
 }
 
 .shell-context__actions {
+  grid-area: actions;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -150,6 +155,7 @@
 }
 
 .shell-context__stages {
+  grid-area: stages;
   display: grid;
   grid-template-columns: repeat(4, minmax(72px, 1fr));
   gap: 4px;
@@ -196,6 +202,60 @@
 }
 
 .shell-context__stages strong {
+  margin-top: 2px;
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+.shell-context__dossiers {
+  grid-area: dossiers;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+  padding: 3px;
+  border: 1px solid rgba(196, 184, 156, 0.68);
+  border-radius: 8px;
+  background: rgba(250, 246, 236, 0.48);
+}
+
+.shell-context__dossiers button {
+  min-width: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 5px 7px;
+  text-align: left;
+}
+
+.shell-context__dossiers button:hover,
+.shell-context__dossiers button.is-active {
+  background: var(--jade-wash);
+  color: var(--ink);
+}
+
+.shell-context__dossiers button.is-active {
+  box-shadow: inset 0 0 0 1px rgba(74, 124, 99, 0.28);
+}
+
+.shell-context__dossiers span,
+.shell-context__dossiers strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell-context__dossiers span {
+  color: var(--jade);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.shell-context__dossiers strong {
   margin-top: 2px;
   font-family: var(--font-serif);
   font-size: 12px;
@@ -269,7 +329,12 @@
 
   .shell-context {
     align-items: flex-start;
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "copy"
+      "stages"
+      "dossiers"
+      "actions";
     gap: var(--space-2);
     padding: var(--space-3) var(--space-4);
   }
@@ -287,6 +352,11 @@
   .shell-context__stages {
     width: 100%;
     min-width: 0;
+  }
+
+  .shell-context__dossiers {
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -346,6 +416,18 @@
 
   .shell-context__stages {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shell-context__dossiers {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .shell-context__dossiers button {
+    text-align: center;
+  }
+
+  .shell-context__dossiers strong {
+    display: none;
   }
 
   .shell-context__actions .btn {
