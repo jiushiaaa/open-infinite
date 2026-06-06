@@ -45,7 +45,7 @@
 - L5 觉醒和模因传播已写入角色主观记忆、世界线状态和 UI 可读传播读数。
 - `worldline_state.json` 与 `consequence_state` 让因果债、锚点、具象代偿、作者采纳和确认稿进入后续沙盘读取链。
 - `autopilot_report.json` 已有 `readable_entry`；世界沙盘结果页、检查点回放和世界线页都能导向最近关键检查点、角色个人卷、事件多视角和连续阅读。
-- `DossierReadingPage` / `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 已把连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和 worldline dossier 组织成默认正文阅读页。
+- `DossierReadingPage` / `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 已把连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和 worldline dossier 组织成默认正文阅读页；正文卡已有卷首题签、世界线/继续沙盘/作者台行动入口，移动端先读正文再看卷宗目录。
 - `WorldRunway` 已接入世界沙盘、卷宗阅读、世界线档案、检查点回放和作者采纳台，用统一纸面导览说明当前位置、三步理解路径和下一步行动；沙盘页会按“投放事件 -> 观察角色 -> 进入阅读”引导用户。
 - `AppShell` 移动端已把世界内部顶栏导航改成可换行卷宗盘，锚定、天命书、沙盘、阅读、世界线、多视角、作者台和机制档案 8 个入口全部直接可见；桌面仍保持一行顶栏。
 - `WorldAnchorPage` 已把天命书、世界沙盘和卷宗阅读前置为“世界启动”行动卡；窄屏下不再隐藏锚定侧栏或角色栏，移动端仍能访问视觉资产、基线回放、实体别名、角色卡和角色探针。

@@ -132,6 +132,72 @@
   box-shadow: var(--shadow-card);
 }
 
+.dossier-reader__cover {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: start;
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid rgba(45, 104, 92, 0.2);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(221, 233, 224, 0.5), rgba(255, 252, 244, 0.72)),
+    var(--paper);
+}
+
+.dossier-reader__eyebrow {
+  margin: 0 0 var(--space-1);
+  font-size: 12px;
+}
+
+.dossier-reader__cover h2 {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.dossier-reader__cover p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.75;
+}
+
+.dossier-reader__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  max-width: 220px;
+}
+
+.dossier-reader__stats {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(45, 104, 92, 0.16);
+}
+
+.dossier-reader__stats div {
+  min-width: 0;
+}
+
+.dossier-reader__stats dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dossier-reader__stats dd {
+  margin: 2px 0 0;
+  color: var(--ink);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
 .dossier-reader__meta {
   display: flex;
   justify-content: space-between;
@@ -283,14 +349,60 @@
 
   .dossier-sidebar {
     position: static;
+    order: 2;
   }
 
   .dossier-reader {
+    order: 1;
     padding: var(--space-4);
+  }
+
+  .dossier-reader__cover {
+    grid-template-columns: 1fr;
+  }
+
+  .dossier-reader__actions {
+    justify-content: flex-start;
+    max-width: none;
   }
 
   .dossier-flow div {
     grid-template-columns: 1fr;
     gap: var(--space-1);
+  }
+}
+
+@media (max-width: 640px) {
+  .dossier-page {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .dossier-reader {
+    padding: var(--space-3);
+  }
+
+  .dossier-reader__cover {
+    padding: var(--space-3);
+  }
+
+  .dossier-reader__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .dossier-reader__actions .btn {
+    width: 100%;
+    min-width: 0;
+    padding-inline: var(--space-1);
+  }
+
+  .dossier-reader__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .dossier-reader__meta {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

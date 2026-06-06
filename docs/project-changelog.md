@@ -2496,3 +2496,18 @@
 - **边界**：
   - 本轮不改后端、不删入口、不改变 API/artifact 契约；只修正跨页面移动端导航可见性和可用性。
 
+### 2026-06-06 — Dossier Reading Cover Card
+
+- **做了什么**：
+  - `DossierReadingPage` 的正文卡顶部新增“当前阅读卷”题签，按当前 tab 展示标题、阅读理由/偏差、场景数、证据数和下一章钩子。
+  - 题签新增世界线、继续沙盘和作者台行动入口；`WorldRunway` 的“读正文”步骤会滚动到正文卡。
+  - 移动端将正文卡排在卷宗目录前，让用户先读正文，再查目录、认知偏差和证据链。
+  - 同步 `memory.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是阅读体验切片。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Chrome 桌面截图：卷宗阅读页显示卷首题签、三枚行动按钮和阅读统计。
+  - Chrome 精确 390px 设备模拟：`documentElement.scrollWidth === innerWidth`，正文卡存在，行动按钮不截断，正文卡排在卷宗目录前。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不删 tab、不改变 API/artifact 契约；只提升卷宗阅读页的阅读上下文、下一步行动和移动端阅读顺序。
+

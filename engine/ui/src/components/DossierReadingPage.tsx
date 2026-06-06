@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api/client";
 import type { DossierReadingReport, DossierReadingVolumeTab } from "../api/types";
 import { renderProse } from "../markdown";
@@ -38,6 +38,7 @@ export function DossierReadingPage({
   const [activeTab, setActiveTab] = useState<ReadingTab>("continuous_reading");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const readerRef = useRef<HTMLElement | null>(null);
 
   async function load() {
     setLoading(true);
@@ -61,6 +62,9 @@ export function DossierReadingPage({
   const activeVolume = report?.volume_tabs.find((item) => item.id === activeTab);
   const activeBody = bodyForTab(report, activeTab, activeVolume);
   const activeBias = biasForTab(report, activeTab, activeVolume);
+  const activeContext = readingContext(report, activeTab, activeVolume);
+  const focusReader = () =>
+    readerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
     <div className="dossier-page">
@@ -96,7 +100,10 @@ export function DossierReadingPage({
             label: "读正文",
             detail: "默认进入连续阅读，不先打断沉浸。",
             active: activeTab === "continuous_reading",
-            onClick: () => setActiveTab("continuous_reading"),
+            onClick: () => {
+              setActiveTab("continuous_reading");
+              focusReader();
+            },
           },
           {
             label: "查卷宗",
@@ -168,7 +175,43 @@ export function DossierReadingPage({
               )}
             </aside>
 
-            <article className="dossier-reader">
+            <article className="dossier-reader" ref={readerRef}>
+              <section className="dossier-reader__cover" aria-label="当前阅读卷">
+                <div>
+                  <p className="dossier-reader__eyebrow muted">正在阅读</p>
+                  <h2>{activeContext.title}</h2>
+                  <p>{activeContext.summary}</p>
+                </div>
+                <div className="dossier-reader__actions">
+                  <button
+                    className="btn btn--ghost tiny"
+                    onClick={() => navigate({ name: "worldline", slug, worldlineId })}
+                  >
+                    世界线
+                  </button>
+                  <button
+                    className="btn btn--ghost tiny"
+                    onClick={() => navigate({ name: "sandbox", slug })}
+                  >
+                    继续沙盘
+                  </button>
+                  <button
+                    className="btn btn--primary tiny"
+                    onClick={() => navigate({ name: "author", slug })}
+                  >
+                    作者台
+                  </button>
+                </div>
+                <dl className="dossier-reader__stats">
+                  {activeContext.stats.map((stat) => (
+                    <div key={stat.label}>
+                      <dt>{stat.label}</dt>
+                      <dd>{stat.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+
               <div className="dossier-reader__meta">
                 <span className="badge badge--gold">{TAB_LABELS[activeTab] || "卷宗"}</span>
                 {report.source_runs.adoption_run_id && (
@@ -281,6 +324,92 @@ function bodyForTab(
     return report.confirmed_chapter?.body_md || "";
   }
   return activeVolume?.body_md || "";
+}
+
+function readingContext(
+  report: DossierReadingReport | null,
+  activeTab: ReadingTab,
+  activeVolume?: DossierReadingVolumeTab,
+): {
+  title: string;
+  summary: string;
+  stats: Array<{ label: string; value: string }>;
+} {
+  if (!report) {
+    return {
+      title: "卷宗阅读",
+      summary: "正在聚合连续正文、角色卷和事件证据。",
+      stats: [],
+    };
+  }
+
+  if (activeTab === "continuous_reading") {
+    const flow = report.continuous_reading?.reading_flow;
+    return {
+      title: "连续阅读正文",
+      summary:
+        flow?.opening_hook ||
+        "按小说正文继续读；证据、误会和多视角卷都收在后面，先不打断沉浸。",
+      stats: [
+        {
+          label: "场景",
+          value: flow ? `${flow.scene_count} 场` : "待生成",
+        },
+        {
+          label: "证据",
+          value: `${report.evidence_panel.ref_count} 条`,
+        },
+        {
+          label: "下一章",
+          value: flow?.next_chapter_hook || "等待作者采纳",
+        },
+      ],
+    };
+  }
+
+  if (activeTab === "confirmed_chapter") {
+    return {
+      title: report.confirmed_chapter?.chapter_title || "确认正文",
+      summary:
+        report.confirmed_chapter?.author_note ||
+        "作者确认入卷后的正式章节，可作为下一轮世界沙盘的可靠正史。",
+      stats: [
+        {
+          label: "状态",
+          value: report.confirmed_chapter?.edited ? "编辑后定稿" : "确认入卷",
+        },
+        {
+          label: "证据",
+          value: `${report.evidence_panel.ref_count} 条`,
+        },
+        {
+          label: "世界线",
+          value: report.worldline_id,
+        },
+      ],
+    };
+  }
+
+  return {
+    title: activeVolume?.title || TAB_LABELS[activeTab] || "世界卷宗",
+    summary:
+      activeVolume?.cognitive_bias ||
+      "这一卷从特定角色、锚点或事件角度解释同一段世界演化。",
+    stats: [
+      {
+        label: "卷宗",
+        value: activeVolume?.label || TAB_LABELS[activeTab] || "未命名",
+      },
+      {
+        label: "证据",
+        value: `${activeVolume?.evidence_refs.length ?? 0} 条`,
+      },
+      {
+        label: "来源",
+        value: activeVolume?.artifact || "等待生成",
+      },
+    ],
+  };
 }
 
 function biasForTab(
