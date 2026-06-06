@@ -22,6 +22,20 @@ export interface StoryShelfFocus {
   metrics: StoryShelfMetric[];
 }
 
+export interface StoryShelfSpotlightInput {
+  slug: string;
+  displayName: string;
+  sourceKind: StoryShelfSourceKind;
+  runCount: number;
+}
+
+export interface StoryShelfSpotlight extends StoryShelfSpotlightInput {
+  seal: string;
+  priorityLabel: string;
+  spotlightReason: string;
+  focus: StoryShelfFocus;
+}
+
 export function deriveStoryShelfFocus(input: StoryShelfFocusInput): StoryShelfFocus {
   const runCount = Math.max(0, input.runCount);
   const sourceLabel = input.sourceKind === "imported" ? "导入世界" : "样例世界";
@@ -41,4 +55,48 @@ export function deriveStoryShelfFocus(input: StoryShelfFocusInput): StoryShelfFo
       { label: "来源", value: sourceLabel },
     ],
   };
+}
+
+export function deriveStoryShelfSpotlight(
+  stories: StoryShelfSpotlightInput[],
+): StoryShelfSpotlight | null {
+  if (stories.length === 0) return null;
+
+  const best = stories
+    .map((story, index) => ({ story, index, score: spotlightScore(story) }))
+    .sort((a, b) => b.score - a.score || a.index - b.index)[0]?.story;
+
+  if (!best) return null;
+
+  const runCount = Math.max(0, best.runCount);
+  const focus = deriveStoryShelfFocus({
+    sourceKind: best.sourceKind,
+    runCount,
+  });
+  const isImported = best.sourceKind === "imported";
+  const hasSandboxResult = runCount > 0;
+
+  return {
+    ...best,
+    runCount,
+    seal: best.displayName.trim().slice(0, 1) || "书",
+    priorityLabel: isImported
+      ? "用户导入世界"
+      : hasSandboxResult
+        ? "已有沙盘结果"
+        : "推荐样例世界",
+    spotlightReason: isImported
+      ? "这是你带进来的世界；从它开始，最容易看到干预如何改变熟悉剧情。"
+      : hasSandboxResult
+        ? "这个世界已经运行过沙盘；适合直接进入卷宗，阅读角色行动留下的后果。"
+        : "从天命书开始最稳，先理解世界锚点，再启动第一轮角色行动。",
+    focus,
+  };
+}
+
+function spotlightScore(story: StoryShelfSpotlightInput): number {
+  const runCount = Math.max(0, story.runCount);
+  const sourceScore = story.sourceKind === "imported" ? 100 : 0;
+  const runningScore = runCount > 0 ? 30 : 0;
+  return sourceScore + runningScore + Math.min(runCount, 10);
 }

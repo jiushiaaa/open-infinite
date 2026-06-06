@@ -1,7 +1,11 @@
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { navigate } from "../routing";
-import { deriveStoryShelfFocus, type StoryShelfActionKey } from "../storyShelfFocus";
+import {
+  deriveStoryShelfFocus,
+  deriveStoryShelfSpotlight,
+  type StoryShelfActionKey,
+} from "../storyShelfFocus";
 import { StoryCoverThumb } from "./VisualAssetPanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
 import "./storyEntry.css";
@@ -12,16 +16,27 @@ export function StoryEntryPage() {
   const stories = data?.stories ?? [];
   const builtin = stories.filter((s) => s.source_kind === "builtin");
   const imported = stories.filter((s) => s.source_kind === "imported");
+  const spotlight = deriveStoryShelfSpotlight(
+    [...imported, ...builtin].map((s) => ({
+      slug: s.slug,
+      displayName: s.display_name,
+      sourceKind: s.source_kind,
+      runCount: s.run_count,
+    })),
+  );
 
   return (
     <div className="entry">
       <section className="entry__hero">
-        <p className="entry__eyebrow muted">未终章 · 世界书架</p>
-        <h1 className="entry__title">进入一个仍会运行的小说世界</h1>
-        <p className="entry__lede muted">
-          这里不是把故事改成你指定的答案，而是把变量投进世界：
-          角色会按欲望、记忆、误会和利益行动，世界会吸收、抵抗、代偿，再生成可继续阅读的卷宗。
-        </p>
+        <div className="entry__hero-copy">
+          <p className="entry__eyebrow muted">未终章 · 世界书架</p>
+          <h1 className="entry__title">进入一个仍会运行的小说世界</h1>
+          <p className="entry__lede muted">
+            这里不是把故事改成你指定的答案，而是把变量投进世界：
+            角色会按欲望、记忆、误会和利益行动，世界会吸收、抵抗、代偿，再生成可继续阅读的卷宗。
+          </p>
+        </div>
+        {spotlight && <StorySpotlightCard spotlight={spotlight} />}
         <div className="entry__journey" aria-label="世界沙盘主链路">
           <JourneyStep index="一" title="确认天命" desc="先看世界的锚点、吸引子和干预边界。" />
           <JourneyStep index="二" title="运行沙盘" desc="投放大事件或读者干预，让角色自己动起来。" />
@@ -176,6 +191,70 @@ function navigateStoryRecommendation(slug: string, key: StoryShelfActionKey) {
     return;
   }
   navigate({ name: "tianming", slug });
+}
+
+function StorySpotlightCard({
+  spotlight,
+}: {
+  spotlight: NonNullable<ReturnType<typeof deriveStoryShelfSpotlight>>;
+}) {
+  const openRecommended = () =>
+    navigateStoryRecommendation(spotlight.slug, spotlight.focus.recommendedKey);
+
+  return (
+    <aside className="entry__spotlight" aria-label="推荐进入的故事世界">
+      <div className="entry__spotlight-cover">
+        <StoryCoverThumb slug={spotlight.slug} seal={spotlight.seal} />
+      </div>
+      <div className="entry__spotlight-body">
+        <p className="entry__spotlight-kicker muted">推荐进入 · {spotlight.priorityLabel}</p>
+        <h2 className="entry__spotlight-title">{spotlight.displayName}</h2>
+        <div className="entry__spotlight-status">
+          <span className={`story-card__stage story-card__stage--${spotlight.focus.stageTone}`}>
+            {spotlight.focus.stageLabel}
+          </span>
+          <span
+            className={`badge ${
+              spotlight.sourceKind === "imported" ? "badge--indigo" : "badge--jade"
+            }`}
+          >
+            {spotlight.focus.sourceLabel}
+          </span>
+        </div>
+        <p className="entry__spotlight-reason muted">{spotlight.spotlightReason}</p>
+        <div className="entry__spotlight-metrics">
+          {spotlight.focus.metrics.map((metric) => (
+            <span key={metric.label}>
+              <strong>{metric.value}</strong>
+              <small>{metric.label}</small>
+            </span>
+          ))}
+        </div>
+        <button className="entry__spotlight-primary" onClick={openRecommended}>
+          {spotlight.focus.recommendedAction}
+        </button>
+        <div className="entry__spotlight-links">
+          <button onClick={() => navigate({ name: "sandbox", slug: spotlight.slug })}>
+            世界沙盘
+          </button>
+          <button
+            onClick={() =>
+              navigate({
+                name: "dossierReading",
+                slug: spotlight.slug,
+                worldlineId: "main",
+              })
+            }
+          >
+            卷宗阅读
+          </button>
+          <button onClick={() => navigate({ name: "workspace", slug: spotlight.slug })}>
+            机制档案
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
 }
 
 function JourneyStep({

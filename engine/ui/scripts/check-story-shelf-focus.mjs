@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { deriveStoryShelfFocus } from "../.tmp-story-shelf-focus/storyShelfFocus.js";
+import {
+  deriveStoryShelfFocus,
+  deriveStoryShelfSpotlight,
+} from "../.tmp-story-shelf-focus/storyShelfFocus.js";
 
 const freshImported = deriveStoryShelfFocus({
   sourceKind: "imported",
@@ -37,5 +40,28 @@ const defensive = deriveStoryShelfFocus({
 
 assert.equal(defensive.metrics[0].value, "0 条");
 assert.equal(defensive.recommendedKey, "tianming");
+
+const spotlightPrefersImported = deriveStoryShelfSpotlight([
+  { slug: "sample", displayName: "样例世界", sourceKind: "builtin", runCount: 4 },
+  { slug: "mine", displayName: "我的世界", sourceKind: "imported", runCount: 0 },
+]);
+
+assert.equal(spotlightPrefersImported?.slug, "mine");
+assert.equal(spotlightPrefersImported?.seal, "我");
+assert.equal(spotlightPrefersImported?.priorityLabel, "用户导入世界");
+assert.equal(spotlightPrefersImported?.focus.recommendedKey, "tianming");
+assert.match(spotlightPrefersImported?.spotlightReason ?? "", /你带进来的世界/);
+
+const spotlightPrefersRunningWorld = deriveStoryShelfSpotlight([
+  { slug: "fresh", displayName: "新样例", sourceKind: "builtin", runCount: 0 },
+  { slug: "running", displayName: "旧王朝", sourceKind: "builtin", runCount: 2 },
+]);
+
+assert.equal(spotlightPrefersRunningWorld?.slug, "running");
+assert.equal(spotlightPrefersRunningWorld?.priorityLabel, "已有沙盘结果");
+assert.equal(spotlightPrefersRunningWorld?.focus.recommendedKey, "reading");
+
+const noSpotlight = deriveStoryShelfSpotlight([]);
+assert.equal(noSpotlight, null);
 
 console.log("story shelf focus helper ok");

@@ -2928,3 +2928,17 @@
 - **边界**：
   - 本轮只改前端状态推导、锚定页 JSX/CSS 和检查脚本，不新增后端 API、不改变 artifact，不删除编辑锚定、视觉资产、角色栏或既有入口。
 
+### 2026-06-07 — Story Shelf Spotlight
+
+- **做了什么**：
+  - `storyShelfFocus` 新增 `deriveStoryShelfSpotlight`，按“导入世界优先、已有沙盘结果次之、原顺序兜底”的规则选择世界书架首屏推荐对象。
+  - `StoryEntryPage` 首屏新增推荐世界面板，展示推荐理由、阶段、来源、世界线运行数、主动作和常用去向；桌面放在右侧，390px 移动端排在流程卡前。
+  - 推荐面板封面改为横幅预览比例，避免手机首屏被封面占满；旧的内置样例、导入小说、主题创世、最近故事卡，以及世界沙盘、天命书、卷宗阅读、作者采纳台、机制档案入口全部保留。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把世界书架推荐世界面板记为当前事实。
+- **验证**：
+  - Red/green helper：先扩展 `check:story-shelf-focus` 断言 `deriveStoryShelfSpotlight`，确认缺 export 失败；实现后 `pnpm.cmd run check:story-shelf-focus` -> `story shelf focus helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面与 390px 访问 `#/` 均显示 1 个推荐面板、3 张启动卡和 3 个故事卡组；390px 推荐主按钮在首屏内，点击进入 `#/world/my-story/tianming`，且 `overflow=0`。
+- **边界**：
+  - 本轮只改前端入口理解、样式和检查脚本，不新增后端 API、不改变 artifact，不删任何旧入口。
+
