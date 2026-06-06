@@ -3139,3 +3139,18 @@
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端卷宗阅读 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。
+
+### 2026-06-07 — Sandbox Round Result Bridge
+
+- **做了什么**：
+  - `WorldSandboxPage` 在单轮沙盘结果出现后、干预约束/世界线/角色行动链等细节前新增“本轮已发生”结果承接台。
+  - 承接台汇总本轮事件、角色行动数、主观记忆数、因果债、锚点压力、资源变化、秘密流动和最先被推到台前的角色，让用户先理解世界如何消化这一轮。
+  - 四个入口复用既有路由/滚动：读成正文进入卷宗阅读，看世界线进入世界线档案，生成多视角进入多视角页，再推一轮回到运行台。
+  - 扩展 `check:sandbox-runner-ux`，锁定结果承接台必须出现在角色行动链前、包含四个动作，并在移动端折叠动作布局。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把沙盘结果承接台记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - `git diff --check` 通过；仅有 Windows CRLF 提示。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。

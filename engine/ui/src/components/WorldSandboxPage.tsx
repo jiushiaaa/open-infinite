@@ -155,6 +155,16 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       ],
     ];
   }, [round]);
+  const leadAction = round?.character_actions[0] ?? null;
+  const firstPossibility = round?.next_story_possibilities[0] ?? null;
+  const resultBridgeStats = round
+    ? [
+        ["角色行动", `${actionCount} 条`],
+        ["主观记忆", `${memoryEntries} 条`],
+        ["因果债", round.world_state_delta.causal_debt || "待观察"],
+      ]
+    : [];
+  const resultBridgeSignals = deltaItems.slice(0, 4);
 
   async function runRound() {
     if (!majorEvent.trim()) return;
@@ -747,6 +757,80 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           )}
           {!error && round && (
             <>
+              <section
+                className="sandbox-section sandbox-result-bridge"
+                aria-label="本轮沙盘结果承接"
+              >
+                <div className="sandbox-result-bridge__copy">
+                  <p className="tiny muted">本轮已发生</p>
+                  <h2>世界把事件消化成行动、记忆和下一章</h2>
+                  <p>
+                    {round.world_state_delta.trigger ||
+                      round.major_event ||
+                      "本轮事件已经进入世界状态，等待继续承接。"}
+                  </p>
+                </div>
+                <dl className="sandbox-result-bridge__stats">
+                  {resultBridgeStats.map(([label, value]) => (
+                    <div key={label}>
+                      <dt>{label}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="sandbox-result-bridge__signals">
+                  {resultBridgeSignals.map(([label, value]) => (
+                    <article key={label}>
+                      <span>{label}</span>
+                      <strong>{value || "暂无变化"}</strong>
+                    </article>
+                  ))}
+                </div>
+                <div className="sandbox-result-bridge__spotlight">
+                  <span>最先被推到台前</span>
+                  <strong>{leadAction?.character_name || "角色行动"}</strong>
+                  <p>
+                    {leadAction?.intent ||
+                      firstPossibility?.brief ||
+                      "继续推进一轮，观察谁会承压、误判或反抗。"}
+                  </p>
+                </div>
+                <div className="sandbox-result-bridge__actions">
+                  <button
+                    className="btn btn--primary tiny"
+                    onClick={() =>
+                      navigate({
+                        name: "dossierReading",
+                        slug,
+                        worldlineId: round.worldline_id || "main",
+                      })
+                    }
+                  >
+                    读成正文
+                  </button>
+                  <button
+                    className="btn btn--ghost tiny"
+                    onClick={() =>
+                      navigate({
+                        name: "worldline",
+                        slug,
+                        worldlineId: round.worldline_id || "main",
+                      })
+                    }
+                  >
+                    看世界线
+                  </button>
+                  <button
+                    className="btn btn--ghost tiny"
+                    onClick={() => navigate({ name: "lens", slug })}
+                  >
+                    生成多视角
+                  </button>
+                  <button className="btn btn--ghost tiny" onClick={focusControl}>
+                    再推一轮
+                  </button>
+                </div>
+              </section>
               {interventionConstraint && (
                 <section className="sandbox-section sandbox-intervention">
                   <div className="sandbox-section__title">
