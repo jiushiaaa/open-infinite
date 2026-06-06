@@ -61,6 +61,7 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [confirmationError, setConfirmationError] = useState<string | null>(null);
   const [confirmation, setConfirmation] =
     useState<AuthorChapterConfirmationReport | null>(null);
+  const [workspaceMode, setWorkspaceMode] = useState<"writing" | "review">("writing");
   const selectedRewriteCount = selectedRewriteIds.length;
   const localizedRewriteCount = draft?.revision_pack?.localized_rewrites.length ?? 0;
   const workflowStage = confirmation
@@ -131,6 +132,14 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const scrollToPageItem = (selector: string) => {
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const openWritingDesk = () => {
+    setWorkspaceMode("writing");
+    window.setTimeout(() => scrollToPageItem(".adoption-layout"), 80);
+  };
+  const openReviewDesk = () => {
+    setWorkspaceMode("review");
+    window.setTimeout(() => scrollToPageItem(".adoption-main"), 80);
+  };
 
   async function submitAdoption() {
     setLoading(true);
@@ -155,6 +164,7 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       setRewriteError(null);
       setConfirmation(null);
       setConfirmationError(null);
+      setWorkspaceMode("review");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -179,6 +189,7 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       setRewriteError(null);
       setConfirmation(null);
       setConfirmationError(null);
+      setWorkspaceMode("review");
     } catch (err) {
       setDraftError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -210,6 +221,7 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       );
       setConfirmation(null);
       setConfirmationError(null);
+      setWorkspaceMode("review");
     } catch (err) {
       setRewriteError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -235,6 +247,7 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       setConfirmation(
         await api.confirmAuthorChapterEntry(slug, report.run_id, request),
       );
+      setWorkspaceMode("review");
     } catch (err) {
       setConfirmationError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -263,6 +276,23 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
             <span className="badge badge--jade">世界线 main</span>
             <span className="badge">{decisionLabel(report?.decision || decision)}</span>
             {report?.run_id && <span className="badge badge--gold">{report.run_id}</span>}
+          </div>
+          <div className="adoption-desk-switch" aria-label="作者工作台模式">
+            <button
+              type="button"
+              className={workspaceMode === "writing" ? "is-active" : ""}
+              onClick={openWritingDesk}
+            >
+              写作台
+            </button>
+            <button
+              type="button"
+              className={workspaceMode === "review" ? "is-active" : ""}
+              disabled={!report}
+              onClick={openReviewDesk}
+            >
+              审稿台
+            </button>
           </div>
         </div>
 
@@ -326,7 +356,7 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
           {!confirmation && (
             <button
               className="btn btn--ghost"
-              onClick={() => scrollToPageItem(".adoption-layout")}
+              onClick={openWritingDesk}
             >
               调整材料
             </button>
@@ -388,7 +418,7 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
         ]}
       />
 
-      <div className="adoption-layout">
+      <div className={`adoption-layout adoption-layout--${workspaceMode}`}>
         <aside className="adoption-panel">
           <h2>采纳决策</h2>
           <label>

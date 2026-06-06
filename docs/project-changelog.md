@@ -3137,7 +3137,6 @@
   - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
-  - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端卷宗阅读 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。
 
@@ -3197,3 +3196,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端卷宗阅读 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。
+
+### 2026-06-07 — Author Adoption Desk Switch
+
+- **做了什么**：
+  - `AuthorAdoptionPage` 顶部工作流中枢新增“写作台 / 审稿台”模式切换。
+  - 默认写作台保留采纳决策、原大纲、沙盘涌现剧情和作者备注，方便先把材料写清楚。
+  - 采纳记录、生成草稿、采纳局部改写或确认入卷后自动切到审稿台，聚焦采纳结果、下一章草稿、Reviewer 局部重写、编辑后定稿和确认入卷。
+  - “调整材料”动作会回到写作台；审稿台隐藏材料区但不移除任何原有表单、Reviewer、确认入卷或路由能力。
+  - 扩展 `check:author-adoption-ux`，锁定工作台模式状态、布局切换、材料区保留和窄屏样式。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把作者采纳台工作台模式切换记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:author-adoption-ux` -> `author adoption ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - `git diff --check` 通过；仅有 Windows CRLF 提示。
+- **边界**：
+  - 本轮只改前端作者采纳 JSX/CSS、检查脚本和文档，不新增后端 API、不改变采纳/草稿/Reviewer/确认入卷契约、不改 artifact。

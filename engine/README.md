@@ -23,7 +23,7 @@
 | 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口；移动端 hero 后新增“继续读 / 看记忆 / 看代偿 / 作者台”醒来导读条，可直接进入连续阅读、角色记忆、具象代偿或作者采纳台 | 醒来报告文学化、长线阅读进度 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |
 | Reviewer 局部重写采纳 | `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` 已写 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json`，确认入卷可自动采用编辑后定稿并携带已采纳改写 ids | 更强真实语义 Reviewer、整章风格润色 |
-| 作者采纳台 | `AuthorAdoptionPage` 首屏四步中枢已前置写入采纳台、生成草稿、采纳局部改写、确认入卷和回世界沙盘动作；移动端中枢压缩后保留“写入采纳台 / 调整材料 / 回世界沙盘”，并可直接滚到采纳材料表单 | 可回滚对照、真实模型编辑器、作者定稿质量门 |
+| 作者采纳台 | `AuthorAdoptionPage` 首屏四步中枢已前置写入采纳台、生成草稿、采纳局部改写、确认入卷和回世界沙盘动作；顶部新增“写作台 / 审稿台”模式切换，写作台保留采纳材料，审稿台聚焦采纳结果、草稿、Reviewer 局部重写、编辑后定稿和确认入卷；移动端中枢压缩后保留“写入采纳台 / 调整材料 / 回世界沙盘”，并可直接滚到采纳材料表单 | 可回滚对照、真实模型编辑器、作者定稿质量门 |
 | 机制档案页 | `WorkspacePage` 作为“世界正史与机制档案”保留旧正史、旧分支、导入检查、检索/Graph 支撑层、审计和运行证据；移动端首屏新增“天命书 / 沙盘 / 读卷宗 / 查证据”导读条，把用户先接回主旅程或证据指标区，不再伪装成主线工作区 | 机制档案分区、继续收纳旧工程面板 |
 | 真实 LLM 策略建议 | `llm_decision_mode=advisory` 会写 `agent_decision_advisory.json`，展示采信、欺骗、传播、反抗、临场判断和策略棋盘 | 多轮策略规划、长期关系/势力博弈 |
 

@@ -91,6 +91,40 @@
   gap: var(--space-2);
 }
 
+.adoption-desk-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  width: min(100%, 224px);
+  padding: 3px;
+  border: 1px solid rgba(45, 104, 92, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.72);
+}
+
+.adoption-desk-switch button {
+  min-width: 0;
+  border: 0;
+  border-radius: 6px;
+  padding: 7px var(--space-2);
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.adoption-desk-switch button.is-active {
+  background: var(--ink);
+  color: var(--paper-raised);
+}
+
+.adoption-desk-switch button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .adoption-command__steps {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -170,6 +204,21 @@
   gap: var(--space-5);
   max-width: 1320px;
   margin: 0 auto;
+}
+
+.adoption-layout--review {
+  grid-template-columns: minmax(0, 980px);
+  max-width: 1060px;
+}
+
+.adoption-layout--review .adoption-panel,
+.adoption-layout--review .adoption-compare,
+.adoption-layout--review .adoption-note {
+  display: none;
+}
+
+.adoption-layout--review .adoption-main {
+  min-width: 0;
 }
 
 .adoption-panel,
@@ -619,6 +668,10 @@
 
   .adoption-command__meta {
     gap: var(--space-1);
+  }
+
+  .adoption-desk-switch {
+    width: 100%;
   }
 
   .adoption-command__actions {
