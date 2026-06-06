@@ -56,6 +56,7 @@
 .longline-progress,
 .longline-event-index,
 .longline-open-threads,
+.longline-recovery,
 .longline-timeline,
 .longline-current,
 .longline-entry,
@@ -78,6 +79,12 @@
   align-content: start;
   gap: 12px;
   padding: 16px;
+}
+
+.longline-recovery {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
 }
 
 .longline-timeline__head,
@@ -111,7 +118,8 @@
 }
 
 .longline-progress p,
-.longline-event-index p {
+.longline-event-index p,
+.longline-recovery > p {
   margin: 0;
   color: var(--ink-soft);
   line-height: 1.65;
@@ -144,6 +152,79 @@
 .longline-event-index__list,
 .longline-open-threads__list {
   display: grid;
+  gap: 8px;
+}
+
+.longline-recovery__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.longline-recovery__grid article {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(120, 91, 54, 0.14);
+  background: linear-gradient(180deg, rgba(255, 255, 252, 0.82), rgba(250, 245, 233, 0.58));
+}
+
+.longline-recovery__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.longline-recovery__head span,
+.longline-recovery__head small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.longline-recovery__grid strong {
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+  font-size: 0.96rem;
+}
+
+.longline-recovery__grid dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.longline-recovery__grid dl div {
+  padding: 8px 10px;
+  border: 1px solid rgba(120, 91, 54, 0.12);
+  background: rgba(250, 245, 233, 0.68);
+}
+
+.longline-recovery__grid dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.longline-recovery__grid dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.88rem;
+}
+
+.longline-recovery__grid ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.longline-recovery__actions {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -434,6 +515,8 @@
   .longline-briefing,
   .longline-aside,
   .longline-thread-grid,
+  .longline-recovery__grid,
+  .longline-recovery__grid dl,
   .longline-progress dl,
   .longline-entry__meta {
     grid-template-columns: 1fr;

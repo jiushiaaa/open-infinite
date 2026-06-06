@@ -115,6 +115,13 @@ def test_longline_reading_builds_cross_event_worldline_packet(tmp_path):
     assert packet["event_index"]["event_count"] >= 1
     assert packet["event_index"]["items"][0]["entry_ids"]
     assert packet["event_index"]["items"][0]["thread_ids"]
+    assert packet["misbelief_recovery"]["label"] == "误会回收台"
+    assert packet["misbelief_recovery"]["misbelief_count"] >= 1
+    assert packet["misbelief_recovery"]["items"][0]["misunderstanding"]
+    assert packet["misbelief_recovery"]["items"][0]["origin_event_title"]
+    assert packet["misbelief_recovery"]["items"][0]["affected_characters"]
+    assert len(packet["misbelief_recovery"]["items"][0]["recovery_steps"]) == 3
+    assert packet["misbelief_recovery"]["items"][0]["next_route"].startswith("#/world/longline-story")
     assert {thread["id"] for thread in packet["longline_threads"]} >= {
         "misbelief",
         "character_memory",
@@ -167,6 +174,7 @@ def test_longline_reading_http_statuses(tmp_path, monkeypatch):
         assert body["reading_progress"]["total_entries"] == len(body["timeline_entries"])
         assert body["event_index"]["items"]
         assert body["open_threads"]
+        assert body["misbelief_recovery"]["items"]
 
         bad_status, bad = _get(
             port,

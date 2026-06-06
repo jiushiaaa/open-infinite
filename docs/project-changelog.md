@@ -2761,3 +2761,19 @@
 - **边界**：
   - 本轮不改 `run_scene` 默认行为，不新增持久 artifact，不破坏既有 API/artifact 契约；只把已有长线材料补成更易理解、更可操作的阅读状态和事件索引。
 
+### 2026-06-07 — Longline Misbelief Recovery Desk
+
+- **做了什么**：
+  - `longline_reading` 只读聚合包新增 additive `misbelief_recovery`，从已有 `perspective_biases` 整理误会来源事件、牵动角色、证据数量、三步回收路径和去卷宗/作者台动作。
+  - `LonglineReadingPage` 首屏新增“误会回收台 / 把误会写回下一章”纸面面板，让用户能先核对误会来源，再把它送到作者采纳台承接下一章。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把长线卷误会回收台从待办改为当前事实，同时保留“更深跨章误会网络/跨章节回收”作为后续。
+- **验证**：
+  - Red/green focused 后端：先补 `engine\tests\test_longline_reading.py` 断言新字段，确认缺 `misbelief_recovery` 失败；实现后同命令 -> `2 passed`。
+  - 相邻链路：`python -m pytest -q engine\tests\test_longline_reading.py engine\tests\test_event_perspective.py engine\tests\test_dossier_reading.py` -> `6 passed`。
+  - 后端全量：`cd engine && python -m pytest -q` -> `951 passed`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome 桌面与精确 390px 设备模拟：`#/world/my-story/worldlines/main/longline` 显示误会回收台、回卷宗核对、送到作者台、长线阅读进度和按事件追长线，无水平溢出；点击第二个事件索引可切换当前长线节点，点击“回卷宗核对”进入 `#/world/my-story/worldlines/main/reading`。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改 `run_scene` 默认行为，不新增持久 artifact，不破坏既有 API/artifact 契约；只把已有误会材料补成用户能理解、能核对、能继续写下一章的回收台。
+

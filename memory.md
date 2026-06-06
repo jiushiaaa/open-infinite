@@ -2,10 +2,12 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-07（长线卷阅读进度与多事件索引收口）。当前事实：World Sandbox Loop / 世界沙盘改造 S1-S9 已有第一版可运行链路；最近几刀分别完成卷宗阅读页产品化、卷宗阅读正文证据锚点与阅读进度、卷宗阅读误会图谱第一版、世界自演结果页可读入口、Reviewer 局部重写采纳、自动编辑后定稿、前端世界书架/世界内卷宗导航第一轮降噪与首屏 QA、导入/创世开卷中枢、世界内导览层 `WorldRunway` 第一版、世界锚定页启动卡和世界卷宗总览、角色个人卷独立页、势力卷独立页、事件多视角详情页、跨事件长线卷及其阅读进度/多事件索引、移动端栏目保功能、世界沙盘页运行导览、移动端世界卷宗导航盘、卷宗阅读卷首题签、作者采纳台工作流中枢、天命书首屏宪法封面、多视角首屏工作流中枢、世界线首屏工作流中枢、检查点首屏醒来回放中枢，以及机制档案首屏中枢。后续默认继续深化真实 LLM 多 Agent 策略、长正文/连续阅读质量、跨章误会回收、更强真实语义 Reviewer 和整章风格润色，不回 provider、GraphRAG、检索评测、OpenAPI、发行或商业化主线。
+> **最后更新**：2026-06-07（长线卷误会回收台收口）。当前事实：World Sandbox Loop / 世界沙盘改造 S1-S9 已有第一版可运行链路；最近几刀分别完成卷宗阅读页产品化、卷宗阅读正文证据锚点与阅读进度、卷宗阅读误会图谱第一版、世界自演结果页可读入口、Reviewer 局部重写采纳、自动编辑后定稿、前端世界书架/世界内卷宗导航第一轮降噪与首屏 QA、导入/创世开卷中枢、世界内导览层 `WorldRunway` 第一版、世界锚定页启动卡和世界卷宗总览、角色个人卷独立页、势力卷独立页、事件多视角详情页、跨事件长线卷及其阅读进度/多事件索引/误会回收台、移动端栏目保功能、世界沙盘页运行导览、移动端世界卷宗导航盘、卷宗阅读卷首题签、作者采纳台工作流中枢、天命书首屏宪法封面、多视角首屏工作流中枢、世界线首屏工作流中枢、检查点首屏醒来回放中枢，以及机制档案首屏中枢。后续默认继续深化真实 LLM 多 Agent 策略、长正文/连续阅读质量、更深跨章误会回收、更强真实语义 Reviewer 和整章风格润色，不回 provider、GraphRAG、检索评测、OpenAPI、发行或商业化主线。
 > **文档治理口径**：本文件只写当前事实和真实未做项；完整历史见 `docs/project-changelog.md`，文档分类见 `docs/index.md`，已收口专项见 `docs/completed/README.md`。旧文档若和本文冲突，以本文为准。
 
-2026-06-07 长线卷阅读进度与多事件索引已完成第一版：`longline_reading` 在原有长线时间线、五条发酵线和证据链之外，additive 返回 `reading_progress`、`event_index` 和 `open_threads`，让前端能直接展示读到哪、有哪些事件、哪些误会/角色/势力/作者承接线仍需追踪；`LonglineReadingPage` 首屏新增“长线阅读进度、按事件追长线、未解线索”三块纸面面板，点击事件索引可定位当前长线节点，点击未解线索可跳回卷宗阅读、角色卷、势力卷、事件详情或作者台。该刀不新增持久 artifact，不改 `run_scene` 默认行为，不破坏既有 artifact/API；后续仍需跨章误会回收、跨章节回收和更自然长正文节奏。
+2026-06-07 长线卷误会回收台已完成第一版：`longline_reading` 在阅读进度、多事件索引和未解线索之外，additive 返回 `misbelief_recovery`，把 `perspective_biases` 中已经显形的误会整理成来源事件、牵动角色、证据数量、三步回收路径和去卷宗/作者台动作；`LonglineReadingPage` 首屏新增“误会回收台 / 把误会写回下一章”纸面面板，用户可先核对误会来源，再送到作者采纳台承接下一章。该刀不新增持久 artifact，不改 `run_scene` 默认行为，不破坏既有 artifact/API；后续仍需更深跨章误会网络、跨章节回收和更自然长正文节奏。
+
+2026-06-07 长线卷阅读进度与多事件索引已完成第一版：`longline_reading` 在原有长线时间线、五条发酵线和证据链之外，additive 返回 `reading_progress`、`event_index` 和 `open_threads`，让前端能直接展示读到哪、有哪些事件、哪些误会/角色/势力/作者承接线仍需追踪；`LonglineReadingPage` 首屏新增“长线阅读进度、按事件追长线、未解线索”三块纸面面板，点击事件索引可定位当前长线节点，点击未解线索可跳回卷宗阅读、角色卷、势力卷、事件详情或作者台。该刀不新增持久 artifact，不改 `run_scene` 默认行为，不破坏既有 artifact/API；后续仍需更深跨章误会回收、跨章节回收和更自然长正文节奏。
 
 2026-06-07 事件多视角详情页已完成第一版：新增只读 `event_perspective` service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives`，复用 `dossier-reading`、`character_lens_volumes`、`novel_scene_plan`、信息差、证据链和世界线来源，不新增持久 artifact；前端新增 `EventPerspectivePage` 与 `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 路由，把同一事件组织成事件节拍、当前片段、事件多视角正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/长线卷/作者台动作。卷宗阅读页的事件多视角 tab 与多视角生成页的事件正文卡都能进入该页；顶栏会显示“事件卷”。该刀 additive 扩展 S8 事件多视角阅读入口，不改 `run_scene` 默认行为，不破坏既有 artifact/API；后续仍需跨章误会关系和更自然长正文节奏。
 
@@ -76,7 +78,7 @@
 | 当前完成度 | v0.7 短中篇产品化 MVP、v0.8 长篇底座 MVP、v0.9.0-alpha 长篇共创闭环、v0.9.1-v0.9.4 触发式增强、v1.0-beta 本地优先商业化边界、v1.0-local 本地模型配置与一键运行脚本均已收口；后续增强运行前体检至 Graph/长期记忆 mock 复核链共四十五刀已收口；Retrieval Provider Real Connectivity MVP、Vector Retrieval Pipeline MVP、World Sandbox Loop S1-S9（Sandbox Round、Subjective Memory Chain、Tianming Book、Intervention Compiler、Narrative Compensation、World Autopilot、Character Lens Novel、Author Adoption Desk、Reviewer/Edited Final Chapter）第一版已收口 |
 | 产品入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能必须优先通过 Web UI + API 完成，CLI 只服务开发者、本地服务启动、自动化验收、批处理和无人值守复跑 |
 | 测试基线 | `cd engine && python -m pytest -q` -> `951 passed`；`cd engine/ui && pnpm run build` 通过 |
-| 官方下一步 | **真实模型决策 + 长正文质量 + 更强 Reviewer**：S4 后半与 S5/S6/S7/S8/S9 已形成一条可继续运行的产品链路，新增 `worldline_state.json`、`consequence_state` 六域代偿、自演任务状态、检查点回放、因果债/觉醒停止条件、失败后检查点恢复、多视角正文、下一章 brief、正式下一章草稿、作者确认入卷、确认稿跨卷宗阅读链和 `draft_revision_pack.json` 局部修订包；采纳/部分采纳/另开分支已能生成 `writing_plan` 与 `feed_forward` 并影响章节生成或后续沙盘入口；世界线/检查点独立页已补第一版 dossier 与回放入口；S1 已新增显式 opt-in 的真实 LLM 逐角色决策建议，产出 `agent_decision_advisory.json` 并进入沙盘行动/主观记忆/UI；S8/S9 已新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，并已通过 `dossier-reading` API 与卷宗阅读页组织成默认小说阅读入口；Reviewer 局部重写已可由作者勾选、生成编辑后定稿并反哺确认入卷和下一轮入口；下一步优先加强多轮策略规划、长期关系/势力博弈、长正文文风质量、跨章误会回收、更强真实语义 Reviewer 和整章风格润色；不默认回到 provider/Graph/检索评测主线 |
+| 官方下一步 | **真实模型决策 + 长正文质量 + 更强 Reviewer**：S4 后半与 S5/S6/S7/S8/S9 已形成一条可继续运行的产品链路，新增 `worldline_state.json`、`consequence_state` 六域代偿、自演任务状态、检查点回放、因果债/觉醒停止条件、失败后检查点恢复、多视角正文、下一章 brief、正式下一章草稿、作者确认入卷、确认稿跨卷宗阅读链和 `draft_revision_pack.json` 局部修订包；采纳/部分采纳/另开分支已能生成 `writing_plan` 与 `feed_forward` 并影响章节生成或后续沙盘入口；世界线/检查点独立页已补第一版 dossier 与回放入口；S1 已新增显式 opt-in 的真实 LLM 逐角色决策建议，产出 `agent_decision_advisory.json` 并进入沙盘行动/主观记忆/UI；S8/S9 已新增 `continuous_reading_chapter.json` / `continuous_reading_chapter.md`，并已通过 `dossier-reading` API 与卷宗阅读页组织成默认小说阅读入口；Reviewer 局部重写已可由作者勾选、生成编辑后定稿并反哺确认入卷和下一轮入口；下一步优先加强多轮策略规划、长期关系/势力博弈、长正文文风质量、更深跨章误会回收、更强真实语义 Reviewer 和整章风格润色；不默认回到 provider/Graph/检索评测主线 |
 | 当前主导航决策 | 一级按“世界书架”组织；进入某世界后使用“天命书、世界沙盘、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、世界线、检查点、作者采纳台”。“沙盘/阅读/干预/作者”是场景能力，不做一级工作区 |
 | 支撑层边界 | GraphRAG/Zep、重型 provider 试验、真实向量检索、OpenAPI、发行、计费、对象存储、认证都已降为支撑层；除非用户明确要求，不继续扩展这些方向 |
 
@@ -86,7 +88,7 @@
 | --- | --- | --- |
 | 已闭环支撑层 | v0.7-v1.0-local、后续增强四十五刀、真实 retrieval provider 和 opt-in Vector Retrieval Pipeline 都有 service/API/UI/CLI 或文档证据、测试和变更记录；它们现在是支撑层，不是默认主线 | 只有用户明确要求时，再评估默认 hybrid vector、GraphRAG/Zep、发行安装包、云端队列、对象存储、认证或计费 |
 | 世界沙盘 S1-S9 第一版闭环 | 《天命书》、沙盘轮次、主观记忆、干预投放、L5 觉醒/模因传播、因果债具象化、自演检查点、多视角正文、作者采纳、连续阅读和确认入卷已形成 additive 链路 | 多轮策略规划、长期关系/势力博弈、真实模型误判/欺骗的稳定性、代偿长期发酵仍需继续打磨 |
-| 产品化阅读入口第一版 | `dossier-reading`、卷宗阅读页、正文证据锚点/阅读进度、误会图谱、世界自演 `readable_entry`、角色个人卷独立页、势力卷独立页、事件多视角详情页、跨事件长线卷、长线阅读进度、多事件索引、未解线索和世界线/检查点/角色/事件/长线跳转已让用户能从结果页进入小说化阅读 | 长篇阅读节奏、跨章误会关系、用户阅读进度持久化和跨章节回收仍需深入 |
+| 产品化阅读入口第一版 | `dossier-reading`、卷宗阅读页、正文证据锚点/阅读进度、误会图谱、世界自演 `readable_entry`、角色个人卷独立页、势力卷独立页、事件多视角详情页、跨事件长线卷、长线阅读进度、多事件索引、误会回收台、未解线索和世界线/检查点/角色/事件/长线跳转已让用户能从结果页进入小说化阅读 | 长篇阅读节奏、更深跨章误会网络、用户阅读进度持久化和跨章节回收仍需深入 |
 | 作者采纳闭环第一版 | Reviewer 片段级建议可在作者采纳台勾选，写入 `accepted_local_rewrites.json`、`next_chapter_draft_revised.md` 与 `edited_final_chapter.json`，确认入卷可自动采用编辑后定稿并反哺下一轮入口；作者采纳台首屏已有四步工作流中枢和可点击下一步 | 真实语义 Reviewer、自动整章风格润色、可回滚对照和文风一致性仍需深化 |
 
 判断“下一刀”时，先以本节和 `docs/unfinale-world-sandbox-remodel-prd.md` 为准；不要从旧变更日志或 Graph/provider 历史面板里直接捞待办。
@@ -248,7 +250,7 @@
 | 缺口 | 当前状态 | 下一步触发 |
 | --- | --- | --- |
 | 真实 LLM 多 Agent 策略仍需深化 | 已有显式 opt-in `llm_decision_mode=advisory`、`agent_decision_advisory.json`、`strategy_board` 和小样本真实 smoke；能看到采信、欺骗、传播、反抗和临场判断 | 需要多轮策略规划、长期关系/势力博弈、稳定误判/隐瞒/试探和更强世界影响时继续 |
-| 长正文/连续阅读仍需打磨 | 已有 `continuous_reading_chapter` v2、`dossier-reading` API、卷宗阅读页、确认稿阅读链、正文证据锚点/阅读进度、误会图谱、长线阅读进度和世界自演可读入口；默认已像小说阅读而非 JSON 面板 | 需要跨章误会关系、用户阅读进度持久化、长篇节奏、跨章伏笔回收和真实文风一致性时继续 |
+| 长正文/连续阅读仍需打磨 | 已有 `continuous_reading_chapter` v2、`dossier-reading` API、卷宗阅读页、确认稿阅读链、正文证据锚点/阅读进度、误会图谱、长线阅读进度、误会回收台和世界自演可读入口；默认已像小说阅读而非 JSON 面板 | 需要更深跨章误会网络、用户阅读进度持久化、长篇节奏、跨章伏笔回收和真实文风一致性时继续 |
 | Reviewer 整章风格润色仍未完成 | 已有语义 Reviewer、片段级问题、修改意图、建议改写、影响范围、作者勾选采纳、编辑后定稿和定稿自动确认入卷 | 需要从“应用局部建议成定稿”升级为“整章风格一致性润色、可回滚/对照和真实模型编辑器”时继续 |
 | 世界线阅读入口仍可深化 | `readable_entry`、世界线页、检查点回放、角色个人卷独立页、势力卷独立页、事件多视角详情页、跨事件长线卷、多事件索引和事件/长线跳转已能串起醒来阅读 | 需要跨章角色/势力长线阅读、跨章节回收、跨卷证据联动和用户阅读进度持久化时继续 |
 | ChapterBrief 质量仍偏薄 | 导入时可用，但 summary/facts 仍偏规则化，未接真实 LLM 摘要 | 长篇质量明显受限时再做 |

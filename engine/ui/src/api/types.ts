@@ -1501,6 +1501,31 @@ export interface LonglineOpenThread extends LonglineThread {
   reason: string;
 }
 
+export interface LonglineMisbeliefRecoveryItem {
+  id: string;
+  status: "unresolved" | "recovered" | string;
+  misunderstanding: string;
+  origin_event_title: string;
+  source: string;
+  affected_characters: string[];
+  evidence_refs: string[];
+  recovery_steps: string[];
+  next_route: string;
+  author_prompt: string;
+}
+
+export interface LonglineMisbeliefRecovery {
+  label: string;
+  description: string;
+  misbelief_count: number;
+  items: LonglineMisbeliefRecoveryItem[];
+  fallback_action: {
+    label: string;
+    route: string;
+    reason: string;
+  };
+}
+
 export interface LonglineReadingReport {
   version: string;
   story_slug: string;
@@ -1523,6 +1548,7 @@ export interface LonglineReadingReport {
   };
   reading_progress: LonglineReadingProgress;
   event_index: LonglineEventIndex;
+  misbelief_recovery: LonglineMisbeliefRecovery;
   timeline_entries: LonglineTimelineEntry[];
   longline_threads: LonglineThread[];
   open_threads: LonglineOpenThread[];

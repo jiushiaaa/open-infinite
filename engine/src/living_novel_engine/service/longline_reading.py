@@ -54,6 +54,7 @@ def get_longline_reading(
         "current_tension": _current_tension(dossier),
         "reading_progress": _reading_progress(timeline_entries, longline_threads),
         "event_index": _event_index(timeline_entries, longline_threads),
+        "misbelief_recovery": _misbelief_recovery(sid, wid, dossier, timeline_entries),
         "timeline_entries": timeline_entries,
         "longline_threads": longline_threads,
         "open_threads": _open_threads(sid, wid, longline_threads),
@@ -67,7 +68,7 @@ def get_longline_reading(
         "next_actions": _next_actions(sid, wid, dossier),
         "boundaries": [
             "长线卷只读聚合 dossier-reading、worldline_dossier、连续阅读场景和多视角卷宗，不新增持久 artifact。",
-            "当前版本先承接最近一条世界线的长线阅读；后续可扩展为多事件索引和跨章回收。",
+            "当前版本先承接最近一条世界线的长线阅读；后续可扩展为跨章节回收和用户阅读进度持久化。",
             "缺少单个来源时降级为 partial 或 empty，不改变 run_scene 默认行为。",
         ],
     }
@@ -251,6 +252,67 @@ def _event_index(
         "description": "把长线卷拆成可扫读的事件目录，先定位事件，再回到正文、角色卷或证据链。",
         "event_count": len(items),
         "items": items,
+    }
+
+
+def _misbelief_recovery(
+    story_slug: str,
+    worldline_id: str,
+    dossier: dict[str, Any],
+    timeline_entries: list[dict[str, Any]],
+) -> dict[str, Any]:
+    biases = dossier.get("perspective_biases") if isinstance(dossier.get("perspective_biases"), list) else []
+    usable_biases = [item for item in biases if isinstance(item, dict)]
+    first_event = timeline_entries[0] if timeline_entries else {}
+    items: list[dict[str, Any]] = []
+    for index, bias in enumerate(usable_biases):
+        misunderstanding = str(
+            bias.get("cognitive_bias")
+            or bias.get("description")
+            or bias.get("bias")
+            or "角色仍在用不完整信息解释同一事件。"
+        )
+        source = str(bias.get("source") or bias.get("volume") or first_event.get("source") or "longline")
+        origin_title = str(
+            bias.get("scene_title")
+            or bias.get("title")
+            or first_event.get("title")
+            or "长线起点"
+        )
+        affected = _as_str_list(bias.get("affected_characters")) or _as_str_list(
+            bias.get("characters")
+        )
+        if not affected:
+            affected = _names_from_text(misunderstanding + " " + str(first_event.get("body") or ""))
+        evidence = _as_str_list(bias.get("evidence_refs")) or _as_str_list(first_event.get("evidence_refs"))
+        items.append(
+            {
+                "id": str(bias.get("id") or f"misbelief_{index + 1}"),
+                "status": "unresolved",
+                "misunderstanding": misunderstanding,
+                "origin_event_title": origin_title,
+                "source": source,
+                "affected_characters": affected or ["待确认角色"],
+                "evidence_refs": evidence,
+                "recovery_steps": [
+                    "先回到事件现场，确认哪句话或哪次沉默制造了误读。",
+                    "再进入角色个人卷，查看该角色把误会写成了什么主观记忆。",
+                    "最后送到作者台，把误会回收为下一章的对话、行动或代偿结果。",
+                ],
+                "next_route": f"#/world/{story_slug}/worldlines/{worldline_id}/reading",
+                "author_prompt": f"下一章需要让角色面对这个误会：{misunderstanding}",
+            }
+        )
+    return {
+        "label": "误会回收台",
+        "description": "把已经显形的误会整理成可回收的写作任务：先确认误读来源，再看谁记住了它，最后决定下一章怎样兑现或反转。",
+        "misbelief_count": len(items),
+        "items": items,
+        "fallback_action": {
+            "label": "回卷宗阅读",
+            "route": f"#/world/{story_slug}/worldlines/{worldline_id}/reading",
+            "reason": "从误会图谱回到连续正文和卷宗证据。",
+        },
     }
 
 

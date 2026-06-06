@@ -229,6 +229,55 @@ export function LonglineReadingPage({
             </article>
           </section>
 
+          {report.misbelief_recovery.items.length > 0 && (
+            <section className="longline-recovery" aria-label="误会回收台">
+              <div className="longline-section-title">
+                <div>
+                  <p className="muted tiny">{report.misbelief_recovery.label}</p>
+                  <h2>把误会写回下一章</h2>
+                </div>
+                <span className="badge badge--gold">
+                  {report.misbelief_recovery.misbelief_count} 条
+                </span>
+              </div>
+              <p>{report.misbelief_recovery.description}</p>
+              <div className="longline-recovery__grid">
+                {report.misbelief_recovery.items.slice(0, 4).map((item) => (
+                  <article key={item.id}>
+                    <div className="longline-recovery__head">
+                      <span>{item.origin_event_title}</span>
+                      <small>{item.status === "unresolved" ? "待回收" : item.status}</small>
+                    </div>
+                    <strong>{item.misunderstanding}</strong>
+                    <dl>
+                      <div>
+                        <dt>牵动角色</dt>
+                        <dd>{item.affected_characters.slice(0, 3).join("、")}</dd>
+                      </div>
+                      <div>
+                        <dt>证据</dt>
+                        <dd>{item.evidence_refs.length} 条</dd>
+                      </div>
+                    </dl>
+                    <ol>
+                      {item.recovery_steps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                    <div className="longline-recovery__actions">
+                      <button className="btn btn--ghost tiny" onClick={() => openRoute(item.next_route)}>
+                        回卷宗核对
+                      </button>
+                      <button className="btn btn--ghost tiny" onClick={() => navigate({ name: "author", slug })}>
+                        送到作者台
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
           <main className="longline-layout">
             <aside className="longline-timeline" aria-label="长线时间线">
               <div className="longline-timeline__head">
