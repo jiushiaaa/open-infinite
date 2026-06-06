@@ -256,6 +256,35 @@ function LeftColumn({
         .filter(([, st]) => st === "error")
         .map(([f]) => f)
     : [];
+  const statusJourney = deriveWorldJourney({
+    slug: data.slug,
+    runCount: data.run_count,
+    characterCount: data.characters.length,
+    openThreadCount: data.open_threads.length,
+    factionCount: data.world.factions.length,
+    currentChapter: data.world.current_chapter,
+    hasRecentReading: Boolean(recentReading),
+  });
+  const statusPulse = deriveWorldPulse({
+    slug: data.slug,
+    runCount: data.run_count,
+    characterCount: data.characters.length,
+    openThreadCount: data.open_threads.length,
+    factionCount: data.world.factions.length,
+    currentChapter: data.world.current_chapter,
+    hasRecentReading: Boolean(recentReading),
+  });
+  const navigateStatusStep = (key: WorldJourneyStepKey) => {
+    if (key === "tianming") navigate({ name: "tianming", slug: data.slug });
+    else if (key === "sandbox") navigate({ name: "sandbox", slug: data.slug });
+    else if (key === "reading" && recentReading) {
+      window.location.hash = recentReading.hash;
+    }
+    else if (key === "reading") {
+      navigate({ name: "dossierReading", slug: data.slug, worldlineId: "main" });
+    }
+    else if (key === "author") navigate({ name: "author", slug: data.slug });
+  };
   return (
     <div>
       <div className="anchor__brand">
@@ -267,6 +296,13 @@ function LeftColumn({
         </span>
       </div>
       <p className="muted tiny mono anchor__slug">{data.slug}</p>
+
+      <WorldStatusRibbon
+        journey={statusJourney}
+        pulse={statusPulse}
+        onNavigate={navigateStatusStep}
+        mobile
+      />
 
       <section className="anchor__launch" aria-label="启动世界">
         <div>
@@ -676,6 +712,9 @@ function WorldDossierGateway({
       }`}
       aria-label="世界卷宗总览"
     >
+      {!compact && (
+        <WorldStatusRibbon journey={journey} pulse={pulse} onNavigate={navigateJourneyStep} />
+      )}
       <div className="anchor__gateway-head">
         <div>
           <span className="muted tiny">世界卷宗总览</span>
@@ -753,6 +792,47 @@ function WorldDossierGateway({
         ))}
       </div>
     </section>
+  );
+}
+
+function WorldStatusRibbon({
+  journey,
+  pulse,
+  onNavigate,
+  mobile = false,
+}: {
+  journey: ReturnType<typeof deriveWorldJourney>;
+  pulse: ReturnType<typeof deriveWorldPulse>;
+  onNavigate: (key: WorldJourneyStepKey) => void;
+  mobile?: boolean;
+}) {
+  return (
+    <div
+      className={`anchor__status-ribbon ${mobile ? "anchor__status-ribbon--mobile" : ""}`}
+      aria-label="世界当前状态"
+    >
+      <div className="anchor__status-main">
+        <span className="muted tiny">当前阶段</span>
+        <strong>{journey.phaseLabel}</strong>
+        <p className="muted tiny">{journey.phaseDescription}</p>
+      </div>
+      <button
+        className="anchor__status-action"
+        onClick={() => onNavigate(journey.recommendedKey)}
+        type="button"
+      >
+        <span>下一步</span>
+        <strong>{journey.recommendedAction}</strong>
+      </button>
+      <div className="anchor__status-pulse" aria-label="世界脉搏">
+        {pulse.slice(0, 3).map((item) => (
+          <span key={item.key}>
+            <small>{item.label}</small>
+            <strong>{item.value}</strong>
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 

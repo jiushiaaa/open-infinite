@@ -2995,3 +2995,18 @@
   - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/longline`，导读条在首屏内且 display 为 `grid`；点击“读长线 / 按事件追 / 回收误会”分别把阅读进度、多事件索引和误会回收台带入可见区，点击“作者台”进入 `#/world/my-story/author`；页面宽度保持 390px，业务内容无水平溢出。
 - **边界**：
   - 本轮只改前端长线卷 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `longline-reading` 契约、不改 artifact。
+
+### 2026-06-07 — World Anchor Status Ribbon
+
+- **做了什么**：
+  - 新增 `check:world-anchor-status-ribbon` 检查脚本，锁定世界锚定页必须有“当前阶段 / 下一步 / 世界脉搏”状态条，并复用 `worldJourney` 与 `deriveWorldPulse`。
+  - `WorldAnchorPage` 新增 `WorldStatusRibbon`：桌面显示在世界卷宗总览顶部，移动端额外前置到品牌和“世界启动”之间，让用户进入某世界后先知道世界现在到哪、下一步该做什么。
+  - 状态条的主动作复用当前旅程推荐：有本机最近阅读时继续阅读，有沙盘结果时进入卷宗阅读，否则确认天命；原世界启动卡、紧凑卷宗总览、视觉资产、基线回放、实体别名、编辑锚定、角色栏和所有旧入口全部保留。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把世界锚定页状态条记为当前事实。
+- **验证**：
+  - Red/green helper：先新增 `check:world-anchor-status-ribbon`，确认旧锚定页因缺状态条失败；实现后同命令 -> `world anchor status ribbon structure ok`。
+  - 旅程 helper：`pnpm.cmd run check:world-journey` -> `world journey helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：390px 访问 `#/anchor/my-story`，状态条位于 468-726px 首屏内，点击“下一步”进入最近阅读；1366px 桌面状态条位于中栏总览顶部；两种宽度 `scrollWidth === clientWidth` 且无业务内容水平溢出。
+- **边界**：
+  - 本轮只改前端锚定页 JSX/CSS、检查脚本和文档，不新增后端 API、不改 artifact，不删除既有世界锚定、视觉资产、基线回放、实体别名、角色栏或卷宗入口。
