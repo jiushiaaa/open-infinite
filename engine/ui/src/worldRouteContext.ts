@@ -8,6 +8,18 @@ export interface WorldRouteContext {
   primaryRoute: Route;
   secondaryActionLabel?: string;
   secondaryRoute?: Route;
+  stages: WorldRouteStage[];
+}
+
+export type WorldRouteStageKey = "tianming" | "sandbox" | "reading" | "author";
+export type WorldRouteStageStatus = "ready" | "active";
+
+export interface WorldRouteStage {
+  key: WorldRouteStageKey;
+  label: string;
+  title: string;
+  status: WorldRouteStageStatus;
+  route: Route;
 }
 
 function worldlineId(route: Route): string {
@@ -23,6 +35,58 @@ function worldlineId(route: Route): string {
     return route.worldlineId;
   }
   return "main";
+}
+
+function stageKey(route: Route): WorldRouteStageKey {
+  if (route.name === "tianming" || route.name === "anchor" || route.name === "workspace") {
+    return "tianming";
+  }
+  if (route.name === "sandbox") {
+    return "sandbox";
+  }
+  if (route.name === "author") {
+    return "author";
+  }
+  return "reading";
+}
+
+function buildStages(route: Route, slug: string, currentWorldline: string): WorldRouteStage[] {
+  const active = stageKey(route);
+  const stages: Array<Omit<WorldRouteStage, "status">> = [
+    {
+      key: "tianming",
+      label: "定界",
+      title: "天命书",
+      route: { name: "tianming", slug },
+    },
+    {
+      key: "sandbox",
+      label: "运行",
+      title: "世界沙盘",
+      route: { name: "sandbox", slug },
+    },
+    {
+      key: "reading",
+      label: "阅读",
+      title: "卷宗阅读",
+      route: {
+        name: "dossierReading",
+        slug,
+        worldlineId: currentWorldline,
+      },
+    },
+    {
+      key: "author",
+      label: "采纳",
+      title: "作者台",
+      route: { name: "author", slug },
+    },
+  ];
+
+  return stages.map((stage) => ({
+    ...stage,
+    status: stage.key === active ? "active" : "ready",
+  }));
 }
 
 export function getWorldRouteContext(route: Route): WorldRouteContext | null {
@@ -50,6 +114,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     slug,
     worldlineId: currentWorldline,
   };
+  const stages = buildStages(route, slug, currentWorldline);
 
   if (route.name === "anchor") {
     return {
@@ -60,6 +125,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: { name: "tianming", slug },
       secondaryActionLabel: "运行沙盘",
       secondaryRoute: sandboxRoute,
+      stages,
     };
   }
   if (route.name === "tianming") {
@@ -71,6 +137,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: sandboxRoute,
       secondaryActionLabel: "回世界锚定",
       secondaryRoute: { name: "anchor", slug },
+      stages,
     };
   }
   if (route.name === "sandbox") {
@@ -82,6 +149,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: readingRoute,
       secondaryActionLabel: "查看世界线",
       secondaryRoute: worldlineRoute,
+      stages,
     };
   }
   if (route.name === "dossierReading") {
@@ -93,6 +161,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: longlineRoute,
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
+      stages,
     };
   }
   if (route.name === "longlineReading") {
@@ -104,6 +173,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: authorRoute,
       secondaryActionLabel: "回卷宗阅读",
       secondaryRoute: readingRoute,
+      stages,
     };
   }
   if (route.name === "characterVolume") {
@@ -115,6 +185,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: sandboxRoute,
       secondaryActionLabel: "去多视角",
       secondaryRoute: lensRoute,
+      stages,
     };
   }
   if (route.name === "factionVolume") {
@@ -126,6 +197,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: sandboxRoute,
       secondaryActionLabel: "去多视角",
       secondaryRoute: lensRoute,
+      stages,
     };
   }
   if (route.name === "eventPerspective") {
@@ -137,6 +209,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: longlineRoute,
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
+      stages,
     };
   }
   if (route.name === "worldline") {
@@ -148,6 +221,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: readingRoute,
       secondaryActionLabel: "追长线卷",
       secondaryRoute: longlineRoute,
+      stages,
     };
   }
   if (route.name === "checkpoint") {
@@ -159,6 +233,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: readingRoute,
       secondaryActionLabel: "回世界线",
       secondaryRoute: worldlineRoute,
+      stages,
     };
   }
   if (route.name === "lens") {
@@ -170,6 +245,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: readingRoute,
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
+      stages,
     };
   }
   if (route.name === "author") {
@@ -181,6 +257,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: sandboxRoute,
       secondaryActionLabel: "回卷宗阅读",
       secondaryRoute: readingRoute,
+      stages,
     };
   }
 
@@ -192,5 +269,6 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     primaryRoute: { name: "tianming", slug },
     secondaryActionLabel: "进入卷宗阅读",
     secondaryRoute: readingRoute,
+    stages,
   };
 }

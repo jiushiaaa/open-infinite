@@ -2846,3 +2846,15 @@
   - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
   - Chrome CDP smoke：桌面访问 `#/` 显示 3 张故事卡，第一张故事卡显示“待确认天命 / 确认天命”，旧 5 个入口仍可见，点击主按钮进入 `#/world/my-story/tianming`；390px 移动端故事卡显示阶段、主按钮和 5 个入口，`mobileOverflow=0`。
 
+### 2026-06-07 — AppShell World Experience Track
+
+- **做了什么**：
+  - `worldRouteContext` 在原有当前位置、页面职责和主动作/次动作之外，新增 `stages` 语义，统一返回“定界 / 运行 / 阅读 / 采纳”四段世界体验轨道。
+  - `AppShell` 的世界内位置条新增可点击阶段轨道，当前阶段高亮；四段分别跳到天命书、世界沙盘、卷宗阅读和作者台。
+  - 保留原有顶栏世界导航、当前位置说明、主动作/次动作、设置和动效按钮；本轮不新增后端 API、不改 artifact、不删旧路由。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把世界体验轨道记为当前事实。
+- **验证**：
+  - Red/green helper：先扩展 `check:world-route-context` 断言 `stages`，确认缺字段失败；实现后同命令 -> `world route context helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面访问 `#/world/my-story/sandbox` 显示“定界 / 运行 / 阅读 / 采纳”四段轨道且“运行”高亮，点击“阅读”进入 `#/world/my-story/worldlines/main/reading`；390px 移动端访问角色个人卷时“阅读”高亮、轨道宽度 366px、`mobileOverflow=0`。
+

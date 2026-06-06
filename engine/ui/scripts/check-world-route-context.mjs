@@ -15,6 +15,20 @@ assert.deepEqual(context?.primaryRoute, {
   worldlineId: "main",
 });
 assert.equal(context?.primaryActionLabel, "进入卷宗阅读");
+assert.deepEqual(
+  context?.stages.map((stage) => [stage.key, stage.label, stage.status]),
+  [
+    ["tianming", "定界", "ready"],
+    ["sandbox", "运行", "active"],
+    ["reading", "阅读", "ready"],
+    ["author", "采纳", "ready"],
+  ],
+);
+assert.deepEqual(context?.stages[2].route, {
+  name: "dossierReading",
+  slug: "my-story",
+  worldlineId: "main",
+});
 
 const character = getWorldRouteContext({
   name: "characterVolume",
@@ -32,6 +46,11 @@ assert.deepEqual(character?.primaryRoute, {
 assert.equal(character?.secondaryActionLabel, "去多视角");
 assert.deepEqual(character?.secondaryRoute, {
   name: "lens",
+  slug: "my-story",
+});
+assert.equal(character?.stages.find((stage) => stage.key === "reading")?.status, "active");
+assert.deepEqual(character?.stages.find((stage) => stage.key === "sandbox")?.route, {
+  name: "sandbox",
   slug: "my-story",
 });
 

@@ -268,6 +268,19 @@ export function AppShell({
             <strong>{routeContext.title}</strong>
             <span>{routeContext.description}</span>
           </div>
+          <div className="shell-context__stages" aria-label="世界体验轨道">
+            {routeContext.stages.map((stage) => (
+              <button
+                key={stage.key}
+                className={stage.status === "active" ? "is-active" : ""}
+                onClick={() => navigate(stage.route)}
+                type="button"
+              >
+                <span>{stage.label}</span>
+                <strong>{stage.title}</strong>
+              </button>
+            ))}
+          </div>
           <div className="shell-context__actions">
             <button
               className="btn btn--primary tiny"
