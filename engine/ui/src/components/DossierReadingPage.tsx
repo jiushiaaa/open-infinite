@@ -378,6 +378,21 @@ export function DossierReadingPage({
                       势力卷
                     </button>
                   )}
+                  {activeTab === "event_multi_perspective" && (
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() =>
+                        navigate({
+                          name: "eventPerspective",
+                          slug,
+                          worldlineId,
+                          eventId: "main",
+                        })
+                      }
+                    >
+                      事件详情
+                    </button>
+                  )}
                 </div>
                 <dl className="dossier-reader__stats">
                   {activeContext.stats.map((stat) => (

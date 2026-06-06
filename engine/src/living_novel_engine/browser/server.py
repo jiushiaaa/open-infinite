@@ -101,6 +101,23 @@ class BrowserHandler(BaseHTTPRequestHandler):
             return None
         return slug, worldline_id
 
+    def _extract_story_worldline_event_for_suffix(
+        self, path: str, suffix: str
+    ) -> tuple[str, str, str] | None:
+        rest = path[len("/api/stories/") : -len(suffix)]
+        story_raw, marker, tail = rest.partition("/worldlines/")
+        if not marker:
+            return None
+        worldline_raw, marker, event_tail = tail.partition("/events/")
+        if not marker:
+            return None
+        slug = safe_id(story_raw.strip("/"))
+        worldline_id = safe_id(worldline_raw.strip("/"))
+        event_id = safe_id(event_tail.strip("/"))
+        if slug is None or worldline_id is None or event_id is None:
+            return None
+        return slug, worldline_id, event_id
+
     def _extract_autopilot_task_path(
         self, path: str
     ) -> tuple[str, str, str] | None:
@@ -1325,6 +1342,14 @@ class BrowserHandler(BaseHTTPRequestHandler):
             if (
                 path.startswith("/api/stories/")
                 and "/worldlines/" in path
+                and "/events/" in path
+                and path.endswith("/perspectives")
+            ):
+                return self._handle_event_perspective_get(path)
+
+            if (
+                path.startswith("/api/stories/")
+                and "/worldlines/" in path
                 and path.endswith("/worldline-state")
             ):
                 return self._handle_worldline_state_get(path)
@@ -1966,6 +1991,32 @@ class BrowserHandler(BaseHTTPRequestHandler):
                 get_dossier_reading(slug, worldline_id=worldline_id)
             )
         except DossierReadingRequestError as exc:
+            return self._send_json({"error": str(exc)}, status=400)
+        except FileNotFoundError as exc:
+            return self._send_json({"error": str(exc)}, status=404)
+
+    def _handle_event_perspective_get(self, path: str) -> None:
+        from living_novel_engine.service.event_perspective import (
+            EventPerspectiveRequestError,
+            get_event_perspective,
+        )
+
+        parsed = self._extract_story_worldline_event_for_suffix(path, "/perspectives")
+        if parsed is None:
+            return self._send_json(
+                {"error": "invalid slug, worldline id or event id"},
+                status=400,
+            )
+        slug, worldline_id, event_id = parsed
+        try:
+            return self._send_json(
+                get_event_perspective(
+                    slug,
+                    worldline_id=worldline_id,
+                    event_id=event_id,
+                )
+            )
+        except EventPerspectiveRequestError as exc:
             return self._send_json({"error": str(exc)}, status=400)
         except FileNotFoundError as exc:
             return self._send_json({"error": str(exc)}, status=404)

@@ -77,6 +77,7 @@ import type {
   MasterSettingUpdateResponse,
   DeploymentObservabilityChecklist,
   DossierReadingReport,
+  EventPerspectiveReport,
   LLMProfileAssignmentReport,
   LocalSmokeChecklist,
   ObjectStorageBoundaryChecklist,
@@ -563,6 +564,17 @@ export const api = {
       `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
         worldlineId,
       )}/dossier-reading`,
+    );
+  },
+  getEventPerspective(
+    storySlug: string,
+    worldlineId: string,
+    eventId: string,
+  ): Promise<EventPerspectiveReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/events/${encodeURIComponent(eventId)}/perspectives`,
     );
   },
   getTianmingBook(storySlug: string): Promise<TianmingBook> {

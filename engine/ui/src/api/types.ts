@@ -1323,6 +1323,9 @@ export interface DossierReadingVolumeTab {
   faction_name?: string;
   cognitive_bias: string;
   evidence_refs: string[];
+  evidence_chain?: Record<string, unknown>;
+  information_gap?: Record<string, string>;
+  novel_scene_plan?: CharacterLensNovelSceneBeat[];
   artifact: string;
   default_open: boolean;
 }
@@ -1379,6 +1382,60 @@ export interface DossierReadingReport {
     refs: string[];
   };
   worldline_dossier?: Partial<WorldlineDossierReport>;
+  boundaries: string[];
+}
+
+export interface EventPerspectiveSceneBeat {
+  id: string;
+  beat_type: string;
+  title: string;
+  body: string;
+  viewpoint: string;
+  cognitive_bias?: string;
+  evidence_refs: string[];
+}
+
+export interface EventPerspectiveReport {
+  version: string;
+  story_slug: string;
+  worldline_id: string;
+  event_id: string;
+  status: "ready" | "partial" | "empty" | string;
+  title: string;
+  subtitle: string;
+  source_runs: {
+    adoption_run_id?: string;
+    draft_run_id?: string;
+    confirmation_run_id?: string;
+    lens_run_id?: string;
+    sandbox_run_id?: string;
+  };
+  event_volume: DossierReadingVolumeTab | Record<string, never>;
+  scene_beats: EventPerspectiveSceneBeat[];
+  information_gap: {
+    canon_vs_character?: string;
+    misbeliefs?: string;
+    unknown_canon_facts?: string;
+  };
+  perspective_biases: Array<{
+    id: string;
+    label: string;
+    source: string;
+    cognitive_bias: string;
+  }>;
+  evidence_panel: {
+    default_open: boolean;
+    label: string;
+    description: string;
+    ref_count: number;
+    refs: string[];
+  };
+  next_actions: Array<{
+    id: string;
+    label: string;
+    route: string;
+    reason: string;
+  }>;
   boundaries: string[];
 }
 

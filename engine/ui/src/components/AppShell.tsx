@@ -20,6 +20,7 @@ const ROUTE_LABELS: Partial<Record<Route["name"], string>> = {
   dossierReading: "卷宗阅读",
   characterVolume: "角色个人卷",
   factionVolume: "势力卷",
+  eventPerspective: "事件多视角",
   checkpoint: "检查点",
   anchor: "世界锚定",
   import: "导入小说",
@@ -37,6 +38,7 @@ function worldSlug(route: Route): string | null {
     route.name === "dossierReading" ||
     route.name === "characterVolume" ||
     route.name === "factionVolume" ||
+    route.name === "eventPerspective" ||
     route.name === "checkpoint" ||
     route.name === "anchor"
   ) {
@@ -51,6 +53,7 @@ function worldlineId(route: Route): string {
     route.name === "dossierReading" ||
     route.name === "characterVolume" ||
     route.name === "factionVolume" ||
+    route.name === "eventPerspective" ||
     route.name === "checkpoint"
   ) {
     return route.worldlineId;
@@ -62,6 +65,7 @@ function activeSection(route: Route): string {
   if (route.name === "checkpoint") return "worldline";
   if (route.name === "characterVolume") return "character";
   if (route.name === "factionVolume") return "faction";
+  if (route.name === "eventPerspective") return "event";
   if (route.name === "dossierReading") return "reading";
   return route.name;
 }
@@ -172,6 +176,22 @@ export function AppShell({
                   title="查看势力的立场、资源压力和世界代偿"
                 >
                   势力卷
+                </button>
+              )}
+              {route.name === "eventPerspective" && (
+                <button
+                  className="is-active"
+                  onClick={() =>
+                    navigate({
+                      name: "eventPerspective",
+                      slug,
+                      worldlineId: currentWorldline,
+                      eventId: route.eventId,
+                    })
+                  }
+                  title="查看同一事件在不同角色、正史和世界状态里的分裂"
+                >
+                  事件卷
                 </button>
               )}
               <button

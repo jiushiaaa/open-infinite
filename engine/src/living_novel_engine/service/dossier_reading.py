@@ -200,6 +200,9 @@ def _volume_tabs(payload: dict[str, Any], lens_run_id: str) -> list[dict[str, An
                 "character_name": volume.get("character_name") or "",
                 "cognitive_bias": _volume_bias(volume_type, volume),
                 "evidence_refs": _volume_evidence_refs(volume, artifact),
+                "evidence_chain": volume.get("evidence_chain") or {},
+                "information_gap": volume.get("information_gap") or {},
+                "novel_scene_plan": volume.get("novel_scene_plan") or [],
                 "artifact": artifact,
                 "default_open": False,
             }

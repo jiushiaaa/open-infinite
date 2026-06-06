@@ -12,6 +12,7 @@ import { WorldlineDossierPage } from "./components/WorldlineDossierPage";
 import { DossierReadingPage } from "./components/DossierReadingPage";
 import { CharacterVolumePage } from "./components/CharacterVolumePage";
 import { FactionVolumePage } from "./components/FactionVolumePage";
+import { EventPerspectivePage } from "./components/EventPerspectivePage";
 import { CheckpointReplayPage } from "./components/CheckpointReplayPage";
 import { useRoute } from "./routing";
 
@@ -46,6 +47,13 @@ export function App() {
           slug={route.slug}
           worldlineId={route.worldlineId}
           factionId={route.factionId}
+        />
+      )}
+      {route.name === "eventPerspective" && (
+        <EventPerspectivePage
+          slug={route.slug}
+          worldlineId={route.worldlineId}
+          eventId={route.eventId}
         />
       )}
       {route.name === "checkpoint" && (

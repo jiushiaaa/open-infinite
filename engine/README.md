@@ -8,12 +8,13 @@
 
 | 能力 | 当前状态 | 继续深入 |
 | --- | --- | --- |
-| 世界锚定页 | `WorldAnchorPage` 已把世界启动、世界卷宗总览、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面中栏展示世界内地图，移动端在启动卡后前置紧凑总览，势力标签可进入势力卷 | 完整 `WorldWorkspaceShell`、事件详情页 |
+| 世界锚定页 | `WorldAnchorPage` 已把世界启动、世界卷宗总览、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面中栏展示世界内地图，移动端在启动卡后前置紧凑总览，势力标签可进入势力卷 | 完整 `WorldWorkspaceShell` |
 | 角色个人卷页 | `CharacterVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 已复用 `dossier-reading` 与 `subjective-memory`，把单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点组织成可读页面；锚定页、沙盘页、多视角页和卷宗阅读页都有入口 | 跨章角色长线阅读、跨卷证据联动 |
-| 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、事件详情页 |
+| 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、跨卷证据联动 |
+| 事件多视角详情页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 与 `EventPerspectivePage` / `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 已复用 `dossier-reading` 与 `character_lens_volumes`，把同一事件的节拍、正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/作者台动作组织成独立页面 | 跨事件长线阅读、跨章误会回收 |
 | 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点和可点击误会图谱，并可切换世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角和确认稿 | 跨章误会关系、长线阅读进度 |
-| 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作 | 事件详情页、醒来报告文学化 |
-| 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口 | 醒来报告文学化、长线阅读进度、事件详情页 |
+| 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作 | 醒来报告文学化、跨事件长线阅读 |
+| 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口 | 醒来报告文学化、长线阅读进度 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |
 | Reviewer 局部重写采纳 | `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` 已写 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json`，确认入卷可自动采用编辑后定稿并携带已采纳改写 ids | 更强真实语义 Reviewer、整章风格润色 |
 | 真实 LLM 策略建议 | `llm_decision_mode=advisory` 会写 `agent_decision_advisory.json`，展示采信、欺骗、传播、反抗和临场判断 | 多轮策略规划、长期关系/势力博弈 |
@@ -94,6 +95,7 @@
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`：读取可持续世界线状态。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`：聚合世界线状态、天命审计、自演任务和检查点，供世界线档案页展示。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`：聚合连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier，供世界内部卷宗阅读页展示；不新增持久 artifact。
+- `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives`：聚合事件多视角正文、场景节拍、信息差、误读列表和证据链，供事件详情页展示；不新增持久 artifact。
 - `GET /api/world-autopilot-runs/<run_id>/readable-entry`：读取或复算自演报告的可读世界线入口，返回最近检查点、角色个人卷、事件多视角、连续阅读路由以及状态变化/记忆/因果债摘要。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>`：读取自演任务进度。
 - `POST /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>/pause|resume`：暂停或恢复本地自演任务状态。

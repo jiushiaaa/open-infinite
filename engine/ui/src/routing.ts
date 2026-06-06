@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 // "#/world/<slug>/worldlines/<id>/reading[/tab]" → 世界内部卷宗阅读
 // "#/world/<slug>/worldlines/<id>/characters/<char>" → 角色个人卷
 // "#/world/<slug>/worldlines/<id>/factions/<faction>" → 势力卷
+// "#/world/<slug>/worldlines/<id>/events/<event>/perspectives" → 事件多视角详情
 // "#/world/<slug>/worldlines/<id>/checkpoints/<run>/<checkpoint>" → 检查点回放
 // "#/anchor/<slug>"             → 世界锚定页
 // "#/import"                    → 导入小说
@@ -26,6 +27,7 @@ export type Route =
   | { name: "dossierReading"; slug: string; worldlineId: string; tab?: string }
   | { name: "characterVolume"; slug: string; worldlineId: string; characterId: string }
   | { name: "factionVolume"; slug: string; worldlineId: string; factionId: string }
+  | { name: "eventPerspective"; slug: string; worldlineId: string; eventId: string }
   | {
       name: "checkpoint";
       slug: string;
@@ -70,6 +72,14 @@ function parseHash(): Route {
         slug: decodeURIComponent(parts[1]),
         worldlineId: decodeURIComponent(parts[3]),
         factionId: decodeURIComponent(parts[5]),
+      };
+    }
+    if (parts[4] === "events" && parts[5] && parts[6] === "perspectives") {
+      return {
+        name: "eventPerspective",
+        slug: decodeURIComponent(parts[1]),
+        worldlineId: decodeURIComponent(parts[3]),
+        eventId: decodeURIComponent(parts[5]),
       };
     }
     if (parts[4] === "checkpoints" && parts[5] && parts[6]) {
@@ -142,6 +152,11 @@ export function navigate(route: Route): void {
     next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
       route.worldlineId,
     )}/factions/${encodeURIComponent(route.factionId)}`;
+  }
+  else if (route.name === "eventPerspective") {
+    next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
+      route.worldlineId,
+    )}/events/${encodeURIComponent(route.eventId)}/perspectives`;
   }
   else if (route.name === "checkpoint") {
     next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(

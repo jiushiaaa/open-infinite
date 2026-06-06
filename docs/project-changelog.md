@@ -2708,3 +2708,23 @@
 - **边界**：
   - 本轮不改 `run_scene` 默认行为，不新增持久 artifact 类型，不破坏既有 API/artifact 契约；只把势力卷从已有多视角能力补成可读、可进入、可理解的产品页面。
 
+### 2026-06-07 — Event Perspective Dossier Page
+
+- **做了什么**：
+  - 新增只读 `event_perspective` service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives`，复用 `dossier-reading`、`character_lens_volumes`、`novel_scene_plan`、信息差和证据链，不新增持久 artifact。
+  - `dossier-reading` 的 volume tab additive 透传 `evidence_chain`、`information_gap` 和 `novel_scene_plan`，让事件页能追到源沙盘 run、场景节拍和证据。
+  - 新增 `EventPerspectivePage` 与 `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 路由，把同一事件组织成事件节拍、当前片段、事件多视角正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/作者台动作。
+  - 卷宗阅读页的事件多视角 tab 和多视角生成页的事件正文卡都能进入事件详情页；顶栏会显示“事件卷”。
+  - 前端入口补充空 data favicon，消除本地浏览器默认请求 `/favicon.ico` 的 404 控制台噪声。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把事件详情页从基础待办改为当前事实。
+- **验证**：
+  - Red/green focused 后端：先跑 `python -m pytest -q engine\tests\test_event_perspective.py`，确认缺 `event_perspective` 模块失败；实现后同命令通过。
+  - 相邻链路：`python -m pytest -q engine\tests\test_character_lens_novel.py engine\tests\test_dossier_reading.py engine\tests\test_event_perspective.py` -> `10 passed`。
+  - 后端全量：`cd engine && python -m pytest -q` -> `949 passed`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过。
+  - Chrome 桌面与精确 390px 设备模拟：`#/world/my-story/worldlines/main/events/main/perspectives` 显示事件节拍、信息差、下一步、事件多视角正文和证据链，无水平溢出、无 console error、无 4xx。
+  - UI smoke：从 `#/world/my-story/worldlines/main/reading/event_multi_perspective` 点击“事件详情”可进入 `#/world/my-story/worldlines/main/events/main/perspectives`。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改 `run_scene` 默认行为，不新增持久 artifact，不破坏既有 API/artifact 契约；只把已有事件多视角从 tab 补成可读、可进入、可理解的产品页面。
+

@@ -329,6 +329,21 @@ export function CharacterLensPage({ slug }: { slug: string }) {
                           进入势力卷
                         </button>
                       )}
+                      {volume.volume_type === "event_multi_perspective" && (
+                        <button
+                          className="btn btn--ghost tiny"
+                          onClick={() =>
+                            navigate({
+                              name: "eventPerspective",
+                              slug,
+                              worldlineId: report.worldline_id || "main",
+                              eventId: "main",
+                            })
+                          }
+                        >
+                          进入事件详情
+                        </button>
+                      )}
                     </article>
                   ))}
                 </section>
