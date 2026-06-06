@@ -288,6 +288,9 @@ function ProjectWorkspaceOverview({
       onClick: () => firstSelection && onSelectFirst(firstSelection),
     },
   ];
+  const scrollToArchiveItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="project-workspace">
@@ -346,6 +349,52 @@ function ProjectWorkspaceOverview({
           )}
         </div>
       </header>
+
+      <nav className="project-workspace__mobile-guide" aria-label="移动端机制档案导读">
+        <div>
+          <p className="tiny muted">支撑层资料在这里，不是主旅程终点</p>
+          <strong>把档案接回世界</strong>
+          <span>
+            {data.run_count} 条运行记录 · {data.memory.layer_count} 层记忆证据
+          </span>
+        </div>
+        <div className="project-workspace__mobile-guide-actions">
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={() => navigate({ name: "tianming", slug: data.slug })}
+          >
+            天命书
+          </button>
+          <button
+            type="button"
+            className="workspace-btn workspace-btn--primary"
+            onClick={() => navigate({ name: "sandbox", slug: data.slug })}
+          >
+            沙盘
+          </button>
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={() =>
+              navigate({
+                name: "dossierReading",
+                slug: data.slug,
+                worldlineId: "main",
+              })
+            }
+          >
+            读卷宗
+          </button>
+          <button
+            type="button"
+            className="workspace-btn"
+            onClick={() => scrollToArchiveItem(".project-workspace__metrics")}
+          >
+            查证据
+          </button>
+        </div>
+      </nav>
 
       <section className="project-workspace__command" aria-label="机制档案工作流总览">
         <div className="project-workspace__command-lead">

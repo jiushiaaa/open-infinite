@@ -3111,3 +3111,17 @@
   - Chrome CDP smoke：390px 访问 `#/world/my-story/tianming`，速断条位于 640-788px 首屏内且 display 为 `grid`，位于完整工作流中枢前；真实坐标点击“投干预”把干预预编译区带入可见区；页面宽度保持 390px，无业务内容横向溢出。
 - **边界**：
   - 本轮只改前端天命书 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `tianming`、干预编译或 narrative compensation 契约、不改 artifact。
+
+### 2026-06-07 — Workspace Archive Mobile Guide
+
+- **做了什么**：
+  - 新增 `check:workspace-archive-ux` 检查脚本，锁定机制档案移动端导读条存在、位于完整档案中枢前，并只在移动端显示。
+  - `WorkspacePage` 在移动端首屏新增“天命书 / 沙盘 / 读卷宗 / 查证据”导读条；桌面仍保持原机制档案工作台。
+  - 四个入口分别复用现有路由/滚动：进入天命书、进入世界沙盘、进入卷宗阅读、滚到运行/记忆证据指标区。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把机制档案移动端导读条记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:workspace-archive-ux` -> `workspace archive ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：390px 访问 `#/workspace/my-story`，导读条位于 631-782px 且 display 为 `grid`，位于完整档案中枢前；真实坐标点击“查证据”把证据指标区带入可见区；页面宽度保持 390px，无水平溢出。
+- **边界**：
+  - 本轮只改前端机制档案 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 archive、settings、Graph 或 retrieval 契约、不改 artifact。
