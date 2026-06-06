@@ -8,6 +8,7 @@
 
 | 能力 | 当前状态 | 继续深入 |
 | --- | --- | --- |
+| 世界内导航语境 | `AppShell` 已在所有世界内路由下方显示“当前位置”纸面条，按锚定、天命书、沙盘、阅读、长线卷、角色卷、势力卷、事件卷、世界线、检查点、多视角、作者台和机制档案说明页面职责，并提供主动作/次动作跳到已有路由 | 更完整 `WorldWorkspaceShell`、跨页面视觉 QA |
 | 世界锚定页 | `WorldAnchorPage` 已把世界启动、最近阅读续航、世界卷宗总览、当前旅程状态、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面中栏展示世界内地图和下一步状态，移动端在启动卡后前置紧凑总览，势力标签可进入势力卷 | 完整 `WorldWorkspaceShell`、账号级阅读进度 |
 | 角色个人卷页 | `CharacterVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 已复用 `dossier-reading` 与 `subjective-memory`，把单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点组织成可读页面；锚定页、沙盘页、多视角页和卷宗阅读页都有入口 | 跨章角色长线阅读、跨卷证据联动 |
 | 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、跨卷证据联动 |

@@ -2806,3 +2806,17 @@
 - **边界**：
   - 本轮不改后端、不新增 API 或持久 artifact；只把世界入口的“我现在该做什么”补成第一版可扫读状态与主动作。
 
+### 2026-06-07 — AppShell World Route Context
+
+- **做了什么**：
+  - 前端新增 `worldRouteContext` helper 与 `check:world-route-context` 轻量检查脚本，按世界内路由输出当前位置、页面职责、主动作和次动作。
+  - `AppShell` 在顶栏下方新增纸面“当前位置”条，覆盖锚定、天命书、世界沙盘、卷宗阅读、跨事件长线卷、角色卷、势力卷、事件卷、世界线、检查点、多视角、作者台和机制档案等世界内页面。
+  - 主动作/次动作全部复用已有路由，不新增后端 API、不改 artifact、不删现有顶栏导航；移动端位置条会换行并把动作按钮排成等宽栅格。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把 AppShell 世界位置条记为当前事实。
+- **验证**：
+  - Red/green helper：先跑 `pnpm.cmd run check:world-route-context`，确认缺 `src/worldRouteContext.ts` 失败；实现后同命令 -> `world route context helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面访问 `#/world/my-story/sandbox` 显示“当前位置 · 运行 / 世界沙盘 / 进入卷宗阅读”，点击主动作进入 `#/world/my-story/worldlines/main/reading`；390px 移动端访问 `#/world/my-story/worldlines/main/characters/zhao_xuan` 显示“当前位置 · 角色卷 / 角色个人卷 / 继续沙盘”，`mobileOverflow=0`。
+- **边界**：
+  - 本轮只改前端壳层理解、样式和路由动作，不新增后端 API、不改变持久 artifact、不宣布完整 `WorldWorkspaceShell` 已完成。
+

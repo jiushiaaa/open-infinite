@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { navigate, type Route } from "../routing";
 import { useMotionPref } from "../motion";
+import { getWorldRouteContext } from "../worldRouteContext";
 import { SettingsDrawer } from "./SettingsDrawer";
 import "./appShell.css";
 
@@ -86,6 +87,7 @@ export function AppShell({
   const slug = worldSlug(route);
   const currentWorldline = worldlineId(route);
   const active = activeSection(route);
+  const routeContext = getWorldRouteContext(route);
 
   const cycleMotion = () =>
     setMotion(motion === "auto" ? "full" : motion === "full" ? "reduced" : "auto");
@@ -259,6 +261,31 @@ export function AppShell({
           </button>
         </div>
       </header>
+      {routeContext && (
+        <section className="shell-context" aria-label="当前世界位置">
+          <div className="shell-context__copy">
+            <span className="shell-context__eyebrow">当前位置 · {routeContext.sectionLabel}</span>
+            <strong>{routeContext.title}</strong>
+            <span>{routeContext.description}</span>
+          </div>
+          <div className="shell-context__actions">
+            <button
+              className="btn btn--primary tiny"
+              onClick={() => navigate(routeContext.primaryRoute)}
+            >
+              {routeContext.primaryActionLabel}
+            </button>
+            {routeContext.secondaryRoute && routeContext.secondaryActionLabel && (
+              <button
+                className="btn btn--ghost tiny"
+                onClick={() => navigate(routeContext.secondaryRoute!)}
+              >
+                {routeContext.secondaryActionLabel}
+              </button>
+            )}
+          </div>
+        </section>
+      )}
       <main className="shell__body">{children}</main>
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
