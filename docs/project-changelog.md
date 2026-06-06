@@ -3055,3 +3055,17 @@
   - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/factions/苍澜派`，导读条位于 592-646px 首屏内且 display 为 `grid`；点击“查代偿 / 换势力”分别把势力代偿和势力目录带入可见区；1366px 桌面导读条隐藏，两个尺寸均无水平溢出。
 - **边界**：
   - 本轮只改前端势力卷 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 或 `worldline-state` 契约、不改 artifact。
+
+### 2026-06-07 — Checkpoint Replay Mobile Guide
+
+- **做了什么**：
+  - 新增 `check:checkpoint-replay-ux` 检查脚本，锁定检查点回放移动端醒来导读条存在、位于完整工作流中枢和 `WorldRunway` 前，并只在移动端显示。
+  - `CheckpointReplayPage` 在移动端 hero 后新增“继续读 / 看记忆 / 看代偿 / 作者台”四格导读条；桌面仍保持原检查点回放工作台。
+  - 四个入口分别复用现有路由/滚动：继续读进入连续阅读，看记忆滚到角色记忆，看代偿滚到具象代偿，作者台进入作者采纳台。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把检查点回放移动端醒来导读条记为当前事实。
+- **验证**：
+  - Red/green helper：先新增 `check:checkpoint-replay-ux`，确认旧检查点页因缺移动端导读条失败；收紧顺序约束后再次确认导读条不能落在完整工作流中枢之后；实现后同命令 -> `checkpoint replay ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/checkpoints/autopilot_20260606_210329_1a8810/checkpoint_001`，导读条位于 573-767px 首屏内且 display 为 `grid`，位于完整醒来中枢和 `WorldRunway` 前；点击“看记忆 / 看代偿”分别把角色记忆和具象代偿带入可见区；页面宽度保持 390px，无业务内容横向溢出。
+- **边界**：
+  - 本轮只改前端检查点回放 JSX/CSS、检查脚本和文档，不新增后端 API、不改变自演检查点或 `readable_entry` 契约、不改 artifact。

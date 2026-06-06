@@ -91,6 +91,16 @@ export function CheckpointReplayPage({
       done: !!readAction,
     },
   ];
+  const goToCheckpointReading = () => {
+    if (readAction?.route?.startsWith("#/")) {
+      window.location.hash = readAction.route;
+      return;
+    }
+    navigate({ name: "dossierReading", slug, worldlineId });
+  };
+  const scrollToCheckpointItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="worldline-page">
@@ -103,6 +113,35 @@ export function CheckpointReplayPage({
           </p>
         </div>
       </header>
+
+      {!loading && !error && report && checkpoint && (
+        <section className="checkpoint-mobile-guide" aria-label="检查点移动端快速导读">
+          <div>
+            <p className="muted tiny">醒来后先做什么</p>
+            <strong>{checkpoint.major_event}</strong>
+          </div>
+          <div className="checkpoint-mobile-guide__actions">
+            <button className="btn btn--primary" onClick={goToCheckpointReading}>
+              继续读
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => scrollToCheckpointItem(".worldline-memory-section")}
+            >
+              看记忆
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => scrollToCheckpointItem(".worldline-consequence-section")}
+            >
+              看代偿
+            </button>
+            <button className="btn btn--ghost" onClick={() => navigate({ name: "author", slug })}>
+              作者台
+            </button>
+          </div>
+        </section>
+      )}
 
       {!loading && !error && report && checkpoint && (
         <section className="worldline-command" aria-label="检查点工作流总览">
@@ -138,13 +177,7 @@ export function CheckpointReplayPage({
           <div className="worldline-command__actions">
             <button
               className="btn btn--primary"
-              onClick={() => {
-                if (readAction?.route?.startsWith("#/")) {
-                  window.location.hash = readAction.route;
-                } else {
-                  navigate({ name: "dossierReading", slug, worldlineId });
-                }
-              }}
+              onClick={goToCheckpointReading}
             >
               {readAction?.label || "进入连续阅读"}
             </button>
@@ -309,7 +342,7 @@ export function CheckpointReplayPage({
               </dl>
             </section>
 
-            <section className="worldline-section">
+            <section className="worldline-section worldline-memory-section">
               <div className="worldline-section__title">
                 <h2>这一轮谁记住了什么</h2>
                 <span className="badge badge--gold">
@@ -326,7 +359,7 @@ export function CheckpointReplayPage({
               </div>
             </section>
 
-            <section className="worldline-section">
+            <section className="worldline-section worldline-consequence-section">
               <div className="worldline-section__title">
                 <h2>具象代偿</h2>
                 <span className="badge badge--gold">
