@@ -2834,3 +2834,15 @@
 - **边界**：
   - 本轮只改前端阅读交互和样式，不新增后端 API、不改变持久 artifact、不删现有卷宗目录、误会图谱或证据链。
 
+### 2026-06-07 — Story Shelf Next-Step Guide
+
+- **做了什么**：
+  - 前端新增 `storyShelfFocus` helper 与 `check:story-shelf-focus` 轻量检查脚本，按故事来源和世界线运行次数推导“待确认天命 / 已有沙盘结果”、推荐下一步、来源和运行数。
+  - `StoryEntryPage` 的最近故事卡新增阶段说明、来源/运行数指标和主按钮；未运行世界主动作进入天命书，已有沙盘结果主动作进入卷宗阅读。
+  - 保留旧的世界沙盘、天命书、卷宗阅读、作者采纳台和机制档案入口；本轮不新增后端 API、不改 artifact、不删旧路由。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把世界书架下一步导览记为当前事实。
+- **验证**：
+  - Red/green helper：先跑 `pnpm.cmd run check:story-shelf-focus`，确认缺 `src/storyShelfFocus.ts` 失败；实现后同命令 -> `story shelf focus helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：桌面访问 `#/` 显示 3 张故事卡，第一张故事卡显示“待确认天命 / 确认天命”，旧 5 个入口仍可见，点击主按钮进入 `#/world/my-story/tianming`；390px 移动端故事卡显示阶段、主按钮和 5 个入口，`mobileOverflow=0`。
+

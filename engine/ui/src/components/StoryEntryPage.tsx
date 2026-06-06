@@ -1,6 +1,7 @@
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { navigate } from "../routing";
+import { deriveStoryShelfFocus, type StoryShelfActionKey } from "../storyShelfFocus";
 import { StoryCoverThumb } from "./VisualAssetPanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
 import "./storyEntry.css";
@@ -72,82 +73,109 @@ export function StoryEntryPage() {
         )}
         {!loading && !error && stories.length > 0 && (
           <div className="story-grid">
-            {[...imported, ...builtin].map((s) => (
-              <div key={s.slug} className="story-card">
-                <button
-                  className="story-card__open"
-                  onClick={() => navigate({ name: "tianming", slug: s.slug })}
-                >
-                  <StoryCoverThumb
-                    slug={s.slug}
-                    seal={s.display_name.slice(0, 1) || "书"}
-                  />
-                  <div className="story-card__head">
-                    <span className="story-card__name">{s.display_name}</span>
-                    <span
-                      className={`badge ${
-                        s.source_kind === "imported" ? "badge--indigo" : "badge--jade"
-                      }`}
+            {[...imported, ...builtin].map((s) => {
+              const focus = deriveStoryShelfFocus({
+                sourceKind: s.source_kind,
+                runCount: s.run_count,
+              });
+              const openRecommended = () =>
+                navigateStoryRecommendation(s.slug, focus.recommendedKey);
+              return (
+                <div key={s.slug} className="story-card">
+                  <button className="story-card__open" onClick={openRecommended}>
+                    <StoryCoverThumb
+                      slug={s.slug}
+                      seal={s.display_name.slice(0, 1) || "书"}
+                    />
+                    <div className="story-card__head">
+                      <span className="story-card__name">{s.display_name}</span>
+                      <span
+                        className={`badge ${
+                          s.source_kind === "imported" ? "badge--indigo" : "badge--jade"
+                        }`}
+                      >
+                        {s.source_kind === "imported" ? "导入" : "内置"}
+                      </span>
+                    </div>
+                    <div className="story-card__status">
+                      <span className={`story-card__stage story-card__stage--${focus.stageTone}`}>
+                        {focus.stageLabel}
+                      </span>
+                      <span className="story-card__source tiny">{focus.sourceLabel}</span>
+                    </div>
+                    <p className="story-card__brief muted">{focus.stageDescription}</p>
+                    <div
+                      className="story-card__metrics"
+                      aria-label={`${s.display_name} 的世界状态`}
                     >
-                      {s.source_kind === "imported" ? "导入" : "内置"}
-                    </span>
+                      {focus.metrics.map((metric) => (
+                        <span key={metric.label}>
+                          <strong>{metric.value}</strong>
+                          <small>{metric.label}</small>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="story-card__meta muted tiny">
+                      <span className="mono">{s.slug}</span>
+                    </div>
+                  </button>
+                  <button className="story-card__primary" onClick={openRecommended}>
+                    {focus.recommendedAction}
+                  </button>
+                  <div className="story-card__foot">
+                    <button
+                      className="story-card__link"
+                      onClick={() => navigate({ name: "sandbox", slug: s.slug })}
+                    >
+                      世界沙盘
+                    </button>
+                    <button
+                      className="story-card__link"
+                      onClick={() => navigate({ name: "tianming", slug: s.slug })}
+                    >
+                      天命书
+                    </button>
+                    <button
+                      className="story-card__link"
+                      onClick={() =>
+                        navigate({
+                          name: "dossierReading",
+                          slug: s.slug,
+                          worldlineId: "main",
+                        })
+                      }
+                    >
+                      卷宗阅读
+                    </button>
+                    <button
+                      className="story-card__link"
+                      onClick={() => navigate({ name: "author", slug: s.slug })}
+                    >
+                      作者采纳台
+                    </button>
+                    <button
+                      className="story-card__link"
+                      onClick={() => navigate({ name: "workspace", slug: s.slug })}
+                    >
+                      机制档案
+                    </button>
                   </div>
-                  <div className="story-card__meta muted tiny">
-                    <span className="mono">{s.slug}</span>
-                    <span>· {s.run_count} 条世界线运行</span>
-                  </div>
-                </button>
-                <div className="story-card__foot">
-                  <button
-                    className="story-card__link"
-                    onClick={() => navigate({ name: "tianming", slug: s.slug })}
-                  >
-                    进入世界
-                  </button>
-                  <button
-                    className="story-card__link"
-                    onClick={() => navigate({ name: "sandbox", slug: s.slug })}
-                  >
-                    世界沙盘
-                  </button>
-                  <button
-                    className="story-card__link"
-                    onClick={() => navigate({ name: "tianming", slug: s.slug })}
-                  >
-                    天命书
-                  </button>
-                  <button
-                    className="story-card__link"
-                    onClick={() =>
-                      navigate({
-                        name: "dossierReading",
-                        slug: s.slug,
-                        worldlineId: "main",
-                      })
-                    }
-                  >
-                    卷宗阅读
-                  </button>
-                  <button
-                    className="story-card__link"
-                    onClick={() => navigate({ name: "author", slug: s.slug })}
-                  >
-                    作者采纳台
-                  </button>
-                  <button
-                    className="story-card__link"
-                    onClick={() => navigate({ name: "workspace", slug: s.slug })}
-                  >
-                    机制档案
-                  </button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
     </div>
   );
+}
+
+function navigateStoryRecommendation(slug: string, key: StoryShelfActionKey) {
+  if (key === "reading") {
+    navigate({ name: "dossierReading", slug, worldlineId: "main" });
+    return;
+  }
+  navigate({ name: "tianming", slug });
 }
 
 function JourneyStep({
