@@ -56,6 +56,7 @@ export function DossierReadingPage({
   const [report, setReport] = useState<DossierReadingReport | null>(null);
   const [activeTab, setActiveTab] = useState<ReadingTab>("continuous_reading");
   const [activeSectionId, setActiveSectionId] = useState("");
+  const [readingMode, setReadingMode] = useState<"novel" | "dossier">("novel");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const readerRef = useRef<HTMLElement | null>(null);
@@ -110,6 +111,15 @@ export function DossierReadingPage({
       : 0;
   const focusReader = () =>
     readerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const startNovelMode = () => {
+    setReadingMode("novel");
+    setActiveTab("continuous_reading");
+    focusReader();
+  };
+  const openDossierMode = () => {
+    setReadingMode("dossier");
+    window.setTimeout(() => scrollToPageItem(".dossier-sidebar"), 80);
+  };
   const scrollToSection = (id: string) => {
     sectionFocusLockRef.current = { id, until: Date.now() + 900 };
     setActiveSectionId(id);
@@ -193,15 +203,31 @@ export function DossierReadingPage({
             默认按正文读下去；需要核对时再切到卷宗或展开证据链。
           </p>
         </div>
+        <div className="dossier-hero__actions dossier-reading-mode" aria-label="阅读模式">
+          <button
+            type="button"
+            className={readingMode === "novel" ? "is-active" : ""}
+            onClick={startNovelMode}
+          >
+            读小说
+          </button>
+          <button
+            type="button"
+            className={readingMode === "dossier" ? "is-active" : ""}
+            onClick={openDossierMode}
+          >
+            查卷宗
+          </button>
+        </div>
       </header>
 
       <nav className="dossier-mobile-guide" aria-label="移动端阅读导读">
-        <button type="button" onClick={focusReader}>
+        <button type="button" onClick={startNovelMode}>
           <span>01</span>
           <strong>开始读正文</strong>
           <small>进入当前阅读场景</small>
         </button>
-        <button type="button" onClick={() => scrollToPageItem(".dossier-sidebar")}>
+        <button type="button" onClick={openDossierMode}>
           <span>02</span>
           <strong>查卷宗</strong>
           <small>切换角色、事件和证据</small>
@@ -275,7 +301,7 @@ export function DossierReadingPage({
         ]}
       />
 
-      <main className="dossier-layout">
+      <main className={`dossier-layout dossier-layout--${readingMode}`}>
         {loading && (
           <EmptyState title="正在翻开卷宗" hint="正在聚合连续阅读、确认稿和多视角证据。" />
         )}
@@ -294,7 +320,10 @@ export function DossierReadingPage({
                   <button
                     key={tab.id}
                     className={tab.id === activeTab ? "is-active" : ""}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => {
+                      setReadingMode("dossier");
+                      setActiveTab(tab.id);
+                    }}
                     title={tab.hint}
                   >
                     <span>{tab.label}</span>

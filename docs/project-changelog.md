@@ -3137,6 +3137,7 @@
   - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
+  - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端卷宗阅读 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。
 
@@ -3182,3 +3183,17 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段、不改 artifact。
+
+### 2026-06-07 — Dossier Reading Mode Switch
+
+- **做了什么**：
+  - `DossierReadingPage` 顶部新增“读小说 / 查卷宗”模式切换。
+  - 默认“读小说”模式隐藏卷宗侧栏并居中正文，保留卷首题签、当前场景导读、证据锚点、余波承接台和行动入口。
+  - “查卷宗”模式恢复卷宗目录、阅读进度、误会图谱和 tab 切换；移动端导读条的“开始读正文 / 查卷宗”也接入同一模式。
+  - 扩展 `check:dossier-reading-ux`，锁定模式状态、布局切换、侧栏保留和移动端响应式。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把卷宗阅读模式切换记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端卷宗阅读 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。

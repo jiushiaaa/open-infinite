@@ -15,6 +15,14 @@ assert(
 for (const label of ["开始读正文", "查卷宗", "作者台"]) {
   assert(page.includes(label), `mobile reading guide should include ${label}`);
 }
+assert(page.includes("readingMode"), "dossier reading should track a reading mode");
+assert(page.includes("dossier-reading-mode"), "dossier reading should expose a mode switch");
+assert(page.includes("读小说"), "mode switch should include a novel reading option");
+assert(page.includes("dossier-layout--"), "reading mode should affect the page layout");
+assert(
+  page.includes("setReadingMode(\"dossier\")"),
+  "dossier mode should be reachable before opening archive controls",
+);
 assert(page.includes('className="dossier-carry"'), "reading carry section should be present");
 assert(
   page.indexOf('className="dossier-carry"') < page.indexOf('className="dossier-evidence"'),
@@ -30,6 +38,12 @@ assert(
 assert(
   /@media \(max-width: 960px\)[\s\S]*\.dossier-mobile-guide[\s\S]*display: grid/.test(css),
   "mobile reading guide should be visible on mobile/tablet widths",
+);
+assert(css.includes(".dossier-reading-mode"), "reading mode switch should have styles");
+assert(css.includes(".dossier-layout--novel"), "novel reading mode should have layout styles");
+assert(
+  /\.dossier-layout--novel \.dossier-sidebar[\s\S]*display: none/.test(css),
+  "novel reading mode should hide the dossier sidebar without removing it",
 );
 assert(css.includes(".dossier-carry"), "reading carry section should have styles");
 assert(
