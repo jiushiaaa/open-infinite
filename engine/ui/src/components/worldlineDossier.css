@@ -207,7 +207,8 @@
   overflow-wrap: anywhere;
 }
 
-.checkpoint-mobile-guide {
+.checkpoint-mobile-guide,
+.worldline-mobile-guide {
   display: none;
 }
 
@@ -365,7 +366,8 @@
 }
 
 @media (max-width: 760px) {
-  .checkpoint-mobile-guide {
+  .checkpoint-mobile-guide,
+  .worldline-mobile-guide {
     display: grid;
     gap: var(--space-3);
     max-width: 1320px;
@@ -377,11 +379,14 @@
   }
 
   .checkpoint-mobile-guide p,
-  .checkpoint-mobile-guide strong {
+  .checkpoint-mobile-guide strong,
+  .worldline-mobile-guide p,
+  .worldline-mobile-guide strong {
     margin: 0;
   }
 
-  .checkpoint-mobile-guide strong {
+  .checkpoint-mobile-guide strong,
+  .worldline-mobile-guide strong {
     display: block;
     margin-top: 2px;
     font-family: var(--font-serif);
@@ -389,13 +394,15 @@
     line-height: 1.45;
   }
 
-  .checkpoint-mobile-guide__actions {
+  .checkpoint-mobile-guide__actions,
+  .worldline-mobile-guide__actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
 
-  .checkpoint-mobile-guide__actions .btn {
+  .checkpoint-mobile-guide__actions .btn,
+  .worldline-mobile-guide__actions .btn {
     justify-content: center;
     min-height: 40px;
     padding-inline: 8px;

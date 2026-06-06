@@ -17,6 +17,7 @@
     "check:event-perspective-ux": "node scripts/check-event-perspective-ux.mjs",
     "check:faction-volume-ux": "node scripts/check-faction-volume-ux.mjs",
     "check:checkpoint-replay-ux": "node scripts/check-checkpoint-replay-ux.mjs",
+    "check:worldline-dossier-ux": "node scripts/check-worldline-dossier-ux.mjs",
     "check:sandbox-runner-ux": "node scripts/check-sandbox-runner-ux.mjs",
     "check:story-shelf-focus": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-story-shelf-focus src/storyShelfFocus.ts && node scripts/check-story-shelf-focus.mjs",
     "check:world-route-context": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-world-route-context src/worldRouteContext.ts && node scripts/check-world-route-context.mjs",

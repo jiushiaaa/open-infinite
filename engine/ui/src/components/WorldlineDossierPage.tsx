@@ -108,6 +108,22 @@ export function WorldlineDossierPage({
       done: !!latestCheckpoint,
     },
   ];
+  const goToLatestCheckpoint = () => {
+    if (!latestCheckpoint) {
+      navigate({ name: "sandbox", slug });
+      return;
+    }
+    navigate({
+      name: "checkpoint",
+      slug,
+      worldlineId,
+      runId: latestCheckpoint.run_id,
+      checkpointId: latestCheckpoint.checkpoint_id,
+    });
+  };
+  const scrollToWorldlineItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="worldline-page">
@@ -120,6 +136,38 @@ export function WorldlineDossierPage({
           </p>
         </div>
       </header>
+
+      {!loading && !error && report && (
+        <section className="worldline-mobile-guide" aria-label="世界线移动端快速导读">
+          <div>
+            <p className="muted tiny">这条世界线现在怎么走</p>
+            <strong>{commandTitle}</strong>
+          </div>
+          <div className="worldline-mobile-guide__actions">
+            <button className="btn btn--primary" onClick={goToLatestCheckpoint}>
+              {latestCheckpoint ? "回放" : "沙盘"}
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => scrollToWorldlineItem(".worldline-consequence-section")}
+            >
+              看代偿
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => scrollToWorldlineItem(".worldline-task-section")}
+            >
+              看任务
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}
+            >
+              长线卷
+            </button>
+          </div>
+        </section>
+      )}
 
       {!loading && !error && report && (
         <section className="worldline-command" aria-label="世界线工作流总览">
@@ -156,15 +204,7 @@ export function WorldlineDossierPage({
             {latestCheckpoint && (
               <button
                 className="btn btn--primary"
-                onClick={() =>
-                  navigate({
-                    name: "checkpoint",
-                    slug,
-                    worldlineId,
-                    runId: latestCheckpoint.run_id,
-                    checkpointId: latestCheckpoint.checkpoint_id,
-                  })
-                }
+                onClick={goToLatestCheckpoint}
               >
                 回放最近检查点
               </button>
@@ -341,7 +381,7 @@ export function WorldlineDossierPage({
               </dl>
             </section>
 
-            <section className="worldline-section">
+            <section className="worldline-section worldline-actions-section">
               <div className="worldline-section__title">
                 <h2>下一轮如何继续</h2>
                 <button
@@ -377,7 +417,7 @@ export function WorldlineDossierPage({
               </div>
             </section>
 
-            <section className="worldline-section">
+            <section className="worldline-section worldline-consequence-section">
               <div className="worldline-section__title">
                 <h2>具象代偿账</h2>
                 <span className="badge badge--gold">
@@ -408,7 +448,7 @@ export function WorldlineDossierPage({
               )}
             </section>
 
-            <section className="worldline-section worldline-grid">
+            <section className="worldline-section worldline-grid worldline-task-section">
               <div>
                 <div className="worldline-section__title">
                   <h2>自演任务</h2>
