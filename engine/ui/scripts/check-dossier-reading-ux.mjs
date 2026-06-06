@@ -45,6 +45,28 @@ assert(
   /\.dossier-layout--novel \.dossier-sidebar[\s\S]*display: none/.test(css),
   "novel reading mode should hide the dossier sidebar without removing it",
 );
+assert(
+  page.includes('className="dossier-chapter-rail"'),
+  "novel reading mode should keep a chapter scene rail inside the reader",
+);
+assert(page.includes("本卷场景"), "chapter scene rail should name the whole-volume scene map");
+assert(
+  page.includes("continuousSections.map((section, index)") &&
+    page.includes("scrollToSection(section.id)"),
+  "chapter scene rail should let readers jump between scenes without opening the dossier sidebar",
+);
+assert(
+  page.indexOf('className="dossier-chapter-rail"') <
+    page.indexOf('className="dossier-focus"'),
+  "chapter scene rail should appear before the sticky current-scene guide",
+);
+assert(css.includes(".dossier-chapter-rail"), "chapter scene rail should have styles");
+assert(
+  /@media \(max-width: 640px\)[\s\S]*\.dossier-chapter-rail__list[\s\S]*overflow-x: auto/.test(
+    css,
+  ),
+  "chapter scene rail should scroll horizontally on narrow mobile",
+);
 assert(css.includes(".dossier-carry"), "reading carry section should have styles");
 assert(
   /@media \(max-width: 640px\)[\s\S]*\.dossier-carry__actions[\s\S]*grid-template-columns: 1fr/.test(

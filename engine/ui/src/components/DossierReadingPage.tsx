@@ -483,6 +483,38 @@ export function DossierReadingPage({
                 )}
               </div>
 
+              {activeTab === "continuous_reading" && continuousSections.length > 1 && (
+                <section className="dossier-chapter-rail" aria-label="本卷场景">
+                  <div className="dossier-chapter-rail__head">
+                    <div>
+                      <p className="tiny muted">本卷场景</p>
+                      <h2>从这一夜读到下一处余波</h2>
+                    </div>
+                    <span className="tiny muted">{readingProgress}%</span>
+                  </div>
+                  <div className="dossier-chapter-rail__list">
+                    {continuousSections.map((section, index) => {
+                      const evidenceRefs = sectionEvidenceRefs(section);
+                      return (
+                        <button
+                          key={section.id}
+                          type="button"
+                          className={section.id === activeSectionId ? "is-active" : ""}
+                          onClick={() => scrollToSection(section.id)}
+                        >
+                          <span>{String(index + 1).padStart(2, "0")}</span>
+                          <strong>{section.title || `第 ${index + 1} 场`}</strong>
+                          <small>
+                            {section.viewpoint || section.narrative_role || "正文场景"} ·{" "}
+                            {evidenceRefs.length} 证据
+                          </small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+
               {activeTab === "continuous_reading" && readingFocus && (
                 <section className="dossier-focus" aria-label="当前阅读场景导读">
                   <div className="dossier-focus__copy">

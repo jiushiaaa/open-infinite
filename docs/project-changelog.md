@@ -3137,6 +3137,8 @@
   - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端卷宗阅读 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。
 
@@ -3212,6 +3214,19 @@
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端作者采纳 JSX/CSS、检查脚本和文档，不新增后端 API、不改变采纳/草稿/Reviewer/确认入卷契约、不改 artifact。
+### 2026-06-07 — Dossier Reading Chapter Rail
+
+- **做了什么**：
+  - `DossierReadingPage` 在连续阅读正文卡内、当前场景导读条之前新增“本卷场景”横向阅读轨道。
+  - 读小说模式隐藏卷宗侧栏时，用户仍能看到整卷场景结构、当前进度、每场视角和证据数；点击任一场景会定位到对应正文段落。
+  - 移动端轨道改为横向滚动，不挤压正文；查卷宗模式原有侧栏阅读进度、误会图谱、卷宗 tab、证据链和作者台入口全部保留。
+  - 扩展 `check:dossier-reading-ux`，锁定轨道位置、场景跳转、移动端横向滚动和原侧栏保留。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff，把卷宗阅读本卷场景轨道记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
+- **边界**：
+  - 本轮只改前端卷宗阅读 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。
+
 ### 2026-06-07 — AppShell World Workspace Summary
 
 - **做了什么**：
