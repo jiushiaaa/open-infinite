@@ -2791,3 +2791,18 @@
 - **边界**：
   - 本轮不改后端、不新增 API 或持久 artifact，不做账号/跨设备同步；只把本地产品体验补成回来后不迷路的第一版续读能力。
 
+### 2026-06-07 — World Anchor Journey Status
+
+- **做了什么**：
+  - 前端新增 `worldJourney` helper 与 `check:world-journey` 轻量检查脚本，按沙盘运行次数、角色数、伏笔数、章节号和本机最近阅读记录推导世界锚定页的当前旅程状态。
+  - `WorldAnchorPage` 的世界卷宗总览新增“当前旅程”纸面面板，把天命书、世界沙盘、卷宗阅读和作者台标成“下一步 / 可用 / 待生成”，并提供“确认天命 / 进入卷宗阅读 / 继续阅读”等推荐主动作。
+  - 保留原有世界启动卡、最近阅读续航、世界卷宗总览、视觉资产、基线回放、角色卡、编辑锚定和全部现有路由；该刀不新增后端 API，不改 artifact。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把“世界锚定页旅程状态”记为当前事实。
+- **验证**：
+  - Red/green helper：先跑 `tsc ... src\worldJourney.ts && node scripts\check-world-journey.mjs`，确认缺 helper 失败；实现后 `pnpm.cmd run check:world-journey` -> `world journey helper ok`。
+  - 相邻 helper：`pnpm.cmd run check:reading-progress` -> `reading progress helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome 桌面与精确 390px 设备模拟：`#/anchor/my-story` 只有一套可见旅程面板、4 个阶段可见、主动作跳到 `#/world/my-story/tianming`，且无水平溢出、无运行时异常。
+- **边界**：
+  - 本轮不改后端、不新增 API 或持久 artifact；只把世界入口的“我现在该做什么”补成第一版可扫读状态与主动作。
+

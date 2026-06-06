@@ -231,6 +231,105 @@
   text-align: center;
 }
 
+.anchor__journey {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.8fr) auto;
+  gap: var(--space-3);
+  align-items: stretch;
+  padding: var(--space-3);
+  border: 1px solid rgba(45, 104, 92, 0.18);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 252, 0.84), rgba(221, 233, 224, 0.48)),
+    var(--paper);
+}
+
+.anchor__journey-copy {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+}
+
+.anchor__journey-copy strong {
+  font-family: var(--font-serif);
+  font-size: 18px;
+}
+
+.anchor__journey-copy p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.anchor__journey-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.anchor__journey-step {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(250, 246, 236, 0.72);
+  color: var(--ink);
+  text-align: left;
+}
+
+.anchor__journey-step:hover {
+  border-color: var(--jade-soft);
+  background: var(--paper-raised);
+}
+
+.anchor__journey-step span,
+.anchor__journey-step small,
+.anchor__journey-step em {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.anchor__journey-step span {
+  color: var(--ink-faint);
+}
+
+.anchor__journey-step strong {
+  overflow-wrap: anywhere;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.anchor__journey-step small {
+  color: var(--ink-soft);
+}
+
+.anchor__journey-step em {
+  color: var(--ink-faint);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.anchor__journey-step--next {
+  border-color: var(--jade);
+  background: var(--jade-wash);
+}
+
+.anchor__journey-step--next em {
+  color: var(--jade);
+}
+
+.anchor__journey-step--waiting {
+  opacity: 0.72;
+}
+
+.anchor__journey-action {
+  align-self: stretch;
+  min-width: 112px;
+  justify-content: center;
+}
+
 .anchor__portal-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -762,8 +861,15 @@
   }
 
   .anchor__gateway-flow,
-  .anchor__portal-grid {
+  .anchor__portal-grid,
+  .anchor__journey,
+  .anchor__journey-steps {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .anchor__journey-action {
+    min-width: 0;
+    width: 100%;
   }
 
   .anchor__gateway-flow {

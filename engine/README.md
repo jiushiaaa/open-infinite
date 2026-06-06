@@ -8,7 +8,7 @@
 
 | 能力 | 当前状态 | 继续深入 |
 | --- | --- | --- |
-| 世界锚定页 | `WorldAnchorPage` 已把世界启动、最近阅读续航、世界卷宗总览、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面中栏展示世界内地图，移动端在启动卡后前置紧凑总览，势力标签可进入势力卷 | 完整 `WorldWorkspaceShell`、账号级阅读进度 |
+| 世界锚定页 | `WorldAnchorPage` 已把世界启动、最近阅读续航、世界卷宗总览、当前旅程状态、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面中栏展示世界内地图和下一步状态，移动端在启动卡后前置紧凑总览，势力标签可进入势力卷 | 完整 `WorldWorkspaceShell`、账号级阅读进度 |
 | 角色个人卷页 | `CharacterVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 已复用 `dossier-reading` 与 `subjective-memory`，把单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点组织成可读页面；锚定页、沙盘页、多视角页和卷宗阅读页都有入口 | 跨章角色长线阅读、跨卷证据联动 |
 | 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、跨卷证据联动 |
 | 事件多视角详情页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 与 `EventPerspectivePage` / `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 已复用 `dossier-reading` 与 `character_lens_volumes`，把同一事件的节拍、正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/长线卷/作者台动作组织成独立页面 | 更深跨章误会网络 |
@@ -31,7 +31,7 @@
 | 后端 | Python package + `lne` CLI + 本地 HTTP API |
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
-| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版 |
+| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与世界入口旅程状态、最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版 |
 | 后端验证基线 | `python -m pytest -q` -> `951 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
 | 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、更深跨章误会回收、更强 Reviewer 和整章风格润色是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |

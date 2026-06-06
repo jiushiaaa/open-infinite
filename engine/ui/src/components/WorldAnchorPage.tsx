@@ -14,6 +14,7 @@ import { BaselineCanonPanel } from "./BaselineCanonPanel";
 import { CharacterProbePanel } from "./CharacterProbePanel";
 import { CharacterAvatar, VisualAssetsControls } from "./VisualAssetPanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
+import { deriveWorldJourney, type WorldJourneyStepKey } from "../worldJourney";
 import "./worldAnchor.css";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -164,7 +165,13 @@ export function WorldAnchorPage({ slug }: { slug: string }) {
         />
       </aside>
       <section className="anchor__center">
-        <CenterColumn data={data} editing={editing} draft={draft} patch={patchDraft} />
+        <CenterColumn
+          data={data}
+          editing={editing}
+          draft={draft}
+          patch={patchDraft}
+          recentReading={recentReading}
+        />
       </section>
       <aside className="anchor__right">
         <h2 className="anchor__col-title">
@@ -321,7 +328,7 @@ function LeftColumn({
         </div>
       </section>
 
-      <WorldDossierGateway data={data} compact />
+      <WorldDossierGateway data={data} recentReading={recentReading} compact />
 
       <VisualAssetsControls
         slug={data.slug}
@@ -413,16 +420,18 @@ function CenterColumn({
   editing,
   draft,
   patch,
+  recentReading,
 }: {
   data: WorldAnchor;
   editing: boolean;
   draft: Draft | null;
   patch: (fn: (d: Draft) => Draft) => void;
+  recentReading: RecentReading | null;
 }) {
   const w = data.world;
   return (
     <div className="anchor__scroll">
-      <WorldDossierGateway data={data} />
+      <WorldDossierGateway data={data} recentReading={recentReading} />
 
       {data.import_review && (
         <section className="anchor__block">
@@ -558,12 +567,34 @@ function CenterColumn({
 
 function WorldDossierGateway({
   data,
+  recentReading,
   compact = false,
 }: {
   data: WorldAnchor;
+  recentReading: RecentReading | null;
   compact?: boolean;
 }) {
   const worldlineId = "main";
+  const journey = deriveWorldJourney({
+    slug: data.slug,
+    runCount: data.run_count,
+    characterCount: data.characters.length,
+    openThreadCount: data.open_threads.length,
+    factionCount: data.world.factions.length,
+    currentChapter: data.world.current_chapter,
+    hasRecentReading: Boolean(recentReading),
+  });
+  const navigateJourneyStep = (key: WorldJourneyStepKey) => {
+    if (key === "tianming") navigate({ name: "tianming", slug: data.slug });
+    else if (key === "sandbox") navigate({ name: "sandbox", slug: data.slug });
+    else if (key === "reading" && recentReading) {
+      window.location.hash = recentReading.hash;
+    }
+    else if (key === "reading") {
+      navigate({ name: "dossierReading", slug: data.slug, worldlineId });
+    }
+    else if (key === "author") navigate({ name: "author", slug: data.slug });
+  };
   const portals = [
     {
       key: "tianming",
@@ -642,6 +673,35 @@ function WorldDossierGateway({
           onClick={() => navigate({ name: "workspace", slug: data.slug })}
         >
           机制档案
+        </button>
+      </div>
+      <div className="anchor__journey" aria-label="世界旅程状态">
+        <div className="anchor__journey-copy">
+          <span className="muted tiny">当前旅程</span>
+          <strong>{journey.phaseLabel}</strong>
+          <p className="muted tiny">{journey.phaseDescription}</p>
+        </div>
+        <div className="anchor__journey-steps">
+          {journey.steps.map((step) => (
+            <button
+              key={step.key}
+              className={`anchor__journey-step anchor__journey-step--${step.status}`}
+              onClick={() => navigateJourneyStep(step.key)}
+              type="button"
+            >
+              <span>{step.label}</span>
+              <strong>{step.title}</strong>
+              <small>{step.summary}</small>
+              <em>{step.statusLabel}</em>
+            </button>
+          ))}
+        </div>
+        <button
+          className="btn btn--primary tiny anchor__journey-action"
+          onClick={() => navigateJourneyStep(journey.recommendedKey)}
+          type="button"
+        >
+          {journey.recommendedAction}
         </button>
       </div>
       <div className="anchor__gateway-flow" aria-label="推荐路径">

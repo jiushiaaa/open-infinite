@@ -5,3 +5,4 @@ dist-ssr
 .vite
 *.tsbuildinfo
 .tmp-reading-progress
+.tmp-world-journey
