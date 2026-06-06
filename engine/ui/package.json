@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "check:author-adoption-ux": "node scripts/check-author-adoption-ux.mjs",
     "check:dossier-reading-focus": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-dossier-reading-focus src/dossierReadingFocus.ts && node scripts/check-dossier-reading-focus.mjs",
     "check:reading-progress": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-reading-progress src/readingProgress.ts && node scripts/check-reading-progress.mjs",
     "check:app-shell-mobile-layout": "node scripts/check-app-shell-mobile-layout.mjs",

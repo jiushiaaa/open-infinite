@@ -2969,3 +2969,16 @@
   - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/reading`，导读条在首屏内且 display 为 `grid`；点击“开始读正文”后正文卡进入可见区，点击“查卷宗”后卷宗目录进入可见区，点击“作者台”进入 `#/world/my-story/author`；页面宽度保持 390px。
 - **边界**：
   - 本轮只改前端卷宗阅读页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约、不改 artifact。
+
+### 2026-06-07 — Author Adoption Mobile Actions
+
+- **做了什么**：
+  - 新增 `check:author-adoption-ux` 检查脚本，锁定作者采纳台顶部中枢必须有“调整材料”动作、动作位于 `WorldRunway` 前，并在移动端使用紧凑两列动作布局。
+  - `AuthorAdoptionPage` 顶部中枢新增“调整材料”，可直接滚到采纳决策、原大纲、沙盘涌现剧情和作者备注表单。
+  - `authorAdoption.css` 压缩 620px 以下 hero、中枢文案、四步卡片和动作按钮布局；原采纳、生成草稿、采纳局部改写、确认入卷、回沙盘、表单和 Reviewer 区域全部保留。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把作者采纳台移动端材料入口记为当前事实。
+- **验证**：
+  - Red/green helper：先新增 `check:author-adoption-ux`，确认旧作者台因缺材料入口失败；实现后同命令 -> `author adoption ux structure ok`。
+  - Chrome CDP smoke：390px 访问 `#/world/my-story/author`，中枢动作显示“写入采纳台 / 调整材料 / 回世界沙盘”，动作区域 bottom 从 851 降到 760；页面业务内容无水平溢出；点击“调整材料”后采纳材料表单进入可见区。
+- **边界**：
+  - 本轮只改前端作者采纳页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷契约，不改 artifact。

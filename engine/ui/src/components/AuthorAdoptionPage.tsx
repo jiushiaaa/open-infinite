@@ -128,6 +128,9 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
       active: workflowStage === "confirmed",
     },
   ];
+  const scrollToPageItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   async function submitAdoption() {
     setLoading(true);
@@ -318,6 +321,14 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
               }
             >
               去卷宗阅读
+            </button>
+          )}
+          {!confirmation && (
+            <button
+              className="btn btn--ghost"
+              onClick={() => scrollToPageItem(".adoption-layout")}
+            >
+              调整材料
             </button>
           )}
           <button className="btn btn--ghost" onClick={() => navigate({ name: "sandbox", slug })}>
