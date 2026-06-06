@@ -4,6 +4,7 @@ import {
   describeReadingRoute,
   isReadableRoute,
   readRecentReading,
+  shouldShowRecentReading,
   writeRecentReading,
 } from "../.tmp-reading-progress/readingProgress.js";
 
@@ -65,6 +66,18 @@ assert.equal(
   "#/world/my-story/worldlines/main/reading/character_volume",
 );
 assert.equal(readRecentReading(fakeStorage, "my-story").title, "继续读角色个人卷");
+assert.equal(
+  shouldShowRecentReading("#/world/my-story/sandbox", readRecentReading(fakeStorage, "my-story")),
+  true,
+);
+assert.equal(
+  shouldShowRecentReading(
+    "#/world/my-story/worldlines/main/reading/character_volume",
+    readRecentReading(fakeStorage, "my-story"),
+  ),
+  false,
+);
+assert.equal(shouldShowRecentReading("#/world/my-story/sandbox", null), false);
 
 writeRecentReading(fakeStorage, anchor, 1700000001000);
 assert.equal(readRecentReading(fakeStorage, "my-story").title, "继续读角色个人卷");

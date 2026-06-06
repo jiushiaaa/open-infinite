@@ -2858,3 +2858,17 @@
   - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
   - Chrome CDP smoke：桌面访问 `#/world/my-story/sandbox` 显示“定界 / 运行 / 阅读 / 采纳”四段轨道且“运行”高亮，点击“阅读”进入 `#/world/my-story/worldlines/main/reading`；390px 移动端访问角色个人卷时“阅读”高亮、轨道宽度 366px、`mobileOverflow=0`。
 
+### 2026-06-07 — AppShell Global Reading Resume
+
+- **做了什么**：
+  - `readingProgress` 新增 `shouldShowRecentReading` helper，区分当前 hash 和同一世界最近阅读 hash，避免用户已经在续读位置时重复显示按钮。
+  - `AppShell` 在世界位置条动作区新增全局“继续阅读”；用户从沙盘、世界线、作者台等世界内页面都能回到本机最近读到的卷宗、长线卷、角色卷、势力卷、事件卷或检查点。
+  - 移动端位置条动作栅格改为自适应三按钮布局，保留原主动作/次动作、体验轨道、顶栏导航、锚定页续读和全部既有路由。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把 AppShell 全局续读入口记为当前事实。
+- **验证**：
+  - Red/green helper：先扩展 `check:reading-progress` 断言 `shouldShowRecentReading`，确认缺 export 失败；实现后 `pnpm.cmd run check:reading-progress` -> `reading progress helper ok`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome CDP smoke：先访问 `#/world/my-story/worldlines/main/longline` 写入最近阅读，再到 `#/world/my-story/sandbox` 显示“继续阅读 / 进入卷宗阅读 / 查看世界线”，按钮 title 为“继续读长线卷 · main”，点击回到 `#/world/my-story/worldlines/main/longline`；390px 移动端三枚动作按钮完整可见，`mobileOverflow=0`。
+- **边界**：
+  - 本轮不改后端、不新增 API 或持久 artifact，不做账号/跨设备同步；只复用浏览器 localStorage，把同一世界内的“回到刚才读哪儿”补到全局壳层。
+

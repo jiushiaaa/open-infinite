@@ -120,6 +120,14 @@ export function readRecentReading(
   return isRecentReading(item) ? item : null;
 }
 
+export function shouldShowRecentReading(
+  currentHash: string,
+  recentReading: RecentReading | null,
+): boolean {
+  if (!recentReading) return false;
+  return normalizeHash(currentHash) !== normalizeHash(recentReading.hash);
+}
+
 function readAll(storage: StorageLike): Record<string, RecentReading> {
   try {
     const parsed = JSON.parse(storage.getItem(READING_PROGRESS_STORAGE_KEY) || "{}");
@@ -136,6 +144,11 @@ function isRecentReading(value: unknown): value is RecentReading {
   if (!value || typeof value !== "object") return false;
   const item = value as Partial<RecentReading>;
   return Boolean(item.slug && item.worldlineId && item.label && item.title && item.action && item.hash);
+}
+
+function normalizeHash(hash: string): string {
+  if (!hash) return "#/";
+  return hash.startsWith("#") ? hash : `#${hash}`;
 }
 
 function hashForReadingRoute(route: ReadingRoute): string {

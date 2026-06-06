@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { navigate, type Route } from "../routing";
 import { useMotionPref } from "../motion";
+import { readRecentReading, shouldShowRecentReading } from "../readingProgress";
 import { getWorldRouteContext } from "../worldRouteContext";
 import { SettingsDrawer } from "./SettingsDrawer";
 import "./appShell.css";
@@ -88,6 +89,8 @@ export function AppShell({
   const currentWorldline = worldlineId(route);
   const active = activeSection(route);
   const routeContext = getWorldRouteContext(route);
+  const recentReading = slug ? readRecentReading(window.localStorage, slug) : null;
+  const showRecentReading = shouldShowRecentReading(window.location.hash, recentReading);
 
   const cycleMotion = () =>
     setMotion(motion === "auto" ? "full" : motion === "full" ? "reduced" : "auto");
@@ -282,6 +285,18 @@ export function AppShell({
             ))}
           </div>
           <div className="shell-context__actions">
+            {showRecentReading && recentReading && (
+              <button
+                className="btn btn--ghost tiny shell-context__resume"
+                onClick={() => {
+                  window.location.hash = recentReading.hash;
+                }}
+                title={`${recentReading.title} · ${recentReading.worldlineId}`}
+                type="button"
+              >
+                继续阅读
+              </button>
+            )}
             <button
               className="btn btn--primary tiny"
               onClick={() => navigate(routeContext.primaryRoute)}

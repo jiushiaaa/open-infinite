@@ -9,13 +9,13 @@
 | 能力 | 当前状态 | 继续深入 |
 | --- | --- | --- |
 | 世界书架入口 | `StoryEntryPage` 已用 `storyShelfFocus` 按故事来源和运行次数推导“待确认天命 / 已有沙盘结果”、推荐下一步、来源和世界线运行数；故事卡主按钮会进入天命书或卷宗阅读，同时保留世界沙盘、天命书、卷宗阅读、作者采纳台和机制档案入口 | 更完整 `WorldWorkspaceShell`、跨页面视觉 QA |
-| 世界内导航语境 | `AppShell` 已在所有世界内路由下方显示“当前位置”纸面条，按锚定、天命书、沙盘、阅读、长线卷、角色卷、势力卷、事件卷、世界线、检查点、多视角、作者台和机制档案说明页面职责；同时提供“定界 / 运行 / 阅读 / 采纳”世界体验轨道与主动作/次动作跳到已有路由 | 更完整 `WorldWorkspaceShell`、跨页面视觉 QA |
+| 世界内导航语境 | `AppShell` 已在所有世界内路由下方显示“当前位置”纸面条，按锚定、天命书、沙盘、阅读、长线卷、角色卷、势力卷、事件卷、世界线、检查点、多视角、作者台和机制档案说明页面职责；同时提供“定界 / 运行 / 阅读 / 采纳”世界体验轨道、主动作/次动作和同一世界最近阅读记录的全局“继续阅读”入口 | 更完整 `WorldWorkspaceShell`、跨页面视觉 QA |
 | 世界锚定页 | `WorldAnchorPage` 已把世界启动、最近阅读续航、世界卷宗总览、当前旅程状态、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面中栏展示世界内地图和下一步状态，移动端在启动卡后前置紧凑总览，势力标签可进入势力卷 | 完整 `WorldWorkspaceShell`、账号级阅读进度 |
 | 角色个人卷页 | `CharacterVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 已复用 `dossier-reading` 与 `subjective-memory`，把单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点组织成可读页面；锚定页、沙盘页、多视角页和卷宗阅读页都有入口 | 跨章角色长线阅读、跨卷证据联动 |
 | 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、跨卷证据联动 |
 | 事件多视角详情页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 与 `EventPerspectivePage` / `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 已复用 `dossier-reading` 与 `character_lens_volumes`，把同一事件的节拍、正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/长线卷/作者台动作组织成独立页面 | 更深跨章误会网络 |
 | 跨事件长线卷 | `GET /api/stories/<slug>/worldlines/<worldline_id>/longline-reading` 与 `LonglineReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/longline` 已复用 `dossier-reading`、`worldline_dossier`、连续阅读场景、卷宗、确认入卷和证据链，把事件、误会、角色记忆、势力压力和作者承接组织成可点击长线时间线，并已新增阅读进度、多事件索引、误会回收台和未解线索跳转 | 更深跨章误会网络、跨章节回收 |
-| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点、当前场景导读条和可点击误会图谱，并可切换世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角和确认稿；阅读类路由会写入前端本机最近阅读续航 | 更深跨章误会网络、账号级用户阅读进度持久化 |
+| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点、当前场景导读条和可点击误会图谱，并可切换世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角和确认稿；阅读类路由会写入前端本机最近阅读续航，锚定页和 AppShell 都能一键回到最近阅读位置 | 更深跨章误会网络、账号级用户阅读进度持久化 |
 | 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作，并可进入长线卷 | 醒来报告文学化、跨章节回收 |
 | 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口 | 醒来报告文学化、长线阅读进度 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |
