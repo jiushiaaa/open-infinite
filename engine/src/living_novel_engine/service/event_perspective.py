@@ -229,6 +229,12 @@ def _next_actions(story_slug: str, worldline_id: str, dossier: dict[str, Any]) -
             "reason": "核对因果债、检查点和后续承接。",
         },
         {
+            "id": "longline",
+            "label": "追长线卷",
+            "route": f"#/world/{story_slug}/worldlines/{worldline_id}/longline",
+            "reason": "查看这件事如何继续影响误会、记忆、势力和下一章。",
+        },
+        {
             "id": "author",
             "label": "送到作者台",
             "route": f"#/world/{story_slug}/author",

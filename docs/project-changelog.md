@@ -2728,3 +2728,20 @@
 - **边界**：
   - 本轮不改 `run_scene` 默认行为，不新增持久 artifact，不破坏既有 API/artifact 契约；只把已有事件多视角从 tab 补成可读、可进入、可理解的产品页面。
 
+### 2026-06-07 — Longline Reading Dossier Page
+
+- **做了什么**：
+  - 新增只读 `longline_reading` service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/longline-reading`，复用 `dossier-reading`、`worldline_dossier`、连续阅读场景、多视角卷宗、确认入卷、事件信息差和证据链，不新增持久 artifact。
+  - 新增 `LonglineReadingPage` 与 `#/world/<slug>/worldlines/<worldline_id>/longline` 路由，把同一世界线组织成长线时间线、当前长线节点、误会/角色记忆/势力压力/事件裂缝/作者承接五条发酵线、证据链和下一步动作。
+  - 顶栏新增“长线卷”；世界线页、卷宗阅读页和事件详情页都能进入长线卷，事件详情页的下一步也会返回长线阅读。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把跨事件长线卷从待办改为当前事实，并把后续重点收束到多事件索引、跨章误会回收、长线阅读进度和长正文节奏。
+- **验证**：
+  - Red/green focused 后端：先跑 `python -m pytest -q engine\tests\test_longline_reading.py`，确认缺 `longline_reading` 模块失败；实现后同命令 -> `2 passed`。
+  - 相邻链路：`python -m pytest -q engine\tests\test_longline_reading.py engine\tests\test_event_perspective.py engine\tests\test_dossier_reading.py` -> `6 passed`。
+  - 后端全量：`cd engine && python -m pytest -q` -> `951 passed`。
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome 桌面与精确 390px 设备模拟：`#/world/my-story/worldlines/main/longline` 显示长线时间线、当前节点、发酵线、下一步和证据链，无水平溢出、无 console error、无 4xx；点击第二个时间线节点能切换当前节点。
+  - UI smoke：从 `#/world/my-story/worldlines/main/events/main/perspectives` 点击“长线卷”可进入 `#/world/my-story/worldlines/main/longline`。
+- **边界**：
+  - 本轮不改 `run_scene` 默认行为，不新增持久 artifact，不破坏既有 API/artifact 契约；只把已有世界线材料组织成用户能读懂、能跳转、能继续推进的跨事件长线卷。
+

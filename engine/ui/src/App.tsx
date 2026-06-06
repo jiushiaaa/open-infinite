@@ -10,6 +10,7 @@ import { CharacterLensPage } from "./components/CharacterLensPage";
 import { AuthorAdoptionPage } from "./components/AuthorAdoptionPage";
 import { WorldlineDossierPage } from "./components/WorldlineDossierPage";
 import { DossierReadingPage } from "./components/DossierReadingPage";
+import { LonglineReadingPage } from "./components/LonglineReadingPage";
 import { CharacterVolumePage } from "./components/CharacterVolumePage";
 import { FactionVolumePage } from "./components/FactionVolumePage";
 import { EventPerspectivePage } from "./components/EventPerspectivePage";
@@ -34,6 +35,9 @@ export function App() {
           worldlineId={route.worldlineId}
           initialTab={route.tab}
         />
+      )}
+      {route.name === "longlineReading" && (
+        <LonglineReadingPage slug={route.slug} worldlineId={route.worldlineId} />
       )}
       {route.name === "characterVolume" && (
         <CharacterVolumePage

@@ -78,6 +78,7 @@ import type {
   DeploymentObservabilityChecklist,
   DossierReadingReport,
   EventPerspectiveReport,
+  LonglineReadingReport,
   LLMProfileAssignmentReport,
   LocalSmokeChecklist,
   ObjectStorageBoundaryChecklist,
@@ -564,6 +565,16 @@ export const api = {
       `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
         worldlineId,
       )}/dossier-reading`,
+    );
+  },
+  getLonglineReading(
+    storySlug: string,
+    worldlineId: string,
+  ): Promise<LonglineReadingReport> {
+    return getJson(
+      `/api/stories/${encodeURIComponent(storySlug)}/worldlines/${encodeURIComponent(
+        worldlineId,
+      )}/longline-reading`,
     );
   },
   getEventPerspective(

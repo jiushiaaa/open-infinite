@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 // "#/world/<slug>/author"       → 作者采纳台
 // "#/world/<slug>/worldlines/<id>" → 世界线档案
 // "#/world/<slug>/worldlines/<id>/reading[/tab]" → 世界内部卷宗阅读
+// "#/world/<slug>/worldlines/<id>/longline" → 跨事件长线卷
 // "#/world/<slug>/worldlines/<id>/characters/<char>" → 角色个人卷
 // "#/world/<slug>/worldlines/<id>/factions/<faction>" → 势力卷
 // "#/world/<slug>/worldlines/<id>/events/<event>/perspectives" → 事件多视角详情
@@ -25,6 +26,7 @@ export type Route =
   | { name: "author"; slug: string }
   | { name: "worldline"; slug: string; worldlineId: string }
   | { name: "dossierReading"; slug: string; worldlineId: string; tab?: string }
+  | { name: "longlineReading"; slug: string; worldlineId: string }
   | { name: "characterVolume"; slug: string; worldlineId: string; characterId: string }
   | { name: "factionVolume"; slug: string; worldlineId: string; factionId: string }
   | { name: "eventPerspective"; slug: string; worldlineId: string; eventId: string }
@@ -80,6 +82,13 @@ function parseHash(): Route {
         slug: decodeURIComponent(parts[1]),
         worldlineId: decodeURIComponent(parts[3]),
         eventId: decodeURIComponent(parts[5]),
+      };
+    }
+    if (parts[4] === "longline") {
+      return {
+        name: "longlineReading",
+        slug: decodeURIComponent(parts[1]),
+        worldlineId: decodeURIComponent(parts[3]),
       };
     }
     if (parts[4] === "checkpoints" && parts[5] && parts[6]) {
@@ -142,6 +151,11 @@ export function navigate(route: Route): void {
       route.worldlineId,
     )}/reading`;
     if (route.tab) next += `/${encodeURIComponent(route.tab)}`;
+  }
+  else if (route.name === "longlineReading") {
+    next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
+      route.worldlineId,
+    )}/longline`;
   }
   else if (route.name === "characterVolume") {
     next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(

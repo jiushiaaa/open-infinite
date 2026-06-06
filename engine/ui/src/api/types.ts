@@ -1439,6 +1439,67 @@ export interface EventPerspectiveReport {
   boundaries: string[];
 }
 
+export interface LonglineTimelineEntry {
+  id: string;
+  sequence: number;
+  phase: "scene" | "volume" | "confirmation" | "checkpoint" | string;
+  label: string;
+  title: string;
+  body: string;
+  source: string;
+  route: string;
+  evidence_refs: string[];
+  affected_characters: string[];
+  affected_factions: string[];
+  consequence_hint: string;
+}
+
+export interface LonglineThread {
+  id: string;
+  label: string;
+  status: "active" | "pending" | string;
+  summary: string;
+  source_count: number;
+}
+
+export interface LonglineReadingReport {
+  version: string;
+  story_slug: string;
+  source_kind: SourceKind | string;
+  worldline_id: string;
+  status: "ready" | "partial" | "empty" | string;
+  default_axis: "cause" | string;
+  title: string;
+  subtitle: string;
+  source_runs: {
+    adoption_run_id?: string;
+    draft_run_id?: string;
+    confirmation_run_id?: string;
+    lens_run_id?: string;
+  };
+  current_tension: {
+    summary: string;
+    primary_misbelief?: string;
+    next_chapter_hook?: string;
+  };
+  timeline_entries: LonglineTimelineEntry[];
+  longline_threads: LonglineThread[];
+  evidence_panel: {
+    default_open: boolean;
+    label: string;
+    description: string;
+    ref_count: number;
+    refs: string[];
+  };
+  next_actions: Array<{
+    id: string;
+    label: string;
+    route: string;
+    reason: string;
+  }>;
+  boundaries: string[];
+}
+
 export interface WorldAutopilotCheckpointReplayReport {
   version: string;
   run_id: string;

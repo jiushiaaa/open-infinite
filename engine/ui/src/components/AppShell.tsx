@@ -18,6 +18,7 @@ const ROUTE_LABELS: Partial<Record<Route["name"], string>> = {
   author: "作者采纳台",
   worldline: "世界线",
   dossierReading: "卷宗阅读",
+  longlineReading: "长线卷",
   characterVolume: "角色个人卷",
   factionVolume: "势力卷",
   eventPerspective: "事件多视角",
@@ -36,6 +37,7 @@ function worldSlug(route: Route): string | null {
     route.name === "author" ||
     route.name === "worldline" ||
     route.name === "dossierReading" ||
+    route.name === "longlineReading" ||
     route.name === "characterVolume" ||
     route.name === "factionVolume" ||
     route.name === "eventPerspective" ||
@@ -51,6 +53,7 @@ function worldlineId(route: Route): string {
   if (
     route.name === "worldline" ||
     route.name === "dossierReading" ||
+    route.name === "longlineReading" ||
     route.name === "characterVolume" ||
     route.name === "factionVolume" ||
     route.name === "eventPerspective" ||
@@ -66,6 +69,7 @@ function activeSection(route: Route): string {
   if (route.name === "characterVolume") return "character";
   if (route.name === "factionVolume") return "faction";
   if (route.name === "eventPerspective") return "event";
+  if (route.name === "longlineReading") return "longline";
   if (route.name === "dossierReading") return "reading";
   return route.name;
 }
@@ -145,6 +149,19 @@ export function AppShell({
                 title="按小说正文和卷宗视角阅读世界结果"
               >
                 阅读
+              </button>
+              <button
+                className={active === "longline" ? "is-active" : ""}
+                onClick={() =>
+                  navigate({
+                    name: "longlineReading",
+                    slug,
+                    worldlineId: currentWorldline,
+                  })
+                }
+                title="查看事件、角色记忆、势力压力和作者承接如何跨事件发酵"
+              >
+                长线卷
               </button>
               {route.name === "characterVolume" && (
                 <button

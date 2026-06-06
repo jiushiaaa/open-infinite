@@ -230,6 +230,11 @@ export function DossierReadingPage({
             onClick: () => navigate({ name: "worldline", slug, worldlineId }),
           },
           {
+            label: "长线卷",
+            detail: "追踪事件、误会和角色记忆如何延续",
+            onClick: () => navigate({ name: "longlineReading", slug, worldlineId }),
+          },
+          {
             label: "作者采纳台",
             detail: "把这条阅读结果变成下一章材料",
             primary: true,
@@ -331,6 +336,12 @@ export function DossierReadingPage({
                     onClick={() => navigate({ name: "worldline", slug, worldlineId })}
                   >
                     世界线
+                  </button>
+                  <button
+                    className="btn btn--ghost tiny"
+                    onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}
+                  >
+                    长线卷
                   </button>
                   <button
                     className="btn btn--ghost tiny"

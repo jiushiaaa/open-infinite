@@ -1,0 +1,332 @@
+.longline-page {
+  display: grid;
+  gap: 20px;
+}
+
+.longline-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid rgba(123, 96, 61, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 251, 239, 0.95), rgba(236, 244, 235, 0.72)),
+    var(--paper-texture, transparent);
+}
+
+.longline-hero h1 {
+  margin: 6px 0 8px;
+  max-width: 760px;
+  font-size: clamp(1.7rem, 3vw, 2.55rem);
+  line-height: 1.12;
+}
+
+.longline-hero__eyebrow {
+  letter-spacing: 0;
+}
+
+.longline-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.longline-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 290px) minmax(0, 1fr) minmax(260px, 340px);
+  gap: 18px;
+  align-items: start;
+}
+
+.longline-timeline,
+.longline-reader,
+.longline-aside {
+  min-width: 0;
+}
+
+.longline-timeline,
+.longline-current,
+.longline-entry,
+.longline-thread-board,
+.longline-aside section {
+  border: 1px solid rgba(120, 91, 54, 0.16);
+  background: rgba(255, 253, 246, 0.9);
+}
+
+.longline-timeline {
+  position: sticky;
+  top: 88px;
+  padding: 16px;
+}
+
+.longline-timeline__head,
+.longline-section-title,
+.longline-entry__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.longline-timeline h2,
+.longline-aside h2,
+.longline-section-title h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.longline-timeline__list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.longline-timeline__list button {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid rgba(120, 91, 54, 0.14);
+  background: rgba(255, 255, 252, 0.72);
+  color: inherit;
+  cursor: pointer;
+}
+
+.longline-timeline__list button.is-active {
+  border-color: rgba(74, 124, 99, 0.42);
+  background: rgba(221, 233, 224, 0.58);
+}
+
+.longline-timeline__list span {
+  grid-row: span 2;
+  color: var(--jade);
+  font-family: var(--font-ui, inherit);
+  font-size: 0.82rem;
+}
+
+.longline-timeline__list strong,
+.longline-next strong {
+  font-size: 0.95rem;
+}
+
+.longline-timeline__list small,
+.longline-next small,
+.longline-tension small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.longline-reader {
+  display: grid;
+  gap: 14px;
+}
+
+.longline-current {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+  gap: 18px;
+  padding: 20px;
+}
+
+.longline-current h2 {
+  margin: 4px 0 8px;
+  font-size: 1.38rem;
+}
+
+.longline-current dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.longline-current div > p,
+.longline-entry p,
+.longline-tension p,
+.longline-thread-grid p,
+.longline-evidence p {
+  line-height: 1.75;
+}
+
+.longline-current dl div,
+.longline-entry__meta div {
+  padding: 10px 12px;
+  border: 1px solid rgba(120, 91, 54, 0.12);
+  background: rgba(250, 245, 233, 0.68);
+}
+
+.longline-current dt,
+.longline-entry__meta dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.longline-current dd,
+.longline-entry__meta dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+}
+
+.longline-entry,
+.longline-thread-board {
+  padding: 20px;
+}
+
+.longline-entry__hint {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-left: 3px solid rgba(74, 124, 99, 0.42);
+  background: rgba(236, 244, 235, 0.58);
+}
+
+.longline-entry__hint p {
+  margin: 6px 0 0;
+}
+
+.longline-entry__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.longline-entry__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.longline-thread-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.longline-thread-grid article {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(120, 91, 54, 0.12);
+  background: rgba(250, 245, 233, 0.58);
+}
+
+.longline-thread-grid article.is-active {
+  border-color: rgba(74, 124, 99, 0.34);
+  background: rgba(221, 233, 224, 0.5);
+}
+
+.longline-thread-grid span,
+.longline-thread-grid small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.longline-thread-grid strong {
+  font-size: 0.92rem;
+}
+
+.longline-thread-grid p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.longline-aside {
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: 88px;
+}
+
+.longline-aside section {
+  padding: 16px;
+}
+
+.longline-tension,
+.longline-next,
+.longline-evidence {
+  display: grid;
+  gap: 10px;
+}
+
+.longline-tension small {
+  display: block;
+}
+
+.longline-next button {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid rgba(120, 91, 54, 0.16);
+  background: rgba(255, 255, 252, 0.76);
+  color: inherit;
+  cursor: pointer;
+}
+
+.longline-next button:hover {
+  border-color: rgba(74, 124, 99, 0.34);
+  background: rgba(221, 233, 224, 0.46);
+}
+
+.longline-evidence div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.longline-evidence code {
+  max-width: 100%;
+  padding: 5px 7px;
+  border: 1px solid rgba(120, 91, 54, 0.16);
+  background: rgba(255, 255, 252, 0.78);
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 1180px) {
+  .longline-layout {
+    grid-template-columns: minmax(210px, 270px) minmax(0, 1fr);
+  }
+
+  .longline-aside {
+    grid-column: 1 / -1;
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .longline-hero,
+  .longline-current {
+    grid-template-columns: 1fr;
+  }
+
+  .longline-hero {
+    display: grid;
+    padding: 18px;
+  }
+
+  .longline-hero__actions {
+    justify-content: flex-start;
+  }
+
+  .longline-layout,
+  .longline-aside,
+  .longline-thread-grid,
+  .longline-entry__meta {
+    grid-template-columns: 1fr;
+  }
+
+  .longline-timeline,
+  .longline-aside {
+    position: static;
+  }
+}

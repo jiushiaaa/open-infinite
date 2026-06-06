@@ -183,6 +183,12 @@ export function WorldlineDossierPage({
             >
               卷宗阅读
             </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}
+            >
+              长线卷
+            </button>
             {latestCheckpoint && (
               <button
                 className="btn btn--ghost"
@@ -263,6 +269,11 @@ export function WorldlineDossierPage({
             detail: "按正文、角色卷和事件多视角继续读",
             primary: true,
             onClick: () => navigate({ name: "dossierReading", slug, worldlineId }),
+          },
+          {
+            label: "长线卷",
+            detail: "追踪误会、记忆和势力压力如何跨事件发酵",
+            onClick: () => navigate({ name: "longlineReading", slug, worldlineId }),
           },
           {
             label: "继续沙盘",

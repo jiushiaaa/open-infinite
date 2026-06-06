@@ -419,6 +419,10 @@ from .event_perspective import (
     EventPerspectiveRequestError,
     get_event_perspective,
 )
+from .longline_reading import (
+    LonglineReadingRequestError,
+    get_longline_reading,
+)
 
 __all__ = [
     "VALID_ACTIONS",
@@ -663,11 +667,13 @@ __all__ = [
     "WorldlineDossierRequestError",
     "DossierReadingRequestError",
     "EventPerspectiveRequestError",
+    "LonglineReadingRequestError",
     "get_character_subjective_memory",
     "get_world_autopilot_readable_entry",
     "get_world_autopilot_task",
     "get_dossier_reading",
     "get_event_perspective",
+    "get_longline_reading",
     "get_worldline_dossier",
     "get_worldline_state",
     "get_worldline_judgement",

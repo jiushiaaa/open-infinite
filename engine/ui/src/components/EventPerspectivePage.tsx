@@ -143,6 +143,11 @@ export function EventPerspectivePage({
                 onClick: () => navigate({ name: "worldline", slug, worldlineId }),
               },
               {
+                label: "长线卷",
+                detail: "看这件事如何继续发酵",
+                onClick: () => navigate({ name: "longlineReading", slug, worldlineId }),
+              },
+              {
                 label: "作者台",
                 detail: "把事件张力写进下一章",
                 primary: true,
