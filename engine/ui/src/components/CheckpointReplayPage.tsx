@@ -44,6 +44,53 @@ export function CheckpointReplayPage({
   const consequenceDomains = checkpoint?.consequence_state?.domains
     ? Object.entries(checkpoint.consequence_state.domains)
     : [];
+  const rememberedCount =
+    readableEntry?.memory_readout.who_remembered_what.length ??
+    checkpoint?.who_remembered_what?.length ??
+    0;
+  const storyPossibilityCount = checkpoint?.next_story_possibilities.length ?? 0;
+  const readAction = readableEntry?.primary_actions.find(
+    (action) => action.id === "continuous_reading",
+  );
+  const commandTitle = checkpoint
+    ? `第 ${checkpoint.round_index} 轮发生了什么`
+    : "读取检查点";
+  const commandHint =
+    readableEntry?.state_change_explanation.headline ||
+    checkpoint?.major_event ||
+    "正在把这一轮世界变化整理成可继续阅读、回放和采纳的入口。";
+  const commandSteps = [
+    {
+      label: "事件",
+      title: "确认大事件",
+      detail: checkpoint?.major_event || "读取本轮沙盘事件。",
+      active: true,
+      done: !!checkpoint,
+    },
+    {
+      label: "记忆",
+      title: "看谁被改变",
+      detail: rememberedCount ? `${rememberedCount} 条角色记忆` : "等待角色记忆写入。",
+      active: false,
+      done: rememberedCount > 0,
+    },
+    {
+      label: "代偿",
+      title: "承接世界代价",
+      detail: consequenceDomains.length
+        ? `${consequenceDomains.length} 个世界域承压`
+        : "下一轮继续追踪因果债。",
+      active: false,
+      done: consequenceDomains.length > 0,
+    },
+    {
+      label: "续读",
+      title: "回到连续正文",
+      detail: readAction?.reason || "把检查点接回卷宗阅读。",
+      active: false,
+      done: !!readAction,
+    },
+  ];
 
   return (
     <div className="worldline-page">
@@ -56,6 +103,88 @@ export function CheckpointReplayPage({
           </p>
         </div>
       </header>
+
+      {!loading && !error && report && checkpoint && (
+        <section className="worldline-command" aria-label="检查点工作流总览">
+          <div className="worldline-command__lead">
+            <p className="muted worldline-command__eyebrow">醒来回放</p>
+            <h2>{commandTitle}</h2>
+            <p className="muted">{commandHint}</p>
+            <div className="worldline-command__meta">
+              <span className="badge badge--jade">{checkpoint.stage}</span>
+              <span className="badge">{worldlineId}</span>
+              <span className="badge badge--gold">{checkpoint.causal_debt}</span>
+            </div>
+          </div>
+
+          <div className="worldline-command__steps">
+            {commandSteps.map((item, index) => (
+              <article
+                className={`worldline-command__step ${
+                  item.active ? "is-active" : item.done ? "is-done" : ""
+                }`}
+                key={item.label}
+              >
+                <span>{index + 1}</span>
+                <div>
+                  <p className="muted tiny">{item.label}</p>
+                  <strong>{item.title}</strong>
+                  <small>{item.detail}</small>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="worldline-command__actions">
+            <button
+              className="btn btn--primary"
+              onClick={() => {
+                if (readAction?.route?.startsWith("#/")) {
+                  window.location.hash = readAction.route;
+                } else {
+                  navigate({ name: "dossierReading", slug, worldlineId });
+                }
+              }}
+            >
+              {readAction?.label || "进入连续阅读"}
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => navigate({ name: "worldline", slug, worldlineId })}
+            >
+              返回世界线
+            </button>
+            <button className="btn btn--ghost" onClick={() => navigate({ name: "sandbox", slug })}>
+              继续沙盘
+            </button>
+            <button className="btn btn--ghost" onClick={() => navigate({ name: "author", slug })}>
+              作者采纳台
+            </button>
+          </div>
+
+          <div className="worldline-command__proof" aria-label="检查点摘要">
+            <div>
+              <span className="muted tiny">本轮</span>
+              <strong>第 {checkpoint.round_index} 轮</strong>
+            </div>
+            <div>
+              <span className="muted tiny">角色记忆</span>
+              <strong>{rememberedCount || "待写入"}</strong>
+            </div>
+            <div>
+              <span className="muted tiny">后续可能</span>
+              <strong>{storyPossibilityCount || "待显形"}</strong>
+            </div>
+            <p>
+              {readableEntry?.state_change_explanation.why_world_changed ||
+                readableEntry?.memory_readout.summary ||
+                checkpoint.chapter_seed?.next_chapter_hook ||
+                report.replay.resume_hint ||
+                checkpoint.major_event}
+            </p>
+          </div>
+        </section>
+      )}
 
       <WorldRunway
         eyebrow="检查点导览"

@@ -2572,3 +2572,19 @@
 - **边界**：
   - 本轮不改后端、不删旧入口、不改变路由/API/artifact 契约；只提升世界线档案页的首屏理解、下一步行动和移动端可用性。
 
+### 2026-06-06 — Checkpoint Replay Wake Command Center
+
+- **做了什么**：
+  - `CheckpointReplayPage` 首屏新增“醒来回放”工作流中枢，把确认大事件、查看角色记忆、承接因果代偿和进入连续正文四步前置。
+  - 主行动直接复用 `readable_entry.primary_actions` 进入连续阅读；同时保留返回世界线、继续沙盘和作者采纳台出口。
+  - 中枢摘要展示本轮编号、角色记忆数、后续可能数、世界阶段、世界线和因果债；原有状态变化解释、记忆变化、具象代偿、后续可写方向、`WorldRunway` 和详细回放模块全部保留。
+  - 移动端压紧同类世界线命令中枢的操作按钮间距，并让长 badge 自动换行，避免检查点阶段文本撑宽页面。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是检查点回放体验切片。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Chrome 桌面：1366px 检查点页无水平溢出，醒来回放中枢位于首屏上方，主行动为“继续下一段正文”。
+  - Chrome 精确 390px 设备模拟：检查点页无水平溢出，四枚操作按钮全部在首屏内。
+  - UI smoke：打开 `#/world/my-story/worldlines/main/checkpoints/autopilot_20260606_210329_1a8810/checkpoint_001`，点击“继续下一段正文”，页面进入 `#/world/my-story/worldlines/main/reading/continuous_reading`，无页面错误。
+- **边界**：
+  - 本轮不改后端、不删旧入口、不改变路由/API/artifact 契约；只提升检查点回放页的首屏理解、下一步行动和移动端可用性。
+
