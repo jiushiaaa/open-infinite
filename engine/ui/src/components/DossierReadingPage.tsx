@@ -20,6 +20,18 @@ type ReadingTab =
   | "event_multi_perspective"
   | string;
 
+interface MisbeliefNode {
+  key: string;
+  id: string;
+  label: string;
+  cognitiveBias: string;
+  source: string;
+  sourceLabel: string;
+  targetTab: ReadingTab;
+  sectionId?: string;
+  evidenceCount: number;
+}
+
 const TAB_LABELS: Record<string, string> = {
   continuous_reading: "连续阅读",
   confirmed_chapter: "确认正文",
@@ -45,6 +57,7 @@ export function DossierReadingPage({
   const [error, setError] = useState<string | null>(null);
   const readerRef = useRef<HTMLElement | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const sectionFocusLockRef = useRef({ id: "", until: 0 });
 
   async function load() {
     setLoading(true);
@@ -69,6 +82,7 @@ export function DossierReadingPage({
   const activeBody = bodyForTab(report, activeTab, activeVolume);
   const activeBias = biasForTab(report, activeTab, activeVolume);
   const activeContext = readingContext(report, activeTab, activeVolume);
+  const misbeliefNodes = useMemo(() => buildMisbeliefNodes(report), [report]);
   const continuousSections =
     activeTab === "continuous_reading"
       ? report?.continuous_reading?.reading_sections ?? []
@@ -83,8 +97,24 @@ export function DossierReadingPage({
       : 0;
   const focusReader = () =>
     readerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const scrollToSection = (id: string) =>
-    sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToSection = (id: string) => {
+    sectionFocusLockRef.current = { id, until: Date.now() + 900 };
+    setActiveSectionId(id);
+    sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  const activeMisbeliefId =
+    activeTab === "continuous_reading" && activeSectionId
+      ? activeSectionId
+      : String(activeTab);
+  const openMisbelief = (node: MisbeliefNode) => {
+    setActiveTab(node.targetTab);
+    if (node.sectionId) {
+      setActiveSectionId(node.sectionId);
+      window.setTimeout(() => scrollToSection(node.sectionId!), 80);
+      return;
+    }
+    focusReader();
+  };
 
   useEffect(() => {
     const firstSection = continuousSections[0]?.id || "";
@@ -99,12 +129,33 @@ export function DossierReadingPage({
 
   useEffect(() => {
     if (continuousSections.length === 0) return;
+    const currentVisibleSectionId = () => {
+      const readerCenter = window.innerHeight * 0.48;
+      let bestId = "";
+      let bestDistance = Number.POSITIVE_INFINITY;
+      for (const section of continuousSections) {
+        const node = sectionRefs.current[section.id];
+        if (!node) continue;
+        const rect = node.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
+        const sectionCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(sectionCenter - readerCenter);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestId = section.id;
+        }
+      }
+      return bestId;
+    };
     const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        const id = visible?.target.getAttribute("data-section-id");
+      () => {
+        const locked = sectionFocusLockRef.current;
+        if (locked.id && Date.now() < locked.until) {
+          setActiveSectionId(locked.id);
+          return;
+        }
+        if (locked.id) sectionFocusLockRef.current = { id: "", until: 0 };
+        const id = currentVisibleSectionId();
         if (id) setActiveSectionId(id);
       },
       { rootMargin: "-20% 0px -48% 0px", threshold: [0.2, 0.45, 0.7] },
@@ -212,15 +263,26 @@ export function DossierReadingPage({
                 ))}
               </nav>
 
-              {report.perspective_biases.length > 0 && (
-                <section className="dossier-bias-list" aria-label="认知偏差">
-                  <h2>认知偏差</h2>
-                  {report.perspective_biases.slice(0, 5).map((item) => (
-                    <article key={`${item.source}-${item.id}`}>
-                      <strong>{item.label}</strong>
-                      <p>{item.cognitive_bias}</p>
-                    </article>
-                  ))}
+              {misbeliefNodes.length > 0 && (
+                <section className="dossier-misbelief-map" aria-label="误会图谱">
+                  <div className="dossier-misbelief-map__head">
+                    <h2>误会图谱</h2>
+                    <span className="tiny muted">{misbeliefNodes.length} 条</span>
+                  </div>
+                  <div className="dossier-misbelief-map__list">
+                    {misbeliefNodes.slice(0, 8).map((node) => (
+                      <button
+                        key={node.key}
+                        className={node.id === activeMisbeliefId ? "is-active" : ""}
+                        onClick={() => openMisbelief(node)}
+                      >
+                        <span>{node.sourceLabel}</span>
+                        <strong>{node.label}</strong>
+                        <small>{node.cognitiveBias}</small>
+                        <em>{node.evidenceCount} 条证据</em>
+                      </button>
+                    ))}
+                  </div>
                 </section>
               )}
 
@@ -460,6 +522,49 @@ function readingTabs(report: DossierReadingReport | null) {
     });
   }
   return tabs;
+}
+
+function buildMisbeliefNodes(report: DossierReadingReport | null): MisbeliefNode[] {
+  if (!report) return [];
+  return report.perspective_biases
+    .map((item) => {
+      if (item.source === "continuous_reading") {
+        const section = report.continuous_reading?.reading_sections.find(
+          (candidate) => candidate.id === item.id,
+        );
+        return {
+          key: `${item.source}-${item.id}`,
+          id: item.id,
+          label: item.label || section?.title || "正文场景",
+          cognitiveBias: item.cognitive_bias,
+          source: item.source,
+          sourceLabel: "正文场景",
+          targetTab: "continuous_reading",
+          sectionId: item.id,
+          evidenceCount: sectionEvidenceRefs(
+            section || {
+              id: item.id,
+              title: item.label,
+              body: "",
+              narrative_role: "",
+              evidence_refs: [],
+            },
+          ).length,
+        };
+      }
+      const tab = report.volume_tabs.find((candidate) => candidate.id === item.id);
+      return {
+        key: `${item.source}-${item.id}`,
+        id: item.id,
+        label: item.label || tab?.label || TAB_LABELS[item.id] || "卷宗视角",
+        cognitiveBias: item.cognitive_bias,
+        source: item.source,
+        sourceLabel: "卷宗视角",
+        targetTab: item.id,
+        evidenceCount: tab?.evidence_refs.length ?? 0,
+      };
+    })
+    .filter((node) => node.cognitiveBias.trim().length > 0);
 }
 
 function sectionEvidenceRefs(section: ContinuousReadingSection): string[] {

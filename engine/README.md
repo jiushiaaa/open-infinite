@@ -8,7 +8,7 @@
 
 | 能力 | 当前状态 | 继续深入 |
 | --- | --- | --- |
-| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折和段内证据锚点，并可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿 | 误会图谱、独立角色/势力卷、长线阅读进度 |
+| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认读连续正文；连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点和可点击误会图谱，并可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认稿 | 独立角色/势力卷、跨章误会关系、长线阅读进度 |
 | 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作 | 事件详情页、独立角色/势力卷、醒来报告文学化 |
 | 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口 | 醒来报告文学化、长线阅读进度、事件详情页 |
 | 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来 | 更强醒来报告文学节奏和长线阅读进度 |
@@ -29,7 +29,7 @@
 | 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版 |
 | 后端验证基线 | `python -m pytest -q` -> `947 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过 |
-| 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、正文内锚点跳转/误会图谱、更强 Reviewer 和整章风格润色是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
+| 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、跨章误会回收、更强 Reviewer 和整章风格润色是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
 
 仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、GraphRAG/Zep、高级 runner 默认替换，以及 hybrid vector 是否默认替换 BM25。
 
@@ -121,7 +121,7 @@
 - `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。
 - `outputs/<run_id>/confirmed_chapter.md`：作者确认后的可读正文导出，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/confirmed_chapter_reading_trail.json`：确认稿跨卷宗阅读链，引用世界线状态、来源采纳记录、世界正史卷、角色个人卷和事件多视角证据。
-- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页默认正文阅读、卷宗切换和折叠证据链。
+- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页默认正文阅读、卷宗切换、误会图谱和折叠证据链。
 - `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`：干预、快照审计、因果债、锚点状态、候选承载者、模因污染传播、具象代偿和作者采纳结果的后续沙盘输入；另开作者分支时会写入新分支状态和来源世界线，不覆盖根正史。
 - `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、决策输入、外在行动、真实意图、风险、行动结果、冲突、信息传播和世界状态 delta。
 - `outputs/<run_id>/agent_decision_advisory.json`：显式启用 `llm_decision_mode=advisory` 时写入，记录真实 LLM 对逐角色采信、欺骗、传播、反抗、临场判断、信任移动和记忆种子的建议；失败时沙盘保留 deterministic 行动。

@@ -92,33 +92,73 @@
   white-space: nowrap;
 }
 
-.dossier-bias-list {
+.dossier-misbelief-map {
   display: grid;
   gap: var(--space-2);
   border-top: 1px solid var(--line);
   padding-top: var(--space-3);
 }
 
-.dossier-bias-list h2 {
+.dossier-misbelief-map__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.dossier-misbelief-map h2 {
   margin: 0;
   font-family: var(--font-serif);
   font-size: 16px;
 }
 
-.dossier-bias-list article {
+.dossier-misbelief-map__list {
   display: grid;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
-.dossier-bias-list strong {
+.dossier-misbelief-map__list button {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(236, 224, 196, 0.22), rgba(255, 252, 244, 0.74)),
+    var(--paper);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dossier-misbelief-map__list button:hover,
+.dossier-misbelief-map__list button.is-active {
+  border-color: var(--jade);
+  background: var(--jade-wash);
+}
+
+.dossier-misbelief-map__list span {
+  color: var(--jade);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dossier-misbelief-map__list strong {
   font-size: 13px;
+  line-height: 1.45;
 }
 
-.dossier-bias-list p {
-  margin: 0;
+.dossier-misbelief-map__list small {
   color: var(--ink-soft);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: 1.55;
+}
+
+.dossier-misbelief-map__list em {
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
 }
 
 .dossier-reading-map {

@@ -2640,3 +2640,20 @@
 - **边界**：
   - 本轮不改后端、不改变 API/artifact 契约、不删旧卷宗 tab 或底部证据面板；只提升卷宗阅读页的正文内证据、阅读进度和移动端可用性。
 
+### 2026-06-06 — Dossier Reading Misbelief Map
+
+- **做了什么**：
+  - `DossierReadingPage` 将原静态认知偏差列表升级为“误会图谱”，按 `perspective_biases` 展示来源、卷宗/场景标签、误会说明和证据数量。
+  - 误会节点现在可点击：正文场景节点会定位并高亮对应阅读段落，卷宗节点保留切换到对应 tab 的能力。
+  - 章节定位从贴顶滚动改为阅读中心优先；用户主动点击误会节点或阅读书签时会短暂锁定目标，避免移动端被相邻段落抢走当前高亮。
+  - 保留原有连续阅读正文、卷宗 tab、确认正文、底部证据面板、世界线/沙盘/作者台动作和所有路由。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把误会图谱第一版从待办改为当前事实。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm.cmd run build` 通过。
+  - 后端：`cd engine && python -m pytest -q` -> `947 passed`。
+  - Chrome 桌面与精确 390px 设备模拟：`#/world/my-story/worldlines/main/reading` 显示 5 条误会节点，无水平溢出。
+  - UI smoke：点击第二条误会节点后正文高亮切到“二、各怀半句真话”；点击第一条后回到“一、雨声入局”；桌面和移动端均通过。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不改变 API/artifact 契约、不新增持久 artifact；只提升卷宗阅读页的误会理解、点击定位和移动端阅读稳定性。
+
