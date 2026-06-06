@@ -63,6 +63,9 @@ export function LonglineReadingPage({
       });
     });
   }
+  const scrollToPageItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (loading) return <Loading label="正在铺开长线卷…" />;
 
@@ -93,6 +96,29 @@ export function LonglineReadingPage({
       {error && <ErrorState message={error} onRetry={load} />}
       {!error && report && (
         <>
+          <nav className="longline-mobile-guide" aria-label="移动端长线导读">
+            <button type="button" onClick={() => scrollToPageItem(".longline-briefing")}>
+              <span>01</span>
+              <strong>读长线</strong>
+              <small>看世界发酵到哪</small>
+            </button>
+            <button type="button" onClick={() => scrollToPageItem(".longline-event-index")}>
+              <span>02</span>
+              <strong>按事件追</strong>
+              <small>定位事件和证据</small>
+            </button>
+            <button type="button" onClick={() => scrollToPageItem(".longline-recovery")}>
+              <span>03</span>
+              <strong>回收误会</strong>
+              <small>把张力写回下一章</small>
+            </button>
+            <button type="button" onClick={() => navigate({ name: "author", slug })}>
+              <span>04</span>
+              <strong>作者台</strong>
+              <small>送去采纳续写</small>
+            </button>
+          </nav>
+
           <WorldRunway
             eyebrow="长线导览"
             title="先看世界如何持续发酵，再回到单个事件或角色"

@@ -2982,3 +2982,16 @@
   - Chrome CDP smoke：390px 访问 `#/world/my-story/author`，中枢动作显示“写入采纳台 / 调整材料 / 回世界沙盘”，动作区域 bottom 从 851 降到 760；页面业务内容无水平溢出；点击“调整材料”后采纳材料表单进入可见区。
 - **边界**：
   - 本轮只改前端作者采纳页 JSX/CSS、检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷契约，不改 artifact。
+
+### 2026-06-07 — Longline Mobile Guide
+
+- **做了什么**：
+  - 新增 `check:longline-reading-ux` 检查脚本，锁定长线卷移动端导读条存在、位于 `WorldRunway` 前，并只在移动/平板宽度显示。
+  - `LonglineReadingPage` 在移动端首屏新增“读长线 / 按事件追 / 回收误会 / 作者台”四格导读条；桌面仍保持原长线工作台。
+  - 四个入口分别复用现有滚动/路由：读长线滚到长线阅读进度，按事件追滚到多事件索引，回收误会滚到误会回收台，作者台进入作者采纳台。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，把长线卷移动端导读条记为当前事实。
+- **验证**：
+  - Red/green helper：先新增 `check:longline-reading-ux`，确认旧长线页因缺移动端导读条失败；实现后同命令 -> `longline reading ux structure ok`。
+  - Chrome CDP smoke：390px 访问 `#/world/my-story/worldlines/main/longline`，导读条在首屏内且 display 为 `grid`；点击“读长线 / 按事件追 / 回收误会”分别把阅读进度、多事件索引和误会回收台带入可见区，点击“作者台”进入 `#/world/my-story/author`；页面宽度保持 390px，业务内容无水平溢出。
+- **边界**：
+  - 本轮只改前端长线卷 JSX/CSS、检查脚本和文档，不新增后端 API、不改变 `longline-reading` 契约、不改 artifact。
