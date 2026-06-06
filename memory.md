@@ -2,10 +2,12 @@
 
 > **用途**：供 Codex / Cursor / 多会话 Agent 快速恢复项目事实，避免重复劳动或把历史待办误判成当前任务。
 > **维护约定**：本文件只保留“当前事实、路线、边界、入口索引”；完整历史变更日志已迁移到 `docs/project-changelog.md`。每次有意义的开发/设计/验收任务结束后，请把状态同步到本文对应章节，并将历史记录追加到变更日志文档末尾；每完成一个独立切片都必须即时追加 changelog，不等无人值守总收口再补。
-> **最后更新**：2026-06-06（前端世界入口与首屏 QA 第一轮）。当前事实：World Sandbox Loop / 世界沙盘改造 S1-S9 已有第一版可运行链路；最近几刀分别完成卷宗阅读页产品化、世界自演结果页可读入口、Reviewer 局部重写采纳、自动编辑后定稿，以及前端世界书架/世界内卷宗导航第一轮降噪与首屏 QA。后续默认继续深化真实 LLM 多 Agent 策略、长正文/连续阅读质量、正文内证据锚点/误会图谱、更强真实语义 Reviewer 和整章风格润色，不回 provider、GraphRAG、检索评测、OpenAPI、发行或商业化主线。
+> **最后更新**：2026-06-06（前端世界内导览层第一轮）。当前事实：World Sandbox Loop / 世界沙盘改造 S1-S9 已有第一版可运行链路；最近几刀分别完成卷宗阅读页产品化、世界自演结果页可读入口、Reviewer 局部重写采纳、自动编辑后定稿、前端世界书架/世界内卷宗导航第一轮降噪与首屏 QA，以及世界内导览层 `WorldRunway` 第一版。后续默认继续深化真实 LLM 多 Agent 策略、长正文/连续阅读质量、正文内证据锚点/误会图谱、更强真实语义 Reviewer 和整章风格润色，不回 provider、GraphRAG、检索评测、OpenAPI、发行或商业化主线。
 > **文档治理口径**：本文件只写当前事实和真实未做项；完整历史见 `docs/project-changelog.md`，文档分类见 `docs/index.md`，已收口专项见 `docs/completed/README.md`。旧文档若和本文冲突，以本文为准。
 
 2026-06-06 前端世界入口与主旅程第一轮改造已完成，并补过首屏 QA：`StoryEntryPage` 从历史版本入口改为“未终章 · 世界书架”，新增“确认天命 -> 运行沙盘 -> 阅读卷宗 -> 采纳续写”主旅程，故事卡默认进入天命书，并保留世界沙盘、卷宗阅读、作者采纳台和机制档案入口；`AppShell` 改为“未终章 / 世界沙盘”品牌与世界内卷宗导航，统一露出锚定、天命书、沙盘、阅读、世界线、多视角、作者台和机制档案；`WorkspacePage` 降级为“世界正史与机制档案”以收纳旧支撑层，不再作为默认主体验；`WorldAnchorPage` 下一步进入天命书，`WorldSandboxPage` 空态新增从事件到正文的世界回路导引。首屏 QA 额外修正浏览器标题、内置样例无天命书时的可生成空态，以及真实 390px 移动端入口换行。该刀不删功能、不破坏路由/API/artifact；后续仍需更完整的世界内部壳、角色/势力独立卷、正文锚点、误会图谱和更强跨页面视觉细节 QA。
+
+2026-06-06 世界内导览层第一版已完成：新增 `WorldRunway` 复用组件，把“当前世界线/当前工作流、三步理解路径、下一步行动”统一呈现在 `DossierReadingPage`、`WorldlineDossierPage`、`CheckpointReplayPage` 和 `AuthorAdoptionPage`；卷宗阅读页现在强调“读正文 -> 查卷宗 -> 写下一章”，世界线页强调“看状态 -> 回放检查点 -> 进入阅读”，检查点页强调“回看变化 -> 读后续 -> 写入下一章”，作者采纳台强调“比较差异 -> 采纳并改写 -> 确认入卷”。该刀不改后端、不删按钮能力、不改变路由/API/artifact；后续仍需更完整的 `WorldWorkspaceShell`、角色/势力独立页、事件详情页和跨页面视觉 QA。
 
 2026-06-06 卷宗阅读页产品化已完成第一版：新增 `dossier_reading` service 与 `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`，只读聚合同一世界线的 `continuous_reading_chapter`、`confirmed_chapter.md`、`confirmed_chapter_reading_trail`、S8 `character_lens_volumes` 和 `worldline_dossier`；前端新增 `DossierReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/reading`，默认进入连续阅读正文态，可切换世界正史卷、主锚点卷、角色个人卷、事件多视角和确认正文，认知偏差可见，证据链默认折叠。该刀不新增持久 artifact，不破坏既有 API/artifact，不改 `run_scene` 默认行为；后续仍需正文内锚点跳转、独立角色/势力页、误会图谱和真实长文文风控制。
 

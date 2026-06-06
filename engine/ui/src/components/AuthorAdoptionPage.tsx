@@ -8,6 +8,7 @@ import type {
 } from "../api/types";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
+import { WorldRunway } from "./WorldRunway";
 import "./authorAdoption.css";
 
 const DEFAULT_OUTLINE = "赵轩按旧大纲公开风鸣铃线索，苍澜派保持稳定。";
@@ -177,21 +178,58 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
             原大纲与世界自演结果并排校对，采纳动作只追加账本，不自动覆盖正史。
           </p>
         </div>
-        <div className="adoption-hero__actions">
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "lens", slug })}
-          >
-            多视角卷
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "sandbox", slug })}
-          >
-            世界沙盘
-          </button>
-        </div>
       </header>
+
+      <WorldRunway
+        eyebrow="作者工作流"
+        title="从沙盘涌现到下一章定稿"
+        summary="这里不是让模型直接覆盖正史，而是让作者比较原大纲与世界自演结果：先采纳，再生成草稿，最后确认入卷。"
+        meta={
+          <>
+            <span className="badge badge--jade">
+              {confirmation ? "已确认入卷" : draft ? "草稿待定稿" : report ? "已入采纳台" : "待采纳"}
+            </span>
+            <span className="badge">main</span>
+            {report?.run_id && <span className="badge badge--gold">{report.run_id}</span>}
+          </>
+        }
+        steps={[
+          {
+            label: "比较差异",
+            detail: "把原大纲和沙盘涌现并排看。",
+            active: !report,
+          },
+          {
+            label: "采纳并改写",
+            detail: "生成下一章 brief、草稿和局部重写。",
+            active: !!report && !confirmation,
+          },
+          {
+            label: "确认入卷",
+            detail: "让定稿进入阅读链和下一轮沙盘入口。",
+            active: !!confirmation,
+          },
+        ]}
+        actions={[
+          {
+            label: "多视角卷",
+            detail: "先让同一事件生成角色视角",
+            onClick: () => navigate({ name: "lens", slug }),
+          },
+          {
+            label: "卷宗阅读",
+            detail: "回到 main 世界线连续阅读",
+            onClick: () =>
+              navigate({ name: "dossierReading", slug, worldlineId: "main" }),
+          },
+          {
+            label: "世界沙盘",
+            detail: "把确认结果继续投回世界",
+            primary: true,
+            onClick: () => navigate({ name: "sandbox", slug }),
+          },
+        ]}
+      />
 
       <div className="adoption-layout">
         <aside className="adoption-panel">

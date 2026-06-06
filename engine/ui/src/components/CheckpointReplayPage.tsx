@@ -3,6 +3,7 @@ import { api } from "../api/client";
 import type { WorldAutopilotCheckpointReplayReport } from "../api/types";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
+import { WorldRunway } from "./WorldRunway";
 import "./worldlineDossier.css";
 
 export function CheckpointReplayPage({
@@ -54,27 +55,59 @@ export function CheckpointReplayPage({
             回看这一轮世界如何推进、谁记住了什么，以及下一轮应承接哪些代价。
           </p>
         </div>
-        <div className="worldline-hero__actions">
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "worldline", slug, worldlineId })}
-          >
-            返回世界线
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "sandbox", slug })}
-          >
-            继续沙盘
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "lens", slug })}
-          >
-            多视角卷
-          </button>
-        </div>
       </header>
+
+      <WorldRunway
+        eyebrow="检查点导览"
+        title="这一轮已经发生，下一步要让它继续影响世界"
+        summary="检查点不是日志终点，而是恢复、阅读和下一章采纳的锚点。先回看变化，再把它投回世界线。"
+        meta={
+          <>
+            <span className="badge badge--jade">
+              {checkpoint ? `第 ${checkpoint.round_index} 轮` : "读取中"}
+            </span>
+            <span className="badge">{worldlineId}</span>
+            {checkpoint?.causal_debt && (
+              <span className="badge badge--gold">{checkpoint.causal_debt}</span>
+            )}
+          </>
+        }
+        steps={[
+          {
+            label: "回看变化",
+            detail: "确认事件、锚点压力和因果债。",
+            active: true,
+          },
+          {
+            label: "读后续",
+            detail: "把这个检查点接到连续阅读。",
+            onClick: () => navigate({ name: "dossierReading", slug, worldlineId }),
+          },
+          {
+            label: "写入下一章",
+            detail: "让作者台采纳这轮涌现剧情。",
+            onClick: () => navigate({ name: "author", slug }),
+          },
+        ]}
+        actions={[
+          {
+            label: "返回世界线",
+            detail: "查看全部任务、检查点和承接状态",
+            onClick: () => navigate({ name: "worldline", slug, worldlineId }),
+          },
+          {
+            label: "继续沙盘",
+            detail: "从这一条世界线继续让角色行动",
+            primary: true,
+            onClick: () => navigate({ name: "sandbox", slug }),
+          },
+          {
+            label: "多视角卷",
+            detail: "生成或查看角色视角正文",
+            onClick: () => navigate({ name: "lens", slug }),
+          },
+        ]}
+      />
 
       <main className="worldline-layout">
         {loading && <EmptyState title="正在回放检查点" hint="正在读取本地检查点证据。" />}

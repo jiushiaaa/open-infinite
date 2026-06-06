@@ -4,6 +4,7 @@ import type { DossierReadingReport, DossierReadingVolumeTab } from "../api/types
 import { renderProse } from "../markdown";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
+import { WorldRunway } from "./WorldRunway";
 import "./dossierReading.css";
 
 type ReadingTab =
@@ -71,18 +72,60 @@ export function DossierReadingPage({
             默认按正文读下去；需要核对时再切到卷宗或展开证据链。
           </p>
         </div>
-        <div className="dossier-hero__actions">
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "worldline", slug, worldlineId })}
-          >
-            世界线
-          </button>
-          <button className="btn btn--ghost" onClick={() => navigate({ name: "author", slug })}>
-            作者采纳台
-          </button>
-        </div>
       </header>
+
+      <WorldRunway
+        eyebrow="当前世界线"
+        title="先按正文读，再回卷宗查证据"
+        summary="这里把连续正文、角色偏见、事件多视角和作者确认稿放在同一个阅读流里。用户不用先懂 artifact，也能顺着故事进入世界状态。"
+        meta={
+          <>
+            <span className="badge badge--jade">
+              {report?.status === "ready" ? "可连续阅读" : "资料不完整"}
+            </span>
+            <span className="badge">{worldlineId}</span>
+            {report?.evidence_panel && (
+              <span className="badge badge--gold">
+                证据 {report.evidence_panel.ref_count}
+              </span>
+            )}
+          </>
+        }
+        steps={[
+          {
+            label: "读正文",
+            detail: "默认进入连续阅读，不先打断沉浸。",
+            active: activeTab === "continuous_reading",
+            onClick: () => setActiveTab("continuous_reading"),
+          },
+          {
+            label: "查卷宗",
+            detail: "切到角色、锚点或事件多视角核对误会。",
+            active:
+              activeTab === "character_volume" ||
+              activeTab === "anchor_volume" ||
+              activeTab === "event_multi_perspective",
+          },
+          {
+            label: "写下一章",
+            detail: "把可读结果带去作者采纳台或继续沙盘。",
+            onClick: () => navigate({ name: "author", slug }),
+          },
+        ]}
+        actions={[
+          {
+            label: "世界线档案",
+            detail: "看因果债、检查点和承接状态",
+            onClick: () => navigate({ name: "worldline", slug, worldlineId }),
+          },
+          {
+            label: "作者采纳台",
+            detail: "把这条阅读结果变成下一章材料",
+            primary: true,
+            onClick: () => navigate({ name: "author", slug }),
+          },
+        ]}
+      />
 
       <main className="dossier-layout">
         {loading && (

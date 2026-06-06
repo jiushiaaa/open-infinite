@@ -2439,3 +2439,19 @@
 - **边界**：
   - 本轮不改后端、不删路由、不改变 API/artifact 契约；只处理真实首屏使用和理解上的 QA 问题。
 
+### 2026-06-06 — World Runway Guidance Layer
+
+- **做了什么**：
+  - 新增 `WorldRunway` 复用导览组件，用同一套古风纸面 UI 呈现“当前位置 / 三步理解路径 / 下一步行动”。
+  - 接入 `DossierReadingPage`：导览从“读正文 -> 查卷宗 -> 写下一章”组织连续阅读、证据和作者采纳入口。
+  - 接入 `WorldlineDossierPage`：导览从“看状态 -> 回放检查点 -> 进入阅读”组织世界线状态、检查点和继续沙盘入口。
+  - 接入 `CheckpointReplayPage`：导览从“回看变化 -> 读后续 -> 写入下一章”把检查点接回阅读、沙盘和作者采纳。
+  - 接入 `AuthorAdoptionPage`：导览从“比较差异 -> 采纳并改写 -> 确认入卷”解释作者工作流。
+  - 同步 `memory.md`、`engine/ui/README.md`、世界沙盘 PRD、路线图和 handoff，记录这是世界内导览层第一版。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - Chrome DevTools 设备度量截图：桌面卷宗阅读、世界线档案、作者采纳台均出现 `WorldRunway`；390px 移动端卷宗阅读无水平溢出。
+  - Diff：`cd D:\AI\open-infinite && git diff --check` 通过。
+- **边界**：
+  - 本轮不改后端、不删任何页面或路由、不改变 API/artifact 契约；只统一世界内理解路径和行动入口。
+

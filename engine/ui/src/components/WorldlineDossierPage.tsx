@@ -3,6 +3,7 @@ import { api } from "../api/client";
 import type { WorldlineDossierReport } from "../api/types";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState } from "./common/States";
+import { WorldRunway } from "./WorldRunway";
 import "./worldlineDossier.css";
 
 export function WorldlineDossierPage({
@@ -66,72 +67,66 @@ export function WorldlineDossierPage({
             汇总来源干预、天命快照审计、因果债、具象代偿、自演任务和检查点。
           </p>
         </div>
-        <div className="worldline-hero__actions">
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "dossierReading", slug, worldlineId })}
-          >
-            卷宗阅读
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() =>
-              navigate({
-                name: "dossierReading",
-                slug,
-                worldlineId,
-                tab: "continuous_reading",
-              })
-            }
-          >
-            连续阅读
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() =>
-              navigate({
-                name: "dossierReading",
-                slug,
-                worldlineId,
-                tab: "character_volume",
-              })
-            }
-          >
-            角色个人卷
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() =>
-              navigate({
-                name: "dossierReading",
-                slug,
-                worldlineId,
-                tab: "event_multi_perspective",
-              })
-            }
-          >
-            事件多视角
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "sandbox", slug })}
-          >
-            继续沙盘
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "lens", slug })}
-          >
-            多视角卷
-          </button>
-          <button
-            className="btn btn--ghost"
-            onClick={() => navigate({ name: "author", slug })}
-          >
-            作者采纳台
-          </button>
-        </div>
       </header>
+
+      <WorldRunway
+        eyebrow="世界线导览"
+        title="先看承接状态，再决定读、回放或继续运行"
+        summary="世界线档案负责解释这条分支为什么还在变：来源干预、天命审计、因果债、自演任务和检查点都汇总在这里。"
+        meta={
+          <>
+            <span className="badge badge--jade">
+              {state?.branch_state?.continuation_status ?? state?.status ?? "new"}
+            </span>
+            <span className="badge">{worldlineId}</span>
+            <span className="badge badge--gold">检查点 {report?.checkpoint_count ?? 0}</span>
+          </>
+        }
+        steps={[
+          {
+            label: "看状态",
+            detail: "确认干预来源、天命审计和因果债。",
+            active: true,
+          },
+          {
+            label: "回放检查点",
+            detail: "从最近一轮看谁记住了什么。",
+            onClick: latestCheckpoint
+              ? () =>
+                  navigate({
+                    name: "checkpoint",
+                    slug,
+                    worldlineId,
+                    runId: latestCheckpoint.run_id,
+                    checkpointId: latestCheckpoint.checkpoint_id,
+                  })
+              : undefined,
+          },
+          {
+            label: "进入阅读",
+            detail: "把世界状态切回连续正文和多视角。",
+            onClick: () => navigate({ name: "dossierReading", slug, worldlineId }),
+          },
+        ]}
+        actions={[
+          {
+            label: "卷宗阅读",
+            detail: "按正文、角色卷和事件多视角继续读",
+            primary: true,
+            onClick: () => navigate({ name: "dossierReading", slug, worldlineId }),
+          },
+          {
+            label: "继续沙盘",
+            detail: "把这条分支交回角色行动",
+            onClick: () => navigate({ name: "sandbox", slug }),
+          },
+          {
+            label: "作者采纳台",
+            detail: "整理成下一章写作材料",
+            onClick: () => navigate({ name: "author", slug }),
+          },
+        ]}
+      />
 
       <main className="worldline-layout">
         {loading && <EmptyState title="正在读取世界线" hint="正在聚合状态、任务和检查点。" />}

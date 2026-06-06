@@ -160,6 +160,7 @@ POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
 - 卷宗阅读页。
 - 多视角活体小说页。
 - 作者采纳台。
+- 世界内导览层 `WorldRunway`，在卷宗阅读、世界线档案、检查点回放和作者采纳台统一呈现当前位置、理解路径和下一步行动。
 
 继续深化方向：
 
