@@ -42,6 +42,51 @@
   gap: var(--space-2);
 }
 
+.character-volume-mobile-guide {
+  display: none;
+  max-width: 1320px;
+  margin: 0 auto var(--space-4);
+}
+
+.character-volume-mobile-guide button {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(45, 104, 92, 0.2);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(221, 233, 224, 0.58), rgba(255, 252, 244, 0.86)),
+    var(--paper);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.character-volume-mobile-guide span,
+.character-volume-mobile-guide strong,
+.character-volume-mobile-guide small {
+  display: block;
+}
+
+.character-volume-mobile-guide span {
+  color: var(--jade);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.character-volume-mobile-guide strong {
+  margin-top: 3px;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.character-volume-mobile-guide small {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
 .character-volume-layout {
   display: grid;
   grid-template-columns: minmax(220px, 260px) minmax(0, 700px) minmax(260px, 320px);
@@ -332,6 +377,12 @@
     justify-content: flex-start;
   }
 
+  .character-volume-mobile-guide {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
   .character-volume-layout {
     display: flex;
     flex-direction: column;
@@ -357,5 +408,55 @@
   .character-volume-cover dl,
   .character-volume-memory__timeline {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .character-volume-page {
+    padding: var(--space-3);
+  }
+
+  .character-volume-hero {
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+
+  .character-volume-hero h1 {
+    font-size: 26px;
+    line-height: 1.16;
+  }
+
+  .character-volume-hero p {
+    line-height: 1.58;
+  }
+
+  .character-volume-hero__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .character-volume-hero__actions .btn {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .character-volume-mobile-guide {
+    gap: 6px;
+    margin-bottom: var(--space-3);
+  }
+
+  .character-volume-mobile-guide button {
+    padding: 8px 7px;
+  }
+
+  .character-volume-mobile-guide strong {
+    font-size: 0.84rem;
+  }
+
+  .character-volume-mobile-guide small {
+    display: none;
   }
 }

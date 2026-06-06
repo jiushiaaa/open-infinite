@@ -77,6 +77,9 @@ export function CharacterVolumePage({
   const latestMemory = memory?.entries[memory.entries.length - 1] ?? null;
   const memoryStats = summarizeMemory(memory);
   const hasVolume = Boolean(activeTab?.body_md);
+  const scrollToCharacterItem = (selector: string) => {
+    document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (loading) return <Loading label="正在翻开角色个人卷…" />;
 
@@ -113,6 +116,29 @@ export function CharacterVolumePage({
       {error && <ErrorState message={error} onRetry={load} />}
       {!error && (
         <>
+          <nav className="character-volume-mobile-guide" aria-label="移动端角色卷导读">
+            <button type="button" onClick={() => scrollToCharacterItem(".character-volume-cover")}>
+              <span>01</span>
+              <strong>读立场</strong>
+              <small>先看他如何解释世界</small>
+            </button>
+            <button type="button" onClick={() => scrollToCharacterItem(".character-volume-memory")}>
+              <span>02</span>
+              <strong>查记忆</strong>
+              <small>核对误会和秘密可见性</small>
+            </button>
+            <button type="button" onClick={() => scrollToCharacterItem(".character-volume-index")}>
+              <span>03</span>
+              <strong>换角色</strong>
+              <small>切到其他主观视角</small>
+            </button>
+            <button type="button" onClick={() => navigate({ name: "author", slug })}>
+              <span>04</span>
+              <strong>作者台</strong>
+              <small>把角色弧写入下一章</small>
+            </button>
+          </nav>
+
           <WorldRunway
             eyebrow="角色主观链"
             title="先读他的立场，再看他的记忆怎样改变行动"
