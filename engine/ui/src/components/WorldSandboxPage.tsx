@@ -22,6 +22,8 @@ function openReadableRoute(route: string) {
 export function WorldSandboxPage({ slug }: { slug: string }) {
   const controlRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLElement | null>(null);
+  const strategyBoardRef = useRef<HTMLElement | null>(null);
+  const actionChainRef = useRef<HTMLElement | null>(null);
   const eventTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const interventionTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [majorEvent, setMajorEvent] = useState(DEFAULT_EVENT);
@@ -134,6 +136,13 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     controlRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const focusResults = () =>
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const focusStrategyBoard = () =>
+    (strategyBoardRef.current ?? actionChainRef.current)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  const focusActionChain = () =>
+    actionChainRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   function openInterventionControls() {
     setInterventionDraftOpen(true);
     window.requestAnimationFrame(() => {
@@ -298,6 +307,47 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       })
       .slice(0, 4);
   }, [round]);
+  const resultReadingGuide = round
+    ? [
+        {
+          label: "先读总览",
+          title: "本轮已发生",
+          detail: `${actionCount} 个角色行动、${memoryEntries} 条主观记忆先被压成总览，避免直接掉进证据堆。`,
+          action: "回看总览",
+          onClick: focusResults,
+        },
+        {
+          label: "再看暗线",
+          title: strategyInteractions.length
+            ? `${strategyInteractions.length} 条算计路线`
+            : "没有策略暗线时跳过",
+          detail: strategyInteractions.length
+            ? "先看谁在试探谁、误判在哪里，再决定要不要把暗线回填到下一轮。"
+            : "本轮没有真实模型策略暗线，可以直接追角色行动链。",
+          action: strategyInteractions.length ? "看策略棋盘" : "追角色行动",
+          onClick: focusStrategyBoard,
+        },
+        {
+          label: "然后追角色行动",
+          title: `${actionCount} 条行动链`,
+          detail: "逐个角色看意图、行动、记忆种子和信息传播，理解世界为什么这样走。",
+          action: "追行动链",
+          onClick: focusActionChain,
+        },
+        {
+          label: "最后选择出口",
+          title: "读正文或继续运行",
+          detail: "读成正文、看世界线、生成多视角，或把余波放回运行台继续推演。",
+          action: "读成正文",
+          onClick: () =>
+            navigate({
+              name: "dossierReading",
+              slug,
+              worldlineId: round.worldline_id || "main",
+            }),
+        },
+      ]
+    : [];
   const eventSeedDeck = useMemo<
     Array<{ id: string; label: string; title: string; detail: string; event: string }>
   >(() => {
@@ -1279,8 +1329,35 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   </button>
                 </div>
               </section>
+              <section
+                className="sandbox-section sandbox-result-reading-guide"
+                aria-label="结果阅读顺序"
+              >
+                <div className="sandbox-section__title">
+                  <div>
+                    <p className="tiny muted">结果阅读顺序</p>
+                    <h2>先读懂这轮，再进入证据和下一章</h2>
+                  </div>
+                  <span className="badge badge--jade">跑后导读</span>
+                </div>
+                <div className="sandbox-result-reading-guide__grid">
+                  {resultReadingGuide.map((item) => (
+                    <article key={item.label}>
+                      <span>{item.label}</span>
+                      <strong>{item.title}</strong>
+                      <p className="muted tiny">{item.detail}</p>
+                      <div className="sandbox-result-reading-guide__actions">
+                        <button className="btn btn--ghost tiny" onClick={item.onClick}>
+                          {item.action}
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
               {strategyInteractions.length > 0 && (
                 <section
+                  ref={strategyBoardRef}
                   className="sandbox-section sandbox-strategy-board"
                   aria-label="本轮策略棋盘"
                 >
@@ -1549,7 +1626,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                     </p>
                   </section>
                 )}
-              <section className="sandbox-section">
+              <section className="sandbox-section" ref={actionChainRef}>
                 <div className="sandbox-section__title">
                   <h2>角色行动链</h2>
                   <span className="badge badge--jade">

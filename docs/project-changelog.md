@@ -4386,3 +4386,23 @@
 - **边界**：
   - 本轮只改前端沙盘页空态导引、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Result Reading Guide
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“本轮已发生”结果承接台之后新增“结果阅读顺序”。
+  - 跑完一轮后，页面会先给出“先读总览 / 再看暗线 / 然后追角色行动 / 最后选择出口”四步导读，避免用户直接掉进策略、干预约束、角色行动和记忆证据堆。
+  - 导读台按钮可回看结果总览、滚到策略棋盘或角色行动链，也可直接进入卷宗阅读；没有策略暗线时，第二步会提示可跳过并追角色行动。
+  - 扩展 `check:sandbox-runner-ux`，锁定结果阅读顺序标记、滚动 helper、位置顺序、样式结构和移动端单列折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少结果阅读顺序时失败，错误包括 `completed round should provide a result reading order`、`result reading guide should name the post-run reading order`、`result reading guide should bridge from result summary to detailed evidence` 和移动端折叠缺失。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.95 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页结果导读、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

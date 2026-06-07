@@ -992,6 +992,68 @@
   justify-content: center;
 }
 
+.sandbox-result-reading-guide {
+  border-color: rgba(151, 109, 44, 0.24);
+  background:
+    linear-gradient(90deg, rgba(255, 249, 235, 0.56), transparent 46%),
+    var(--paper-raised);
+}
+
+.sandbox-result-reading-guide .sandbox-section__title > div {
+  min-width: 0;
+}
+
+.sandbox-result-reading-guide .sandbox-section__title p {
+  margin: 0 0 3px;
+}
+
+.sandbox-result-reading-guide__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.sandbox-result-reading-guide__grid article {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(151, 109, 44, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.74);
+}
+
+.sandbox-result-reading-guide__grid span {
+  color: var(--cinnabar-dark);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.sandbox-result-reading-guide__grid strong {
+  color: var(--ink);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-result-reading-guide__grid p {
+  margin: 0;
+  line-height: 1.65;
+}
+
+.sandbox-result-reading-guide__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-self: end;
+  margin-top: var(--space-1);
+}
+
+.sandbox-result-reading-guide__actions .btn {
+  min-width: 108px;
+}
+
 .sandbox-strategy-board {
   border-color: rgba(151, 109, 44, 0.32);
   background:
@@ -1590,6 +1652,7 @@
   .sandbox-result-bridge,
   .sandbox-result-bridge__signals,
   .sandbox-preflight-map__grid,
+  .sandbox-result-reading-guide__grid,
   .sandbox-event-seeds__grid,
   .sandbox-event-preview__grid,
   .sandbox-intervention-preview__grid {
@@ -1705,6 +1768,8 @@
   .sandbox-result-bridge__actions,
   .sandbox-preflight-map__grid,
   .sandbox-preflight-map__actions,
+  .sandbox-result-reading-guide__grid,
+  .sandbox-result-reading-guide__actions,
   .sandbox-event-seeds__grid,
   .sandbox-event-seeds__actions,
   .sandbox-event-preview__grid,
@@ -1715,6 +1780,7 @@
   }
 
   .sandbox-preflight-map__actions,
+  .sandbox-result-reading-guide__actions,
   .sandbox-event-seeds__head,
   .sandbox-event-seeds__actions,
   .sandbox-event-preview__head,
@@ -1731,6 +1797,7 @@
   }
 
   .sandbox-preflight-map__actions .btn,
+  .sandbox-result-reading-guide__actions .btn,
   .sandbox-event-seeds__actions .btn,
   .sandbox-event-preview__actions .btn,
   .sandbox-intervention-preview__actions .btn {

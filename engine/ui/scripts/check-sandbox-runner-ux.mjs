@@ -55,6 +55,14 @@ const requiredPageMarkers = [
   ["看世界线", "result bridge should route the user to worldline consequences"],
   ["生成多视角", "result bridge should route the user to multi-perspective reading"],
   ["再推一轮", "result bridge should let the user continue the sandbox loop"],
+  ["sandbox-result-reading-guide", "completed round should provide a result reading order"],
+  ["结果阅读顺序", "result reading guide should name the post-run reading order"],
+  ["先读总览", "result reading guide should start with the summary"],
+  ["再看暗线", "result reading guide should direct users to strategy when present"],
+  ["然后追角色行动", "result reading guide should direct users to the action chain"],
+  ["最后选择出口", "result reading guide should end with reading and continuation exits"],
+  ["focusStrategyBoard", "result reading guide should scroll to the strategy board"],
+  ["focusActionChain", "result reading guide should scroll to the action chain"],
   ["sandbox-strategy-board", "strategy board should surface character tactics after a round"],
   ["谁在算计谁", "strategy board should explain the relationship between actors and targets"],
   ["私下目的", "strategy board should explain each actor's private goal"],
@@ -104,7 +112,8 @@ const eventPreviewIndex = page.indexOf("sandbox-event-preview");
 const eventFieldIndex = page.indexOf("sandbox-runner__field--event");
 const advancedInterventionIndex = page.indexOf("sandbox-runner__advanced");
 const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
-const actionChainIndex = page.indexOf("角色行动链");
+const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
+const actionChainIndex = page.indexOf("<h2>角色行动链</h2>");
 const possibilitiesIndex = page.indexOf("后续剧情可能性");
 const queuePossibilityIndex = page.indexOf("queueNextPossibility");
 const strategyContinuationIndex = page.indexOf("sandbox-strategy-continuation");
@@ -135,6 +144,15 @@ if (
 }
 if (resultBridgeIndex === -1 || actionChainIndex === -1 || resultBridgeIndex > actionChainIndex) {
   failures.push("completed round result bridge should appear before detailed action chains");
+}
+if (
+  resultBridgeIndex === -1 ||
+  resultReadingGuideIndex === -1 ||
+  actionChainIndex === -1 ||
+  resultReadingGuideIndex < resultBridgeIndex ||
+  resultReadingGuideIndex > actionChainIndex
+) {
+  failures.push("result reading guide should bridge from result summary to detailed evidence");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -206,6 +224,9 @@ const requiredCssMarkers = [
   [".sandbox-result-bridge__signals", "result bridge signal styling is missing"],
   [".sandbox-result-bridge__actions", "result bridge action styling is missing"],
   [".sandbox-result-bridge__actions .btn", "result bridge action buttons should have stable sizing"],
+  [".sandbox-result-reading-guide", "result reading guide styling is missing"],
+  [".sandbox-result-reading-guide__grid", "result reading guide grid styling is missing"],
+  [".sandbox-result-reading-guide__actions", "result reading guide action styling is missing"],
   [".sandbox-strategy-board", "strategy board styling is missing"],
   [".sandbox-strategy-board__grid", "strategy board grid styling is missing"],
   [".sandbox-strategy-card__route", "strategy card route styling is missing"],
@@ -232,6 +253,14 @@ for (const [marker, message] of requiredCssMarkers) {
 
 const mobileMediaIndex = css.indexOf("@media (max-width: 680px)");
 const mobileActionsIndex = css.indexOf(".sandbox-result-bridge__actions", mobileMediaIndex);
+const mobileReadingGuideGridIndex = css.indexOf(
+  ".sandbox-result-reading-guide__grid",
+  mobileMediaIndex,
+);
+const mobileReadingGuideActionsIndex = css.indexOf(
+  ".sandbox-result-reading-guide__actions",
+  mobileMediaIndex,
+);
 const mobilePreflightGridIndex = css.indexOf(".sandbox-preflight-map__grid", mobileMediaIndex);
 const mobilePreflightActionsIndex = css.indexOf(
   ".sandbox-preflight-map__actions",
@@ -248,6 +277,12 @@ const mobilePreviewActionsIndex = css.indexOf(
 );
 if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
   failures.push("result bridge actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileReadingGuideGridIndex === -1) {
+  failures.push("result reading guide grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileReadingGuideActionsIndex === -1) {
+  failures.push("result reading guide actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobilePreflightGridIndex === -1) {
   failures.push("pre-run product map grid should collapse in the mobile media query");
