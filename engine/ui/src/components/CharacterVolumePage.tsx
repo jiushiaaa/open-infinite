@@ -75,6 +75,11 @@ export function CharacterVolumePage({
   const characterName =
     activeTab?.character_name || memory?.entries[0]?.character_name || characterId;
   const latestMemory = memory?.entries[memory.entries.length - 1] ?? null;
+  const primaryMisbelief =
+    memory?.entries
+      .slice()
+      .reverse()
+      .flatMap((entry) => entry.misbeliefs ?? [])[0] ?? null;
   const memoryStats = summarizeMemory(memory);
   const hasVolume = Boolean(activeTab?.body_md);
   const scrollToCharacterItem = (selector: string) => {
@@ -192,6 +197,56 @@ export function CharacterVolumePage({
               },
             ]}
           />
+
+          <section className="character-memory-handoff" aria-label="记忆接力台">
+            <div className="character-memory-handoff__lead">
+              <p className="muted tiny">记忆接力台</p>
+              <h2>先抓住这个角色会带着什么进入下一章</h2>
+              <p>
+                把当前立场、最新记忆、首要误会和下一轮行动放在一起，读角色卷时能看见他的偏见怎样继续推动世界。
+              </p>
+            </div>
+            <article>
+              <span>当前立场</span>
+              <strong>{activeTab?.cognitive_bias || latestMemory?.new_belief || "等待角色留下更清晰的主观立场"}</strong>
+              <p>{activeTab?.title || `${characterName} 的角色卷会继续补足他如何解释事件。`}</p>
+              <button className="btn btn--ghost tiny" onClick={() => scrollToCharacterItem(".character-volume-cover")}>
+                读他的立场
+              </button>
+            </article>
+            <article>
+              <span>最新记忆</span>
+              <strong>{latestMemory?.new_belief || "尚无新记忆"}</strong>
+              <p>
+                {latestMemory?.memory_influence ||
+                  latestMemory?.action_outcome?.reason ||
+                  "运行一轮沙盘后，这里会显示记忆如何改变他的选择。"}
+              </p>
+              <button className="btn btn--ghost tiny" onClick={() => scrollToCharacterItem(".character-volume-memory")}>
+                查主观记忆
+              </button>
+            </article>
+            <article>
+              <span>首要误会</span>
+              <strong>{primaryMisbelief || "暂无待回收误会"}</strong>
+              <p>
+                {primaryMisbelief
+                  ? `${memoryStats.misbeliefs} 条误会会影响这个角色下一轮如何理解别人。`
+                  : "当前更适合先积累行动和记忆，再回收误会。"}
+              </p>
+              <button className="btn btn--ghost tiny" onClick={() => scrollToCharacterItem(".character-volume-memory")}>
+                回看误会
+              </button>
+            </article>
+            <article>
+              <span>下一轮行动</span>
+              <strong>{latestMemory?.expected_outcome || latestMemory?.source_action || "回沙盘验证这段记忆"}</strong>
+              <p>把这条角色弧送回世界，让下一轮行动继续消费他的误会、秘密和主观判断。</p>
+              <button className="btn btn--primary tiny" onClick={() => navigate({ name: "author", slug })}>
+                把角色弧送到作者台
+              </button>
+            </article>
+          </section>
 
           <main className="character-volume-layout">
             <aside className="character-volume-index" aria-label="角色卷目录">

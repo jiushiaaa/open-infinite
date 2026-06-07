@@ -3395,3 +3395,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `longline-reading` 契约、不改 artifact。
+
+### 2026-06-07 — Character Memory Handoff Rail
+
+- **做了什么**：
+  - `CharacterVolumePage` 在 `WorldRunway` 后、三栏长阅读布局前新增“记忆接力台”。
+  - 接力台把当前立场、最新主观记忆、首要误会和下一轮行动整理成四枚可点击承接卡。
+  - 四枚入口复用既有 `activeTab`、`latestMemory`、`memoryStats`、`misbeliefs`、`memory_influence`、滚动动作和作者台路由，可读立场、查主观记忆、回看误会或把角色弧送到作者台。
+  - 桌面保持四列扫读，760px 以下折为单列；原有移动端“读立场 / 查记忆 / 换角色 / 作者台”导读条、角色目录、角色卷正文、主观记忆链和证据区全部保留。
+  - 扩展 `check:character-volume-ux`，锁定记忆接力台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:character-volume-ux`，确认缺少记忆接力台时失败。
+  - Focused helper：`pnpm.cmd run check:character-volume-ux` -> `character volume ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端角色个人卷 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `dossier-reading` / `subjective-memory` 契约、不改 artifact。
