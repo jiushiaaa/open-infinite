@@ -105,6 +105,94 @@
   line-height: 1.35;
 }
 
+.faction-pressure-handoff {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: stretch;
+  max-width: 1320px;
+  margin: 0 auto var(--space-5);
+}
+
+.faction-pressure-handoff__lead,
+.faction-pressure-handoff article {
+  min-width: 0;
+  min-height: 210px;
+  border: 1px solid rgba(156, 124, 60, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 252, 244, 0.9), rgba(236, 224, 196, 0.42)),
+    var(--paper);
+  box-shadow: 0 14px 38px rgba(72, 52, 24, 0.07);
+}
+
+.faction-pressure-handoff__lead {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.faction-pressure-handoff__lead h2 {
+  margin: var(--space-1) 0 var(--space-2);
+  font-size: 21px;
+  line-height: 1.32;
+}
+
+.faction-pressure-handoff__lead p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.faction-pressure-handoff article {
+  display: grid;
+  grid-template-rows: auto auto minmax(54px, auto) 1fr auto;
+  gap: 8px;
+  padding: var(--space-3);
+}
+
+.faction-pressure-handoff article > span {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.faction-pressure-handoff article > p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.faction-pressure-handoff article > strong {
+  display: -webkit-box;
+  min-height: 54px;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.faction-pressure-handoff button {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(66, 104, 91, 0.24);
+  border-radius: 7px;
+  background: var(--jade-wash);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.faction-pressure-handoff button:hover {
+  border-color: var(--jade);
+  background: rgba(232, 241, 231, 0.92);
+}
+
 .faction-volume-layout {
   display: grid;
   grid-template-columns: minmax(220px, 260px) minmax(0, 700px) minmax(260px, 320px);
@@ -337,6 +425,10 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     position: static;
   }
+
+  .faction-pressure-handoff {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -357,6 +449,17 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-2);
+  }
+
+  .faction-pressure-handoff {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .faction-pressure-handoff__lead,
+  .faction-pressure-handoff article {
+    min-height: 0;
   }
 
   .faction-volume-layout {

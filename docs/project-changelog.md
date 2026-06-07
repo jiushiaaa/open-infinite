@@ -3411,3 +3411,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端角色个人卷 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `dossier-reading` / `subjective-memory` 契约、不改 artifact。
+
+### 2026-06-07 — Faction Pressure Handoff Rail
+
+- **做了什么**：
+  - `FactionVolumePage` 在 `WorldRunway` 后、三栏势力阅读布局前新增“势力压力接力台”。
+  - 接力台把当前站位、代偿压力、最近 ledger 和下一轮秩序整理成四枚可点击承接卡。
+  - 四枚入口复用既有 `activeVolume`、`domain`、`latestLedger`、`primaryImpact`、`consequence`、滚动动作和作者台路由，可读势力卷封面、查势力代偿、看最近记录或把势力压力送到作者台。
+  - 桌面保持稳定扫读网格，760px 以下折为单列；原有移动端“看站位 / 查代偿 / 换势力 / 作者台”导读条、势力目录、势力正文、因果压力域、最近 ledger 和证据区全部保留。
+  - 扩展 `check:faction-volume-ux`，锁定压力接力台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:faction-volume-ux`，确认缺少压力接力台时失败。
+  - Focused helper：`pnpm.cmd run check:faction-volume-ux` -> `faction volume ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端势力卷 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `dossier-reading` / `worldline-state` 契约、不改 artifact。

@@ -83,6 +83,10 @@ export function FactionVolumePage({
   const consequence = worldlineState?.consequence_state || report?.worldline_dossier?.worldline_state?.consequence_state;
   const domain = consequence?.domains?.faction;
   const latestLedger = consequence?.ledger?.[Math.max(0, (consequence.ledger?.length ?? 1) - 1)];
+  const primaryImpact =
+    latestLedger?.impacts?.find((impact) => impact.domain === "faction") ||
+    latestLedger?.impacts?.[0] ||
+    null;
   const resourceSignals = anchor?.world.factions.length ?? entries.length;
   const activeName = activeEntry?.name || activeVolume?.faction_name || activeVolume?.title || factionId;
   const hasVolume = Boolean(activeVolume?.body_md);
@@ -204,6 +208,67 @@ export function FactionVolumePage({
               },
             ]}
           />
+
+          <section className="faction-pressure-handoff" aria-label="势力压力接力台">
+            <div className="faction-pressure-handoff__lead">
+              <p className="muted tiny">势力压力接力台</p>
+              <h2>先判断这支势力会把代价推向哪里</h2>
+              <p>
+                把当前站位、代偿压力、最近记录和下一轮秩序放在一起，读势力卷时能看见世界如何把个人事件放大成秩序变化。
+              </p>
+            </div>
+            <article>
+              <span>01</span>
+              <p className="muted tiny">当前站位</p>
+              <strong>
+                {activeVolume?.cognitive_bias ||
+                  activeEntry?.hint ||
+                  domain?.current ||
+                  "等待势力站位显形"}
+              </strong>
+              <p>{activeVolume?.title || `${activeName} 会继续争夺解释权。`}</p>
+              <button type="button" onClick={() => scrollToFactionItem(".faction-volume-cover")}>
+                读势力卷封面
+              </button>
+            </article>
+            <article>
+              <span>02</span>
+              <p className="muted tiny">代偿压力</p>
+              <strong>{domain?.pressure || primaryImpact?.pressure || consequence?.summary || "压力待显形"}</strong>
+              <p>
+                {domain?.bearer
+                  ? `承载者：${domain.bearer}`
+                  : "继续运行沙盘后，势力压力会落到资源、秘密或公开秩序。"}
+              </p>
+              <button type="button" onClick={() => scrollToFactionItem(".faction-volume-state")}>
+                查势力代偿
+              </button>
+            </article>
+            <article>
+              <span>03</span>
+              <p className="muted tiny">最近记录</p>
+              <strong>{latestLedger?.major_event || latestLedger?.source_run_id || "暂无 ledger"}</strong>
+              <p>
+                {primaryImpact
+                  ? `${primaryImpact.domain || "domain"}：${primaryImpact.current || "未标注"} · ${
+                      primaryImpact.pressure || "未标注压力"
+                    }`
+                  : "代偿账会记录哪一次事件改变了势力秩序。"}
+              </p>
+              <button type="button" onClick={() => scrollToFactionItem(".faction-volume-state")}>
+                看最近记录
+              </button>
+            </article>
+            <article>
+              <span>04</span>
+              <p className="muted tiny">下一轮秩序</p>
+              <strong>{consequence?.next_round_hint || domain?.current || "回沙盘验证势力压力"}</strong>
+              <p>把这支势力的压力送回作者台，让下一章保留资源、秘密和公开姿态的余波。</p>
+              <button type="button" onClick={() => navigate({ name: "author", slug })}>
+                把势力压力送到作者台
+              </button>
+            </article>
+          </section>
 
           <main className="faction-volume-layout">
             <aside className="faction-volume-index" aria-label="势力卷目录">
