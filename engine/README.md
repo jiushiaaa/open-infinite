@@ -22,6 +22,8 @@
 
 高频世界导航已补 route chunk 预取：`routePagePreload.ts` 作为页面动态 import 的共享注册表，`App.tsx` 和导航预取共用同一份 `routePageLoaders`；`AppShell` 的品牌入口和世界内高频入口会在 hover、键盘 focus 或 pointer down 时提前加载目标页面 chunk。`WorldWorkspaceShell` 的世界扫读带、旅程总线、状态预告、世界脉搏、体验轨道、卷宗速览和主/次动作也会复用同一套预取。当前 `pnpm.cmd run build` 输出入口 JS 约 233.81 kB，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。该层只改前端入口和壳层交互，不新增 API 或 artifact。
 
+世界内当前位置已补语义状态：`AppShell` 顶栏世界内导航会在当前卷宗入口上输出 `aria-current="page"`；角色卷、势力卷和事件卷这些当前路由 chip 也会标记为当前页。`WorldWorkspaceShell` 的旅程总线与体验轨道会用 `aria-current="step"` 标记当前阶段，卷宗速览会用 `aria-current="page"` 标记当前卷宗。该层只改共享壳层语义和检查脚本，不改变外观、路由、预取或 artifact。
+
 `WorldWorkspaceShell` 在沙盘路由下的当前任务已改为“启动一轮推演”，主动作会留在 `#/world/<slug>/sandbox` 并滚到 `WorldSandboxPage` 的 `#sandbox-runner` 运行台；“进入卷宗阅读”改为次动作保留。该交互只改前端路线语义和内部滚动，不新增 API、不改变沙盘请求字段或 artifact。
 
 最近产品化入口：
@@ -61,7 +63,7 @@
 | 后端 | Python package + `lne` CLI + 本地 HTTP API |
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
-| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与世界入口旅程状态、沙盘运行台、最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版；前端路由级拆包、路由感知加载态、路由感知失败恢复态、高频导航预取和共享壳层动作预取已完成第一版 |
+| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与世界入口旅程状态、沙盘运行台、最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版；前端路由级拆包、路由感知加载态、路由感知失败恢复态、高频导航预取、共享壳层动作预取和当前位置语义导航已完成第一版 |
 | 后端验证基线 | `python -m pytest -q` -> `951 passed` |
 | 前端验证基线 | `cd engine/ui && pnpm run build` 通过；入口 JS 约 235.08 kB，页面拆成独立 chunks，无 Vite 大 chunk 警告 |
 | 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、跨章节误会回收、更强 Reviewer 和整章风格润色是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |

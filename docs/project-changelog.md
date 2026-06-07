@@ -4145,3 +4145,21 @@
   - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.08 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
 - **边界**：
   - 本轮只改前端入口错误态、路由拆包结构检查和文档；不新增后端 API，不改变 hash 路由、页面 props、预取机制、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — Semantic Current Navigation
+
+- **做了什么**：
+  - `AppShell` 顶栏世界内卷宗导航在锚定、天命书、沙盘、阅读、长线卷、世界线、多视角、作者台和机制档案当前项上补充 `aria-current="page"`。
+  - 角色卷、势力卷和事件卷这些只在当前路由出现的 active chip 也补充 `aria-current="page"`。
+  - `WorldWorkspaceShell` 的世界旅程总线和世界体验轨道在当前阶段上补充 `aria-current="step"`，卷宗速览当前入口补充 `aria-current="page"`。
+  - 扩展 `check:app-shell-mobile-layout`，锁定当前导航不能只靠 `is-active` 视觉高亮表达。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少顶栏、旅程阶段和卷宗速览 `aria-current` 时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.68 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改共享壳层语义、结构检查脚本和文档；不新增后端 API，不改变视觉样式、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。

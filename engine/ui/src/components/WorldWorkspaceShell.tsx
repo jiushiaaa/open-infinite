@@ -71,6 +71,7 @@ export function WorldWorkspaceShell({
             className={`world-workspace-shell__journey-item${
               stage.status === "active" ? " is-active" : ""
             }`}
+            aria-current={stage.status === "active" ? "step" : undefined}
             {...routeIntent(stage.route)}
             onClick={() => navigate(stage.route)}
             type="button"
@@ -168,6 +169,7 @@ export function WorldWorkspaceShell({
           <button
             key={stage.key}
             className={stage.status === "active" ? "is-active" : ""}
+            aria-current={stage.status === "active" ? "step" : undefined}
             {...routeIntent(stage.route)}
             onClick={() => navigate(stage.route)}
             type="button"
@@ -183,6 +185,7 @@ export function WorldWorkspaceShell({
           <button
             key={dossier.key}
             className={dossier.status === "active" ? "is-active" : ""}
+            aria-current={dossier.status === "active" ? "page" : undefined}
             {...routeIntent(dossier.route)}
             onClick={() => navigate(dossier.route)}
             title={dossier.title}

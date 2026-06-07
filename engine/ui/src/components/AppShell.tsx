@@ -131,6 +131,7 @@ export function AppShell({
             <nav className="world-nav" aria-label="世界内部卷宗">
               <button
                 className={active === "anchor" ? "is-active" : ""}
+                aria-current={active === "anchor" ? "page" : undefined}
                 {...routeIntent({ name: "anchor", slug })}
                 onClick={() => navigate({ name: "anchor", slug })}
                 title="回到世界锚定，检查角色、规则和导入结果"
@@ -139,6 +140,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "tianming" ? "is-active" : ""}
+                aria-current={active === "tianming" ? "page" : undefined}
                 {...routeIntent({ name: "tianming", slug })}
                 onClick={() => navigate({ name: "tianming", slug })}
                 title="确认叙事吸引子、锚点和干预边界"
@@ -147,6 +149,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "sandbox" ? "is-active" : ""}
+                aria-current={active === "sandbox" ? "page" : undefined}
                 {...routeIntent({ name: "sandbox", slug })}
                 onClick={() => navigate({ name: "sandbox", slug })}
                 title="运行角色行动、干预投放和世界自演"
@@ -155,6 +158,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "reading" ? "is-active" : ""}
+                aria-current={active === "reading" ? "page" : undefined}
                 {...routeIntent({
                   name: "dossierReading",
                   slug,
@@ -173,6 +177,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "longline" ? "is-active" : ""}
+                aria-current={active === "longline" ? "page" : undefined}
                 {...routeIntent({
                   name: "longlineReading",
                   slug,
@@ -192,6 +197,7 @@ export function AppShell({
               {route.name === "characterVolume" && (
                 <button
                   className="is-active"
+                  aria-current="page"
                   {...routeIntent({
                     name: "characterVolume",
                     slug,
@@ -214,6 +220,7 @@ export function AppShell({
               {route.name === "factionVolume" && (
                 <button
                   className="is-active"
+                  aria-current="page"
                   {...routeIntent({
                     name: "factionVolume",
                     slug,
@@ -236,6 +243,7 @@ export function AppShell({
               {route.name === "eventPerspective" && (
                 <button
                   className="is-active"
+                  aria-current="page"
                   {...routeIntent({
                     name: "eventPerspective",
                     slug,
@@ -257,6 +265,7 @@ export function AppShell({
               )}
               <button
                 className={active === "worldline" ? "is-active" : ""}
+                aria-current={active === "worldline" ? "page" : undefined}
                 {...routeIntent({ name: "worldline", slug, worldlineId: currentWorldline })}
                 onClick={() =>
                   navigate({ name: "worldline", slug, worldlineId: currentWorldline })
@@ -267,6 +276,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "lens" ? "is-active" : ""}
+                aria-current={active === "lens" ? "page" : undefined}
                 {...routeIntent({ name: "lens", slug })}
                 onClick={() => navigate({ name: "lens", slug })}
                 title="生成世界正史卷、角色个人卷和事件多视角"
@@ -275,6 +285,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "author" ? "is-active" : ""}
+                aria-current={active === "author" ? "page" : undefined}
                 {...routeIntent({ name: "author", slug })}
                 onClick={() => navigate({ name: "author", slug })}
                 title="把沙盘涌现剧情采纳为下一章材料"
@@ -283,6 +294,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "workspace" ? "is-active" : ""}
+                aria-current={active === "workspace" ? "page" : undefined}
                 {...routeIntent({ name: "workspace", slug })}
                 onClick={() => navigate({ name: "workspace", slug })}
                 title="查看旧正史、机制档案和支撑层入口"

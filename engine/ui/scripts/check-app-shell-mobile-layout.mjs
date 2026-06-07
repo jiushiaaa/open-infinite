@@ -61,6 +61,28 @@ if (!appShell.includes("WorldWorkspaceShell")) {
   failures.push("AppShell should delegate world context to a shared WorldWorkspaceShell component");
 }
 
+for (const activeKey of [
+  "anchor",
+  "tianming",
+  "sandbox",
+  "reading",
+  "longline",
+  "worldline",
+  "lens",
+  "author",
+  "workspace",
+]) {
+  if (!appShell.includes(`aria-current={active === "${activeKey}" ? "page" : undefined}`)) {
+    failures.push(`topbar ${activeKey} navigation should expose aria-current for the active world route`);
+  }
+}
+
+for (const activeRoute of ["characterVolume", "factionVolume", "eventPerspective"]) {
+  if (!appShell.includes(`route.name === "${activeRoute}"`) || !appShell.includes('aria-current="page"')) {
+    failures.push(`topbar ${activeRoute} route chip should expose aria-current when shown as active`);
+  }
+}
+
 if (!workspaceShell) {
   failures.push("WorldWorkspaceShell component should exist as the shared world workspace shell");
 }
@@ -119,6 +141,14 @@ if (
 
 if (!workspaceShell.includes("routeContext.stages.map") || !workspaceShell.includes("routeContext.dossiers.map")) {
   failures.push("WorldWorkspaceShell should keep stage and dossier navigation in the shared shell");
+}
+
+if (!workspaceShell.includes('aria-current={stage.status === "active" ? "step" : undefined}')) {
+  failures.push("WorldWorkspaceShell stage navigation should expose aria-current=step for the active journey stage");
+}
+
+if (!workspaceShell.includes('aria-current={dossier.status === "active" ? "page" : undefined}')) {
+  failures.push("WorldWorkspaceShell dossier navigation should expose aria-current=page for the active dossier");
 }
 
 if (!workspaceShell.includes("import { preloadRoutePage } from \"../routePagePreload\";")) {
