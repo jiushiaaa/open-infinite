@@ -42,6 +42,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [queuedStrategyTitle, setQueuedStrategyTitle] = useState("");
   const [queuedActionFocusTitle, setQueuedActionFocusTitle] = useState("");
   const [queuedActionTrailTitle, setQueuedActionTrailTitle] = useState("");
+  const [queuedCausalReceiptTitle, setQueuedCausalReceiptTitle] = useState("");
   const [queuedEventSeedTitle, setQueuedEventSeedTitle] = useState("");
   const [lastRoundLaunchReceipt, setLastRoundLaunchReceipt] = useState<{
     source: string;
@@ -553,6 +554,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       queuedStrategyTitle ||
       queuedActionFocusTitle ||
       queuedActionTrailTitle ||
+      queuedCausalReceiptTitle ||
       queuedEventSeedTitle ||
       "";
     if (!title) return null;
@@ -564,12 +566,15 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           ? "角色行动"
           : queuedActionTrailTitle
             ? "角色弧线"
-            : "事件种子";
+            : queuedCausalReceiptTitle
+              ? "因果回执"
+              : "事件种子";
     const staleInterventionCleared = Boolean(
       queuedPossibilityTitle ||
         queuedStrategyTitle ||
         queuedActionFocusTitle ||
-        queuedActionTrailTitle,
+        queuedActionTrailTitle ||
+        queuedCausalReceiptTitle,
     );
     return {
       title,
@@ -586,6 +591,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     majorEvent,
     queuedActionFocusTitle,
     queuedActionTrailTitle,
+    queuedCausalReceiptTitle,
     queuedEventSeedTitle,
     queuedPossibilityTitle,
     queuedStrategyTitle,
@@ -617,6 +623,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedStrategyTitle("");
     setQueuedActionFocusTitle("");
     setQueuedActionTrailTitle("");
+    setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     try {
       const next = await api.runSandboxRound(slug, {
@@ -744,6 +751,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedStrategyTitle("");
     setQueuedActionFocusTitle("");
     setQueuedActionTrailTitle("");
+    setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -759,6 +767,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedPossibilityTitle("");
     setQueuedActionFocusTitle("");
     setQueuedActionTrailTitle("");
+    setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -771,6 +780,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedPossibilityTitle("");
     setQueuedStrategyTitle("");
     setQueuedActionTrailTitle("");
+    setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -784,6 +794,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionFocusTitle("");
     setQueuedPossibilityTitle("");
     setQueuedStrategyTitle("");
+    setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -795,7 +806,39 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedStrategyTitle("");
     setQueuedActionFocusTitle("");
     setQueuedActionTrailTitle("");
+    setQueuedCausalReceiptTitle("");
     focusEventDraft();
+  }
+
+  function queueCausalReceiptSeed() {
+    if (!round) return;
+    const eventEntry =
+      causalReceiptDeck.find((item) => item.label === "事件入账")?.title ||
+      round.world_state_delta.trigger ||
+      round.major_event ||
+      DEFAULT_EVENT;
+    const causalDebt =
+      causalReceiptDeck.find((item) => item.label === "因果债")?.title ||
+      "因果债继续发酵";
+    const compensation =
+      causalReceiptDeck.find((item) => item.label === "代偿落点")?.title ||
+      "世界开始把代价转移到资源、秘密或关系上";
+    const nextCost =
+      causalReceiptDeck.find((item) => item.label === "下一轮代价")?.title ||
+      "下一轮观察谁会承担这笔账";
+    const title = "追索本轮因果债";
+    setMajorEvent(
+      `${title}：本轮事件「${eventEntry}」留下因果债「${causalDebt}」。代偿落点：${compensation}。下一轮代价：${nextCost}`,
+    );
+    setInterventionContent("");
+    setInterventionTarget("");
+    setQueuedCausalReceiptTitle(title);
+    setQueuedPossibilityTitle("");
+    setQueuedStrategyTitle("");
+    setQueuedActionFocusTitle("");
+    setQueuedActionTrailTitle("");
+    setQueuedEventSeedTitle("");
+    focusControl();
   }
 
   const runnerPanel = (
@@ -1603,7 +1646,15 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                     >
                       追长线卷
                     </button>
+                    <button className="btn btn--ghost tiny" onClick={queueCausalReceiptSeed}>
+                      带入下一轮
+                    </button>
                   </div>
+                  {queuedCausalReceiptTitle && (
+                    <p className="sandbox-causal-receipt__feedback">
+                      已放入运行台：{queuedCausalReceiptTitle}
+                    </p>
+                  )}
                 </section>
                 <dl className="sandbox-result-bridge__stats">
                   {resultBridgeStats.map(([label, value]) => (

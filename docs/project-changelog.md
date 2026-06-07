@@ -4508,3 +4508,19 @@
 - **边界**：
   - 本轮只改前端沙盘页跑后因果解释层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Causal Receipt Continuation
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“本轮因果回执”动作区新增“带入下一轮”。
+  - 点击后会把事件入账、因果债、代偿落点和下一轮代价合成为运行台大事件草稿，草稿来源显示为“因果回执”。
+  - 因果回执回填会清空上一轮临时干预，避免用户误把旧干预重复投放到下一轮。
+  - 运行台的“下一轮草稿已准备”会读取 `queuedCausalReceiptTitle`，并把干预状态提示为旧干预已清空。
+  - 扩展 `check:sandbox-runner-ux`，锁定因果回执下一轮回填 helper、队列状态、草稿来源、反馈样式和按钮文案。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少因果回执回填时失败，错误包括 `causal receipt should have a dedicated next-round queue helper`、`next-round draft should read causal receipt continuation state`、`next-round draft should identify causal receipt as the source` 和 `causal receipt queued feedback styling is missing`。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 其余验证见本轮最终提交记录。
+- **边界**：
+  - 本轮只改前端沙盘页跑后因果回填交互、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
