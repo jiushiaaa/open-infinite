@@ -4242,3 +4242,20 @@
   - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
 - **边界**：
   - 本轮只改共享世界壳层卡片焦点样式、结构检查脚本和文档；不新增后端 API，不改变常态布局、桌面/移动导航结构、hash 路由、route chunk 预取、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — WorldWorkspaceShell Stage Rail Focus
+
+- **做了什么**：
+  - `WorldWorkspaceShell` 的“定界 / 运行 / 阅读 / 采纳”世界体验轨道按钮新增显式 `:focus-visible` 描边。
+  - 体验轨道按钮聚焦时显示纸面聚焦背景和墨色文字，让键盘用户在共享壳层里切换阶段入口时能看清当前焦点。
+  - 扩展 `check:app-shell-mobile-layout`，锁定体验轨道按钮必须保留可见键盘焦点态。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少体验轨道焦点态时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.77 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改共享世界壳层体验轨道焦点样式、结构检查脚本和文档；不新增后端 API，不改变常态布局、桌面/移动导航结构、hash 路由、route chunk 预取、阅读进度、沙盘请求字段或 artifact。

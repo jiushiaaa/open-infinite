@@ -124,6 +124,16 @@ if (
   failures.push("WorldWorkspaceShell dossier buttons should expose a visible keyboard focus state");
 }
 
+const stageButtonFocusRule = findRule(".shell-context__stages button:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(141,\s*50,\s*37,\s*0\.44\)/.test(stageButtonFocusRule) ||
+  !/outline-offset:\s*2px/.test(stageButtonFocusRule) ||
+  !/background:\s*rgba\(255,\s*252,\s*244,\s*0\.9\)/.test(stageButtonFocusRule) ||
+  !/color:\s*var\(--ink\)/.test(stageButtonFocusRule)
+) {
+  failures.push("world experience stage rail buttons should expose a visible keyboard focus state");
+}
+
 const mobileSummaryFocusRule = findRule(".world-workspace-shell__mobile-nav summary:focus-visible");
 if (
   !/outline:\s*2px solid rgba\(141,\s*50,\s*37,\s*0\.46\)/.test(mobileSummaryFocusRule) ||

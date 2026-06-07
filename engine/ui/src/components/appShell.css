@@ -730,6 +730,13 @@
   color: var(--ink);
 }
 
+.shell-context__stages button:focus-visible {
+  outline: 2px solid rgba(141, 50, 37, 0.44);
+  outline-offset: 2px;
+  background: rgba(255, 252, 244, 0.9);
+  color: var(--ink);
+}
+
 .shell-context__stages button.is-active {
   background: var(--ink);
   color: var(--paper-raised);
