@@ -79,6 +79,31 @@ for (const label of ["续读签", "正在读", "下一场", "本场误会", "承
   assert(page.includes(label), `continuity rail should include ${label}`);
 }
 assert(
+  page.includes('className="dossier-reading-compass"'),
+  "continuous reading should expose a pre-reading compass",
+);
+assert(
+  page.indexOf('className="dossier-continuity-rail"') <
+    page.indexOf('className="dossier-reading-compass"') &&
+    page.indexOf('className="dossier-reading-compass"') <
+      page.indexOf('className="dossier-section-stack"'),
+  "pre-reading compass should sit between continuity context and the prose body",
+);
+for (const label of ["本章读感罗盘", "开场钩子", "转折压力", "误会燃料", "下一章悬念"]) {
+  assert(page.includes(label), `pre-reading compass should include ${label}`);
+}
+assert(
+  page.includes("readingCompassItems") &&
+    page.includes("reading_flow") &&
+    page.includes("currentReadingMisbelief"),
+  "pre-reading compass should use real reading flow and misbelief state",
+);
+assert(
+  page.includes("scrollToPageItem(\".dossier-flow\")") &&
+    page.includes("scrollToSection(currentReadingSection.id)"),
+  "pre-reading compass should let readers jump into prose or inspect rhythm details",
+);
+assert(
   page.includes("continuity_threads") && page.includes("chapter_cliffhanger"),
   "continuity rail should use real continuity and cliffhanger fields",
 );
@@ -89,11 +114,18 @@ assert(
 );
 assert(css.includes(".dossier-chapter-rail"), "chapter scene rail should have styles");
 assert(css.includes(".dossier-continuity-rail"), "continuity rail should have styles");
+assert(css.includes(".dossier-reading-compass"), "pre-reading compass should have styles");
 assert(
   /@media \(max-width: 960px\)[\s\S]*\.dossier-continuity-rail__grid[\s\S]*grid-template-columns: 1fr/.test(
     css,
   ),
   "continuity rail should collapse cleanly on tablet widths",
+);
+assert(
+  /@media \(max-width: 960px\)[\s\S]*\.dossier-reading-compass__grid[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "pre-reading compass should collapse cleanly on tablet widths",
 );
 assert(
   /@media \(max-width: 640px\)[\s\S]*\.dossier-chapter-rail__list[\s\S]*overflow-x: auto/.test(

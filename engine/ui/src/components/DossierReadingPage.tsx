@@ -118,6 +118,38 @@ export function DossierReadingPage({
     currentReadingSection?.cognitive_bias?.trim() ||
     misbeliefNodes.find((node) => node.sectionId === currentReadingSection?.id)?.cognitiveBias ||
     "这一场暂无显性误会，但仍会带着证据进入后续阅读。";
+  const readingFlow = report?.continuous_reading?.reading_flow;
+  const readingCompassItems = [
+    {
+      label: "开场钩子",
+      value:
+        readingFlow?.opening_hook ||
+        activeContext.summary ||
+        "先进入正文，让世界状态自己把读者带进去。",
+      detail: "回答这一章为什么值得继续读。",
+    },
+    {
+      label: "转折压力",
+      value:
+        readingFlow?.turning_point ||
+        currentReadingSection?.conflict_turn ||
+        "这一卷会把角色行动和世界代偿继续推向下一处变化。",
+      detail: "提示故事真正开始改变的位置。",
+    },
+    {
+      label: "误会燃料",
+      value: currentReadingMisbelief,
+      detail: "角色不是全知读者，偏差会变成下一轮行动。",
+    },
+    {
+      label: "下一章悬念",
+      value:
+        readingFlow?.next_chapter_hook ||
+        report?.continuous_reading?.chapter_cliffhanger ||
+        "读完这一卷后，可以交给作者台或继续一轮沙盘。",
+      detail: "把阅读自然接回世界运行。",
+    },
+  ];
   const continuityThreadItems = [
     {
       label: "伏笔",
@@ -699,6 +731,42 @@ export function DossierReadingPage({
                     >
                       追本场误会
                     </button>
+                  </div>
+                </section>
+              )}
+
+              {activeTab === "continuous_reading" && currentReadingSection && (
+                <section className="dossier-reading-compass" aria-label="本章读感罗盘">
+                  <div className="dossier-reading-compass__head">
+                    <div>
+                      <p className="tiny muted">本章读感罗盘</p>
+                      <h2>先抓住这一章的读法，再进正文</h2>
+                    </div>
+                    <div className="dossier-reading-compass__actions">
+                      <button
+                        type="button"
+                        className="btn btn--ghost tiny"
+                        onClick={() => scrollToPageItem(".dossier-flow")}
+                      >
+                        看阅读节奏
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--primary tiny"
+                        onClick={() => scrollToSection(currentReadingSection.id)}
+                      >
+                        进入正文
+                      </button>
+                    </div>
+                  </div>
+                  <div className="dossier-reading-compass__grid">
+                    {readingCompassItems.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.value}</strong>
+                        <small>{item.detail}</small>
+                      </article>
+                    ))}
                   </div>
                 </section>
               )}

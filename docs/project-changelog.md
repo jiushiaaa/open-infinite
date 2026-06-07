@@ -3997,3 +3997,23 @@
   - 本轮工具面未暴露 in-app Browser 控制；未做桌面/移动真实截图 smoke，后续有浏览器工具时需补视口验收。
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段，不改 `sandbox_rounds.jsonl`、`worldline_state.json` 或其它沙盘 artifact。
+
+### 2026-06-07 — DossierReading Chapter Compass
+
+- **做了什么**：
+  - `DossierReadingPage` 在“续读签”之后、连续正文之前新增“本章读感罗盘”。
+  - 罗盘从 `continuous_reading.reading_flow`、当前场景误会和 `chapter_cliffhanger` 派生“开场钩子 / 转折压力 / 误会燃料 / 下一章悬念”四枚阅读前信号。
+  - 用户进入正文前可以先理解这一章为什么值得读、哪里会转折、误会怎样驱动下一轮，以及读完后接向哪里。
+  - 罗盘提供“进入正文”和“看阅读节奏”动作，分别复用既有正文场景滚动和阅读节奏区块。
+  - 扩展 `check:dossier-reading-ux`，锁定罗盘位置、真实字段来源、动作和移动端单列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:dossier-reading-ux`，确认缺少 `dossier-reading-compass` 时失败。
+  - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - 后端：`cd engine && python -X utf8 -m pytest -q` -> `951 passed`。
+  - Repo：`git diff --check` 通过；仅有 Windows CRLF 提示。
+  - HTTP smoke：`http://localhost:5183/#/world/my-story/worldlines/root/reading` 返回 200。
+  - 本轮工具面未暴露 in-app Browser 控制；未做桌面/移动真实截图 smoke，后续有浏览器工具时需补视口验收。
+- **边界**：
+  - 本轮只改前端卷宗阅读 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变 `dossier-reading` 响应契约，不改 artifact。
