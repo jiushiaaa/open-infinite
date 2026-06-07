@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { navigate, type Route } from "../routing";
 import { useMotionPref } from "../motion";
 import { readRecentReading, shouldShowRecentReading } from "../readingProgress";
+import { preloadRoutePage } from "../routePagePreload";
 import { getWorldRouteContext } from "../worldRouteContext";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { WorldWorkspaceShell } from "./WorldWorkspaceShell";
@@ -95,6 +96,11 @@ export function AppShell({
 
   const cycleMotion = () =>
     setMotion(motion === "auto" ? "full" : motion === "full" ? "reduced" : "auto");
+  const routeIntent = (target: Route) => ({
+    onMouseEnter: () => preloadRoutePage(target),
+    onFocus: () => preloadRoutePage(target),
+    onPointerDown: () => preloadRoutePage(target),
+  });
 
   return (
     <div className="shell">
@@ -102,6 +108,7 @@ export function AppShell({
         <div className="topbar__left">
           <button
             className="brand"
+            {...routeIntent({ name: "entry" })}
             onClick={() => navigate({ name: "entry" })}
             title="返回故事入口"
           >
@@ -124,6 +131,7 @@ export function AppShell({
             <nav className="world-nav" aria-label="世界内部卷宗">
               <button
                 className={active === "anchor" ? "is-active" : ""}
+                {...routeIntent({ name: "anchor", slug })}
                 onClick={() => navigate({ name: "anchor", slug })}
                 title="回到世界锚定，检查角色、规则和导入结果"
               >
@@ -131,6 +139,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "tianming" ? "is-active" : ""}
+                {...routeIntent({ name: "tianming", slug })}
                 onClick={() => navigate({ name: "tianming", slug })}
                 title="确认叙事吸引子、锚点和干预边界"
               >
@@ -138,6 +147,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "sandbox" ? "is-active" : ""}
+                {...routeIntent({ name: "sandbox", slug })}
                 onClick={() => navigate({ name: "sandbox", slug })}
                 title="运行角色行动、干预投放和世界自演"
               >
@@ -145,6 +155,11 @@ export function AppShell({
               </button>
               <button
                 className={active === "reading" ? "is-active" : ""}
+                {...routeIntent({
+                  name: "dossierReading",
+                  slug,
+                  worldlineId: currentWorldline,
+                })}
                 onClick={() =>
                   navigate({
                     name: "dossierReading",
@@ -158,6 +173,11 @@ export function AppShell({
               </button>
               <button
                 className={active === "longline" ? "is-active" : ""}
+                {...routeIntent({
+                  name: "longlineReading",
+                  slug,
+                  worldlineId: currentWorldline,
+                })}
                 onClick={() =>
                   navigate({
                     name: "longlineReading",
@@ -172,6 +192,12 @@ export function AppShell({
               {route.name === "characterVolume" && (
                 <button
                   className="is-active"
+                  {...routeIntent({
+                    name: "characterVolume",
+                    slug,
+                    worldlineId: currentWorldline,
+                    characterId: route.characterId,
+                  })}
                   onClick={() =>
                     navigate({
                       name: "characterVolume",
@@ -188,6 +214,12 @@ export function AppShell({
               {route.name === "factionVolume" && (
                 <button
                   className="is-active"
+                  {...routeIntent({
+                    name: "factionVolume",
+                    slug,
+                    worldlineId: currentWorldline,
+                    factionId: route.factionId,
+                  })}
                   onClick={() =>
                     navigate({
                       name: "factionVolume",
@@ -204,6 +236,12 @@ export function AppShell({
               {route.name === "eventPerspective" && (
                 <button
                   className="is-active"
+                  {...routeIntent({
+                    name: "eventPerspective",
+                    slug,
+                    worldlineId: currentWorldline,
+                    eventId: route.eventId,
+                  })}
                   onClick={() =>
                     navigate({
                       name: "eventPerspective",
@@ -219,6 +257,7 @@ export function AppShell({
               )}
               <button
                 className={active === "worldline" ? "is-active" : ""}
+                {...routeIntent({ name: "worldline", slug, worldlineId: currentWorldline })}
                 onClick={() =>
                   navigate({ name: "worldline", slug, worldlineId: currentWorldline })
                 }
@@ -228,6 +267,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "lens" ? "is-active" : ""}
+                {...routeIntent({ name: "lens", slug })}
                 onClick={() => navigate({ name: "lens", slug })}
                 title="生成世界正史卷、角色个人卷和事件多视角"
               >
@@ -235,6 +275,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "author" ? "is-active" : ""}
+                {...routeIntent({ name: "author", slug })}
                 onClick={() => navigate({ name: "author", slug })}
                 title="把沙盘涌现剧情采纳为下一章材料"
               >
@@ -242,6 +283,7 @@ export function AppShell({
               </button>
               <button
                 className={active === "workspace" ? "is-active" : ""}
+                {...routeIntent({ name: "workspace", slug })}
                 onClick={() => navigate({ name: "workspace", slug })}
                 title="查看旧正史、机制档案和支撑层入口"
               >

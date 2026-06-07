@@ -9,6 +9,7 @@ import {
 } from "react";
 import { AppShell } from "./components/AppShell";
 import { writeRecentReading } from "./readingProgress";
+import { routePageLoaders } from "./routePagePreload";
 import { useRoute } from "./routing";
 
 function loadPage(
@@ -21,55 +22,55 @@ function loadPage(
 }
 
 const StoryEntryPage = lazy(() =>
-  loadPage(() => import("./components/StoryEntryPage"), "StoryEntryPage"),
+  loadPage(routePageLoaders.entry, "StoryEntryPage"),
 );
 const WorkspacePage = lazy(() =>
-  loadPage(() => import("./components/WorkspacePage"), "WorkspacePage"),
+  loadPage(routePageLoaders.workspace, "WorkspacePage"),
 );
 const WorldAnchorPage = lazy(() =>
-  loadPage(() => import("./components/WorldAnchorPage"), "WorldAnchorPage"),
+  loadPage(routePageLoaders.anchor, "WorldAnchorPage"),
 );
 const ImportNovelPage = lazy(() =>
-  loadPage(() => import("./components/ImportNovelPage"), "ImportNovelPage"),
+  loadPage(routePageLoaders.import, "ImportNovelPage"),
 );
 const GenesisPage = lazy(() =>
-  loadPage(() => import("./components/GenesisPage"), "GenesisPage"),
+  loadPage(routePageLoaders.genesis, "GenesisPage"),
 );
 const WorldSandboxPage = lazy(() =>
-  loadPage(() => import("./components/WorldSandboxPage"), "WorldSandboxPage"),
+  loadPage(routePageLoaders.sandbox, "WorldSandboxPage"),
 );
 const TianmingPage = lazy(() =>
-  loadPage(() => import("./components/TianmingPage"), "TianmingPage"),
+  loadPage(routePageLoaders.tianming, "TianmingPage"),
 );
 const CharacterLensPage = lazy(() =>
-  loadPage(() => import("./components/CharacterLensPage"), "CharacterLensPage"),
+  loadPage(routePageLoaders.lens, "CharacterLensPage"),
 );
 const AuthorAdoptionPage = lazy(() =>
-  loadPage(() => import("./components/AuthorAdoptionPage"), "AuthorAdoptionPage"),
+  loadPage(routePageLoaders.author, "AuthorAdoptionPage"),
 );
 const WorldlineDossierPage = lazy(() =>
-  loadPage(() => import("./components/WorldlineDossierPage"), "WorldlineDossierPage"),
+  loadPage(routePageLoaders.worldline, "WorldlineDossierPage"),
 );
 const DossierReadingPage = lazy(() =>
-  loadPage(() => import("./components/DossierReadingPage"), "DossierReadingPage"),
+  loadPage(routePageLoaders.dossierReading, "DossierReadingPage"),
 );
 const WorldVolumePage = lazy(() =>
-  loadPage(() => import("./components/WorldVolumePage"), "WorldVolumePage"),
+  loadPage(routePageLoaders.worldChronicle, "WorldVolumePage"),
 );
 const LonglineReadingPage = lazy(() =>
-  loadPage(() => import("./components/LonglineReadingPage"), "LonglineReadingPage"),
+  loadPage(routePageLoaders.longlineReading, "LonglineReadingPage"),
 );
 const CharacterVolumePage = lazy(() =>
-  loadPage(() => import("./components/CharacterVolumePage"), "CharacterVolumePage"),
+  loadPage(routePageLoaders.characterVolume, "CharacterVolumePage"),
 );
 const FactionVolumePage = lazy(() =>
-  loadPage(() => import("./components/FactionVolumePage"), "FactionVolumePage"),
+  loadPage(routePageLoaders.factionVolume, "FactionVolumePage"),
 );
 const EventPerspectivePage = lazy(() =>
-  loadPage(() => import("./components/EventPerspectivePage"), "EventPerspectivePage"),
+  loadPage(routePageLoaders.eventPerspective, "EventPerspectivePage"),
 );
 const CheckpointReplayPage = lazy(() =>
-  loadPage(() => import("./components/CheckpointReplayPage"), "CheckpointReplayPage"),
+  loadPage(routePageLoaders.checkpoint, "CheckpointReplayPage"),
 );
 
 function RouteLoading() {

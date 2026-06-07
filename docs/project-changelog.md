@@ -4080,3 +4080,21 @@
   - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `232.47 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
 - **边界**：
   - 本轮只改前端入口、壳层加载/错误态样式、检查脚本和文档；不新增后端 API，不改变 hash 路由、页面 props、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — Route Intent Chunk Prefetch
+
+- **做了什么**：
+  - 新增 `routePagePreload.ts`，把各 route 对应的页面动态 import 收敛为共享 `routePageLoaders`。
+  - `App.tsx` 的 `React.lazy` 页面加载和导航预取共用同一份 loader registry，避免懒加载和预取维护两份页面映射。
+  - 新增 `preloadRoutePage(route)`，用 `Set<Route["name"]>` 避免重复预取，并在预取失败后允许下次重试。
+  - `AppShell` 的品牌入口和世界内高频导航在 `onMouseEnter`、`onFocus`、`onPointerDown` 时预取目标页面 chunk。
+  - 覆盖锚定、天命书、沙盘、卷宗阅读、长线卷、世界线、多视角、作者台、机制档案等世界内高频入口。
+  - 扩展 `check:route-code-splitting`，锁定共享 loader registry、预取 helper、失败重试和导航意图预取。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:route-code-splitting`，确认缺少 shared loader、预取 helper 和导航意图预取时失败。
+  - Focused helper：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 移动布局：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `233.56 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+- **边界**：
+  - 本轮只改前端入口、导航壳层、检查脚本和文档；不新增后端 API，不改变 hash 路由、页面 props、阅读进度、沙盘请求字段或 artifact。
