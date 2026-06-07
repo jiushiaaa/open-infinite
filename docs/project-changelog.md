@@ -3809,3 +3809,20 @@
   - In-app Browser smoke：`http://localhost:5181/#/world/my-story/worldlines/main/factions/%E8%8B%8D%E6%BE%9C%E6%B4%BE` 可打开势力卷，代偿弧线渲染 3 段 ledger、操作按钮可见、无控制台 error；390px 下弧线单列且无水平溢出。
 - **边界**：
   - 本轮只改前端势力卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `dossier-reading` / `worldline-state` 响应契约，不改 artifact。
+
+### 2026-06-07 — Event Misread Arc
+
+- **做了什么**：
+  - `EventPerspectivePage` 在“事件信息差接力台”和三栏事件阅读布局之间新增“事件误读弧线”。
+  - 误读弧线从既有 `perspective_biases`、`information_gap` 和 `next_actions` 派生最近四条信号，把谁看错了、正史裂缝、偏差怎样发酵和下一步回收整理成连续卡片。
+  - 用户读事件卷时能从信息差继续看见同一事件怎样分裂成不同角色的下一次判断，并可直接看全部误读或去长线卷回收。
+  - 扩展 `check:event-perspective-ux`，锁定误读弧线位置、真实字段引用、桌面四列和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:event-perspective-ux`，确认缺少 `eventMisreadArcSignals` 时失败。
+  - Focused helper：`pnpm.cmd run check:event-perspective-ux` -> `event perspective ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Repo：`git diff --check` 通过；仅有 Windows CRLF 提示。
+  - In-app Browser smoke：`http://127.0.0.1:5184/#/world/my-story/worldlines/main/events/main/perspectives` 可打开事件卷，真实数据下误读弧线渲染 4 张卡片，操作按钮可见、无控制台 error；390px 下弧线单列且无水平溢出。
+- **边界**：
+  - 本轮只改前端事件多视角 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `event-perspective` 响应契约，不改 artifact。

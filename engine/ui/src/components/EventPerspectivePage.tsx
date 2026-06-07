@@ -15,6 +15,16 @@ const BEAT_LABELS: Record<string, string> = {
   cliffhanger: "悬念",
 };
 
+interface EventMisreadArcSignal {
+  key: string;
+  actor: string;
+  source: string;
+  canonGap: string;
+  bias: string;
+  recovery: string;
+  isPrimary: boolean;
+}
+
 export function EventPerspectivePage({
   slug,
   worldlineId,
@@ -59,6 +69,10 @@ export function EventPerspectivePage({
     report?.next_actions.find((action) => action.id === "author" || action.route.includes("/author")) ||
     report?.next_actions[0] ||
     null;
+  const eventMisreadArcSignals = useMemo(
+    () => buildEventMisreadArcSignals(report),
+    [report],
+  );
   const scrollToEventItem = (selector: string) => {
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -240,6 +254,57 @@ export function EventPerspectivePage({
             </article>
           </section>
 
+          {eventMisreadArcSignals.length > 0 && (
+            <section className="event-misread-arc" aria-label="事件误读弧线">
+              <div className="event-misread-arc__head">
+                <div>
+                  <p className="muted tiny">事件误读弧线</p>
+                  <h2>同一事件正在分裂成不同人的下一次判断</h2>
+                </div>
+                <span className="badge badge--gold">
+                  {eventMisreadArcSignals.length} 条误读
+                </span>
+              </div>
+              <div className="event-misread-arc__grid">
+                {eventMisreadArcSignals.map((signal) => (
+                  <article
+                    className={`event-misread-arc__step${signal.isPrimary ? " is-primary" : ""}`}
+                    key={signal.key}
+                  >
+                    <span className="event-misread-arc__source">{signal.source}</span>
+                    <strong>{signal.actor}</strong>
+                    <dl>
+                      <div>
+                        <dt>谁看错了</dt>
+                        <dd>{signal.actor}</dd>
+                      </div>
+                      <div>
+                        <dt>正史裂缝</dt>
+                        <dd>{signal.canonGap}</dd>
+                      </div>
+                      <div>
+                        <dt>偏差怎样发酵</dt>
+                        <dd>{signal.bias}</dd>
+                      </div>
+                      <div>
+                        <dt>下一步回收</dt>
+                        <dd>{signal.recovery}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                ))}
+              </div>
+              <div className="event-misread-arc__actions">
+                <button className="btn btn--ghost" onClick={() => scrollToEventItem(".event-perspective-bias-list")}>
+                  看全部误读
+                </button>
+                <button className="btn btn--primary" onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}>
+                  去长线卷回收
+                </button>
+              </div>
+            </section>
+          )}
+
           <main className="event-perspective-layout">
             <aside className="event-perspective-index" aria-label="事件节拍">
               <div className="event-perspective-index__head">
@@ -370,6 +435,48 @@ export function EventPerspectivePage({
       )}
     </div>
   );
+}
+
+function buildEventMisreadArcSignals(report: EventPerspectiveReport | null): EventMisreadArcSignal[] {
+  if (!report) return [];
+  const information_gap = report.information_gap;
+  const nextAction =
+    report.next_actions.find((action) => action.id === "longline" || action.route.includes("/longline")) ||
+    report.next_actions.find((action) => action.id === "author" || action.route.includes("/author")) ||
+    report.next_actions[0];
+  const recovery =
+    nextAction?.reason ||
+    "把这次误读送入长线卷或作者台，让下一章继续消费这条偏差。";
+  const biasSignals = report.perspective_biases.slice(0, 4).map((bias, index) => ({
+    key: `${bias.source || bias.id}-${index}`,
+    actor: bias.label || bias.source || "未知视角",
+    source: bias.source || `误读 ${index + 1}`,
+    canonGap:
+      information_gap.canon_vs_character ||
+      information_gap.unknown_canon_facts ||
+      "正史和角色视角尚未形成明确差异。",
+    bias: bias.cognitive_bias || information_gap.misbeliefs || "这名角色还没有给出明确偏差。",
+    recovery,
+    isPrimary: index === 0,
+  }));
+  if (biasSignals.length > 0) return biasSignals;
+  if (!information_gap.misbeliefs && !information_gap.canon_vs_character && !information_gap.unknown_canon_facts) {
+    return [];
+  }
+  return [
+    {
+      key: "event-information-gap",
+      actor: "事件视角",
+      source: report.event_id,
+      canonGap:
+        information_gap.canon_vs_character ||
+        information_gap.unknown_canon_facts ||
+        "正史和角色视角尚未形成明确差异。",
+      bias: information_gap.misbeliefs || "误会尚未拆分到具体角色。",
+      recovery,
+      isPrimary: true,
+    },
+  ];
 }
 
 function handleAction(

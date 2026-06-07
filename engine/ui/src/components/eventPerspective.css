@@ -159,6 +159,105 @@
   background: rgba(144, 46, 31, 0.1);
 }
 
+.event-misread-arc {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(126, 43, 30, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 253, 246, 0.94), rgba(250, 245, 233, 0.74)),
+    rgba(255, 253, 246, 0.9);
+}
+
+.event-misread-arc__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.event-misread-arc__head p,
+.event-misread-arc__head h2 {
+  margin: 0;
+}
+
+.event-misread-arc__head h2 {
+  margin-top: 4px;
+  font-family: var(--font-serif);
+  font-size: 1.18rem;
+  line-height: 1.35;
+}
+
+.event-misread-arc__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.event-misread-arc__step {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(120, 91, 54, 0.14);
+  background: rgba(255, 255, 252, 0.76);
+}
+
+.event-misread-arc__step.is-primary {
+  border-color: rgba(126, 43, 30, 0.34);
+  background:
+    linear-gradient(135deg, rgba(144, 46, 31, 0.08), rgba(255, 253, 246, 0.9)),
+    rgba(255, 253, 246, 0.9);
+}
+
+.event-misread-arc__source {
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 7px;
+  border: 1px solid rgba(126, 43, 30, 0.2);
+  color: #8d3428;
+  background: rgba(144, 46, 31, 0.07);
+  font-size: 0.72rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.event-misread-arc__step strong {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.event-misread-arc__step dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.event-misread-arc__step dl div {
+  display: grid;
+  gap: 3px;
+}
+
+.event-misread-arc__step dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.event-misread-arc__step dd {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.58;
+  overflow-wrap: anywhere;
+}
+
+.event-misread-arc__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .event-perspective-layout {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(260px, 340px);
@@ -417,6 +516,14 @@
   }
 
   .event-gap-handoff {
+    grid-template-columns: 1fr;
+  }
+
+  .event-misread-arc__head {
+    display: grid;
+  }
+
+  .event-misread-arc__grid {
     grid-template-columns: 1fr;
   }
 
