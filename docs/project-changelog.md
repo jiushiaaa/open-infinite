@@ -4277,3 +4277,21 @@
 - **边界**：
   - 本轮只改共享壳层主内容目标结构、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未做真实浏览器截图 QA，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — World Shell Navigation Landmarks
+
+- **做了什么**：
+  - `WorldWorkspaceShell` 的世界旅程总线、世界工作区总览、世界状态预告、世界脉搏和世界体验轨道从普通 `div` 升级为带中文 `aria-label` 的 `nav` landmark。
+  - 保留既有世界卷宗速览 `nav`，并把移动端“展开世界导航”折叠区补充为 `aria-label="移动端世界导航"`。
+  - 扩展 `check:app-shell-mobile-layout`，锁定旅程、工作区、状态、脉搏、阶段和卷宗这些密集入口都必须保留具名导航地标。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少导航地标时失败，错误集中在 journey bus、workspace summary、state handoffs、pulse row、stage rail 和 mobile drawer label。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.81 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改共享壳层语义结构、结构检查脚本和文档；不新增后端 API，不改变视觉常态、桌面/移动导航布局、hash 路由、route chunk 预取、阅读进度、沙盘请求字段或 artifact。
+  - 本轮工具搜索未暴露 in-app Browser 控制能力；未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

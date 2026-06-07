@@ -232,6 +232,45 @@ if (
   failures.push("WorldWorkspaceShell should collapse the global world navigation behind a mobile details drawer");
 }
 
+for (const [selector, message] of [
+  [
+    '<nav className="world-workspace-shell__journey" aria-label="世界旅程总线"',
+    "WorldWorkspaceShell journey bus should be a named navigation landmark",
+  ],
+  [
+    '<nav className="shell-context__workspace" aria-label="世界工作区总览"',
+    "WorldWorkspaceShell workspace summary should be a named navigation landmark",
+  ],
+  [
+    '<nav className="shell-context__handoffs" aria-label="世界状态预告"',
+    "WorldWorkspaceShell state handoffs should be a named navigation landmark",
+  ],
+  [
+    '<nav className="shell-context__continuity" aria-label="世界脉搏"',
+    "WorldWorkspaceShell pulse row should be a named navigation landmark",
+  ],
+  [
+    '<nav className="shell-context__stages" aria-label="世界体验轨道"',
+    "WorldWorkspaceShell stage rail should be a named navigation landmark",
+  ],
+  [
+    '<nav className="shell-context__dossiers" aria-label="世界卷宗速览"',
+    "WorldWorkspaceShell dossier rail should stay a named navigation landmark",
+  ],
+]) {
+  if (!workspaceShell.includes(selector)) {
+    failures.push(message);
+  }
+}
+
+if (
+  !workspaceShell.includes(
+    '<details className="world-workspace-shell__mobile-nav" aria-label="移动端世界导航"',
+  )
+) {
+  failures.push("mobile world navigation drawer should expose an accessible navigation label");
+}
+
 if (
   workspaceShell.indexOf("shell-context__taskbar") === -1 ||
   workspaceShell.indexOf("world-workspace-shell__desktop-nav-top") === -1 ||

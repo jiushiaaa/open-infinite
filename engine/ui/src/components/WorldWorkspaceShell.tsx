@@ -64,7 +64,7 @@ export function WorldWorkspaceShell({
 
   const renderJourneyAndWorkspace = () => (
     <>
-      <div className="world-workspace-shell__journey" aria-label="世界旅程总线">
+      <nav className="world-workspace-shell__journey" aria-label="世界旅程总线">
         {routeContext.stages.map((stage) => (
           <button
             key={stage.key}
@@ -81,9 +81,9 @@ export function WorldWorkspaceShell({
             <span>{stage.status === "active" ? "当前所在" : "可随时进入"}</span>
           </button>
         ))}
-      </div>
+      </nav>
 
-      <div className="shell-context__workspace" aria-label="世界工作区总览">
+      <nav className="shell-context__workspace" aria-label="世界工作区总览">
         <button
           className="shell-context__workspace-card"
           {...routeIntent(activeStageRoute)}
@@ -121,13 +121,13 @@ export function WorldWorkspaceShell({
           <strong>{routeContext.workspaceSummary.nextStepLabel}</strong>
           <em>{routeContext.workspaceSummary.why}</em>
         </button>
-      </div>
+      </nav>
     </>
   );
 
   const renderRestNavigation = () => (
     <>
-      <div className="shell-context__handoffs" aria-label="世界状态预告">
+      <nav className="shell-context__handoffs" aria-label="世界状态预告">
         {routeContext.stateHandoffs.map((handoff) => (
           <button
             key={handoff.key}
@@ -145,9 +145,9 @@ export function WorldWorkspaceShell({
             <span>{handoff.detail}</span>
           </button>
         ))}
-      </div>
+      </nav>
 
-      <div className="shell-context__continuity" aria-label="世界脉搏">
+      <nav className="shell-context__continuity" aria-label="世界脉搏">
         {routeContext.continuitySignals.map((signal) => (
           <button
             key={signal.key}
@@ -162,9 +162,9 @@ export function WorldWorkspaceShell({
             <span>{signal.detail}</span>
           </button>
         ))}
-      </div>
+      </nav>
 
-      <div className="shell-context__stages" aria-label="世界体验轨道">
+      <nav className="shell-context__stages" aria-label="世界体验轨道">
         {routeContext.stages.map((stage) => (
           <button
             key={stage.key}
@@ -178,7 +178,7 @@ export function WorldWorkspaceShell({
             <strong>{stage.title}</strong>
           </button>
         ))}
-      </div>
+      </nav>
 
       <nav className="shell-context__dossiers" aria-label="世界卷宗速览">
         {routeContext.dossiers.map((dossier) => (
@@ -285,7 +285,7 @@ export function WorldWorkspaceShell({
         {renderRestNavigation()}
       </div>
 
-      <details className="world-workspace-shell__mobile-nav">
+      <details className="world-workspace-shell__mobile-nav" aria-label="移动端世界导航">
         <summary>
           <strong>展开世界导航</strong>
           <span>旅程、脉搏、卷宗入口都在这里</span>
