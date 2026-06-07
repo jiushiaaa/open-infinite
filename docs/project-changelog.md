@@ -4195,3 +4195,16 @@
   - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
 - **边界**：
   - 本轮只改共享顶栏焦点样式、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — WorldWorkspaceShell Focus Rings
+
+- **做了什么**：
+  - `WorldWorkspaceShell` 的世界旅程总线按钮新增显式 `:focus-visible` 描边，并在聚焦时复用纸面 hover 背景。
+  - 卷宗速览按钮新增青绿色 `:focus-visible` 描边，并在聚焦时复用 `jade-wash` 背景。
+  - 扩展 `check:app-shell-mobile-layout`，锁定旅程总线和卷宗速览必须保留可见键盘焦点态。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少世界壳层导航焦点态时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+- **边界**：
+  - 本轮只改共享世界壳层焦点样式、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。

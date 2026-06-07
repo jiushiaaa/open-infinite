@@ -106,6 +106,24 @@ if (!/outline:\s*2px solid rgba\(74,\s*124,\s*99,\s*0\.44\)/.test(topbarButtonFo
   failures.push("topbar utility buttons should expose a visible keyboard focus state");
 }
 
+const journeyItemFocusRule = findRule(".world-workspace-shell__journey-item:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(141,\s*50,\s*37,\s*0\.46\)/.test(journeyItemFocusRule) ||
+  !/outline-offset:\s*2px/.test(journeyItemFocusRule) ||
+  !/background:\s*var\(--paper-sunken\)/.test(journeyItemFocusRule)
+) {
+  failures.push("WorldWorkspaceShell journey buttons should expose a visible keyboard focus state");
+}
+
+const dossierButtonFocusRule = findRule(".shell-context__dossiers button:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(74,\s*124,\s*99,\s*0\.44\)/.test(dossierButtonFocusRule) ||
+  !/outline-offset:\s*2px/.test(dossierButtonFocusRule) ||
+  !/background:\s*var\(--jade-wash\)/.test(dossierButtonFocusRule)
+) {
+  failures.push("WorldWorkspaceShell dossier buttons should expose a visible keyboard focus state");
+}
+
 for (const activeKey of [
   "anchor",
   "tianming",

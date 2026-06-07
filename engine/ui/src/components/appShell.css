@@ -312,6 +312,13 @@
   color: var(--ink);
 }
 
+.world-workspace-shell__journey-item:focus-visible {
+  outline: 2px solid rgba(141, 50, 37, 0.46);
+  outline-offset: 2px;
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
 .world-workspace-shell__journey-item.is-active {
   background:
     linear-gradient(90deg, rgba(141, 50, 37, 0.12), transparent 78%),
@@ -761,6 +768,13 @@
 
 .shell-context__dossiers button:hover,
 .shell-context__dossiers button.is-active {
+  background: var(--jade-wash);
+  color: var(--ink);
+}
+
+.shell-context__dossiers button:focus-visible {
+  outline: 2px solid rgba(74, 124, 99, 0.44);
+  outline-offset: 2px;
   background: var(--jade-wash);
   color: var(--ink);
 }
