@@ -588,6 +588,79 @@
   gap: var(--space-2);
 }
 
+.adoption-polish-radar {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(115, 89, 48, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(250, 247, 239, 0.86), rgba(245, 238, 220, 0.58)),
+    rgba(250, 247, 239, 0.76);
+}
+
+.adoption-polish-radar__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.adoption-polish-radar__head h4 {
+  margin: 2px 0 0;
+  font-family: var(--font-serif);
+  font-size: 17px;
+}
+
+.adoption-polish-radar__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.adoption-polish-radar__card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line-faint);
+  border-radius: 8px;
+  background: rgba(250, 247, 239, 0.66);
+}
+
+.adoption-polish-radar__card--jade {
+  border-color: rgba(45, 104, 92, 0.24);
+  background: rgba(236, 244, 235, 0.5);
+}
+
+.adoption-polish-radar__card--gold {
+  border-color: rgba(164, 120, 45, 0.28);
+  background: rgba(245, 238, 220, 0.62);
+}
+
+.adoption-polish-radar__card strong {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.adoption-polish-radar__card p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.adoption-polish-radar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .adoption-final-compare {
   display: grid;
   gap: var(--space-3);
@@ -993,6 +1066,29 @@
   }
 
   .adoption-review-gate__actions .btn {
+    width: 100%;
+  }
+
+  .adoption-polish-radar {
+    padding: var(--space-3);
+  }
+
+  .adoption-polish-radar__head {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .adoption-polish-radar__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .adoption-polish-radar__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .adoption-polish-radar__actions .btn {
     width: 100%;
   }
 

@@ -93,6 +93,74 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
     : finalTextChanged
       ? "作者手动修订"
       : "原始草稿";
+  const passedChecklistCount = draft?.reviewer_checklist.filter((item) => item.passed).length ?? 0;
+  const checklistTotal = draft?.reviewer_checklist.length ?? 0;
+  const motivationReviewItems = semanticReviewItems.filter((item) =>
+    /角色|动机|记忆|视角|冲突/.test(
+      `${item.dimension}${item.problem}${item.recommendation}`,
+    ),
+  );
+  const worldReviewItems = semanticReviewItems.filter((item) =>
+    /世界|状态|因果|代偿|伏笔|锚点/.test(
+      `${item.dimension}${item.problem}${item.recommendation}`,
+    ),
+  );
+  const chapterPolishSignals = draft
+    ? [
+        {
+          key: "rhythm",
+          label: "读感节奏",
+          value:
+            checklistTotal > 0
+              ? `${passedChecklistCount}/${checklistTotal} 项通过`
+              : "待审稿",
+          detail:
+            passedChecklistCount === checklistTotal && checklistTotal > 0
+              ? "基础读感检查已通过，可以继续看定稿差异。"
+              : "先看 Reviewer 清单，补足节奏、冲突或证据承接。",
+          tone: passedChecklistCount === checklistTotal && checklistTotal > 0 ? "jade" : "gold",
+        },
+        {
+          key: "motivation",
+          label: "角色动机",
+          value:
+            motivationReviewItems.length > 0
+              ? `${motivationReviewItems.length} 处需看`
+              : "暂无高亮问题",
+          detail:
+            motivationReviewItems[0]?.recommendation ||
+            "角色欲望、误会和记忆暂未被 Reviewer 标成首要风险。",
+          tone: motivationReviewItems.length > 0 ? "gold" : "jade",
+        },
+        {
+          key: "world",
+          label: "世界入文",
+          value: worldReviewItems.length > 0 ? `${worldReviewItems.length} 处需看` : "状态已承接",
+          detail:
+            worldReviewItems[0]?.recommendation ||
+            "世界线状态、因果债或伏笔暂未被 Reviewer 标成缺口。",
+          tone: worldReviewItems.length > 0 ? "gold" : "jade",
+        },
+        {
+          key: "confirm",
+          label: "入卷准备",
+          value: finalQualityGate?.ready_for_confirmation
+            ? "可确认"
+            : editedChapterText.trim()
+              ? finalTextSource
+              : "待补正文",
+          detail: finalQualityGate
+            ? finalQualityGate.ready_for_confirmation
+              ? "编辑后定稿已通过入卷质量门。"
+              : "质量门仍要求作者复核当前定稿。"
+            : "当前会按正文编辑框内容进入确认入卷。",
+          tone:
+            finalQualityGate?.ready_for_confirmation || (!finalQualityGate && editedChapterText.trim())
+              ? "jade"
+              : "gold",
+        },
+      ]
+    : [];
   const workflowStage = confirmation
     ? "confirmed"
     : draft
@@ -659,6 +727,66 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       rows={14}
                     />
                   </label>
+                  <section className="adoption-polish-radar" aria-label="章节质感雷达">
+                    <div className="adoption-polish-radar__head">
+                      <div>
+                        <span className="muted tiny">整章读感</span>
+                        <h4>章节质感雷达</h4>
+                      </div>
+                      <span
+                        className={`badge ${
+                          urgentReviewerItems.length > 0 ? "badge--gold" : "badge--jade"
+                        }`}
+                      >
+                        {urgentReviewerItems.length > 0
+                          ? `${urgentReviewerItems.length} 条风险`
+                          : "可继续定稿"}
+                      </span>
+                    </div>
+                    <div className="adoption-polish-radar__grid">
+                      {chapterPolishSignals.map((signal) => (
+                        <article
+                          className={`adoption-polish-radar__card adoption-polish-radar__card--${signal.tone}`}
+                          key={signal.key}
+                        >
+                          <span className="muted tiny">{signal.label}</span>
+                          <strong>{signal.value}</strong>
+                          <p>{signal.detail}</p>
+                        </article>
+                      ))}
+                    </div>
+                    <div className="adoption-polish-radar__actions">
+                      <button
+                        className="btn btn--ghost"
+                        disabled={!draft.revision_pack}
+                        onClick={() => scrollToPageItem(".adoption-review-gate")}
+                      >
+                        看 Reviewer 细节
+                      </button>
+                      {selectedRewriteCount > 0 && !rewriteApplication && (
+                        <button
+                          className="btn btn--primary"
+                          disabled={rewriteLoading}
+                          onClick={applySelectedRewrites}
+                        >
+                          {rewriteLoading ? "正在采纳…" : "采纳高优先级改写"}
+                        </button>
+                      )}
+                      <button
+                        className="btn btn--ghost"
+                        onClick={() => scrollToPageItem(".adoption-editor")}
+                      >
+                        回到正文编辑
+                      </button>
+                      <button
+                        className="btn btn--ghost"
+                        disabled={!editedChapterText.trim()}
+                        onClick={() => scrollToPageItem(".adoption-confirm")}
+                      >
+                        去确认入卷
+                      </button>
+                    </div>
+                  </section>
                   <section className="adoption-final-compare" aria-label="定稿对照台">
                     <div className="adoption-final-compare__head">
                       <div>

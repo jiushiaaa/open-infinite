@@ -3636,3 +3636,20 @@
   - 浏览器 DOM：`http://localhost:5178/` 下 `.entry__spotlight-vitality` 渲染 4 张活性信号卡。
 - **边界**：
   - 本轮只改前端故事书架 helper、JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 story list 契约，不改 artifact。
+
+### 2026-06-07 — Author Chapter Polish Radar
+
+- **做了什么**：
+  - `AuthorAdoptionPage` 在作者修订稿编辑框之后、定稿对照台之前新增“章节质感雷达”。
+  - 雷达复用 `draft.reviewer_checklist`、语义 Reviewer review items、已选局部改写、当前定稿来源和 `edited_final_chapter.quality_gate`。
+  - 四枚信号分别解释“读感节奏 / 角色动机 / 世界入文 / 入卷准备”，让作者先判断这章是否像一章可读小说，再进入原稿/定稿对照。
+  - 雷达动作可直达 Reviewer 细节、正文编辑、确认入卷；有高优先级改写已选且尚未应用时，可直接采纳高优先级改写。
+  - 扩展 `check:author-adoption-ux`，锁定质感雷达语义、真实字段引用、动作入口、与定稿对照台的位置关系和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:author-adoption-ux`，确认缺少章节质感雷达时失败。
+  - Focused helper：`pnpm.cmd run check:author-adoption-ux` -> `author adoption ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - 浏览器 UI 流程：在 `http://localhost:5178/#/world/my-story/author` 执行“写入采纳台 -> 生成下一章草稿”，`.adoption-polish-radar` 渲染 4 张质感信号卡，并显示 Reviewer、采纳改写、正文编辑和确认入卷动作。
+- **边界**：
+  - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约；真实整章模型润色仍是后续深化。

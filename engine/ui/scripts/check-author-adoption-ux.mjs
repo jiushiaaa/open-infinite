@@ -140,8 +140,45 @@ assert(page.includes("当前定稿"), "final comparison rail should label the cu
 assert(page.includes("原始草稿"), "final comparison rail should label the original draft");
 assert(page.includes("入卷质量门"), "final comparison rail should explain the quality gate");
 assert(
-  page.indexOf("定稿对照台") < page.indexOf("adoption-confirm"),
+  page.indexOf("定稿对照台") < page.indexOf('className="adoption-confirm"'),
   "final comparison rail should appear before the confirmation action",
+);
+assert(
+  page.includes("chapterPolishSignals"),
+  "draft review should derive chapter-level polish signals",
+);
+assert(
+  page.includes("adoption-polish-radar"),
+  "draft review should include a chapter polish radar before final comparison",
+);
+assert(
+  page.includes('aria-label="章节质感雷达"'),
+  "chapter polish radar should have a clear accessible label",
+);
+assert(page.includes("章节质感雷达"), "chapter polish radar should be named in product language");
+assert(page.includes("读感节奏"), "chapter polish radar should explain reading rhythm");
+assert(page.includes("角色动机"), "chapter polish radar should explain character motivation");
+assert(page.includes("世界入文"), "chapter polish radar should explain world-state grounding");
+assert(page.includes("入卷准备"), "chapter polish radar should explain confirmation readiness");
+assert(
+  page.includes("draft.reviewer_checklist"),
+  "chapter polish radar should use the draft reviewer checklist",
+);
+assert(
+  page.includes("semanticReviewItems.filter"),
+  "chapter polish radar should summarize semantic reviewer dimensions",
+);
+assert(
+  page.includes("finalTextSource"),
+  "chapter polish radar should reflect the current final draft source",
+);
+assert(
+  page.includes('scrollToPageItem(".adoption-review-gate")'),
+  "chapter polish radar should link back to reviewer details",
+);
+assert(
+  page.indexOf("章节质感雷达") < page.indexOf("定稿对照台"),
+  "chapter polish radar should appear before the final comparison rail",
 );
 assert(css.includes(".adoption-confirmation-handoff"), "confirmation handoff should have styles");
 assert(
@@ -181,6 +218,19 @@ assert(
     css,
   ),
   "final comparison rail should collapse to one column on narrow mobile",
+);
+assert(css.includes(".adoption-polish-radar"), "chapter polish radar should have styles");
+assert(
+  /\.adoption-polish-radar__grid[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/.test(
+    css,
+  ),
+  "chapter polish radar should use a four-column desktop grid",
+);
+assert(
+  /@media \(max-width: 620px\)[\s\S]*\.adoption-polish-radar__grid[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "chapter polish radar should collapse to one column on narrow mobile",
 );
 
 console.log("author adoption ux structure ok");
