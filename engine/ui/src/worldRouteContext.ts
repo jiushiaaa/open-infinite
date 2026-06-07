@@ -9,6 +9,7 @@ export interface WorldRouteContext {
   continuitySignals: WorldContinuitySignal[];
   primaryActionLabel: string;
   primaryRoute: Route;
+  primaryTargetId?: string;
   secondaryActionLabel?: string;
   secondaryRoute?: Route;
   stages: WorldRouteStage[];
@@ -58,6 +59,7 @@ export interface WorldStateHandoff {
   title: string;
   detail: string;
   route: Route;
+  targetId?: string;
 }
 
 export interface WorldContinuitySignal {
@@ -229,7 +231,7 @@ function buildDossiers(route: Route, slug: string, currentWorldline: string): Wo
 function workspaceWhy(route: Route): string {
   if (route.name === "anchor") return "先定界，再运行；用户不用从机制档案猜入口。";
   if (route.name === "tianming") return "宪法确认后，干预和沙盘才有边界。";
-  if (route.name === "sandbox") return "本轮行动会进入记忆、代偿和下一章材料。";
+  if (route.name === "sandbox") return "先写事件并启动推演，世界才会生成记忆、代偿和下一章材料。";
   if (route.name === "dossierReading") return "先读正文，证据和误会按需展开。";
   if (route.name === "worldChronicle") return "世界承认的事实会决定角色、锚点和下一章怎样延续。";
   if (route.name === "anchorVolume") return "锚点压力会约束干预、代偿和下一轮世界运行。";
@@ -400,6 +402,7 @@ function buildStateHandoffs(
   worldlineRoute: Route,
   primaryRoute: Route,
   primaryActionLabel: string,
+  primaryTargetId?: string,
 ): WorldStateHandoff[] {
   return [
     {
@@ -416,6 +419,7 @@ function buildStateHandoffs(
       key: "receipt",
       ...stateHandoffCopy(route, "receipt", primaryActionLabel),
       route: primaryRoute,
+      targetId: primaryTargetId,
     },
   ];
 }
@@ -574,7 +578,8 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     };
   }
   if (route.name === "sandbox") {
-    const primaryActionLabel = "进入卷宗阅读";
+    const primaryActionLabel = "启动一轮推演";
+    const primaryTargetId = "sandbox-runner";
     return {
       sectionLabel: "运行",
       title: "世界沙盘",
@@ -584,14 +589,16 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
         route,
         readingRoute,
         worldlineRoute,
-        readingRoute,
+        sandboxRoute,
         primaryActionLabel,
+        primaryTargetId,
       ),
       continuitySignals,
       primaryActionLabel,
-      primaryRoute: readingRoute,
-      secondaryActionLabel: "查看世界线",
-      secondaryRoute: worldlineRoute,
+      primaryRoute: sandboxRoute,
+      primaryTargetId,
+      secondaryActionLabel: "进入卷宗阅读",
+      secondaryRoute: readingRoute,
       stages,
       dossiers,
     };

@@ -443,7 +443,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   }
 
   const runnerPanel = (
-    <div className="sandbox-panel sandbox-runner" ref={controlRef}>
+    <div id="sandbox-runner" className="sandbox-panel sandbox-runner" ref={controlRef}>
       <div className="sandbox-runner__head">
         <span className="sandbox-runner__eyebrow">一轮沙盘</span>
         <h2>投放事件</h2>

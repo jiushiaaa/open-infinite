@@ -10,26 +10,27 @@ assert.equal(context?.sectionLabel, "运行");
 assert.equal(context?.title, "世界沙盘");
 assert.match(context?.description ?? "", /让角色行动/);
 assert.deepEqual(context?.primaryRoute, {
-  name: "dossierReading",
+  name: "sandbox",
   slug: "my-story",
-  worldlineId: "main",
 });
-assert.equal(context?.primaryActionLabel, "进入卷宗阅读");
+assert.equal(context?.primaryActionLabel, "启动一轮推演");
+assert.equal(context?.primaryTargetId, "sandbox-runner");
 assert.deepEqual(context?.workspaceSummary, {
   stageLabel: "运行",
   stageTitle: "世界沙盘",
   worldlineLabel: "世界线 main",
-  nextStepLabel: "进入卷宗阅读",
-  why: "本轮行动会进入记忆、代偿和下一章材料。",
+  nextStepLabel: "启动一轮推演",
+  why: "先写事件并启动推演，世界才会生成记忆、代偿和下一章材料。",
 });
 assert.deepEqual(
   context?.stateHandoffs.map((item) => [item.key, item.label, item.title]),
   [
     ["source", "正在承接", "事件与干预"],
     ["effect", "会留下", "记忆与代偿"],
-    ["receipt", "下一处看见", "进入卷宗阅读"],
+    ["receipt", "下一处看见", "启动一轮推演"],
   ],
 );
+assert.equal(context?.stateHandoffs[2].targetId, "sandbox-runner");
 assert.deepEqual(context?.stateHandoffs[1].route, {
   name: "worldline",
   slug: "my-story",

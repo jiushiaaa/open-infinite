@@ -2,6 +2,46 @@ import { navigate } from "../routing";
 import type { RecentReading } from "../readingProgress";
 import type { WorldRouteContext } from "../worldRouteContext";
 
+function findScrollableParent(target: HTMLElement): HTMLElement | null {
+  let current = target.parentElement;
+  while (current) {
+    const style = window.getComputedStyle(current);
+    const canScroll = /(auto|scroll)/.test(style.overflowY);
+    if (canScroll && current.scrollHeight > current.clientHeight) {
+      return current;
+    }
+    current = current.parentElement;
+  }
+  return null;
+}
+
+function activateShellAction(targetId?: string) {
+  if (!targetId) return;
+
+  const scrollToTarget = () => {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const scroller = findScrollableParent(target);
+    if (scroller) {
+      const targetRect = target.getBoundingClientRect();
+      const scrollerRect = scroller.getBoundingClientRect();
+      scroller.scrollTo({
+        top: scroller.scrollTop + targetRect.top - scrollerRect.top,
+        behavior: "smooth",
+      });
+      return;
+    }
+
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(scrollToTarget);
+  });
+  window.setTimeout(scrollToTarget, 120);
+}
+
 export function WorldWorkspaceShell({
   routeContext,
   recentReading,
@@ -59,7 +99,10 @@ export function WorldWorkspaceShell({
         </button>
         <button
           className="shell-context__workspace-card shell-context__workspace-card--next"
-          onClick={() => navigate(routeContext.primaryRoute)}
+          onClick={() => {
+            navigate(routeContext.primaryRoute);
+            activateShellAction(routeContext.primaryTargetId);
+          }}
           title={routeContext.workspaceSummary.why}
           type="button"
         >
@@ -78,7 +121,10 @@ export function WorldWorkspaceShell({
           <button
             key={handoff.key}
             className={`shell-context__handoff-card is-${handoff.key}`}
-            onClick={() => navigate(handoff.route)}
+            onClick={() => {
+              navigate(handoff.route);
+              activateShellAction(handoff.targetId);
+            }}
             title={handoff.detail}
             type="button"
           >
@@ -169,7 +215,10 @@ export function WorldWorkspaceShell({
           )}
           <button
             className="btn btn--primary tiny"
-            onClick={() => navigate(routeContext.primaryRoute)}
+            onClick={() => {
+              navigate(routeContext.primaryRoute);
+              activateShellAction(routeContext.primaryTargetId);
+            }}
           >
             {routeContext.primaryActionLabel}
           </button>

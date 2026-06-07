@@ -10,6 +10,7 @@ const failures = [];
 
 const requiredPageMarkers = [
   ['className="sandbox-panel sandbox-runner"', "runner panel should have a dedicated product shell"],
+  ['id="sandbox-runner"', "runner panel should expose a stable product anchor for the shell primary action"],
   ["sandbox-runner__steps", "runner should explain event, optional intervention, and launch steps"],
   ["sandbox-runner__advanced", "optional intervention controls should be grouped separately"],
   ["sandbox-event-preview", "runner should preview how the major event enters the world"],

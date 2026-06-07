@@ -3925,3 +3925,22 @@
   - In-app Browser smoke：`http://localhost:5183/#/world/demo-world/author` 在 390px 下默认折叠世界导航，任务条在折叠区前，作者台标题进入首屏；点击“展开世界导航”后 4 个旅程入口、4 个阶段、4 个脉搏和 8 个卷宗入口均存在；无水平溢出，浏览器 error 日志为空。
 - **边界**：
   - 本轮只改共享壳层组件、AppShell 样式、移动布局检查脚本和文档，不新增后端 API，不改变路由、阅读、作者采纳或 artifact 契约。
+
+### 2026-06-07 — WorldWorkspaceShell Sandbox Runner Primary Action
+
+- **做了什么**：
+  - `worldRouteContext` 在沙盘路由下把共享壳层当前任务从“进入卷宗阅读”改为“启动一轮推演”。
+  - 沙盘页主动作现在留在 `#/world/<slug>/sandbox`，并通过 `primaryTargetId="sandbox-runner"` 指向运行台；“进入卷宗阅读”降为次动作保留。
+  - `WorldWorkspaceShell` 新增同路由锚点动作，支持普通 `scrollIntoView` 和 `.sandbox-page` 这类内部滚动容器。
+  - `WorldSandboxPage` 的运行台暴露稳定 `id="sandbox-runner"`。
+  - 扩展 `check:world-route-context`、`check:sandbox-runner-ux` 和 `check:app-shell-mobile-layout`，锁定沙盘页当前任务语义、运行台稳定锚点和内部滚动容器支持。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:world-route-context`，确认沙盘主路由仍指向卷宗阅读时失败。
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认运行台缺少稳定 `id="sandbox-runner"` 时失败。
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认壳层不支持主动作锚点和内部滚动容器时失败。
+  - Focused helpers：`pnpm.cmd run check:world-route-context`、`pnpm.cmd run check:sandbox-runner-ux`、`pnpm.cmd run check:app-shell-mobile-layout` 均通过。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - In-app Browser smoke：`http://localhost:5183/#/world/my-story/sandbox` 在 390px 干净标签页下，当前任务主按钮文案为“启动一轮推演”；点击后 URL 仍为沙盘路由，`.sandbox-page` 从 `scrollTop 0` 滚到 `130`，运行台与页面容器顶部距离约 `0.28px`；无水平溢出，浏览器 error 日志为空。
+- **边界**：
+  - 本轮只改前端路线语义、共享壳层滚动 helper、沙盘运行台锚点、结构检查脚本和文档；不新增后端 API，不改变 hash 路由契约，不改变 `POST /api/stories/<slug>/sandbox/run` 字段，不改 artifact。

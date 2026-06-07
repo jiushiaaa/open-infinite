@@ -161,6 +161,17 @@ if (!workspaceShell.includes("navigate(routeContext.primaryRoute)")) {
   failures.push("next-step summary card should execute the primary route");
 }
 
+if (
+  !workspaceShell.includes("activateShellAction") ||
+  !workspaceShell.includes("findScrollableParent") ||
+  !workspaceShell.includes("routeContext.primaryTargetId") ||
+  !workspaceShell.includes("scrollIntoView({ behavior: \"smooth\", block: \"start\" })") ||
+  !workspaceShell.includes("scrollTo({") ||
+  !workspaceShell.includes("window.requestAnimationFrame")
+) {
+  failures.push("primary shell actions should support same-route anchors inside scrollable page containers like the sandbox runner");
+}
+
 if (!workspaceShell.includes("worldlineDossierRoute")) {
   failures.push("worldline summary card should link to the worldline dossier");
 }
