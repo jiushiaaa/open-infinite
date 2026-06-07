@@ -64,6 +64,15 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [workspaceMode, setWorkspaceMode] = useState<"writing" | "review">("writing");
   const selectedRewriteCount = selectedRewriteIds.length;
   const localizedRewriteCount = draft?.revision_pack?.localized_rewrites.length ?? 0;
+  const semanticReviewItems = draft?.revision_pack
+    ? draft.revision_pack.semantic_reviewer?.review_items ?? []
+    : [];
+  const urgentReviewerItems = semanticReviewItems.filter(
+    (item) => item.priority === "blocking" || item.priority === "high",
+  );
+  const editorialRevisionReady = draft?.revision_pack
+    ? draft.revision_pack.editorial_revision_draft?.status === "ready"
+    : false;
   const workflowStage = confirmation
     ? "confirmed"
     : draft
@@ -786,6 +795,85 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       <p className="muted tiny">
                         {draft.revision_pack.confirmation_gate.author_action}
                       </p>
+                      <section className="adoption-review-gate" aria-label="Reviewer 质检门">
+                        <div className="adoption-review-gate__head">
+                          <div>
+                            <span className="muted tiny">定稿前检查</span>
+                            <h4>Reviewer 质检门</h4>
+                          </div>
+                          <span
+                            className={`badge ${
+                              urgentReviewerItems.length > 0 ? "badge--gold" : "badge--jade"
+                            }`}
+                          >
+                            {urgentReviewerItems.length > 0
+                              ? `${urgentReviewerItems.length} 条需先看`
+                              : "无阻断项"}
+                          </span>
+                        </div>
+                        <div className="adoption-review-gate__grid">
+                          <article>
+                            <span className="muted tiny">阻断风险</span>
+                            <strong>
+                              {urgentReviewerItems.length > 0
+                                ? `${urgentReviewerItems.length} 条高风险`
+                                : "未发现高风险"}
+                            </strong>
+                            <p>
+                              {draft.revision_pack.semantic_reviewer?.diagnosis_summary ||
+                                "语义审稿会先判断动机、冲突和世界状态是否足够入文。"}
+                            </p>
+                          </article>
+                          <article>
+                            <span className="muted tiny">已选改写</span>
+                            <strong>
+                              {selectedRewriteCount} / {localizedRewriteCount} 条
+                            </strong>
+                            <p>
+                              {selectedRewriteCount > 0
+                                ? "这些建议会写入修订稿，再进入下一章材料。"
+                                : "先勾选需要采纳的局部改写，再生成定稿。"}
+                            </p>
+                          </article>
+                          <article>
+                            <span className="muted tiny">自动定稿</span>
+                            <strong>{editorialRevisionReady ? "预览可用" : "等待修订"}</strong>
+                            <p>
+                              {editorialRevisionReady
+                                ? `${draft.revision_pack.editorial_revision_draft?.applied_rewrite_ids.length ?? 0} 条建议已有编辑应用预览。`
+                                : "采纳改写后会生成可直接确认的编辑后定稿。"}
+                            </p>
+                          </article>
+                          <article>
+                            <span className="muted tiny">入卷判断</span>
+                            <strong>
+                              {rewriteApplication
+                                ? "可确认入卷"
+                                : selectedRewriteCount > 0
+                                  ? "先采纳改写"
+                                  : draft.revision_pack.confirmation_gate.ready_for_confirmation
+                                    ? "可手动确认"
+                                    : "需复核正文"}
+                            </strong>
+                            <p>{draft.revision_pack.confirmation_gate.author_action}</p>
+                          </article>
+                        </div>
+                        <div className="adoption-review-gate__actions">
+                          <button
+                            className="btn btn--primary"
+                            disabled={rewriteLoading || selectedRewriteIds.length === 0}
+                            onClick={applySelectedRewrites}
+                          >
+                            {rewriteLoading ? "正在采纳…" : "采纳选中改写"}
+                          </button>
+                          <button
+                            className="btn btn--ghost"
+                            onClick={() => scrollToPageItem(".adoption-editor")}
+                          >
+                            检查正文编辑
+                          </button>
+                        </div>
+                      </section>
                       <div className="adoption-rewrite-toolbar">
                         <div>
                           <strong>可采纳局部改写</strong>

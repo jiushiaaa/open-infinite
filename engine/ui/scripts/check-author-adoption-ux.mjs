@@ -78,6 +78,44 @@ assert(
   page.indexOf("确认入卷接力台") < page.indexOf("<dt>正文</dt>"),
   "confirmation handoff should appear before artifact detail fields",
 );
+assert(
+  page.includes("adoption-review-gate"),
+  "draft review should include a reviewer quality gate before the rewrite list",
+);
+assert(
+  page.includes('aria-label="Reviewer 质检门"'),
+  "reviewer quality gate should have a clear accessible label",
+);
+assert(page.includes("Reviewer 质检门"), "reviewer quality gate should be named in product language");
+assert(page.includes("urgentReviewerItems"), "reviewer quality gate should count blocking and high-priority items");
+assert(
+  page.includes("draft.revision_pack.semantic_reviewer?.review_items"),
+  "reviewer quality gate should use semantic reviewer review items",
+);
+assert(
+  page.includes("draft.revision_pack.editorial_revision_draft?.status"),
+  "reviewer quality gate should use editorial revision draft readiness",
+);
+assert(
+  page.includes("selectedRewriteCount"),
+  "reviewer quality gate should show selected rewrite count",
+);
+assert(
+  page.includes("localizedRewriteCount"),
+  "reviewer quality gate should show total localized rewrite count",
+);
+assert(page.includes("阻断风险"), "reviewer quality gate should explain blocking risk");
+assert(page.includes("已选改写"), "reviewer quality gate should explain selected rewrites");
+assert(page.includes("自动定稿"), "reviewer quality gate should explain automatic final text readiness");
+assert(page.includes("入卷判断"), "reviewer quality gate should explain confirmation readiness");
+assert(
+  page.includes('scrollToPageItem(".adoption-editor")'),
+  "reviewer quality gate should keep a direct action to the editable chapter text",
+);
+assert(
+  page.indexOf("Reviewer 质检门") < page.indexOf("adoption-rewrite-toolbar"),
+  "reviewer quality gate should appear before the rewrite toolbar and rewrite cards",
+);
 assert(css.includes(".adoption-confirmation-handoff"), "confirmation handoff should have styles");
 assert(
   /\.adoption-confirmation-handoff__grid[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/.test(
@@ -90,6 +128,19 @@ assert(
     css,
   ),
   "confirmation handoff should collapse to one column on narrow mobile",
+);
+assert(css.includes(".adoption-review-gate"), "reviewer quality gate should have styles");
+assert(
+  /\.adoption-review-gate__grid[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/.test(
+    css,
+  ),
+  "reviewer quality gate should use a four-column desktop grid",
+);
+assert(
+  /@media \(max-width: 620px\)[\s\S]*\.adoption-review-gate__grid[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "reviewer quality gate should collapse to one column on narrow mobile",
 );
 
 console.log("author adoption ux structure ok");

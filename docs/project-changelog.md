@@ -3571,3 +3571,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端导入/创世 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变导入、创世、job polling、路由或 artifact 契约。
+
+### 2026-06-07 — Author Reviewer Quality Gate
+
+- **做了什么**：
+  - `AuthorAdoptionPage` 在局部修订包摘要和局部改写列表之间新增“Reviewer 质检门”。
+  - 质检门把阻断/高优先级审稿项、已选局部改写、自动定稿预览和入卷判断组织成四枚可扫读卡。
+  - 用户可在进入密集局部改写列表前直接采纳选中改写，或滚到正文编辑区检查自动定稿。
+  - 质检门直接消费 `draft.revision_pack.semantic_reviewer.review_items`、`editorial_revision_draft.status`、`selectedRewriteCount`、`localizedRewriteCount`、`confirmation_gate.author_action` 与现有 `applySelectedRewrites` / `scrollToPageItem`。
+  - 扩展 `check:author-adoption-ux`，锁定质检门位置、真实字段引用、四类语义、主动作和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:author-adoption-ux`，确认缺少 Reviewer 质检门时失败。
+  - Focused helper：`pnpm.cmd run check:author-adoption-ux` -> `author adoption ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约。
