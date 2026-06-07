@@ -13,6 +13,17 @@ const requiredPageMarkers = [
   ['id="sandbox-runner"', "runner panel should expose a stable product anchor for the shell primary action"],
   ["sandbox-runner__steps", "runner should explain event, optional intervention, and launch steps"],
   ["sandbox-runner__advanced", "optional intervention controls should be grouped separately"],
+  ["sandbox-event-seeds", "runner should provide world-pressure event seeds before the blank draft"],
+  ["事件种子台", "event seed deck should name the pre-run seed surface"],
+  ["不知道写什么", "event seed deck should reduce blank-page friction"],
+  ["放入事件", "event seed cards should let users place a seed into the runner"],
+  ["eventSeedDeck", "event seeds should be derived in one readable model"],
+  ["queuedEventSeedTitle", "event seeds should give feedback after queuing"],
+  ["chooseEventSeed", "event seeds should have a dedicated queue helper"],
+  ["setMajorEvent(seed.event)", "event seeds should update the major event draft"],
+  ["firstPossibility", "event seeds should reuse post-round possibilities when available"],
+  ["latestConsequence", "event seeds should read worldline consequence pressure when available"],
+  ["strategyInteractions[0]", "event seeds should reuse the leading strategy pressure when available"],
   ["sandbox-event-preview", "runner should preview how the major event enters the world"],
   ["事件入局预演台", "event preview should name the event entry rehearsal"],
   ["谁会先动", "event preview should explain which actors may move first"],
@@ -81,6 +92,8 @@ if (runnerIndex === -1 || runwayIndex === -1 || runnerIndex > runwayIndex) {
 }
 
 const resultBridgeIndex = page.indexOf("sandbox-result-bridge");
+const runnerStepsIndex = page.indexOf("sandbox-runner__steps");
+const eventSeedsIndex = page.indexOf("sandbox-event-seeds");
 const eventPreviewIndex = page.indexOf("sandbox-event-preview");
 const eventFieldIndex = page.indexOf("sandbox-runner__field--event");
 const advancedInterventionIndex = page.indexOf("sandbox-runner__advanced");
@@ -94,6 +107,15 @@ const autopilotReportIndex = page.indexOf('className="sandbox-section sandbox-au
 const overnightBriefIndex = page.indexOf("sandbox-overnight-brief");
 const wakeEntryIndex = page.indexOf("<WakeReadingEntry");
 const autopilotTimelineIndex = page.indexOf("sandbox-timeline");
+if (
+  runnerStepsIndex === -1 ||
+  eventSeedsIndex === -1 ||
+  eventFieldIndex === -1 ||
+  eventSeedsIndex < runnerStepsIndex ||
+  eventSeedsIndex > eventFieldIndex
+) {
+  failures.push("event seed deck should sit after runner steps and before the event textarea");
+}
 if (
   eventFieldIndex === -1 ||
   eventPreviewIndex === -1 ||
@@ -153,6 +175,11 @@ const requiredCssMarkers = [
   [".sandbox-runner__head", "runner header styling is missing"],
   [".sandbox-runner__steps", "runner step track styling is missing"],
   [".sandbox-runner__advanced summary", "optional intervention summary styling is missing"],
+  [".sandbox-event-seeds", "event seed deck styling is missing"],
+  [".sandbox-event-seeds__head", "event seed header styling is missing"],
+  [".sandbox-event-seeds__grid", "event seed grid styling is missing"],
+  [".sandbox-event-seeds__actions", "event seed action styling is missing"],
+  [".sandbox-event-seeds__feedback", "event seed queued feedback styling is missing"],
   [".sandbox-event-preview", "event preview styling is missing"],
   [".sandbox-event-preview__head", "event preview header styling is missing"],
   [".sandbox-event-preview__grid", "event preview grid styling is missing"],
@@ -195,6 +222,8 @@ for (const [marker, message] of requiredCssMarkers) {
 
 const mobileMediaIndex = css.indexOf("@media (max-width: 680px)");
 const mobileActionsIndex = css.indexOf(".sandbox-result-bridge__actions", mobileMediaIndex);
+const mobileSeedGridIndex = css.indexOf(".sandbox-event-seeds__grid", mobileMediaIndex);
+const mobileSeedActionsIndex = css.indexOf(".sandbox-event-seeds__actions", mobileMediaIndex);
 const mobileEventGridIndex = css.indexOf(".sandbox-event-preview__grid", mobileMediaIndex);
 const mobileEventActionsIndex = css.indexOf(".sandbox-event-preview__actions", mobileMediaIndex);
 const mobilePreviewGridIndex = css.indexOf(".sandbox-intervention-preview__grid", mobileMediaIndex);
@@ -204,6 +233,12 @@ const mobilePreviewActionsIndex = css.indexOf(
 );
 if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
   failures.push("result bridge actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileSeedGridIndex === -1) {
+  failures.push("event seed grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileSeedActionsIndex === -1) {
+  failures.push("event seed actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobileEventGridIndex === -1) {
   failures.push("event preview grid should collapse in the mobile media query");

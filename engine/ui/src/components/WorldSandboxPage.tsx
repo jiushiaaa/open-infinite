@@ -37,6 +37,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [queuedPossibilityTitle, setQueuedPossibilityTitle] = useState("");
   const [queuedStrategyTitle, setQueuedStrategyTitle] = useState("");
+  const [queuedEventSeedTitle, setQueuedEventSeedTitle] = useState("");
   const [memoryReport, setMemoryReport] = useState<SubjectiveMemoryReport | null>(null);
   const [memoryLoading, setMemoryLoading] = useState(false);
   const [memoryError, setMemoryError] = useState<string | null>(null);
@@ -297,6 +298,71 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       })
       .slice(0, 4);
   }, [round]);
+  const eventSeedDeck = useMemo<
+    Array<{ id: string; label: string; title: string; detail: string; event: string }>
+  >(() => {
+    const leadStrategy = strategyInteractions[0];
+    const anchorName = worldlineState?.anchor_status?.current_anchor || "主锚点";
+    const continuationHint =
+      worldlineState?.continuation_inputs?.major_event_hint ||
+      consequenceNextRoundHint ||
+      "上一轮余波还没有被角色真正消化。";
+    const domainPressure =
+      consequenceDomains[0]?.[1]?.pressure ||
+      consequenceDomains[0]?.[1]?.current ||
+      latestConsequence?.impacts?.[0]?.pressure ||
+      "旧债正在转移到资源、秘密和盟约上。";
+    const latestEvent = latestConsequence?.major_event || round?.major_event || DEFAULT_EVENT;
+
+    const seeds = [
+      {
+        id: "anchor-pressure",
+        label: "锚点承压",
+        title: `${anchorName}被迫表态`,
+        detail: continuationHint,
+        event: `${anchorName}被迫表态：${continuationHint}`,
+      },
+      {
+        id: "faction-debt",
+        label: "势力索债",
+        title: "旧债开始找出口",
+        detail: domainPressure,
+        event: `势力索债：${domainPressure}`,
+      },
+      {
+        id: "misread-ferment",
+        label: "误会发酵",
+        title: firstPossibility?.title || "沉默被解读成背叛",
+        detail:
+          firstPossibility?.brief ||
+          `围绕「${latestEvent}」的传言开始变形，新的同盟在暗处改写计划。`,
+        event: firstPossibility
+          ? `${firstPossibility.title}：${firstPossibility.brief}`
+          : `误会发酵：围绕「${latestEvent}」的传言开始变形，新的同盟在暗处改写计划。`,
+      },
+    ];
+
+    if (leadStrategy) {
+      seeds[2] = {
+        id: "strategy-pressure",
+        label: "暗线试探",
+        title: `${leadStrategy.actorName}试探${leadStrategy.targetName}`,
+        detail: leadStrategy.hook,
+        event: `${leadStrategy.actorName}试探${leadStrategy.targetName}：${leadStrategy.actorName}准备用「${leadStrategy.tactic}」逼近${leadStrategy.targetName}，可能误判：${leadStrategy.misread}。下一轮观察：${leadStrategy.hook}`,
+      };
+    }
+
+    return seeds;
+  }, [
+    consequenceDomains,
+    consequenceNextRoundHint,
+    firstPossibility,
+    latestConsequence,
+    round?.major_event,
+    strategyInteractions,
+    worldlineState?.anchor_status?.current_anchor,
+    worldlineState?.continuation_inputs?.major_event_hint,
+  ]);
 
   async function runRound() {
     if (!majorEvent.trim()) return;
@@ -304,6 +370,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setError(null);
     setQueuedPossibilityTitle("");
     setQueuedStrategyTitle("");
+    setQueuedEventSeedTitle("");
     try {
       const next = await api.runSandboxRound(slug, {
         major_event: majorEvent.trim(),
@@ -427,6 +494,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setInterventionTarget("");
     setQueuedPossibilityTitle(title);
     setQueuedStrategyTitle("");
+    setQueuedEventSeedTitle("");
     focusControl();
   }
 
@@ -439,7 +507,16 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setInterventionTarget("");
     setQueuedStrategyTitle(title);
     setQueuedPossibilityTitle("");
+    setQueuedEventSeedTitle("");
     focusControl();
+  }
+
+  function chooseEventSeed(seed: (typeof eventSeedDeck)[number]) {
+    setMajorEvent(seed.event);
+    setQueuedEventSeedTitle(seed.title);
+    setQueuedPossibilityTitle("");
+    setQueuedStrategyTitle("");
+    focusEventDraft();
   }
 
   const runnerPanel = (
@@ -465,6 +542,32 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           <strong>启动推演</strong>
         </span>
       </div>
+      <section className="sandbox-event-seeds" aria-label="事件种子台">
+        <div className="sandbox-event-seeds__head">
+          <div>
+            <p className="tiny muted">事件种子台</p>
+            <h3>不知道写什么，就从世界压力开局</h3>
+          </div>
+          <span className="badge">{report ? "读本轮余波" : "开局建议"}</span>
+        </div>
+        <div className="sandbox-event-seeds__grid">
+          {eventSeedDeck.map((seed) => (
+            <article key={seed.id}>
+              <span>{seed.label}</span>
+              <strong>{seed.title}</strong>
+              <p>{seed.detail}</p>
+              <div className="sandbox-event-seeds__actions">
+                <button className="btn btn--ghost tiny" onClick={() => chooseEventSeed(seed)}>
+                  放入事件
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+        {queuedEventSeedTitle && (
+          <p className="sandbox-event-seeds__feedback">已放入运行台：{queuedEventSeedTitle}</p>
+        )}
+      </section>
       <label className="sandbox-runner__field sandbox-runner__field--event">
         <span>世界刚刚发生了什么</span>
         <textarea

@@ -3981,3 +3981,19 @@
   - In-app Browser smoke：`http://localhost:5183/#/world/my-story/tianming` 在 1280px 下简报位于接力台和详细面板之间，四张卡读取真实数据，点击“启动世界沙盘”进入 `#/world/my-story/sandbox`；390px 下简报和卡片均为单列，三个按钮等宽，无水平溢出，浏览器 error 日志为空。
 - **边界**：
   - 本轮只改前端天命书 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变 `tianming.json`、干预编译、世界线代偿或沙盘 artifact 契约，不删除生成、确认、锚点、压力档、候选承载者、干预预编译或代偿面板。
+
+### 2026-06-07 — WorldSandbox Event Seed Deck
+
+- **做了什么**：
+  - `WorldSandboxPage` 在运行台步骤之后、大事件输入之前新增“事件种子台”。
+  - 事件种子台从当前锚点、`worldline_state.continuation_inputs.major_event_hint`、`consequence_state.next_round_hint`、代偿域、最近 ledger、后续剧情可能性和首条策略暗线派生三枚可扫读种子。
+  - 用户点击“放入事件”会把对应种子写入 `majorEvent` 草稿，并显示“已放入运行台”反馈；下方读者干预草稿不被自动清空，仍由用户自己决定是否调整。
+  - 扩展 `check:sandbox-runner-ux`，锁定事件种子台的位置、字段来源、回填 helper、反馈和移动端折叠样式。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少 `sandbox-event-seeds` 时失败。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - 本轮工具面未暴露 in-app Browser 控制；未做桌面/移动真实截图 smoke，后续有浏览器工具时需补视口验收。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段，不改 `sandbox_rounds.jsonl`、`worldline_state.json` 或其它沙盘 artifact。

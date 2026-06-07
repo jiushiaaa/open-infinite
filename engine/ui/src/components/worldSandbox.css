@@ -164,6 +164,90 @@
   min-height: 132px;
 }
 
+.sandbox-event-seeds {
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid rgba(196, 184, 156, 0.72);
+  border-radius: 8px;
+  padding: var(--space-3);
+  background: rgba(250, 246, 236, 0.74);
+}
+
+.sandbox-event-seeds__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sandbox-event-seeds__head p {
+  margin: 0 0 2px;
+}
+
+.sandbox-event-seeds__head h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.sandbox-event-seeds__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+.sandbox-event-seeds__grid article {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+
+.sandbox-event-seeds__grid span {
+  color: var(--cinnabar-dark);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.sandbox-event-seeds__grid strong {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-event-seeds__grid p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-event-seeds__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.sandbox-event-seeds__actions .btn {
+  min-width: 96px;
+}
+
+.sandbox-event-seeds__feedback {
+  margin: 0;
+  border-top: 1px dashed var(--line);
+  padding-top: var(--space-2);
+  color: var(--cinnabar-dark);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 .sandbox-hero .sandbox-runner {
   height: 100%;
 }
@@ -1469,6 +1553,7 @@
 
   .sandbox-result-bridge,
   .sandbox-result-bridge__signals,
+  .sandbox-event-seeds__grid,
   .sandbox-event-preview__grid,
   .sandbox-intervention-preview__grid {
     grid-template-columns: 1fr;
@@ -1581,6 +1666,8 @@
 
   .sandbox-result-bridge__stats,
   .sandbox-result-bridge__actions,
+  .sandbox-event-seeds__grid,
+  .sandbox-event-seeds__actions,
   .sandbox-event-preview__grid,
   .sandbox-event-preview__actions,
   .sandbox-intervention-preview__grid,
@@ -1588,6 +1675,8 @@
     grid-template-columns: 1fr;
   }
 
+  .sandbox-event-seeds__head,
+  .sandbox-event-seeds__actions,
   .sandbox-event-preview__head,
   .sandbox-event-preview__actions,
   .sandbox-intervention-preview__head,
@@ -1601,6 +1690,7 @@
     gap: 2px;
   }
 
+  .sandbox-event-seeds__actions .btn,
   .sandbox-event-preview__actions .btn,
   .sandbox-intervention-preview__actions .btn {
     width: 100%;
