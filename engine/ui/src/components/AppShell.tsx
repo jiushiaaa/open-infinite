@@ -91,6 +91,9 @@ export function AppShell({
   const currentWorldline = worldlineId(route);
   const active = activeSection(route);
   const routeContext = getWorldRouteContext(route);
+  const mainContentLabel = `当前页面内容：${
+    routeContext?.title ?? ROUTE_LABELS[route.name] ?? "世界书架"
+  }`;
   const recentReading = slug ? readRecentReading(window.localStorage, slug) : null;
   const showRecentReading = shouldShowRecentReading(window.location.hash, recentReading);
 
@@ -332,7 +335,7 @@ export function AppShell({
       <main
         id="main-content"
         className="shell__body"
-        aria-label="当前页面内容"
+        aria-label={mainContentLabel}
         tabIndex={-1}
       >
         {children}

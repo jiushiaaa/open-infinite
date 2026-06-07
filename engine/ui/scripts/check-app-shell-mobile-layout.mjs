@@ -77,8 +77,17 @@ if (!appShell.includes('id="main-content"') || !appShell.includes("tabIndex={-1}
   failures.push("main content skip target should be programmatically focusable");
 }
 
-if (!appShell.includes('aria-label="当前页面内容"')) {
+if (!appShell.includes("当前页面内容：")) {
   failures.push("main content skip target should expose a clear Chinese accessible name");
+}
+
+if (
+  !appShell.includes("const mainContentLabel =") ||
+  !appShell.includes("routeContext?.title") ||
+  !appShell.includes('ROUTE_LABELS[route.name] ?? "世界书架"') ||
+  !appShell.includes("aria-label={mainContentLabel}")
+) {
+  failures.push("main content accessible name should include the current route title when available");
 }
 
 const skipLinkRule = findRule(".skip-link");
