@@ -124,6 +124,49 @@ export function WorldlineDossierPage({
   const scrollToWorldlineItem = (selector: string) => {
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const rememberedCount = latestCheckpoint?.who_remembered_what?.length ?? 0;
+  const continuityItems = [
+    {
+      label: "角色记忆",
+      title: rememberedCount ? `${rememberedCount} 个角色留下主观记忆` : "等待角色写入主观记忆",
+      detail: rememberedCount
+        ? latestCheckpoint?.who_remembered_what?.[0]?.remembered || "最近检查点已记录角色记忆。"
+        : nextRoundReads.join("；") || "下一轮沙盘会把干预、因果债和角色行动写入个人卷。",
+      action: "读长线卷",
+      onClick: () => navigate({ name: "longlineReading", slug, worldlineId }),
+    },
+    {
+      label: "因果代偿",
+      title: consequenceDomains.length
+        ? `${consequenceDomains.length} 个世界域正在承压`
+        : "代偿尚未显形",
+      detail: state?.consequence_state?.next_round_hint || state?.consequence_state?.summary ||
+        "继续运行后，地点、资源、舆论、势力和环境会把干预后果具体化。",
+      action: "看代偿",
+      onClick: () => scrollToWorldlineItem(".worldline-consequence-section"),
+    },
+    {
+      label: "检查点",
+      title: latestCheckpoint ? `第 ${latestCheckpoint.round_index} 轮可回放` : "还没有可回放检查点",
+      detail: latestCheckpoint?.major_event || "先让世界自演完成一轮，再回看角色如何误读和记住变化。",
+      action: latestCheckpoint ? "回放检查点" : "继续沙盘",
+      onClick: goToLatestCheckpoint,
+    },
+    {
+      label: "下一轮入口",
+      title: latestTask ? "自演任务正在承接" : "把世界线交回沙盘",
+      detail: latestTask
+        ? `${latestTask.status || "unknown"} · ${latestTask.progress?.current_round ?? 0}/${
+            latestTask.progress?.target_round ?? 0
+          }`
+        : nextRoundReads.join("；") || "从这里继续运行，让世界状态进入下一章前的行动轮。",
+      action: latestTask ? "看任务" : "继续沙盘",
+      onClick: () =>
+        latestTask
+          ? scrollToWorldlineItem(".worldline-task-section")
+          : navigate({ name: "sandbox", slug }),
+    },
+  ];
 
   return (
     <div className="worldline-page">
@@ -261,6 +304,28 @@ export function WorldlineDossierPage({
                 "这条世界线等待下一轮沙盘写入新的承接材料。"}
             </p>
           </div>
+        </section>
+      )}
+
+      {!loading && !error && report && (
+        <section className="worldline-continuity-rail" aria-label="世界状态接力台">
+          <div className="worldline-continuity-rail__intro">
+            <p className="muted tiny">状态接力</p>
+            <h2>这条世界线会这样进入下一轮</h2>
+            <p className="muted">
+              先确认谁会记得、世界哪里在代偿、最近检查点能否回放，再决定继续沙盘或进入长线阅读。
+            </p>
+          </div>
+          {continuityItems.map((item) => (
+            <article key={item.label}>
+              <span>{item.label}</span>
+              <strong>{item.title}</strong>
+              <p>{item.detail}</p>
+              <button className="btn btn--ghost tiny" onClick={item.onClick}>
+                {item.action}
+              </button>
+            </article>
+          ))}
         </section>
       )}
 

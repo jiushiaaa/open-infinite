@@ -3363,3 +3363,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端语义 helper、共享壳层组件、样式、壳层检查脚本和文档，不新增后端 API、不改变路由契约、不改 artifact、不删任何世界入口。
+
+### 2026-06-07 — Worldline State Continuity Rail
+
+- **做了什么**：
+  - `WorldlineDossierPage` 在世界线工作流总览之后、`WorldRunway` 之前新增“状态接力台”。
+  - 接力台把角色记忆、因果代偿、最近检查点和下一轮入口整理成四枚可点击承接卡。
+  - 四枚入口复用既有页面数据与路由，可进入长线卷、具象代偿账、检查点回放、任务区或继续沙盘。
+  - 桌面保持四列扫读，760px 以下折为单列，不移除原有移动端“回放 / 看代偿 / 看任务 / 长线卷”导读条、工作流总览、`WorldRunway` 或页面深部证据区。
+  - 扩展 `check:worldline-dossier-ux`，锁定状态接力台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:worldline-dossier-ux`，确认缺少状态接力台时失败。
+  - Focused helper：`pnpm.cmd run check:worldline-dossier-ux` -> `worldline dossier ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端世界线页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 worldline dossier 契约、不改 artifact。

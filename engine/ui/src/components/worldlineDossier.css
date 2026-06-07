@@ -246,6 +246,82 @@
   overflow-wrap: anywhere;
 }
 
+.worldline-continuity-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  max-width: 1320px;
+  margin: 0 auto var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid rgba(45, 104, 92, 0.2);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.86), rgba(245, 251, 246, 0.74)),
+    var(--paper-raised);
+  box-shadow: var(--shadow-card);
+}
+
+.worldline-continuity-rail__intro {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px dashed var(--line);
+}
+
+.worldline-continuity-rail__intro p,
+.worldline-continuity-rail__intro h2 {
+  margin: 0;
+}
+
+.worldline-continuity-rail__intro h2 {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.worldline-continuity-rail__intro .muted:not(.tiny) {
+  max-width: 620px;
+  line-height: 1.7;
+}
+
+.worldline-continuity-rail article {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 190px;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.72);
+}
+
+.worldline-continuity-rail article span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.worldline-continuity-rail article strong {
+  font-family: var(--font-serif);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.worldline-continuity-rail article p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.worldline-continuity-rail article .btn {
+  justify-content: center;
+  width: 100%;
+}
+
 .checkpoint-mobile-guide,
 .worldline-mobile-guide {
   display: none;
@@ -446,6 +522,20 @@
     min-height: 40px;
     padding-inline: 8px;
     white-space: normal;
+  }
+
+  .worldline-continuity-rail {
+    grid-template-columns: 1fr;
+    padding: var(--space-3);
+  }
+
+  .worldline-continuity-rail__intro {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .worldline-continuity-rail article {
+    min-height: 0;
   }
 }
 
