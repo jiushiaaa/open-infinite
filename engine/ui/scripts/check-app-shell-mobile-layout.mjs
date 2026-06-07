@@ -69,6 +69,29 @@ if (!workspaceShell.includes("世界工作区壳") || !workspaceShell.includes("
   failures.push("WorldWorkspaceShell should name the shared shell and expose a clear journey bus");
 }
 
+if (
+  !workspaceShell.includes("world-workspace-shell__desktop-nav-top") ||
+  !workspaceShell.includes("world-workspace-shell__desktop-nav-rest")
+) {
+  failures.push("WorldWorkspaceShell should keep the full desktop navigation outside the mobile drawer");
+}
+
+if (
+  !workspaceShell.includes("<details className=\"world-workspace-shell__mobile-nav\"") ||
+  !workspaceShell.includes("world-workspace-shell__mobile-nav-body") ||
+  !workspaceShell.includes("展开世界导航")
+) {
+  failures.push("WorldWorkspaceShell should collapse the global world navigation behind a mobile details drawer");
+}
+
+if (
+  workspaceShell.indexOf("shell-context__taskbar") === -1 ||
+  workspaceShell.indexOf("world-workspace-shell__mobile-nav") === -1 ||
+  workspaceShell.indexOf("shell-context__taskbar") > workspaceShell.indexOf("world-workspace-shell__mobile-nav")
+) {
+  failures.push("mobile current-task row should stay before the expandable world navigation");
+}
+
 if (!workspaceShell.includes("routeContext.stages.map") || !workspaceShell.includes("routeContext.dossiers.map")) {
   failures.push("WorldWorkspaceShell should keep stage and dossier navigation in the shared shell");
 }
@@ -163,8 +186,28 @@ if (!/grid-template-columns:\s*0\.75fr\s+0\.75fr\s+minmax\(0,\s*1\.5fr\)/.test(w
 }
 
 const shellContextRule = findRule(".shell-context");
-if (!/grid-template-areas:[^}]*taskbar/s.test(shellContextRule)) {
-  failures.push("AppShell context grid should give the current-task row its own area");
+if (!/grid-template-areas:[^}]*taskbar[^}]*mobile-nav/s.test(shellContextRule)) {
+  failures.push("AppShell context grid should give the current-task row and mobile drawer their own areas");
+}
+
+const desktopNavTopRule = findRule(".world-workspace-shell__desktop-nav-top");
+if (!/display:\s*contents/.test(desktopNavTopRule)) {
+  failures.push("desktop navigation wrappers should use display: contents so existing grid areas stay intact");
+}
+
+const desktopNavRestRule = findRule(".world-workspace-shell__desktop-nav-rest");
+if (!/display:\s*contents/.test(desktopNavRestRule)) {
+  failures.push("desktop rest navigation wrapper should use display: contents so existing grid areas stay intact");
+}
+
+const mobileNavRule = findRule(".world-workspace-shell__mobile-nav");
+if (!/display:\s*none/.test(mobileNavRule)) {
+  failures.push("desktop layout should hide the mobile world navigation drawer");
+}
+
+const mobileNavBodyRule = findRule(".world-workspace-shell__mobile-nav-body");
+if (!/display:\s*grid/.test(mobileNavBodyRule)) {
+  failures.push("mobile drawer body should be ready to stack preserved world navigation sections");
 }
 
 const taskbarRule = findRule(".shell-context__taskbar");
@@ -225,6 +268,31 @@ if (!/min-height:\s*0/.test(mobileWorkspaceCardRule)) {
 const mobileTaskbarRule = findRule(".shell-context__taskbar", mobileIndex);
 if (!/grid-template-columns:\s*1fr/.test(mobileTaskbarRule)) {
   failures.push("mobile current-task row should stack explanation above actions");
+}
+
+const mobileDesktopNavTopRule = findRule(".world-workspace-shell__desktop-nav-top", mobileIndex);
+if (!/display:\s*none/.test(mobileDesktopNavTopRule)) {
+  failures.push("mobile layout should hide the expanded desktop navigation before showing the drawer");
+}
+
+const mobileDesktopNavRestRule = findRule(".world-workspace-shell__desktop-nav-rest", mobileIndex);
+if (!/display:\s*none/.test(mobileDesktopNavRestRule)) {
+  failures.push("mobile layout should hide the desktop navigation remainder before showing the drawer");
+}
+
+const mobileDrawerRule = findRule(".world-workspace-shell__mobile-nav", mobileIndex);
+if (!/display:\s*grid/.test(mobileDrawerRule) || !/grid-area:\s*mobile-nav/.test(mobileDrawerRule)) {
+  failures.push("mobile world navigation drawer should appear as its own grid area after the current task");
+}
+
+const mobileSummaryRule = findRule(".world-workspace-shell__mobile-nav summary", mobileIndex);
+if (!/cursor:\s*pointer/.test(mobileSummaryRule) || !/display:\s*grid/.test(mobileSummaryRule)) {
+  failures.push("mobile drawer summary should be a clear tappable control");
+}
+
+const mobileNavBodyMobileRule = findRule(".world-workspace-shell__mobile-nav-body", mobileIndex);
+if (!/display:\s*grid/.test(mobileNavBodyMobileRule) || !/gap:\s*var\(--space-2\)/.test(mobileNavBodyMobileRule)) {
+  failures.push("mobile drawer body should stack every preserved world navigation section with readable spacing");
 }
 
 const mobileHandoffsRule = findRule(".shell-context__handoffs", mobileIndex);

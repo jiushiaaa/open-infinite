@@ -99,6 +99,7 @@
     "journey journey"
     "workspace workspace"
     "taskbar taskbar"
+    "mobile-nav mobile-nav"
     "handoffs handoffs"
     "continuity continuity"
     "dossiers dossiers";
@@ -143,6 +144,21 @@
   font-weight: 700;
   letter-spacing: 0;
   white-space: nowrap;
+}
+
+.world-workspace-shell__desktop-nav-top,
+.world-workspace-shell__desktop-nav-rest {
+  display: contents;
+}
+
+.world-workspace-shell__mobile-nav {
+  display: none;
+}
+
+.world-workspace-shell__mobile-nav-body {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .world-workspace-shell__journey {
@@ -665,6 +681,7 @@
       "journey"
       "workspace"
       "taskbar"
+      "mobile-nav"
       "handoffs"
       "continuity"
       "stages"
@@ -761,6 +778,10 @@
   }
 
   .shell-context {
+    grid-template-areas:
+      "copy"
+      "taskbar"
+      "mobile-nav";
     gap: var(--space-1);
     padding: var(--space-2) var(--space-3);
   }
@@ -794,6 +815,74 @@
 
   .shell-context__actions {
     grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+  }
+
+  .world-workspace-shell__desktop-nav-top,
+  .world-workspace-shell__desktop-nav-rest {
+    display: none;
+  }
+
+  .world-workspace-shell__mobile-nav {
+    grid-area: mobile-nav;
+    display: grid;
+    min-width: 0;
+    border: 1px solid rgba(196, 184, 156, 0.68);
+    border-radius: 8px;
+    background:
+      linear-gradient(90deg, rgba(74, 124, 99, 0.08), transparent 74%),
+      rgba(250, 246, 236, 0.62);
+  }
+
+  .world-workspace-shell__mobile-nav summary {
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    min-width: 0;
+    padding: 8px 10px;
+    color: var(--ink);
+    list-style: none;
+  }
+
+  .world-workspace-shell__mobile-nav summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .world-workspace-shell__mobile-nav summary::after {
+    content: "展开";
+    justify-self: start;
+    margin-top: 4px;
+    padding: 2px 7px;
+    border: 1px solid rgba(141, 50, 37, 0.22);
+    border-radius: 999px;
+    color: var(--cinnabar-dark);
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+
+  .world-workspace-shell__mobile-nav[open] summary::after {
+    content: "收起";
+  }
+
+  .world-workspace-shell__mobile-nav summary strong {
+    min-width: 0;
+    font-family: var(--font-serif);
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
+  .world-workspace-shell__mobile-nav summary span {
+    min-width: 0;
+    color: var(--ink-soft);
+    font-size: 11.5px;
+    line-height: 1.35;
+  }
+
+  .world-workspace-shell__mobile-nav-body {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: 0 8px 8px;
   }
 
   .shell-context__handoffs {
@@ -871,6 +960,15 @@
 
   .shell-context__dossiers strong {
     display: none;
+  }
+
+  .world-workspace-shell__mobile-nav-body > .world-workspace-shell__journey,
+  .world-workspace-shell__mobile-nav-body > .shell-context__workspace,
+  .world-workspace-shell__mobile-nav-body > .shell-context__handoffs,
+  .world-workspace-shell__mobile-nav-body > .shell-context__continuity,
+  .world-workspace-shell__mobile-nav-body > .shell-context__stages,
+  .world-workspace-shell__mobile-nav-body > .shell-context__dossiers {
+    grid-area: auto;
   }
 
   .shell-context__actions .btn {

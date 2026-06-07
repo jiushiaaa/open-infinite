@@ -3909,3 +3909,19 @@
   - In-app Browser smoke：`http://localhost:5182/#/world/my-story/author` 真实提交后渲染 5 张跨章回收卡；同一结果缩到 390px 后卡片为单列 `290px`，`scrollWidth` 等于 `clientWidth`，无水平溢出；浏览器 error/warning 日志为空。
 - **边界**：
   - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约。
+
+### 2026-06-07 — WorldWorkspaceShell Mobile Drawer
+
+- **做了什么**：
+  - `WorldWorkspaceShell` 在桌面继续完整展开世界旅程总线、工作区总览、当前任务、状态预告、世界脉搏、体验轨道和卷宗速览。
+  - 640px 以下把完整世界导航收进“展开世界导航”折叠区，让手机首屏先显示当前位置、当前任务、主动作和页面正文。
+  - 折叠区展开后仍保留 4 个旅程入口、4 个体验阶段、4 个世界脉搏和 8 个卷宗入口，功能不减。
+  - 扩展 `check:app-shell-mobile-layout`，锁定桌面完整导航、移动端默认折叠、任务条位于折叠导航之前，以及移动端抽屉展开后的入口完整性。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少移动端折叠导航时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - In-app Browser smoke：`http://localhost:5183/#/world/demo-world/author` 在 390px 下默认折叠世界导航，任务条在折叠区前，作者台标题进入首屏；点击“展开世界导航”后 4 个旅程入口、4 个阶段、4 个脉搏和 8 个卷宗入口均存在；无水平溢出，浏览器 error 日志为空。
+- **边界**：
+  - 本轮只改共享壳层组件、AppShell 样式、移动布局检查脚本和文档，不新增后端 API，不改变路由、阅读、作者采纳或 artifact 契约。

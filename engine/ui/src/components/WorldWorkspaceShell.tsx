@@ -16,14 +16,8 @@ export function WorldWorkspaceShell({
     (dossier) => dossier.key === "worldline",
   )?.route;
 
-  return (
-    <section className="shell-context world-workspace-shell" aria-label="世界工作区壳">
-      <div className="shell-context__copy">
-        <span className="shell-context__eyebrow">当前位置 · {routeContext.sectionLabel}</span>
-        <strong>{routeContext.title}</strong>
-        <span>{routeContext.description}</span>
-      </div>
-
+  const renderJourneyAndWorkspace = () => (
+    <>
       <div className="world-workspace-shell__journey" aria-label="世界旅程总线">
         {routeContext.stages.map((stage) => (
           <button
@@ -74,43 +68,11 @@ export function WorldWorkspaceShell({
           <em>{routeContext.workspaceSummary.why}</em>
         </button>
       </div>
+    </>
+  );
 
-      <div className="shell-context__taskbar" aria-label="当前任务">
-        <div className="shell-context__taskcopy">
-          <small>当前任务 · 建议先做</small>
-          <strong>{routeContext.primaryActionLabel}</strong>
-          <span>{routeContext.workspaceSummary.why}</span>
-        </div>
-        <div className="shell-context__actions">
-          {showRecentReading && recentReading && (
-            <button
-              className="btn btn--ghost tiny shell-context__resume"
-              onClick={() => {
-                window.location.hash = recentReading.hash;
-              }}
-              title={`${recentReading.title} · ${recentReading.worldlineId}`}
-              type="button"
-            >
-              继续阅读
-            </button>
-          )}
-          <button
-            className="btn btn--primary tiny"
-            onClick={() => navigate(routeContext.primaryRoute)}
-          >
-            {routeContext.primaryActionLabel}
-          </button>
-          {routeContext.secondaryRoute && routeContext.secondaryActionLabel && (
-            <button
-              className="btn btn--ghost tiny"
-              onClick={() => navigate(routeContext.secondaryRoute!)}
-            >
-              {routeContext.secondaryActionLabel}
-            </button>
-          )}
-        </div>
-      </div>
-
+  const renderRestNavigation = () => (
+    <>
       <div className="shell-context__handoffs" aria-label="世界状态预告">
         {routeContext.stateHandoffs.map((handoff) => (
           <button
@@ -171,6 +133,71 @@ export function WorldWorkspaceShell({
           </button>
         ))}
       </nav>
+    </>
+  );
+
+  return (
+    <section className="shell-context world-workspace-shell" aria-label="世界工作区壳">
+      <div className="shell-context__copy">
+        <span className="shell-context__eyebrow">当前位置 · {routeContext.sectionLabel}</span>
+        <strong>{routeContext.title}</strong>
+        <span>{routeContext.description}</span>
+      </div>
+
+      <div className="world-workspace-shell__desktop-nav-top">
+        {renderJourneyAndWorkspace()}
+      </div>
+
+      <div className="shell-context__taskbar" aria-label="当前任务">
+        <div className="shell-context__taskcopy">
+          <small>当前任务 · 建议先做</small>
+          <strong>{routeContext.primaryActionLabel}</strong>
+          <span>{routeContext.workspaceSummary.why}</span>
+        </div>
+        <div className="shell-context__actions">
+          {showRecentReading && recentReading && (
+            <button
+              className="btn btn--ghost tiny shell-context__resume"
+              onClick={() => {
+                window.location.hash = recentReading.hash;
+              }}
+              title={`${recentReading.title} · ${recentReading.worldlineId}`}
+              type="button"
+            >
+              继续阅读
+            </button>
+          )}
+          <button
+            className="btn btn--primary tiny"
+            onClick={() => navigate(routeContext.primaryRoute)}
+          >
+            {routeContext.primaryActionLabel}
+          </button>
+          {routeContext.secondaryRoute && routeContext.secondaryActionLabel && (
+            <button
+              className="btn btn--ghost tiny"
+              onClick={() => navigate(routeContext.secondaryRoute!)}
+            >
+              {routeContext.secondaryActionLabel}
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="world-workspace-shell__desktop-nav-rest">
+        {renderRestNavigation()}
+      </div>
+
+      <details className="world-workspace-shell__mobile-nav">
+        <summary>
+          <strong>展开世界导航</strong>
+          <span>旅程、脉搏、卷宗入口都在这里</span>
+        </summary>
+        <div className="world-workspace-shell__mobile-nav-body">
+          {renderJourneyAndWorkspace()}
+          {renderRestNavigation()}
+        </div>
+      </details>
     </section>
   );
 }
