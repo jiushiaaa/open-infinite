@@ -28,6 +28,16 @@ const requiredPageMarkers = [
   ["作为下一轮事件", "possibility cards should let users continue the world loop"],
   ["不沿用上轮临时干预", "possibility continuation should avoid replaying stale intervention text"],
   ["已放入运行台", "possibility continuation should give feedback after queuing an event"],
+  ["sandbox-overnight-brief", "autopilot report should open with a literary overnight brief"],
+  ["昨夜世界醒来台", "overnight brief should frame the autopilot result as a readable wake report"],
+  ["昨夜发生", "overnight brief should summarize what happened"],
+  ["带着记忆醒来", "overnight brief should surface remembered character changes"],
+  ["世界为什么变了", "overnight brief should explain why the world state changed"],
+  ["从这里继续读", "overnight brief should route users back into reading"],
+  ["overnightReport", "overnight brief should use the existing overnight_report payload"],
+  ["overnightMemory", "overnight brief should use remembered character data"],
+  ["overnightContinuation", "overnight brief should use continuation hints"],
+  ["autopilotReport.readable_entry", "overnight brief should connect to the readable entry"],
 ];
 
 for (const [marker, message] of requiredPageMarkers) {
@@ -47,6 +57,10 @@ const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
 const actionChainIndex = page.indexOf("角色行动链");
 const possibilitiesIndex = page.indexOf("后续剧情可能性");
 const queuePossibilityIndex = page.indexOf("queueNextPossibility");
+const autopilotReportIndex = page.indexOf('className="sandbox-section sandbox-autopilot-report"');
+const overnightBriefIndex = page.indexOf("sandbox-overnight-brief");
+const wakeEntryIndex = page.indexOf("<WakeReadingEntry");
+const autopilotTimelineIndex = page.indexOf("sandbox-timeline");
 if (resultBridgeIndex === -1 || actionChainIndex === -1 || resultBridgeIndex > actionChainIndex) {
   failures.push("completed round result bridge should appear before detailed action chains");
 }
@@ -68,6 +82,19 @@ if (
 ) {
   failures.push("possibility continuation helper should power the post-action next-round cards");
 }
+if (
+  autopilotReportIndex === -1 ||
+  overnightBriefIndex === -1 ||
+  wakeEntryIndex === -1 ||
+  autopilotTimelineIndex === -1 ||
+  overnightBriefIndex < autopilotReportIndex ||
+  overnightBriefIndex > wakeEntryIndex ||
+  overnightBriefIndex > autopilotTimelineIndex
+) {
+  failures.push(
+    "overnight brief should sit inside the autopilot report before readable entry and timelines",
+  );
+}
 
 const requiredCssMarkers = [
   [".sandbox-runner__head", "runner header styling is missing"],
@@ -87,6 +114,11 @@ const requiredCssMarkers = [
   [".sandbox-strategy-card__effect", "strategy card consequence styling is missing"],
   [".sandbox-possibility__actions", "possibility continuation action styling is missing"],
   [".sandbox-possibility__actions .btn", "possibility continuation buttons should have stable sizing"],
+  [".sandbox-overnight-brief", "overnight brief styling is missing"],
+  [".sandbox-overnight-brief__intro", "overnight brief intro styling is missing"],
+  [".sandbox-overnight-brief__grid", "overnight brief card grid styling is missing"],
+  [".sandbox-overnight-brief article", "overnight brief card styling is missing"],
+  [".sandbox-overnight-brief__actions", "overnight brief action styling is missing"],
 ];
 
 for (const [marker, message] of requiredCssMarkers) {
@@ -104,6 +136,7 @@ const tabletMediaIndex = css.indexOf("@media (max-width: 960px)");
 const tabletStrategyIndex = css.indexOf(".sandbox-strategy-board__grid", tabletMediaIndex);
 const mobileStrategyDetailIndex = css.indexOf(".sandbox-strategy-card dl", mobileMediaIndex);
 const mobilePossibilityActionsIndex = css.indexOf(".sandbox-possibility__actions", mobileMediaIndex);
+const mobileOvernightGridIndex = css.indexOf(".sandbox-overnight-brief__grid", mobileMediaIndex);
 if (tabletMediaIndex === -1 || tabletStrategyIndex === -1) {
   failures.push("strategy board should collapse to one column on tablet widths");
 }
@@ -112,6 +145,9 @@ if (mobileMediaIndex === -1 || mobileStrategyDetailIndex === -1) {
 }
 if (mobileMediaIndex === -1 || mobilePossibilityActionsIndex === -1) {
   failures.push("possibility continuation actions should collapse on narrow mobile widths");
+}
+if (mobileMediaIndex === -1 || mobileOvernightGridIndex === -1) {
+  failures.push("overnight brief should collapse on narrow mobile widths");
 }
 
 if (failures.length > 0) {

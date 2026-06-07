@@ -3459,3 +3459,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端检查点回放 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变自演检查点或 `readable_entry` 契约、不改 artifact。
+
+### 2026-06-07 — Autopilot Overnight Wake Brief
+
+- **做了什么**：
+  - `WorldSandboxPage` 的世界自演结果报告内新增“昨夜世界醒来台”。
+  - 醒来台把昨夜发生、角色记忆、世界变化原因和继续阅读入口整理成四枚可点击承接卡。
+  - 四枚入口复用既有 `overnight_report`、`overnightMemory`、`overnightContinuation`、`autopilotReport.readable_entry` 和时间线滚动动作，可直接继续卷宗阅读或查看昨夜时间线。
+  - 原有任务进度、刷新/暂停/恢复、停止证据、中断原因、恢复检查点、`WakeReadingEntry`、醒来时间线、小说节拍和检查点回放列表全部保留。
+  - 扩展 `check:sandbox-runner-ux`，锁定醒来台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少昨夜醒来台时失败。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `world-autopilot` / `readable_entry` 契约、不改 artifact。

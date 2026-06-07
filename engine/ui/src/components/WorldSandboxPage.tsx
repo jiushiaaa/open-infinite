@@ -72,6 +72,26 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     controlRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const focusResults = () =>
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const overnightReport = autopilotReport?.overnight_report;
+  const overnightMemory =
+    overnightReport?.who_remembered_what?.[0] ??
+    overnightReport?.memory_changes?.[0] ??
+    autopilotReport?.readable_entry?.memory_readout.who_remembered_what[0] ??
+    null;
+  const overnightContinuation =
+    overnightReport?.where_to_continue?.[0] ??
+    (autopilotReport?.readable_entry
+      ? {
+          checkpoint_id: autopilotReport.readable_entry.latest_checkpoint.checkpoint_id,
+          sandbox_run_id: autopilotReport.readable_entry.latest_checkpoint.sandbox_run_id,
+          label: autopilotReport.readable_entry.primary_actions[0]?.label,
+        }
+      : null);
+  const overnightScene = overnightReport?.narrative_timeline?.[0] ?? null;
+  const overnightReadAction =
+    autopilotReport?.readable_entry?.primary_actions.find(
+      (action) => action.id === "continuous_reading",
+    ) ?? autopilotReport?.readable_entry?.primary_actions[0];
   const sandboxRunwayMeta = report ? (
     <>
       <span className="badge badge--jade">{actionCount} 个角色行动</span>
@@ -698,35 +718,108 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   </button>
                 </div>
               )}
-              {autopilotReport.overnight_report && (
-                <div className="sandbox-callout">
-                  <strong>醒来可读</strong>
-                  <p>{autopilotReport.overnight_report.what_happened}</p>
-                  <p className="muted tiny">
-                    {autopilotReport.overnight_report.why_world_changed}
-                  </p>
-                  {autopilotReport.stop_condition?.evidence && (
-                    <p className="muted tiny">
-                      停止证据：{autopilotReport.stop_condition.evidence}
-                    </p>
+              {overnightReport && (
+                <section className="sandbox-overnight-brief" aria-label="昨夜世界醒来台">
+                  <div className="sandbox-overnight-brief__intro">
+                    <div>
+                      <p className="tiny muted">昨夜世界醒来台</p>
+                      <h3>醒来时，世界已经自己走了一夜</h3>
+                    </div>
+                    <div className="sandbox-overnight-brief__actions">
+                      <button
+                        className="btn btn--primary tiny"
+                        onClick={() => {
+                          if (overnightReadAction?.route) {
+                            openReadableRoute(overnightReadAction.route);
+                            return;
+                          }
+                          navigate({
+                            name: "dossierReading",
+                            slug,
+                            worldlineId: autopilotReport.worldline_id || "main",
+                          });
+                        }}
+                      >
+                        从这里继续读
+                      </button>
+                      <button
+                        className="btn btn--ghost tiny"
+                        onClick={() =>
+                          document
+                            .querySelector(".sandbox-timeline")
+                            ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                        }
+                      >
+                        查看昨夜时间线
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="sandbox-overnight-brief__grid">
+                    <article>
+                      <span>昨夜发生</span>
+                      <strong>{overnightReport.what_happened}</strong>
+                      {overnightScene?.scene_hook && (
+                        <p className="muted tiny">小说节拍：{overnightScene.scene_hook}</p>
+                      )}
+                    </article>
+                    <article>
+                      <span>带着记忆醒来</span>
+                      <strong>
+                        {overnightMemory?.character_id
+                          ? `${overnightMemory.character_id} 记住了`
+                          : "角色记忆已经写入"}
+                      </strong>
+                      <p className="muted tiny">
+                        {overnightMemory?.remembered ||
+                          autopilotReport.readable_entry?.memory_readout.summary ||
+                          "这一夜的变化会进入角色主观记忆链。"}
+                      </p>
+                    </article>
+                    <article>
+                      <span>世界为什么变了</span>
+                      <strong>{overnightReport.why_world_changed}</strong>
+                      {autopilotReport.stop_condition?.evidence && (
+                        <p className="muted tiny">
+                          停止证据：{autopilotReport.stop_condition.evidence}
+                        </p>
+                      )}
+                    </article>
+                    <article>
+                      <span>从这里继续读</span>
+                      <strong>
+                        {overnightContinuation?.label ||
+                          overnightReadAction?.label ||
+                          "接回连续正文"}
+                      </strong>
+                      <p className="muted tiny">
+                        {overnightContinuation?.checkpoint_id
+                          ? `最近检查点：${overnightContinuation.checkpoint_id}`
+                          : overnightReadAction?.reason ||
+                            "把昨夜自演接到卷宗阅读或作者台。"}
+                      </p>
+                    </article>
+                  </div>
+
+                  {(autopilotReport.failure?.message ||
+                    overnightReport.checkpoint_recovery?.can_resume) && (
+                    <div className="sandbox-overnight-brief__notice">
+                      {autopilotReport.failure?.message && (
+                        <p className="muted tiny">
+                          中断原因：{autopilotReport.failure.message}；最近检查点：
+                          {autopilotReport.failure.latest_checkpoint || "暂无"}
+                        </p>
+                      )}
+                      {overnightReport.checkpoint_recovery?.can_resume && (
+                        <p className="muted tiny">
+                          可从{" "}
+                          {overnightReport.checkpoint_recovery.resume_from_checkpoint}{" "}
+                          恢复自演。
+                        </p>
+                      )}
+                    </div>
                   )}
-                  {autopilotReport.failure?.message && (
-                    <p className="muted tiny">
-                      中断原因：{autopilotReport.failure.message}；最近检查点：
-                      {autopilotReport.failure.latest_checkpoint || "暂无"}
-                    </p>
-                  )}
-                  {autopilotReport.overnight_report.checkpoint_recovery?.can_resume && (
-                    <p className="muted tiny">
-                      可从{" "}
-                      {
-                        autopilotReport.overnight_report.checkpoint_recovery
-                          .resume_from_checkpoint
-                      }{" "}
-                      恢复自演。
-                    </p>
-                  )}
-                </div>
+                </section>
               )}
               {autopilotReport.readable_entry && (
                 <WakeReadingEntry entry={autopilotReport.readable_entry} />
