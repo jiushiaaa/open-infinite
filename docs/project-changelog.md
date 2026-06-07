@@ -3299,3 +3299,17 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端共享壳层、route context、样式、检查脚本和文档，不新增后端 API、不改变世界线/阅读/作者采纳路由契约、不改 artifact。
+
+### 2026-06-07 — WorldRunway Next-Step Handoff
+
+- **做了什么**：
+  - `WorldRunway` 会从传入 `actions` 中自动提取 `primary` 动作，渲染为“建议先做”承接卡。
+  - 其它 actions 保留为次出口，避免页面原有世界线、卷宗、作者台、沙盘等入口丢失。
+  - 共享升级覆盖世界沙盘、卷宗阅读、角色个人卷、势力卷、事件多视角、长线卷、世界线档案、检查点回放和作者采纳台。
+  - 新增 `check:world-runway-ux`，锁定 primary handoff、secondary action 保留、桌面三栏和移动端不强撑高行。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:world-runway-ux` -> `WorldRunway next-step handoff structure ok.`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端共享导览组件、样式、检查脚本和文档，不新增后端 API、不改变路由契约、不改 artifact、不删页面原有按钮。

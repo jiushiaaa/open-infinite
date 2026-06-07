@@ -30,6 +30,9 @@ export function WorldRunway({
   steps: WorldRunwayStep[];
   actions: WorldRunwayAction[];
 }) {
+  const primaryAction = actions.find((action) => action.primary) ?? actions[0];
+  const secondaryActions = actions.filter((action) => action !== primaryAction);
+
   return (
     <section className="world-runway" aria-label="世界内部导览">
       <div className="world-runway__intro">
@@ -56,18 +59,31 @@ export function WorldRunway({
         ))}
       </ol>
 
-      <div className="world-runway__actions">
-        {actions.map((action) => (
+      <div className="world-runway__handoff" aria-label="下一步承接">
+        {primaryAction && (
           <button
-            key={action.label}
-            className={`world-runway__action ${action.primary ? "is-primary" : ""}`}
-            onClick={action.onClick}
+            className="world-runway__next-action"
+            onClick={primaryAction.onClick}
             type="button"
           >
-            <strong>{action.label}</strong>
-            <small>{action.detail}</small>
+            <small>建议先做</small>
+            <strong>{primaryAction.label}</strong>
+            <span>{primaryAction.detail}</span>
           </button>
-        ))}
+        )}
+        <div className="world-runway__actions">
+          {secondaryActions.map((action) => (
+            <button
+              key={action.label}
+              className="world-runway__action"
+              onClick={action.onClick}
+              type="button"
+            >
+              <strong>{action.label}</strong>
+              <small>{action.detail}</small>
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
