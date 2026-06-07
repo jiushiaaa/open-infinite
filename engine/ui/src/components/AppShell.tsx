@@ -91,9 +91,9 @@ export function AppShell({
   const currentWorldline = worldlineId(route);
   const active = activeSection(route);
   const routeContext = getWorldRouteContext(route);
-  const mainContentLabel = `当前页面内容：${
-    routeContext?.title ?? ROUTE_LABELS[route.name] ?? "世界书架"
-  }`;
+  const currentPageTitle = routeContext?.title ?? ROUTE_LABELS[route.name] ?? "世界书架";
+  const mainContentLabel = `当前页面内容：${currentPageTitle}`;
+  const skipLinkLabel = `跳到${currentPageTitle}内容`;
   const recentReading = slug ? readRecentReading(window.localStorage, slug) : null;
   const showRecentReading = shouldShowRecentReading(window.location.hash, recentReading);
 
@@ -108,7 +108,7 @@ export function AppShell({
   return (
     <div className="shell">
       <a className="skip-link" href="#main-content">
-        跳到当前页面内容
+        {skipLinkLabel}
       </a>
       <header className="topbar">
         <div className="topbar__left">

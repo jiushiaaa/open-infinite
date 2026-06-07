@@ -64,7 +64,7 @@ if (!appShell.includes("WorldWorkspaceShell")) {
 if (
   !appShell.includes('className="skip-link"') ||
   !appShell.includes('href="#main-content"') ||
-  !appShell.includes("跳到当前页面内容")
+  !appShell.includes("{skipLinkLabel}")
 ) {
   failures.push("AppShell should expose a keyboard skip link before dense world navigation");
 }
@@ -82,12 +82,20 @@ if (!appShell.includes("当前页面内容：")) {
 }
 
 if (
+  !appShell.includes("const currentPageTitle =") ||
   !appShell.includes("const mainContentLabel =") ||
-  !appShell.includes("routeContext?.title") ||
   !appShell.includes('ROUTE_LABELS[route.name] ?? "世界书架"') ||
   !appShell.includes("aria-label={mainContentLabel}")
 ) {
   failures.push("main content accessible name should include the current route title when available");
+}
+
+if (
+  !appShell.includes("const skipLinkLabel =") ||
+  !appShell.includes("`跳到${currentPageTitle}内容`") ||
+  !appShell.includes("{skipLinkLabel}")
+) {
+  failures.push("skip link copy should include the current route title");
 }
 
 const skipLinkRule = findRule(".skip-link");
