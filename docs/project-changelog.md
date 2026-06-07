@@ -3491,3 +3491,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端作者采纳 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer 或确认入卷契约，不改 artifact。
+
+### 2026-06-07 — Tianming Confirmation Handoff Rail
+
+- **做了什么**：
+  - `TianmingPage` 在天命书确认后、详情面板前新增“天命生效接力台”。
+  - 接力台把世界宪法已生效、锚点承压、干预边界和沙盘就绪整理成四段可行动承接。
+  - 四个动作复用既有世界沙盘路由、干预预编译滚动、锚点压力滚动和世界锚定路由，可直接进入沙盘、投放干预、看锚点压力或回世界入口。
+  - 接力台直接消费 `book.artifact`、`book.anchor_status`、`book.contract_pressure.pressure_tiers`、`book.mutation_policy` 和 `book.narrative_attractors`；原有宪法封面、移动端速断条、吸引子、锚点、压力、候选承载者、干预预编译和世界线代偿全部保留。
+  - 扩展 `check:tianming-mobile-guide`，锁定接力台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:tianming-mobile-guide`，确认缺少接力台时失败。
+  - Focused helper：`pnpm.cmd run check:tianming-mobile-guide` -> `tianming mobile guide structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端天命书 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `tianming`、干预编译或 narrative compensation 契约，不改 artifact。

@@ -193,6 +193,77 @@
   overflow-wrap: anywhere;
 }
 
+.tianming-confirmation-handoff {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid rgba(45, 104, 92, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(236, 244, 235, 0.64), rgba(255, 252, 244, 0.94)),
+    var(--paper-raised);
+  box-shadow: var(--shadow-card);
+}
+
+.tianming-confirmation-handoff__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.tianming-confirmation-handoff__head p,
+.tianming-confirmation-handoff__head h2 {
+  margin: 0;
+}
+
+.tianming-confirmation-handoff__head h2 {
+  margin-top: 2px;
+  font-family: var(--font-serif);
+  font-size: 19px;
+}
+
+.tianming-confirmation-handoff__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.tianming-confirmation-handoff__grid article {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: 0 var(--space-2);
+  border-left: 1px solid rgba(45, 104, 92, 0.18);
+}
+
+.tianming-confirmation-handoff__grid article:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.tianming-confirmation-handoff__grid strong {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.tianming-confirmation-handoff__grid p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.tianming-confirmation-handoff__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .tianming-layout {
   display: grid;
   grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
@@ -516,6 +587,42 @@
   .tianming-mobile-guide__actions .btn {
     min-width: 0;
     padding-inline: 8px;
+    white-space: normal;
+  }
+
+  .tianming-confirmation-handoff {
+    padding: var(--space-3);
+  }
+
+  .tianming-confirmation-handoff__head {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .tianming-confirmation-handoff__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .tianming-confirmation-handoff__grid article {
+    padding: var(--space-2) 0 0;
+    border-top: 1px solid rgba(45, 104, 92, 0.16);
+    border-left: 0;
+  }
+
+  .tianming-confirmation-handoff__grid article:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .tianming-confirmation-handoff__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tianming-confirmation-handoff__actions .btn {
+    width: 100%;
+    min-width: 0;
     white-space: normal;
   }
 }

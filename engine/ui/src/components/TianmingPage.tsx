@@ -365,6 +365,66 @@ export function TianmingPage({ slug }: { slug: string }) {
         )}
       </section>
 
+      {book && !book.requires_confirmation && (
+        <section className="tianming-confirmation-handoff" aria-label="天命书确认后的世界接力">
+          <div className="tianming-confirmation-handoff__head">
+            <div>
+              <p className="muted tiny">确认完成</p>
+              <h2>天命生效接力台</h2>
+            </div>
+            <span className="badge badge--jade">已确认</span>
+          </div>
+          <div className="tianming-confirmation-handoff__grid">
+            <article>
+              <span className="muted tiny">世界宪法已生效</span>
+              <strong>{book.artifact}</strong>
+              <p>普通干预会被世界吸收、拆分或转成分支，不会静默覆盖根天命。</p>
+            </article>
+            <article>
+              <span className="muted tiny">锚点承压</span>
+              <strong>{book.anchor_status.current_anchor_name || "主锚点待观察"}</strong>
+              <p>{book.anchor_status.risk}</p>
+            </article>
+            <article>
+              <span className="muted tiny">干预边界</span>
+              <strong>{activeTier?.label || pressureLabel(book.contract_pressure.level)}</strong>
+              <p>{book.mutation_policy.ordinary_intervention}</p>
+            </article>
+            <article>
+              <span className="muted tiny">沙盘就绪</span>
+              <strong>{book.narrative_attractors.length} 个吸引子会牵引角色行动</strong>
+              <p>下一轮会读取锚点、合约压力和候选承载者。</p>
+            </article>
+          </div>
+          <div className="tianming-confirmation-handoff__actions">
+            <button
+              className="btn btn--primary"
+              onClick={() => navigate({ name: "sandbox", slug })}
+            >
+              进入世界沙盘
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => scrollToTianmingItem(".tianming-compiler")}
+            >
+              预编译干预
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => scrollToTianmingItem(".tianming-anchor-section")}
+            >
+              看锚点压力
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => navigate({ name: "anchor", slug })}
+            >
+              回世界锚定
+            </button>
+          </div>
+        </section>
+      )}
+
       {loading && <Loading label="正在查找天命书…" />}
       {error && <ErrorState message={error} onRetry={generate} />}
       {!loading && !error && !book && (
