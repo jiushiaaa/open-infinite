@@ -39,6 +39,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [queuedPossibilityTitle, setQueuedPossibilityTitle] = useState("");
   const [queuedStrategyTitle, setQueuedStrategyTitle] = useState("");
+  const [queuedActionFocusTitle, setQueuedActionFocusTitle] = useState("");
   const [queuedEventSeedTitle, setQueuedEventSeedTitle] = useState("");
   const [memoryReport, setMemoryReport] = useState<SubjectiveMemoryReport | null>(null);
   const [memoryLoading, setMemoryLoading] = useState(false);
@@ -348,6 +349,36 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         },
       ]
     : [];
+  const actionFocusDeck = useMemo(() => {
+    if (!round) return [];
+    return round.character_actions.slice(0, 3).map((item, index) => {
+      const actionLine = item.visible_action ?? item.action;
+      const intentLine = item.true_intent || item.intent;
+      const riskLine = item.risk || item.llm_decision_advisory?.risk || "风险待观察";
+      const resultLine =
+        item.action_outcome?.reason ||
+        item.expected_outcome ||
+        item.llm_decision_advisory?.expected_outcome ||
+        "结果还在世界里发酵";
+      const memoryLine =
+        item.memory_seed?.inferred?.[0] ||
+        item.memory_influence ||
+        item.previous_subjective_memory ||
+        "下一轮会继续影响这名角色的判断";
+      return {
+        id: `${item.character_id}-${index}`,
+        characterId: item.character_id,
+        label: index === 0 ? "最值得追的角色" : "继续追踪",
+        title: item.character_name,
+        role: item.narrative_role,
+        action: actionLine,
+        intent: intentLine,
+        riskResult: `${resultLine}；风险：${riskLine}`,
+        memory: memoryLine,
+        event: `${item.character_name}继续推动：${actionLine}。行动背后的真实意图：${intentLine}。风险与结果：${resultLine}；${riskLine}。`,
+      };
+    });
+  }, [round]);
   const eventSeedDeck = useMemo<
     Array<{ id: string; label: string; title: string; detail: string; event: string }>
   >(() => {
@@ -420,6 +451,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setError(null);
     setQueuedPossibilityTitle("");
     setQueuedStrategyTitle("");
+    setQueuedActionFocusTitle("");
     setQueuedEventSeedTitle("");
     try {
       const next = await api.runSandboxRound(slug, {
@@ -544,6 +576,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setInterventionTarget("");
     setQueuedPossibilityTitle(title);
     setQueuedStrategyTitle("");
+    setQueuedActionFocusTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -557,6 +590,18 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setInterventionTarget("");
     setQueuedStrategyTitle(title);
     setQueuedPossibilityTitle("");
+    setQueuedActionFocusTitle("");
+    setQueuedEventSeedTitle("");
+    focusControl();
+  }
+
+  function queueActionFocusSeed(card: (typeof actionFocusDeck)[number]) {
+    setMajorEvent(card.event);
+    setInterventionContent("");
+    setInterventionTarget("");
+    setQueuedActionFocusTitle(card.title);
+    setQueuedPossibilityTitle("");
+    setQueuedStrategyTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -566,6 +611,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedEventSeedTitle(seed.title);
     setQueuedPossibilityTitle("");
     setQueuedStrategyTitle("");
+    setQueuedActionFocusTitle("");
     focusEventDraft();
   }
 
@@ -1626,6 +1672,83 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                     </p>
                   </section>
                 )}
+              {actionFocusDeck.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-action-focus"
+                  aria-label="角色行动焦点"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">角色行动焦点</p>
+                      <h2>先追最能推动下一轮的人</h2>
+                    </div>
+                    {queuedActionFocusTitle ? (
+                      <span className="badge badge--jade">已放入运行台</span>
+                    ) : (
+                      <span className="badge">行动焦点</span>
+                    )}
+                  </div>
+                  <p className="muted">
+                    这里先把完整行动链压成几张可扫读卡：谁最值得追、行动背后的真实意图是什么、风险与结果会怎样进入下一轮。
+                  </p>
+                  {queuedActionFocusTitle && (
+                    <p className="muted tiny">已放入运行台：{queuedActionFocusTitle}</p>
+                  )}
+                  <div className="sandbox-action-focus__grid">
+                    {actionFocusDeck.map((card) => (
+                      <article className="sandbox-action-focus-card" key={card.id}>
+                        <div className="sandbox-action-focus-card__meta">
+                          <span>{card.label}</span>
+                          <strong>{card.title}</strong>
+                          <small>{card.role}</small>
+                        </div>
+                        <p className="sandbox-action-focus-card__line">{card.action}</p>
+                        <dl className="sandbox-action-focus-card__signals">
+                          <div>
+                            <dt>行动背后的真实意图</dt>
+                            <dd>{card.intent}</dd>
+                          </div>
+                          <div>
+                            <dt>风险与结果</dt>
+                            <dd>{card.riskResult}</dd>
+                          </div>
+                          <div>
+                            <dt>记忆种子</dt>
+                            <dd>{card.memory}</dd>
+                          </div>
+                        </dl>
+                        <div className="sandbox-action-focus-card__actions">
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={focusActionChain}
+                          >
+                            定位行动链
+                          </button>
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={() =>
+                              navigate({
+                                name: "characterVolume",
+                                slug,
+                                worldlineId: round.worldline_id,
+                                characterId: card.characterId,
+                              })
+                            }
+                          >
+                            追角色卷
+                          </button>
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={() => queueActionFocusSeed(card)}
+                          >
+                            回填为下一轮事件
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
               <section className="sandbox-section" ref={actionChainRef}>
                 <div className="sandbox-section__title">
                   <h2>角色行动链</h2>

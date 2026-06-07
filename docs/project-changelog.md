@@ -4406,3 +4406,22 @@
 - **边界**：
   - 本轮只改前端沙盘页结果导读、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Action Focus
+
+- **做了什么**：
+  - `WorldSandboxPage` 在跑后结果导读、策略棋盘/模型建议之后、完整“角色行动链”之前新增“角色行动焦点”。
+  - 焦点台会从本轮 `character_actions` 派生最多三张扫读卡，先提示最值得追的角色、行动背后的真实意图、风险与结果和记忆种子。
+  - 每张卡提供“定位行动链”“追角色卷”“回填为下一轮事件”三个动作，让用户能从角色行动直接继续检查证据、阅读角色卷或启动下一轮。
+  - 扩展 `check:sandbox-runner-ux`，锁定角色行动焦点台的中文标记、派生 deck、回填 helper、位置顺序、样式结构和移动端折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少角色行动焦点台时失败，错误包括 `completed round should provide a scannable character action focus before dense action chains`、`action focus should expose intent before detailed evidence`、`action focus should let users continue a character action into the next round` 和移动端折叠缺失。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.95 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+- **边界**：
+  - 本轮只改前端沙盘页跑后角色行动理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

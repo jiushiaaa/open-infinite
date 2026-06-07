@@ -63,6 +63,18 @@ const requiredPageMarkers = [
   ["最后选择出口", "result reading guide should end with reading and continuation exits"],
   ["focusStrategyBoard", "result reading guide should scroll to the strategy board"],
   ["focusActionChain", "result reading guide should scroll to the action chain"],
+  ["sandbox-action-focus", "completed round should provide a scannable character action focus before dense action chains"],
+  ["角色行动焦点", "action focus should name the post-round character focus surface"],
+  ["最值得追的角色", "action focus should tell users which characters to inspect first"],
+  ["行动背后的真实意图", "action focus should expose intent before detailed evidence"],
+  ["风险与结果", "action focus should surface consequence and risk"],
+  ["回填为下一轮事件", "action focus should let users continue a character action into the next round"],
+  ["actionFocusDeck", "action focus should derive a readable deck from character actions"],
+  ["queueActionFocusSeed", "action focus should have a dedicated next-round queue helper"],
+  ["queuedActionFocusTitle", "action focus should give feedback after queuing a character action"],
+  ["setMajorEvent(card.event)", "action focus should update the major event draft"],
+  ["定位行动链", "action focus should let users jump to detailed action evidence"],
+  ["追角色卷", "action focus should route users to the character volume"],
   ["sandbox-strategy-board", "strategy board should surface character tactics after a round"],
   ["谁在算计谁", "strategy board should explain the relationship between actors and targets"],
   ["私下目的", "strategy board should explain each actor's private goal"],
@@ -113,6 +125,7 @@ const eventFieldIndex = page.indexOf("sandbox-runner__field--event");
 const advancedInterventionIndex = page.indexOf("sandbox-runner__advanced");
 const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
 const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
+const actionFocusIndex = page.indexOf("sandbox-action-focus");
 const actionChainIndex = page.indexOf("<h2>角色行动链</h2>");
 const possibilitiesIndex = page.indexOf("后续剧情可能性");
 const queuePossibilityIndex = page.indexOf("queueNextPossibility");
@@ -153,6 +166,15 @@ if (
   resultReadingGuideIndex > actionChainIndex
 ) {
   failures.push("result reading guide should bridge from result summary to detailed evidence");
+}
+if (
+  resultReadingGuideIndex === -1 ||
+  actionFocusIndex === -1 ||
+  actionChainIndex === -1 ||
+  actionFocusIndex < resultReadingGuideIndex ||
+  actionFocusIndex > actionChainIndex
+) {
+  failures.push("action focus should bridge from reading order to detailed character action chains");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -227,6 +249,12 @@ const requiredCssMarkers = [
   [".sandbox-result-reading-guide", "result reading guide styling is missing"],
   [".sandbox-result-reading-guide__grid", "result reading guide grid styling is missing"],
   [".sandbox-result-reading-guide__actions", "result reading guide action styling is missing"],
+  [".sandbox-action-focus", "action focus styling is missing"],
+  [".sandbox-action-focus__grid", "action focus grid styling is missing"],
+  [".sandbox-action-focus-card", "action focus card styling is missing"],
+  [".sandbox-action-focus-card__meta", "action focus metadata styling is missing"],
+  [".sandbox-action-focus-card__signals", "action focus signal styling is missing"],
+  [".sandbox-action-focus-card__actions", "action focus action styling is missing"],
   [".sandbox-strategy-board", "strategy board styling is missing"],
   [".sandbox-strategy-board__grid", "strategy board grid styling is missing"],
   [".sandbox-strategy-card__route", "strategy card route styling is missing"],
@@ -261,6 +289,11 @@ const mobileReadingGuideActionsIndex = css.indexOf(
   ".sandbox-result-reading-guide__actions",
   mobileMediaIndex,
 );
+const mobileActionFocusGridIndex = css.indexOf(".sandbox-action-focus__grid", mobileMediaIndex);
+const mobileActionFocusActionsIndex = css.indexOf(
+  ".sandbox-action-focus-card__actions",
+  mobileMediaIndex,
+);
 const mobilePreflightGridIndex = css.indexOf(".sandbox-preflight-map__grid", mobileMediaIndex);
 const mobilePreflightActionsIndex = css.indexOf(
   ".sandbox-preflight-map__actions",
@@ -283,6 +316,12 @@ if (mobileMediaIndex === -1 || mobileReadingGuideGridIndex === -1) {
 }
 if (mobileMediaIndex === -1 || mobileReadingGuideActionsIndex === -1) {
   failures.push("result reading guide actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileActionFocusGridIndex === -1) {
+  failures.push("action focus grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileActionFocusActionsIndex === -1) {
+  failures.push("action focus actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobilePreflightGridIndex === -1) {
   failures.push("pre-run product map grid should collapse in the mobile media query");
