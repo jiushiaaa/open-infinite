@@ -329,7 +329,7 @@ export function AppShell({
           showRecentReading={showRecentReading}
         />
       )}
-      <main id="main-content" className="shell__body">
+      <main id="main-content" className="shell__body" tabIndex={-1}>
         {children}
       </main>
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />

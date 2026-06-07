@@ -69,8 +69,12 @@ if (
   failures.push("AppShell should expose a keyboard skip link before dense world navigation");
 }
 
-if (!appShell.includes('<main id="main-content" className="shell__body">')) {
+if (!appShell.includes('id="main-content"') || !appShell.includes('className="shell__body"')) {
   failures.push("AppShell main content should expose a stable #main-content target");
+}
+
+if (!appShell.includes('id="main-content"') || !appShell.includes("tabIndex={-1}")) {
+  failures.push("main content skip target should be programmatically focusable");
 }
 
 const skipLinkRule = findRule(".skip-link");

@@ -4259,3 +4259,21 @@
   - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
 - **边界**：
   - 本轮只改共享世界壳层体验轨道焦点样式、结构检查脚本和文档；不新增后端 API，不改变常态布局、桌面/移动导航结构、hash 路由、route chunk 预取、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — Main Content Skip Target Focus
+
+- **做了什么**：
+  - `AppShell` 的 `<main id="main-content" className="shell__body">` 补充 `tabIndex={-1}`。
+  - 让“跳到当前页面内容”不仅能滚到稳定锚点，也能把焦点带入主内容目标，便于键盘用户和辅助技术绕过密集世界导航后继续读正文。
+  - 扩展 `check:app-shell-mobile-layout`，锁定 `main#main-content` 必须保留可编程焦点目标，同时避免检查依赖固定属性顺序。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少 `tabIndex={-1}` 时失败，错误为 `main content skip target should be programmatically focusable`。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.79 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改共享壳层主内容目标结构、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未做真实浏览器截图 QA，保留结构、构建、测试和 HTTP smoke 验证。
