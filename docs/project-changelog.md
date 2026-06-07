@@ -3443,3 +3443,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端事件多视角 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `event-perspective` 契约、不改 artifact。
+
+### 2026-06-07 — Checkpoint Wake Handoff Rail
+
+- **做了什么**：
+  - `CheckpointReplayPage` 在 `WorldRunway` 后、检查点回放详情前新增“检查点醒来接力台”。
+  - 接力台把醒来大事、角色记忆、代偿压力和接回正文整理成四枚可点击承接卡。
+  - 四枚入口复用既有 `report.checkpoint`、`report.readable_entry`、`primaryMemory`、`primaryCompensation`、滚动动作和作者台路由，可读醒来报告、查看角色记忆、查看具象代偿或继续读这一轮。
+  - 桌面保持稳定扫读网格，760px 以下折为单列；原有移动端“继续读 / 看记忆 / 看代偿 / 作者台”导读条、醒来回放中枢、读报告/查证据模式、回放摘要、记忆变化、具象代偿和后续可写方向全部保留。
+  - 扩展 `check:checkpoint-replay-ux`，锁定醒来接力台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:checkpoint-replay-ux`，确认缺少醒来接力台时失败。
+  - Focused helper：`pnpm.cmd run check:checkpoint-replay-ux` -> `checkpoint replay ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端检查点回放 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变自演检查点或 `readable_entry` 契约、不改 artifact。

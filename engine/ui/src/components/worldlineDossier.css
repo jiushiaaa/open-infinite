@@ -322,6 +322,79 @@
   width: 100%;
 }
 
+.checkpoint-wake-handoff {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  max-width: 1320px;
+  margin: 0 auto var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid rgba(115, 89, 48, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.92), rgba(245, 251, 246, 0.68)),
+    var(--paper-raised);
+  box-shadow: var(--shadow-card);
+}
+
+.checkpoint-wake-handoff__intro {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px dashed var(--line);
+}
+
+.checkpoint-wake-handoff__intro p,
+.checkpoint-wake-handoff__intro h2 {
+  margin: 0;
+}
+
+.checkpoint-wake-handoff__intro h2 {
+  margin-top: 2px;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.checkpoint-wake-handoff article {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 210px;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.74);
+}
+
+.checkpoint-wake-handoff article span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.checkpoint-wake-handoff article strong {
+  font-family: var(--font-serif);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.checkpoint-wake-handoff article p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.checkpoint-wake-handoff article .btn {
+  justify-content: center;
+  width: 100%;
+  white-space: normal;
+}
+
 .checkpoint-mobile-guide,
 .worldline-mobile-guide {
   display: none;
@@ -535,6 +608,20 @@
   }
 
   .worldline-continuity-rail article {
+    min-height: 0;
+  }
+
+  .checkpoint-wake-handoff {
+    grid-template-columns: 1fr;
+    padding: var(--space-3);
+  }
+
+  .checkpoint-wake-handoff__intro {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .checkpoint-wake-handoff article {
     min-height: 0;
   }
 }

@@ -40,11 +40,22 @@ export function CheckpointReplayPage({
     void load();
   }, [runId, checkpointId]);
 
-  const checkpoint = report?.checkpoint;
-  const readableEntry = report?.readable_entry;
+  const checkpoint = report ? report.checkpoint : null;
+  const readableEntry = report ? report.readable_entry : null;
   const consequenceDomains = checkpoint?.consequence_state?.domains
     ? Object.entries(checkpoint.consequence_state.domains)
     : [];
+  const primaryMemory =
+    readableEntry?.memory_readout.who_remembered_what[0] ??
+    checkpoint?.who_remembered_what?.[0] ??
+    null;
+  const primaryCompensationEntry = consequenceDomains[0];
+  const primaryCompensation = primaryCompensationEntry
+    ? {
+        key: primaryCompensationEntry[0],
+        value: primaryCompensationEntry[1],
+      }
+    : null;
   const rememberedCount =
     readableEntry?.memory_readout.who_remembered_what.length ??
     checkpoint?.who_remembered_what?.length ??
@@ -295,6 +306,95 @@ export function CheckpointReplayPage({
           },
         ]}
       />
+
+      {!loading && !error && report && checkpoint && (
+        <section className="checkpoint-wake-handoff" aria-label="检查点醒来接力台">
+          <div className="checkpoint-wake-handoff__intro">
+            <div>
+              <p className="muted tiny">检查点醒来接力台</p>
+              <h2>把这一夜接回可读的世界</h2>
+            </div>
+            <button className="btn btn--ghost" onClick={() => navigate({ name: "author", slug })}>
+              把醒来报告送到作者台
+            </button>
+          </div>
+
+          <article>
+            <span>醒来大事</span>
+            <strong>{checkpoint.major_event}</strong>
+            <p>
+              {readableEntry?.state_change_explanation.headline ||
+                checkpoint.chapter_seed?.opening_hook ||
+                report.replay.resume_hint}
+            </p>
+            <button className="btn btn--ghost" onClick={openReportMode}>
+              读醒来报告
+            </button>
+          </article>
+
+          <article>
+            <span>谁记住了</span>
+            <strong>
+              {primaryMemory?.character_id
+                ? `${primaryMemory.character_id} 记住了`
+                : rememberedCount
+                  ? `${rememberedCount} 条角色记忆`
+                  : "角色记忆待写入"}
+            </strong>
+            <p>
+              {primaryMemory?.remembered ||
+                readableEntry?.memory_readout.summary ||
+                "继续回放证据，确认这轮变化会压进谁的主观记忆。"}
+            </p>
+            <button
+              className="btn btn--ghost"
+              onClick={() => openEvidenceMode(".worldline-memory-section")}
+            >
+              查看记忆变化
+            </button>
+          </article>
+
+          <article>
+            <span>代偿压力</span>
+            <strong>
+              {primaryCompensation?.value.label ||
+                primaryCompensation?.key ||
+                checkpoint.consequence_state?.status ||
+                "压力待显形"}
+            </strong>
+            <p>
+              {primaryCompensation?.value.pressure ||
+                primaryCompensation?.value.current ||
+                readableEntry?.causal_debt_readout.next_round_hint ||
+                checkpoint.consequence_state?.summary ||
+                "下一轮继续追踪因果债把代价压向哪里。"}
+            </p>
+            <button
+              className="btn btn--ghost"
+              onClick={() => openEvidenceMode(".worldline-consequence-section")}
+            >
+              查看具象代偿
+            </button>
+          </article>
+
+          <article>
+            <span>接回正文</span>
+            <strong>
+              {readAction?.label ||
+                readableEntry?.state_change_explanation.narrative_thread[0]?.handoff ||
+                "进入连续阅读"}
+            </strong>
+            <p>
+              {readAction?.reason ||
+                checkpoint.chapter_seed?.next_chapter_hook ||
+                "从这个检查点继续读，让它成为下一段正文的起点。"}
+            </p>
+            <button className="btn btn--primary" onClick={goToCheckpointReading}>
+              继续读这一轮
+            </button>
+          </article>
+        </section>
+      )}
 
       <main className={`worldline-layout worldline-layout--${replayMode}`}>
         {loading && <EmptyState title="正在回放检查点" hint="正在读取本地检查点证据。" />}
