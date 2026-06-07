@@ -3875,3 +3875,21 @@
   - In-app Browser smoke：`http://127.0.0.1:5187/#/world/my-story/worldlines/main/longline` 真实数据下桌面点击追踪卡会打开上下文台、卡片进入选中态、展示 5 个沿线节点和 5 条牵连误会；切到 390px 后追踪卡和上下文台均为单列且无水平溢出；浏览器 error/warning 日志为空。
 - **边界**：
   - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `longline-reading` 响应契约，不改 artifact。
+
+### 2026-06-07 — Longline Misbelief Network
+
+- **做了什么**：
+  - `LonglineReadingPage` 在长线阅读状态区和“误会回收台”之间新增“跨章误会网络图”。
+  - 网络图从既有 `misbelief_recovery.items` 派生最多六个可切换误会节点，默认选中待回收误会。
+  - 选中详情把当前误会、误会来源、牵动角色、证据数量、回收步骤、回卷宗核对和送到作者台动作放在同一屏。
+  - 用户读长线卷时能先理解一条误会怎样从来源事件拖到下一章，再决定回卷宗核对或送作者台。
+  - 扩展 `check:longline-reading-ux`，锁定误会网络图的数据派生、选中态、位置、桌面三栏和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:longline-reading-ux`，确认缺少 `buildLonglineMisbeliefNetwork` 时失败。
+  - Focused helper：`pnpm.cmd run check:longline-reading-ux` -> `longline reading ux structure ok`。
+  - API smoke：`GET http://127.0.0.1:8765/api/stories/my-story/worldlines/main/longline-reading` -> 200。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - In-app Browser smoke：`http://127.0.0.1:5188/#/world/my-story/worldlines/main/longline` 真实数据下桌面渲染 5 个误会节点，网络图位于误会回收卡片之前，点击第二个节点会切换详情且无水平溢出；390px 下网络图和详情单列、移动导读显示、浏览器 error/warning 日志为空。
+- **边界**：
+  - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `longline-reading` 响应契约，不改 artifact。

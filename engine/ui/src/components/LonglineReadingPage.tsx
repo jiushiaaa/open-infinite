@@ -47,6 +47,18 @@ interface LonglineEntityLane {
   misbeliefs: LonglineEntityLaneMisbelief[];
 }
 
+interface LonglineMisbeliefNetworkNode {
+  id: string;
+  status: string;
+  misunderstanding: string;
+  originEventTitle: string;
+  affectedCharacters: string[];
+  evidenceCount: number;
+  recoverySteps: string[];
+  nextRoute: string;
+  authorPrompt: string;
+}
+
 function buildLonglineEntityLanes(report: LonglineReadingReport): LonglineEntityLane[] {
   const lanes = new Map<string, LonglineEntityLane>();
 
@@ -121,6 +133,27 @@ function buildLonglineEntityLanes(report: LonglineReadingReport): LonglineEntity
     .slice(0, 4);
 }
 
+function buildLonglineMisbeliefNetwork(report: LonglineReadingReport): LonglineMisbeliefNetworkNode[] {
+  return report.misbelief_recovery.items
+    .map((item) => ({
+      id: item.id,
+      status: item.status,
+      misunderstanding: item.misunderstanding,
+      originEventTitle: item.origin_event_title,
+      affectedCharacters: item.affected_characters,
+      evidenceCount: item.evidence_refs.length,
+      recoverySteps: item.recovery_steps,
+      nextRoute: item.next_route,
+      authorPrompt: item.author_prompt,
+    }))
+    .sort((a, b) => {
+      const aOpen = a.status === "unresolved" ? 1 : 0;
+      const bOpen = b.status === "unresolved" ? 1 : 0;
+      if (bOpen !== aOpen) return bOpen - aOpen;
+      return b.evidenceCount - a.evidenceCount;
+    });
+}
+
 export function LonglineReadingPage({
   slug,
   worldlineId,
@@ -131,6 +164,7 @@ export function LonglineReadingPage({
   const [report, setReport] = useState<LonglineReadingReport | null>(null);
   const [activeEntryId, setActiveEntryId] = useState("");
   const [activeEntityLaneId, setActiveEntityLaneId] = useState("");
+  const [activeMisbeliefId, setActiveMisbeliefId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -142,6 +176,7 @@ export function LonglineReadingPage({
       setReport(next);
       setActiveEntryId(next.timeline_entries[0]?.id || "");
       setActiveEntityLaneId("");
+      setActiveMisbeliefId("");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -176,6 +211,16 @@ export function LonglineReadingPage({
     () => longlineEntityLanes.find((lane) => lane.id === activeEntityLaneId),
     [activeEntityLaneId, longlineEntityLanes],
   );
+  const longlineMisbeliefNetwork = useMemo(
+    () => (report ? buildLonglineMisbeliefNetwork(report) : []),
+    [report],
+  );
+  const selectedMisbeliefNode = useMemo(
+    () =>
+      longlineMisbeliefNetwork.find((node) => node.id === activeMisbeliefId) ||
+      longlineMisbeliefNetwork[0],
+    [activeMisbeliefId, longlineMisbeliefNetwork],
+  );
 
   function focusEntry(entryId: string) {
     setActiveEntryId(entryId);
@@ -191,6 +236,15 @@ export function LonglineReadingPage({
     setActiveEntryId(lane.primaryEntryId);
     window.requestAnimationFrame(() => {
       document.querySelector(".longline-entity-focus")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }
+  function focusMisbeliefNode(node: LonglineMisbeliefNetworkNode) {
+    setActiveMisbeliefId(node.id);
+    window.requestAnimationFrame(() => {
+      document.querySelector(".longline-misbelief-network")?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -628,6 +682,69 @@ export function LonglineReadingPage({
               </div>
             </article>
           </section>
+
+          {longlineMisbeliefNetwork.length > 0 && selectedMisbeliefNode && (
+            <section className="longline-misbelief-network" aria-label="跨章误会网络图">
+              <div className="longline-misbelief-network__lead">
+                <p className="muted tiny">跨章误会网络图</p>
+                <h2>这场误会怎样拖到下一章</h2>
+                <p>
+                  把误会来源、牵动角色、证据和回收步骤放在同一屏，读者不用猜它为什么重要，作者也能直接决定下一章怎样承接。
+                </p>
+              </div>
+              <div className="longline-misbelief-network__map">
+                {longlineMisbeliefNetwork.slice(0, 6).map((node) => (
+                  <button
+                    key={node.id}
+                    type="button"
+                    className={`longline-misbelief-network__node${
+                      selectedMisbeliefNode.id === node.id ? " is-active" : ""
+                    }`}
+                    onClick={() => focusMisbeliefNode(node)}
+                  >
+                    <span>{node.status === "unresolved" ? "待回收" : node.status}</span>
+                    <strong>{node.misunderstanding}</strong>
+                    <small>{node.originEventTitle}</small>
+                  </button>
+                ))}
+              </div>
+              <article className="longline-misbelief-network__detail">
+                <span>当前误会</span>
+                <strong>{selectedMisbeliefNode.misunderstanding}</strong>
+                <p>{selectedMisbeliefNode.authorPrompt || "先核对来源证据，再决定是否送入作者台承接。"}</p>
+                <dl>
+                  <div>
+                    <dt>误会来源</dt>
+                    <dd>{selectedMisbeliefNode.originEventTitle}</dd>
+                  </div>
+                  <div>
+                    <dt>牵动角色</dt>
+                    <dd>{selectedMisbeliefNode.affectedCharacters.slice(0, 4).join("、") || "待显形"}</dd>
+                  </div>
+                  <div>
+                    <dt>证据</dt>
+                    <dd>{selectedMisbeliefNode.evidenceCount} 条</dd>
+                  </div>
+                </dl>
+                <div className="longline-misbelief-network__steps">
+                  <span>回收步骤</span>
+                  <ol>
+                    {selectedMisbeliefNode.recoverySteps.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
+                <div className="longline-misbelief-network__actions">
+                  <button className="btn btn--ghost tiny" onClick={() => openRoute(selectedMisbeliefNode.nextRoute)}>
+                    回卷宗核对
+                  </button>
+                  <button className="btn btn--primary tiny" onClick={() => navigate({ name: "author", slug })}>
+                    送到作者台
+                  </button>
+                </div>
+              </article>
+            </section>
+          )}
 
           {report.misbelief_recovery.items.length > 0 && (
             <section className="longline-recovery" aria-label="误会回收台">

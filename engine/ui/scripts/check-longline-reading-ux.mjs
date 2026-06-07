@@ -84,6 +84,32 @@ assert(
       page.indexOf('className="longline-briefing"'),
   "selected lane context should sit between entity lanes and briefing grid",
 );
+assert(
+  page.includes("interface LonglineMisbeliefNetworkNode") &&
+    page.includes("buildLonglineMisbeliefNetwork") &&
+    page.includes("longlineMisbeliefNetwork"),
+  "longline page should derive a cross-chapter misbelief network from recovery data",
+);
+assert(
+  page.includes("activeMisbeliefId") &&
+    page.includes("selectedMisbeliefNode") &&
+    page.includes("focusMisbeliefNode") &&
+    page.includes("setActiveMisbeliefId"),
+  "longline page should support selecting a misbelief network node",
+);
+assert(
+  page.includes('className="longline-misbelief-network"') &&
+    page.includes('aria-label="跨章误会网络图"') &&
+    page.includes("longlineMisbeliefNetwork.slice(0, 6).map"),
+  "longline page should render a cross-chapter misbelief network map",
+);
+assert(
+  page.indexOf('className="longline-briefing"') <
+    page.indexOf('className="longline-misbelief-network"') &&
+    page.indexOf('className="longline-misbelief-network"') <
+      page.indexOf('className="longline-recovery"'),
+  "misbelief network should sit between the briefing grid and recovery cards",
+);
 for (const label of ["跨章回收台", "当前张力", "首要误会", "活跃线索", "下一章钩子", "送到作者台"]) {
   assert(page.includes(label), `longline recovery orchestrator should include ${label}`);
 }
@@ -95,6 +121,17 @@ for (const label of ["角色与势力追踪带", "按角色追", "按势力追",
 }
 for (const label of ["这条线怎样发酵", "沿线节点", "牵连误会", "回到全部长线", "继续追这个节点"]) {
   assert(page.includes(label), `longline entity focus should include ${label}`);
+}
+for (const label of [
+  "跨章误会网络图",
+  "这场误会怎样拖到下一章",
+  "误会来源",
+  "牵动角色",
+  "证据",
+  "回收步骤",
+  "回卷宗核对",
+]) {
+  assert(page.includes(label), `longline misbelief network should include ${label}`);
 }
 for (const field of ["misbelief_recovery", "open_threads", "current_tension", "next_chapter_hook"]) {
   assert(page.includes(field), `longline recovery orchestrator should use ${field}`);
@@ -151,6 +188,19 @@ assert(
   "selected lane context should use a stable desktop split layout",
 );
 assert(
+  css.includes(".longline-misbelief-network") &&
+    css.includes(".longline-misbelief-network__map") &&
+    css.includes(".longline-misbelief-network__detail") &&
+    css.includes("grid-template-columns: minmax(220px, 0.82fr) minmax(0, 1fr) minmax(280px, 1fr)"),
+  "misbelief network should use a stable desktop three-column layout",
+);
+assert(
+  css.includes(".longline-misbelief-network__node.is-active") &&
+    css.includes(".longline-misbelief-network__steps") &&
+    css.includes(".longline-misbelief-network__actions"),
+  "misbelief network should include active, steps, and action styles",
+);
+assert(
   /@media \(max-width: 820px\)[\s\S]*\.longline-recovery-orchestrator[\s\S]*grid-template-columns: 1fr/.test(css),
   "longline recovery orchestrator should collapse to one column on mobile widths",
 );
@@ -165,6 +215,10 @@ assert(
 assert(
   /@media \(max-width: 820px\)[\s\S]*\.longline-entity-focus[\s\S]*grid-template-columns: 1fr/.test(css),
   "selected lane context should collapse to one column on mobile widths",
+);
+assert(
+  /@media \(max-width: 820px\)[\s\S]*\.longline-misbelief-network[\s\S]*grid-template-columns: 1fr/.test(css),
+  "misbelief network should collapse to one column on mobile widths",
 );
 
 console.log("longline reading ux structure ok");

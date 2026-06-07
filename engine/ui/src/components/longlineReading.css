@@ -482,6 +482,154 @@
   line-height: 1.65;
 }
 
+.longline-misbelief-network {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.82fr) minmax(0, 1fr) minmax(280px, 1fr);
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid rgba(120, 91, 54, 0.16);
+  background:
+    linear-gradient(135deg, rgba(255, 253, 246, 0.94), rgba(250, 245, 233, 0.72)),
+    rgba(255, 253, 246, 0.9);
+}
+
+.longline-misbelief-network__lead,
+.longline-misbelief-network__map,
+.longline-misbelief-network__detail {
+  min-width: 0;
+}
+
+.longline-misbelief-network__lead {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.longline-misbelief-network__lead p,
+.longline-misbelief-network__lead h2 {
+  margin: 0;
+}
+
+.longline-misbelief-network__lead h2 {
+  font-family: var(--font-serif);
+  font-size: 1.16rem;
+  line-height: 1.35;
+}
+
+.longline-misbelief-network__lead p:not(.tiny) {
+  color: var(--ink-soft);
+  line-height: 1.68;
+}
+
+.longline-misbelief-network__map {
+  display: grid;
+  gap: 8px;
+}
+
+.longline-misbelief-network__node {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(120, 91, 54, 0.14);
+  background: rgba(255, 253, 246, 0.78);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.longline-misbelief-network__node:hover,
+.longline-misbelief-network__node.is-active {
+  border-color: rgba(74, 124, 99, 0.38);
+  background:
+    linear-gradient(180deg, rgba(236, 244, 235, 0.7), rgba(255, 253, 246, 0.86)),
+    rgba(255, 253, 246, 0.88);
+}
+
+.longline-misbelief-network__node span,
+.longline-misbelief-network__node small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.longline-misbelief-network__node strong {
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.longline-misbelief-network__detail {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(74, 124, 99, 0.2);
+  background: rgba(255, 253, 246, 0.8);
+}
+
+.longline-misbelief-network__detail > span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.longline-misbelief-network__detail > strong {
+  overflow-wrap: anywhere;
+  line-height: 1.48;
+}
+
+.longline-misbelief-network__detail p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.longline-misbelief-network__detail dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+}
+
+.longline-misbelief-network__detail dl div {
+  padding: 8px 9px;
+  border: 1px solid rgba(120, 91, 54, 0.12);
+  background: rgba(250, 245, 233, 0.62);
+}
+
+.longline-misbelief-network__detail dt,
+.longline-misbelief-network__steps > span {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.longline-misbelief-network__detail dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.86rem;
+}
+
+.longline-misbelief-network__steps {
+  display: grid;
+  gap: 7px;
+}
+
+.longline-misbelief-network__steps ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-soft);
+  line-height: 1.58;
+  font-size: 0.88rem;
+}
+
+.longline-misbelief-network__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .longline-timeline,
 .longline-reader,
 .longline-aside {
@@ -958,9 +1106,11 @@
   .longline-continuation-map,
   .longline-entity-lanes__grid,
   .longline-entity-focus,
+  .longline-misbelief-network,
   .longline-aside,
   .longline-thread-grid,
   .longline-recovery__grid,
+  .longline-misbelief-network__detail dl,
   .longline-recovery__grid dl,
   .longline-progress dl,
   .longline-entry__meta {
@@ -1029,6 +1179,10 @@
 
   .longline-entity-focus__misbeliefs {
     grid-column: auto;
+  }
+
+  .longline-misbelief-network {
+    padding: 14px;
   }
 
   .longline-open-threads {
