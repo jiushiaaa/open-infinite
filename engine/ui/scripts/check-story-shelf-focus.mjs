@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   deriveStoryShelfFocus,
   deriveStoryShelfSpotlight,
@@ -19,6 +21,15 @@ assert.deepEqual(freshImported.metrics, [
   { label: "世界线运行", value: "0 条" },
   { label: "来源", value: "导入世界" },
 ]);
+assert.deepEqual(
+  freshImported.journeyPulse.map((pulse) => [pulse.key, pulse.label, pulse.status]),
+  [
+    ["tianming", "下一步", "active"],
+    ["sandbox", "待启动", "waiting"],
+    ["reading", "待生成", "waiting"],
+    ["author", "待素材", "waiting"],
+  ],
+);
 
 const runningBuiltin = deriveStoryShelfFocus({
   sourceKind: "builtin",
@@ -32,6 +43,15 @@ assert.equal(runningBuiltin.recommendedKey, "reading");
 assert.equal(runningBuiltin.recommendedAction, "进入卷宗阅读");
 assert.match(runningBuiltin.stageDescription, /已经运行过沙盘/);
 assert.equal(runningBuiltin.metrics[0].value, "3 条");
+assert.deepEqual(
+  runningBuiltin.journeyPulse.map((pulse) => [pulse.key, pulse.label, pulse.status]),
+  [
+    ["tianming", "已定界", "ready"],
+    ["sandbox", "3 轮", "ready"],
+    ["reading", "现在读", "active"],
+    ["author", "可整理", "ready"],
+  ],
+);
 
 const defensive = deriveStoryShelfFocus({
   sourceKind: "imported",
@@ -60,8 +80,19 @@ const spotlightPrefersRunningWorld = deriveStoryShelfSpotlight([
 assert.equal(spotlightPrefersRunningWorld?.slug, "running");
 assert.equal(spotlightPrefersRunningWorld?.priorityLabel, "已有沙盘结果");
 assert.equal(spotlightPrefersRunningWorld?.focus.recommendedKey, "reading");
+assert.equal(spotlightPrefersRunningWorld?.focus.journeyPulse[2]?.status, "active");
 
 const noSpotlight = deriveStoryShelfSpotlight([]);
 assert.equal(noSpotlight, null);
+
+const entryPage = readFileSync(resolve("src/components/StoryEntryPage.tsx"), "utf8");
+assert.match(entryPage, /entry__spotlight-pulse/);
+assert.match(entryPage, /journeyPulse\.map/);
+assert.match(entryPage, /navigateStoryJourney\(spotlight\.slug, pulse\.key\)/);
+
+const entryCss = readFileSync(resolve("src/components/storyEntry.css"), "utf8");
+assert.match(entryCss, /\.entry__spotlight-pulse/);
+assert.match(entryCss, /grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/);
+assert.match(entryCss, /@media \(max-width: 560px\)[\s\S]*\.entry__spotlight-pulse[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
 
 console.log("story shelf focus helper ok");

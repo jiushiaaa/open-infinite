@@ -111,6 +111,75 @@
   overflow-wrap: anywhere;
 }
 
+.entry__spotlight-pulse {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.entry__spotlight-pulse-card {
+  min-width: 0;
+  border: 1px solid rgba(196, 184, 156, 0.68);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.64);
+  color: var(--ink-soft);
+  padding: 7px 6px;
+  text-align: left;
+}
+
+.entry__spotlight-pulse-card:hover {
+  border-color: rgba(44, 111, 91, 0.32);
+  background: rgba(241, 247, 239, 0.78);
+  color: var(--ink);
+}
+
+.entry__spotlight-pulse-card:focus-visible {
+  outline: 2px solid var(--jade);
+  outline-offset: 2px;
+}
+
+.entry__spotlight-pulse-card.is-active {
+  border-color: rgba(141, 50, 37, 0.3);
+  background:
+    linear-gradient(180deg, rgba(141, 50, 37, 0.1), transparent),
+    rgba(255, 252, 244, 0.84);
+  color: var(--ink);
+}
+
+.entry__spotlight-pulse-card.is-waiting {
+  color: var(--ink-faint);
+  background: rgba(250, 246, 236, 0.44);
+}
+
+.entry__spotlight-pulse-card small,
+.entry__spotlight-pulse-card strong,
+.entry__spotlight-pulse-card span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry__spotlight-pulse-card small {
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.entry__spotlight-pulse-card strong {
+  margin-top: 3px;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.15;
+}
+
+.entry__spotlight-pulse-card span {
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
 .entry__spotlight-metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -515,6 +584,10 @@
 
   .entry__spotlight-links button {
     flex: 1 1 96px;
+  }
+
+  .entry__spotlight-pulse {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .entry__starts,

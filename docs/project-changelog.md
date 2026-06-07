@@ -3270,3 +3270,17 @@
   - Focused helper：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
 - **边界**：
   - 本轮只改前端共享壳层 JSX/CSS、检查脚本和文档，不新增后端 API、不改变世界线/阅读/作者采纳路由契约、不改 artifact。
+
+### 2026-06-07 — Story Shelf Journey Pulse
+
+- **做了什么**：
+  - `storyShelfFocus` 为推荐世界新增 `journeyPulse`，按“天命 / 沙盘 / 阅读 / 采纳”输出入口首屏可理解的世界旅程状态。
+  - `StoryEntryPage` 推荐进入卡新增四枚可点击旅程状态签：未运行世界突出“天命 / 下一步 / 确认边界”，已运行世界突出“阅读 / 现在读 / 看后果”，同时可直达沙盘或作者采纳台。
+  - 保留原有推荐世界选择规则、主按钮、指标、封面、世界沙盘、天命书、卷宗阅读、作者采纳台和机制档案入口。
+  - 扩展 `check:story-shelf-focus`，锁定 fresh/running 两类世界的四段旅程脉冲语义、推荐卡结构和移动端两列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff，把世界书架推荐世界续行台记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:story-shelf-focus` -> `story shelf focus helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端入口 helper、故事书架 JSX/CSS、检查脚本和文档，不新增后端 API、不改变故事列表 API、不改 artifact。

@@ -5,6 +5,7 @@ import {
   deriveStoryShelfFocus,
   deriveStoryShelfSpotlight,
   type StoryShelfActionKey,
+  type StoryShelfJourneyKey,
 } from "../storyShelfFocus";
 import { StoryCoverThumb } from "./VisualAssetPanel";
 import { EmptyState, ErrorState, Loading } from "./common/States";
@@ -193,6 +194,22 @@ function navigateStoryRecommendation(slug: string, key: StoryShelfActionKey) {
   navigate({ name: "tianming", slug });
 }
 
+function navigateStoryJourney(slug: string, key: StoryShelfJourneyKey) {
+  if (key === "sandbox") {
+    navigate({ name: "sandbox", slug });
+    return;
+  }
+  if (key === "reading") {
+    navigate({ name: "dossierReading", slug, worldlineId: "main" });
+    return;
+  }
+  if (key === "author") {
+    navigate({ name: "author", slug });
+    return;
+  }
+  navigate({ name: "tianming", slug });
+}
+
 function StorySpotlightCard({
   spotlight,
 }: {
@@ -222,6 +239,21 @@ function StorySpotlightCard({
           </span>
         </div>
         <p className="entry__spotlight-reason muted">{spotlight.spotlightReason}</p>
+        <div className="entry__spotlight-pulse" aria-label="推荐世界的旅程状态">
+          {spotlight.focus.journeyPulse.map((pulse) => (
+            <button
+              key={pulse.key}
+              className={`entry__spotlight-pulse-card is-${pulse.status}`}
+              onClick={() => navigateStoryJourney(spotlight.slug, pulse.key)}
+              title={pulse.hint}
+              type="button"
+            >
+              <small>{pulse.label}</small>
+              <strong>{pulse.title}</strong>
+              <span>{pulse.hint}</span>
+            </button>
+          ))}
+        </div>
         <div className="entry__spotlight-metrics">
           {spotlight.focus.metrics.map((metric) => (
             <span key={metric.label}>

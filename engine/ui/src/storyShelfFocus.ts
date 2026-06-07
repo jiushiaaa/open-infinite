@@ -1,6 +1,8 @@
 export type StoryShelfSourceKind = "builtin" | "imported" | string;
 export type StoryShelfActionKey = "tianming" | "reading";
 export type StoryShelfStageTone = "gold" | "jade";
+export type StoryShelfJourneyKey = "tianming" | "sandbox" | "reading" | "author";
+export type StoryShelfJourneyStatus = "active" | "ready" | "waiting";
 
 export interface StoryShelfFocusInput {
   sourceKind: StoryShelfSourceKind;
@@ -20,6 +22,15 @@ export interface StoryShelfFocus {
   recommendedKey: StoryShelfActionKey;
   recommendedAction: string;
   metrics: StoryShelfMetric[];
+  journeyPulse: StoryShelfJourneyPulse[];
+}
+
+export interface StoryShelfJourneyPulse {
+  key: StoryShelfJourneyKey;
+  label: string;
+  title: string;
+  status: StoryShelfJourneyStatus;
+  hint: string;
 }
 
 export interface StoryShelfSpotlightInput {
@@ -54,6 +65,67 @@ export function deriveStoryShelfFocus(input: StoryShelfFocusInput): StoryShelfFo
       { label: "世界线运行", value: `${runCount} 条` },
       { label: "来源", value: sourceLabel },
     ],
+    journeyPulse: hasSandboxResult
+      ? [
+          {
+            key: "tianming",
+            label: "已定界",
+            title: "天命",
+            status: "ready",
+            hint: "回看锚点",
+          },
+          {
+            key: "sandbox",
+            label: `${runCount} 轮`,
+            title: "沙盘",
+            status: "ready",
+            hint: "继续推演",
+          },
+          {
+            key: "reading",
+            label: "现在读",
+            title: "阅读",
+            status: "active",
+            hint: "看后果",
+          },
+          {
+            key: "author",
+            label: "可整理",
+            title: "采纳",
+            status: "ready",
+            hint: "写下一章",
+          },
+        ]
+      : [
+          {
+            key: "tianming",
+            label: "下一步",
+            title: "天命",
+            status: "active",
+            hint: "确认边界",
+          },
+          {
+            key: "sandbox",
+            label: "待启动",
+            title: "沙盘",
+            status: "waiting",
+            hint: "先定界",
+          },
+          {
+            key: "reading",
+            label: "待生成",
+            title: "阅读",
+            status: "waiting",
+            hint: "跑一轮后读",
+          },
+          {
+            key: "author",
+            label: "待素材",
+            title: "采纳",
+            status: "waiting",
+            hint: "先有涌现",
+          },
+        ],
   };
 }
 
