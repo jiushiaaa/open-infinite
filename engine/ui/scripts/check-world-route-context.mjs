@@ -62,11 +62,15 @@ assert.deepEqual(
     ["worldline", "世界线", "ready"],
   ],
 );
-assert.deepEqual(context?.dossiers[3].route, {
-  name: "dossierReading",
+assert.deepEqual(context?.dossiers[1].route, {
+  name: "worldChronicle",
   slug: "my-story",
   worldlineId: "main",
-  tab: "character_volume",
+});
+assert.deepEqual(context?.dossiers[2].route, {
+  name: "anchorVolume",
+  slug: "my-story",
+  worldlineId: "main",
 });
 
 const character = getWorldRouteContext({
@@ -102,6 +106,38 @@ assert.deepEqual(character?.stages.find((stage) => stage.key === "sandbox")?.rou
 });
 assert.equal(character?.dossiers.find((item) => item.key === "character")?.status, "active");
 
+const chronicle = getWorldRouteContext({
+  name: "worldChronicle",
+  slug: "my-story",
+  worldlineId: "branch-a",
+});
+
+assert.equal(chronicle?.sectionLabel, "正史卷");
+assert.equal(chronicle?.title, "世界正史卷");
+assert.equal(chronicle?.dossiers.find((item) => item.key === "world")?.status, "active");
+assert.deepEqual(chronicle?.primaryRoute, {
+  name: "anchorVolume",
+  slug: "my-story",
+  worldlineId: "branch-a",
+});
+assert.match(chronicle?.workspaceSummary.why ?? "", /世界承认的事实/);
+
+const anchor = getWorldRouteContext({
+  name: "anchorVolume",
+  slug: "my-story",
+  worldlineId: "branch-a",
+});
+
+assert.equal(anchor?.sectionLabel, "锚点卷");
+assert.equal(anchor?.title, "主锚点卷");
+assert.equal(anchor?.dossiers.find((item) => item.key === "anchor")?.status, "active");
+assert.deepEqual(anchor?.secondaryRoute, {
+  name: "worldChronicle",
+  slug: "my-story",
+  worldlineId: "branch-a",
+});
+assert.match(anchor?.workspaceSummary.why ?? "", /锚点压力/);
+
 const longline = getWorldRouteContext({
   name: "longlineReading",
   slug: "my-story",
@@ -110,10 +146,9 @@ const longline = getWorldRouteContext({
 
 assert.equal(longline?.dossiers.find((item) => item.key === "longline")?.status, "active");
 assert.deepEqual(longline?.dossiers.find((item) => item.key === "world")?.route, {
-  name: "dossierReading",
+  name: "worldChronicle",
   slug: "my-story",
   worldlineId: "branch-a",
-  tab: "world_chronicle",
 });
 
 const entry = getWorldRouteContext({ name: "entry" });

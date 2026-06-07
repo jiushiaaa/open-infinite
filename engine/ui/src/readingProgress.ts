@@ -4,6 +4,8 @@ export const READING_PROGRESS_STORAGE_KEY = "unfinale.recentReading.v1";
 
 type ReadingRoute =
   | Extract<Route, { name: "dossierReading" }>
+  | Extract<Route, { name: "worldChronicle" }>
+  | Extract<Route, { name: "anchorVolume" }>
   | Extract<Route, { name: "longlineReading" }>
   | Extract<Route, { name: "characterVolume" }>
   | Extract<Route, { name: "factionVolume" }>
@@ -29,6 +31,8 @@ interface StorageLike {
 export function isReadableRoute(route: Route): route is ReadingRoute {
   return (
     route.name === "dossierReading" ||
+    route.name === "worldChronicle" ||
+    route.name === "anchorVolume" ||
     route.name === "longlineReading" ||
     route.name === "characterVolume" ||
     route.name === "factionVolume" ||
@@ -58,6 +62,22 @@ export function describeReadingRoute(route: ReadingRoute): Omit<RecentReading, "
       label: "长线卷",
       title: "继续读长线卷",
       action: "回到长线卷",
+    };
+  }
+  if (route.name === "worldChronicle") {
+    return {
+      ...base,
+      label: "世界正史卷",
+      title: "继续读世界正史卷",
+      action: "回到世界正史卷",
+    };
+  }
+  if (route.name === "anchorVolume") {
+    return {
+      ...base,
+      label: "主锚点卷",
+      title: "继续读主锚点卷",
+      action: "回到主锚点卷",
     };
   }
   if (route.name === "characterVolume") {
@@ -161,6 +181,12 @@ function hashForReadingRoute(route: ReadingRoute): string {
   }
   if (route.name === "longlineReading") {
     return `#/world/${slug}/worldlines/${worldlineId}/longline`;
+  }
+  if (route.name === "worldChronicle") {
+    return `#/world/${slug}/worldlines/${worldlineId}/chronicle`;
+  }
+  if (route.name === "anchorVolume") {
+    return `#/world/${slug}/worldlines/${worldlineId}/anchors`;
   }
   if (route.name === "characterVolume") {
     return `#/world/${slug}/worldlines/${worldlineId}/characters/${encodeURIComponent(route.characterId)}`;

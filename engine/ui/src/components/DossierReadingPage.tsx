@@ -456,6 +456,34 @@ export function DossierReadingPage({
                       角色个人卷
                     </button>
                   )}
+                  {activeTab === "world_chronicle" && (
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() =>
+                        navigate({
+                          name: "worldChronicle",
+                          slug,
+                          worldlineId,
+                        })
+                      }
+                    >
+                      世界正史卷
+                    </button>
+                  )}
+                  {activeTab === "anchor_volume" && (
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() =>
+                        navigate({
+                          name: "anchorVolume",
+                          slug,
+                          worldlineId,
+                        })
+                      }
+                    >
+                      主锚点卷
+                    </button>
+                  )}
                   {activeVolume?.id === "faction_volume" && (
                     <button
                       className="btn btn--ghost tiny"

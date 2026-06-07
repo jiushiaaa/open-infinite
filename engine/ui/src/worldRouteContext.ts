@@ -72,6 +72,8 @@ function worldlineId(route: Route): string {
   if (
     route.name === "worldline" ||
     route.name === "dossierReading" ||
+    route.name === "worldChronicle" ||
+    route.name === "anchorVolume" ||
     route.name === "longlineReading" ||
     route.name === "characterVolume" ||
     route.name === "factionVolume" ||
@@ -138,6 +140,8 @@ function buildStages(route: Route, slug: string, currentWorldline: string): Worl
 function dossierKey(route: Route): WorldRouteDossierKey | null {
   if (route.name === "longlineReading") return "longline";
   if (route.name === "worldline" || route.name === "checkpoint") return "worldline";
+  if (route.name === "worldChronicle") return "world";
+  if (route.name === "anchorVolume") return "anchor";
   if (route.name === "characterVolume") return "character";
   if (route.name === "factionVolume") return "faction";
   if (route.name === "eventPerspective") return "event";
@@ -176,13 +180,13 @@ function buildDossiers(route: Route, slug: string, currentWorldline: string): Wo
       key: "world",
       label: "正史",
       title: "世界正史卷",
-      route: dossierReadingRoute(slug, currentWorldline, "world_chronicle"),
+      route: { name: "worldChronicle", slug, worldlineId: currentWorldline },
     },
     {
       key: "anchor",
       label: "锚点",
       title: "主锚点卷",
-      route: dossierReadingRoute(slug, currentWorldline, "anchor_volume"),
+      route: { name: "anchorVolume", slug, worldlineId: currentWorldline },
     },
     {
       key: "character",
@@ -227,6 +231,8 @@ function workspaceWhy(route: Route): string {
   if (route.name === "tianming") return "宪法确认后，干预和沙盘才有边界。";
   if (route.name === "sandbox") return "本轮行动会进入记忆、代偿和下一章材料。";
   if (route.name === "dossierReading") return "先读正文，证据和误会按需展开。";
+  if (route.name === "worldChronicle") return "世界承认的事实会决定角色、锚点和下一章怎样延续。";
+  if (route.name === "anchorVolume") return "锚点压力会约束干预、代偿和下一轮世界运行。";
   if (route.name === "longlineReading") return "把误会、压力和未解线索回收成后续剧情。";
   if (route.name === "characterVolume") return "角色的记忆、误会和秘密会解释下一轮行动。";
   if (route.name === "factionVolume") return "势力压力和资源流向会牵动世界代偿。";
@@ -280,6 +286,20 @@ function stateHandoffCopy(
         label: "正在承接",
         title: "角色主观记忆",
         detail: "这个角色的主观记忆、误会和秘密会回到行动",
+      };
+    }
+    if (route.name === "worldChronicle") {
+      return {
+        label: "正在承接",
+        title: "世界正史",
+        detail: "世界承认的事实正在接回角色、锚点和下一章",
+      };
+    }
+    if (route.name === "anchorVolume") {
+      return {
+        label: "正在承接",
+        title: "主锚点压力",
+        detail: "锚点、边界和代偿正在限制世界走向",
       };
     }
     if (route.name === "factionVolume") {
@@ -346,6 +366,20 @@ function stateHandoffCopy(
         detail: "误会、压力和未解线索会变成后续任务",
       };
     }
+    if (route.name === "worldChronicle") {
+      return {
+        label: "会留下",
+        title: "正史事实",
+        detail: "事实会落到角色记忆、锚点压力和作者材料",
+      };
+    }
+    if (route.name === "anchorVolume") {
+      return {
+        label: "会留下",
+        title: "锚点代偿",
+        detail: "被触碰的边界会回到世界线和下一轮行动",
+      };
+    }
     return {
       label: "会留下",
       title: "世界状态",
@@ -388,18 +422,24 @@ function buildStateHandoffs(
 
 function continuityDetail(route: Route, key: WorldContinuitySignal["key"]): string {
   if (key === "memory") {
+    if (route.name === "worldChronicle") return "正史事实会被角色各自误读并记住";
+    if (route.name === "anchorVolume") return "锚点压力会改变角色能相信什么";
     if (route.name === "characterVolume") return "正在查看这个角色怎样记住世界";
     if (route.name === "sandbox") return "本轮行动会写入主观记忆";
     if (route.name === "checkpoint") return "先核对谁记住了这一夜";
     return "角色会带着误会和秘密继续行动";
   }
   if (key === "consequence") {
+    if (route.name === "worldChronicle") return "正史事实会压回世界线代偿";
+    if (route.name === "anchorVolume") return "锚点正在解释世界为什么会代偿";
     if (route.name === "tianming") return "锚点和合约压力会约束干预";
     if (route.name === "sandbox") return "行动会变成因果债和资源流向";
     if (route.name === "factionVolume") return "势力压力正在牵动代偿";
     return "世界线会记录代偿、检查点和分支压力";
   }
   if (key === "reading") {
+    if (route.name === "worldChronicle") return "当前正在读世界正史卷";
+    if (route.name === "anchorVolume") return "当前正在读主锚点卷";
     if (route.name === "dossierReading") return "当前正在读正文，可按需查卷宗";
     if (route.name === "longlineReading") return "长线卷正在回收跨事件伏笔";
     if (route.name === "eventPerspective") return "同一事件会拆成多个视角";
@@ -575,6 +615,53 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       primaryRoute: longlineRoute,
       secondaryActionLabel: "送往作者台",
       secondaryRoute: authorRoute,
+      stages,
+      dossiers,
+    };
+  }
+  if (route.name === "worldChronicle") {
+    const primaryActionLabel = "追主锚点卷";
+    const anchorRoute: Route = { name: "anchorVolume", slug, worldlineId: currentWorldline };
+    return {
+      sectionLabel: "正史卷",
+      title: "世界正史卷",
+      description: "查看世界承认的事实、证据来源和它怎样牵动锚点与下一章。",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        anchorRoute,
+        primaryActionLabel,
+      ),
+      continuitySignals,
+      primaryActionLabel,
+      primaryRoute: anchorRoute,
+      secondaryActionLabel: "送往作者台",
+      secondaryRoute: authorRoute,
+      stages,
+      dossiers,
+    };
+  }
+  if (route.name === "anchorVolume") {
+    const primaryActionLabel = "继续沙盘";
+    return {
+      sectionLabel: "锚点卷",
+      title: "主锚点卷",
+      description: "查看锚点承压、边界触碰和世界代偿怎样限制下一轮运行。",
+      workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        sandboxRoute,
+        primaryActionLabel,
+      ),
+      continuitySignals,
+      primaryActionLabel,
+      primaryRoute: sandboxRoute,
+      secondaryActionLabel: "读世界正史",
+      secondaryRoute: { name: "worldChronicle", slug, worldlineId: currentWorldline },
       stages,
       dossiers,
     };

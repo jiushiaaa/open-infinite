@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 // "#/world/<slug>/author"       → 作者采纳台
 // "#/world/<slug>/worldlines/<id>" → 世界线档案
 // "#/world/<slug>/worldlines/<id>/reading[/tab]" → 世界内部卷宗阅读
+// "#/world/<slug>/worldlines/<id>/chronicle" → 世界正史卷
+// "#/world/<slug>/worldlines/<id>/anchors" → 主锚点卷
 // "#/world/<slug>/worldlines/<id>/longline" → 跨事件长线卷
 // "#/world/<slug>/worldlines/<id>/characters/<char>" → 角色个人卷
 // "#/world/<slug>/worldlines/<id>/factions/<faction>" → 势力卷
@@ -26,6 +28,8 @@ export type Route =
   | { name: "author"; slug: string }
   | { name: "worldline"; slug: string; worldlineId: string }
   | { name: "dossierReading"; slug: string; worldlineId: string; tab?: string }
+  | { name: "worldChronicle"; slug: string; worldlineId: string }
+  | { name: "anchorVolume"; slug: string; worldlineId: string }
   | { name: "longlineReading"; slug: string; worldlineId: string }
   | { name: "characterVolume"; slug: string; worldlineId: string; characterId: string }
   | { name: "factionVolume"; slug: string; worldlineId: string; factionId: string }
@@ -82,6 +86,20 @@ function parseHash(): Route {
         slug: decodeURIComponent(parts[1]),
         worldlineId: decodeURIComponent(parts[3]),
         eventId: decodeURIComponent(parts[5]),
+      };
+    }
+    if (parts[4] === "chronicle") {
+      return {
+        name: "worldChronicle",
+        slug: decodeURIComponent(parts[1]),
+        worldlineId: decodeURIComponent(parts[3]),
+      };
+    }
+    if (parts[4] === "anchors") {
+      return {
+        name: "anchorVolume",
+        slug: decodeURIComponent(parts[1]),
+        worldlineId: decodeURIComponent(parts[3]),
       };
     }
     if (parts[4] === "longline") {
@@ -151,6 +169,16 @@ export function navigate(route: Route): void {
       route.worldlineId,
     )}/reading`;
     if (route.tab) next += `/${encodeURIComponent(route.tab)}`;
+  }
+  else if (route.name === "worldChronicle") {
+    next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
+      route.worldlineId,
+    )}/chronicle`;
+  }
+  else if (route.name === "anchorVolume") {
+    next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(
+      route.worldlineId,
+    )}/anchors`;
   }
   else if (route.name === "longlineReading") {
     next = `#/world/${encodeURIComponent(route.slug)}/worldlines/${encodeURIComponent(

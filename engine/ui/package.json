@@ -28,6 +28,7 @@
     "check:world-anchor-status-ribbon": "node scripts/check-world-anchor-status-ribbon.mjs",
     "check:world-journey": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-world-journey src/worldJourney.ts && node scripts/check-world-journey.mjs",
     "check:world-runway-ux": "node scripts/check-world-runway-ux.mjs",
+    "check:world-volume-ux": "node scripts/check-world-volume-ux.mjs",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview"
   },

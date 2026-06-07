@@ -3704,3 +3704,23 @@
   - Chrome UI smoke：`http://localhost:5178/#/anchor/my-story` 桌面下苏醒台渲染 4 张信号卡，位于世界卷宗总览之前；“看世界线”跳到 `#/world/my-story/worldlines/main`；390px 下桌面版隐藏、紧凑版显示、4 张信号卡单列且无水平溢出。
 - **边界**：
   - 本轮只改前端锚定页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `world-anchor` 字段，不改 artifact，不删编辑锚定、视觉资产、基线回放、世界启动、卷宗总览、角色栏或角色探针。
+
+### 2026-06-07 — World Chronicle And Anchor Volume Pages
+
+- **做了什么**：
+  - 新增 `WorldVolumePage`，把世界正史卷和主锚点卷从卷宗阅读 tab 提升为独立世界内部页面。
+  - 新增路由 `#/world/<slug>/worldlines/<worldline_id>/chronicle` 与 `#/world/<slug>/worldlines/<worldline_id>/anchors`，并接入 `App.tsx`、`routing.ts`、`worldRouteContext.ts` 和全局续读记录。
+  - 页面复用现有 dossier-reading API 的 `world_chronicle` / `anchor_volume` tab 数据，不新增后端 API、artifact 或字段契约。
+  - 页面包含移动端导读条、`WorldRunway`、正史/锚点接力台、正文证据锚点、世界线状态和回卷宗阅读/继续沙盘/作者台动作；没有 volume tab 时显示明确空态。
+  - `DossierReadingPage` 对应 tab 新增“世界正史卷 / 主锚点卷”独立入口，AppShell 卷宗速览盘的正史和锚点入口也直达独立页。
+  - 新增 `check:world-volume-ux`，并扩展 `check:world-route-context`、`check:reading-progress` 覆盖新路由和全局续读语义。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:world-volume-ux`，确认缺少 `WorldVolumePage.tsx` 时失败。
+  - Focused helper：`pnpm.cmd run check:world-volume-ux` -> `world volume ux structure ok`。
+  - 路由上下文：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+  - 续读记录：`pnpm.cmd run check:reading-progress` -> `reading progress helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome UI smoke：`http://localhost:5178/#/world/my-story/worldlines/main/chronicle` 桌面下渲染“世界正史卷”、接力台和阅读区，正史页动作可切到 `#/world/my-story/worldlines/main/anchors`；390px 下“主锚点卷”移动端导读条显示、布局无水平溢出。当前本地样本没有 volume tab，smoke 验证的是空态和页面结构。
+- **边界**：
+  - 本轮只改前端路由、页面、壳层上下文、续读 helper、结构检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 响应契约、不改 artifact。

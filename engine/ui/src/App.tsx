@@ -11,6 +11,7 @@ import { CharacterLensPage } from "./components/CharacterLensPage";
 import { AuthorAdoptionPage } from "./components/AuthorAdoptionPage";
 import { WorldlineDossierPage } from "./components/WorldlineDossierPage";
 import { DossierReadingPage } from "./components/DossierReadingPage";
+import { WorldVolumePage } from "./components/WorldVolumePage";
 import { LonglineReadingPage } from "./components/LonglineReadingPage";
 import { CharacterVolumePage } from "./components/CharacterVolumePage";
 import { FactionVolumePage } from "./components/FactionVolumePage";
@@ -40,6 +41,20 @@ export function App() {
           slug={route.slug}
           worldlineId={route.worldlineId}
           initialTab={route.tab}
+        />
+      )}
+      {route.name === "worldChronicle" && (
+        <WorldVolumePage
+          slug={route.slug}
+          worldlineId={route.worldlineId}
+          volumeKind="chronicle"
+        />
+      )}
+      {route.name === "anchorVolume" && (
+        <WorldVolumePage
+          slug={route.slug}
+          worldlineId={route.worldlineId}
+          volumeKind="anchor"
         />
       )}
       {route.name === "longlineReading" && (

@@ -19,6 +19,7 @@
 | 天命书页 | `TianmingPage` 已把生成草案、确认根天命、干预预编译和进入沙盘组织成首屏宪法封面；移动端 hero 后新增“生成/确认/沙盘 / 看锚点 / 投干预 / 去沙盘”宪法速断条，可在首屏直接执行当前主动作、查看锚点或进入干预预编译；确认后新增“天命生效接力台”，把世界宪法已生效、锚点承压、干预边界和沙盘就绪串到沙盘/干预/锚点/世界锚定入口 | 动态天命书、锚点变化审计 |
 | 世界沙盘页 | `WorldSandboxPage` 已把运行台前置为“写事件 / 可选干预 / 启动推演”首屏控制台；运行台内新增“干预后果预演台”，会按干预文本、投放对象和投放方式解释世界吸收路径，并提示从角色主观记忆、世界线代偿和多视角正文观察后果；单轮结果后新增“本轮已发生”承接台，先展示本轮事件、行动数、主观记忆、因果债、关键世界状态变化和被推到台前的角色，再提供“读成正文 / 看世界线 / 生成多视角 / 再推一轮”四个出口；真实模型 advisory 写出 `strategic_interaction` 时，会在结果承接和角色行动链之间显示策略棋盘，提前说明角色算计路线、私下目的、误判、风险和世界影响，并用“下一轮暗线承接”把某条算计回填为下一轮事件种子；后续剧情可能性也可作为下一轮事件回填到运行台，并避免沿用上轮临时干预；世界自演结果页已有“昨夜世界醒来台”，把 overnight report 先整理成昨夜发生、角色记忆、世界变化和继续阅读入口 | 多轮策略规划、长期关系/势力博弈、结果页视觉 QA |
 | 世界内导览层 | `WorldRunway` 已接入世界沙盘、卷宗阅读、角色个人卷、势力卷、事件多视角、长线卷、世界线档案、检查点回放和作者采纳台；共享组件会把页面 primary 动作提炼为“建议先做”承接卡，其余动作继续作为次出口，帮助用户先理解当前最该做什么，再选择其它世界路径 | 更完整 `WorldWorkspaceShell`、跨页面视觉 QA |
+| 世界正史卷/主锚点卷页 | `WorldVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/chronicle` / `#/world/<slug>/worldlines/<worldline_id>/anchors` 已复用 `dossier-reading` 只读聚合数据，把世界正史卷和主锚点卷拆成独立阅读入口；AppShell 卷宗速览“正史 / 锚点”和卷宗阅读 tab 都能进入，两页都有移动端导读条、正史/锚点接力台、卷内证据、世界承接状态以及回卷宗阅读、切换另一卷、继续沙盘、送作者台动作 | 更深跨章证据联动、真实世界状态长期化 |
 | 角色个人卷页 | `CharacterVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 已复用 `dossier-reading` 与 `subjective-memory`，把单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点组织成可读页面；移动端首屏已有“读立场 / 查记忆 / 换角色 / 作者台”导读条；导览后已有“记忆接力台”，把当前立场、最新记忆、首要误会和下一轮行动整理成可点击承接卡；锚定页、沙盘页、多视角页和卷宗阅读页都有入口 | 跨章角色长线阅读、跨卷证据联动 |
 | 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；移动端首屏已有“看站位 / 查代偿 / 换势力 / 作者台”导读条；导览后已有“势力压力接力台”，把当前站位、代偿压力、最近记录和下一轮秩序整理成可点击承接卡；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、跨卷证据联动 |
 | 事件多视角详情页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 与 `EventPerspectivePage` / `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 已复用 `dossier-reading` 与 `character_lens_volumes`，把同一事件的节拍、正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/长线卷/作者台动作组织成独立页面；移动端首屏已有“读事件 / 看信息差 / 查证据 / 作者台”导读条；导览后已有“事件信息差接力台”，把事件现场、信息差、首要误读和下一章承接整理成可点击承接卡 | 更深跨章误会网络 |
@@ -142,7 +143,7 @@
 - `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。
 - `outputs/<run_id>/confirmed_chapter.md`：作者确认后的可读正文导出，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/confirmed_chapter_reading_trail.json`：确认稿跨卷宗阅读链，引用世界线状态、来源采纳记录、世界正史卷、角色个人卷和事件多视角证据。
-- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页“读小说 / 查卷宗”模式切换、默认正文阅读、卷宗切换、续读签、误会图谱、读完后的余波承接台和折叠证据链。
+- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页“读小说 / 查卷宗”模式切换、默认正文阅读、卷宗切换、续读签、误会图谱、读完后的余波承接台、世界正史卷/主锚点卷独立页和折叠证据链。
 - `longline_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读场景、卷宗、检查点、确认入卷和证据链，驱动长线卷的跨事件时间线、阅读进度、多事件索引、误会回收台、跨章回收台、五条发酵线、未解线索和下一步动作。
 - `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`：干预、快照审计、因果债、锚点状态、候选承载者、模因污染传播、具象代偿和作者采纳结果的后续沙盘输入；另开作者分支时会写入新分支状态和来源世界线，不覆盖根正史。
 - `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、决策输入、外在行动、真实意图、风险、行动结果、冲突、信息传播和世界状态 delta。
