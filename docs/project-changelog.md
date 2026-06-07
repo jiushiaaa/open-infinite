@@ -3963,3 +3963,21 @@
   - In-app Browser smoke：`http://localhost:5183/#/anchor/my-story` 在 1280px 下紧凑续行台和完整续行台均渲染，完整续行台位于苏醒台与卷宗总览之间且无水平溢出；390px 下紧凑版显示、完整版本隐藏、无水平溢出，点击主按钮进入 `#/world/my-story/tianming`；浏览器 error 日志为空。
 - **边界**：
   - 本轮只改前端锚定页 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变 `world-anchor` 响应契约，不改 artifact，不删除世界启动、世界苏醒台、世界卷宗总览、视觉资产、编辑锚定、角色栏或角色探针。
+
+### 2026-06-07 — TianmingPage Next Round Brief
+
+- **做了什么**：
+  - `TianmingPage` 在确认后的“天命生效接力台”和详细天命面板之间新增“下一轮启动简报”。
+  - 简报复用既有 `tianming.json` 字段，把下一轮会消费的主锚点、当前压力档、首个叙事吸引子和候选天命承载者整理成四枚可扫读卡。
+  - 简报提供“启动世界沙盘 / 先投放干预 / 看锚点压力”三项动作，分别复用现有沙盘导航、干预编译滚动和锚点详情滚动。
+  - 旧接力台中的同名“看锚点压力”按钮改为“查看锚点压力”，避免同屏重复 accessible name；既有锚点滚动功能保留。
+  - 扩展 `check:tianming-mobile-guide`，锁定简报位置、真实字段来源、三项动作、桌面 summary/detail split 和移动端单列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:tianming-mobile-guide`，确认缺少 `tianming-next-round-brief` 时失败。
+  - Focused helper：`pnpm.cmd run check:tianming-mobile-guide` -> `tianming mobile guide structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - 后端：`cd engine && python -X utf8 -m pytest -q` -> `951 passed`。
+  - In-app Browser smoke：`http://localhost:5183/#/world/my-story/tianming` 在 1280px 下简报位于接力台和详细面板之间，四张卡读取真实数据，点击“启动世界沙盘”进入 `#/world/my-story/sandbox`；390px 下简报和卡片均为单列，三个按钮等宽，无水平溢出，浏览器 error 日志为空。
+- **边界**：
+  - 本轮只改前端天命书 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变 `tianming.json`、干预编译、世界线代偿或沙盘 artifact 契约，不删除生成、确认、锚点、压力档、候选承载者、干预预编译或代偿面板。

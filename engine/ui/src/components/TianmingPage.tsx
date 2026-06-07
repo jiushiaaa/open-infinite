@@ -413,7 +413,7 @@ export function TianmingPage({ slug }: { slug: string }) {
               className="btn btn--ghost"
               onClick={() => scrollToTianmingItem(".tianming-anchor-section")}
             >
-              看锚点压力
+              查看锚点压力
             </button>
             <button
               className="btn btn--ghost"
@@ -421,6 +421,66 @@ export function TianmingPage({ slug }: { slug: string }) {
             >
               回世界锚定
             </button>
+          </div>
+        </section>
+      )}
+
+      {book && !book.requires_confirmation && (
+        <section className="tianming-next-round-brief" aria-label="下一轮世界沙盘启动简报">
+          <div className="tianming-next-round-brief__summary">
+            <p className="muted tiny">启动前</p>
+            <h2>下一轮启动简报</h2>
+            <p>
+              确认后的第一轮不该盲跑。先看世界会消费哪些规则，再决定直接启动沙盘，
+              还是先投放一条干预。
+            </p>
+            <div className="tianming-next-round-brief__actions">
+              <button className="btn btn--primary" onClick={() => navigate({ name: "sandbox", slug })}>
+                启动世界沙盘
+              </button>
+              <button className="btn btn--ghost" onClick={() => scrollToTianmingItem(".tianming-compiler")}>
+                先投放干预
+              </button>
+              <button className="btn btn--ghost" onClick={() => scrollToTianmingItem(".tianming-anchor-section")}>
+                看锚点压力
+              </button>
+            </div>
+          </div>
+
+          <div className="tianming-next-round-brief__grid">
+            <article>
+              <span className="muted tiny">会被消费的锚点</span>
+              <strong>{book.anchor_status.current_anchor_name || "主锚点待观察"}</strong>
+              <p>{book.anchor_status.risk}</p>
+            </article>
+            <article>
+              <span className="muted tiny">当前压力档</span>
+              <strong>{activeTier?.label || pressureLabel(book.contract_pressure.level)}</strong>
+              <p>
+                {activeTier?.drivers?.slice(0, 2).join("；") ||
+                  book.contract_pressure.drivers.slice(0, 2).join("；") ||
+                  book.mutation_policy.ordinary_intervention}
+              </p>
+            </article>
+            <article>
+              <span className="muted tiny">牵引吸引子</span>
+              <strong>
+                {book.narrative_attractors[0]?.title || `${book.narrative_attractors.length} 个吸引子待运行`}
+              </strong>
+              <p>{book.narrative_attractors[0]?.pull || "下一轮角色行动会从叙事吸引子获得张力。"}</p>
+            </article>
+            <article>
+              <span className="muted tiny">候选承载者</span>
+              <strong>
+                {book.replacement_anchor_candidates[0]?.character_name ||
+                  `${book.replacement_anchor_candidates.length} 个候选待观察`}
+              </strong>
+              <p>
+                {book.replacement_anchor_candidates[0]
+                  ? `${book.replacement_anchor_candidates[0].desire} · 风险：${book.replacement_anchor_candidates[0].risk}`
+                  : "如果主锚点失稳，世界会寻找新的承载者。"}
+              </p>
+            </article>
           </div>
         </section>
       )}

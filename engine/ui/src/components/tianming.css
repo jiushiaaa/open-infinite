@@ -264,6 +264,82 @@
   gap: var(--space-2);
 }
 
+.tianming-next-round-brief {
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  gap: var(--space-4);
+  align-items: stretch;
+  padding: var(--space-4);
+  border: 1px solid rgba(87, 68, 42, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 252, 244, 0.96), rgba(245, 238, 220, 0.72)),
+    var(--paper-raised);
+  box-shadow: var(--shadow-soft);
+}
+
+.tianming-next-round-brief__summary {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.tianming-next-round-brief__summary h2,
+.tianming-next-round-brief__summary p {
+  margin: 0;
+}
+
+.tianming-next-round-brief__summary h2 {
+  font-family: var(--font-serif);
+  font-size: 21px;
+}
+
+.tianming-next-round-brief__summary > p:not(.tiny) {
+  color: var(--ink-soft);
+  line-height: 1.72;
+  overflow-wrap: anywhere;
+}
+
+.tianming-next-round-brief__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.tianming-next-round-brief__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.tianming-next-round-brief__grid article {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(87, 68, 42, 0.13);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.74);
+}
+
+.tianming-next-round-brief__grid strong {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.tianming-next-round-brief__grid p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
 .tianming-layout {
   display: grid;
   grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
@@ -625,6 +701,27 @@
     min-width: 0;
     white-space: normal;
   }
+
+  .tianming-next-round-brief {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .tianming-next-round-brief__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tianming-next-round-brief__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .tianming-next-round-brief__actions .btn {
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
+  }
 }
 
 @media (max-width: 560px) {
@@ -651,6 +748,10 @@
   }
 
   .tianming-command__constitution {
+    grid-template-columns: 1fr;
+  }
+
+  .tianming-next-round-brief__actions {
     grid-template-columns: 1fr;
   }
 }
