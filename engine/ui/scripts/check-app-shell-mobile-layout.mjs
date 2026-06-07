@@ -98,6 +98,15 @@ if (
   failures.push("skip link copy should include the current route title");
 }
 
+if (
+  !appShell.includes("useEffect") ||
+  !appShell.includes("document.title =") ||
+  !appShell.includes("`${currentPageTitle} · 未终章`") ||
+  !appShell.includes("[currentPageTitle]")
+) {
+  failures.push("browser title should include the current route title");
+}
+
 const skipLinkRule = findRule(".skip-link");
 if (
   !/position:\s*fixed/.test(skipLinkRule) ||

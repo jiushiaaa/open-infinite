@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { navigate, type Route } from "../routing";
 import { useMotionPref } from "../motion";
 import { readRecentReading, shouldShowRecentReading } from "../readingProgress";
@@ -96,6 +96,10 @@ export function AppShell({
   const skipLinkLabel = `跳到${currentPageTitle}内容`;
   const recentReading = slug ? readRecentReading(window.localStorage, slug) : null;
   const showRecentReading = shouldShowRecentReading(window.location.hash, recentReading);
+
+  useEffect(() => {
+    document.title = `${currentPageTitle} · 未终章`;
+  }, [currentPageTitle]);
 
   const cycleMotion = () =>
     setMotion(motion === "auto" ? "full" : motion === "full" ? "reduced" : "auto");
