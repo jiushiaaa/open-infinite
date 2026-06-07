@@ -33,6 +33,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [error, setError] = useState<string | null>(null);
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
   const [queuedPossibilityTitle, setQueuedPossibilityTitle] = useState("");
+  const [queuedStrategyTitle, setQueuedStrategyTitle] = useState("");
   const [memoryReport, setMemoryReport] = useState<SubjectiveMemoryReport | null>(null);
   const [memoryLoading, setMemoryLoading] = useState(false);
   const [memoryError, setMemoryError] = useState<string | null>(null);
@@ -227,6 +228,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setLoading(true);
     setError(null);
     setQueuedPossibilityTitle("");
+    setQueuedStrategyTitle("");
     try {
       const next = await api.runSandboxRound(slug, {
         major_event: majorEvent.trim(),
@@ -349,6 +351,19 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setInterventionContent("");
     setInterventionTarget("");
     setQueuedPossibilityTitle(title);
+    setQueuedStrategyTitle("");
+    focusControl();
+  }
+
+  function queueStrategySeed(item: (typeof strategyInteractions)[number]) {
+    const title = `${item.actorName}试探${item.targetName}`;
+    setMajorEvent(
+      `${title}：${item.actorName}准备用「${item.tactic}」逼近${item.targetName}，私下目的：${item.privateGoal}。可能误判：${item.misread}。世界影响：${item.effect}。下一轮观察：${item.hook}`,
+    );
+    setInterventionContent("");
+    setInterventionTarget("");
+    setQueuedStrategyTitle(title);
+    setQueuedPossibilityTitle("");
     focusControl();
   }
 
@@ -1017,6 +1032,64 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                           <span>世界影响</span>
                           <strong>{item.effect}</strong>
                           <p>{item.hook}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {strategyInteractions.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-continuation"
+                  aria-label="下一轮策略暗线承接"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">策略承接</p>
+                      <h2>下一轮暗线承接</h2>
+                    </div>
+                    {queuedStrategyTitle ? (
+                      <span className="badge badge--jade">已放入运行台</span>
+                    ) : (
+                      <span className="badge">可继续发酵</span>
+                    )}
+                  </div>
+                  <p className="muted">
+                    这些算计不只用来阅读，也可以直接成为下一轮事件，让误判、筹码和世界影响继续发酵。
+                  </p>
+                  {queuedStrategyTitle && (
+                    <p className="muted tiny">已放入运行台：{queuedStrategyTitle}</p>
+                  )}
+                  <div className="sandbox-strategy-continuation__grid">
+                    {strategyInteractions.map((item) => (
+                      <article
+                        key={`${item.actorId}-${item.targetName}-${item.tactic}-seed`}
+                      >
+                        <div className="sandbox-strategy-continuation__event">
+                          <span>暗线种子</span>
+                          <strong>
+                            {item.actorName}试探{item.targetName}
+                          </strong>
+                          <p>{item.tactic}</p>
+                        </div>
+                        <dl>
+                          <div>
+                            <dt>可能误判</dt>
+                            <dd>{item.misread}</dd>
+                          </div>
+                          <div>
+                            <dt>世界影响</dt>
+                            <dd>{item.effect}</dd>
+                          </div>
+                        </dl>
+                        <div className="sandbox-strategy-continuation__actions">
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={() => queueStrategySeed(item)}
+                          >
+                            作为下一轮暗线
+                          </button>
+                          <span className="muted tiny">不沿用上轮临时干预</span>
                         </div>
                       </article>
                     ))}

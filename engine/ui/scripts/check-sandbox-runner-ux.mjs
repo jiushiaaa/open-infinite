@@ -24,6 +24,15 @@ const requiredPageMarkers = [
   ["私下目的", "strategy board should explain each actor's private goal"],
   ["可能误判", "strategy board should show the misread that can move the world"],
   ["世界影响", "strategy board should connect tactics to world consequences"],
+  ["sandbox-strategy-continuation", "strategy board should hand tactics into the next round"],
+  ["下一轮暗线承接", "strategy continuation should name the next-round handoff"],
+  ["作为下一轮暗线", "strategy continuation should let users queue a tactic as the next event"],
+  ["queueStrategySeed", "strategy continuation should have a dedicated queue helper"],
+  ["queuedStrategyTitle", "strategy continuation should give feedback after queuing a tactic"],
+  ["setInterventionContent(\"\")", "strategy continuation should clear stale intervention text"],
+  ["setInterventionTarget(\"\")", "strategy continuation should clear stale intervention targets"],
+  ["item.misread", "strategy continuation should carry forward the possible misread"],
+  ["item.effect", "strategy continuation should carry forward the expected world effect"],
   ["queueNextPossibility", "next story possibilities should be reusable as the next sandbox event"],
   ["作为下一轮事件", "possibility cards should let users continue the world loop"],
   ["不沿用上轮临时干预", "possibility continuation should avoid replaying stale intervention text"],
@@ -57,6 +66,8 @@ const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
 const actionChainIndex = page.indexOf("角色行动链");
 const possibilitiesIndex = page.indexOf("后续剧情可能性");
 const queuePossibilityIndex = page.indexOf("queueNextPossibility");
+const strategyContinuationIndex = page.indexOf("sandbox-strategy-continuation");
+const interventionIndex = page.indexOf("sandbox-intervention");
 const autopilotReportIndex = page.indexOf('className="sandbox-section sandbox-autopilot-report"');
 const overnightBriefIndex = page.indexOf("sandbox-overnight-brief");
 const wakeEntryIndex = page.indexOf("<WakeReadingEntry");
@@ -72,6 +83,15 @@ if (
   strategyBoardIndex > actionChainIndex
 ) {
   failures.push("strategy board should bridge from result summary to detailed action chains");
+}
+if (
+  strategyBoardIndex === -1 ||
+  strategyContinuationIndex === -1 ||
+  interventionIndex === -1 ||
+  strategyContinuationIndex < strategyBoardIndex ||
+  strategyContinuationIndex > interventionIndex
+) {
+  failures.push("strategy continuation should sit after the strategy board before dense evidence panels");
 }
 if (
   actionChainIndex === -1 ||
@@ -112,6 +132,10 @@ const requiredCssMarkers = [
   [".sandbox-strategy-card__route", "strategy card route styling is missing"],
   [".sandbox-strategy-card dl", "strategy card detail grid styling is missing"],
   [".sandbox-strategy-card__effect", "strategy card consequence styling is missing"],
+  [".sandbox-strategy-continuation", "strategy continuation styling is missing"],
+  [".sandbox-strategy-continuation__grid", "strategy continuation grid styling is missing"],
+  [".sandbox-strategy-continuation__event", "strategy continuation event styling is missing"],
+  [".sandbox-strategy-continuation__actions", "strategy continuation action styling is missing"],
   [".sandbox-possibility__actions", "possibility continuation action styling is missing"],
   [".sandbox-possibility__actions .btn", "possibility continuation buttons should have stable sizing"],
   [".sandbox-overnight-brief", "overnight brief styling is missing"],
@@ -134,14 +158,28 @@ if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
 }
 const tabletMediaIndex = css.indexOf("@media (max-width: 960px)");
 const tabletStrategyIndex = css.indexOf(".sandbox-strategy-board__grid", tabletMediaIndex);
+const tabletStrategyContinuationIndex = css.indexOf(
+  ".sandbox-strategy-continuation__grid",
+  tabletMediaIndex,
+);
 const mobileStrategyDetailIndex = css.indexOf(".sandbox-strategy-card dl", mobileMediaIndex);
+const mobileStrategyContinuationActionsIndex = css.indexOf(
+  ".sandbox-strategy-continuation__actions",
+  mobileMediaIndex,
+);
 const mobilePossibilityActionsIndex = css.indexOf(".sandbox-possibility__actions", mobileMediaIndex);
 const mobileOvernightGridIndex = css.indexOf(".sandbox-overnight-brief__grid", mobileMediaIndex);
 if (tabletMediaIndex === -1 || tabletStrategyIndex === -1) {
   failures.push("strategy board should collapse to one column on tablet widths");
 }
+if (tabletMediaIndex === -1 || tabletStrategyContinuationIndex === -1) {
+  failures.push("strategy continuation should collapse on tablet widths");
+}
 if (mobileMediaIndex === -1 || mobileStrategyDetailIndex === -1) {
   failures.push("strategy card details should collapse on narrow mobile widths");
+}
+if (mobileMediaIndex === -1 || mobileStrategyContinuationActionsIndex === -1) {
+  failures.push("strategy continuation actions should collapse on narrow mobile widths");
 }
 if (mobileMediaIndex === -1 || mobilePossibilityActionsIndex === -1) {
   failures.push("possibility continuation actions should collapse on narrow mobile widths");

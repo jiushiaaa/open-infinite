@@ -3507,3 +3507,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端天命书 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `tianming`、干预编译或 narrative compensation 契约，不改 artifact。
+
+### 2026-06-07 — Sandbox Strategy Continuation Rail
+
+- **做了什么**：
+  - `WorldSandboxPage` 在策略棋盘之后、干预约束和角色行动链等密集证据前新增“下一轮暗线承接”。
+  - 当真实模型 advisory 写出 `strategic_interaction` 时，暗线承接会把角色算计、可能误判和世界影响整理成可继续发酵的下一轮事件种子。
+  - 用户可一键“作为下一轮暗线”回填到首屏运行台，并自动清空上一轮临时干预内容和投放对象，避免旧干预被误重复投放。
+  - 接力台复用既有 `strategyInteractions`、`item.misread`、`item.effect`、`item.hook` 和运行台 state；原有结果承接台、策略棋盘、干预约束、角色行动链、后续剧情可能性和世界自演报告全部保留。
+  - 扩展 `check:sandbox-runner-ux`，锁定接力台位置、真实字段引用、回填 helper、清空旧干预和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少暗线承接台时失败。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 字段，不改 artifact。
