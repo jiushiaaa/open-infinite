@@ -116,6 +116,14 @@ const entryPage = readFileSync(resolve("src/components/StoryEntryPage.tsx"), "ut
 assert.match(entryPage, /entry__spotlight-pulse/);
 assert.match(entryPage, /entry__spotlight-vitality/);
 assert.match(entryPage, /世界魅力前厅/);
+assert.match(entryPage, /start-card__fit/);
+assert.match(entryPage, /start-card__route/);
+assert.match(entryPage, /适合：我想先确认产品手感/);
+assert.match(entryPage, /适合：我已有小说章节/);
+assert.match(entryPage, /适合：我只有题材和冲突/);
+assert.match(entryPage, /样例世界[\s\S]*天命书[\s\S]*沙盘轮次[\s\S]*卷宗阅读/);
+assert.match(entryPage, /章节文本[\s\S]*世界锚定[\s\S]*天命书[\s\S]*沙盘轮次/);
+assert.match(entryPage, /主题念头[\s\S]*创世草案[\s\S]*世界锚定[\s\S]*天命书/);
 assert.match(entryPage, /vitalitySignals\.map/);
 assert.match(entryPage, /signal\.detail/);
 assert.match(entryPage, /journeyPulse\.map/);
@@ -154,6 +162,18 @@ assert.match(entryCss, /\.entry__spotlight-vitality/);
 assert.match(entryCss, /\.entry__spotlight-vitality-grid/);
 assert.match(entryCss, /\.entry__spotlight-vitality-card/);
 assert.match(entryCss, /\.entry__spotlight-vitality-card strong/);
+assert.match(entryCss, /\.start-card__fit/);
+assert.match(entryCss, /\.start-card__route/);
+assert.match(
+  entryCss,
+  /\.start-card__route[\s\S]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/,
+  "start cards should show four stable route stages on desktop",
+);
+assert.match(
+  entryCss,
+  /@media \(max-width: 560px\)[\s\S]*\.start-card__route[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/,
+  "start card routes should collapse to two columns on narrow mobile",
+);
 assert.match(entryCss, /grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/);
 assert.match(entryCss, /@media \(max-width: 560px\)[\s\S]*\.entry__spotlight-pulse[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
 assert.match(

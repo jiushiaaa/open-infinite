@@ -4017,3 +4017,19 @@
   - 本轮工具面未暴露 in-app Browser 控制；未做桌面/移动真实截图 smoke，后续有浏览器工具时需补视口验收。
 - **边界**：
   - 本轮只改前端卷宗阅读 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变 `dossier-reading` 响应契约，不改 artifact。
+
+### 2026-06-07 — StoryEntry Route Chooser
+
+- **做了什么**：
+  - `StoryEntryPage` 的三张开卷入口卡新增“适合谁”和四段路径提示。
+  - 内置样例标为“适合：我想先确认产品手感”，路径为“样例世界 -> 天命书 -> 沙盘轮次 -> 卷宗阅读”。
+  - 导入小说标为“适合：我已有小说章节”，路径为“章节文本 -> 世界锚定 -> 天命书 -> 沙盘轮次”。
+  - 主题创世标为“适合：我只有题材和冲突”，路径为“主题念头 -> 创世草案 -> 世界锚定 -> 天命书”。
+  - 扩展 `check:story-shelf-focus`，锁定入口卡适用场景、路径文案、四段桌面布局和窄屏两列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:story-shelf-focus`，确认缺少 `start-card__fit` / `start-card__route` 时失败。
+  - Focused helper：`pnpm.cmd run check:story-shelf-focus` -> `story shelf focus helper ok`。
+  - 完整验证结果见本轮收口。
+- **边界**：
+  - 本轮只改前端世界书架 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变导入、创世、样例、路由或 artifact，不删除既有世界沙盘、天命书、卷宗阅读、作者采纳台和机制档案入口。

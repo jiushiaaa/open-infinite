@@ -51,6 +51,8 @@ export function StoryEntryPage() {
           seal="样"
           title="内置样例"
           desc="直接进入一部已有世界，从天命书开始体验沙盘、干预、卷宗阅读和作者采纳。"
+          fit="适合：我想先确认产品手感"
+          route={["样例世界", "天命书", "沙盘轮次", "卷宗阅读"]}
           action="打开样例世界"
           tone="jade"
           disabled={builtin.length === 0}
@@ -63,6 +65,8 @@ export function StoryEntryPage() {
           seal="纳"
           title="导入小说"
           desc="把已有章节带进本地，抽取角色、规则、伏笔和正史，再进入世界锚定。"
+          fit="适合：我已有小说章节"
+          route={["章节文本", "世界锚定", "天命书", "沙盘轮次"]}
           action="导入小说"
           tone="gold"
           onClick={() => navigate({ name: "import" })}
@@ -71,6 +75,8 @@ export function StoryEntryPage() {
           seal="创"
           title="主题创世"
           desc="从题材、主角和冲突开始生成一个新世界，再让它进入同一套沙盘链路。"
+          fit="适合：我只有题材和冲突"
+          route={["主题念头", "创世草案", "世界锚定", "天命书"]}
           action="主题创世"
           tone="cinnabar"
           onClick={() => navigate({ name: "genesis" })}
@@ -344,6 +350,8 @@ function StartCard({
   seal,
   title,
   desc,
+  fit,
+  route,
   action,
   tone,
   disabled,
@@ -352,6 +360,8 @@ function StartCard({
   seal: string;
   title: string;
   desc: string;
+  fit: string;
+  route: string[];
   action: string;
   tone: "jade" | "gold" | "cinnabar";
   disabled?: boolean;
@@ -363,7 +373,13 @@ function StartCard({
         {seal}
       </div>
       <h3 className="start-card__title">{title}</h3>
+      <p className="start-card__fit">{fit}</p>
       <p className="start-card__desc muted">{desc}</p>
+      <div className="start-card__route" aria-label={`${title} 的开卷路径`}>
+        {route.map((stage) => (
+          <span key={stage}>{stage}</span>
+        ))}
+      </div>
       <button
         className={`btn ${disabled ? "" : "btn--primary"}`}
         disabled={disabled}
