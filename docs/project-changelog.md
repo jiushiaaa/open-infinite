@@ -3256,3 +3256,17 @@
   - `git diff --check` 通过；仅有 Windows CRLF 提示。
 - **边界**：
   - 本轮只改前端检查点回放 JSX、共用世界线 CSS、检查脚本和文档，不新增后端 API、不改变自演检查点或 `readable_entry` 契约、不改 artifact。
+
+### 2026-06-07 — AppShell World Journey Pointers
+
+- **做了什么**：
+  - `AppShell` 顶栏下方的“当前环节 / 承接世界线 / 下一步为什么做”三枚世界工作区总览信息签从静态说明升级为可点击旅程指针。
+  - “当前环节”会回到当前旅程阶段入口，“承接世界线”进入世界线档案，“下一步为什么做”直接执行当前页面语义里的主动作。
+  - 保留原有顶栏世界导航、“定界 / 运行 / 阅读 / 采纳”体验轨道、全局继续阅读、主次动作和八个卷宗速览入口；移动端仍按单列压缩，不挤掉既有功能。
+  - 扩展 `check:app-shell-mobile-layout`，锁定工作区总览必须保持可点击旅程指针、下一步必须执行 `primaryRoute`、世界线签必须进入世界线档案。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff，把 AppShell 世界旅程指针记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - Focused helper：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+- **边界**：
+  - 本轮只改前端共享壳层 JSX/CSS、检查脚本和文档，不新增后端 API、不改变世界线/阅读/作者采纳路由契约、不改 artifact。

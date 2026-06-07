@@ -163,7 +163,7 @@
   min-width: 0;
 }
 
-.shell-context__workspace > span {
+.shell-context__workspace-card {
   display: grid;
   align-content: start;
   gap: 3px;
@@ -173,6 +173,27 @@
   border: 1px solid rgba(196, 184, 156, 0.6);
   border-radius: 8px;
   background: rgba(255, 252, 244, 0.62);
+  color: inherit;
+  text-align: left;
+}
+
+.shell-context__workspace-card:hover {
+  border-color: rgba(141, 50, 37, 0.28);
+  background:
+    linear-gradient(90deg, rgba(141, 50, 37, 0.08), transparent 70%),
+    rgba(255, 252, 244, 0.88);
+}
+
+.shell-context__workspace-card:focus-visible {
+  outline: 2px solid rgba(141, 50, 37, 0.48);
+  outline-offset: 2px;
+}
+
+.shell-context__workspace-card--next {
+  border-color: rgba(141, 50, 37, 0.24);
+  background:
+    linear-gradient(90deg, rgba(141, 50, 37, 0.08), transparent 82%),
+    rgba(255, 252, 244, 0.7);
 }
 
 .shell-context__workspace small {
@@ -477,7 +498,7 @@
     grid-template-columns: 1fr;
   }
 
-  .shell-context__workspace > span {
+  .shell-context__workspace-card {
     min-height: 0;
     padding: 6px 8px;
   }

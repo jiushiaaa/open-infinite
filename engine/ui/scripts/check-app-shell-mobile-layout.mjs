@@ -55,12 +55,24 @@ if (!appShell.includes("shell-context__workspace")) {
   failures.push("AppShell should render the world workspace summary inside the shared context bar");
 }
 
+if (!appShell.includes("shell-context__workspace-card")) {
+  failures.push("world workspace summary cards should be clickable journey pointers");
+}
+
 if (
   !appShell.includes("当前环节") ||
   !appShell.includes("承接世界线") ||
   !appShell.includes("下一步为什么做")
 ) {
   failures.push("world workspace summary should explain stage, worldline and next-step rationale");
+}
+
+if (!appShell.includes("navigate(routeContext.primaryRoute)")) {
+  failures.push("next-step summary card should execute the primary route");
+}
+
+if (!appShell.includes("worldlineDossierRoute")) {
+  failures.push("worldline summary card should link to the worldline dossier");
 }
 
 const contextPath = resolve("src/worldRouteContext.ts");
@@ -74,9 +86,22 @@ if (!/grid-template-columns:\s*0\.75fr\s+0\.75fr\s+minmax\(0,\s*1\.5fr\)/.test(w
   failures.push("desktop workspace summary should keep stage, worldline and next-step rationale in one compact row");
 }
 
+const workspaceCardRule = findRule(".shell-context__workspace-card");
+if (
+  !/display:\s*grid/.test(workspaceCardRule) ||
+  !/text-align:\s*left/.test(workspaceCardRule)
+) {
+  failures.push("workspace summary cards should keep the compact information-sign layout");
+}
+
 const mobileWorkspaceRule = findRule(".shell-context__workspace", mobileIndex);
 if (!/grid-template-columns:\s*1fr/.test(mobileWorkspaceRule)) {
   failures.push("mobile workspace summary should stack into one column instead of squeezing text");
+}
+
+const mobileWorkspaceCardRule = findRule(".shell-context__workspace-card", mobileIndex);
+if (!/min-height:\s*0/.test(mobileWorkspaceCardRule)) {
+  failures.push("mobile workspace summary cards should not force tall rows");
 }
 
 const narrowOverrides = css.slice(css.indexOf("@media (max-width: 520px)"));

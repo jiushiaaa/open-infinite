@@ -91,6 +91,10 @@ export function AppShell({
   const routeContext = getWorldRouteContext(route);
   const recentReading = slug ? readRecentReading(window.localStorage, slug) : null;
   const showRecentReading = shouldShowRecentReading(window.location.hash, recentReading);
+  const activeStageRoute = routeContext?.stages.find((stage) => stage.status === "active")?.route;
+  const worldlineDossierRoute = routeContext?.dossiers.find(
+    (dossier) => dossier.key === "worldline",
+  )?.route;
 
   const cycleMotion = () =>
     setMotion(motion === "auto" ? "full" : motion === "full" ? "reduced" : "auto");
@@ -272,22 +276,37 @@ export function AppShell({
             <span>{routeContext.description}</span>
           </div>
           <div className="shell-context__workspace" aria-label="世界工作区总览">
-            <span>
+            <button
+              className="shell-context__workspace-card"
+              onClick={() => activeStageRoute && navigate(activeStageRoute)}
+              title="回到当前旅程环节的主入口"
+              type="button"
+            >
               <small>当前环节</small>
               <strong>
                 {routeContext.workspaceSummary.stageLabel} ·{" "}
                 {routeContext.workspaceSummary.stageTitle}
               </strong>
-            </span>
-            <span>
+            </button>
+            <button
+              className="shell-context__workspace-card"
+              onClick={() => worldlineDossierRoute && navigate(worldlineDossierRoute)}
+              title="查看这条世界线的检查点、因果债和代偿"
+              type="button"
+            >
               <small>承接世界线</small>
               <strong>{routeContext.workspaceSummary.worldlineLabel}</strong>
-            </span>
-            <span>
+            </button>
+            <button
+              className="shell-context__workspace-card shell-context__workspace-card--next"
+              onClick={() => navigate(routeContext.primaryRoute)}
+              title={routeContext.workspaceSummary.why}
+              type="button"
+            >
               <small>下一步为什么做</small>
               <strong>{routeContext.workspaceSummary.nextStepLabel}</strong>
               <em>{routeContext.workspaceSummary.why}</em>
-            </span>
+            </button>
           </div>
           <div className="shell-context__stages" aria-label="世界体验轨道">
             {routeContext.stages.map((stage) => (
