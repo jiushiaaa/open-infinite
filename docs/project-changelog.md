@@ -3313,3 +3313,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端共享导览组件、样式、检查脚本和文档，不新增后端 API、不改变路由契约、不改 artifact、不删页面原有按钮。
+
+### 2026-06-07 — AppShell Current Task Handoff
+
+- **做了什么**：
+  - `AppShell` 在世界工作区总览和世界脉搏之间新增“当前任务”承接条。
+  - 承接条把“建议先做”、`primaryActionLabel`、`workspaceSummary.why`、全局继续阅读、主动作和次动作放在同一纸面行。
+  - 移动端任务条先显示下一步理由，再用自适应紧凑动作保留继续阅读、主动作和次动作，不挤掉顶栏、世界脉搏、体验轨道或卷宗速览盘。
+  - 扩展 `check:app-shell-mobile-layout`，锁定任务条存在、主动作与理由绑定、桌面一行扫读和移动端自适应动作。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少当前任务条时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - Route helper：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端共享壳层 JSX/CSS、壳层检查脚本和文档，不新增后端 API、不改变路由契约、不改 artifact、不删任何世界入口。

@@ -308,6 +308,41 @@ export function AppShell({
               <em>{routeContext.workspaceSummary.why}</em>
             </button>
           </div>
+          <div className="shell-context__taskbar" aria-label="当前任务">
+            <div className="shell-context__taskcopy">
+              <small>当前任务 · 建议先做</small>
+              <strong>{routeContext.primaryActionLabel}</strong>
+              <span>{routeContext.workspaceSummary.why}</span>
+            </div>
+            <div className="shell-context__actions">
+              {showRecentReading && recentReading && (
+                <button
+                  className="btn btn--ghost tiny shell-context__resume"
+                  onClick={() => {
+                    window.location.hash = recentReading.hash;
+                  }}
+                  title={`${recentReading.title} · ${recentReading.worldlineId}`}
+                  type="button"
+                >
+                  继续阅读
+                </button>
+              )}
+              <button
+                className="btn btn--primary tiny"
+                onClick={() => navigate(routeContext.primaryRoute)}
+              >
+                {routeContext.primaryActionLabel}
+              </button>
+              {routeContext.secondaryRoute && routeContext.secondaryActionLabel && (
+                <button
+                  className="btn btn--ghost tiny"
+                  onClick={() => navigate(routeContext.secondaryRoute!)}
+                >
+                  {routeContext.secondaryActionLabel}
+                </button>
+              )}
+            </div>
+          </div>
           <div className="shell-context__continuity" aria-label="世界脉搏">
             {routeContext.continuitySignals.map((signal) => (
               <button
@@ -350,34 +385,6 @@ export function AppShell({
               </button>
             ))}
           </nav>
-          <div className="shell-context__actions">
-            {showRecentReading && recentReading && (
-              <button
-                className="btn btn--ghost tiny shell-context__resume"
-                onClick={() => {
-                  window.location.hash = recentReading.hash;
-                }}
-                title={`${recentReading.title} · ${recentReading.worldlineId}`}
-                type="button"
-              >
-                继续阅读
-              </button>
-            )}
-            <button
-              className="btn btn--primary tiny"
-              onClick={() => navigate(routeContext.primaryRoute)}
-            >
-              {routeContext.primaryActionLabel}
-            </button>
-            {routeContext.secondaryRoute && routeContext.secondaryActionLabel && (
-              <button
-                className="btn btn--ghost tiny"
-                onClick={() => navigate(routeContext.secondaryRoute!)}
-              >
-                {routeContext.secondaryActionLabel}
-              </button>
-            )}
-          </div>
         </section>
       )}
       <main className="shell__body">{children}</main>

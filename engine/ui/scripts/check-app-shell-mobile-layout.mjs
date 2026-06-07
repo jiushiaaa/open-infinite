@@ -63,6 +63,21 @@ if (!appShell.includes("shell-context__continuity")) {
   failures.push("AppShell should render the world pulse continuity row");
 }
 
+if (!appShell.includes("shell-context__taskbar")) {
+  failures.push("AppShell should render a dedicated current-task handoff row");
+}
+
+if (!appShell.includes("当前任务") || !appShell.includes("建议先做")) {
+  failures.push("current-task row should use clear Chinese next-step copy");
+}
+
+if (
+  !appShell.includes("routeContext.workspaceSummary.why") ||
+  !appShell.includes("routeContext.primaryActionLabel")
+) {
+  failures.push("current-task row should pair the primary action with its rationale");
+}
+
 if (
   !appShell.includes("routeContext.continuitySignals.map") ||
   !appShell.includes("navigate(signal.route)")
@@ -108,6 +123,19 @@ if (!/grid-template-columns:\s*0\.75fr\s+0\.75fr\s+minmax\(0,\s*1\.5fr\)/.test(w
   failures.push("desktop workspace summary should keep stage, worldline and next-step rationale in one compact row");
 }
 
+const shellContextRule = findRule(".shell-context");
+if (!/grid-template-areas:[^}]*taskbar/s.test(shellContextRule)) {
+  failures.push("AppShell context grid should give the current-task row its own area");
+}
+
+const taskbarRule = findRule(".shell-context__taskbar");
+if (
+  !/display:\s*grid/.test(taskbarRule) ||
+  !/grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto/.test(taskbarRule)
+) {
+  failures.push("desktop current-task row should keep explanation and actions in one scan row");
+}
+
 const workspaceCardRule = findRule(".shell-context__workspace-card");
 if (
   !/display:\s*grid/.test(workspaceCardRule) ||
@@ -124,6 +152,16 @@ if (!/grid-template-columns:\s*1fr/.test(mobileWorkspaceRule)) {
 const mobileWorkspaceCardRule = findRule(".shell-context__workspace-card", mobileIndex);
 if (!/min-height:\s*0/.test(mobileWorkspaceCardRule)) {
   failures.push("mobile workspace summary cards should not force tall rows");
+}
+
+const mobileTaskbarRule = findRule(".shell-context__taskbar", mobileIndex);
+if (!/grid-template-columns:\s*1fr/.test(mobileTaskbarRule)) {
+  failures.push("mobile current-task row should stack explanation above actions");
+}
+
+const mobileActionsRule = findRule(".shell-context__actions", mobileIndex);
+if (!/grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(86px,\s*1fr\)\)/.test(mobileActionsRule)) {
+  failures.push("mobile current-task actions should fit resume, primary and secondary controls without leaving empty columns");
 }
 
 const continuityRule = findRule(".shell-context__continuity");
