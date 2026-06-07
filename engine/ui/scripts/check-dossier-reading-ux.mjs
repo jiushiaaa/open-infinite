@@ -60,7 +60,41 @@ assert(
     page.indexOf('className="dossier-focus"'),
   "chapter scene rail should appear before the sticky current-scene guide",
 );
+assert(
+  page.includes("currentReadingSection") && page.includes("nextReadingSection"),
+  "continuous reading should derive current and next scene handoff state",
+);
+assert(
+  page.includes('className="dossier-continuity-rail"'),
+  "continuous reading should expose a continuity rail before the prose",
+);
+assert(
+  page.indexOf('className="dossier-focus"') <
+    page.indexOf('className="dossier-continuity-rail"') &&
+    page.indexOf('className="dossier-continuity-rail"') <
+      page.indexOf('className="dossier-section-stack"'),
+  "continuity rail should sit between the sticky guide and the prose body",
+);
+for (const label of ["续读签", "正在读", "下一场", "本场误会", "承接线"]) {
+  assert(page.includes(label), `continuity rail should include ${label}`);
+}
+assert(
+  page.includes("continuity_threads") && page.includes("chapter_cliffhanger"),
+  "continuity rail should use real continuity and cliffhanger fields",
+);
+assert(
+  page.includes("scrollToSection(nextReadingSection.id)") &&
+    page.includes("scrollToPageItem(\".dossier-misbelief-map\")"),
+  "continuity rail should let readers continue or inspect misbeliefs",
+);
 assert(css.includes(".dossier-chapter-rail"), "chapter scene rail should have styles");
+assert(css.includes(".dossier-continuity-rail"), "continuity rail should have styles");
+assert(
+  /@media \(max-width: 960px\)[\s\S]*\.dossier-continuity-rail__grid[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "continuity rail should collapse cleanly on tablet widths",
+);
 assert(
   /@media \(max-width: 640px\)[\s\S]*\.dossier-chapter-rail__list[\s\S]*overflow-x: auto/.test(
     css,

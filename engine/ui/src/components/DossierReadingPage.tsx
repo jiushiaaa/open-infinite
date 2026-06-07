@@ -109,6 +109,31 @@ export function DossierReadingPage({
     continuousSections.length > 0
       ? Math.round(((activeSectionIndex + 1) / continuousSections.length) * 100)
       : 0;
+  const currentReadingSection = continuousSections[activeSectionIndex];
+  const nextReadingSection = continuousSections[activeSectionIndex + 1];
+  const currentReadingEvidenceCount = currentReadingSection
+    ? sectionEvidenceRefs(currentReadingSection).length
+    : 0;
+  const currentReadingMisbelief =
+    currentReadingSection?.cognitive_bias?.trim() ||
+    misbeliefNodes.find((node) => node.sectionId === currentReadingSection?.id)?.cognitiveBias ||
+    "这一场暂无显性误会，但仍会带着证据进入后续阅读。";
+  const continuityThreadItems = [
+    {
+      label: "伏笔",
+      value: report?.continuous_reading?.continuity_threads?.foreshadowing,
+    },
+    {
+      label: "回收",
+      value: report?.continuous_reading?.continuity_threads?.payoff,
+    },
+    {
+      label: "误会",
+      value: report?.continuous_reading?.continuity_threads?.misunderstanding,
+    },
+  ].filter((item): item is { label: string; value: string } =>
+    Boolean(item.value?.trim()),
+  );
   const focusReader = () =>
     readerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const startNovelMode = () => {
@@ -556,6 +581,95 @@ export function DossierReadingPage({
                       onClick={() => scrollToPageItem(".dossier-misbelief-map")}
                     >
                       追误会
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              {activeTab === "continuous_reading" && currentReadingSection && (
+                <section className="dossier-continuity-rail" aria-label="续读签">
+                  <div className="dossier-continuity-rail__head">
+                    <div>
+                      <p className="tiny muted">续读签</p>
+                      <h2>读到这里，世界下一步会怎样动</h2>
+                    </div>
+                    <span className="tiny muted">{readingProgress}%</span>
+                  </div>
+                  <div className="dossier-continuity-rail__grid">
+                    <article>
+                      <span>正在读</span>
+                      <strong>
+                        {currentReadingSection.title || `第 ${activeSectionIndex + 1} 场`}
+                      </strong>
+                      <small>
+                        {currentReadingSection.viewpoint ||
+                          currentReadingSection.narrative_role ||
+                          "正文场景"}{" "}
+                        · {currentReadingEvidenceCount} 证据
+                      </small>
+                    </article>
+                    <article>
+                      <span>下一场</span>
+                      <strong>
+                        {nextReadingSection
+                          ? nextReadingSection.title ||
+                            `第 ${activeSectionIndex + 2} 场`
+                          : "本卷收束"}
+                      </strong>
+                      <small>
+                        {nextReadingSection
+                          ? nextReadingSection.viewpoint ||
+                            nextReadingSection.narrative_role ||
+                            "继续阅读"
+                          : report.continuous_reading?.chapter_cliffhanger ||
+                            report.continuous_reading?.reading_flow.next_chapter_hook ||
+                            "交给作者台或下一轮沙盘承接"}
+                      </small>
+                    </article>
+                    <article>
+                      <span>本场误会</span>
+                      <strong>{currentReadingMisbelief}</strong>
+                      <small>这不是旁注，而是角色下一次行动的偏差来源。</small>
+                    </article>
+                  </div>
+                  {continuityThreadItems.length > 0 && (
+                    <div className="dossier-continuity-rail__threads">
+                      <span>承接线</span>
+                      {continuityThreadItems.map((item) => (
+                        <p key={item.label}>
+                          <strong>{item.label}</strong>
+                          {item.value}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  <div className="dossier-continuity-rail__actions">
+                    <button
+                      type="button"
+                      className="btn btn--ghost tiny"
+                      onClick={() => {
+                        if (nextReadingSection) {
+                          scrollToSection(nextReadingSection.id);
+                          return;
+                        }
+                        navigate({ name: "author", slug });
+                      }}
+                    >
+                      {nextReadingSection ? "读下一场" : "送到作者台"}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--ghost tiny"
+                      onClick={() => scrollToSection(currentReadingSection.id)}
+                    >
+                      回到本场
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--primary tiny"
+                      onClick={() => scrollToPageItem(".dossier-misbelief-map")}
+                    >
+                      追本场误会
                     </button>
                   </div>
                 </section>

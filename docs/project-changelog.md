@@ -3523,3 +3523,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 字段，不改 artifact。
+
+### 2026-06-07 — Dossier Reading Continuity Rail
+
+- **做了什么**：
+  - `DossierReadingPage` 在连续阅读态的当前场景导读条之后、正文段落之前新增“续读签”。
+  - 续读签把当前正在读的场景、下一场、本场误会和 `continuity_threads` 承接线集中到正文前。
+  - 用户可直接读下一场、回到本场或追本场误会，不必在侧栏、sticky 导读和读后承接台之间来回找。
+  - 接力信息复用既有 `continuous_reading.reading_sections`、`continuity_threads`、`chapter_cliffhanger`、误会图谱和滚动/作者台动作；原有“读小说 / 查卷宗”切换、本卷场景轨道、当前场景导读条、误会图谱、正文证据锚点和读完余波承接台全部保留。
+  - 扩展 `check:dossier-reading-ux`，锁定续读签位置、真实字段引用、继续/追误会动作和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:dossier-reading-ux`，确认缺少续读签时失败。
+  - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端卷宗阅读 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约，不改 artifact。
