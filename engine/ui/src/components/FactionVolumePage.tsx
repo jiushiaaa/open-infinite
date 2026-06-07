@@ -19,6 +19,18 @@ interface FactionEntry {
   evidenceCount: number;
 }
 
+interface FactionPressureArcSignal {
+  key: string;
+  roundLabel: string;
+  event: string;
+  domainLabel: string;
+  current: string;
+  pressure: string;
+  debtScore: string;
+  nextRoundHint: string;
+  isLatest: boolean;
+}
+
 export function FactionVolumePage({
   slug,
   worldlineId,
@@ -89,6 +101,10 @@ export function FactionVolumePage({
     null;
   const resourceSignals = anchor?.world.factions.length ?? entries.length;
   const activeName = activeEntry?.name || activeVolume?.faction_name || activeVolume?.title || factionId;
+  const factionPressureArcSignals = useMemo(
+    () => buildFactionPressureArcSignals(consequence, activeName),
+    [activeName, consequence],
+  );
   const hasVolume = Boolean(activeVolume?.body_md);
   const scrollToFactionItem = (selector: string) => {
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -270,6 +286,59 @@ export function FactionVolumePage({
             </article>
           </section>
 
+          {factionPressureArcSignals.length > 0 && (
+            <section className="faction-pressure-arc" aria-label="势力代偿弧线">
+              <div className="faction-pressure-arc__head">
+                <div>
+                  <p className="muted tiny">势力代偿弧线</p>
+                  <h2>这些压力正在改写下一轮秩序</h2>
+                </div>
+                <span className="badge badge--jade">
+                  {factionPressureArcSignals.length} 段代偿
+                </span>
+              </div>
+              <div className="faction-pressure-arc__grid">
+                {factionPressureArcSignals.map((signal) => (
+                  <article
+                    className={`faction-pressure-arc__step${signal.isLatest ? " is-latest" : ""}`}
+                    key={signal.key}
+                  >
+                    <span className="faction-pressure-arc__round">{signal.roundLabel}</span>
+                    <strong>{signal.event}</strong>
+                    <dl>
+                      <div>
+                        <dt>最近写入</dt>
+                        <dd>{signal.debtScore}</dd>
+                      </div>
+                      <div>
+                        <dt>承压领域</dt>
+                        <dd>{signal.domainLabel}</dd>
+                      </div>
+                      <div>
+                        <dt>资源/秘密</dt>
+                        <dd>
+                          {signal.current} → {signal.pressure}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>下一轮秩序</dt>
+                        <dd>{signal.nextRoundHint}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                ))}
+              </div>
+              <div className="faction-pressure-arc__actions">
+                <button className="btn btn--ghost" onClick={() => scrollToFactionItem(".faction-volume-state")}>
+                  看完整代偿账
+                </button>
+                <button className="btn btn--primary" onClick={() => navigate({ name: "sandbox", slug })}>
+                  回沙盘验证
+                </button>
+              </div>
+            </section>
+          )}
+
           <main className="faction-volume-layout">
             <aside className="faction-volume-index" aria-label="势力卷目录">
               <div className="faction-volume-index__head">
@@ -418,6 +487,47 @@ export function FactionVolumePage({
       )}
     </div>
   );
+}
+
+function buildFactionPressureArcSignals(
+  consequence: WorldlineState["consequence_state"],
+  activeName: string,
+): FactionPressureArcSignal[] {
+  const ledger = consequence?.ledger ?? [];
+  const nextRoundHint = consequence?.next_round_hint || "回到沙盘，让势力压力继续影响下一轮角色选择。";
+  const ledgerSignals = ledger.slice(-4).map((entry, index, items) => {
+    const impact =
+      entry.impacts?.find((item) => item.domain === "faction") ||
+      entry.impacts?.[0] ||
+      null;
+    return {
+      key: `${entry.source_run_id || entry.major_event || "ledger"}-${index}`,
+      roundLabel: entry.source_run_id ? `run ${entry.source_run_id}` : `记录 ${ledger.length - items.length + index + 1}`,
+      event: entry.major_event || "世界把上一轮事件写入代偿账",
+      domainLabel: impact?.domain || consequence?.domains?.faction?.label || activeName,
+      current: impact?.current || consequence?.domains?.faction?.current || "秩序尚未标注",
+      pressure: impact?.pressure || consequence?.domains?.faction?.pressure || consequence?.summary || "压力待显形",
+      debtScore: entry.debt_score === undefined ? "债务待评估" : `债务 ${entry.debt_score}`,
+      nextRoundHint,
+      isLatest: index === items.length - 1,
+    };
+  });
+  if (ledgerSignals.length > 0) return ledgerSignals;
+  const domain = consequence?.domains?.faction;
+  if (!consequence && !domain) return [];
+  return [
+    {
+      key: "current-faction-pressure",
+      roundLabel: consequence?.status || "当前状态",
+      event: consequence?.summary || `${activeName} 的代偿压力正在形成`,
+      domainLabel: domain?.label || "faction",
+      current: domain?.current || "秩序尚未标注",
+      pressure: domain?.pressure || "压力待显形",
+      debtScore: "等待 ledger 写入",
+      nextRoundHint,
+      isLatest: true,
+    },
+  ];
 }
 
 function factionVolumeTabs(report: DossierReadingReport | null): DossierReadingVolumeTab[] {
