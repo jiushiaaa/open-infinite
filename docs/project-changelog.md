@@ -3758,3 +3758,20 @@
   - In-app Browser smoke：`http://localhost:5180/#/world/my-story/worldlines/main` 桌面下发酵账渲染在代偿罗盘之后、世界内部导览之前，使用三列布局；“去长线卷”唯一且能跳到 `#/world/my-story/worldlines/main/longline`；390px 下发酵账单列、按钮稳定且无水平溢出。
 - **边界**：
   - 本轮只改前端世界线档案页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `worldline_dossier` / `worldline_state` 字段，不改 artifact。
+
+### 2026-06-07 — Author Chapter Revision Route
+
+- **做了什么**：
+  - `AuthorAdoptionPage` 在作者修订稿编辑框之后、章节质感雷达之前新增“整章修订路线”。
+  - 路线把“先看风险 / 再收改写 / 然后磨正文 / 最后入卷”整理成四张可点击步骤卡。
+  - 四步复用现有 `urgentReviewerItems`、`selectedRewriteCount`、`localizedRewriteCount`、`finalTextSource`、`currentFinalPreview` 和 `edited_final_chapter.quality_gate`，不新增后端字段。
+  - 动作可直接跳到 Reviewer 质检门、采纳已选局部改写、回到正文编辑或去确认入卷，让作者知道定稿前应该先处理什么。
+  - 扩展 `check:author-adoption-ux`，锁定修订路线的语义、位置、真实状态引用、桌面四列和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:author-adoption-ux`，确认缺少 `revisionRouteSteps` 时失败。
+  - Focused helper：`pnpm.cmd run check:author-adoption-ux` -> `author adoption ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - In-app Browser smoke：`http://localhost:5173/#/world/demo/author` 可打开作者采纳台，首屏工作流中枢可见且无前端白屏或告警；当前后端未运行，因此草稿态可视化由 focused helper 和构建覆盖。
+- **边界**：
+  - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约。

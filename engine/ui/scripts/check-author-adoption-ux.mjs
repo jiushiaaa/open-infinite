@@ -180,6 +180,41 @@ assert(
   page.indexOf("章节质感雷达") < page.indexOf("定稿对照台"),
   "chapter polish radar should appear before the final comparison rail",
 );
+assert(
+  page.includes("revisionRouteSteps"),
+  "draft review should derive an ordered whole-chapter revision route",
+);
+assert(
+  page.includes("adoption-revision-route"),
+  "draft review should include a whole-chapter revision route after the editor",
+);
+assert(
+  page.includes('aria-label="整章修订路线"'),
+  "whole-chapter revision route should have a clear accessible label",
+);
+assert(page.includes("整章修订路线"), "whole-chapter revision route should be named in product language");
+assert(page.includes("先看风险"), "revision route should start from reviewer risk");
+assert(page.includes("再收改写"), "revision route should guide selected rewrite adoption");
+assert(page.includes("然后磨正文"), "revision route should guide final text editing");
+assert(page.includes("最后入卷"), "revision route should guide confirmation");
+assert(page.includes("看质检门"), "revision route should link to the reviewer gate");
+assert(page.includes("采纳改写"), "revision route should expose selected rewrite adoption");
+assert(page.includes("回正文"), "revision route should link back to the chapter editor");
+assert(page.includes("去确认"), "revision route should link to confirmation");
+assert(
+  page.includes("urgentReviewerItems") &&
+    page.includes("selectedRewriteCount") &&
+    page.includes("localizedRewriteCount") &&
+    page.includes("finalTextSource") &&
+    page.includes("finalQualityGate") &&
+    page.includes("currentFinalPreview"),
+  "revision route should derive each step from live reviewer, rewrite, text, and quality state",
+);
+assert(
+  page.indexOf('className="adoption-editor"') < page.indexOf("整章修订路线") &&
+    page.indexOf("整章修订路线") < page.indexOf("章节质感雷达"),
+  "revision route should appear after the text editor and before the polish radar",
+);
 assert(css.includes(".adoption-confirmation-handoff"), "confirmation handoff should have styles");
 assert(
   /\.adoption-confirmation-handoff__grid[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/.test(
@@ -231,6 +266,19 @@ assert(
     css,
   ),
   "chapter polish radar should collapse to one column on narrow mobile",
+);
+assert(css.includes(".adoption-revision-route"), "whole-chapter revision route should have styles");
+assert(
+  /\.adoption-revision-route__steps[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/.test(
+    css,
+  ),
+  "whole-chapter revision route should use a four-column desktop grid",
+);
+assert(
+  /@media \(max-width: 620px\)[\s\S]*\.adoption-revision-route__steps[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "whole-chapter revision route should collapse to one column on narrow mobile",
 );
 
 console.log("author adoption ux structure ok");

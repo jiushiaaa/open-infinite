@@ -237,6 +237,81 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
     setWorkspaceMode("review");
     window.setTimeout(() => scrollToPageItem(".adoption-main"), 80);
   };
+  const revisionRouteSteps = draft
+    ? [
+        {
+          key: "risk",
+          label: "先看风险",
+          title:
+            urgentReviewerItems.length > 0
+              ? `${urgentReviewerItems.length} 条高风险`
+              : "无阻断项",
+          detail:
+            urgentReviewerItems[0]?.recommendation ||
+            draft.revision_pack?.semantic_reviewer?.diagnosis_summary ||
+            "先确认角色动机、世界状态和读感是否能入卷。",
+          tone: urgentReviewerItems.length > 0 ? "gold" : "jade",
+          action: "看质检门",
+          disabled: !draft.revision_pack,
+          onClick: () => scrollToPageItem(".adoption-review-gate"),
+        },
+        {
+          key: "rewrites",
+          label: "再收改写",
+          title:
+            selectedRewriteCount > 0
+              ? `${selectedRewriteCount}/${localizedRewriteCount} 条已选`
+              : "未选局部改写",
+          detail:
+            selectedRewriteCount > 0
+              ? "先把已选高优先级改写写进定稿，避免确认旧稿。"
+              : "可以直接编辑正文，或先挑选 Reviewer 建议。",
+          tone: selectedRewriteCount > 0 && !rewriteApplication ? "gold" : "jade",
+          action: selectedRewriteCount > 0 && !rewriteApplication ? "采纳改写" : "看改写",
+          disabled: localizedRewriteCount === 0,
+          onClick:
+            selectedRewriteCount > 0 && !rewriteApplication
+              ? applySelectedRewrites
+              : () => scrollToPageItem(".adoption-rewrite-toolbar"),
+        },
+        {
+          key: "text",
+          label: "然后磨正文",
+          title: finalTextSource,
+          detail: finalQualityGate?.ready_for_confirmation
+            ? "当前定稿已通过质量门。"
+            : currentFinalPreview,
+          tone:
+            finalQualityGate?.ready_for_confirmation || editedChapterText.trim()
+              ? "jade"
+              : "gold",
+          action: "回正文",
+          disabled: false,
+          onClick: () => scrollToPageItem(".adoption-editor"),
+        },
+        {
+          key: "confirm",
+          label: "最后入卷",
+          title: finalQualityGate?.ready_for_confirmation
+            ? "可确认入卷"
+            : editedChapterText.trim()
+              ? "可进入判断"
+              : "待补正文",
+          detail: finalQualityGate
+            ? finalQualityGate.ready_for_confirmation
+              ? "质量门允许确认。"
+              : "质量门仍要求作者复核。"
+            : "确认前会以正文编辑框为准。",
+          tone:
+            finalQualityGate?.ready_for_confirmation || (!finalQualityGate && editedChapterText.trim())
+              ? "jade"
+              : "gold",
+          action: "去确认",
+          disabled: !editedChapterText.trim(),
+          onClick: () => scrollToPageItem(".adoption-confirm"),
+        },
+      ]
+    : [];
 
   async function submitAdoption() {
     setLoading(true);
@@ -727,6 +802,49 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       rows={14}
                     />
                   </label>
+                  <section className="adoption-revision-route" aria-label="整章修订路线">
+                    <div className="adoption-revision-route__head">
+                      <div>
+                        <span className="muted tiny">整章修订路线</span>
+                        <h4>先处理风险，再确认定稿</h4>
+                      </div>
+                      <span
+                        className={`badge ${
+                          urgentReviewerItems.length > 0 ||
+                          (selectedRewriteCount > 0 && !rewriteApplication)
+                            ? "badge--gold"
+                            : "badge--jade"
+                        }`}
+                      >
+                        {urgentReviewerItems.length > 0 ||
+                        (selectedRewriteCount > 0 && !rewriteApplication)
+                          ? "仍需复核"
+                          : "可推进"}
+                      </span>
+                    </div>
+                    <div className="adoption-revision-route__steps">
+                      {revisionRouteSteps.map((step, index) => (
+                        <article
+                          className={`adoption-revision-route__step adoption-revision-route__step--${step.tone}`}
+                          key={step.key}
+                        >
+                          <span className="adoption-revision-route__index">{index + 1}</span>
+                          <div>
+                            <span className="muted tiny">{step.label}</span>
+                            <strong>{step.title}</strong>
+                            <p>{step.detail}</p>
+                            <button
+                              className="btn btn--ghost tiny"
+                              disabled={step.disabled}
+                              onClick={step.onClick}
+                            >
+                              {step.action}
+                            </button>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
                   <section className="adoption-polish-radar" aria-label="章节质感雷达">
                     <div className="adoption-polish-radar__head">
                       <div>

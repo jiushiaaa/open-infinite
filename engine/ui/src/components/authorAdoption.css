@@ -588,6 +588,102 @@
   gap: var(--space-2);
 }
 
+.adoption-revision-route {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(45, 104, 92, 0.2);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(236, 244, 235, 0.58), rgba(245, 238, 220, 0.52)),
+    rgba(250, 247, 239, 0.78);
+}
+
+.adoption-revision-route__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.adoption-revision-route__head h4 {
+  margin: 2px 0 0;
+  font-family: var(--font-serif);
+  font-size: 17px;
+}
+
+.adoption-revision-route__steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.adoption-revision-route__step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line-faint);
+  border-radius: 8px;
+  background: rgba(250, 247, 239, 0.66);
+}
+
+.adoption-revision-route__step--jade {
+  border-color: rgba(45, 104, 92, 0.24);
+  background: rgba(236, 244, 235, 0.46);
+}
+
+.adoption-revision-route__step--gold {
+  border-color: rgba(164, 120, 45, 0.3);
+  background: rgba(245, 238, 220, 0.66);
+}
+
+.adoption-revision-route__index {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.adoption-revision-route__step--jade .adoption-revision-route__index {
+  border-color: var(--jade);
+  color: var(--jade);
+}
+
+.adoption-revision-route__step--gold .adoption-revision-route__index {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
+
+.adoption-revision-route__step strong {
+  display: block;
+  margin: 2px 0 4px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.adoption-revision-route__step p {
+  margin: 0 0 var(--space-2);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.adoption-revision-route__step .btn {
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
 .adoption-polish-radar {
   display: grid;
   gap: var(--space-3);
@@ -1067,6 +1163,31 @@
 
   .adoption-review-gate__actions .btn {
     width: 100%;
+  }
+
+  .adoption-revision-route {
+    padding: var(--space-3);
+  }
+
+  .adoption-revision-route__head {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .adoption-revision-route__steps {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .adoption-revision-route__step {
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .adoption-revision-route__index {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
   }
 
   .adoption-polish-radar {
