@@ -87,6 +87,25 @@ if (!/transform:\s*translateY\(0\)/.test(skipLinkFocusRule)) {
   failures.push("skip link should return onscreen on keyboard focus");
 }
 
+const brandFocusRule = findRule(".brand:focus-visible");
+if (!/outline:\s*2px solid rgba\(141,\s*50,\s*37,\s*0\.48\)/.test(brandFocusRule) || !/outline-offset:\s*3px/.test(brandFocusRule)) {
+  failures.push("brand button should expose a clear keyboard focus ring");
+}
+
+const worldNavFocusRule = findRule(".world-nav button:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(141,\s*50,\s*37,\s*0\.48\)/.test(worldNavFocusRule) ||
+  !/outline-offset:\s*2px/.test(worldNavFocusRule) ||
+  !/background:\s*var\(--paper-sunken\)/.test(worldNavFocusRule)
+) {
+  failures.push("world navigation buttons should expose a visible keyboard focus state");
+}
+
+const topbarButtonFocusRule = findRule(".topbar__right > .btn:focus-visible");
+if (!/outline:\s*2px solid rgba\(74,\s*124,\s*99,\s*0\.44\)/.test(topbarButtonFocusRule) || !/outline-offset:\s*2px/.test(topbarButtonFocusRule)) {
+  failures.push("topbar utility buttons should expose a visible keyboard focus state");
+}
+
 for (const activeKey of [
   "anchor",
   "tianming",

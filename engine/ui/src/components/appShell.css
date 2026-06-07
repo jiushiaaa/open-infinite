@@ -75,6 +75,13 @@
   padding: 0;
   flex: 0 0 auto;
 }
+
+.brand:focus-visible {
+  outline: 2px solid rgba(141, 50, 37, 0.48);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
 .brand__seal {
   display: inline-flex;
   align-items: center;
@@ -818,9 +825,21 @@
   color: var(--ink);
 }
 
+.world-nav button:focus-visible {
+  outline: 2px solid rgba(141, 50, 37, 0.48);
+  outline-offset: 2px;
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
 .world-nav button.is-active {
   background: var(--ink);
   color: var(--paper-raised);
+}
+
+.topbar__right > .btn:focus-visible {
+  outline: 2px solid rgba(74, 124, 99, 0.44);
+  outline-offset: 2px;
 }
 
 @media (max-width: 1120px) {

@@ -4181,3 +4181,17 @@
 - **边界**：
   - 本轮只改共享壳层结构、AppShell 样式、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未做真实浏览器截图 QA，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Topbar Focus Rings
+
+- **做了什么**：
+  - `AppShell` 的品牌入口新增显式 `:focus-visible` 描边和稳定圆角，让键盘用户能看见品牌/回书架入口焦点。
+  - 世界卷宗导航按钮新增 `:focus-visible` 描边，并在聚焦时复用纸面 hover 背景和墨色文字，避免密集顶栏里只靠浏览器默认焦点。
+  - 顶栏右侧动效/设置按钮新增青绿色 `:focus-visible` 描边，和已有纸面系统色保持一致。
+  - 扩展 `check:app-shell-mobile-layout`，锁定品牌入口、世界卷宗导航和顶栏工具按钮必须保留可见键盘焦点态。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少顶栏焦点态时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+- **边界**：
+  - 本轮只改共享顶栏焦点样式、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
