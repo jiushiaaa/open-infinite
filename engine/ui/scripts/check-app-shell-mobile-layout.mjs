@@ -121,6 +121,35 @@ if (!workspaceShell.includes("routeContext.stages.map") || !workspaceShell.inclu
   failures.push("WorldWorkspaceShell should keep stage and dossier navigation in the shared shell");
 }
 
+if (!workspaceShell.includes("import { preloadRoutePage } from \"../routePagePreload\";")) {
+  failures.push("WorldWorkspaceShell should reuse route page preloading for global shell navigation");
+}
+
+if (!workspaceShell.includes("const routeIntent = (target?: Route) => ({")) {
+  failures.push("WorldWorkspaceShell should centralize optional route prefetch handlers");
+}
+
+for (const handler of ["onMouseEnter", "onFocus", "onPointerDown"]) {
+  if (!workspaceShell.includes(`${handler}: () => target && preloadRoutePage(target)`)) {
+    failures.push(`WorldWorkspaceShell routeIntent should preload on ${handler}`);
+  }
+}
+
+for (const routeSource of [
+  "stage.route",
+  "activeStageRoute",
+  "worldlineDossierRoute",
+  "routeContext.primaryRoute",
+  "routeContext.secondaryRoute",
+  "handoff.route",
+  "signal.route",
+  "dossier.route",
+]) {
+  if (!workspaceShell.includes(`...routeIntent(${routeSource})`)) {
+    failures.push(`WorldWorkspaceShell should prefetch ${routeSource} before click`);
+  }
+}
+
 if (!workspaceShell.includes("shell-context__handoffs")) {
   failures.push("WorldWorkspaceShell should render the shared state handoff preview row");
 }

@@ -4098,3 +4098,19 @@
   - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `233.56 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
 - **边界**：
   - 本轮只改前端入口、导航壳层、检查脚本和文档；不新增后端 API，不改变 hash 路由、页面 props、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — WorldWorkspaceShell Route Intent Prefetch
+
+- **做了什么**：
+  - `WorldWorkspaceShell` 复用上一刀新增的 `preloadRoutePage`，不再只让顶栏入口预取页面 chunk。
+  - 为世界扫读带、旅程总线、工作区指针、状态预告、世界脉搏、体验轨道、卷宗速览、主动作和次动作统一接入 `onMouseEnter`、`onFocus`、`onPointerDown` 预取。
+  - 用户在共享壳层点击“当前任务”“继续沙盘”“追长线卷”“送往作者台”“世界线档案”等动作前，目标页面 chunk 会提前开始加载。
+  - 扩展 `check:app-shell-mobile-layout`，锁定共享壳层必须复用 route prefetch，并覆盖 stage、dossier、handoff、continuity、primary 和 secondary routes。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少 `WorldWorkspaceShell` route intent 预取时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `233.81 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+- **边界**：
+  - 本轮只改共享世界壳层、移动布局结构检查和文档；不新增后端 API，不改变 hash 路由、页面 props、阅读进度、沙盘请求字段、移动端折叠导航或 artifact。

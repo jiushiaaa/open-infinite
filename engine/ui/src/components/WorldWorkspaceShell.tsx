@@ -1,5 +1,6 @@
-import { navigate } from "../routing";
+import { navigate, type Route } from "../routing";
 import type { RecentReading } from "../readingProgress";
+import { preloadRoutePage } from "../routePagePreload";
 import type { WorldRouteContext } from "../worldRouteContext";
 
 function findScrollableParent(target: HTMLElement): HTMLElement | null {
@@ -55,6 +56,11 @@ export function WorldWorkspaceShell({
   const worldlineDossierRoute = routeContext.dossiers.find(
     (dossier) => dossier.key === "worldline",
   )?.route;
+  const routeIntent = (target?: Route) => ({
+    onMouseEnter: () => target && preloadRoutePage(target),
+    onFocus: () => target && preloadRoutePage(target),
+    onPointerDown: () => target && preloadRoutePage(target),
+  });
 
   const renderJourneyAndWorkspace = () => (
     <>
@@ -65,6 +71,7 @@ export function WorldWorkspaceShell({
             className={`world-workspace-shell__journey-item${
               stage.status === "active" ? " is-active" : ""
             }`}
+            {...routeIntent(stage.route)}
             onClick={() => navigate(stage.route)}
             type="button"
           >
@@ -78,6 +85,7 @@ export function WorldWorkspaceShell({
       <div className="shell-context__workspace" aria-label="世界工作区总览">
         <button
           className="shell-context__workspace-card"
+          {...routeIntent(activeStageRoute)}
           onClick={() => activeStageRoute && navigate(activeStageRoute)}
           title="回到当前旅程环节的主入口"
           type="button"
@@ -90,6 +98,7 @@ export function WorldWorkspaceShell({
         </button>
         <button
           className="shell-context__workspace-card"
+          {...routeIntent(worldlineDossierRoute)}
           onClick={() => worldlineDossierRoute && navigate(worldlineDossierRoute)}
           title="查看这条世界线的检查点、因果债和代偿"
           type="button"
@@ -99,6 +108,7 @@ export function WorldWorkspaceShell({
         </button>
         <button
           className="shell-context__workspace-card shell-context__workspace-card--next"
+          {...routeIntent(routeContext.primaryRoute)}
           onClick={() => {
             navigate(routeContext.primaryRoute);
             activateShellAction(routeContext.primaryTargetId);
@@ -121,6 +131,7 @@ export function WorldWorkspaceShell({
           <button
             key={handoff.key}
             className={`shell-context__handoff-card is-${handoff.key}`}
+            {...routeIntent(handoff.route)}
             onClick={() => {
               navigate(handoff.route);
               activateShellAction(handoff.targetId);
@@ -140,6 +151,7 @@ export function WorldWorkspaceShell({
           <button
             key={signal.key}
             className={`shell-context__pulse is-${signal.key}`}
+            {...routeIntent(signal.route)}
             onClick={() => navigate(signal.route)}
             title={signal.detail}
             type="button"
@@ -156,6 +168,7 @@ export function WorldWorkspaceShell({
           <button
             key={stage.key}
             className={stage.status === "active" ? "is-active" : ""}
+            {...routeIntent(stage.route)}
             onClick={() => navigate(stage.route)}
             type="button"
           >
@@ -170,6 +183,7 @@ export function WorldWorkspaceShell({
           <button
             key={dossier.key}
             className={dossier.status === "active" ? "is-active" : ""}
+            {...routeIntent(dossier.route)}
             onClick={() => navigate(dossier.route)}
             title={dossier.title}
             type="button"
@@ -198,6 +212,7 @@ export function WorldWorkspaceShell({
           <span className="world-workspace-shell__focus-kicker">世界扫读带</span>
           <button
             className="world-workspace-shell__focus-chip"
+            {...routeIntent(activeStageRoute)}
             onClick={() => activeStageRoute && navigate(activeStageRoute)}
             title="回到当前旅程环节的主入口"
             type="button"
@@ -210,6 +225,7 @@ export function WorldWorkspaceShell({
           </button>
           <button
             className="world-workspace-shell__focus-chip"
+            {...routeIntent(worldlineDossierRoute)}
             onClick={() => worldlineDossierRoute && navigate(worldlineDossierRoute)}
             title="查看这条世界线的检查点、因果债和代偿"
             type="button"
@@ -238,6 +254,7 @@ export function WorldWorkspaceShell({
           )}
           <button
             className="btn btn--primary tiny"
+            {...routeIntent(routeContext.primaryRoute)}
             onClick={() => {
               navigate(routeContext.primaryRoute);
               activateShellAction(routeContext.primaryTargetId);
@@ -248,6 +265,7 @@ export function WorldWorkspaceShell({
           {routeContext.secondaryRoute && routeContext.secondaryActionLabel && (
             <button
               className="btn btn--ghost tiny"
+              {...routeIntent(routeContext.secondaryRoute)}
               onClick={() => navigate(routeContext.secondaryRoute!)}
             >
               {routeContext.secondaryActionLabel}
