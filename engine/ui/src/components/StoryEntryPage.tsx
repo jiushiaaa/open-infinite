@@ -135,6 +135,24 @@ export function StoryEntryPage() {
                       <span className="mono">{s.slug}</span>
                     </div>
                   </button>
+                  <div
+                    className="story-card__journey"
+                    aria-label={`${s.display_name} 的世界旅程`}
+                  >
+                    {focus.journeyPulse.map((pulse) => (
+                      <button
+                        key={pulse.key}
+                        type="button"
+                        className={`story-card__journey-step is-${pulse.status}`}
+                        onClick={() => navigateStoryJourney(s.slug, pulse.key)}
+                        title={pulse.hint}
+                      >
+                        <small>{pulse.label}</small>
+                        <strong>{pulse.title}</strong>
+                        <span>{pulse.hint}</span>
+                      </button>
+                    ))}
+                  </div>
                   <button className="story-card__primary" onClick={openRecommended}>
                     {focus.recommendedAction}
                   </button>

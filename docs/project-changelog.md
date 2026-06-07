@@ -3539,3 +3539,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端卷宗阅读 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 契约，不改 artifact。
+
+### 2026-06-07 — Story Card Journey Pulse
+
+- **做了什么**：
+  - `StoryEntryPage` 的每张最近故事卡新增“天命 / 沙盘 / 阅读 / 采纳”四段可点击旅程脉冲。
+  - 旅程脉冲复用既有 `focus.journeyPulse`，未运行世界突出“下一步确认边界”，已运行世界突出“现在读”。
+  - 用户不必只依赖推荐世界卡，也能从任意故事卡直接进入天命书、世界沙盘、卷宗阅读或作者采纳台。
+  - 旅程签位于故事卡主打开按钮之外、推荐主按钮之前，避免嵌套按钮；原有推荐主按钮、世界沙盘、天命书、卷宗阅读、作者采纳台和机制档案入口全部保留。
+  - 扩展 `check:story-shelf-focus`，锁定故事卡必须复用 `journeyPulse`、旅程签位置、真实导航函数和移动端两列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:story-shelf-focus`，确认缺少故事卡旅程脉冲时失败。
+  - Focused helper：`pnpm.cmd run check:story-shelf-focus` -> `story shelf focus helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端故事书架 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 story list 契约，不改 artifact。

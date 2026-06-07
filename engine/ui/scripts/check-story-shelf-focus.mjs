@@ -89,10 +89,48 @@ const entryPage = readFileSync(resolve("src/components/StoryEntryPage.tsx"), "ut
 assert.match(entryPage, /entry__spotlight-pulse/);
 assert.match(entryPage, /journeyPulse\.map/);
 assert.match(entryPage, /navigateStoryJourney\(spotlight\.slug, pulse\.key\)/);
+assert.match(
+  entryPage,
+  /className="story-card__journey"/,
+  "story cards should expose their journey pulse, not only the spotlight card",
+);
+assert.match(
+  entryPage,
+  /focus\.journeyPulse\.map/,
+  "story cards should reuse the same journey pulse state as the recommendation logic",
+);
+assert.match(
+  entryPage,
+  /navigateStoryJourney\(s\.slug, pulse\.key\)/,
+  "story card journey pulses should navigate to the matching world stage",
+);
+assert.match(
+  entryPage,
+  /aria-label=\{`\$\{s\.display_name\} 的世界旅程`\}/,
+  "story card journey pulse should have a per-story accessible label",
+);
+assert(
+  entryPage.indexOf('className="story-card__open"') <
+    entryPage.indexOf('className="story-card__journey"') &&
+    entryPage.indexOf('className="story-card__journey"') <
+      entryPage.indexOf('className="story-card__primary"'),
+  "story card journey pulse should sit outside the main open button and before the primary action",
+);
 
 const entryCss = readFileSync(resolve("src/components/storyEntry.css"), "utf8");
 assert.match(entryCss, /\.entry__spotlight-pulse/);
 assert.match(entryCss, /grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/);
 assert.match(entryCss, /@media \(max-width: 560px\)[\s\S]*\.entry__spotlight-pulse[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+assert.match(entryCss, /\.story-card__journey/);
+assert.match(
+  entryCss,
+  /\.story-card__journey[\s\S]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/,
+  "story card journey pulse should scan as four stable stages on desktop",
+);
+assert.match(
+  entryCss,
+  /@media \(max-width: 560px\)[\s\S]*\.story-card__journey[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/,
+  "story card journey pulse should collapse to two columns on narrow mobile",
+);
 
 console.log("story shelf focus helper ok");
