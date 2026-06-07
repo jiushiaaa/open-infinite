@@ -4,6 +4,37 @@
   height: 100%;
 }
 
+.skip-link {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 100;
+  transform: translateY(calc(-100% - var(--space-3)));
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  max-width: calc(100vw - var(--space-6));
+  border: 1px solid rgba(141, 50, 37, 0.34);
+  border-radius: 6px;
+  background:
+    linear-gradient(90deg, rgba(141, 50, 37, 0.1), transparent 78%),
+    var(--paper-raised);
+  box-shadow: var(--shadow-card);
+  color: var(--cinnabar-dark);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  padding: 7px 11px;
+  text-decoration: none;
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid rgba(141, 50, 37, 0.48);
+  outline-offset: 2px;
+}
+
 .topbar {
   min-height: var(--topbar-h);
   flex: 0 0 auto;

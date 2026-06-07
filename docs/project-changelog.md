@@ -4163,3 +4163,21 @@
   - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
 - **边界**：
   - 本轮只改共享壳层语义、结构检查脚本和文档；不新增后端 API，不改变视觉样式、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — Main Content Skip Link
+
+- **做了什么**：
+  - `AppShell` 在顶栏和 `WorldWorkspaceShell` 这类密集世界导航之前新增“跳到当前页面内容”入口。
+  - 主内容区从 `<main className="shell__body">` 改为稳定的 `<main id="main-content" className="shell__body">`。
+  - `.skip-link` 默认固定在视窗上方外侧，键盘聚焦时以纸面浮层回到屏幕内，并使用现有朱砂边框、纸面背景和焦点描边。
+  - 扩展 `check:app-shell-mobile-layout`，锁定 skip link、`href="#main-content"`、中文文案、主内容锚点和 `:focus-visible` 回屏逻辑。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md`、路线图和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少 skip link、`#main-content` 和焦点样式时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.77 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+- **边界**：
+  - 本轮只改共享壳层结构、AppShell 样式、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未做真实浏览器截图 QA，保留结构、构建、测试和 HTTP smoke 验证。

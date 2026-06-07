@@ -104,6 +104,9 @@ export function AppShell({
 
   return (
     <div className="shell">
+      <a className="skip-link" href="#main-content">
+        跳到当前页面内容
+      </a>
       <header className="topbar">
         <div className="topbar__left">
           <button
@@ -326,7 +329,9 @@ export function AppShell({
           showRecentReading={showRecentReading}
         />
       )}
-      <main className="shell__body">{children}</main>
+      <main id="main-content" className="shell__body">
+        {children}
+      </main>
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );

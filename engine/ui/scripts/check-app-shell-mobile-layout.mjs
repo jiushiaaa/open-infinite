@@ -61,6 +61,32 @@ if (!appShell.includes("WorldWorkspaceShell")) {
   failures.push("AppShell should delegate world context to a shared WorldWorkspaceShell component");
 }
 
+if (
+  !appShell.includes('className="skip-link"') ||
+  !appShell.includes('href="#main-content"') ||
+  !appShell.includes("跳到当前页面内容")
+) {
+  failures.push("AppShell should expose a keyboard skip link before dense world navigation");
+}
+
+if (!appShell.includes('<main id="main-content" className="shell__body">')) {
+  failures.push("AppShell main content should expose a stable #main-content target");
+}
+
+const skipLinkRule = findRule(".skip-link");
+if (
+  !/position:\s*fixed/.test(skipLinkRule) ||
+  !/transform:\s*translateY\(calc\(-100%\s*-\s*var\(--space-3\)\)\)/.test(skipLinkRule) ||
+  !/z-index:\s*100/.test(skipLinkRule)
+) {
+  failures.push("skip link should stay offscreen until focused while remaining above the app shell");
+}
+
+const skipLinkFocusRule = findRule(".skip-link:focus-visible");
+if (!/transform:\s*translateY\(0\)/.test(skipLinkFocusRule)) {
+  failures.push("skip link should return onscreen on keyboard focus");
+}
+
 for (const activeKey of [
   "anchor",
   "tianming",
