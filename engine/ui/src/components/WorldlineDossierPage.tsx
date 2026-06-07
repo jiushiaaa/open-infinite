@@ -208,6 +208,10 @@ export function WorldlineDossierPage({
       detail: latestCheckpoint?.major_event || "还没有检查点时，先让世界再动一轮。",
     },
   ];
+  const fermentationLedgerItems = (state?.consequence_state?.ledger ?? [])
+    .slice(-3)
+    .reverse();
+  const fermentationDomainItems = consequenceDomains.slice(0, 4);
 
   return (
     <div className="worldline-page">
@@ -407,6 +411,96 @@ export function WorldlineDossierPage({
             >
               读长线卷
             </button>
+          </div>
+        </section>
+      )}
+
+      {!loading && !error && report && (
+        <section className="worldline-fermentation-ledger" aria-label="世界发酵账">
+          <div className="worldline-fermentation-ledger__head">
+            <div>
+              <p className="muted tiny">世界发酵账</p>
+              <h2>哪些代价会被下一轮消费</h2>
+            </div>
+            <p className="muted">
+              {state?.consequence_state?.next_round_hint ||
+                state?.consequence_state?.summary ||
+                "这里把代偿账翻译成下一轮的阅读路径：最近写入什么、哪些域承压、角色会先读到什么。"}
+            </p>
+          </div>
+
+          <div className="worldline-fermentation-ledger__body">
+            <div className="worldline-fermentation-ledger__timeline">
+              <p className="muted tiny">最近写入</p>
+              {fermentationLedgerItems.length === 0 ? (
+                <article>
+                  <span>待写入</span>
+                  <strong>世界还没有留下代偿记录</strong>
+                  <p>
+                    继续运行沙盘后，事件压力会写入这里，成为下一轮角色判断和长线阅读的依据。
+                  </p>
+                </article>
+              ) : (
+                fermentationLedgerItems.map((item, index) => (
+                  <article key={`${item.source_run_id ?? "ledger"}-${index}`}>
+                    <span>{item.source_run_id || `记录 ${index + 1}`}</span>
+                    <strong>{item.major_event || "本轮世界状态已被改写"}</strong>
+                    <p>
+                      {item.impacts?.[0]?.pressure ||
+                        item.impacts?.[0]?.current ||
+                        `因果债 ${item.debt_score ?? state?.causal_debt?.score ?? 0}`}
+                    </p>
+                  </article>
+                ))
+              )}
+            </div>
+
+            <div className="worldline-fermentation-ledger__domains">
+              <p className="muted tiny">承压域</p>
+              {fermentationDomainItems.length === 0 ? (
+                <article>
+                  <span>待显形</span>
+                  <strong>地点、资源、舆论和势力还没有承压读数</strong>
+                  <p>下一轮沙盘会把干预后果落到世界状态里。</p>
+                </article>
+              ) : (
+                fermentationDomainItems.map(([key, item]) => (
+                  <article key={key}>
+                    <span>{item.label || key}</span>
+                    <strong>{item.pressure || item.current || "压力正在发酵"}</strong>
+                    <p>{item.bearer ? `承压者：${item.bearer}` : "会进入下一轮角色行动输入。"}</p>
+                  </article>
+                ))
+              )}
+            </div>
+
+            <aside className="worldline-fermentation-ledger__next">
+              <p className="muted tiny">下一轮会消费</p>
+              <strong>
+                {state?.consequence_state?.next_round_hint ||
+                  nextRoundReads[0] ||
+                  "把这条世界线交回沙盘"}
+              </strong>
+              <p>
+                {nextRoundReads.slice(1).join("；") ||
+                  latestCheckpoint?.major_event ||
+                  "角色会带着记忆、误会和代价继续行动。"}
+              </p>
+              <div>
+                <button
+                  className="btn btn--primary"
+                  onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}
+                >
+                  去长线卷
+                </button>
+                <button
+                  className="btn btn--ghost"
+                  onClick={() => scrollToWorldlineItem(".worldline-consequence-section")}
+                >
+                  看详细代偿账
+                </button>
+              </div>
+            </aside>
           </div>
         </section>
       )}

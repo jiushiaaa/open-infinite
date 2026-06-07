@@ -3741,3 +3741,20 @@
   - In-app Browser smoke：`http://127.0.0.1:5180/#/world/my-story/worldlines/main/longline` 桌面 1366px 下地图渲染 4 个节点、位于阅读状态区之前、使用 5 列稳定网格；点击“现在读到”后当前长线节点进入视口；390px 下地图单列且无水平溢出。
 - **边界**：
   - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `longline-reading` 响应契约、不改 artifact。
+
+### 2026-06-07 — Worldline Fermentation Ledger
+
+- **做了什么**：
+  - `WorldlineDossierPage` 在“代偿罗盘”之后、`WorldRunway` 之前新增“世界发酵账”。
+  - 发酵账把最近三条 `state.consequence_state.ledger`、前四个代偿域、`state.consequence_state.next_round_hint` 和 `nextRoundReads` 组织成“最近写入 / 承压域 / 下一轮会消费”的可行动路径。
+  - 用户进入世界线页后不仅能理解世界为什么继续变，也能看见哪些代价会被下一轮角色行动消费，并可直接去长线卷或详细代偿账。
+  - 扩展 `check:worldline-dossier-ux`，锁定发酵账语义、位置、真实字段引用、桌面稳定三列和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:worldline-dossier-ux`，确认缺少 `worldline-fermentation-ledger` 时失败。
+  - Focused helper：`pnpm.cmd run check:worldline-dossier-ux` -> `worldline dossier ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Repo：`git diff --check` 通过；仅有 Windows CRLF 提示。
+  - In-app Browser smoke：`http://localhost:5180/#/world/my-story/worldlines/main` 桌面下发酵账渲染在代偿罗盘之后、世界内部导览之前，使用三列布局；“去长线卷”唯一且能跳到 `#/world/my-story/worldlines/main/longline`；390px 下发酵账单列、按钮稳定且无水平溢出。
+- **边界**：
+  - 本轮只改前端世界线档案页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `worldline_dossier` / `worldline_state` 字段，不改 artifact。

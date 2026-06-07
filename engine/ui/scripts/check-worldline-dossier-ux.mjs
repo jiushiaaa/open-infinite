@@ -47,8 +47,24 @@ assert(
   page.indexOf('className="worldline-compensation-compass"') < page.indexOf("<WorldRunway"),
   "worldline compensation compass should appear before the explanatory runway",
 );
+assert(
+  page.includes('className="worldline-fermentation-ledger"'),
+  "worldline dossier page should include a world fermentation ledger",
+);
+assert(
+  page.indexOf('className="worldline-compensation-compass"') <
+    page.indexOf('className="worldline-fermentation-ledger"'),
+  "worldline fermentation ledger should appear after the compensation compass",
+);
+assert(
+  page.indexOf('className="worldline-fermentation-ledger"') < page.indexOf("<WorldRunway"),
+  "worldline fermentation ledger should appear before the explanatory runway",
+);
 for (const label of ["代偿罗盘", "最近代价", "承压领域", "下一轮提示", "从这里继续看"]) {
   assert(page.includes(label), `worldline compensation compass should include ${label}`);
+}
+for (const label of ["世界发酵账", "最近写入", "承压域", "下一轮会消费", "去长线卷"]) {
+  assert(page.includes(label), `worldline fermentation ledger should include ${label}`);
 }
 for (const field of [
   "state?.consequence_state?.summary",
@@ -63,6 +79,9 @@ for (const label of ["状态接力", "角色记忆", "因果代偿", "检查点"
 }
 for (const field of ["nextRoundReads", "consequenceDomains", "latestCheckpoint"]) {
   assert(page.includes(field), `worldline continuity rail should use ${field}`);
+}
+for (const field of ["fermentationLedgerItems", "fermentationDomainItems"]) {
+  assert(page.includes(field), `worldline fermentation ledger should use ${field}`);
 }
 for (const label of ["回放", "看代偿", "看任务", "长线卷"]) {
   assert(page.includes(label), `worldline mobile guide should include ${label}`);
@@ -93,6 +112,11 @@ assert(
   "worldline compensation compass styling should be present",
 );
 assert(
+  css.includes(".worldline-fermentation-ledger") &&
+    css.includes(".worldline-fermentation-ledger__timeline"),
+  "worldline fermentation ledger styling should be present",
+);
+assert(
   css.includes("grid-template-columns: repeat(4, minmax(0, 1fr))"),
   "worldline compensation compass should use a stable desktop grid",
 );
@@ -103,6 +127,10 @@ assert(
 assert(
   /@media \(max-width: 760px\)[\s\S]*\.worldline-compensation-compass__grid[\s\S]*grid-template-columns: 1fr/.test(css),
   "worldline compensation compass should collapse to one column on mobile widths",
+);
+assert(
+  /@media \(max-width: 760px\)[\s\S]*\.worldline-fermentation-ledger__body[\s\S]*grid-template-columns: 1fr/.test(css),
+  "worldline fermentation ledger should collapse to one column on mobile widths",
 );
 
 console.log("worldline dossier ux structure ok");
