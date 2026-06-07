@@ -304,6 +304,8 @@ function LeftColumn({
         mobile
       />
 
+      <WorldAwakeningFoyer data={data} recentReading={recentReading} compact />
+
       <section className="anchor__launch" aria-label="启动世界">
         <div>
           <span className="muted tiny">世界启动</span>
@@ -471,6 +473,8 @@ function CenterColumn({
   const w = data.world;
   return (
     <div className="anchor__scroll">
+      <WorldAwakeningFoyer data={data} recentReading={recentReading} />
+
       <WorldDossierGateway data={data} recentReading={recentReading} />
 
       {data.import_review && (
@@ -602,6 +606,136 @@ function CenterColumn({
         )}
       </section>
     </div>
+  );
+}
+
+function WorldAwakeningFoyer({
+  data,
+  recentReading,
+  compact = false,
+}: {
+  data: WorldAnchor;
+  recentReading: RecentReading | null;
+  compact?: boolean;
+}) {
+  const worldlineId = "main";
+  const journey = deriveWorldJourney({
+    slug: data.slug,
+    runCount: data.run_count,
+    characterCount: data.characters.length,
+    openThreadCount: data.open_threads.length,
+    factionCount: data.world.factions.length,
+    currentChapter: data.world.current_chapter,
+    hasRecentReading: Boolean(recentReading),
+  });
+  const pulse = deriveWorldPulse({
+    slug: data.slug,
+    runCount: data.run_count,
+    characterCount: data.characters.length,
+    openThreadCount: data.open_threads.length,
+    factionCount: data.world.factions.length,
+    currentChapter: data.world.current_chapter,
+    hasRecentReading: Boolean(recentReading),
+  });
+  const firstCharacter = data.characters[0];
+  const firstThread = data.open_threads[0];
+  const firstPulse = pulse[0];
+  const compactAwakening = compact
+    ? "anchor__awakening anchor__awakening--compact"
+    : "anchor__awakening anchor__awakening--full";
+  const goRecommended = () => {
+    if (journey.recommendedKey === "reading" && recentReading) {
+      window.location.hash = recentReading.hash;
+    }
+    else if (journey.recommendedKey === "reading") {
+      navigate({ name: "dossierReading", slug: data.slug, worldlineId });
+    }
+    else if (journey.recommendedKey === "sandbox") {
+      navigate({ name: "sandbox", slug: data.slug });
+    }
+    else if (journey.recommendedKey === "author") {
+      navigate({ name: "author", slug: data.slug });
+    }
+    else {
+      navigate({ name: "tianming", slug: data.slug });
+    }
+  };
+  const cards = [
+    {
+      label: "世界醒着吗",
+      title: data.run_count > 0 ? `已运行 ${data.run_count} 轮` : "等待第一轮沙盘",
+      detail:
+        data.run_count > 0
+          ? "这个世界已经留下行动、记忆和代偿痕迹，可以先读结果再继续运行。"
+          : "素材已经锚定；先确认天命书，再让角色开始自主行动。",
+    },
+    {
+      label: "谁会行动",
+      title: firstCharacter?.name || `${data.characters.length} 个角色待唤醒`,
+      detail: firstCharacter
+        ? `${firstCharacter.current_state.location || "当前位置未明"} · ${
+            firstCharacter.current_state.emotion || "心境未明"
+          }`
+        : "补足角色卡后，沙盘才能把欲望、恐惧和记忆推入下一轮。",
+    },
+    {
+      label: "哪条伏笔牵引",
+      title: firstThread?.title || `${data.open_threads.length} 条开放伏笔`,
+      detail:
+        firstThread?.description ||
+        firstPulse?.hint ||
+        "伏笔会进入天命书和沙盘，决定世界下一次被什么问题牵动。",
+    },
+    {
+      label: "从哪里继续",
+      title: recentReading?.title || journey.recommendedAction,
+      detail: recentReading
+        ? `${recentReading.label} · ${recentReading.action}`
+        : journey.phaseDescription,
+    },
+  ];
+  return (
+    <section className={compactAwakening} aria-label="世界苏醒台">
+      <div className="anchor__awakening-head">
+        <div>
+          <span className="muted tiny">世界苏醒台</span>
+          <h2>{recentReading ? "这个世界还记得你读到哪里" : "先判断这个世界是否已经活起来"}</h2>
+        </div>
+        <p className="muted tiny">
+          {recentReading
+            ? "继续阅读、运行沙盘或进入作者台，都应从同一条世界线接上。"
+            : "锚定页不只是资料页；它决定世界怎样定界、运行、阅读和采纳。"}
+        </p>
+      </div>
+      <div className="anchor__awakening-grid">
+        {cards.map((item) => (
+          <article key={item.label}>
+            <span>{item.label}</span>
+            <strong>{item.title}</strong>
+            <p>{item.detail}</p>
+          </article>
+        ))}
+      </div>
+      <div className="anchor__awakening-actions">
+        <button className="btn btn--primary tiny" onClick={goRecommended} type="button">
+          {journey.recommendedAction}
+        </button>
+        <button
+          className="btn btn--ghost tiny"
+          onClick={() => navigate({ name: "sandbox", slug: data.slug })}
+          type="button"
+        >
+          让世界运行
+        </button>
+        <button
+          className="btn btn--ghost tiny"
+          onClick={() => navigate({ name: "worldline", slug: data.slug, worldlineId })}
+          type="button"
+        >
+          看世界线
+        </button>
+      </div>
+    </section>
   );
 }
 

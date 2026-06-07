@@ -3687,3 +3687,20 @@
   - Chrome UI smoke：`http://localhost:5178/#/world/my-story/worldlines/main` 桌面下罗盘渲染 4 张信号卡，位于状态接力台之后、世界内部导览之前；“看详细代偿账”能滚到代偿区；390px 下无水平溢出且 4 张信号卡单列。
 - **边界**：
   - 本轮只改前端世界线档案页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `worldline_dossier` / `worldline_state` 字段，不改 artifact。
+
+### 2026-06-07 — World Anchor Awakening Foyer
+
+- **做了什么**：
+  - `WorldAnchorPage` 在桌面中栏的世界卷宗总览之前新增“世界苏醒台”，移动端在状态条之后渲染紧凑版。
+  - 苏醒台复用 `deriveWorldJourney`、`deriveWorldPulse`、本机 `recentReading`、`data.run_count`、首个角色和首条开放伏笔。
+  - 四枚信号分别解释“世界醒着吗 / 谁会行动 / 哪条伏笔牵引 / 从哪里继续”，让用户进入世界后先判断这个世界是否已经活起来。
+  - 动作可直接执行推荐下一步、进入世界沙盘或查看世界线；最近阅读存在时仍接回本机续读位置。
+  - 扩展 `check:world-anchor-status-ribbon`，锁定苏醒台位置、真实字段引用、桌面四列、移动端紧凑版和单列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:world-anchor-status-ribbon`，确认缺少世界苏醒台时失败。
+  - Focused helper：`pnpm.cmd run check:world-anchor-status-ribbon` -> `world anchor status ribbon structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome UI smoke：`http://localhost:5178/#/anchor/my-story` 桌面下苏醒台渲染 4 张信号卡，位于世界卷宗总览之前；“看世界线”跳到 `#/world/my-story/worldlines/main`；390px 下桌面版隐藏、紧凑版显示、4 张信号卡单列且无水平溢出。
+- **边界**：
+  - 本轮只改前端锚定页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `world-anchor` 字段，不改 artifact，不删编辑锚定、视觉资产、基线回放、世界启动、卷宗总览、角色栏或角色探针。
