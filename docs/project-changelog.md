@@ -4208,3 +4208,20 @@
   - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
 - **边界**：
   - 本轮只改共享世界壳层焦点样式、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — Mobile World Navigation Summary Focus
+
+- **做了什么**：
+  - `WorldWorkspaceShell` 移动端“展开世界导航”折叠入口新增显式 `:focus-visible` 描边。
+  - summary 聚焦时复用纸面背景，让键盘用户在打开完整世界导航前也能看见当前焦点位置。
+  - 扩展 `check:app-shell-mobile-layout`，锁定移动端 summary 必须保留可见键盘焦点态。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少移动端 summary 焦点态时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.77 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改移动端共享壳层焦点样式、结构检查脚本和文档；不新增后端 API，不改变常态布局、桌面导航、hash 路由、route chunk 预取、移动端折叠结构、阅读进度、沙盘请求字段或 artifact。

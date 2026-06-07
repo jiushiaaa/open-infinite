@@ -1064,6 +1064,12 @@
     list-style: none;
   }
 
+  .world-workspace-shell__mobile-nav summary:focus-visible {
+    outline: 2px solid rgba(141, 50, 37, 0.46);
+    outline-offset: 2px;
+    background: rgba(255, 252, 244, 0.9);
+  }
+
   .world-workspace-shell__mobile-nav summary::-webkit-details-marker {
     display: none;
   }

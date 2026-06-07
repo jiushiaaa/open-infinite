@@ -124,6 +124,15 @@ if (
   failures.push("WorldWorkspaceShell dossier buttons should expose a visible keyboard focus state");
 }
 
+const mobileSummaryFocusRule = findRule(".world-workspace-shell__mobile-nav summary:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(141,\s*50,\s*37,\s*0\.46\)/.test(mobileSummaryFocusRule) ||
+  !/outline-offset:\s*2px/.test(mobileSummaryFocusRule) ||
+  !/background:\s*rgba\(255,\s*252,\s*244,\s*0\.9\)/.test(mobileSummaryFocusRule)
+) {
+  failures.push("mobile world navigation summary should expose a visible keyboard focus state");
+}
+
 for (const activeKey of [
   "anchor",
   "tianming",
