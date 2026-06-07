@@ -4050,3 +4050,18 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改共享壳层组件、AppShell 样式、结构检查脚本和文档；不新增后端 API，不改变路由 hash、阅读进度、作者采纳、沙盘请求字段或任何 artifact。
+
+### 2026-06-08 — Frontend Route Code Splitting
+
+- **做了什么**：
+  - `App.tsx` 不再静态导入所有页面组件，改为通过 `React.lazy` / `Suspense` 按当前 hash route 加载页面。
+  - 新增 `loadPage` helper 处理现有页面组件的 named export，不要求各页面改成 default export。
+  - 新增“正在展开世界卷宗”纸面加载态，避免路由 chunk 加载期间出现空白页。
+  - 新增 `check:route-code-splitting`，锁定页面组件不能重新静态打进首包，并要求保留中文加载态。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:route-code-splitting`，确认所有页面仍静态导入、缺少 `Suspense` 和中文加载态时失败。
+  - Focused helper：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 从上一轮约 `711.66 kB` 降到约 `231.50 kB`，页面输出为独立 chunks，原 Vite 大 chunk 警告消失。
+- **边界**：
+  - 本轮只改前端入口、加载态样式、检查脚本和文档；不新增后端 API，不改变 hash 路由、页面 props、阅读进度、沙盘请求字段或 artifact。
