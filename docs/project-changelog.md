@@ -3284,3 +3284,18 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端入口 helper、故事书架 JSX/CSS、检查脚本和文档，不新增后端 API、不改变故事列表 API、不改 artifact。
+
+### 2026-06-07 — AppShell World Pulse Bar
+
+- **做了什么**：
+  - `worldRouteContext` 为所有世界内路由新增 `continuitySignals`，统一输出“记忆 / 代偿 / 正文 / 写作”四类世界连续性信号。
+  - `AppShell` 在工作区总览和体验轨道之间新增“世界脉搏”纸面条；四枚信号均可点击，分别接回卷宗阅读、世界线档案、长线卷和作者采纳台。
+  - 桌面保持四列扫读，移动端压成两列，不挤掉原有顶栏世界导航、工作区总览、体验轨道、全局续读、主次动作和八个卷宗速览入口。
+  - 扩展 `check:app-shell-mobile-layout`，锁定世界脉搏条必须渲染、四类信号必须可点击且移动端不强撑高行。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff，把 AppShell 世界脉搏条记为当前事实。
+- **验证**：
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - Focused helper：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端共享壳层、route context、样式、检查脚本和文档，不新增后端 API、不改变世界线/阅读/作者采纳路由契约、不改 artifact。

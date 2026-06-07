@@ -59,6 +59,17 @@ if (!appShell.includes("shell-context__workspace-card")) {
   failures.push("world workspace summary cards should be clickable journey pointers");
 }
 
+if (!appShell.includes("shell-context__continuity")) {
+  failures.push("AppShell should render the world pulse continuity row");
+}
+
+if (
+  !appShell.includes("routeContext.continuitySignals.map") ||
+  !appShell.includes("navigate(signal.route)")
+) {
+  failures.push("world pulse signals should be clickable and use semantic routes");
+}
+
 if (
   !appShell.includes("当前环节") ||
   !appShell.includes("承接世界线") ||
@@ -79,6 +90,17 @@ const contextPath = resolve("src/worldRouteContext.ts");
 const context = readFileSync(contextPath, "utf8");
 if (!context.includes("workspaceSummary")) {
   failures.push("world route context should provide semantic summary data for AppShell");
+}
+
+if (!context.includes("continuitySignals")) {
+  failures.push("world route context should provide continuity signals for AppShell");
+}
+
+if (
+  !context.includes('"memory" | "consequence" | "reading" | "writing"') ||
+  !context.includes("buildContinuitySignals")
+) {
+  failures.push("continuity signals should cover memory, consequence, reading and writing");
 }
 
 const workspaceRule = findRule(".shell-context__workspace");
@@ -102,6 +124,26 @@ if (!/grid-template-columns:\s*1fr/.test(mobileWorkspaceRule)) {
 const mobileWorkspaceCardRule = findRule(".shell-context__workspace-card", mobileIndex);
 if (!/min-height:\s*0/.test(mobileWorkspaceCardRule)) {
   failures.push("mobile workspace summary cards should not force tall rows");
+}
+
+const continuityRule = findRule(".shell-context__continuity");
+if (!/grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/.test(continuityRule)) {
+  failures.push("desktop world pulse row should keep four continuity signals in one scan row");
+}
+
+const pulseRule = findRule(".shell-context__pulse");
+if (!/display:\s*grid/.test(pulseRule) || !/text-align:\s*left/.test(pulseRule)) {
+  failures.push("world pulse cards should keep compact information-sign layout");
+}
+
+const mobileContinuityRule = findRule(".shell-context__continuity", mobileIndex);
+if (!/grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/.test(mobileContinuityRule)) {
+  failures.push("mobile world pulse row should collapse into two readable columns");
+}
+
+const mobilePulseRule = findRule(".shell-context__pulse", mobileIndex);
+if (!/min-height:\s*0/.test(mobilePulseRule)) {
+  failures.push("mobile world pulse cards should not force tall rows");
 }
 
 const narrowOverrides = css.slice(css.indexOf("@media (max-width: 520px)"));

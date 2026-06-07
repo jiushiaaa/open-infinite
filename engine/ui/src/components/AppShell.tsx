@@ -308,6 +308,21 @@ export function AppShell({
               <em>{routeContext.workspaceSummary.why}</em>
             </button>
           </div>
+          <div className="shell-context__continuity" aria-label="世界脉搏">
+            {routeContext.continuitySignals.map((signal) => (
+              <button
+                key={signal.key}
+                className={`shell-context__pulse is-${signal.key}`}
+                onClick={() => navigate(signal.route)}
+                title={signal.detail}
+                type="button"
+              >
+                <small>{signal.label}</small>
+                <strong>{signal.title}</strong>
+                <span>{signal.detail}</span>
+              </button>
+            ))}
+          </div>
           <div className="shell-context__stages" aria-label="世界体验轨道">
             {routeContext.stages.map((stage) => (
               <button

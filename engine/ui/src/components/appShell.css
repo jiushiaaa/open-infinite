@@ -97,6 +97,7 @@
   grid-template-areas:
     "copy stages actions"
     "workspace workspace workspace"
+    "continuity continuity continuity"
     "dossiers dossiers dossiers";
   align-items: center;
   gap: var(--space-3);
@@ -219,6 +220,79 @@
   color: var(--ink-soft);
   font-size: 11.5px;
   font-style: normal;
+  line-height: 1.35;
+}
+
+.shell-context__continuity {
+  grid-area: continuity;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+}
+
+.shell-context__pulse {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  min-width: 0;
+  min-height: 58px;
+  padding: 7px 9px;
+  border: 1px solid rgba(196, 184, 156, 0.58);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.52);
+  color: inherit;
+  text-align: left;
+}
+
+.shell-context__pulse:hover {
+  border-color: rgba(74, 124, 99, 0.34);
+  background: var(--jade-wash);
+}
+
+.shell-context__pulse:focus-visible {
+  outline: 2px solid rgba(74, 124, 99, 0.44);
+  outline-offset: 2px;
+}
+
+.shell-context__pulse.is-memory {
+  border-left-color: rgba(141, 50, 37, 0.44);
+}
+
+.shell-context__pulse.is-consequence {
+  border-left-color: rgba(181, 131, 58, 0.48);
+}
+
+.shell-context__pulse.is-reading {
+  border-left-color: rgba(74, 124, 99, 0.48);
+}
+
+.shell-context__pulse.is-writing {
+  border-left-color: rgba(69, 88, 112, 0.42);
+}
+
+.shell-context__pulse small {
+  color: var(--cinnabar-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.shell-context__pulse strong {
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell-context__pulse span {
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 11.5px;
   line-height: 1.35;
 }
 
@@ -401,6 +475,7 @@
     grid-template-areas:
       "copy"
       "workspace"
+      "continuity"
       "stages"
       "dossiers"
       "actions";
@@ -426,6 +501,11 @@
   .shell-context__workspace {
     width: 100%;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .shell-context__continuity {
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .shell-context__dossiers {
@@ -504,6 +584,19 @@
   }
 
   .shell-context__workspace strong {
+    white-space: normal;
+  }
+
+  .shell-context__continuity {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shell-context__pulse {
+    min-height: 0;
+    padding: 6px 8px;
+  }
+
+  .shell-context__pulse strong {
     white-space: normal;
   }
 
