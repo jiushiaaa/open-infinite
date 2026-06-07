@@ -588,6 +588,82 @@
   gap: var(--space-2);
 }
 
+.adoption-final-compare {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(45, 104, 92, 0.24);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(236, 244, 235, 0.62), rgba(250, 247, 239, 0.82)),
+    rgba(250, 247, 239, 0.72);
+}
+
+.adoption-final-compare__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.adoption-final-compare__head h4 {
+  margin: 2px 0 0;
+  font-family: var(--font-serif);
+  font-size: 17px;
+}
+
+.adoption-final-compare__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.adoption-final-compare__grid article {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line-faint);
+  border-radius: 8px;
+  background: rgba(250, 247, 239, 0.64);
+}
+
+.adoption-final-compare__grid strong {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.adoption-final-compare__grid p {
+  display: -webkit-box;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.7;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
+.adoption-final-compare__gate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px dashed rgba(45, 104, 92, 0.2);
+}
+
+.adoption-final-compare__gate > div,
+.adoption-final-compare__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .adoption-rewrite-toolbar,
 .adoption-rewrite-result {
   display: flex;
@@ -917,6 +993,30 @@
   }
 
   .adoption-review-gate__actions .btn {
+    width: 100%;
+  }
+
+  .adoption-final-compare {
+    padding: var(--space-3);
+  }
+
+  .adoption-final-compare__head,
+  .adoption-final-compare__gate {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .adoption-final-compare__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .adoption-final-compare__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .adoption-final-compare__actions .btn {
     width: 100%;
   }
 }

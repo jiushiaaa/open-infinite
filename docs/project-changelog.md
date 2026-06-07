@@ -3587,3 +3587,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约。
+
+### 2026-06-07 — Author Final Draft Comparison Rail
+
+- **做了什么**：
+  - `AuthorAdoptionPage` 在作者修订稿编辑框之后、确认入卷动作之前新增“定稿对照台”。
+  - 对照台并排展示原始草稿、当前定稿、入卷质量门，并提供“采用 Reviewer 定稿 / 恢复原草稿 / 回看局部改写”动作。
+  - 当前定稿来源会根据编辑框内容判断：若用户恢复原草稿，不再误标为 Reviewer 编辑后定稿。
+  - 对照台直接消费 `draft.chapter_text`、`editedChapterText`、`rewriteApplication.edited_final_chapter.final_chapter_text` 和 `edited_final_chapter.quality_gate`。
+  - 扩展 `check:author-adoption-ux`，锁定对照台位置、真实字段引用、回滚动作、质量门和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:author-adoption-ux`，确认缺少定稿对照台时失败。
+  - Focused helper：`pnpm.cmd run check:author-adoption-ux` -> `author adoption ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约；整章风格润色和真实模型编辑器仍是后续深化。

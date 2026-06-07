@@ -36,6 +36,12 @@ function writingStanceLabel(stance?: string) {
   return "素材留档";
 }
 
+function previewText(value: string, fallback: string) {
+  const clean = value.trim();
+  if (!clean) return fallback;
+  return clean.length > 180 ? `${clean.slice(0, 180)}…` : clean;
+}
+
 export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const [sourceEvent, setSourceEvent] = useState("风鸣铃现世。");
   const [sourceRunId, setSourceRunId] = useState("");
@@ -73,6 +79,20 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
   const editorialRevisionReady = draft?.revision_pack
     ? draft.revision_pack.editorial_revision_draft?.status === "ready"
     : false;
+  const originalDraftPreview = previewText(draft?.chapter_text ?? "", "尚未生成原始草稿。");
+  const currentFinalPreview = previewText(editedChapterText, "正文编辑框仍为空。");
+  const reviewerFinalText = rewriteApplication?.edited_final_chapter?.final_chapter_text ?? "";
+  const usingReviewerFinalText =
+    !!reviewerFinalText && editedChapterText.trim() === reviewerFinalText.trim();
+  const finalQualityGate = usingReviewerFinalText
+    ? rewriteApplication?.edited_final_chapter?.quality_gate
+    : undefined;
+  const finalTextChanged = !!draft && editedChapterText.trim() !== draft.chapter_text.trim();
+  const finalTextSource = usingReviewerFinalText
+    ? "Reviewer 编辑后定稿"
+    : finalTextChanged
+      ? "作者手动修订"
+      : "原始草稿";
   const workflowStage = confirmation
     ? "confirmed"
     : draft
@@ -639,6 +659,103 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                       rows={14}
                     />
                   </label>
+                  <section className="adoption-final-compare" aria-label="定稿对照台">
+                    <div className="adoption-final-compare__head">
+                      <div>
+                        <span className="muted tiny">确认前对照</span>
+                        <h4>定稿对照台</h4>
+                      </div>
+                      <span
+                        className={`badge ${
+                          finalQualityGate?.ready_for_confirmation ||
+                          (!finalQualityGate && editedChapterText.trim())
+                            ? "badge--jade"
+                            : "badge--gold"
+                        }`}
+                      >
+                        {finalQualityGate?.ready_for_confirmation ||
+                        (!finalQualityGate && editedChapterText.trim())
+                          ? "可进入入卷判断"
+                          : "需补正文"}
+                      </span>
+                    </div>
+                    <div className="adoption-final-compare__grid">
+                      <article>
+                        <span className="muted tiny">原始草稿</span>
+                        <strong>{draft.artifacts.next_chapter_markdown}</strong>
+                        <p>{originalDraftPreview}</p>
+                      </article>
+                      <article>
+                        <span className="muted tiny">当前定稿</span>
+                        <strong>{finalTextSource}</strong>
+                        <p>{currentFinalPreview}</p>
+                      </article>
+                    </div>
+                    <div className="adoption-final-compare__gate">
+                      <span className="muted tiny">入卷质量门</span>
+                      <div>
+                        <span
+                          className={`badge ${
+                            finalQualityGate?.keeps_original_chapter_body ?? true
+                              ? "badge--jade"
+                              : "badge--gold"
+                          }`}
+                        >
+                          保留正文
+                        </span>
+                        <span
+                          className={`badge ${
+                            finalQualityGate?.applies_reviewer_rewrites ||
+                            usingReviewerFinalText
+                              ? "badge--jade"
+                              : "badge--gold"
+                          }`}
+                        >
+                          Reviewer 改写
+                        </span>
+                        <span
+                          className={`badge ${
+                            finalQualityGate?.not_a_review_appendix ?? true
+                              ? "badge--jade"
+                              : "badge--gold"
+                          }`}
+                        >
+                          非审稿附录
+                        </span>
+                      </div>
+                    </div>
+                    <div className="adoption-final-compare__actions">
+                      {rewriteApplication?.edited_final_chapter && (
+                        <button
+                          className="btn btn--ghost"
+                          onClick={() => {
+                            setEditedChapterText(
+                              rewriteApplication.edited_final_chapter?.final_chapter_text ||
+                                editedChapterText,
+                            );
+                            setConfirmation(null);
+                          }}
+                        >
+                          采用 Reviewer 定稿
+                        </button>
+                      )}
+                      <button
+                        className="btn btn--ghost"
+                        onClick={() => {
+                          setEditedChapterText(draft.chapter_text);
+                          setConfirmation(null);
+                        }}
+                      >
+                        恢复原草稿
+                      </button>
+                      <button
+                        className="btn btn--ghost"
+                        onClick={() => scrollToPageItem(".adoption-rewrite-toolbar")}
+                      >
+                        回看局部改写
+                      </button>
+                    </div>
+                  </section>
                   <dl>
                     <div>
                       <dt>采纳记录</dt>

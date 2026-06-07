@@ -113,8 +113,35 @@ assert(
   "reviewer quality gate should keep a direct action to the editable chapter text",
 );
 assert(
-  page.indexOf("Reviewer 质检门") < page.indexOf("adoption-rewrite-toolbar"),
+  page.indexOf("Reviewer 质检门") < page.indexOf('className="adoption-rewrite-toolbar"'),
   "reviewer quality gate should appear before the rewrite toolbar and rewrite cards",
+);
+assert(
+  page.includes("adoption-final-compare"),
+  "draft review should include a final text comparison rail before confirmation",
+);
+assert(
+  page.includes('aria-label="定稿对照台"'),
+  "final comparison rail should have a clear accessible label",
+);
+assert(page.includes("定稿对照台"), "final comparison rail should be named in product language");
+assert(page.includes("originalDraftPreview"), "final comparison rail should show original draft preview");
+assert(page.includes("currentFinalPreview"), "final comparison rail should show current final preview");
+assert(
+  page.includes("rewriteApplication?.edited_final_chapter?.quality_gate"),
+  "final comparison rail should use edited final chapter quality gate when available",
+);
+assert(
+  page.includes("setEditedChapterText(draft.chapter_text)"),
+  "final comparison rail should allow restoring the original draft text",
+);
+assert(page.includes("恢复原草稿"), "final comparison rail should expose a rollback action");
+assert(page.includes("当前定稿"), "final comparison rail should label the current final text");
+assert(page.includes("原始草稿"), "final comparison rail should label the original draft");
+assert(page.includes("入卷质量门"), "final comparison rail should explain the quality gate");
+assert(
+  page.indexOf("定稿对照台") < page.indexOf("adoption-confirm"),
+  "final comparison rail should appear before the confirmation action",
 );
 assert(css.includes(".adoption-confirmation-handoff"), "confirmation handoff should have styles");
 assert(
@@ -141,6 +168,19 @@ assert(
     css,
   ),
   "reviewer quality gate should collapse to one column on narrow mobile",
+);
+assert(css.includes(".adoption-final-compare"), "final comparison rail should have styles");
+assert(
+  /\.adoption-final-compare__grid[\s\S]*grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\)/.test(
+    css,
+  ),
+  "final comparison rail should compare original and current text in two desktop columns",
+);
+assert(
+  /@media \(max-width: 620px\)[\s\S]*\.adoption-final-compare__grid[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "final comparison rail should collapse to one column on narrow mobile",
 );
 
 console.log("author adoption ux structure ok");
