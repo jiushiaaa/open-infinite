@@ -4114,3 +4114,19 @@
   - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `233.81 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
 - **边界**：
   - 本轮只改共享世界壳层、移动布局结构检查和文档；不新增后端 API，不改变 hash 路由、页面 props、阅读进度、沙盘请求字段、移动端折叠导航或 artifact。
+
+### 2026-06-08 — Route-Aware Loading Copy
+
+- **做了什么**：
+  - `RouteLoading` 从通用“正在展开世界卷宗”升级为接收当前 `Route` 的目标页面加载反馈。
+  - 新增 `routeLoadingCopy(route)`，进入世界沙盘、卷宗阅读、作者采纳台、天命书、世界线档案、跨事件长线卷和世界锚定时显示对应“正在展开……”标题。
+  - 加载态新增一句说明，例如沙盘会提示角色行动、读者干预和世界代偿材料正在就位，卷宗阅读会提示连续正文、证据和误会线索正在铺开。
+  - `.route-loading` 保持古风纸面风格，只把原单行提示升级为结构化标题和说明。
+  - 扩展 `check:route-code-splitting`，锁定 route-aware loading copy、关键页面文案和结构化 title/detail。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:route-code-splitting`，确认缺少 route-aware loading copy 时失败。
+  - Focused helper：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `234.61 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+- **边界**：
+  - 本轮只改前端入口加载态、AppShell 样式、路由拆包结构检查和文档；不新增后端 API，不改变 hash 路由、页面 props、预取机制、阅读进度、沙盘请求字段或 artifact。

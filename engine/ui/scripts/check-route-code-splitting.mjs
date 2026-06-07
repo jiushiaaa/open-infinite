@@ -63,12 +63,31 @@ if (!app.includes("import { routePageLoaders } from \"./routePagePreload\";")) {
   failures.push("App should use the shared routePageLoaders registry");
 }
 
-if (!app.includes("<Suspense fallback={<RouteLoading />}>")) {
-  failures.push("App should wrap routed pages in Suspense with a visible loading state");
+if (!app.includes("<Suspense fallback={<RouteLoading route={route} />}>")) {
+  failures.push("App should wrap routed pages in Suspense with a route-aware loading state");
 }
 
-if (!app.includes("正在展开世界卷宗")) {
-  failures.push("route loading fallback should use Chinese product copy instead of a blank screen");
+if (!app.includes("function routeLoadingCopy(route: Route)")) {
+  failures.push("route loading fallback should derive Chinese copy from the target route");
+}
+
+for (const loadingCopy of [
+  "正在展开世界沙盘",
+  "正在展开卷宗阅读",
+  "正在展开作者采纳台",
+  "正在展开天命书",
+]) {
+  if (!app.includes(loadingCopy)) {
+    failures.push(`route loading fallback should include ${loadingCopy}`);
+  }
+}
+
+if (
+  !app.includes("route-loading__panel") ||
+  !app.includes("route-loading__title") ||
+  !app.includes("route-loading__detail")
+) {
+  failures.push("route loading fallback should expose structured title and detail copy");
 }
 
 if (!app.includes("class RouteChunkBoundary")) {

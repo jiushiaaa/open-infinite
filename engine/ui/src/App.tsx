@@ -10,7 +10,7 @@ import {
 import { AppShell } from "./components/AppShell";
 import { writeRecentReading } from "./readingProgress";
 import { routePageLoaders } from "./routePagePreload";
-import { useRoute } from "./routing";
+import { useRoute, type Route } from "./routing";
 
 function loadPage(
   importer: () => Promise<Record<string, unknown>>,
@@ -73,10 +73,64 @@ const CheckpointReplayPage = lazy(() =>
   loadPage(routePageLoaders.checkpoint, "CheckpointReplayPage"),
 );
 
-function RouteLoading() {
+function routeLoadingCopy(route: Route) {
+  if (route.name === "sandbox") {
+    return {
+      title: "正在展开世界沙盘",
+      detail: "角色行动、读者干预和世界代偿材料正在就位。",
+    };
+  }
+  if (route.name === "dossierReading") {
+    return {
+      title: "正在展开卷宗阅读",
+      detail: "连续正文、证据和误会线索正在铺开。",
+    };
+  }
+  if (route.name === "author") {
+    return {
+      title: "正在展开作者采纳台",
+      detail: "下一章 brief、Reviewer 和定稿材料正在接回写作台。",
+    };
+  }
+  if (route.name === "tianming") {
+    return {
+      title: "正在展开天命书",
+      detail: "世界宪法、锚点压力和干预边界正在整理。",
+    };
+  }
+  if (route.name === "worldline") {
+    return {
+      title: "正在展开世界线档案",
+      detail: "检查点、因果债和代偿记录正在汇合。",
+    };
+  }
+  if (route.name === "longlineReading") {
+    return {
+      title: "正在展开跨事件长线卷",
+      detail: "误会、角色记忆和势力压力正在串成后续线索。",
+    };
+  }
+  if (route.name === "anchor") {
+    return {
+      title: "正在展开世界锚定",
+      detail: "角色、规则和世界卷宗地图正在校准。",
+    };
+  }
+  return {
+    title: "正在展开世界卷宗",
+    detail: "目标页面材料正在加载，马上接回当前世界。",
+  };
+}
+
+function RouteLoading({ route }: { route: Route }) {
+  const copy = routeLoadingCopy(route);
   return (
     <div className="route-loading" role="status" aria-live="polite">
-      <span>正在展开世界卷宗</span>
+      <div className="route-loading__panel">
+        <small>世界房间切换中</small>
+        <strong className="route-loading__title">{copy.title}</strong>
+        <span className="route-loading__detail">{copy.detail}</span>
+      </div>
     </div>
   );
 }
@@ -145,7 +199,7 @@ export function App() {
   return (
     <AppShell route={route}>
       <RouteChunkBoundary resetKey={window.location.hash}>
-        <Suspense fallback={<RouteLoading />}>
+        <Suspense fallback={<RouteLoading route={route} />}>
           {route.name === "workspace" && <WorkspacePage slug={route.slug} />}
           {route.name === "sandbox" && <WorldSandboxPage slug={route.slug} />}
           {route.name === "tianming" && <TianmingPage slug={route.slug} />}
