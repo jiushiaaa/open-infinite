@@ -4445,3 +4445,24 @@
 - **边界**：
   - 本轮只改前端沙盘页跑后角色弧线理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Next-Round Draft
+
+- **做了什么**：
+  - `WorldSandboxPage` 在首屏运行台的大事件输入之后、事件入局预演台之前新增“下一轮草稿已准备”。
+  - 当用户从事件种子、后续可能性、策略暗线、角色行动焦点或角色跨轮追踪回填材料时，运行台会显示来源、事件草稿和干预状态。
+  - 从跑后承接入口回填时，草稿提示会明确“旧干预已清空”，减少用户误把上一轮临时干预重复投放到下一轮。
+  - 草稿提示提供“继续编辑事件”和“直接启动下一轮”两个动作，让用户不用再猜回填后该去哪里启动。
+  - 扩展 `check:sandbox-runner-ux`，锁定下一轮草稿提示的中文标记、队列来源读取、位置顺序、样式结构和移动端动作折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少下一轮草稿提示时失败，错误包括 `runner should show when a next-round draft has been queued`、`next-round draft should clearly tell users the runner is ready`、`next-round draft should sit between the event textarea and event preview` 和移动端动作折叠缺失。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`WorldSandboxPage-B9Djf0Yc.js` `58.34 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 174.43s`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页运行台反馈层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

@@ -488,6 +488,49 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     worldlineState?.anchor_status?.current_anchor,
     worldlineState?.continuation_inputs?.major_event_hint,
   ]);
+  const queuedRoundDraft = useMemo(() => {
+    const title =
+      queuedPossibilityTitle ||
+      queuedStrategyTitle ||
+      queuedActionFocusTitle ||
+      queuedActionTrailTitle ||
+      queuedEventSeedTitle ||
+      "";
+    if (!title) return null;
+    const source = queuedPossibilityTitle
+      ? "后续可能性"
+      : queuedStrategyTitle
+        ? "策略暗线"
+        : queuedActionFocusTitle
+          ? "角色行动"
+          : queuedActionTrailTitle
+            ? "角色弧线"
+            : "事件种子";
+    const staleInterventionCleared = Boolean(
+      queuedPossibilityTitle ||
+        queuedStrategyTitle ||
+        queuedActionFocusTitle ||
+        queuedActionTrailTitle,
+    );
+    return {
+      title,
+      source,
+      event: majorEvent.trim() || DEFAULT_EVENT,
+      interventionNote: staleInterventionCleared
+        ? "旧干预已清空，本轮只会按这条新事件继续。"
+        : hasInterventionDraft
+          ? "当前仍带着干预草稿，启动前可以继续调整。"
+          : "当前没有临时干预，适合先跑纯事件。",
+    };
+  }, [
+    hasInterventionDraft,
+    majorEvent,
+    queuedActionFocusTitle,
+    queuedActionTrailTitle,
+    queuedEventSeedTitle,
+    queuedPossibilityTitle,
+    queuedStrategyTitle,
+  ]);
 
   async function runRound() {
     if (!majorEvent.trim()) return;
@@ -736,6 +779,40 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           placeholder="例如：老皇帝驾崩，边境军报同时传入归云斋。"
         />
       </label>
+      {queuedRoundDraft && (
+        <section className="sandbox-next-round-draft" aria-label="下一轮草稿提示">
+          <div>
+            <p className="tiny muted">下一轮草稿已准备</p>
+            <h3>{queuedRoundDraft.title}</h3>
+          </div>
+          <dl className="sandbox-next-round-draft__meta">
+            <div>
+              <dt>来源</dt>
+              <dd>{queuedRoundDraft.source}</dd>
+            </div>
+            <div>
+              <dt>事件草稿</dt>
+              <dd>{queuedRoundDraft.event}</dd>
+            </div>
+            <div>
+              <dt>干预状态</dt>
+              <dd>{queuedRoundDraft.interventionNote}</dd>
+            </div>
+          </dl>
+          <div className="sandbox-next-round-draft__actions">
+            <button className="btn btn--ghost tiny" onClick={focusEventDraft}>
+              继续编辑事件
+            </button>
+            <button
+              className="btn btn--primary tiny"
+              disabled={!canRun}
+              onClick={runRound}
+            >
+              {loading ? "沙盘推演中…" : "直接启动下一轮"}
+            </button>
+          </div>
+        </section>
+      )}
       <section className="sandbox-event-preview" aria-label="事件入局预演台">
         <div className="sandbox-event-preview__head">
           <div>

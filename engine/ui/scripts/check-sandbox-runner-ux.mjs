@@ -32,6 +32,18 @@ const requiredPageMarkers = [
   ["跑完先看哪里", "event preview should tell users where to inspect the result"],
   ["majorEvent.trim()", "event preview should derive from the current event draft"],
   ["hasInterventionDraft", "event preview should react to whether an intervention is present"],
+  ["sandbox-next-round-draft", "runner should show when a next-round draft has been queued"],
+  ["下一轮草稿已准备", "next-round draft should clearly tell users the runner is ready"],
+  ["queuedRoundDraft", "next-round draft should derive from queued continuation state"],
+  ["queuedPossibilityTitle ||", "next-round draft should read possibility continuation state"],
+  ["queuedStrategyTitle ||", "next-round draft should read strategy continuation state"],
+  ["queuedActionFocusTitle ||", "next-round draft should read action focus continuation state"],
+  ["queuedActionTrailTitle ||", "next-round draft should read action trail continuation state"],
+  ["queuedEventSeedTitle ||", "next-round draft should read event seed continuation state"],
+  ["来源", "next-round draft should explain where the draft came from"],
+  ["旧干预已清空", "next-round draft should reassure users stale intervention text was cleared"],
+  ["继续编辑事件", "next-round draft should let users edit the queued event"],
+  ["直接启动下一轮", "next-round draft should let users run the queued event"],
   ["sandbox-intervention-preview", "runner should preview how an intervention will enter the world"],
   ["干预后果预演台", "intervention preview should name the consequence rehearsal"],
   ["投放对象", "intervention preview should explain who will receive the intervention"],
@@ -132,6 +144,7 @@ const resultBridgeIndex = page.indexOf("sandbox-result-bridge");
 const runnerStepsIndex = page.indexOf("sandbox-runner__steps");
 const eventSeedsIndex = page.indexOf("sandbox-event-seeds");
 const eventPreviewIndex = page.indexOf("sandbox-event-preview");
+const nextRoundDraftIndex = page.indexOf("sandbox-next-round-draft");
 const eventFieldIndex = page.indexOf("sandbox-runner__field--event");
 const advancedInterventionIndex = page.indexOf("sandbox-runner__advanced");
 const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
@@ -166,6 +179,15 @@ if (
   failures.push(
     "event preview should sit between the major event input and optional intervention controls",
   );
+}
+if (
+  eventFieldIndex === -1 ||
+  nextRoundDraftIndex === -1 ||
+  eventPreviewIndex === -1 ||
+  nextRoundDraftIndex < eventFieldIndex ||
+  nextRoundDraftIndex > eventPreviewIndex
+) {
+  failures.push("next-round draft should sit between the event textarea and event preview");
 }
 if (resultBridgeIndex === -1 || actionChainIndex === -1 || resultBridgeIndex > actionChainIndex) {
   failures.push("completed round result bridge should appear before detailed action chains");
@@ -251,6 +273,9 @@ const requiredCssMarkers = [
   [".sandbox-event-preview__head", "event preview header styling is missing"],
   [".sandbox-event-preview__grid", "event preview grid styling is missing"],
   [".sandbox-event-preview__actions", "event preview action styling is missing"],
+  [".sandbox-next-round-draft", "next-round draft styling is missing"],
+  [".sandbox-next-round-draft__meta", "next-round draft metadata styling is missing"],
+  [".sandbox-next-round-draft__actions", "next-round draft action styling is missing"],
   [".sandbox-intervention-preview", "intervention preview styling is missing"],
   [".sandbox-intervention-preview__head", "intervention preview header styling is missing"],
   [".sandbox-intervention-preview__grid", "intervention preview grid styling is missing"],
@@ -334,6 +359,10 @@ const mobileSeedGridIndex = css.indexOf(".sandbox-event-seeds__grid", mobileMedi
 const mobileSeedActionsIndex = css.indexOf(".sandbox-event-seeds__actions", mobileMediaIndex);
 const mobileEventGridIndex = css.indexOf(".sandbox-event-preview__grid", mobileMediaIndex);
 const mobileEventActionsIndex = css.indexOf(".sandbox-event-preview__actions", mobileMediaIndex);
+const mobileNextRoundDraftActionsIndex = css.indexOf(
+  ".sandbox-next-round-draft__actions",
+  mobileMediaIndex,
+);
 const mobilePreviewGridIndex = css.indexOf(".sandbox-intervention-preview__grid", mobileMediaIndex);
 const mobilePreviewActionsIndex = css.indexOf(
   ".sandbox-intervention-preview__actions",
@@ -377,6 +406,9 @@ if (mobileMediaIndex === -1 || mobileEventGridIndex === -1) {
 }
 if (mobileMediaIndex === -1 || mobileEventActionsIndex === -1) {
   failures.push("event preview actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileNextRoundDraftActionsIndex === -1) {
+  failures.push("next-round draft actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobilePreviewGridIndex === -1) {
   failures.push("intervention preview grid should collapse in the mobile media query");

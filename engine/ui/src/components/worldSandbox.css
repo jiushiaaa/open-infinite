@@ -248,6 +248,64 @@
   line-height: 1.5;
 }
 
+.sandbox-next-round-draft {
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid rgba(37, 102, 92, 0.24);
+  border-radius: 8px;
+  padding: var(--space-3);
+  background:
+    linear-gradient(135deg, rgba(232, 244, 235, 0.56), transparent 44%),
+    rgba(255, 252, 244, 0.82);
+}
+
+.sandbox-next-round-draft p {
+  margin: 0 0 3px;
+}
+
+.sandbox-next-round-draft h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-next-round-draft__meta {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.sandbox-next-round-draft__meta div {
+  border-top: 1px dashed rgba(37, 102, 92, 0.24);
+  padding-top: var(--space-2);
+}
+
+.sandbox-next-round-draft__meta dt {
+  color: var(--jade);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sandbox-next-round-draft__meta dd {
+  margin: 3px 0 0;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-next-round-draft__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.sandbox-next-round-draft__actions .btn {
+  min-width: 112px;
+}
+
 .sandbox-hero .sandbox-runner {
   height: 100%;
 }
@@ -1987,6 +2045,7 @@
   .sandbox-action-trail-card__actions,
   .sandbox-event-seeds__grid,
   .sandbox-event-seeds__actions,
+  .sandbox-next-round-draft__actions,
   .sandbox-event-preview__grid,
   .sandbox-event-preview__actions,
   .sandbox-intervention-preview__grid,
@@ -2000,6 +2059,7 @@
   .sandbox-action-trail-card__actions,
   .sandbox-event-seeds__head,
   .sandbox-event-seeds__actions,
+  .sandbox-next-round-draft__actions,
   .sandbox-event-preview__head,
   .sandbox-event-preview__actions,
   .sandbox-intervention-preview__head,
@@ -2018,6 +2078,7 @@
   .sandbox-action-focus-card__actions .btn,
   .sandbox-action-trail-card__actions .btn,
   .sandbox-event-seeds__actions .btn,
+  .sandbox-next-round-draft__actions .btn,
   .sandbox-event-preview__actions .btn,
   .sandbox-intervention-preview__actions .btn {
     width: 100%;
