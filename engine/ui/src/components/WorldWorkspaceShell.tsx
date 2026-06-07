@@ -82,7 +82,7 @@ export function WorldWorkspaceShell({
           title="回到当前旅程环节的主入口"
           type="button"
         >
-          <small>当前环节</small>
+          <small>旅程入口</small>
           <strong>
             {routeContext.workspaceSummary.stageLabel} ·{" "}
             {routeContext.workspaceSummary.stageTitle}
@@ -94,7 +94,7 @@ export function WorldWorkspaceShell({
           title="查看这条世界线的检查点、因果债和代偿"
           type="button"
         >
-          <small>承接世界线</small>
+          <small>世界线档案</small>
           <strong>{routeContext.workspaceSummary.worldlineLabel}</strong>
         </button>
         <button
@@ -106,7 +106,7 @@ export function WorldWorkspaceShell({
           title={routeContext.workspaceSummary.why}
           type="button"
         >
-          <small>下一步为什么做</small>
+          <small>为什么建议这步</small>
           <strong>{routeContext.workspaceSummary.nextStepLabel}</strong>
           <em>{routeContext.workspaceSummary.why}</em>
         </button>
@@ -190,13 +190,36 @@ export function WorldWorkspaceShell({
         <span>{routeContext.description}</span>
       </div>
 
-      <div className="world-workspace-shell__desktop-nav-top">
-        {renderJourneyAndWorkspace()}
-      </div>
-
-      <div className="shell-context__taskbar" aria-label="当前任务">
+      <div
+        className="shell-context__taskbar world-workspace-shell__focus-band"
+        aria-label="世界扫读带"
+      >
+        <div className="world-workspace-shell__focus-map">
+          <span className="world-workspace-shell__focus-kicker">世界扫读带</span>
+          <button
+            className="world-workspace-shell__focus-chip"
+            onClick={() => activeStageRoute && navigate(activeStageRoute)}
+            title="回到当前旅程环节的主入口"
+            type="button"
+          >
+            <small>当前环节</small>
+            <strong>
+              {routeContext.workspaceSummary.stageLabel} ·{" "}
+              {routeContext.workspaceSummary.stageTitle}
+            </strong>
+          </button>
+          <button
+            className="world-workspace-shell__focus-chip"
+            onClick={() => worldlineDossierRoute && navigate(worldlineDossierRoute)}
+            title="查看这条世界线的检查点、因果债和代偿"
+            type="button"
+          >
+            <small>承接世界线</small>
+            <strong>{routeContext.workspaceSummary.worldlineLabel}</strong>
+          </button>
+        </div>
         <div className="shell-context__taskcopy">
-          <small>当前任务 · 建议先做</small>
+          <small>当前任务 · 现在先看这一条 · 建议先做</small>
           <strong>{routeContext.primaryActionLabel}</strong>
           <span>{routeContext.workspaceSummary.why}</span>
         </div>
@@ -231,6 +254,10 @@ export function WorldWorkspaceShell({
             </button>
           )}
         </div>
+      </div>
+
+      <div className="world-workspace-shell__desktop-nav-top">
+        {renderJourneyAndWorkspace()}
       </div>
 
       <div className="world-workspace-shell__desktop-nav-rest">

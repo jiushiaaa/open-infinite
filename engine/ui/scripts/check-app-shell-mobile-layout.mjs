@@ -86,10 +86,35 @@ if (
 
 if (
   workspaceShell.indexOf("shell-context__taskbar") === -1 ||
-  workspaceShell.indexOf("world-workspace-shell__mobile-nav") === -1 ||
-  workspaceShell.indexOf("shell-context__taskbar") > workspaceShell.indexOf("world-workspace-shell__mobile-nav")
+  workspaceShell.indexOf("world-workspace-shell__desktop-nav-top") === -1 ||
+  workspaceShell.indexOf("shell-context__taskbar") > workspaceShell.indexOf("world-workspace-shell__desktop-nav-top")
 ) {
-  failures.push("mobile current-task row should stay before the expandable world navigation");
+  failures.push("shared shell should promote the current-task scan band before dense world navigation");
+}
+
+if (
+  !workspaceShell.includes("world-workspace-shell__focus-band") ||
+  !workspaceShell.includes("world-workspace-shell__focus-map") ||
+  !workspaceShell.includes("世界扫读带") ||
+  !workspaceShell.includes("现在先看这一条")
+) {
+  failures.push("WorldWorkspaceShell should promote a focused scan band before secondary navigation");
+}
+
+if (
+  workspaceShell.indexOf("world-workspace-shell__focus-band") === -1 ||
+  workspaceShell.indexOf("world-workspace-shell__desktop-nav-top") === -1 ||
+  workspaceShell.indexOf("world-workspace-shell__focus-band") > workspaceShell.indexOf("world-workspace-shell__desktop-nav-top")
+) {
+  failures.push("the focused scan band should appear before the dense desktop navigation deck");
+}
+
+if (
+  !workspaceShell.includes("旅程入口") ||
+  !workspaceShell.includes("世界线档案") ||
+  !workspaceShell.includes("为什么建议这步")
+) {
+  failures.push("workspace pointer cards should read as secondary journey pointers, not another primary task row");
 }
 
 if (!workspaceShell.includes("routeContext.stages.map") || !workspaceShell.includes("routeContext.dossiers.map")) {
@@ -152,7 +177,7 @@ if (
 if (
   !workspaceShell.includes("当前环节") ||
   !workspaceShell.includes("承接世界线") ||
-  !workspaceShell.includes("下一步为什么做")
+  !workspaceShell.includes("为什么建议这步")
 ) {
   failures.push("world workspace summary should explain stage, worldline and next-step rationale");
 }
@@ -224,9 +249,22 @@ if (!/display:\s*grid/.test(mobileNavBodyRule)) {
 const taskbarRule = findRule(".shell-context__taskbar");
 if (
   !/display:\s*grid/.test(taskbarRule) ||
-  !/grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto/.test(taskbarRule)
+  !/grid-template-columns:\s*minmax\(170px,\s*0\.55fr\)\s+minmax\(0,\s*1fr\)\s+auto/.test(taskbarRule)
 ) {
-  failures.push("desktop current-task row should keep explanation and actions in one scan row");
+  failures.push("desktop current-task row should combine orientation, explanation and actions in one scan band");
+}
+
+const focusBandRule = findRule(".world-workspace-shell__focus-band");
+if (
+  !/background:[^}]*rgba\(255,\s*252,\s*244,\s*0\.9\)/s.test(focusBandRule) ||
+  !/box-shadow:\s*var\(--shadow-card\)/.test(focusBandRule)
+) {
+  failures.push("focused scan band should be visually promoted with restrained paper contrast");
+}
+
+const focusMapRule = findRule(".world-workspace-shell__focus-map");
+if (!/display:\s*grid/.test(focusMapRule) || !/grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/.test(focusMapRule)) {
+  failures.push("focus map should keep current stage and worldline in a compact two-item row");
 }
 
 const handoffsRule = findRule(".shell-context__handoffs");

@@ -4033,3 +4033,20 @@
   - 完整验证结果见本轮收口。
 - **边界**：
   - 本轮只改前端世界书架 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变导入、创世、样例、路由或 artifact，不删除既有世界沙盘、天命书、卷宗阅读、作者采纳台和机制档案入口。
+
+### 2026-06-08 — WorldWorkspaceShell Focus Band
+
+- **做了什么**：
+  - `WorldWorkspaceShell` 把原本分散在工作区总览和当前任务条里的当前环节、承接世界线、建议先做、下一步理由、继续阅读、主动作和次动作合并成“世界扫读带”。
+  - 扫读带前置到旅程总线、状态预告、世界脉搏、体验轨道和卷宗速览之前，让用户先判断“我在哪、现在为什么先做这一步、点哪里继续”。
+  - 原“当前环节 / 承接世界线 / 下一步为什么做”工作区总览降级为“旅程入口 / 世界线档案 / 为什么建议这步”的轻量旅程指针，仍可点击回当前阶段、世界线档案或主动作。
+  - 下方旅程总线、状态预告、世界脉搏、体验轨道、卷宗速览、全局续读、同路由锚点滚动和移动端“展开世界导航”全部保留。
+  - 扩展 `check:app-shell-mobile-layout`，锁定扫读带必须在 dense 导航之前、桌面三列扫读结构、低噪声纸面对比和移动端保功能布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少 `world-workspace-shell__focus-band`、扫读文案和三列结构时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由语境：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改共享壳层组件、AppShell 样式、结构检查脚本和文档；不新增后端 API，不改变路由 hash、阅读进度、作者采纳、沙盘请求字段或任何 artifact。

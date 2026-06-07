@@ -96,9 +96,9 @@
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
     "copy stages"
+    "taskbar taskbar"
     "journey journey"
     "workspace workspace"
-    "taskbar taskbar"
     "mobile-nav mobile-nav"
     "handoffs handoffs"
     "continuity continuity"
@@ -243,16 +243,81 @@
 .shell-context__taskbar {
   grid-area: taskbar;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(170px, 0.55fr) minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
-  padding: 7px 9px;
+  padding: 8px 10px;
   border: 1px solid rgba(141, 50, 37, 0.18);
   border-radius: 8px;
   background:
     linear-gradient(90deg, rgba(141, 50, 37, 0.08), transparent 78%),
     rgba(255, 252, 244, 0.72);
+}
+
+.world-workspace-shell__focus-band {
+  position: relative;
+  background:
+    linear-gradient(90deg, rgba(141, 50, 37, 0.1), transparent 56%),
+    linear-gradient(180deg, rgba(255, 252, 244, 0.9), rgba(250, 246, 236, 0.76));
+  border-color: rgba(141, 50, 37, 0.28);
+  box-shadow: var(--shadow-card);
+}
+
+.world-workspace-shell__focus-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+}
+
+.world-workspace-shell__focus-kicker {
+  grid-column: 1 / -1;
+  color: var(--cinnabar-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.world-workspace-shell__focus-chip {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  border: 1px solid rgba(196, 184, 156, 0.56);
+  border-radius: 6px;
+  background: rgba(255, 252, 244, 0.58);
+  color: inherit;
+  padding: 5px 7px;
+  text-align: left;
+}
+
+.world-workspace-shell__focus-chip:hover {
+  border-color: rgba(141, 50, 37, 0.28);
+  background: rgba(255, 252, 244, 0.86);
+}
+
+.world-workspace-shell__focus-chip:focus-visible {
+  outline: 2px solid rgba(141, 50, 37, 0.42);
+  outline-offset: 2px;
+}
+
+.world-workspace-shell__focus-chip small {
+  color: var(--ink-faint);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.world-workspace-shell__focus-chip strong {
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.18;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .shell-context__taskcopy {
@@ -373,11 +438,11 @@
   align-content: start;
   gap: 3px;
   min-width: 0;
-  min-height: 58px;
-  padding: 7px 9px;
-  border: 1px solid rgba(196, 184, 156, 0.6);
+  min-height: 48px;
+  padding: 6px 8px;
+  border: 1px solid rgba(196, 184, 156, 0.5);
   border-radius: 8px;
-  background: rgba(255, 252, 244, 0.62);
+  background: rgba(255, 252, 244, 0.42);
   color: inherit;
   text-align: left;
 }
@@ -395,10 +460,10 @@
 }
 
 .shell-context__workspace-card--next {
-  border-color: rgba(141, 50, 37, 0.24);
+  border-color: rgba(141, 50, 37, 0.18);
   background:
-    linear-gradient(90deg, rgba(141, 50, 37, 0.08), transparent 82%),
-    rgba(255, 252, 244, 0.7);
+    linear-gradient(90deg, rgba(141, 50, 37, 0.05), transparent 82%),
+    rgba(255, 252, 244, 0.5);
 }
 
 .shell-context__workspace small {
@@ -678,9 +743,9 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "copy"
+      "taskbar"
       "journey"
       "workspace"
-      "taskbar"
       "mobile-nav"
       "handoffs"
       "continuity"
@@ -716,6 +781,7 @@
 
   .shell-context__taskbar {
     width: 100%;
+    grid-template-columns: minmax(160px, 0.45fr) minmax(0, 1fr) auto;
   }
 
   .shell-context__handoffs {
@@ -803,11 +869,16 @@
     padding: 6px 8px;
   }
 
+  .world-workspace-shell__focus-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .shell-context__taskcopy {
     grid-template-columns: 1fr;
     gap: 3px;
   }
 
+  .shell-context__taskcopy small,
   .shell-context__taskcopy strong,
   .shell-context__taskcopy span {
     white-space: normal;
