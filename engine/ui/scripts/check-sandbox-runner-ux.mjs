@@ -12,6 +12,16 @@ const requiredPageMarkers = [
   ['className="sandbox-panel sandbox-runner"', "runner panel should have a dedicated product shell"],
   ["sandbox-runner__steps", "runner should explain event, optional intervention, and launch steps"],
   ["sandbox-runner__advanced", "optional intervention controls should be grouped separately"],
+  ["sandbox-intervention-preview", "runner should preview how an intervention will enter the world"],
+  ["干预后果预演台", "intervention preview should name the consequence rehearsal"],
+  ["投放对象", "intervention preview should explain who will receive the intervention"],
+  ["投放方式", "intervention preview should explain the projection mode"],
+  ["世界会怎样吸收", "intervention preview should explain how the world absorbs the input"],
+  ["后果观察点", "intervention preview should show where users can inspect consequences"],
+  ["角色主观记忆", "intervention preview should route consequences to character memory"],
+  ["世界线代偿", "intervention preview should route consequences to worldline compensation"],
+  ["openInterventionControls", "intervention preview should have a control focus helper"],
+  ["clearInterventionDraft", "intervention preview should let users clear stale intervention drafts"],
   ["启动一轮推演", "primary action should describe the product outcome"],
   ["sandbox-result-bridge", "completed round should open with a result bridge"],
   ["本轮已发生", "result bridge should tell users the round already changed the world"],
@@ -67,7 +77,7 @@ const actionChainIndex = page.indexOf("角色行动链");
 const possibilitiesIndex = page.indexOf("后续剧情可能性");
 const queuePossibilityIndex = page.indexOf("queueNextPossibility");
 const strategyContinuationIndex = page.indexOf("sandbox-strategy-continuation");
-const interventionIndex = page.indexOf("sandbox-intervention");
+const interventionIndex = page.indexOf('className="sandbox-section sandbox-intervention"');
 const autopilotReportIndex = page.indexOf('className="sandbox-section sandbox-autopilot-report"');
 const overnightBriefIndex = page.indexOf("sandbox-overnight-brief");
 const wakeEntryIndex = page.indexOf("<WakeReadingEntry");
@@ -120,6 +130,11 @@ const requiredCssMarkers = [
   [".sandbox-runner__head", "runner header styling is missing"],
   [".sandbox-runner__steps", "runner step track styling is missing"],
   [".sandbox-runner__advanced summary", "optional intervention summary styling is missing"],
+  [".sandbox-intervention-preview", "intervention preview styling is missing"],
+  [".sandbox-intervention-preview__head", "intervention preview header styling is missing"],
+  [".sandbox-intervention-preview__grid", "intervention preview grid styling is missing"],
+  [".sandbox-intervention-preview__map", "intervention preview consequence map styling is missing"],
+  [".sandbox-intervention-preview__actions", "intervention preview action styling is missing"],
   [".sandbox-runner__submit", "runner primary action styling is missing"],
   [".sandbox-hero__control", "hero runner placement styling is missing"],
   [".sandbox-hero .sandbox-runner__field--event textarea", "mobile-first runner textarea override is missing"],
@@ -153,8 +168,19 @@ for (const [marker, message] of requiredCssMarkers) {
 
 const mobileMediaIndex = css.indexOf("@media (max-width: 680px)");
 const mobileActionsIndex = css.indexOf(".sandbox-result-bridge__actions", mobileMediaIndex);
+const mobilePreviewGridIndex = css.indexOf(".sandbox-intervention-preview__grid", mobileMediaIndex);
+const mobilePreviewActionsIndex = css.indexOf(
+  ".sandbox-intervention-preview__actions",
+  mobileMediaIndex,
+);
 if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
   failures.push("result bridge actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobilePreviewGridIndex === -1) {
+  failures.push("intervention preview grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobilePreviewActionsIndex === -1) {
+  failures.push("intervention preview actions should collapse in the mobile media query");
 }
 const tabletMediaIndex = css.indexOf("@media (max-width: 960px)");
 const tabletStrategyIndex = css.indexOf(".sandbox-strategy-board__grid", tabletMediaIndex);

@@ -22,11 +22,13 @@ function openReadableRoute(route: string) {
 export function WorldSandboxPage({ slug }: { slug: string }) {
   const controlRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLElement | null>(null);
+  const interventionTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [majorEvent, setMajorEvent] = useState(DEFAULT_EVENT);
   const [interventionContent, setInterventionContent] = useState("");
   const [interventionTarget, setInterventionTarget] = useState("");
   const [interventionProjectionMode, setInterventionProjectionMode] =
     useState<"immersive" | "wild_au">("immersive");
+  const [interventionDraftOpen, setInterventionDraftOpen] = useState(false);
   const [llmDecisionAdvisory, setLlmDecisionAdvisory] = useState(false);
   const [report, setReport] = useState<WorldSandboxRunReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -49,6 +51,34 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [autopilotReport, setAutopilotReport] = useState<WorldAutopilotReport | null>(null);
 
   const round = report?.rounds[0] ?? null;
+  const hasInterventionDraft = interventionContent.trim().length > 0;
+  const interventionPreview = useMemo(() => {
+    const target = interventionTarget.trim() || "由世界选择最容易被波及的角色";
+    const projection =
+      interventionProjectionMode === "wild_au"
+        ? "暴走 AU：保留异物入侵"
+        : "沉浸模式：本土化重释";
+    const absorption = hasInterventionDraft
+      ? interventionProjectionMode === "wild_au"
+        ? "世界会把它识别成偏离根天命的异物，优先写成分支轴、天命快照和更高因果债。"
+        : "世界会把它翻译成梦兆、密信、谣言或资源变化，再让角色按自己的立场消化。"
+      : "本轮只投放大事件；世界仍会把事件写成角色行动、主观记忆和世界线变化。";
+    return {
+      target,
+      projection,
+      absorption,
+      observations: [
+        ["角色主观记忆", "谁相信、误会或隐瞒了这次投放"],
+        ["世界线代偿", "因果债、锚点压力和资源/秘密怎样转移"],
+        ["多视角正文", "同一事件在不同角色眼中如何变形"],
+      ],
+    };
+  }, [
+    hasInterventionDraft,
+    interventionContent,
+    interventionProjectionMode,
+    interventionTarget,
+  ]);
   const worldlineState = report?.worldline_state ?? null;
   const consequenceDomains = worldlineState?.consequence_state?.domains
     ? Object.entries(worldlineState.consequence_state.domains)
@@ -73,6 +103,18 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     controlRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const focusResults = () =>
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  function openInterventionControls() {
+    setInterventionDraftOpen(true);
+    window.requestAnimationFrame(() => {
+      interventionTextareaRef.current?.focus();
+    });
+  }
+  function clearInterventionDraft() {
+    setInterventionContent("");
+    setInterventionTarget("");
+    setInterventionProjectionMode("immersive");
+    setInterventionDraftOpen(false);
+  }
   const overnightReport = autopilotReport?.overnight_report;
   const overnightMemory =
     overnightReport?.who_remembered_what?.[0] ??
@@ -406,7 +448,11 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       >
         {loading ? "沙盘推演中…" : "启动一轮推演"}
       </button>
-      <details className="sandbox-runner__advanced">
+      <details
+        className="sandbox-runner__advanced"
+        open={interventionDraftOpen}
+        onToggle={(event) => setInterventionDraftOpen(event.currentTarget.open)}
+      >
         <summary>
           <span>可选：投放读者干预</span>
           <small>梦兆、密信、谣言、资源，或一条会被世界吸收的异物。</small>
@@ -414,6 +460,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         <label>
           <span className="muted tiny">本轮干预</span>
           <textarea
+            ref={interventionTextareaRef}
             value={interventionContent}
             onChange={(event) => setInterventionContent(event.target.value)}
             rows={4}
@@ -443,6 +490,58 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           </select>
         </label>
       </details>
+      <section
+        className={`sandbox-intervention-preview ${
+          hasInterventionDraft ? "is-live" : "is-empty"
+        }`}
+        aria-label="干预后果预演台"
+      >
+        <div className="sandbox-intervention-preview__head">
+          <div>
+            <p className="tiny muted">干预后果预演台</p>
+            <h3>{hasInterventionDraft ? "这条干预会进入本轮世界" : "不投干预也能推演"}</h3>
+          </div>
+          <span className="badge">{hasInterventionDraft ? "待投放" : "只运行事件"}</span>
+        </div>
+        <div className="sandbox-intervention-preview__grid">
+          <article>
+            <span>投放对象</span>
+            <strong>{interventionPreview.target}</strong>
+          </article>
+          <article>
+            <span>投放方式</span>
+            <strong>{interventionPreview.projection}</strong>
+          </article>
+          <article>
+            <span>世界会怎样吸收</span>
+            <strong>{interventionPreview.absorption}</strong>
+          </article>
+        </div>
+        <div className="sandbox-intervention-preview__map">
+          <p>
+            <strong>后果观察点</strong>
+            <span>运行后先看这些位置，判断干预有没有真正改变世界。</span>
+          </p>
+          <ul>
+            {interventionPreview.observations.map(([label, detail]) => (
+              <li key={label}>
+                <b>{label}</b>
+                <span>{detail}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="sandbox-intervention-preview__actions">
+          <button className="btn btn--ghost" onClick={openInterventionControls}>
+            {hasInterventionDraft ? "调整干预" : "添加干预"}
+          </button>
+          {hasInterventionDraft && (
+            <button className="btn btn--ghost" onClick={clearInterventionDraft}>
+              清空干预
+            </button>
+          )}
+        </div>
+      </section>
       <label className="sandbox-check sandbox-runner__model">
         <input
           type="checkbox"

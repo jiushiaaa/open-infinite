@@ -3603,3 +3603,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约；整章风格润色和真实模型编辑器仍是后续深化。
+
+### 2026-06-07 — Sandbox Intervention Consequence Preview
+
+- **做了什么**：
+  - `WorldSandboxPage` 在首屏运行台的可选干预之后新增“干预后果预演台”。
+  - 预演台会随读者干预、投放对象和投放方式实时解释投放对象、沉浸/AU 投放方式、世界会怎样吸收，以及运行后应从哪里观察后果。
+  - 后果观察点明确接到角色主观记忆、世界线代偿和多视角正文，让用户在启动推演前就知道“干预不是按钮，而是会被世界消化的变量”。
+  - 预演台提供“添加/调整干预”和“清空干预”动作；无干预时也会说明只运行大事件仍会写入角色行动、主观记忆和世界线变化。
+  - 扩展 `check:sandbox-runner-ux`，锁定预演台语义、控制 helper、清空动作和移动端单列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少干预后果预演台时失败。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 字段，不改 artifact。
