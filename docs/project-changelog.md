@@ -3724,3 +3724,20 @@
   - Chrome UI smoke：`http://localhost:5178/#/world/my-story/worldlines/main/chronicle` 桌面下渲染“世界正史卷”、接力台和阅读区，正史页动作可切到 `#/world/my-story/worldlines/main/anchors`；390px 下“主锚点卷”移动端导读条显示、布局无水平溢出。当前本地样本没有 volume tab，smoke 验证的是空态和页面结构。
 - **边界**：
   - 本轮只改前端路由、页面、壳层上下文、续读 helper、结构检查脚本和文档，不新增后端 API、不改变 `dossier-reading` 响应契约、不改 artifact。
+
+### 2026-06-07 — Longline Cross-Chapter Continuation Map
+
+- **做了什么**：
+  - `LonglineReadingPage` 在“跨章回收台”之后、长线阅读状态区之前新增“跨章承接地图”。
+  - 地图把当前阅读节点、来源事件、误会余波和下一轮去向连成可点击因果链，让用户读长线时知道这段内容怎样继续推动世界。
+  - 地图复用现有 `activeEntry`、`activeEvent`、`primaryMisbelief`、`current_tension`、`open_threads` 和 `next_actions`，不新增后端 API 或 artifact。
+  - “现在读到”可把当前长线节点带回视口；“来源事件”可定位事件索引；“误会余波”回到误会回收路径；“下一轮去向”执行现有下一步动作或送作者台。
+  - 扩展 `check:longline-reading-ux`，锁定地图语义、位置、真实字段引用、桌面稳定网格和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:longline-reading-ux`，确认缺少 `longline-continuation-map` 时失败。
+  - Focused helper：`pnpm.cmd run check:longline-reading-ux` -> `longline reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - In-app Browser smoke：`http://127.0.0.1:5180/#/world/my-story/worldlines/main/longline` 桌面 1366px 下地图渲染 4 个节点、位于阅读状态区之前、使用 5 列稳定网格；点击“现在读到”后当前长线节点进入视口；390px 下地图单列且无水平溢出。
+- **边界**：
+  - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `longline-reading` 响应契约、不改 artifact。

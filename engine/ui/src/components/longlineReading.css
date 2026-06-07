@@ -160,6 +160,90 @@
   width: 100%;
 }
 
+.longline-continuation-map {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid rgba(74, 124, 99, 0.2);
+  background:
+    linear-gradient(135deg, rgba(255, 253, 246, 0.94), rgba(236, 244, 235, 0.7)),
+    rgba(255, 253, 246, 0.9);
+}
+
+.longline-continuation-map__lead,
+.longline-continuation-map__node {
+  min-width: 0;
+}
+
+.longline-continuation-map__lead {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+}
+
+.longline-continuation-map__lead p,
+.longline-continuation-map__lead h2 {
+  margin: 0;
+}
+
+.longline-continuation-map__lead h2 {
+  font-family: var(--font-serif);
+  font-size: 1.12rem;
+  line-height: 1.35;
+}
+
+.longline-continuation-map__lead p:not(.tiny) {
+  color: var(--ink-soft);
+  line-height: 1.65;
+}
+
+.longline-continuation-map__node {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 7px;
+  min-height: 142px;
+  padding: 13px;
+  text-align: left;
+  color: inherit;
+  border: 1px solid rgba(120, 91, 54, 0.14);
+  background: rgba(255, 255, 252, 0.76);
+  cursor: pointer;
+}
+
+.longline-continuation-map__node::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  width: 10px;
+  border-top: 1px solid rgba(74, 124, 99, 0.28);
+}
+
+.longline-continuation-map__node:last-child::after {
+  display: none;
+}
+
+.longline-continuation-map__node:hover,
+.longline-continuation-map__node.is-current {
+  border-color: rgba(74, 124, 99, 0.38);
+  background: rgba(221, 233, 224, 0.5);
+}
+
+.longline-continuation-map__node span,
+.longline-continuation-map__node small {
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.76rem;
+}
+
+.longline-continuation-map__node strong {
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
 .longline-timeline,
 .longline-reader,
 .longline-aside {
@@ -633,6 +717,7 @@
   .longline-layout,
   .longline-briefing,
   .longline-recovery-orchestrator,
+  .longline-continuation-map,
   .longline-aside,
   .longline-thread-grid,
   .longline-recovery__grid,
@@ -648,6 +733,25 @@
 
   .longline-recovery-orchestrator article {
     min-height: 0;
+  }
+
+  .longline-continuation-map {
+    padding: 14px;
+  }
+
+  .longline-continuation-map__node {
+    min-height: 0;
+  }
+
+  .longline-continuation-map__node::after {
+    top: auto;
+    right: auto;
+    bottom: -10px;
+    left: 18px;
+    width: 1px;
+    height: 10px;
+    border-top: 0;
+    border-left: 1px solid rgba(74, 124, 99, 0.28);
   }
 
   .longline-open-threads {

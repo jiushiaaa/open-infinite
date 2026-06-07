@@ -57,6 +57,7 @@ export function LonglineReadingPage({
     report?.misbelief_recovery.items.find((item) => item.status === "unresolved") ||
     report?.misbelief_recovery.items[0];
   const primaryOpenThread = report?.open_threads[0];
+  const nextPrimaryAction = report?.next_actions[0];
 
   function focusEntry(entryId: string) {
     setActiveEntryId(entryId);
@@ -245,6 +246,78 @@ export function LonglineReadingPage({
                 送到作者台
               </button>
             </article>
+          </section>
+
+          <section className="longline-continuation-map" aria-label="跨章承接地图">
+            <div className="longline-continuation-map__lead">
+              <p className="muted tiny">跨章承接地图</p>
+              <h2>世界线怎样继续</h2>
+              <p>
+                把当前阅读节点、来源事件、误会余波和下一轮去向连成一条线，让用户知道这不是孤立片段，而是会继续推动世界的因果链。
+              </p>
+            </div>
+            <button
+              type="button"
+              className="longline-continuation-map__node is-current"
+              onClick={() => scrollToPageItem(".longline-current")}
+            >
+              <span>现在读到</span>
+              <strong>{activeEntry?.title || report.reading_progress.current_title}</strong>
+              <small>
+                {activeEntry
+                  ? `${PHASE_LABELS[activeEntry.phase] || activeEntry.label} · ${activeEntry.evidence_refs.length} 条证据`
+                  : report.reading_progress.summary}
+              </small>
+            </button>
+            <button
+              type="button"
+              className="longline-continuation-map__node"
+              onClick={() =>
+                activeEvent?.entry_ids[0]
+                  ? focusEntry(activeEvent.entry_ids[0])
+                  : scrollToPageItem(".longline-event-index")
+              }
+            >
+              <span>来源事件</span>
+              <strong>{activeEvent?.title || "等待事件索引"}</strong>
+              <small>
+                {activeEvent
+                  ? `${activeEvent.unresolved_count} 条未解线 · ${activeEvent.evidence_count} 条证据`
+                  : "按事件追踪这段长线来自哪里。"}
+              </small>
+            </button>
+            <button
+              type="button"
+              className="longline-continuation-map__node"
+              onClick={() =>
+                primaryMisbelief
+                  ? openRoute(primaryMisbelief.next_route)
+                  : scrollToPageItem(".longline-recovery")
+              }
+            >
+              <span>误会余波</span>
+              <strong>{primaryMisbelief?.misunderstanding || "暂无待回收误会"}</strong>
+              <small>
+                {primaryMisbelief?.affected_characters.slice(0, 3).join("、") ||
+                  report.current_tension.primary_misbelief ||
+                  "世界会沿事件后果继续发酵。"}
+              </small>
+            </button>
+            <button
+              type="button"
+              className="longline-continuation-map__node"
+              onClick={() =>
+                nextPrimaryAction ? openRoute(nextPrimaryAction.route) : navigate({ name: "author", slug })
+              }
+            >
+              <span>下一轮去向</span>
+              <strong>{nextPrimaryAction?.label || "送到作者台"}</strong>
+              <small>
+                {nextPrimaryAction?.reason ||
+                  report.current_tension.next_chapter_hook ||
+                  "把长线材料送进下一章。"}
+              </small>
+            </button>
           </section>
 
           <section className="longline-briefing" aria-label="长线阅读状态">
