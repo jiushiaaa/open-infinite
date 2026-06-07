@@ -3653,3 +3653,20 @@
   - 浏览器 UI 流程：在 `http://localhost:5178/#/world/my-story/author` 执行“写入采纳台 -> 生成下一章草稿”，`.adoption-polish-radar` 渲染 4 张质感信号卡，并显示 Reviewer、采纳改写、正文编辑和确认入卷动作。
 - **边界**：
   - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约；真实整章模型润色仍是后续深化。
+
+### 2026-06-07 — Sandbox Event Entry Preview
+
+- **做了什么**：
+  - `WorldSandboxPage` 在首屏运行台的大事件输入之后、可选干预之前新增“事件入局预演台”。
+  - 预演台用“谁会先动 / 世界怎样记账 / 干预怎样入局 / 跑完先看哪里”四枚信号解释当前大事件如何进入角色行动、主观记忆、因果债和世界线状态。
+  - 预演台会随 `majorEvent.trim()`、是否存在读者干预和投放方式变化；无干预时说明角色会按事件、旧记忆和利益行动，有干预时说明干预会如何贴着事件进入角色判断。
+  - 新增“修改事件”和“让读者干预入局 / 调整干预”动作，分别聚焦大事件输入和干预输入；原有启动推演、可选干预、清空干预、真实模型 advisory、结果承接、策略棋盘、自演结果和阅读出口全部保留。
+  - 扩展 `check:sandbox-runner-ux`，锁定事件入局预演台语义、位置、真实状态引用和移动端单列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少事件入局预演台时失败。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome UI smoke：`http://localhost:5178/#/world/my-story/sandbox` 桌面下预演台渲染 4 张信号卡；两个动作分别聚焦干预输入和事件输入；390px 下无水平溢出，4 张信号卡单列。
+- **边界**：
+  - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 字段，不改 artifact。

@@ -22,6 +22,7 @@ function openReadableRoute(route: string) {
 export function WorldSandboxPage({ slug }: { slug: string }) {
   const controlRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLElement | null>(null);
+  const eventTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const interventionTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [majorEvent, setMajorEvent] = useState(DEFAULT_EVENT);
   const [interventionContent, setInterventionContent] = useState("");
@@ -52,6 +53,35 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
 
   const round = report?.rounds[0] ?? null;
   const hasInterventionDraft = interventionContent.trim().length > 0;
+  const eventPreview = useMemo(() => {
+    const eventDraft = majorEvent.trim();
+    const eventName = eventDraft || "先写一个会打破平衡的大事件";
+    const interventionLine = hasInterventionDraft
+      ? interventionProjectionMode === "wild_au"
+        ? "读者干预会作为异物压进本轮，角色可能抵抗，世界会优先写分支轴和因果债。"
+        : "读者干预会被转译成梦兆、密信或资源变化，贴着这个事件进入角色判断。"
+      : "本轮暂不带读者干预；角色会先按事件本身、旧记忆和利益关系行动。";
+    return [
+      {
+        label: "谁会先动",
+        value: eventDraft
+          ? "靠近事件中心、利益受损或背负秘密的角色会先被推到台前。"
+          : "写下事件后，沙盘会把相关角色推到台前。",
+      },
+      {
+        label: "世界怎样记账",
+        value: `${eventName} 会写入角色行动、主观记忆、因果债和世界线状态。`,
+      },
+      {
+        label: "干预怎样入局",
+        value: interventionLine,
+      },
+      {
+        label: "跑完先看哪里",
+        value: "先看本轮已发生，再读卷宗正文、世界线代偿和角色个人记忆。",
+      },
+    ];
+  }, [hasInterventionDraft, interventionProjectionMode, majorEvent]);
   const interventionPreview = useMemo(() => {
     const target = interventionTarget.trim() || "由世界选择最容易被波及的角色";
     const projection =
@@ -108,6 +138,9 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     window.requestAnimationFrame(() => {
       interventionTextareaRef.current?.focus();
     });
+  }
+  function focusEventDraft() {
+    eventTextareaRef.current?.focus();
   }
   function clearInterventionDraft() {
     setInterventionContent("");
@@ -435,12 +468,38 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       <label className="sandbox-runner__field sandbox-runner__field--event">
         <span>世界刚刚发生了什么</span>
         <textarea
+          ref={eventTextareaRef}
           value={majorEvent}
           onChange={(event) => setMajorEvent(event.target.value)}
           rows={5}
           placeholder="例如：老皇帝驾崩，边境军报同时传入归云斋。"
         />
       </label>
+      <section className="sandbox-event-preview" aria-label="事件入局预演台">
+        <div className="sandbox-event-preview__head">
+          <div>
+            <p className="tiny muted">事件入局预演台</p>
+            <h3>{majorEvent.trim() ? "这件事会把世界推入下一轮" : "先放入一个能搅动世界的事件"}</h3>
+          </div>
+          <span className="badge">{hasInterventionDraft ? "带干预" : "纯事件"}</span>
+        </div>
+        <div className="sandbox-event-preview__grid">
+          {eventPreview.map((item) => (
+            <article key={item.label}>
+              <span>{item.label}</span>
+              <strong>{item.value}</strong>
+            </article>
+          ))}
+        </div>
+        <div className="sandbox-event-preview__actions">
+          <button className="btn btn--ghost" onClick={focusEventDraft}>
+            修改事件
+          </button>
+          <button className="btn btn--ghost" onClick={openInterventionControls}>
+            {hasInterventionDraft ? "调整干预" : "让读者干预入局"}
+          </button>
+        </div>
+      </section>
       <button
         className="btn btn--primary sandbox-runner__submit"
         disabled={!canRun}

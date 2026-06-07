@@ -12,6 +12,14 @@ const requiredPageMarkers = [
   ['className="sandbox-panel sandbox-runner"', "runner panel should have a dedicated product shell"],
   ["sandbox-runner__steps", "runner should explain event, optional intervention, and launch steps"],
   ["sandbox-runner__advanced", "optional intervention controls should be grouped separately"],
+  ["sandbox-event-preview", "runner should preview how the major event enters the world"],
+  ["事件入局预演台", "event preview should name the event entry rehearsal"],
+  ["谁会先动", "event preview should explain which actors may move first"],
+  ["世界怎样记账", "event preview should explain how the world will record consequences"],
+  ["干预怎样入局", "event preview should connect optional intervention to the event"],
+  ["跑完先看哪里", "event preview should tell users where to inspect the result"],
+  ["majorEvent.trim()", "event preview should derive from the current event draft"],
+  ["hasInterventionDraft", "event preview should react to whether an intervention is present"],
   ["sandbox-intervention-preview", "runner should preview how an intervention will enter the world"],
   ["干预后果预演台", "intervention preview should name the consequence rehearsal"],
   ["投放对象", "intervention preview should explain who will receive the intervention"],
@@ -72,6 +80,9 @@ if (runnerIndex === -1 || runwayIndex === -1 || runnerIndex > runwayIndex) {
 }
 
 const resultBridgeIndex = page.indexOf("sandbox-result-bridge");
+const eventPreviewIndex = page.indexOf("sandbox-event-preview");
+const eventFieldIndex = page.indexOf("sandbox-runner__field--event");
+const advancedInterventionIndex = page.indexOf("sandbox-runner__advanced");
 const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
 const actionChainIndex = page.indexOf("角色行动链");
 const possibilitiesIndex = page.indexOf("后续剧情可能性");
@@ -82,6 +93,17 @@ const autopilotReportIndex = page.indexOf('className="sandbox-section sandbox-au
 const overnightBriefIndex = page.indexOf("sandbox-overnight-brief");
 const wakeEntryIndex = page.indexOf("<WakeReadingEntry");
 const autopilotTimelineIndex = page.indexOf("sandbox-timeline");
+if (
+  eventFieldIndex === -1 ||
+  eventPreviewIndex === -1 ||
+  advancedInterventionIndex === -1 ||
+  eventPreviewIndex < eventFieldIndex ||
+  eventPreviewIndex > advancedInterventionIndex
+) {
+  failures.push(
+    "event preview should sit between the major event input and optional intervention controls",
+  );
+}
 if (resultBridgeIndex === -1 || actionChainIndex === -1 || resultBridgeIndex > actionChainIndex) {
   failures.push("completed round result bridge should appear before detailed action chains");
 }
@@ -130,6 +152,10 @@ const requiredCssMarkers = [
   [".sandbox-runner__head", "runner header styling is missing"],
   [".sandbox-runner__steps", "runner step track styling is missing"],
   [".sandbox-runner__advanced summary", "optional intervention summary styling is missing"],
+  [".sandbox-event-preview", "event preview styling is missing"],
+  [".sandbox-event-preview__head", "event preview header styling is missing"],
+  [".sandbox-event-preview__grid", "event preview grid styling is missing"],
+  [".sandbox-event-preview__actions", "event preview action styling is missing"],
   [".sandbox-intervention-preview", "intervention preview styling is missing"],
   [".sandbox-intervention-preview__head", "intervention preview header styling is missing"],
   [".sandbox-intervention-preview__grid", "intervention preview grid styling is missing"],
@@ -168,6 +194,8 @@ for (const [marker, message] of requiredCssMarkers) {
 
 const mobileMediaIndex = css.indexOf("@media (max-width: 680px)");
 const mobileActionsIndex = css.indexOf(".sandbox-result-bridge__actions", mobileMediaIndex);
+const mobileEventGridIndex = css.indexOf(".sandbox-event-preview__grid", mobileMediaIndex);
+const mobileEventActionsIndex = css.indexOf(".sandbox-event-preview__actions", mobileMediaIndex);
 const mobilePreviewGridIndex = css.indexOf(".sandbox-intervention-preview__grid", mobileMediaIndex);
 const mobilePreviewActionsIndex = css.indexOf(
   ".sandbox-intervention-preview__actions",
@@ -175,6 +203,12 @@ const mobilePreviewActionsIndex = css.indexOf(
 );
 if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
   failures.push("result bridge actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileEventGridIndex === -1) {
+  failures.push("event preview grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileEventActionsIndex === -1) {
+  failures.push("event preview actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobilePreviewGridIndex === -1) {
   failures.push("intervention preview grid should collapse in the mobile media query");
