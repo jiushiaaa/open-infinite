@@ -908,31 +908,65 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
           {error && <ErrorState message={error} onRetry={runRound} />}
           {autopilotError && <ErrorState message={autopilotError} onRetry={runAutopilot} />}
           {!error && !round && !autopilotReport && (
-            <section className="sandbox-section sandbox-journey">
+            <section className="sandbox-section sandbox-preflight-map" aria-label="开跑前路标">
               <div className="sandbox-section__title">
-                <h2>这一页的世界回路</h2>
-                <span className="badge badge--jade">从事件到正文</span>
+                <div>
+                  <p className="tiny muted">开跑前路标</p>
+                  <h2>先让这一轮有事可跑</h2>
+                </div>
+                <span className="badge badge--jade">未运行</span>
               </div>
-              <div className="sandbox-journey__grid">
+              <p className="sandbox-preflight-map__intro">
+                这不是普通表单。先放入一个会打破平衡的事件，再决定读者是否入局；跑完后优先看“本轮已发生”，再去卷宗和世界线追后果。
+              </p>
+              <div className="sandbox-preflight-map__grid">
                 <article>
-                  <strong>先让角色行动</strong>
-                  <p className="muted tiny">大事件会变成意图、行动、冲突和记忆写入。</p>
+                  <span>第一步</span>
+                  <strong>写一个能打破平衡的大事件</strong>
+                  <p className="muted tiny">
+                    当前草稿会被写成角色行动、主观记忆、因果债和世界线状态。
+                  </p>
+                  <div className="sandbox-preflight-map__actions">
+                    <button className="btn btn--ghost tiny" onClick={focusEventDraft}>
+                      去写事件
+                    </button>
+                  </div>
                 </article>
                 <article>
-                  <strong>再看世界承接</strong>
-                  <p className="muted tiny">因果债、锚点压力和检查点会进入世界线。</p>
+                  <span>可选</span>
+                  <strong>决定读者要不要入局</strong>
+                  <p className="muted tiny">
+                    不投干预也能运行；投放后世界会解释它怎样被吸收、抵抗或转译。
+                  </p>
+                  <div className="sandbox-preflight-map__actions">
+                    <button className="btn btn--ghost tiny" onClick={openInterventionControls}>
+                      {hasInterventionDraft ? "调整干预" : "添加干预"}
+                    </button>
+                  </div>
                 </article>
                 <article>
-                  <strong>最后回到阅读</strong>
-                  <p className="muted tiny">生成多视角卷或进入卷宗阅读，把结果当小说读。</p>
-                  <button
-                    className="btn btn--ghost tiny"
-                    onClick={() =>
-                      navigate({ name: "dossierReading", slug, worldlineId: "main" })
-                    }
-                  >
-                    打开卷宗阅读
-                  </button>
+                  <span>出口</span>
+                  <strong>跑完先看本轮已发生</strong>
+                  <p className="muted tiny">
+                    结果会先汇总行动、记忆和世界变化，再接到卷宗阅读与世界线代偿。
+                  </p>
+                  <div className="sandbox-preflight-map__actions">
+                    <button
+                      className="btn btn--primary tiny"
+                      disabled={!canRun}
+                      onClick={runRound}
+                    >
+                      从这里启动推演
+                    </button>
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() =>
+                        navigate({ name: "dossierReading", slug, worldlineId: "main" })
+                      }
+                    >
+                      先看卷宗
+                    </button>
+                  </div>
                 </article>
               </div>
             </section>

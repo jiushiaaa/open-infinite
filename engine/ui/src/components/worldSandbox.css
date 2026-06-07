@@ -832,20 +832,35 @@
   background: rgba(255, 252, 244, 0.64);
 }
 
-.sandbox-journey {
-  border-color: rgba(72, 114, 92, 0.25);
+.sandbox-preflight-map {
+  border-color: rgba(72, 114, 92, 0.3);
   background:
     linear-gradient(90deg, rgba(221, 233, 224, 0.36), transparent 44%),
     var(--paper-raised);
 }
 
-.sandbox-journey__grid {
+.sandbox-preflight-map .sandbox-section__title > div {
+  min-width: 0;
+}
+
+.sandbox-preflight-map .sandbox-section__title p {
+  margin: 0 0 3px;
+}
+
+.sandbox-preflight-map__intro {
+  margin: 0 0 var(--space-3);
+  max-width: 760px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.sandbox-preflight-map__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
-.sandbox-journey__grid article {
+.sandbox-preflight-map__grid article {
   display: grid;
   align-content: start;
   gap: var(--space-2);
@@ -853,12 +868,37 @@
   padding: var(--space-3);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 252, 244, 0.66);
+  background: rgba(255, 252, 244, 0.76);
 }
 
-.sandbox-journey__grid p {
+.sandbox-preflight-map__grid span {
+  color: var(--cinnabar-dark);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.sandbox-preflight-map__grid strong {
+  color: var(--ink);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-preflight-map__grid p {
   margin: 0;
   line-height: 1.65;
+}
+
+.sandbox-preflight-map__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-self: end;
+  margin-top: var(--space-1);
+}
+
+.sandbox-preflight-map__actions .btn {
+  min-width: 104px;
 }
 
 .sandbox-result-bridge {
@@ -1547,12 +1587,9 @@
     grid-template-columns: 1fr;
   }
 
-  .sandbox-journey__grid {
-    grid-template-columns: 1fr;
-  }
-
   .sandbox-result-bridge,
   .sandbox-result-bridge__signals,
+  .sandbox-preflight-map__grid,
   .sandbox-event-seeds__grid,
   .sandbox-event-preview__grid,
   .sandbox-intervention-preview__grid {
@@ -1666,6 +1703,8 @@
 
   .sandbox-result-bridge__stats,
   .sandbox-result-bridge__actions,
+  .sandbox-preflight-map__grid,
+  .sandbox-preflight-map__actions,
   .sandbox-event-seeds__grid,
   .sandbox-event-seeds__actions,
   .sandbox-event-preview__grid,
@@ -1675,6 +1714,7 @@
     grid-template-columns: 1fr;
   }
 
+  .sandbox-preflight-map__actions,
   .sandbox-event-seeds__head,
   .sandbox-event-seeds__actions,
   .sandbox-event-preview__head,
@@ -1690,6 +1730,7 @@
     gap: 2px;
   }
 
+  .sandbox-preflight-map__actions .btn,
   .sandbox-event-seeds__actions .btn,
   .sandbox-event-preview__actions .btn,
   .sandbox-intervention-preview__actions .btn {

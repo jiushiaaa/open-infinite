@@ -43,6 +43,12 @@ const requiredPageMarkers = [
   ["openInterventionControls", "intervention preview should have a control focus helper"],
   ["clearInterventionDraft", "intervention preview should let users clear stale intervention drafts"],
   ["启动一轮推演", "primary action should describe the product outcome"],
+  ["sandbox-preflight-map", "empty sandbox should expose a pre-run product map"],
+  ["开跑前路标", "pre-run product map should name the next-start guide"],
+  ["去写事件", "pre-run product map should let users jump to the event draft"],
+  ["添加干预", "pre-run product map should let users open optional intervention"],
+  ["跑完先看本轮已发生", "pre-run product map should explain the first result destination"],
+  ["从这里启动推演", "pre-run product map should let users start the round in place"],
   ["sandbox-result-bridge", "completed round should open with a result bridge"],
   ["本轮已发生", "result bridge should tell users the round already changed the world"],
   ["读成正文", "result bridge should route the user to readable output"],
@@ -190,6 +196,10 @@ const requiredCssMarkers = [
   [".sandbox-intervention-preview__map", "intervention preview consequence map styling is missing"],
   [".sandbox-intervention-preview__actions", "intervention preview action styling is missing"],
   [".sandbox-runner__submit", "runner primary action styling is missing"],
+  [".sandbox-preflight-map", "pre-run product map styling is missing"],
+  [".sandbox-preflight-map__intro", "pre-run product map intro styling is missing"],
+  [".sandbox-preflight-map__grid", "pre-run product map grid styling is missing"],
+  [".sandbox-preflight-map__actions", "pre-run product map action styling is missing"],
   [".sandbox-hero__control", "hero runner placement styling is missing"],
   [".sandbox-hero .sandbox-runner__field--event textarea", "mobile-first runner textarea override is missing"],
   [".sandbox-result-bridge", "result bridge styling is missing"],
@@ -222,6 +232,11 @@ for (const [marker, message] of requiredCssMarkers) {
 
 const mobileMediaIndex = css.indexOf("@media (max-width: 680px)");
 const mobileActionsIndex = css.indexOf(".sandbox-result-bridge__actions", mobileMediaIndex);
+const mobilePreflightGridIndex = css.indexOf(".sandbox-preflight-map__grid", mobileMediaIndex);
+const mobilePreflightActionsIndex = css.indexOf(
+  ".sandbox-preflight-map__actions",
+  mobileMediaIndex,
+);
 const mobileSeedGridIndex = css.indexOf(".sandbox-event-seeds__grid", mobileMediaIndex);
 const mobileSeedActionsIndex = css.indexOf(".sandbox-event-seeds__actions", mobileMediaIndex);
 const mobileEventGridIndex = css.indexOf(".sandbox-event-preview__grid", mobileMediaIndex);
@@ -233,6 +248,12 @@ const mobilePreviewActionsIndex = css.indexOf(
 );
 if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
   failures.push("result bridge actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobilePreflightGridIndex === -1) {
+  failures.push("pre-run product map grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobilePreflightActionsIndex === -1) {
+  failures.push("pre-run product map actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobileSeedGridIndex === -1) {
   failures.push("event seed grid should collapse in the mobile media query");

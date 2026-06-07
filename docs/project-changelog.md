@@ -4366,3 +4366,23 @@
 - **边界**：
   - 本轮只改共享壳层标题语义、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Preflight Map
+
+- **做了什么**：
+  - `WorldSandboxPage` 的未运行空态从旧“这一页的世界回路”升级为“开跑前路标”。
+  - 用户在还没有沙盘结果或自演报告时，可以直接“去写事件”聚焦大事件输入、“添加/调整干预”打开可选干预，并在空态里看到“跑完先看本轮已发生”的结果路径。
+  - 空态内新增“从这里启动推演”主动作和“先看卷宗”次动作，让第一轮不再只是说明文字，而是能直接开跑或进入阅读。
+  - 扩展 `check:sandbox-runner-ux`，锁定 preflight map 的中文路标、控制动作、样式结构和移动端单列折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认旧空态缺少开跑前路标时失败，错误包括 `empty sandbox should expose a pre-run product map`、`pre-run product map should name the next-start guide`、`pre-run product map should let users jump to the event draft`、`pre-run product map should explain the first result destination` 和移动端折叠缺失。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.95 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页空态导引、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
