@@ -982,6 +982,64 @@
   line-height: 1.7;
 }
 
+.sandbox-round-origin {
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid rgba(152, 41, 40, 0.18);
+  border-radius: 8px;
+  padding: var(--space-3);
+  background:
+    linear-gradient(135deg, rgba(152, 41, 40, 0.08), transparent 44%),
+    rgba(255, 252, 244, 0.72);
+}
+
+.sandbox-round-origin p,
+.sandbox-round-origin h3 {
+  margin: 0;
+}
+
+.sandbox-round-origin h3 {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-round-origin__meta {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.sandbox-round-origin__meta div {
+  border-top: 1px dashed rgba(152, 41, 40, 0.18);
+  padding-top: var(--space-2);
+}
+
+.sandbox-round-origin__meta dt {
+  color: var(--cinnabar);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sandbox-round-origin__meta dd {
+  margin: 3px 0 0;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-round-origin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.sandbox-round-origin__actions .btn {
+  min-width: 112px;
+}
+
 .sandbox-result-bridge__stats,
 .sandbox-result-bridge__signals {
   display: grid;
@@ -2035,6 +2093,7 @@
 
   .sandbox-result-bridge__stats,
   .sandbox-result-bridge__actions,
+  .sandbox-round-origin__actions,
   .sandbox-preflight-map__grid,
   .sandbox-preflight-map__actions,
   .sandbox-result-reading-guide__grid,
@@ -2054,6 +2113,7 @@
   }
 
   .sandbox-preflight-map__actions,
+  .sandbox-round-origin__actions,
   .sandbox-result-reading-guide__actions,
   .sandbox-action-focus-card__actions,
   .sandbox-action-trail-card__actions,
@@ -2074,6 +2134,7 @@
   }
 
   .sandbox-preflight-map__actions .btn,
+  .sandbox-round-origin__actions .btn,
   .sandbox-result-reading-guide__actions .btn,
   .sandbox-action-focus-card__actions .btn,
   .sandbox-action-trail-card__actions .btn,

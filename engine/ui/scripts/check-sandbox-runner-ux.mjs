@@ -63,6 +63,13 @@ const requiredPageMarkers = [
   ["从这里启动推演", "pre-run product map should let users start the round in place"],
   ["sandbox-result-bridge", "completed round should open with a result bridge"],
   ["本轮已发生", "result bridge should tell users the round already changed the world"],
+  ["sandbox-round-origin", "result bridge should keep the launch source visible after running"],
+  ["本轮承接来源", "round origin should name the source of this run"],
+  ["lastRoundLaunchReceipt", "round origin should persist the launch receipt after queued state clears"],
+  ["queuedRoundDraft ?", "round origin should capture queued continuation metadata before launch"],
+  ["手写事件", "round origin should handle a manually typed event"],
+  ["干预边界", "round origin should explain whether intervention was included"],
+  ["读结果顺序", "round origin should route users to the result reading guide"],
   ["读成正文", "result bridge should route the user to readable output"],
   ["看世界线", "result bridge should route the user to worldline consequences"],
   ["生成多视角", "result bridge should route the user to multi-perspective reading"],
@@ -141,6 +148,8 @@ if (runnerIndex === -1 || runwayIndex === -1 || runnerIndex > runwayIndex) {
 }
 
 const resultBridgeIndex = page.indexOf("sandbox-result-bridge");
+const roundOriginIndex = page.indexOf("sandbox-round-origin");
+const resultBridgeStatsIndex = page.indexOf("sandbox-result-bridge__stats");
 const runnerStepsIndex = page.indexOf("sandbox-runner__steps");
 const eventSeedsIndex = page.indexOf("sandbox-event-seeds");
 const eventPreviewIndex = page.indexOf("sandbox-event-preview");
@@ -191,6 +200,15 @@ if (
 }
 if (resultBridgeIndex === -1 || actionChainIndex === -1 || resultBridgeIndex > actionChainIndex) {
   failures.push("completed round result bridge should appear before detailed action chains");
+}
+if (
+  resultBridgeIndex === -1 ||
+  roundOriginIndex === -1 ||
+  resultBridgeStatsIndex === -1 ||
+  roundOriginIndex < resultBridgeIndex ||
+  roundOriginIndex > resultBridgeStatsIndex
+) {
+  failures.push("round origin should sit inside the result bridge before result stats");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -289,6 +307,9 @@ const requiredCssMarkers = [
   [".sandbox-hero__control", "hero runner placement styling is missing"],
   [".sandbox-hero .sandbox-runner__field--event textarea", "mobile-first runner textarea override is missing"],
   [".sandbox-result-bridge", "result bridge styling is missing"],
+  [".sandbox-round-origin", "round origin styling is missing"],
+  [".sandbox-round-origin__meta", "round origin metadata styling is missing"],
+  [".sandbox-round-origin__actions", "round origin action styling is missing"],
   [".sandbox-result-bridge__signals", "result bridge signal styling is missing"],
   [".sandbox-result-bridge__actions", "result bridge action styling is missing"],
   [".sandbox-result-bridge__actions .btn", "result bridge action buttons should have stable sizing"],
@@ -332,6 +353,10 @@ for (const [marker, message] of requiredCssMarkers) {
 
 const mobileMediaIndex = css.indexOf("@media (max-width: 680px)");
 const mobileActionsIndex = css.indexOf(".sandbox-result-bridge__actions", mobileMediaIndex);
+const mobileRoundOriginActionsIndex = css.indexOf(
+  ".sandbox-round-origin__actions",
+  mobileMediaIndex,
+);
 const mobileReadingGuideGridIndex = css.indexOf(
   ".sandbox-result-reading-guide__grid",
   mobileMediaIndex,
@@ -370,6 +395,9 @@ const mobilePreviewActionsIndex = css.indexOf(
 );
 if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
   failures.push("result bridge actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileRoundOriginActionsIndex === -1) {
+  failures.push("round origin actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobileReadingGuideGridIndex === -1) {
   failures.push("result reading guide grid should collapse in the mobile media query");

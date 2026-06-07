@@ -22,6 +22,7 @@ function openReadableRoute(route: string) {
 export function WorldSandboxPage({ slug }: { slug: string }) {
   const controlRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLElement | null>(null);
+  const resultReadingGuideRef = useRef<HTMLElement | null>(null);
   const strategyBoardRef = useRef<HTMLElement | null>(null);
   const actionChainRef = useRef<HTMLElement | null>(null);
   const eventTextareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -42,6 +43,12 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [queuedActionFocusTitle, setQueuedActionFocusTitle] = useState("");
   const [queuedActionTrailTitle, setQueuedActionTrailTitle] = useState("");
   const [queuedEventSeedTitle, setQueuedEventSeedTitle] = useState("");
+  const [lastRoundLaunchReceipt, setLastRoundLaunchReceipt] = useState<{
+    source: string;
+    title: string;
+    event: string;
+    interventionNote: string;
+  } | null>(null);
   const [memoryReport, setMemoryReport] = useState<SubjectiveMemoryReport | null>(null);
   const [memoryLoading, setMemoryLoading] = useState(false);
   const [memoryError, setMemoryError] = useState<string | null>(null);
@@ -138,6 +145,8 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     controlRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const focusResults = () =>
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const focusResultReadingGuide = () =>
+    resultReadingGuideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const focusStrategyBoard = () =>
     (strategyBoardRef.current ?? actionChainRef.current)?.scrollIntoView({
       behavior: "smooth",
@@ -534,6 +543,24 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
 
   async function runRound() {
     if (!majorEvent.trim()) return;
+    const launchRoundReceipt = queuedRoundDraft ? {
+          source: queuedRoundDraft.source,
+          title: queuedRoundDraft.title,
+          event: majorEvent.trim(),
+          interventionNote: queuedRoundDraft.interventionNote,
+        }
+      : {
+          source: "手写事件",
+          title: "手写事件",
+          event: majorEvent.trim(),
+          interventionNote: hasInterventionDraft
+            ? `带读者干预，投放方式为${
+                interventionProjectionMode === "wild_au"
+                  ? "暴走 AU"
+                  : "沉浸模式"
+              }。`
+            : "未带读者干预，本轮只按事件、角色旧记忆和利益关系运行。",
+        };
     setLoading(true);
     setError(null);
     setQueuedPossibilityTitle("");
@@ -553,6 +580,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         llm_decision_mode: llmDecisionAdvisory ? "advisory" : "deterministic",
       });
       setReport(next);
+      setLastRoundLaunchReceipt(launchRoundReceipt);
       const firstCharacter = next.rounds[0]?.character_actions[0]?.character_id;
       if (firstCharacter) {
         setSelectedCharacterId(firstCharacter);
@@ -1453,6 +1481,36 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                       "本轮事件已经进入世界状态，等待继续承接。"}
                   </p>
                 </div>
+                {lastRoundLaunchReceipt && (
+                  <section className="sandbox-round-origin" aria-label="本轮承接来源">
+                    <div>
+                      <p className="tiny muted">本轮承接来源</p>
+                      <h3>{lastRoundLaunchReceipt.title}</h3>
+                    </div>
+                    <dl className="sandbox-round-origin__meta">
+                      <div>
+                        <dt>来源</dt>
+                        <dd>{lastRoundLaunchReceipt.source}</dd>
+                      </div>
+                      <div>
+                        <dt>事件</dt>
+                        <dd>{lastRoundLaunchReceipt.event}</dd>
+                      </div>
+                      <div>
+                        <dt>干预边界</dt>
+                        <dd>{lastRoundLaunchReceipt.interventionNote}</dd>
+                      </div>
+                    </dl>
+                    <div className="sandbox-round-origin__actions">
+                      <button className="btn btn--ghost tiny" onClick={focusControl}>
+                        回到运行台
+                      </button>
+                      <button className="btn btn--ghost tiny" onClick={focusResultReadingGuide}>
+                        读结果顺序
+                      </button>
+                    </div>
+                  </section>
+                )}
                 <dl className="sandbox-result-bridge__stats">
                   {resultBridgeStats.map(([label, value]) => (
                     <div key={label}>
@@ -1515,6 +1573,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                 </div>
               </section>
               <section
+                ref={resultReadingGuideRef}
                 className="sandbox-section sandbox-result-reading-guide"
                 aria-label="结果阅读顺序"
               >
