@@ -3775,3 +3775,20 @@
   - In-app Browser smoke：`http://localhost:5173/#/world/demo/author` 可打开作者采纳台，首屏工作流中枢可见且无前端白屏或告警；当前后端未运行，因此草稿态可视化由 focused helper 和构建覆盖。
 - **边界**：
   - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约。
+
+### 2026-06-07 — Character Memory Arc
+
+- **做了什么**：
+  - `CharacterVolumePage` 在“记忆接力台”和长阅读布局之间新增“角色记忆弧线”。
+  - 记忆弧线取最近四段主观记忆，把来源事件、上一段主观记忆、新信念、信任变化、异常感和下一次预期整理成连续卡片。
+  - 用户读角色卷时能从“最新记忆”继续看见角色信念怎样逐步变化，并可直接看完整记忆链或回沙盘验证。
+  - 扩展 `check:character-volume-ux`，锁定记忆弧线位置、真实字段引用、桌面四列和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:character-volume-ux`，确认缺少 `memoryArcSignals` 时失败。
+  - Focused helper：`pnpm.cmd run check:character-volume-ux` -> `character volume ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Repo：`git diff --check` 通过；仅有 Windows CRLF 提示。
+  - In-app Browser smoke：`http://localhost:5181/#/world/v090-alpha-proof/worldlines/branch_a/characters/han_wu_gui` 可打开角色卷，桌面空态、记忆接力台和移动端导读条正常，无控制台 error；390px 下无水平溢出。当前后端样本没有主观记忆，记忆弧线按预期不渲染，完整数据态由 focused helper 和构建覆盖。
+- **边界**：
+  - 本轮只改前端角色卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `dossier-reading` / `subjective-memory` 响应契约，不改 artifact。

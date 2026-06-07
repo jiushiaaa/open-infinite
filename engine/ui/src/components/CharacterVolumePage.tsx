@@ -81,6 +81,21 @@ export function CharacterVolumePage({
       .reverse()
       .flatMap((entry) => entry.misbeliefs ?? [])[0] ?? null;
   const memoryStats = summarizeMemory(memory);
+  const memoryArcSignals = (memory?.entries.slice(-4) ?? []).map((entry, index, entries) => ({
+    key: `${entry.source_run_id}-${entry.source_round_index}-${index}`,
+    roundLabel: `第 ${entry.source_round_index} 轮`,
+    event: entry.source_major_event,
+    previousBelief: entry.previous_subjective_memory || "上一段主观记忆尚未成形。",
+    newBelief: entry.new_belief || "等待这段记忆形成新的判断。",
+    trustDelta: entry.trust_delta || entry.trust_shift || "信任暂无明显变化。",
+    anomalyDelta: entry.anomaly_delta || entry.emotional_impact || "异常感暂未升高。",
+    expectedOutcome:
+      entry.expected_outcome ||
+      entry.memory_influence ||
+      entry.action_outcome?.reason ||
+      "下一轮行动仍待沙盘验证。",
+    isLatest: index === entries.length - 1,
+  }));
   const hasVolume = Boolean(activeTab?.body_md);
   const scrollToCharacterItem = (selector: string) => {
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -247,6 +262,57 @@ export function CharacterVolumePage({
               </button>
             </article>
           </section>
+
+          {memoryArcSignals.length > 0 && (
+            <section className="character-memory-arc" aria-label="角色记忆弧线">
+              <div className="character-memory-arc__head">
+                <div>
+                  <p className="muted tiny">角色记忆弧线</p>
+                  <h2>这些记忆正在改写他的下一次选择</h2>
+                </div>
+                <span className="badge badge--jade">{memoryArcSignals.length} 段连续记忆</span>
+              </div>
+              <div className="character-memory-arc__grid">
+                {memoryArcSignals.map((signal) => (
+                  <article
+                    className={`character-memory-arc__step${signal.isLatest ? " is-latest" : ""}`}
+                    key={signal.key}
+                  >
+                    <span className="character-memory-arc__round">{signal.roundLabel}</span>
+                    <strong>{signal.event}</strong>
+                    <dl>
+                      <div>
+                        <dt>信念变化</dt>
+                        <dd>
+                          {signal.previousBelief} → {signal.newBelief}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>信任变化</dt>
+                        <dd>{signal.trustDelta}</dd>
+                      </div>
+                      <div>
+                        <dt>异常感</dt>
+                        <dd>{signal.anomalyDelta}</dd>
+                      </div>
+                      <div>
+                        <dt>下一次会怎样</dt>
+                        <dd>{signal.expectedOutcome}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                ))}
+              </div>
+              <div className="character-memory-arc__actions">
+                <button className="btn btn--ghost" onClick={() => scrollToCharacterItem(".character-volume-memory")}>
+                  看完整记忆链
+                </button>
+                <button className="btn btn--primary" onClick={() => navigate({ name: "sandbox", slug })}>
+                  回沙盘验证
+                </button>
+              </div>
+            </section>
+          )}
 
           <main className="character-volume-layout">
             <aside className="character-volume-index" aria-label="角色卷目录">
