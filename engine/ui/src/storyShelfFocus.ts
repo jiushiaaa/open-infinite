@@ -22,7 +22,15 @@ export interface StoryShelfFocus {
   recommendedKey: StoryShelfActionKey;
   recommendedAction: string;
   metrics: StoryShelfMetric[];
+  vitalitySignals: StoryShelfVitalitySignal[];
   journeyPulse: StoryShelfJourneyPulse[];
+}
+
+export interface StoryShelfVitalitySignal {
+  key: "world_runs" | "memory" | "intervention" | "chapter";
+  label: string;
+  value: string;
+  detail: string;
 }
 
 export interface StoryShelfJourneyPulse {
@@ -65,6 +73,59 @@ export function deriveStoryShelfFocus(input: StoryShelfFocusInput): StoryShelfFo
       { label: "世界线运行", value: `${runCount} 条` },
       { label: "来源", value: sourceLabel },
     ],
+    vitalitySignals: hasSandboxResult
+      ? [
+          {
+            key: "world_runs",
+            label: "世界会运行",
+            value: `${runCount} 轮`,
+            detail: `已留下 ${runCount} 轮角色行动、记忆和世界线变化`,
+          },
+          {
+            key: "memory",
+            label: "角色会记得",
+            value: "可回看",
+            detail: "主观记忆会继续影响下一轮行动",
+          },
+          {
+            key: "intervention",
+            label: "干预有后果",
+            value: "可追踪",
+            detail: "干预会进入因果债、锚点压力和多视角正文",
+          },
+          {
+            key: "chapter",
+            label: "章节来自演化",
+            value: "可写下一章",
+            detail: "沙盘涌现剧情可送入作者采纳台",
+          },
+        ]
+      : [
+          {
+            key: "world_runs",
+            label: "世界会运行",
+            value: "待启动",
+            detail: "确认天命后启动第一轮角色行动",
+          },
+          {
+            key: "memory",
+            label: "角色会记得",
+            value: "待写入",
+            detail: "沙盘结果会进入角色主观记忆",
+          },
+          {
+            key: "intervention",
+            label: "干预有后果",
+            value: "待投放",
+            detail: "干预会被天命书转译并写成代偿",
+          },
+          {
+            key: "chapter",
+            label: "章节来自演化",
+            value: "待生成",
+            detail: "跑出结果后进入卷宗阅读和作者采纳",
+          },
+        ],
     journeyPulse: hasSandboxResult
       ? [
           {

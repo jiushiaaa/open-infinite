@@ -111,6 +111,71 @@
   overflow-wrap: anywhere;
 }
 
+.entry__spotlight-vitality {
+  display: grid;
+  gap: var(--space-2);
+  border: 1px solid rgba(196, 184, 156, 0.72);
+  border-radius: 8px;
+  background: rgba(250, 246, 236, 0.62);
+  padding: var(--space-3);
+}
+
+.entry__spotlight-vitality-head {
+  display: grid;
+  gap: 2px;
+}
+
+.entry__spotlight-vitality-head p {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.entry__spotlight-vitality-head strong {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.entry__spotlight-vitality-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.entry__spotlight-vitality-card {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+
+.entry__spotlight-vitality-card span,
+.entry__spotlight-vitality-card strong {
+  display: block;
+}
+
+.entry__spotlight-vitality-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.entry__spotlight-vitality-card strong {
+  margin-top: 3px;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.entry__spotlight-vitality-card p {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .entry__spotlight-pulse {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -659,6 +724,10 @@
 
   .entry__spotlight-pulse {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .entry__spotlight-vitality-grid {
+    grid-template-columns: 1fr;
   }
 
   .story-card__journey {

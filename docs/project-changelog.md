@@ -3619,3 +3619,20 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 字段，不改 artifact。
+
+### 2026-06-07 — Story Shelf Vitality Foyer
+
+- **做了什么**：
+  - `StoryEntryPage` 的推荐世界卡新增“世界魅力前厅”，放在推荐理由之后、旅程脉冲之前。
+  - `storyShelfFocus` 新增 `vitalitySignals`，按 `runCount` 输出“世界会运行 / 角色会记得 / 干预有后果 / 章节来自演化”四枚活性信号。
+  - 未运行世界显示待启动、待写入、待投放、待生成；已运行世界显示已运行轮数、可回看、可追踪、可写下一章。
+  - 推荐世界卡不再只给用户按钮和指标，而是先解释这个世界为什么值得继续、下一轮运行会把后果写到哪里。
+  - `check:story-shelf-focus` 锁定活性信号语义、推荐卡渲染、移动端单列和检查脚本临时目录清理。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:story-shelf-focus`，确认缺少 `vitalitySignals` 时失败。
+  - Focused helper：`pnpm.cmd run check:story-shelf-focus` -> `story shelf focus helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - 浏览器 DOM：`http://localhost:5178/` 下 `.entry__spotlight-vitality` 渲染 4 张活性信号卡。
+- **边界**：
+  - 本轮只改前端故事书架 helper、JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 story list 契约，不改 artifact。

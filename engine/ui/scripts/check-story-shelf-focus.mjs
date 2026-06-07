@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   deriveStoryShelfFocus,
@@ -22,6 +22,20 @@ assert.deepEqual(freshImported.metrics, [
   { label: "来源", value: "导入世界" },
 ]);
 assert.deepEqual(
+  freshImported.vitalitySignals.map((signal) => [
+    signal.key,
+    signal.label,
+    signal.value,
+    signal.detail,
+  ]),
+  [
+    ["world_runs", "世界会运行", "待启动", "确认天命后启动第一轮角色行动"],
+    ["memory", "角色会记得", "待写入", "沙盘结果会进入角色主观记忆"],
+    ["intervention", "干预有后果", "待投放", "干预会被天命书转译并写成代偿"],
+    ["chapter", "章节来自演化", "待生成", "跑出结果后进入卷宗阅读和作者采纳"],
+  ],
+);
+assert.deepEqual(
   freshImported.journeyPulse.map((pulse) => [pulse.key, pulse.label, pulse.status]),
   [
     ["tianming", "下一步", "active"],
@@ -43,6 +57,15 @@ assert.equal(runningBuiltin.recommendedKey, "reading");
 assert.equal(runningBuiltin.recommendedAction, "进入卷宗阅读");
 assert.match(runningBuiltin.stageDescription, /已经运行过沙盘/);
 assert.equal(runningBuiltin.metrics[0].value, "3 条");
+assert.deepEqual(
+  runningBuiltin.vitalitySignals.map((signal) => [signal.key, signal.value]),
+  [
+    ["world_runs", "3 轮"],
+    ["memory", "可回看"],
+    ["intervention", "可追踪"],
+    ["chapter", "可写下一章"],
+  ],
+);
 assert.deepEqual(
   runningBuiltin.journeyPulse.map((pulse) => [pulse.key, pulse.label, pulse.status]),
   [
@@ -81,12 +104,20 @@ assert.equal(spotlightPrefersRunningWorld?.slug, "running");
 assert.equal(spotlightPrefersRunningWorld?.priorityLabel, "已有沙盘结果");
 assert.equal(spotlightPrefersRunningWorld?.focus.recommendedKey, "reading");
 assert.equal(spotlightPrefersRunningWorld?.focus.journeyPulse[2]?.status, "active");
+assert.equal(
+  spotlightPrefersRunningWorld?.focus.vitalitySignals[0]?.detail,
+  "已留下 2 轮角色行动、记忆和世界线变化",
+);
 
 const noSpotlight = deriveStoryShelfSpotlight([]);
 assert.equal(noSpotlight, null);
 
 const entryPage = readFileSync(resolve("src/components/StoryEntryPage.tsx"), "utf8");
 assert.match(entryPage, /entry__spotlight-pulse/);
+assert.match(entryPage, /entry__spotlight-vitality/);
+assert.match(entryPage, /世界魅力前厅/);
+assert.match(entryPage, /vitalitySignals\.map/);
+assert.match(entryPage, /signal\.detail/);
 assert.match(entryPage, /journeyPulse\.map/);
 assert.match(entryPage, /navigateStoryJourney\(spotlight\.slug, pulse\.key\)/);
 assert.match(
@@ -119,8 +150,17 @@ assert(
 
 const entryCss = readFileSync(resolve("src/components/storyEntry.css"), "utf8");
 assert.match(entryCss, /\.entry__spotlight-pulse/);
+assert.match(entryCss, /\.entry__spotlight-vitality/);
+assert.match(entryCss, /\.entry__spotlight-vitality-grid/);
+assert.match(entryCss, /\.entry__spotlight-vitality-card/);
+assert.match(entryCss, /\.entry__spotlight-vitality-card strong/);
 assert.match(entryCss, /grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/);
 assert.match(entryCss, /@media \(max-width: 560px\)[\s\S]*\.entry__spotlight-pulse[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+assert.match(
+  entryCss,
+  /@media \(max-width: 560px\)[\s\S]*\.entry__spotlight-vitality-grid[\s\S]*grid-template-columns:\s*1fr/,
+  "spotlight vitality signals should collapse to one column on narrow mobile",
+);
 assert.match(entryCss, /\.story-card__journey/);
 assert.match(
   entryCss,
@@ -132,5 +172,7 @@ assert.match(
   /@media \(max-width: 560px\)[\s\S]*\.story-card__journey[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/,
   "story card journey pulse should collapse to two columns on narrow mobile",
 );
+
+rmSync(resolve(".tmp-story-shelf-focus"), { recursive: true, force: true });
 
 console.log("story shelf focus helper ok");

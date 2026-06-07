@@ -257,6 +257,21 @@ function StorySpotlightCard({
           </span>
         </div>
         <p className="entry__spotlight-reason muted">{spotlight.spotlightReason}</p>
+        <section className="entry__spotlight-vitality" aria-label="推荐世界的活性预览">
+          <div className="entry__spotlight-vitality-head">
+            <p className="muted tiny">世界魅力前厅</p>
+            <strong>先看这个世界为什么值得继续</strong>
+          </div>
+          <div className="entry__spotlight-vitality-grid">
+            {spotlight.focus.vitalitySignals.map((signal) => (
+              <article className="entry__spotlight-vitality-card" key={signal.key}>
+                <span>{signal.label}</span>
+                <strong>{signal.value}</strong>
+                <p>{signal.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
         <div className="entry__spotlight-pulse" aria-label="推荐世界的旅程状态">
           {spotlight.focus.journeyPulse.map((pulse) => (
             <button
