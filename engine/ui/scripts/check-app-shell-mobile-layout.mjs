@@ -77,6 +77,10 @@ if (!appShell.includes('id="main-content"') || !appShell.includes("tabIndex={-1}
   failures.push("main content skip target should be programmatically focusable");
 }
 
+if (!appShell.includes('aria-label="当前页面内容"')) {
+  failures.push("main content skip target should expose a clear Chinese accessible name");
+}
+
 const skipLinkRule = findRule(".skip-link");
 if (
   !/position:\s*fixed/.test(skipLinkRule) ||

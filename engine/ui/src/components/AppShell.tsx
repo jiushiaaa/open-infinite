@@ -329,7 +329,12 @@ export function AppShell({
           showRecentReading={showRecentReading}
         />
       )}
-      <main id="main-content" className="shell__body" tabIndex={-1}>
+      <main
+        id="main-content"
+        className="shell__body"
+        aria-label="当前页面内容"
+        tabIndex={-1}
+      >
         {children}
       </main>
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />

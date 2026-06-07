@@ -4295,3 +4295,21 @@
 - **边界**：
   - 本轮只改共享壳层语义结构、结构检查脚本和文档；不新增后端 API，不改变视觉常态、桌面/移动导航布局、hash 路由、route chunk 预取、阅读进度、沙盘请求字段或 artifact。
   - 本轮工具搜索未暴露 in-app Browser 控制能力；未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Main Content Accessible Name
+
+- **做了什么**：
+  - `AppShell` 的 `main#main-content` 在稳定锚点和 `tabIndex={-1}` 之外补充 `aria-label="当前页面内容"`。
+  - 让“跳到当前页面内容”落点不只是可聚焦区域，也能被辅助技术读成明确的当前页面正文区域。
+  - 扩展 `check:app-shell-mobile-layout`，锁定主内容 skip target 必须保留中文可读名称。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少主内容区中文可读名称时失败，错误为 `main content skip target should expose a clear Chinese accessible name`。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.83 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改共享壳层主内容区语义、结构检查脚本和文档；不新增后端 API，不改变视觉常态、hash 路由、route chunk 预取、移动端折叠导航、阅读进度、沙盘请求字段或 artifact。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
