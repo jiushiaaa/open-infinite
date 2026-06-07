@@ -99,6 +99,7 @@
     "journey journey"
     "workspace workspace"
     "taskbar taskbar"
+    "handoffs handoffs"
     "continuity continuity"
     "dossiers dossiers";
   align-items: center;
@@ -270,6 +271,77 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.shell-context__handoffs {
+  grid-area: handoffs;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+}
+
+.shell-context__handoff-card {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  min-width: 0;
+  min-height: 56px;
+  padding: 7px 9px;
+  border: 1px solid rgba(196, 184, 156, 0.58);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.58);
+  color: inherit;
+  text-align: left;
+}
+
+.shell-context__handoff-card:hover {
+  border-color: rgba(141, 50, 37, 0.24);
+  background:
+    linear-gradient(90deg, rgba(181, 131, 58, 0.09), transparent 74%),
+    rgba(255, 252, 244, 0.86);
+}
+
+.shell-context__handoff-card:focus-visible {
+  outline: 2px solid rgba(181, 131, 58, 0.42);
+  outline-offset: 2px;
+}
+
+.shell-context__handoff-card.is-source {
+  border-left-color: rgba(74, 124, 99, 0.44);
+}
+
+.shell-context__handoff-card.is-effect {
+  border-left-color: rgba(181, 131, 58, 0.5);
+}
+
+.shell-context__handoff-card.is-receipt {
+  border-left-color: rgba(141, 50, 37, 0.42);
+}
+
+.shell-context__handoff-card small {
+  color: var(--ink-faint);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.shell-context__handoff-card strong {
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell-context__handoff-card span {
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  line-height: 1.35;
 }
 
 .shell-context__workspace {
@@ -593,6 +665,7 @@
       "journey"
       "workspace"
       "taskbar"
+      "handoffs"
       "continuity"
       "stages"
       "dossiers";
@@ -625,6 +698,10 @@
   }
 
   .shell-context__taskbar {
+    width: 100%;
+  }
+
+  .shell-context__handoffs {
     width: 100%;
   }
 
@@ -717,6 +794,19 @@
 
   .shell-context__actions {
     grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+  }
+
+  .shell-context__handoffs {
+    grid-template-columns: 1fr;
+  }
+
+  .shell-context__handoff-card {
+    min-height: 0;
+    padding: 6px 8px;
+  }
+
+  .shell-context__handoff-card strong {
+    white-space: normal;
   }
 
   .shell-context__workspace {

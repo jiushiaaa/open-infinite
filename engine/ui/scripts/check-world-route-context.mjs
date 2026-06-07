@@ -23,6 +23,19 @@ assert.deepEqual(context?.workspaceSummary, {
   why: "本轮行动会进入记忆、代偿和下一章材料。",
 });
 assert.deepEqual(
+  context?.stateHandoffs.map((item) => [item.key, item.label, item.title]),
+  [
+    ["source", "正在承接", "事件与干预"],
+    ["effect", "会留下", "记忆与代偿"],
+    ["receipt", "下一处看见", "进入卷宗阅读"],
+  ],
+);
+assert.deepEqual(context?.stateHandoffs[1].route, {
+  name: "worldline",
+  slug: "my-story",
+  worldlineId: "main",
+});
+assert.deepEqual(
   context?.stages.map((stage) => [stage.key, stage.label, stage.status]),
   [
     ["tianming", "定界", "ready"],
@@ -73,6 +86,11 @@ assert.equal(character?.secondaryActionLabel, "去多视角");
 assert.equal(character?.workspaceSummary.stageLabel, "阅读");
 assert.equal(character?.workspaceSummary.worldlineLabel, "世界线 branch-a");
 assert.match(character?.workspaceSummary.why ?? "", /记忆、误会和秘密/);
+assert.match(character?.stateHandoffs[0].detail ?? "", /主观记忆/);
+assert.deepEqual(character?.stateHandoffs[2].route, {
+  name: "sandbox",
+  slug: "my-story",
+});
 assert.deepEqual(character?.secondaryRoute, {
   name: "lens",
   slug: "my-story",

@@ -54,6 +54,8 @@ const workspaceShellPath = resolve("src/components/WorldWorkspaceShell.tsx");
 const workspaceShell = existsSync(workspaceShellPath)
   ? readFileSync(workspaceShellPath, "utf8")
   : "";
+const contextPath = resolve("src/worldRouteContext.ts");
+const context = readFileSync(contextPath, "utf8");
 
 if (!appShell.includes("WorldWorkspaceShell")) {
   failures.push("AppShell should delegate world context to a shared WorldWorkspaceShell component");
@@ -69,6 +71,25 @@ if (!workspaceShell.includes("世界工作区壳") || !workspaceShell.includes("
 
 if (!workspaceShell.includes("routeContext.stages.map") || !workspaceShell.includes("routeContext.dossiers.map")) {
   failures.push("WorldWorkspaceShell should keep stage and dossier navigation in the shared shell");
+}
+
+if (!workspaceShell.includes("shell-context__handoffs")) {
+  failures.push("WorldWorkspaceShell should render the shared state handoff preview row");
+}
+
+if (
+  !workspaceShell.includes("routeContext.stateHandoffs.map") ||
+  !workspaceShell.includes("navigate(handoff.route)")
+) {
+  failures.push("state handoff previews should be clickable and use semantic routes");
+}
+
+if (
+  !context.includes("正在承接") ||
+  !context.includes("会留下") ||
+  !context.includes("下一处看见")
+) {
+  failures.push("state handoff previews should explain source, consequence and next receipt in Chinese");
 }
 
 if (!workspaceShell.includes("shell-context__workspace")) {
@@ -121,8 +142,6 @@ if (!workspaceShell.includes("worldlineDossierRoute")) {
   failures.push("worldline summary card should link to the worldline dossier");
 }
 
-const contextPath = resolve("src/worldRouteContext.ts");
-const context = readFileSync(contextPath, "utf8");
 if (!context.includes("workspaceSummary")) {
   failures.push("world route context should provide semantic summary data for AppShell");
 }
@@ -154,6 +173,19 @@ if (
   !/grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto/.test(taskbarRule)
 ) {
   failures.push("desktop current-task row should keep explanation and actions in one scan row");
+}
+
+const handoffsRule = findRule(".shell-context__handoffs");
+if (
+  !/display:\s*grid/.test(handoffsRule) ||
+  !/grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/.test(handoffsRule)
+) {
+  failures.push("desktop state handoffs should present source, consequence and next receipt in one row");
+}
+
+const handoffRule = findRule(".shell-context__handoff-card");
+if (!/display:\s*grid/.test(handoffRule) || !/text-align:\s*left/.test(handoffRule)) {
+  failures.push("state handoff cards should keep the compact information-sign layout");
 }
 
 const journeyBusRule = findRule(".world-workspace-shell__journey");
@@ -193,6 +225,11 @@ if (!/min-height:\s*0/.test(mobileWorkspaceCardRule)) {
 const mobileTaskbarRule = findRule(".shell-context__taskbar", mobileIndex);
 if (!/grid-template-columns:\s*1fr/.test(mobileTaskbarRule)) {
   failures.push("mobile current-task row should stack explanation above actions");
+}
+
+const mobileHandoffsRule = findRule(".shell-context__handoffs", mobileIndex);
+if (!/grid-template-columns:\s*1fr/.test(mobileHandoffsRule)) {
+  failures.push("mobile state handoffs should stack into one readable column");
 }
 
 const mobileJourneyRule = findRule(".world-workspace-shell__journey", mobileIndex);

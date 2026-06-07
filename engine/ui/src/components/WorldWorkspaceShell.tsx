@@ -111,6 +111,22 @@ export function WorldWorkspaceShell({
         </div>
       </div>
 
+      <div className="shell-context__handoffs" aria-label="世界状态预告">
+        {routeContext.stateHandoffs.map((handoff) => (
+          <button
+            key={handoff.key}
+            className={`shell-context__handoff-card is-${handoff.key}`}
+            onClick={() => navigate(handoff.route)}
+            title={handoff.detail}
+            type="button"
+          >
+            <small>{handoff.label}</small>
+            <strong>{handoff.title}</strong>
+            <span>{handoff.detail}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="shell-context__continuity" aria-label="世界脉搏">
         {routeContext.continuitySignals.map((signal) => (
           <button

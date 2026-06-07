@@ -3346,3 +3346,20 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端共享壳层组件、样式、壳层检查脚本和文档，不新增后端 API、不改变路由契约、不改 artifact、不删任何世界入口；完整 `WorldWorkspaceShell` 仍需继续承接跨页面视觉 QA 和更深世界状态提示。
+
+### 2026-06-07 — WorldWorkspaceShell State Handoffs
+
+- **做了什么**：
+  - `worldRouteContext` 为所有世界内路由新增 `stateHandoffs`，统一输出“正在承接 / 会留下 / 下一处看见”三段状态预告。
+  - `WorldWorkspaceShell` 在当前任务条和世界脉搏之间新增三枚可点击状态预告签，解释当前页面正在消费什么、会把后果写到哪里、沿建议动作能在哪里看见结果。
+  - 沙盘页会提示“事件与干预 -> 记忆与代偿 -> 进入卷宗阅读”；角色卷会提示主观记忆、误会和秘密怎样回到下一轮行动；作者台会提示采纳结果如何反哺下一章入口。
+  - 桌面状态预告保持三列扫读，移动端压成单列，不挤掉顶栏世界导航、旅程总线、当前任务条、世界脉搏、体验轨道和卷宗速览入口。
+  - 扩展 `check:world-route-context`，锁定沙盘和角色卷状态预告语义；扩展 `check:app-shell-mobile-layout`，锁定共享壳必须渲染状态预告、桌面三列、移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:world-route-context` 和 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少 `stateHandoffs` 与状态预告行时失败。
+  - Route helper：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端语义 helper、共享壳层组件、样式、壳层检查脚本和文档，不新增后端 API、不改变路由契约、不改 artifact、不删任何世界入口。

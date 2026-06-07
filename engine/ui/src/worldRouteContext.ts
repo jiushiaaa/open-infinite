@@ -5,6 +5,7 @@ export interface WorldRouteContext {
   title: string;
   description: string;
   workspaceSummary: WorldWorkspaceSummary;
+  stateHandoffs: WorldStateHandoff[];
   continuitySignals: WorldContinuitySignal[];
   primaryActionLabel: string;
   primaryRoute: Route;
@@ -49,6 +50,14 @@ export interface WorldWorkspaceSummary {
   worldlineLabel: string;
   nextStepLabel: string;
   why: string;
+}
+
+export interface WorldStateHandoff {
+  key: "source" | "effect" | "receipt";
+  label: string;
+  title: string;
+  detail: string;
+  route: Route;
 }
 
 export interface WorldContinuitySignal {
@@ -246,6 +255,137 @@ function buildWorkspaceSummary(
   };
 }
 
+function stateHandoffCopy(
+  route: Route,
+  key: WorldStateHandoff["key"],
+  primaryActionLabel: string,
+): Pick<WorldStateHandoff, "label" | "title" | "detail"> {
+  if (key === "source") {
+    if (route.name === "tianming" || route.name === "anchor") {
+      return {
+        label: "正在承接",
+        title: "世界边界",
+        detail: "锚点、合约压力和干预边界先被确认",
+      };
+    }
+    if (route.name === "sandbox") {
+      return {
+        label: "正在承接",
+        title: "事件与干预",
+        detail: "大事件、可选干预和角色私念正在合流",
+      };
+    }
+    if (route.name === "characterVolume") {
+      return {
+        label: "正在承接",
+        title: "角色主观记忆",
+        detail: "这个角色的主观记忆、误会和秘密会回到行动",
+      };
+    }
+    if (route.name === "factionVolume") {
+      return {
+        label: "正在承接",
+        title: "势力压力",
+        detail: "资源、秘密和立场会牵动世界代偿",
+      };
+    }
+    if (route.name === "eventPerspective") {
+      return {
+        label: "正在承接",
+        title: "事件信息差",
+        detail: "同一事件的多重视角正在互相校验",
+      };
+    }
+    if (route.name === "author") {
+      return {
+        label: "正在承接",
+        title: "可写材料",
+        detail: "沙盘涌现、Reviewer 和定稿正在合并",
+      };
+    }
+    if (route.name === "checkpoint") {
+      return {
+        label: "正在承接",
+        title: "醒来报告",
+        detail: "检查点、记忆变化和代偿正在接回正文",
+      };
+    }
+    return {
+      label: "正在承接",
+      title: "卷宗证据",
+      detail: "正文、误会、长线和证据链正在汇合",
+    };
+  }
+
+  if (key === "effect") {
+    if (route.name === "tianming" || route.name === "anchor") {
+      return {
+        label: "会留下",
+        title: "干预边界",
+        detail: "之后的投放会被世界宪法吸收或拆分",
+      };
+    }
+    if (route.name === "sandbox") {
+      return {
+        label: "会留下",
+        title: "记忆与代偿",
+        detail: "行动会写入主观记忆、因果债和世界线",
+      };
+    }
+    if (route.name === "author") {
+      return {
+        label: "会留下",
+        title: "下一章入口",
+        detail: "采纳结果会反哺定稿和下一轮沙盘",
+      };
+    }
+    if (route.name === "longlineReading") {
+      return {
+        label: "会留下",
+        title: "跨章回收",
+        detail: "误会、压力和未解线索会变成后续任务",
+      };
+    }
+    return {
+      label: "会留下",
+      title: "世界状态",
+      detail: "证据会落到世界线、角色记忆和作者材料",
+    };
+  }
+
+  return {
+    label: "下一处看见",
+    title: primaryActionLabel,
+    detail: "沿着建议动作继续，能看到本步造成的后果",
+  };
+}
+
+function buildStateHandoffs(
+  route: Route,
+  readingRoute: Route,
+  worldlineRoute: Route,
+  primaryRoute: Route,
+  primaryActionLabel: string,
+): WorldStateHandoff[] {
+  return [
+    {
+      key: "source",
+      ...stateHandoffCopy(route, "source", primaryActionLabel),
+      route: readingRoute,
+    },
+    {
+      key: "effect",
+      ...stateHandoffCopy(route, "effect", primaryActionLabel),
+      route: worldlineRoute,
+    },
+    {
+      key: "receipt",
+      ...stateHandoffCopy(route, "receipt", primaryActionLabel),
+      route: primaryRoute,
+    },
+  ];
+}
+
 function continuityDetail(route: Route, key: WorldContinuitySignal["key"]): string {
   if (key === "memory") {
     if (route.name === "characterVolume") return "正在查看这个角色怎样记住世界";
@@ -348,14 +488,22 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
 
   if (route.name === "anchor") {
     const primaryActionLabel = "确认天命书";
+    const primaryRoute: Route = { name: "tianming", slug };
     return {
       sectionLabel: "入口",
       title: "世界锚定",
       description: "校准角色、规则和卷宗地图，决定先确认天命还是继续上次阅读。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        primaryRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
-      primaryRoute: { name: "tianming", slug },
+      primaryRoute,
       secondaryActionLabel: "运行沙盘",
       secondaryRoute: sandboxRoute,
       stages,
@@ -369,6 +517,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "天命书",
       description: "先确认世界宪法、锚点和干预边界，再让角色按规则行动。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        sandboxRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: sandboxRoute,
@@ -385,6 +540,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "世界沙盘",
       description: "让角色行动、记忆发酵并把干预投放进世界状态。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        readingRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: readingRoute,
@@ -401,6 +563,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "卷宗阅读",
       description: "先读连续正文，再按证据、误会和角色视角查清世界发生了什么。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        longlineRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: longlineRoute,
@@ -417,6 +586,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "跨事件长线卷",
       description: "把事件、误会、角色记忆和势力压力连成可回收的后续线索。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        authorRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: authorRoute,
@@ -433,6 +609,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "角色个人卷",
       description: "查看这个角色的主观记忆、误会、秘密可见性和下一轮行动理由。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        sandboxRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: sandboxRoute,
@@ -449,6 +632,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "势力卷",
       description: "查看势力立场、资源压力、代偿账和它会怎样牵动下一章。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        sandboxRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: sandboxRoute,
@@ -465,6 +655,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "事件多视角",
       description: "拆开同一事件里的信息差、误读和证据，判断谁看见了哪一部分真相。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        longlineRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: longlineRoute,
@@ -481,6 +678,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "世界线档案",
       description: "查看分支状态、因果债、检查点和世界自演留下的承接关系。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        readingRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: readingRoute,
@@ -497,6 +701,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "醒来回放",
       description: "回看这一夜世界如何变化、谁记住了什么，以及后果该往哪里接。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        readingRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: readingRoute,
@@ -513,6 +724,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "活体小说",
       description: "生成世界正史卷、角色个人卷、势力卷和事件多视角，暴露信息差。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        readingRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: readingRoute,
@@ -529,6 +747,13 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
       title: "作者采纳台",
       description: "把沙盘涌现、Reviewer 建议和编辑后定稿写成下一章入口。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+      stateHandoffs: buildStateHandoffs(
+        route,
+        readingRoute,
+        worldlineRoute,
+        sandboxRoute,
+        primaryActionLabel,
+      ),
       continuitySignals,
       primaryActionLabel,
       primaryRoute: sandboxRoute,
@@ -540,14 +765,22 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
   }
 
   const primaryActionLabel = "确认天命书";
+  const primaryRoute: Route = { name: "tianming", slug };
   return {
     sectionLabel: "机制",
     title: "机制档案",
     description: "旧正史、支撑层和运行证据都收在这里；主旅程仍回到世界内部卷宗。",
     workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
+    stateHandoffs: buildStateHandoffs(
+      route,
+      readingRoute,
+      worldlineRoute,
+      primaryRoute,
+      primaryActionLabel,
+    ),
     continuitySignals,
     primaryActionLabel,
-    primaryRoute: { name: "tianming", slug },
+    primaryRoute,
     secondaryActionLabel: "进入卷宗阅读",
     secondaryRoute: readingRoute,
     stages,
