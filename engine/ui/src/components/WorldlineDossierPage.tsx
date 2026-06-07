@@ -55,6 +55,11 @@ export function WorldlineDossierPage({
   const consequenceDomains = state?.consequence_state?.domains
     ? Object.entries(state.consequence_state.domains)
     : [];
+  const latestConsequenceLedger =
+    state?.consequence_state?.ledger?.[
+      (state.consequence_state.ledger?.length ?? 1) - 1
+    ];
+  const primaryConsequenceDomain = consequenceDomains[0]?.[1];
   const latestCheckpoint = report?.checkpoints[0];
   const latestTask = report?.tasks[0];
   const branchStatus = state?.branch_state?.continuation_status ?? state?.status ?? "new";
@@ -165,6 +170,42 @@ export function WorldlineDossierPage({
         latestTask
           ? scrollToWorldlineItem(".worldline-task-section")
           : navigate({ name: "sandbox", slug }),
+    },
+  ];
+  const compensationCompassItems = [
+    {
+      label: "最近代价",
+      title:
+        latestConsequenceLedger?.major_event ||
+        latestConsequenceLedger?.source_run_id ||
+        "还没有最近代价",
+      detail:
+        latestConsequenceLedger?.impacts?.[0]?.pressure ||
+        state?.consequence_state?.summary ||
+        "继续运行沙盘后，世界会把事件压力写进地点、资源、伤势、舆论、势力或环境。",
+    },
+    {
+      label: "承压领域",
+      title: consequenceDomains.length
+        ? `${consequenceDomains.length} 个世界域在承压`
+        : "代偿域待显形",
+      detail:
+        primaryConsequenceDomain?.pressure ||
+        primaryConsequenceDomain?.current ||
+        "代偿不是摘要，它会成为下一轮角色判断和世界状态的输入。",
+    },
+    {
+      label: "下一轮提示",
+      title: state?.consequence_state?.next_round_hint ? "已有承接提示" : "等待下一轮承接",
+      detail:
+        state?.consequence_state?.next_round_hint ||
+        nextRoundReads.join("；") ||
+        "把世界线交回沙盘，让代偿继续推动角色行动。",
+    },
+    {
+      label: "从这里继续看",
+      title: latestCheckpoint ? "先回放最近检查点" : "先继续沙盘",
+      detail: latestCheckpoint?.major_event || "还没有检查点时，先让世界再动一轮。",
     },
   ];
 
@@ -326,6 +367,47 @@ export function WorldlineDossierPage({
               </button>
             </article>
           ))}
+        </section>
+      )}
+
+      {!loading && !error && report && (
+        <section className="worldline-compensation-compass" aria-label="世界线代偿罗盘">
+          <div className="worldline-compensation-compass__head">
+            <div>
+              <p className="muted tiny">代偿罗盘</p>
+              <h2>世界为什么会继续变</h2>
+            </div>
+            <p className="muted">
+              {state?.consequence_state?.summary ||
+                "这条世界线的代价还在等待显形；继续运行后，压力会落到角色、势力和环境里。"}
+            </p>
+          </div>
+          <div className="worldline-compensation-compass__grid">
+            {compensationCompassItems.map((item) => (
+              <article key={item.label}>
+                <span>{item.label}</span>
+                <strong>{item.title}</strong>
+                <p>{item.detail}</p>
+              </article>
+            ))}
+          </div>
+          <div className="worldline-compensation-compass__actions">
+            <button
+              className="btn btn--ghost"
+              onClick={() => scrollToWorldlineItem(".worldline-consequence-section")}
+            >
+              看详细代偿账
+            </button>
+            <button className="btn btn--ghost" onClick={goToLatestCheckpoint}>
+              {latestCheckpoint ? "回放最近检查点" : "继续沙盘"}
+            </button>
+            <button
+              className="btn btn--ghost"
+              onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}
+            >
+              读长线卷
+            </button>
+          </div>
         </section>
       )}
 

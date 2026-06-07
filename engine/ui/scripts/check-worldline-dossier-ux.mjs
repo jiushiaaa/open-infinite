@@ -34,6 +34,30 @@ assert(
   page.indexOf('className="worldline-continuity-rail"') < page.indexOf("<WorldRunway"),
   "worldline continuity rail should appear before the explanatory runway",
 );
+assert(
+  page.includes('className="worldline-compensation-compass"'),
+  "worldline dossier page should include a compensation compass",
+);
+assert(
+  page.indexOf('className="worldline-continuity-rail"') <
+    page.indexOf('className="worldline-compensation-compass"'),
+  "worldline compensation compass should appear after the continuity rail",
+);
+assert(
+  page.indexOf('className="worldline-compensation-compass"') < page.indexOf("<WorldRunway"),
+  "worldline compensation compass should appear before the explanatory runway",
+);
+for (const label of ["代偿罗盘", "最近代价", "承压领域", "下一轮提示", "从这里继续看"]) {
+  assert(page.includes(label), `worldline compensation compass should include ${label}`);
+}
+for (const field of [
+  "state?.consequence_state?.summary",
+  "state?.consequence_state?.ledger",
+  "state?.consequence_state?.next_round_hint",
+  "consequenceDomains",
+]) {
+  assert(page.includes(field), `worldline compensation compass should use ${field}`);
+}
 for (const label of ["状态接力", "角色记忆", "因果代偿", "检查点", "下一轮入口"]) {
   assert(page.includes(label), `worldline continuity rail should include ${label}`);
 }
@@ -64,8 +88,21 @@ assert(
   "worldline continuity rail should use a stable four-column desktop grid",
 );
 assert(
+  css.includes(".worldline-compensation-compass") &&
+    css.includes(".worldline-compensation-compass__grid"),
+  "worldline compensation compass styling should be present",
+);
+assert(
+  css.includes("grid-template-columns: repeat(4, minmax(0, 1fr))"),
+  "worldline compensation compass should use a stable desktop grid",
+);
+assert(
   /@media \(max-width: 760px\)[\s\S]*\.worldline-continuity-rail[\s\S]*grid-template-columns: 1fr/.test(css),
   "worldline continuity rail should collapse to one column on mobile widths",
+);
+assert(
+  /@media \(max-width: 760px\)[\s\S]*\.worldline-compensation-compass__grid[\s\S]*grid-template-columns: 1fr/.test(css),
+  "worldline compensation compass should collapse to one column on mobile widths",
 );
 
 console.log("worldline dossier ux structure ok");

@@ -322,6 +322,95 @@
   width: 100%;
 }
 
+.worldline-compensation-compass {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 1320px;
+  margin: 0 auto var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid rgba(115, 89, 48, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.9), rgba(246, 241, 229, 0.74)),
+    var(--paper-raised);
+  box-shadow: var(--shadow-card);
+}
+
+.worldline-compensation-compass__head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px dashed var(--line);
+}
+
+.worldline-compensation-compass__head p,
+.worldline-compensation-compass__head h2 {
+  margin: 0;
+}
+
+.worldline-compensation-compass__head h2 {
+  margin-top: 2px;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.worldline-compensation-compass__head > p {
+  max-width: 640px;
+  line-height: 1.7;
+}
+
+.worldline-compensation-compass__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.worldline-compensation-compass__grid article {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 150px;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.72);
+}
+
+.worldline-compensation-compass__grid span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.worldline-compensation-compass__grid strong {
+  font-family: var(--font-serif);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.worldline-compensation-compass__grid p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.worldline-compensation-compass__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.worldline-compensation-compass__actions .btn {
+  min-width: 132px;
+  justify-content: center;
+  white-space: normal;
+}
+
 .checkpoint-wake-handoff {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -609,6 +698,32 @@
 
   .worldline-continuity-rail article {
     min-height: 0;
+  }
+
+  .worldline-compensation-compass {
+    padding: var(--space-3);
+  }
+
+  .worldline-compensation-compass__head {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .worldline-compensation-compass__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .worldline-compensation-compass__grid article {
+    min-height: 0;
+  }
+
+  .worldline-compensation-compass__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .worldline-compensation-compass__actions .btn {
+    width: 100%;
   }
 
   .checkpoint-wake-handoff {

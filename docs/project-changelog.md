@@ -3670,3 +3670,20 @@
   - Chrome UI smoke：`http://localhost:5178/#/world/my-story/sandbox` 桌面下预演台渲染 4 张信号卡；两个动作分别聚焦干预输入和事件输入；390px 下无水平溢出，4 张信号卡单列。
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `POST /api/stories/<slug>/sandbox/run` 字段，不改 artifact。
+
+### 2026-06-07 — Worldline Compensation Compass
+
+- **做了什么**：
+  - `WorldlineDossierPage` 在状态接力台之后、`WorldRunway` 之前新增“代偿罗盘”。
+  - 罗盘复用 `worldline_dossier` 里已有的 `state.consequence_state.summary`、`ledger`、`next_round_hint` 和代偿域数据。
+  - 四枚信号分别解释“最近代价 / 承压领域 / 下一轮提示 / 从这里继续看”，让用户先理解世界为什么会继续变，再去读密集世界线状态。
+  - 罗盘动作可直接看详细代偿账、回放最近检查点或进入长线卷；没有检查点时会回到继续沙盘。
+  - 扩展 `check:worldline-dossier-ux`，锁定罗盘位置、真实字段引用、桌面四列和移动端单列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:worldline-dossier-ux`，确认缺少代偿罗盘时失败。
+  - Focused helper：`pnpm.cmd run check:worldline-dossier-ux` -> `worldline dossier ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Chrome UI smoke：`http://localhost:5178/#/world/my-story/worldlines/main` 桌面下罗盘渲染 4 张信号卡，位于状态接力台之后、世界内部导览之前；“看详细代偿账”能滚到代偿区；390px 下无水平溢出且 4 张信号卡单列。
+- **边界**：
+  - 本轮只改前端世界线档案页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `worldline_dossier` / `worldline_state` 字段，不改 artifact。
