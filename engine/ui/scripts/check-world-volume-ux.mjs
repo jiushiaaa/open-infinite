@@ -103,13 +103,50 @@ assert(
   page.indexOf('className="world-volume-handoff"') < page.indexOf('className="world-volume-layout"'),
   "world volume handoff should appear before the long reading layout",
 );
+assert(
+  page.includes("function buildWorldVolumeContinuitySteps") &&
+    page.includes("WorldVolumeContinuityStep") &&
+    page.includes("DossierReadingVolumeTab"),
+  "WorldVolumePage should derive reusable continuity arc steps from existing dossier data",
+);
+assert(
+  page.includes('className="world-volume-continuity"') &&
+    page.includes('aria-label="世界卷承接弧线"') &&
+    page.includes("worldVolumeContinuitySteps.map"),
+  "WorldVolumePage should render a world volume continuity arc section",
+);
+assert(
+  page.indexOf('className="world-volume-handoff"') < page.indexOf('className="world-volume-continuity"') &&
+    page.indexOf('className="world-volume-continuity"') < page.indexOf('className="world-volume-layout"'),
+  "world volume continuity arc should sit between the handoff and the long reading layout",
+);
+for (const label of ["世界卷承接弧线", "卷内事实", "相邻卷牵引", "代偿落点", "下一步回收", "去长线卷回收"]) {
+  assert(page.includes(label), `WorldVolumePage should include continuity label ${label}`);
+}
+for (const token of [
+  "continuous_reading",
+  "continuity_threads",
+  "consequence_state",
+  "ledger",
+  "next_round_hint",
+  "evidence_panel",
+]) {
+  assert(page.includes(token), `WorldVolumePage continuity arc should reuse ${token}`);
+}
 
 assert(
   css.includes(".world-volume-page") &&
     css.includes(".world-volume-mobile-guide") &&
     css.includes(".world-volume-handoff") &&
+    css.includes(".world-volume-continuity") &&
     css.includes(".world-volume-layout"),
-  "world volume CSS should define page, mobile guide, handoff, and layout classes",
+  "world volume CSS should define page, mobile guide, handoff, continuity, and layout classes",
+);
+assert(
+  css.includes(".world-volume-continuity__grid") &&
+    css.includes(".world-volume-continuity__step") &&
+    css.includes("grid-template-columns: repeat(4, minmax(0, 1fr))"),
+  "world volume continuity arc should use a stable four-step desktop grid",
 );
 assert(
   css.includes("grid-template-columns: minmax(240px, 300px) minmax(0, 720px) minmax(240px, 300px)"),
@@ -122,6 +159,10 @@ assert(
 assert(
   /@media \(max-width: 760px\)[\s\S]*\.world-volume-layout[\s\S]*display: flex/.test(css),
   "world volume layout should collapse for mobile without hiding sections",
+);
+assert(
+  /@media \(max-width: 760px\)[\s\S]*\.world-volume-continuity__grid[\s\S]*grid-template-columns: 1fr/.test(css),
+  "world volume continuity arc should collapse to one column on mobile",
 );
 
 console.log("world volume ux structure ok");

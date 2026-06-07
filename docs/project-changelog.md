@@ -3826,3 +3826,19 @@
   - In-app Browser smoke：`http://127.0.0.1:5184/#/world/my-story/worldlines/main/events/main/perspectives` 可打开事件卷，真实数据下误读弧线渲染 4 张卡片，操作按钮可见、无控制台 error；390px 下弧线单列且无水平溢出。
 - **边界**：
   - 本轮只改前端事件多视角 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `event-perspective` 响应契约，不改 artifact。
+
+### 2026-06-07 — World Volume Continuity Arc
+
+- **做了什么**：
+  - `WorldVolumePage` 在“正史/锚点接力台”和三栏阅读布局之间新增“世界卷承接弧线”。
+  - 承接弧线复用既有 `continuous_reading`、`continuity_threads`、`consequence_state.ledger`、`next_round_hint`、相邻卷和 `evidence_panel`，整理出“卷内事实 / 相邻卷牵引 / 代偿落点 / 下一步回收”四张卡。
+  - 用户读世界正史卷或主锚点卷时能理解这卷如何从事实、锚点压力和 ledger 代偿接回下一章，并可直接查卷内证据或去长线卷回收。
+  - 扩展 `check:world-volume-ux`，锁定承接弧线位置、真实字段引用、桌面四列和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:world-volume-ux`，确认缺少 `worldVolumeContinuitySteps` 时失败。
+  - Focused helper：`pnpm.cmd run check:world-volume-ux` -> `world volume ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - In-app Browser smoke：`http://127.0.0.1:5185/#/world/my-story/worldlines/main/chronicle` 桌面下渲染 4 步承接弧线且无控制台 error；`/anchors` 桌面下承接弧线可见，“去长线卷回收”能跳到 `#/world/my-story/worldlines/main/longline`；390px 下承接弧线单列且无水平溢出。
+- **边界**：
+  - 本轮只改前端世界卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `dossier-reading` 响应契约，不改 artifact。

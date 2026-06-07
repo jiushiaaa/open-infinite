@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api/client";
-import type { DossierReadingReport } from "../api/types";
+import type { DossierReadingReport, DossierReadingVolumeTab } from "../api/types";
 import { renderProse } from "../markdown";
 import { navigate } from "../routing";
 import { EmptyState, ErrorState, Loading } from "./common/States";
@@ -27,6 +27,15 @@ interface VolumeCopy {
   fourthFallback: string;
   mobilePrimary: string;
   mobileSecondary: string;
+}
+
+interface WorldVolumeContinuityStep {
+  key: string;
+  label: string;
+  title: string;
+  detail: string;
+  source: string;
+  isPrimary: boolean;
 }
 
 const COPY: Record<WorldVolumeKind, VolumeCopy> = {
@@ -69,6 +78,76 @@ const COPY: Record<WorldVolumeKind, VolumeCopy> = {
     mobileSecondary: "看正史",
   },
 };
+
+function buildWorldVolumeContinuitySteps(
+  report: DossierReadingReport | null,
+  activeVolume: DossierReadingVolumeTab | null,
+  siblingVolume: DossierReadingVolumeTab | null,
+  copy: VolumeCopy,
+  volumeKind: WorldVolumeKind,
+): WorldVolumeContinuityStep[] {
+  const consequence = report?.worldline_dossier?.worldline_state?.consequence_state;
+  const ledger = consequence?.ledger ?? [];
+  const latestLedger = ledger[ledger.length - 1];
+  const continuityThreads = report?.continuous_reading?.continuity_threads;
+  const readingFlow = report?.continuous_reading?.reading_flow;
+  const firstEvidence = activeVolume?.evidence_refs?.[0] || report?.evidence_panel.refs?.[0];
+  const siblingEvidence = siblingVolume?.evidence_refs?.[0];
+  const perspective = report?.perspective_biases?.[0];
+
+  return [
+    {
+      key: "volume",
+      label: "卷内事实",
+      title: activeVolume?.title || copy.emptyTitle,
+      detail:
+        activeVolume?.cognitive_bias ||
+        readingFlow?.opening_hook ||
+        copy.firstFallback,
+      source: firstEvidence ? `证据 ${firstEvidence}` : `总证据 ${report?.evidence_panel.ref_count ?? 0} 条`,
+      isPrimary: true,
+    },
+    {
+      key: "sibling",
+      label: "相邻卷牵引",
+      title:
+        siblingVolume?.title ||
+        (volumeKind === "chronicle" ? "主锚点卷正在承接正史压力" : "世界正史卷正在核对锚点来源"),
+      detail:
+        siblingVolume?.cognitive_bias ||
+        perspective?.cognitive_bias ||
+        continuityThreads?.misunderstanding ||
+        copy.secondFallback,
+      source: siblingEvidence ? `证据 ${siblingEvidence}` : perspective?.label || "等待相邻卷证据",
+      isPrimary: false,
+    },
+    {
+      key: "ledger",
+      label: "代偿落点",
+      title: latestLedger?.major_event || consequence?.summary || "等待 ledger 写入",
+      detail:
+        consequence?.summary ||
+        continuityThreads?.payoff ||
+        "世界代偿会把事实、锚点压力和角色行动重新压回下一轮。",
+      source: latestLedger?.source_run_id ? `run ${latestLedger.source_run_id}` : `ledger ${ledger.length} 条`,
+      isPrimary: Boolean(latestLedger),
+    },
+    {
+      key: "next",
+      label: "下一步回收",
+      title:
+        consequence?.next_round_hint ||
+        readingFlow?.next_chapter_hook ||
+        continuityThreads?.foreshadowing ||
+        copy.fourthFallback,
+      detail:
+        continuityThreads?.payoff ||
+        "把这卷带回长线卷、作者台或下一轮沙盘，用户才能看见世界继续兑现后果。",
+      source: readingFlow?.turning_point || "长线卷回收",
+      isPrimary: false,
+    },
+  ];
+}
 
 export function WorldVolumePage({
   slug,
@@ -124,6 +203,10 @@ export function WorldVolumePage({
     consequence?.domains?.character ||
     null;
   const title = activeVolume?.title || copy.title;
+  const worldVolumeContinuitySteps = useMemo(
+    () => buildWorldVolumeContinuitySteps(report, activeVolume, siblingVolume, copy, volumeKind),
+    [activeVolume, copy, report, siblingVolume, volumeKind],
+  );
 
   const goSibling = () => {
     if (volumeKind === "chronicle") {
@@ -313,6 +396,45 @@ export function WorldVolumePage({
                 送到作者台
               </button>
             </article>
+          </section>
+
+          <section className="world-volume-continuity" aria-label="世界卷承接弧线">
+            <div className="world-volume-continuity__head">
+              <p className="muted tiny">世界卷承接弧线</p>
+              <h2>
+                {volumeKind === "chronicle"
+                  ? "正史怎样把事件压回下一章"
+                  : "锚点怎样把压力压回下一轮"}
+              </h2>
+              <p>
+                把卷内事实、相邻卷牵引、ledger 代偿和下一步回收放在同一条线上，用户就能知道这一卷为什么重要。
+              </p>
+            </div>
+            <div className="world-volume-continuity__grid">
+              {worldVolumeContinuitySteps.map((step, index) => (
+                <article
+                  className={`world-volume-continuity__step${step.isPrimary ? " is-primary" : ""}`}
+                  key={step.key}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <p className="muted tiny">{step.label}</p>
+                  <strong>{step.title}</strong>
+                  <p>{step.detail}</p>
+                  <small>{step.source}</small>
+                </article>
+              ))}
+            </div>
+            <div className="world-volume-continuity__actions">
+              <button type="button" onClick={() => scrollToItem(".world-volume-evidence")}>
+                查卷内证据
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}
+              >
+                去长线卷回收
+              </button>
+            </div>
           </section>
 
           <main className="world-volume-layout">
