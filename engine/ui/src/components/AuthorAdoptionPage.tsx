@@ -969,6 +969,82 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                         <h3>已确认入卷</h3>
                         <span className="badge badge--jade">{confirmation.artifact}</span>
                       </div>
+                      <section
+                        className="adoption-confirmation-handoff"
+                        aria-label="确认入卷后的世界接力"
+                      >
+                        <div className="adoption-confirmation-handoff__head">
+                          <div>
+                            <span className="muted tiny">确认完成</span>
+                            <h4>确认入卷接力台</h4>
+                          </div>
+                          <span
+                            className={`badge ${
+                              confirmation.reading_trail.status === "ready"
+                                ? "badge--jade"
+                                : "badge--gold"
+                            }`}
+                          >
+                            {readingTrailStatusLabel(confirmation.reading_trail.status)}
+                          </span>
+                        </div>
+                        <div className="adoption-confirmation-handoff__grid">
+                          <article>
+                            <span className="muted tiny">已成正史</span>
+                            <strong>{confirmation.artifacts.confirmed_chapter_markdown}</strong>
+                            <p>确认正文已进入 main 世界线，可回到正史卷连续阅读。</p>
+                          </article>
+                          <article>
+                            <span className="muted tiny">反哺下一轮</span>
+                            <strong>
+                              {confirmation.continuation_effect.next_sandbox_entry.major_event}
+                            </strong>
+                            <p>{confirmation.continuation_effect.worldline_state_artifact}</p>
+                          </article>
+                          <article>
+                            <span className="muted tiny">Reviewer 定稿</span>
+                            <strong>
+                              {confirmation.edit_source === "auto_reviewer_final"
+                                ? "已采用编辑后定稿"
+                                : confirmation.edited
+                                  ? "已采用作者修订稿"
+                                  : "沿用草稿正文"}
+                            </strong>
+                            <p>
+                              {confirmation.accepted_local_rewrites?.applied_rewrite_count
+                                ? `${confirmation.accepted_local_rewrites.applied_rewrite_count} 条局部改写已写入下一轮材料。`
+                                : "本章没有采纳局部改写，仍保留审稿记录。"}
+                            </p>
+                          </article>
+                          <article>
+                            <span className="muted tiny">回到世界</span>
+                            <strong>继续阅读或再跑沙盘</strong>
+                            <p>阅读链、世界线状态和下一轮事件已经就绪。</p>
+                          </article>
+                        </div>
+                        <div className="adoption-confirmation-handoff__actions">
+                          <button
+                            className="btn btn--primary"
+                            onClick={() =>
+                              navigate({ name: "dossierReading", slug, worldlineId: "main" })
+                            }
+                          >
+                            读确认正文
+                          </button>
+                          <button
+                            className="btn btn--ghost"
+                            onClick={() => scrollToPageItem(".adoption-reading")}
+                          >
+                            看阅读链
+                          </button>
+                          <button
+                            className="btn btn--ghost"
+                            onClick={() => navigate({ name: "sandbox", slug })}
+                          >
+                            继续沙盘
+                          </button>
+                        </div>
+                      </section>
                       <dl>
                         <div>
                           <dt>正文</dt>

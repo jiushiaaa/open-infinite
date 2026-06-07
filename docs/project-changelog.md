@@ -3475,3 +3475,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端沙盘页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `world-autopilot` / `readable_entry` 契约、不改 artifact。
+
+### 2026-06-07 — Author Confirmation Handoff Rail
+
+- **做了什么**：
+  - `AuthorAdoptionPage` 在确认入卷详情前新增“确认入卷接力台”。
+  - 接力台把已成正史、反哺下一轮、Reviewer 定稿和回到世界整理成四段可行动承接。
+  - 三个动作复用既有卷宗阅读路由、阅读链滚动和世界沙盘路由，可读确认正文、查看 reading trail 或继续沙盘。
+  - 接力台直接消费 `confirmation.artifacts`、`confirmation.continuation_effect.next_sandbox_entry`、`confirmation.reading_trail`、`confirmation.edit_source` 和 `confirmation.accepted_local_rewrites`；原有确认详情、Reviewer 检查和跨卷宗阅读链全部保留。
+  - 扩展 `check:author-adoption-ux`，锁定接力台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:author-adoption-ux`，确认缺少接力台时失败。
+  - Focused helper：`pnpm.cmd run check:author-adoption-ux` -> `author adoption ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端作者采纳 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变采纳、草稿、Reviewer 或确认入卷契约，不改 artifact。
