@@ -3944,3 +3944,22 @@
   - In-app Browser smoke：`http://localhost:5183/#/world/my-story/sandbox` 在 390px 干净标签页下，当前任务主按钮文案为“启动一轮推演”；点击后 URL 仍为沙盘路由，`.sandbox-page` 从 `scrollTop 0` 滚到 `130`，运行台与页面容器顶部距离约 `0.28px`；无水平溢出，浏览器 error 日志为空。
 - **边界**：
   - 本轮只改前端路线语义、共享壳层滚动 helper、沙盘运行台锚点、结构检查脚本和文档；不新增后端 API，不改变 hash 路由契约，不改变 `POST /api/stories/<slug>/sandbox/run` 字段，不改 artifact。
+
+### 2026-06-07 — WorldAnchorPage Continuation Deck
+
+- **做了什么**：
+  - `WorldAnchorPage` 新增“世界续行台”，把此刻世界、被推到台前、牵引伏笔和建议先做集中成四枚可扫读卡。
+  - 续行台复用既有 `deriveWorldJourney`、本机 `recentReading`、`data.world.scene_description`、`data.divergence_point`、首个角色和首条开放伏笔，不新增后端字段。
+  - 桌面左栏显示紧凑续行台，中心栏在世界苏醒台和世界卷宗总览之间显示完整续行台；移动端显示紧凑版并隐藏完整版本。
+  - 三个动作分别执行推荐下一步、进入世界沙盘或读世界线；在工作台壳层中主动作会进入 `#/world/<slug>/tianming` 等世界内路由。
+  - 扩展 `check:world-anchor-status-ribbon`，锁定续行台存在、桌面顺序、移动端紧凑版、字段来源、两列桌面布局和移动端单列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:world-anchor-status-ribbon`，确认缺少世界续行台时失败。
+  - Focused helper：`pnpm.cmd run check:world-anchor-status-ribbon` -> `world anchor status ribbon structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - 后端：`cd engine && python -X utf8 -m pytest -q` -> `951 passed`。
+  - Repo：`git diff --check` 通过；仅有 Windows CRLF 提示。
+  - In-app Browser smoke：`http://localhost:5183/#/anchor/my-story` 在 1280px 下紧凑续行台和完整续行台均渲染，完整续行台位于苏醒台与卷宗总览之间且无水平溢出；390px 下紧凑版显示、完整版本隐藏、无水平溢出，点击主按钮进入 `#/world/my-story/tianming`；浏览器 error 日志为空。
+- **边界**：
+  - 本轮只改前端锚定页 JSX/CSS、结构检查脚本和文档；不新增后端 API，不改变 `world-anchor` 响应契约，不改 artifact，不删除世界启动、世界苏醒台、世界卷宗总览、视觉资产、编辑锚定、角色栏或角色探针。

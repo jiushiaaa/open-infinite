@@ -305,6 +305,7 @@ function LeftColumn({
       />
 
       <WorldAwakeningFoyer data={data} recentReading={recentReading} compact />
+      <WorldContinuationDeck data={data} recentReading={recentReading} compact />
 
       <section className="anchor__launch" aria-label="启动世界">
         <div>
@@ -474,6 +475,7 @@ function CenterColumn({
   return (
     <div className="anchor__scroll">
       <WorldAwakeningFoyer data={data} recentReading={recentReading} />
+      <WorldContinuationDeck data={data} recentReading={recentReading} />
 
       <WorldDossierGateway data={data} recentReading={recentReading} />
 
@@ -733,6 +735,126 @@ function WorldAwakeningFoyer({
           type="button"
         >
           看世界线
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function WorldContinuationDeck({
+  data,
+  recentReading,
+  compact = false,
+}: {
+  data: WorldAnchor;
+  recentReading: RecentReading | null;
+  compact?: boolean;
+}) {
+  const worldlineId = "main";
+  const journey = deriveWorldJourney({
+    slug: data.slug,
+    runCount: data.run_count,
+    characterCount: data.characters.length,
+    openThreadCount: data.open_threads.length,
+    factionCount: data.world.factions.length,
+    currentChapter: data.world.current_chapter,
+    hasRecentReading: Boolean(recentReading),
+  });
+  const firstCharacter = data.characters[0];
+  const firstThread = data.open_threads[0];
+  const sceneText =
+    data.world.scene_description ||
+    data.divergence_point ||
+    data.world.canonical_place_name ||
+    "世界还没有写明此刻场景。";
+  const characterDetail = firstCharacter
+    ? `${firstCharacter.current_state.location || "位置未明"} · ${
+        firstCharacter.current_state.emotion || "心境未明"
+      }`
+    : "补足角色卡后，世界沙盘才能把欲望、记忆和利益推入下一轮。";
+  const threadDetail =
+    firstThread?.description ||
+    data.divergence_point ||
+    "开放伏笔会牵引天命书和沙盘，决定下一轮世界被什么问题推动。";
+  const compactContinuation = compact
+    ? "anchor__continuation-deck anchor__continuation--compact"
+    : "anchor__continuation-deck anchor__continuation--full";
+  const goRecommended = () => {
+    if (journey.recommendedKey === "reading" && recentReading) {
+      window.location.hash = recentReading.hash;
+    }
+    else if (journey.recommendedKey === "reading") {
+      navigate({ name: "dossierReading", slug: data.slug, worldlineId });
+    }
+    else if (journey.recommendedKey === "sandbox") {
+      navigate({ name: "sandbox", slug: data.slug });
+    }
+    else if (journey.recommendedKey === "author") {
+      navigate({ name: "author", slug: data.slug });
+    }
+    else {
+      navigate({ name: "tianming", slug: data.slug });
+    }
+  };
+  const cards = [
+    {
+      label: "此刻世界",
+      title: data.world.canonical_place_name || data.display_name,
+      detail: sceneText,
+    },
+    {
+      label: "被推到台前",
+      title: firstCharacter?.name || `${data.characters.length} 个角色待唤醒`,
+      detail: characterDetail,
+    },
+    {
+      label: "牵引伏笔",
+      title: firstThread?.title || `${data.open_threads.length} 条开放伏笔`,
+      detail: threadDetail,
+    },
+    {
+      label: "建议先做",
+      title: journey.recommendedAction,
+      detail: recentReading
+        ? `${recentReading.title} · ${recentReading.action}`
+        : journey.phaseDescription,
+    },
+  ];
+  return (
+    <section className={compactContinuation} aria-label="世界续行台">
+      <div className="anchor__continuation-head">
+        <div>
+          <span className="muted tiny">世界续行台</span>
+          <h2>{recentReading ? "先接上这条世界线" : "下一轮从这些问题开始"}</h2>
+        </div>
+        <p className="muted tiny">{journey.phaseDescription}</p>
+      </div>
+      <div className="anchor__continuation-grid">
+        {cards.map((item) => (
+          <article key={item.label}>
+            <span>{item.label}</span>
+            <strong>{item.title}</strong>
+            <p>{item.detail}</p>
+          </article>
+        ))}
+      </div>
+      <div className="anchor__continuation-actions">
+        <button className="btn btn--primary tiny" onClick={goRecommended} type="button">
+          {journey.recommendedAction}
+        </button>
+        <button
+          className="btn btn--ghost tiny"
+          onClick={() => navigate({ name: "sandbox", slug: data.slug })}
+          type="button"
+        >
+          让世界运行
+        </button>
+        <button
+          className="btn btn--ghost tiny"
+          onClick={() => navigate({ name: "worldline", slug: data.slug, worldlineId })}
+          type="button"
+        >
+          读世界线
         </button>
       </div>
     </section>
