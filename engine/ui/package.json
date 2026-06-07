@@ -23,6 +23,7 @@
     "check:workspace-archive-ux": "node scripts/check-workspace-archive-ux.mjs",
     "check:sandbox-runner-ux": "node scripts/check-sandbox-runner-ux.mjs",
     "check:story-shelf-focus": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-story-shelf-focus src/storyShelfFocus.ts && node scripts/check-story-shelf-focus.mjs",
+    "check:open-world-onboarding-ux": "node scripts/check-open-world-onboarding-ux.mjs",
     "check:world-route-context": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-world-route-context src/worldRouteContext.ts && node scripts/check-world-route-context.mjs",
     "check:world-anchor-status-ribbon": "node scripts/check-world-anchor-status-ribbon.mjs",
     "check:world-journey": "tsc --target ES2021 --module ES2022 --moduleResolution node --outDir .tmp-world-journey src/worldJourney.ts && node scripts/check-world-journey.mjs",

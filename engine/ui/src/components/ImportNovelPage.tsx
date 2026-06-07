@@ -92,6 +92,29 @@ export function ImportNovelPage() {
       done: false,
     },
   ];
+  const handoffReady = slugOk && (useUpload ? uploadOk : filled.length >= MIN_CH);
+  const importHandoffStages = [
+    {
+      title: "世界锚定",
+      state: handoffReady ? "待进入" : "准备中",
+      detail: slugOk ? `${name.trim()} 将先被定界` : "先命名世界，再放入正文",
+    },
+    {
+      title: "天命书",
+      state: "下一卷",
+      detail: "确认主锚点、因果债和候选承载者。",
+    },
+    {
+      title: "世界沙盘",
+      state: mock ? "模拟可试" : "真实运行",
+      detail: "角色会按记忆行动，世界会自演出后果。",
+    },
+    {
+      title: "卷宗阅读",
+      state: "可续读",
+      detail: "沙盘结果会沉淀为正史、角色卷和正文。",
+    },
+  ];
 
   function setContent(id: number, content: string) {
     setChapters((prev) => prev.map((c) => (c.id === id ? { ...c, content } : c)));
@@ -226,6 +249,49 @@ export function ImportNovelPage() {
             >
               填写章节
             </button>
+          </div>
+        </section>
+
+        <section className="import__handoff" aria-label="导入后的世界旅程">
+          <div className="import__handoff-copy">
+            <span className="import__eyebrow">开卷旅程</span>
+            <h2>导入不是结束，是世界开始运行前的第一步</h2>
+            <p>
+              当前素材状态：{sourceLabel}。点击导入后，系统会先把正文变成可确认的世界锚定，
+              再进入天命书、世界沙盘和卷宗阅读，不会让你迷失在单纯的上传表单里。
+            </p>
+            <div className="import__handoff-actions">
+              <button className="btn btn--primary" disabled={!canSubmit} onClick={submit}>
+                {busy ? "导入中…" : useUpload ? "上传并进入锚定" : "导入并进入锚定"}
+              </button>
+              <button
+                className="btn btn--ghost"
+                disabled={busy}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                选择文件
+              </button>
+              <button
+                className="btn btn--ghost"
+                disabled={busy || useUpload}
+                onClick={() => chaptersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              >
+                填写章节
+              </button>
+            </div>
+          </div>
+          <div className="import__handoff-stages">
+            {importHandoffStages.map((stage, index) => (
+              <article
+                className={`import__handoff-stage ${index === 0 ? "is-active" : ""}`}
+                key={stage.title}
+              >
+                <span className="import__handoff-index">{String(index + 1).padStart(2, "0")}</span>
+                <strong>{stage.title}</strong>
+                <small>{stage.state}</small>
+                <p>{stage.detail}</p>
+              </article>
+            ))}
           </div>
         </section>
 

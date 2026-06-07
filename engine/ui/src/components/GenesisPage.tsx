@@ -63,6 +63,28 @@ export function GenesisPage() {
       done: false,
     },
   ];
+  const genesisHandoffStages = [
+    {
+      title: "世界雏形",
+      state: premiseReady ? "已点题" : "待点题",
+      detail: premiseReady ? "主题已经可以生成第一批世界材料。" : "先写下你最想看的冲突。",
+    },
+    {
+      title: "世界锚定",
+      state: slugOk ? "可命名" : "待命名",
+      detail: slugOk ? `${name.trim()} 会先进入确认页。` : "用英文代号让世界有稳定入口。",
+    },
+    {
+      title: "天命书",
+      state: "下一卷",
+      detail: "确认主锚点、世界债务和可能改变命运的人。",
+    },
+    {
+      title: "世界沙盘",
+      state: mock ? "模拟可试" : "真实运行",
+      detail: "确认后再让角色行动、记忆累积、剧情涌现。",
+    },
+  ];
 
   async function submit() {
     if (!canSubmit) return;
@@ -145,6 +167,45 @@ export function GenesisPage() {
             <button className="btn btn--ghost" onClick={() => navigate({ name: "entry" })}>
               返回书架
             </button>
+          </div>
+        </section>
+
+        <section className="gen__handoff" aria-label="创世后的世界旅程">
+          <div className="gen__handoff-copy">
+            <span className="gen__eyebrow">创世旅程</span>
+            <h2>从一句念头，到一个能被锚定和运行的世界</h2>
+            <p>
+              当前主题{premiseReady ? "已经可以创世" : "还在等待第一句冲突"}。
+              创世后会先进入世界锚定，再确认天命书，最后把世界送进沙盘轮次和阅读卷宗。
+            </p>
+            <div className="gen__handoff-actions">
+              <button className="btn btn--primary" disabled={!canSubmit} onClick={submit}>
+                {busy ? "创世中…" : "创世并进入锚定"}
+              </button>
+              <button
+                className="btn btn--ghost"
+                disabled={busy}
+                onClick={() => premiseRef.current?.focus()}
+              >
+                填写主题
+              </button>
+              <button className="btn btn--ghost" onClick={() => navigate({ name: "entry" })}>
+                返回书架
+              </button>
+            </div>
+          </div>
+          <div className="gen__handoff-stages">
+            {genesisHandoffStages.map((stage, index) => (
+              <article
+                className={`gen__handoff-stage ${index === 0 ? "is-active" : ""}`}
+                key={stage.title}
+              >
+                <span className="gen__handoff-index">{String(index + 1).padStart(2, "0")}</span>
+                <strong>{stage.title}</strong>
+                <small>{stage.state}</small>
+                <p>{stage.detail}</p>
+              </article>
+            ))}
           </div>
         </section>
 

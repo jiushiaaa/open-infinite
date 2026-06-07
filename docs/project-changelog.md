@@ -3555,3 +3555,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端故事书架 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 story list 契约，不改 artifact。
+
+### 2026-06-07 — Open World Onboarding Journey Rails
+
+- **做了什么**：
+  - `ImportNovelPage` 在开卷前台和详细表单之间新增“开卷旅程”接力条。
+  - `GenesisPage` 在无稿创世台和详细表单之间新增“创世旅程”接力条。
+  - 导入页把素材状态接到世界锚定、天命书、世界沙盘和卷宗阅读；创世页把世界雏形接到世界锚定、天命书和世界沙盘。
+  - 两页接力条复用现有 `slugOk`、`sourceLabel` / `premiseReady`、`mock`、`canSubmit` 和 `submit`，并保留选择文件、填写章节、填写主题和返回书架动作。
+  - 新增 `check:open-world-onboarding-ux`，锁定接力条位置、四段旅程、真实 state 引用和移动端两列布局。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:open-world-onboarding-ux`，确认缺少开卷/创世旅程接力条时失败。
+  - Focused helper：`pnpm.cmd run check:open-world-onboarding-ux` -> `open-world onboarding journey rails ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端导入/创世 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变导入、创世、job polling、路由或 artifact 契约。

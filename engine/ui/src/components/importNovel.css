@@ -121,6 +121,81 @@
   border-top: 1px solid var(--line);
 }
 
+.import__handoff {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid rgba(74, 124, 99, 0.28);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(74, 124, 99, 0.07), rgba(178, 139, 66, 0.05)),
+    var(--paper);
+}
+.import__handoff-copy {
+  min-width: 0;
+}
+.import__handoff h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 18px;
+  line-height: 1.4;
+}
+.import__handoff p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.75;
+}
+.import__handoff-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.import__handoff-stages {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  min-width: 0;
+}
+.import__handoff-stage {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 252, 244, 0.76);
+}
+.import__handoff-stage.is-active {
+  border-color: var(--jade-soft);
+  background: var(--jade-wash);
+}
+.import__handoff-index {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink-faint);
+  font-size: 11px;
+  font-weight: 700;
+}
+.import__handoff-stage strong,
+.import__handoff-stage small {
+  display: block;
+}
+.import__handoff-stage strong {
+  margin-bottom: 3px;
+  font-size: 13px;
+}
+.import__handoff-stage small {
+  margin-bottom: 8px;
+  color: var(--jade);
+  font-size: 11px;
+  font-weight: 700;
+}
+.import__handoff-stage p {
+  font-size: 12px;
+  line-height: 1.55;
+}
+
 .import__form {
   background: var(--paper-raised);
   border: 1px solid var(--line);
@@ -361,6 +436,10 @@
     grid-template-columns: 1fr;
     padding: var(--space-4);
   }
+  .import__handoff {
+    grid-template-columns: 1fr;
+    padding: var(--space-4);
+  }
   .import__command-copy {
     order: 1;
   }
@@ -372,12 +451,14 @@
     grid-template-columns: 1fr;
   }
   .import__quick-actions,
+  .import__handoff-actions,
   .import__foot,
   .import__chapters-head {
     align-items: stretch;
     flex-direction: column;
   }
   .import__quick-actions .btn,
+  .import__handoff-actions .btn,
   .import__foot .btn,
   .import__chapters-head .btn {
     width: 100%;
@@ -388,5 +469,11 @@
   .import__row--inline {
     align-items: stretch;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .import__handoff-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -121,6 +121,81 @@
   border-top: 1px solid var(--line);
 }
 
+.gen__handoff {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid rgba(147, 76, 57, 0.25);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(147, 76, 57, 0.07), rgba(178, 139, 66, 0.05)),
+    var(--paper);
+}
+.gen__handoff-copy {
+  min-width: 0;
+}
+.gen__handoff h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 18px;
+  line-height: 1.4;
+}
+.gen__handoff p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.75;
+}
+.gen__handoff-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.gen__handoff-stages {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  min-width: 0;
+}
+.gen__handoff-stage {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 252, 244, 0.76);
+}
+.gen__handoff-stage.is-active {
+  border-color: var(--cinnabar-soft);
+  background: var(--cinnabar-wash);
+}
+.gen__handoff-index {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink-faint);
+  font-size: 11px;
+  font-weight: 700;
+}
+.gen__handoff-stage strong,
+.gen__handoff-stage small {
+  display: block;
+}
+.gen__handoff-stage strong {
+  margin-bottom: 3px;
+  font-size: 13px;
+}
+.gen__handoff-stage small {
+  margin-bottom: 8px;
+  color: var(--cinnabar);
+  font-size: 11px;
+  font-weight: 700;
+}
+.gen__handoff-stage p {
+  font-size: 12px;
+  line-height: 1.55;
+}
+
 .gen__form {
   background: var(--paper-raised);
   border: 1px solid var(--line);
@@ -257,6 +332,10 @@
     grid-template-columns: 1fr;
     padding: var(--space-4);
   }
+  .gen__handoff {
+    grid-template-columns: 1fr;
+    padding: var(--space-4);
+  }
   .gen__command-copy {
     order: 1;
   }
@@ -268,11 +347,13 @@
     grid-template-columns: 1fr;
   }
   .gen__quick-actions,
+  .gen__handoff-actions,
   .gen__foot {
     align-items: stretch;
     flex-direction: column;
   }
   .gen__quick-actions .btn,
+  .gen__handoff-actions .btn,
   .gen__foot .btn {
     width: 100%;
   }
@@ -282,5 +363,11 @@
   .gen__row--inline {
     align-items: stretch;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .gen__handoff-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
