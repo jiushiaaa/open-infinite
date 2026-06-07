@@ -3893,3 +3893,19 @@
   - In-app Browser smoke：`http://127.0.0.1:5188/#/world/my-story/worldlines/main/longline` 真实数据下桌面渲染 5 个误会节点，网络图位于误会回收卡片之前，点击第二个节点会切换详情且无水平溢出；390px 下网络图和详情单列、移动导读显示、浏览器 error/warning 日志为空。
 - **边界**：
   - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `longline-reading` 响应契约，不改 artifact。
+
+### 2026-06-07 — Author Adoption Recovery Queue
+
+- **做了什么**：
+  - `AuthorAdoptionPage` 在“下一章可写方案”之后、草稿输出之前新增“跨章回收清单”。
+  - 清单从既有 `next_chapter_brief.conflict_focus`、`feed_forward.sandbox_continuation_inputs.major_event`、`feed_forward.next_round_reads`、`writing_plan.manual_review_points` 和草稿状态派生五类行动：冲突回收、下一轮事件、回读材料、人工复核、正文落点。
+  - 用户写入采纳记录后，可直接跳回 brief、长线卷、世界沙盘、草稿或 Reviewer 质检门，先判断下一章必须回收什么，再生成/修订正文。
+  - 扩展 `check:author-adoption-ux`，锁定清单的数据来源、位置、行动跳转、桌面四列和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:author-adoption-ux`，确认缺少 `chapterRecoveryQueue` 时失败。
+  - Focused helper：`pnpm.cmd run check:author-adoption-ux` -> `author adoption ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - In-app Browser smoke：`http://localhost:5182/#/world/my-story/author` 真实提交后渲染 5 张跨章回收卡；同一结果缩到 390px 后卡片为单列 `290px`，`scrollWidth` 等于 `clientWidth`，无水平溢出；浏览器 error/warning 日志为空。
+- **边界**：
+  - 本轮只改前端作者采纳页 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变采纳、草稿、Reviewer、确认入卷或 artifact 契约。

@@ -215,6 +215,46 @@ assert(
     page.indexOf("整章修订路线") < page.indexOf("章节质感雷达"),
   "revision route should appear after the text editor and before the polish radar",
 );
+assert(
+  page.includes("chapterRecoveryQueue"),
+  "author adoption should derive a chapter recovery queue from the next chapter brief",
+);
+assert(
+  page.includes("adoption-recovery-queue"),
+  "author adoption should render a cross-chapter recovery queue before draft generation",
+);
+assert(
+  page.includes('aria-label="跨章回收清单"'),
+  "chapter recovery queue should have a clear accessible label",
+);
+assert(page.includes("跨章回收清单"), "chapter recovery queue should be named in product language");
+assert(page.includes("冲突回收"), "chapter recovery queue should surface conflict recovery");
+assert(page.includes("下一轮事件"), "chapter recovery queue should surface the next sandbox event");
+assert(page.includes("回读材料"), "chapter recovery queue should surface next-round reading material");
+assert(page.includes("人工复核"), "chapter recovery queue should surface manual review points");
+assert(
+  page.includes("report.next_chapter_brief?.feed_forward?.sandbox_continuation_inputs"),
+  "chapter recovery queue should use feed-forward sandbox continuation inputs",
+);
+assert(
+  page.includes("report.next_chapter_brief?.feed_forward?.next_round_reads"),
+  "chapter recovery queue should use next-round reading references",
+);
+assert(
+  page.includes("report.next_chapter_brief?.writing_plan?.manual_review_points"),
+  "chapter recovery queue should use writing plan review points",
+);
+assert(
+  page.includes('scrollToPageItem(".adoption-next")') &&
+    page.includes('scrollToPageItem(".adoption-draft")') &&
+    page.includes('scrollToPageItem(".adoption-review-gate")'),
+  "chapter recovery queue should link into brief, draft, and reviewer destinations",
+);
+assert(
+  page.indexOf("跨章回收清单") > page.indexOf("下一章可写方案") &&
+    page.indexOf("跨章回收清单") < page.indexOf("{draftError"),
+  "chapter recovery queue should appear after the next chapter brief and before draft output",
+);
 assert(css.includes(".adoption-confirmation-handoff"), "confirmation handoff should have styles");
 assert(
   /\.adoption-confirmation-handoff__grid[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/.test(
@@ -279,6 +319,19 @@ assert(
     css,
   ),
   "whole-chapter revision route should collapse to one column on narrow mobile",
+);
+assert(css.includes(".adoption-recovery-queue"), "chapter recovery queue should have styles");
+assert(
+  /\.adoption-recovery-queue__grid[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/.test(
+    css,
+  ),
+  "chapter recovery queue should use a four-column desktop grid",
+);
+assert(
+  /@media \(max-width: 620px\)[\s\S]*\.adoption-recovery-queue__grid[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "chapter recovery queue should collapse to one column on narrow mobile",
 );
 
 console.log("author adoption ux structure ok");

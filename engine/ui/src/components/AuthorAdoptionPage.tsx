@@ -312,6 +312,67 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
         },
       ]
     : [];
+  const chapterRecoveryQueue = report?.next_chapter_brief
+    ? [
+        {
+          key: "conflict",
+          label: "冲突回收",
+          title: "这章必须回答的旧债",
+          detail: report.next_chapter_brief.conflict_focus,
+          source: "下一章 brief",
+          action: "看 brief",
+          onClick: () => scrollToPageItem(".adoption-next"),
+          disabled: false,
+        },
+        {
+          key: "event",
+          label: "下一轮事件",
+          title: "后续沙盘入口",
+          detail:
+            report.next_chapter_brief?.feed_forward?.sandbox_continuation_inputs.major_event ||
+            report.next_chapter_brief.sandbox_inputs.major_event,
+          source: "feed-forward",
+          action: "回沙盘",
+          onClick: () => navigate({ name: "sandbox", slug }),
+          disabled: false,
+        },
+        {
+          key: "reads",
+          label: "回读材料",
+          title: "先看这些卷宗",
+          detail:
+            report.next_chapter_brief?.feed_forward?.next_round_reads?.slice(0, 3).join("、") ||
+            "暂无指定回读材料，先从下一章 brief 继续。",
+          source: "next_round_reads",
+          action: "看长线卷",
+          onClick: () =>
+            navigate({ name: "longlineReading", slug, worldlineId: report.worldline_id || "main" }),
+          disabled: !report.next_chapter_brief?.feed_forward?.next_round_reads?.length,
+        },
+        {
+          key: "review",
+          label: "人工复核",
+          title: "作者需要盯住的点",
+          detail:
+            report.next_chapter_brief?.writing_plan?.manual_review_points?.slice(0, 2).join("、") ||
+            "生成草稿后再由 Reviewer 标出需要作者确认的风险。",
+          source: "manual_review_points",
+          action: draft ? "看质检门" : "生成草稿",
+          onClick: draft ? () => scrollToPageItem(".adoption-review-gate") : generateDraft,
+          disabled: draftLoading,
+        },
+        {
+          key: "draft",
+          label: "正文落点",
+          title: draft ? "草稿已可修订" : "把回收点写成正文",
+          detail: draft ? draft.chapter_title : "先生成下一章草稿，再把回收点落到正文编辑框。",
+          source: "chapter_draft",
+          action: draft ? "看草稿" : "生成草稿",
+          onClick: draft ? () => scrollToPageItem(".adoption-draft") : generateDraft,
+          disabled: draftLoading,
+        },
+      ].filter((item) => item.detail.trim())
+    : [];
 
   async function submitAdoption() {
     setLoading(true);
@@ -746,6 +807,36 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                     {draftLoading ? "正在生成草稿…" : "生成下一章草稿"}
                   </button>
                 </div>
+              )}
+              {chapterRecoveryQueue.length > 0 && (
+                <section className="adoption-recovery-queue" aria-label="跨章回收清单">
+                  <div className="adoption-recovery-queue__head">
+                    <div>
+                      <span className="muted tiny">从沙盘到正文</span>
+                      <h3>跨章回收清单</h3>
+                    </div>
+                    <span className="badge badge--jade">{chapterRecoveryQueue.length} 项待承接</span>
+                  </div>
+                  <div className="adoption-recovery-queue__grid">
+                    {chapterRecoveryQueue.map((item) => (
+                      <article className="adoption-recovery-queue__card" key={item.key}>
+                        <span className="muted tiny">{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <div className="adoption-recovery-queue__meta">
+                          <span>{item.source}</span>
+                          <button
+                            className="btn btn--ghost tiny"
+                            disabled={item.disabled}
+                            onClick={item.onClick}
+                          >
+                            {item.action}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
               )}
               {report.foreshadowing_adjustments && (
                 <div className="adoption-next">
