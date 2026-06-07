@@ -114,6 +114,52 @@
   font-size: 13px;
 }
 
+.route-error {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  padding: var(--space-5);
+}
+
+.route-error__panel {
+  display: grid;
+  gap: var(--space-2);
+  width: min(100%, 420px);
+  border: 1px solid rgba(141, 50, 37, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(141, 50, 37, 0.08), transparent 76%),
+    rgba(255, 252, 244, 0.8);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+}
+
+.route-error__panel small {
+  color: var(--cinnabar-dark);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.route-error__panel strong {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.route-error__panel span {
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.route-error__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
 .shell-context {
   flex: 0 0 auto;
   display: grid;
@@ -910,6 +956,11 @@
 
   .shell-context__actions {
     grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+  }
+
+  .route-error__actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   }
 
   .world-workspace-shell__desktop-nav-top,

@@ -4065,3 +4065,18 @@
   - 前端：`pnpm.cmd run build` 通过，入口 JS 从上一轮约 `711.66 kB` 降到约 `231.50 kB`，页面输出为独立 chunks，原 Vite 大 chunk 警告消失。
 - **边界**：
   - 本轮只改前端入口、加载态样式、检查脚本和文档；不新增后端 API，不改变 hash 路由、页面 props、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — Route Chunk Recovery Boundary
+
+- **做了什么**：
+  - `App.tsx` 在懒加载页面外新增 `RouteChunkBoundary`，捕获动态页面 chunk 加载失败。
+  - 失败时显示“世界卷宗没有展开”的中文纸面错误态，说明材料加载失败，并提供“重新展开”和“回世界书架”两个恢复动作。
+  - hash 路由变化时错误态会自动重置，避免一次 chunk 失败把后续页面也锁死。
+  - 扩展 `check:route-code-splitting`，锁定 `RouteChunkBoundary`、`componentDidCatch`、route reset key、中文恢复文案和两个恢复动作。
+  - 同步 `memory.md`、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:route-code-splitting`，确认缺少 chunk error boundary 和恢复动作时失败。
+  - Focused helper：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `232.47 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+- **边界**：
+  - 本轮只改前端入口、壳层加载/错误态样式、检查脚本和文档；不新增后端 API，不改变 hash 路由、页面 props、阅读进度、沙盘请求字段或 artifact。

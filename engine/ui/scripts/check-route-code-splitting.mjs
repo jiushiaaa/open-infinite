@@ -46,6 +46,30 @@ if (!app.includes("正在展开世界卷宗")) {
   failures.push("route loading fallback should use Chinese product copy instead of a blank screen");
 }
 
+if (!app.includes("class RouteChunkBoundary")) {
+  failures.push("App should include a route chunk error boundary for failed lazy imports");
+}
+
+if (!app.includes("componentDidCatch")) {
+  failures.push("route chunk error boundary should record lazy route load errors");
+}
+
+if (!app.includes("componentDidUpdate") || !app.includes("resetKey")) {
+  failures.push("route chunk error boundary should reset when the route changes");
+}
+
+if (!app.includes("<RouteChunkBoundary resetKey={window.location.hash}>")) {
+  failures.push("routed pages should be wrapped by RouteChunkBoundary with a route reset key");
+}
+
+if (!app.includes("世界卷宗没有展开") || !app.includes("重新展开") || !app.includes("回世界书架")) {
+  failures.push("route chunk error state should use Chinese recovery copy and actions");
+}
+
+if (!app.includes("window.location.reload()") || !app.includes("window.location.hash = \"#/\"")) {
+  failures.push("route chunk error state should let users retry or return to the story shelf");
+}
+
 for (const pageName of routePages) {
   const staticImportPattern = new RegExp(
     `import\\s+\\{\\s*${pageName}\\s*\\}\\s+from\\s+[\"']\\.\\/components\\/${pageName}[\"'];`,
