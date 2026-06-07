@@ -4130,3 +4130,18 @@
   - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `234.61 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
 - **边界**：
   - 本轮只改前端入口加载态、AppShell 样式、路由拆包结构检查和文档；不新增后端 API，不改变 hash 路由、页面 props、预取机制、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — Route-Aware Error Recovery Copy
+
+- **做了什么**：
+  - `RouteChunkBoundary` 现在接收当前 `Route`，chunk 加载失败时不再只显示通用“世界卷宗没有展开”。
+  - 新增 `routeErrorCopy(route)`，世界沙盘、卷宗阅读、作者采纳台和天命书失败时分别显示“世界沙盘没有展开 / 卷宗阅读没有展开 / 作者采纳台没有展开 / 天命书没有展开”。
+  - 恢复说明会按目标房间提示用户可重新展开对应页面，或先回世界书架再进入。
+  - 扩展 `check:route-code-splitting`，锁定 `RouteChunkBoundary` 必须带当前 route、必须有 route-aware recovery copy 和关键失败文案。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:route-code-splitting`，确认缺少 route-aware error copy 时失败。
+  - Focused helper：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.08 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+- **边界**：
+  - 本轮只改前端入口错误态、路由拆包结构检查和文档；不新增后端 API，不改变 hash 路由、页面 props、预取机制、阅读进度、沙盘请求字段或 artifact。

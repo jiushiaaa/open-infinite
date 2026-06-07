@@ -102,12 +102,27 @@ if (!app.includes("componentDidUpdate") || !app.includes("resetKey")) {
   failures.push("route chunk error boundary should reset when the route changes");
 }
 
-if (!app.includes("<RouteChunkBoundary resetKey={window.location.hash}>")) {
-  failures.push("routed pages should be wrapped by RouteChunkBoundary with a route reset key");
+if (!app.includes("<RouteChunkBoundary resetKey={window.location.hash} route={route}>")) {
+  failures.push("routed pages should be wrapped by RouteChunkBoundary with a route reset key and route-aware recovery copy");
 }
 
 if (!app.includes("世界卷宗没有展开") || !app.includes("重新展开") || !app.includes("回世界书架")) {
   failures.push("route chunk error state should use Chinese recovery copy and actions");
+}
+
+if (!app.includes("function routeErrorCopy(route: Route)")) {
+  failures.push("route chunk error state should derive Chinese copy from the failed route");
+}
+
+for (const errorCopy of [
+  "世界沙盘没有展开",
+  "卷宗阅读没有展开",
+  "作者采纳台没有展开",
+  "天命书没有展开",
+]) {
+  if (!app.includes(errorCopy)) {
+    failures.push(`route chunk error state should include ${errorCopy}`);
+  }
 }
 
 if (!app.includes("window.location.reload()") || !app.includes("window.location.hash = \"#/\"")) {

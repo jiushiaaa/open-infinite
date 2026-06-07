@@ -122,6 +122,37 @@ function routeLoadingCopy(route: Route) {
   };
 }
 
+function routeErrorCopy(route: Route) {
+  if (route.name === "sandbox") {
+    return {
+      title: "世界沙盘没有展开",
+      detail: "这一轮运行台材料加载失败了，可以重新展开沙盘，或先回世界书架再进入。",
+    };
+  }
+  if (route.name === "dossierReading") {
+    return {
+      title: "卷宗阅读没有展开",
+      detail: "正文、证据和误会线索加载失败了，可以重新展开卷宗阅读，或先回世界书架再进入。",
+    };
+  }
+  if (route.name === "author") {
+    return {
+      title: "作者采纳台没有展开",
+      detail: "写作台、Reviewer 和定稿材料加载失败了，可以重新展开作者台，或先回世界书架再进入。",
+    };
+  }
+  if (route.name === "tianming") {
+    return {
+      title: "天命书没有展开",
+      detail: "世界宪法、锚点和干预边界加载失败了，可以重新展开天命书，或先回世界书架再进入。",
+    };
+  }
+  return {
+    title: "世界卷宗没有展开",
+    detail: "这一页的材料加载失败了，可以重新展开当前页面，或先回世界书架再进入。",
+  };
+}
+
 function RouteLoading({ route }: { route: Route }) {
   const copy = routeLoadingCopy(route);
   return (
@@ -136,7 +167,7 @@ function RouteLoading({ route }: { route: Route }) {
 }
 
 class RouteChunkBoundary extends Component<
-  { children: ReactNode; resetKey: string },
+  { children: ReactNode; resetKey: string; route: Route },
   { failed: boolean }
 > {
   state = { failed: false };
@@ -157,12 +188,13 @@ class RouteChunkBoundary extends Component<
 
   render() {
     if (this.state.failed) {
+      const copy = routeErrorCopy(this.props.route);
       return (
         <div className="route-error" role="alert">
           <div className="route-error__panel">
-            <small>世界卷宗没有展开</small>
+            <small>{copy.title}</small>
             <strong>这一页的材料加载失败了</strong>
-            <span>可以重新展开当前页面，或先回世界书架再进入。</span>
+            <span>{copy.detail}</span>
             <div className="route-error__actions">
               <button
                 className="btn btn--primary tiny"
@@ -198,7 +230,7 @@ export function App() {
 
   return (
     <AppShell route={route}>
-      <RouteChunkBoundary resetKey={window.location.hash}>
+      <RouteChunkBoundary resetKey={window.location.hash} route={route}>
         <Suspense fallback={<RouteLoading route={route} />}>
           {route.name === "workspace" && <WorkspacePage slug={route.slug} />}
           {route.name === "sandbox" && <WorldSandboxPage slug={route.slug} />}

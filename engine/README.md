@@ -16,7 +16,7 @@
 
 `WorldWorkspaceShell` 当前任务区已升级为“世界扫读带”：先把当前环节、承接世界线、建议先做、下一步理由、继续阅读、主动作和次动作放进同一条高优先级纸面层；旅程总线、工作区指针、状态预告、世界脉搏和卷宗速览保留在其后作为辅助导航。该层只改前端壳层视觉节奏和信息密度，不新增 API 或 artifact。
 
-前端入口已做路由级拆包：`App.tsx` 只保留壳层、路由状态和当前页面的懒加载边界，具体页面通过 `React.lazy`/`Suspense` 按路由加载。`RouteLoading` 会按目标路由显示“正在展开世界沙盘 / 卷宗阅读 / 作者采纳台 / 天命书”等中文纸面加载反馈，让等待期间也能知道正在进入哪个世界房间。当前 `pnpm.cmd run build` 输出入口 JS 约 234.61 kB，页面拆成独立 chunks，已消除原 711.66 kB 单大包警告。
+前端入口已做路由级拆包：`App.tsx` 只保留壳层、路由状态和当前页面的懒加载边界，具体页面通过 `React.lazy`/`Suspense` 按路由加载。`RouteLoading` 会按目标路由显示“正在展开世界沙盘 / 卷宗阅读 / 作者采纳台 / 天命书”等中文纸面加载反馈；`RouteChunkBoundary` 失败态也会按目标路由显示“世界沙盘没有展开 / 卷宗阅读没有展开 / 作者采纳台没有展开 / 天命书没有展开”等恢复提示。当前 `pnpm.cmd run build` 输出入口 JS 约 235.08 kB，页面拆成独立 chunks，已消除原 711.66 kB 单大包警告。
 
 路由懒加载已补失败兜底：`RouteChunkBoundary` 会捕获动态页面 chunk 加载失败，显示“世界卷宗没有展开”的中文纸面错误态，并提供“重新展开”和“回世界书架”两个恢复动作；切换 hash 路由会自动重置错误态。该层只改前端入口和样式，不新增 API 或 artifact。
 
@@ -61,9 +61,9 @@
 | 后端 | Python package + `lne` CLI + 本地 HTTP API |
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
-| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与世界入口旅程状态、沙盘运行台、最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版；前端路由级拆包、路由感知加载态、chunk 失败恢复态、高频导航预取和共享壳层动作预取已完成第一版 |
+| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与世界入口旅程状态、沙盘运行台、最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版；前端路由级拆包、路由感知加载态、路由感知失败恢复态、高频导航预取和共享壳层动作预取已完成第一版 |
 | 后端验证基线 | `python -m pytest -q` -> `951 passed` |
-| 前端验证基线 | `cd engine/ui && pnpm run build` 通过；入口 JS 约 234.61 kB，页面拆成独立 chunks，无 Vite 大 chunk 警告 |
+| 前端验证基线 | `cd engine/ui && pnpm run build` 通过；入口 JS 约 235.08 kB，页面拆成独立 chunks，无 Vite 大 chunk 警告 |
 | 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、跨章节误会回收、更强 Reviewer 和整章风格润色是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
 
 仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、GraphRAG/Zep、高级 runner 默认替换，以及 hybrid vector 是否默认替换 BM25。
