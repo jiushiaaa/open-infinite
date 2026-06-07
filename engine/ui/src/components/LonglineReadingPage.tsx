@@ -13,6 +13,25 @@ const PHASE_LABELS: Record<string, string> = {
   checkpoint: "检查点",
 };
 
+interface LonglineEntityLaneEntry {
+  id: string;
+  sequence: number;
+  phase: string;
+  title: string;
+  summary: string;
+  evidenceCount: number;
+}
+
+interface LonglineEntityLaneMisbelief {
+  id: string;
+  status: string;
+  misunderstanding: string;
+  originEventTitle: string;
+  authorPrompt: string;
+  evidenceCount: number;
+  nextRoute: string;
+}
+
 interface LonglineEntityLane {
   id: string;
   kind: "character" | "faction";
@@ -24,10 +43,21 @@ interface LonglineEntityLane {
   primaryEntryId: string;
   primaryEntryTitle: string;
   unresolvedCount: number;
+  entries: LonglineEntityLaneEntry[];
+  misbeliefs: LonglineEntityLaneMisbelief[];
 }
 
 function buildLonglineEntityLanes(report: LonglineReadingReport): LonglineEntityLane[] {
   const lanes = new Map<string, LonglineEntityLane>();
+
+  const toLaneEntry = (entry: LonglineTimelineEntry): LonglineEntityLaneEntry => ({
+    id: entry.id,
+    sequence: entry.sequence,
+    phase: PHASE_LABELS[entry.phase] || entry.label,
+    title: entry.title,
+    summary: entry.consequence_hint || entry.body,
+    evidenceCount: entry.evidence_refs.length,
+  });
 
   const addLane = (kind: LonglineEntityLane["kind"], name: string, entry: LonglineTimelineEntry) => {
     const normalizedName = name.trim();
@@ -38,6 +68,7 @@ function buildLonglineEntityLanes(report: LonglineReadingReport): LonglineEntity
       existing.entryCount += 1;
       existing.evidenceCount += entry.evidence_refs.length;
       if (!existing.summary && entry.consequence_hint) existing.summary = entry.consequence_hint;
+      existing.entries.push(toLaneEntry(entry));
       return;
     }
     lanes.set(id, {
@@ -51,6 +82,8 @@ function buildLonglineEntityLanes(report: LonglineReadingReport): LonglineEntity
       primaryEntryId: entry.id,
       primaryEntryTitle: entry.title,
       unresolvedCount: 0,
+      entries: [toLaneEntry(entry)],
+      misbeliefs: [],
     });
   };
 
@@ -66,6 +99,15 @@ function buildLonglineEntityLanes(report: LonglineReadingReport): LonglineEntity
       if (lane) {
         lane.unresolvedCount += item.status === "unresolved" ? 1 : 0;
         lane.summary = item.author_prompt || item.misunderstanding || lane.summary;
+        lane.misbeliefs.push({
+          id: item.id,
+          status: item.status,
+          misunderstanding: item.misunderstanding,
+          originEventTitle: item.origin_event_title,
+          authorPrompt: item.author_prompt,
+          evidenceCount: item.evidence_refs.length,
+          nextRoute: item.next_route,
+        });
       }
     }
   }
@@ -88,6 +130,7 @@ export function LonglineReadingPage({
 }) {
   const [report, setReport] = useState<LonglineReadingReport | null>(null);
   const [activeEntryId, setActiveEntryId] = useState("");
+  const [activeEntityLaneId, setActiveEntityLaneId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -98,6 +141,7 @@ export function LonglineReadingPage({
       const next = await api.getLonglineReading(slug, worldlineId);
       setReport(next);
       setActiveEntryId(next.timeline_entries[0]?.id || "");
+      setActiveEntityLaneId("");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -128,11 +172,25 @@ export function LonglineReadingPage({
     () => (report ? buildLonglineEntityLanes(report) : []),
     [report],
   );
+  const selectedEntityLane = useMemo(
+    () => longlineEntityLanes.find((lane) => lane.id === activeEntityLaneId),
+    [activeEntityLaneId, longlineEntityLanes],
+  );
 
   function focusEntry(entryId: string) {
     setActiveEntryId(entryId);
     window.requestAnimationFrame(() => {
       document.querySelector(".longline-current")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }
+  function focusEntityLane(lane: LonglineEntityLane) {
+    setActiveEntityLaneId(lane.id);
+    setActiveEntryId(lane.primaryEntryId);
+    window.requestAnimationFrame(() => {
+      document.querySelector(".longline-entity-focus")?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -401,7 +459,10 @@ export function LonglineReadingPage({
               </div>
               <div className="longline-entity-lanes__grid">
                 {longlineEntityLanes.map((lane) => (
-                  <article className="longline-entity-lane" key={lane.id}>
+                  <article
+                    className={`longline-entity-lane${selectedEntityLane?.id === lane.id ? " is-active" : ""}`}
+                    key={lane.id}
+                  >
                     <span>{lane.label}</span>
                     <strong>{lane.name}</strong>
                     <p>{lane.summary}</p>
@@ -419,13 +480,74 @@ export function LonglineReadingPage({
                         <dd>{lane.unresolvedCount} 条</dd>
                       </div>
                     </dl>
-                    <button className="btn btn--ghost tiny" onClick={() => focusEntry(lane.primaryEntryId)}>
+                    <button className="btn btn--ghost tiny" onClick={() => focusEntityLane(lane)}>
                       看这条长线
                     </button>
                     <small>{lane.primaryEntryTitle}</small>
                   </article>
                 ))}
               </div>
+              {selectedEntityLane && (
+                <section className="longline-entity-focus" aria-label="角色/势力追踪上下文台">
+                  <div className="longline-entity-focus__summary">
+                    <p className="muted tiny">{selectedEntityLane.label}</p>
+                    <h3>{selectedEntityLane.name} · 这条线怎样发酵</h3>
+                    <p>{selectedEntityLane.summary}</p>
+                    <dl>
+                      <div>
+                        <dt>沿线节点</dt>
+                        <dd>{selectedEntityLane.entryCount} 个</dd>
+                      </div>
+                      <div>
+                        <dt>证据</dt>
+                        <dd>{selectedEntityLane.evidenceCount} 条</dd>
+                      </div>
+                      <div>
+                        <dt>牵连误会</dt>
+                        <dd>{selectedEntityLane.unresolvedCount} 条</dd>
+                      </div>
+                    </dl>
+                    <button className="btn btn--ghost tiny" onClick={() => setActiveEntityLaneId("")}>
+                      回到全部长线
+                    </button>
+                  </div>
+                  <div className="longline-entity-focus__path">
+                    <div className="longline-entity-focus__title">
+                      <span>沿线节点</span>
+                      <strong>这条线经过哪里</strong>
+                    </div>
+                    {selectedEntityLane.entries.map((entry) => (
+                      <button key={entry.id} type="button" onClick={() => focusEntry(entry.id)}>
+                        <span>
+                          {String(entry.sequence).padStart(2, "0")} · {entry.phase}
+                        </span>
+                        <strong>{entry.title}</strong>
+                        <small>{entry.summary}</small>
+                        <em>{entry.evidenceCount} 条证据 · 继续追这个节点</em>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="longline-entity-focus__misbeliefs">
+                    <div className="longline-entity-focus__title">
+                      <span>牵连误会</span>
+                      <strong>哪些偏差还会回到下一章</strong>
+                    </div>
+                    {selectedEntityLane.misbeliefs.length > 0 ? (
+                      selectedEntityLane.misbeliefs.map((item) => (
+                        <button key={item.id} type="button" onClick={() => openRoute(item.nextRoute)}>
+                          <strong>{item.misunderstanding}</strong>
+                          <span>{item.authorPrompt || item.originEventTitle}</span>
+                          <small>
+                            {item.status === "unresolved" ? "待回收" : "已回收"} · {item.evidenceCount} 条证据
+                          </small>
+                        </button>
+                      ))
+                    ) : (
+                      <p>这条线暂时没有显式未解误会，可以先沿节点继续读它如何影响世界状态。</p>
+                    )}
+                  </div>
+                </section>
+              )}
             </section>
           )}
 

@@ -45,6 +45,7 @@ assert(
 );
 assert(
   page.includes("interface LonglineEntityLane") &&
+    page.includes("interface LonglineEntityLaneEntry") &&
     page.includes("buildLonglineEntityLanes") &&
     page.includes("longlineEntityLanes"),
   "longline page should derive character and faction tracking lanes from existing timeline data",
@@ -56,11 +57,32 @@ assert(
   "longline page should render character and faction tracking lanes",
 );
 assert(
+  page.includes("activeEntityLaneId") &&
+    page.includes("selectedEntityLane") &&
+    page.includes("focusEntityLane") &&
+    page.includes("setActiveEntityLaneId"),
+  "longline page should support selecting a character or faction lane",
+);
+assert(
   page.indexOf('className="longline-continuation-map"') <
     page.indexOf('className="longline-entity-lanes"') &&
     page.indexOf('className="longline-entity-lanes"') <
       page.indexOf('className="longline-briefing"'),
   "longline entity lanes should sit between continuation map and briefing grid",
+);
+assert(
+  page.includes('className="longline-entity-focus"') &&
+    page.includes('aria-label="角色/势力追踪上下文台"') &&
+    page.includes("selectedEntityLane.entries.map") &&
+    page.includes("selectedEntityLane.misbeliefs"),
+  "longline page should render a selected lane context panel",
+);
+assert(
+  page.indexOf('className="longline-entity-lanes"') <
+    page.indexOf('className="longline-entity-focus"') &&
+    page.indexOf('className="longline-entity-focus"') <
+      page.indexOf('className="longline-briefing"'),
+  "selected lane context should sit between entity lanes and briefing grid",
 );
 for (const label of ["跨章回收台", "当前张力", "首要误会", "活跃线索", "下一章钩子", "送到作者台"]) {
   assert(page.includes(label), `longline recovery orchestrator should include ${label}`);
@@ -70,6 +92,9 @@ for (const label of ["跨章承接地图", "现在读到", "来源事件", "误�
 }
 for (const label of ["角色与势力追踪带", "按角色追", "按势力追", "看这条长线", "谁还带着后果往前走"]) {
   assert(page.includes(label), `longline entity lanes should include ${label}`);
+}
+for (const label of ["这条线怎样发酵", "沿线节点", "牵连误会", "回到全部长线", "继续追这个节点"]) {
+  assert(page.includes(label), `longline entity focus should include ${label}`);
 }
 for (const field of ["misbelief_recovery", "open_threads", "current_tension", "next_chapter_hook"]) {
   assert(page.includes(field), `longline recovery orchestrator should use ${field}`);
@@ -82,7 +107,10 @@ for (const field of [
   "affected_characters",
   "affected_factions",
   "misbelief_recovery.items",
-  "focusEntry(lane.primaryEntryId)",
+  "focusEntityLane(lane)",
+  "setActiveEntryId(lane.primaryEntryId)",
+  "selectedEntityLane.entries",
+  "selectedEntityLane.misbeliefs",
 ]) {
   assert(page.includes(field), `longline entity lanes should use ${field}`);
 }
@@ -115,6 +143,14 @@ assert(
   "longline entity lanes should use a stable four-card desktop grid",
 );
 assert(
+  css.includes(".longline-entity-lane.is-active") &&
+    css.includes(".longline-entity-focus") &&
+    css.includes(".longline-entity-focus__path") &&
+    css.includes(".longline-entity-focus__misbeliefs") &&
+    css.includes("grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr)"),
+  "selected lane context should use a stable desktop split layout",
+);
+assert(
   /@media \(max-width: 820px\)[\s\S]*\.longline-recovery-orchestrator[\s\S]*grid-template-columns: 1fr/.test(css),
   "longline recovery orchestrator should collapse to one column on mobile widths",
 );
@@ -125,6 +161,10 @@ assert(
 assert(
   /@media \(max-width: 820px\)[\s\S]*\.longline-entity-lanes__grid[\s\S]*grid-template-columns: 1fr/.test(css),
   "longline entity lanes should collapse to one column on mobile widths",
+);
+assert(
+  /@media \(max-width: 820px\)[\s\S]*\.longline-entity-focus[\s\S]*grid-template-columns: 1fr/.test(css),
+  "selected lane context should collapse to one column on mobile widths",
 );
 
 console.log("longline reading ux structure ok");

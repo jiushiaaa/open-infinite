@@ -8,7 +8,7 @@
 
 世界线档案页在状态接力台之后新增“代偿罗盘”，用既有 `consequence_state` 摘要、ledger、承压领域和下一轮提示解释“世界为什么会继续变”；罗盘之后还有“世界发酵账”，把最近写入、承压域和下一轮会消费的材料组织成去长线卷或详细代偿账的行动路径。两层都只读 `worldline_dossier` / `worldline_state` 现有字段，不新增 API，不改变 artifact。
 
-跨事件长线卷在跨章承接地图之后新增“角色与势力追踪带”，从既有时间线、角色/势力影响、误会回收和证据引用派生可点击追踪卡，让用户能按角色记忆或势力压力继续追读；该层只改前端展示，不新增 API 或 artifact。
+跨事件长线卷在跨章承接地图之后新增“角色与势力追踪带”和选中后的“角色/势力追踪上下文台”，从既有时间线、角色/势力影响、误会回收和证据引用派生可点击追踪卡、沿线节点、牵连误会和证据读数，让用户能按角色记忆或势力压力继续追读；该层只改前端展示，不新增 API 或 artifact。
 
 最近产品化入口：
 
@@ -26,7 +26,7 @@
 | 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；移动端首屏已有“看站位 / 查代偿 / 换势力 / 作者台”导读条；导览后已有“势力压力接力台”，把当前站位、代偿压力、最近记录和下一轮秩序整理成可点击承接卡；接力台之后还有“势力代偿弧线”，把最近 ledger 的来源事件、债务分数、承压领域、资源/秘密压力和下一轮提示串成可回沙盘验证的连续势力弧；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、跨卷证据联动 |
 | 事件多视角详情页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 与 `EventPerspectivePage` / `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 已复用 `dossier-reading` 与 `character_lens_volumes`，把同一事件的节拍、正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/长线卷/作者台动作组织成独立页面；移动端首屏已有“读事件 / 看信息差 / 查证据 / 作者台”导读条；导览后已有“事件信息差接力台”，把事件现场、信息差、首要误读和下一章承接整理成可点击承接卡；接力台之后还有“事件误读弧线”，把 `perspective_biases`、`information_gap` 和 `next_actions` 翻译成谁看错了、正史裂缝、偏差发酵和下一步回收的连续路径 | 更深跨章误会网络 |
 | 多视角生成页 | `POST /api/stories/<slug>/character-lens/generate` 与 `CharacterLensPage` 已把同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角；移动端首屏已有“生成 / 改事件 / 读卷宗 / 作者台”分镜导读条 | 更自然长正文、多视角证据质量 |
-| 跨事件长线卷 | `GET /api/stories/<slug>/worldlines/<worldline_id>/longline-reading` 与 `LonglineReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/longline` 已复用 `dossier-reading`、`worldline_dossier`、连续阅读场景、卷宗、确认入卷和证据链，把事件、误会、角色记忆、势力压力和作者承接组织成可点击长线时间线，并已新增阅读进度、多事件索引、误会回收台、跨章回收台、跨章承接地图、未解线索跳转和移动端“读长线 / 按事件追 / 回收误会 / 作者台”首屏导读条 | 更深跨章误会网络、跨章节回收 |
+| 跨事件长线卷 | `GET /api/stories/<slug>/worldlines/<worldline_id>/longline-reading` 与 `LonglineReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/longline` 已复用 `dossier-reading`、`worldline_dossier`、连续阅读场景、卷宗、确认入卷和证据链，把事件、误会、角色记忆、势力压力和作者承接组织成可点击长线时间线，并已新增阅读进度、多事件索引、误会回收台、跨章回收台、跨章承接地图、角色/势力追踪上下文台、未解线索跳转和移动端“读长线 / 按事件追 / 回收误会 / 作者台”首屏导读条 | 更深跨章误会网络、跨章节回收 |
 | 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认以“读小说”模式读连续正文，正文居中并隐藏卷宗侧栏；顶部可切到“查卷宗”模式，恢复卷宗目录、阅读进度、误会图谱和世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、确认稿 tab。连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点、正文内“本卷场景”横向阅读轨道、当前场景导读条、续读签和可点击误会图谱；续读签把当前场景、下一场、本场误会和承接线放在正文前，读者可直接读下一场、回本场或追误会；移动端首屏已有“开始读正文 / 查卷宗 / 作者台”导读条；正文和关联卷宗之后新增“读完之后”余波承接台，可回看误会图谱、追长线卷、继续沙盘或送作者台；阅读类路由会写入前端本机最近阅读续航，锚定页和 AppShell 都能一键回到最近阅读位置 | 更深跨章误会网络、账号级用户阅读进度持久化 |
 | 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作，并可进入长线卷；工作流总览之后新增“状态接力台”，把角色记忆、因果代偿、最近检查点和下一轮入口组织成可点击承接卡；状态接力台之后新增“代偿罗盘”，用最近代价、承压领域、下一轮提示和继续阅读/回放入口解释世界为什么会继续变；罗盘之后新增“世界发酵账”，把最近写入、承压域和下一轮会消费的材料组织成去长线卷或详细代偿账的行动路径；移动端 hero 后新增“回放 / 看代偿 / 看任务 / 长线卷”承接导读条 | 醒来报告文学化、跨章节回收 |
 | 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口；顶部新增“读报告 / 查证据”模式切换，默认聚焦继续阅读和下一步可写方向，查证据模式恢复回放摘要、角色记忆和具象代偿；移动端 hero 后新增“继续读 / 看记忆 / 看代偿 / 作者台”醒来导读条；`WorldRunway` 后新增“检查点醒来接力台”，把醒来大事、谁记住了、代偿压力和接回正文整理成四枚可点击承接卡，可直接进入醒来报告、角色记忆、具象代偿或作者采纳台 | 醒来报告文学化、长线阅读进度 |

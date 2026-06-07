@@ -293,6 +293,14 @@
   background: rgba(255, 253, 246, 0.78);
 }
 
+.longline-entity-lane.is-active {
+  border-color: rgba(74, 124, 99, 0.42);
+  background:
+    linear-gradient(180deg, rgba(236, 244, 235, 0.78), rgba(255, 253, 246, 0.86)),
+    rgba(255, 253, 246, 0.88);
+  box-shadow: inset 0 0 0 1px rgba(74, 124, 99, 0.14);
+}
+
 .longline-entity-lane > span,
 .longline-entity-lane small {
   color: var(--muted);
@@ -338,6 +346,140 @@
 .longline-entity-lane .btn {
   justify-content: center;
   width: 100%;
+}
+
+.longline-entity-focus {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(74, 124, 99, 0.22);
+  background:
+    linear-gradient(135deg, rgba(236, 244, 235, 0.72), rgba(255, 253, 246, 0.9)),
+    rgba(255, 253, 246, 0.92);
+}
+
+.longline-entity-focus__summary {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.longline-entity-focus__summary h3,
+.longline-entity-focus__summary p,
+.longline-entity-focus__summary dl {
+  margin: 0;
+}
+
+.longline-entity-focus__summary h3 {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.longline-entity-focus__summary p:not(.tiny) {
+  color: var(--ink-soft);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.longline-entity-focus__summary dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.longline-entity-focus__summary dl div {
+  padding: 7px 8px;
+  border: 1px solid rgba(120, 91, 54, 0.12);
+  background: rgba(255, 253, 246, 0.72);
+}
+
+.longline-entity-focus__summary dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.longline-entity-focus__summary dd {
+  margin: 3px 0 0;
+  font-size: 0.86rem;
+}
+
+.longline-entity-focus__path,
+.longline-entity-focus__misbeliefs {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.longline-entity-focus__misbeliefs {
+  grid-column: 2;
+}
+
+.longline-entity-focus__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.longline-entity-focus__title span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.longline-entity-focus__title strong {
+  font-size: 0.92rem;
+}
+
+.longline-entity-focus__path button,
+.longline-entity-focus__misbeliefs button {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid rgba(120, 91, 54, 0.14);
+  background: rgba(255, 253, 246, 0.76);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.longline-entity-focus__path button:hover,
+.longline-entity-focus__misbeliefs button:hover {
+  border-color: rgba(74, 124, 99, 0.34);
+  background: rgba(250, 245, 233, 0.92);
+}
+
+.longline-entity-focus__path span,
+.longline-entity-focus__path small,
+.longline-entity-focus__path em,
+.longline-entity-focus__misbeliefs span,
+.longline-entity-focus__misbeliefs small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.longline-entity-focus__path strong,
+.longline-entity-focus__misbeliefs strong {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.longline-entity-focus__path small,
+.longline-entity-focus__misbeliefs span {
+  color: var(--ink-soft);
+}
+
+.longline-entity-focus__misbeliefs > p {
+  margin: 0;
+  padding: 11px;
+  border: 1px dashed rgba(120, 91, 54, 0.22);
+  color: var(--ink-soft);
+  line-height: 1.65;
 }
 
 .longline-timeline,
@@ -815,6 +957,7 @@
   .longline-recovery-orchestrator,
   .longline-continuation-map,
   .longline-entity-lanes__grid,
+  .longline-entity-focus,
   .longline-aside,
   .longline-thread-grid,
   .longline-recovery__grid,
@@ -856,7 +999,36 @@
   }
 
   .longline-entity-lane {
+    gap: 7px;
+    grid-template-rows: none;
     min-height: 0;
+    padding: 12px;
+  }
+
+  .longline-entity-lane .btn {
+    order: 3;
+  }
+
+  .longline-entity-lane p {
+    order: 4;
+    max-height: 5.1em;
+    overflow: hidden;
+  }
+
+  .longline-entity-lane dl {
+    order: 5;
+  }
+
+  .longline-entity-lane dl div {
+    padding: 6px;
+  }
+
+  .longline-entity-lane small {
+    order: 6;
+  }
+
+  .longline-entity-focus__misbeliefs {
+    grid-column: auto;
   }
 
   .longline-open-threads {

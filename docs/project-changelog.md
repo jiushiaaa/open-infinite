@@ -3858,3 +3858,20 @@
   - In-app Browser smoke：`http://127.0.0.1:5186/#/world/my-story/worldlines/main/longline` 真实数据下渲染 2 张角色追踪卡，桌面四列网格、点击追踪焦点和无水平溢出均正常；390px 下追踪带单列、移动导览显示且无水平溢出；浏览器日志无应用错误。
 - **边界**：
   - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `longline-reading` 响应契约，不改 artifact。
+
+### 2026-06-07 — Longline Entity Focus Panel
+
+- **做了什么**：
+  - `LonglineReadingPage` 的“角色与势力追踪带”新增选中态和“角色/势力追踪上下文台”。
+  - 追踪卡现在不只跳到首个节点，还会展开该角色/势力线的摘要、沿线节点、牵连误会、证据读数和“继续追这个节点”动作。
+  - 移动端追踪卡改为自然流式布局，并把主操作提前到标题后，避免按钮在 390px 视口里被卡到下边界。
+  - 扩展 `check:longline-reading-ux`，锁定 `activeEntityLaneId`、`selectedEntityLane`、`focusEntityLane`、上下文台语义、桌面分栏和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:longline-reading-ux`，确认缺少 `LonglineEntityLaneEntry` / 追踪上下文台时失败。
+  - Focused helper：`pnpm.cmd run check:longline-reading-ux` -> `longline reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - Repo：`git diff --check` 通过；仅有 Windows CRLF 提示。
+  - In-app Browser smoke：`http://127.0.0.1:5187/#/world/my-story/worldlines/main/longline` 真实数据下桌面点击追踪卡会打开上下文台、卡片进入选中态、展示 5 个沿线节点和 5 条牵连误会；切到 390px 后追踪卡和上下文台均为单列且无水平溢出；浏览器 error/warning 日志为空。
+- **边界**：
+  - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `longline-reading` 响应契约，不改 artifact。

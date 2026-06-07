@@ -176,7 +176,7 @@ POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation
 - 势力卷页：`#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 复用世界锚定、`dossier-reading` 与 `worldline_state` API，展示势力卷正文、势力目录、资源/秘密再分配、因果压力域、最近 ledger 和证据锚点；移动端首屏另有“看站位 / 查代偿 / 换势力 / 作者台”导读条，把势力站位、代偿状态、势力目录和采纳台直接前置；`WorldRunway` 后新增“势力压力接力台”，把当前站位、代偿压力、最近记录和下一轮秩序整理成可点击承接卡；接力台之后新增“势力代偿弧线”，把最近 ledger 的来源事件、债务分数、承压领域、资源/秘密压力和下一轮秩序串成连续路径，并可看完整代偿账或回沙盘验证；锚定页势力标签、多视角势力卷和卷宗阅读势力卷都能进入。
 - 事件多视角详情页：`#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 复用 `event-perspective` API，把同一事件组织成事件节拍、正文、信息差、误读列表、证据链和卷宗阅读/角色卷/世界线/作者台下一步动作；移动端首屏另有“读事件 / 看信息差 / 查证据 / 作者台”导读条，把当前事件、信息差、证据链和采纳台直接前置；`WorldRunway` 后新增“事件信息差接力台”，把事件现场、信息差、首要误读和下一章承接整理成可点击承接卡；卷宗阅读事件 tab 和多视角页事件正文都能进入。
 - 跨事件长线卷：`#/world/<slug>/worldlines/<worldline_id>/longline` 复用 `longline-reading` API，把事件、误会、角色记忆、势力压力、确认入卷和作者承接组织成可点击长线时间线，并在导览后新增“跨章回收台”，把当前张力、首要误会、活跃线索和下一章钩子并排前置；回收台之后还有“跨章承接地图”，把当前阅读节点、来源事件、误会余波和下一轮去向连成可点击因果链；首屏继续展示阅读进度、多事件索引、误会回收台和未解线索；移动端首屏另有“读长线 / 按事件追 / 回收误会 / 作者台”导读条，把核心阅读区和作者台入口直接前置；顶栏、世界线页、卷宗阅读页和事件详情页都能进入。
-- 长线卷角色与势力追踪带：`LonglineReadingPage` 在跨章承接地图之后新增“角色与势力追踪带”，从 `timeline_entries.affected_characters`、`affected_factions`、`misbelief_recovery.items` 和证据引用派生最该追的角色/势力卡片。用户能按角色记忆或势力压力继续追读，并一键把当前长线阅读焦点切到对应节点；该层不新增 API 或 artifact。
+- 长线卷角色/势力追踪上下文台：`LonglineReadingPage` 在跨章承接地图之后新增“角色与势力追踪带”，从 `timeline_entries.affected_characters`、`affected_factions`、`misbelief_recovery.items` 和证据引用派生最该追的角色/势力卡片；用户选择某张卡后，会出现“角色/势力追踪上下文台”，展示这条线的沿线节点、牵连误会、证据读数和继续追节点动作。用户能按角色记忆或势力压力继续追读，并把当前长线阅读焦点切到对应节点；该层不新增 API 或 artifact。
 - 机制档案页：首屏档案中枢把旧正史、运行记录、记忆层、检索与审计证据接回天命书、世界沙盘、卷宗阅读和旧分支追溯；移动端另有“天命书 / 沙盘 / 读卷宗 / 查证据”导读条，把支撑层档案接回世界主旅程；不再伪装成主线工作区。
 
 继续深化方向：
