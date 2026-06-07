@@ -54,6 +54,11 @@ export function EventPerspectivePage({
   const eventVolume = report?.event_volume as DossierReadingVolumeTab | undefined;
   const volumeBody = eventVolume?.body_md || "";
   const gap = report?.information_gap || {};
+  const primaryBias = report?.perspective_biases[0] || null;
+  const authorAction =
+    report?.next_actions.find((action) => action.id === "author" || action.route.includes("/author")) ||
+    report?.next_actions[0] ||
+    null;
   const scrollToEventItem = (selector: string) => {
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -181,6 +186,59 @@ export function EventPerspectivePage({
               },
             ]}
           />
+
+          <section className="event-gap-handoff" aria-label="事件信息差接力台">
+            <div className="event-gap-handoff__lead">
+              <p className="muted tiny">事件信息差接力台</p>
+              <h2>先抓住这一刻被谁看错了</h2>
+              <p>
+                把事件现场、信息差、首要误读和下一章承接放在一起，读者不用先懂卷宗结构，也能看见同一事件如何裂成多条命运。
+              </p>
+            </div>
+            <article>
+              <span>01</span>
+              <p className="muted tiny">事件现场</p>
+              <strong>{activeBeat?.title || report.title}</strong>
+              <p>{activeBeat?.body || report.subtitle || "等待事件节拍显形。"}</p>
+              <button type="button" onClick={() => scrollToEventItem(".event-perspective-cover")}>
+                读事件封面
+              </button>
+            </article>
+            <article>
+              <span>02</span>
+              <p className="muted tiny">信息差</p>
+              <strong>{gap.canon_vs_character || "正史与角色视角尚未裂开"}</strong>
+              <p>{gap.unknown_canon_facts || `可核对 ${report.evidence_panel.ref_count} 条证据来源。`}</p>
+              <button type="button" onClick={() => scrollToEventItem(".event-perspective-gap")}>
+                看信息差
+              </button>
+            </article>
+            <article>
+              <span>03</span>
+              <p className="muted tiny">首要误读</p>
+              <strong>{primaryBias?.label || gap.misbeliefs || "等待角色误读显形"}</strong>
+              <p>{primaryBias?.cognitive_bias || gap.misbeliefs || "事件的魅力在于：正史发生了，角色却未必这样理解。"}</p>
+              <button type="button" onClick={() => scrollToEventItem(".event-perspective-bias-list")}>
+                查谁误读了它
+              </button>
+            </article>
+            <article>
+              <span>04</span>
+              <p className="muted tiny">送入下一章</p>
+              <strong>{authorAction?.label || "把信息差送到作者台"}</strong>
+              <p>{authorAction?.reason || "把这次误读、证据和余波写进下一章，让世界继续发酵。"}</p>
+              <button
+                type="button"
+                onClick={() =>
+                  authorAction
+                    ? handleAction(authorAction, slug, worldlineId)
+                    : navigate({ name: "author", slug })
+                }
+              >
+                把信息差送到作者台
+              </button>
+            </article>
+          </section>
 
           <main className="event-perspective-layout">
             <aside className="event-perspective-index" aria-label="事件节拍">

@@ -3427,3 +3427,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端势力卷 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `dossier-reading` / `worldline-state` 契约、不改 artifact。
+
+### 2026-06-07 — Event Gap Handoff Rail
+
+- **做了什么**：
+  - `EventPerspectivePage` 在 `WorldRunway` 后、三栏事件阅读布局前新增“事件信息差接力台”。
+  - 接力台把事件现场、信息差、首要误读和送入下一章整理成四枚可点击承接卡。
+  - 四枚入口复用既有 `activeBeat`、`gap`、`primaryBias`、`report.evidence_panel`、`report.next_actions`、滚动动作和下一步路由，可读事件封面、看信息差、查谁误读了它或把信息差送到作者台。
+  - 桌面保持稳定扫读网格，820px 以下折为单列；原有移动端“读事件 / 看信息差 / 查证据 / 作者台”导读条、事件节拍、事件正文、信息差、误读列表、下一步动作和证据区全部保留。
+  - 扩展 `check:event-perspective-ux`，锁定信息差接力台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:event-perspective-ux`，确认缺少信息差接力台时失败。
+  - Focused helper：`pnpm.cmd run check:event-perspective-ux` -> `event perspective ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端事件多视角 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `event-perspective` 契约、不改 artifact。
