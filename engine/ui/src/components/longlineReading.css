@@ -89,6 +89,77 @@
   align-items: stretch;
 }
 
+.longline-recovery-orchestrator {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid rgba(74, 124, 99, 0.2);
+  background:
+    linear-gradient(135deg, rgba(236, 244, 235, 0.76), rgba(255, 253, 246, 0.9)),
+    rgba(255, 253, 246, 0.9);
+}
+
+.longline-recovery-orchestrator__lead,
+.longline-recovery-orchestrator article {
+  min-width: 0;
+}
+
+.longline-recovery-orchestrator__lead {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.longline-recovery-orchestrator__lead p,
+.longline-recovery-orchestrator__lead h2 {
+  margin: 0;
+}
+
+.longline-recovery-orchestrator__lead h2 {
+  font-family: var(--font-serif);
+  font-size: 1.16rem;
+  line-height: 1.35;
+}
+
+.longline-recovery-orchestrator__lead p:not(.tiny) {
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.longline-recovery-orchestrator article {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 9px;
+  min-height: 184px;
+  padding: 14px;
+  border: 1px solid rgba(120, 91, 54, 0.14);
+  background: rgba(255, 253, 246, 0.74);
+}
+
+.longline-recovery-orchestrator article span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.longline-recovery-orchestrator article strong {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  font-size: 0.96rem;
+}
+
+.longline-recovery-orchestrator article p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+}
+
+.longline-recovery-orchestrator article .btn {
+  justify-content: center;
+  width: 100%;
+}
+
 .longline-timeline,
 .longline-reader,
 .longline-aside {
@@ -561,6 +632,7 @@
 
   .longline-layout,
   .longline-briefing,
+  .longline-recovery-orchestrator,
   .longline-aside,
   .longline-thread-grid,
   .longline-recovery__grid,
@@ -568,6 +640,14 @@
   .longline-progress dl,
   .longline-entry__meta {
     grid-template-columns: 1fr;
+  }
+
+  .longline-recovery-orchestrator {
+    padding: 14px;
+  }
+
+  .longline-recovery-orchestrator article {
+    min-height: 0;
   }
 
   .longline-open-threads {

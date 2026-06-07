@@ -3379,3 +3379,19 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端世界线页 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 worldline dossier 契约、不改 artifact。
+
+### 2026-06-07 — Longline Cross-Chapter Recovery Orchestrator
+
+- **做了什么**：
+  - `LonglineReadingPage` 在 `WorldRunway` 后、长线阅读状态区前新增“跨章回收台”。
+  - 回收台把当前张力、首要误会、活跃线索和下一章钩子整理成四枚可点击承接卡。
+  - 四枚入口复用既有 `current_tension`、`misbelief_recovery`、`open_threads`、`next_chapter_hook`、路由与滚动动作，可看当前节点、回收误会、追线索或送到作者台。
+  - 桌面保持四列扫读，820px 以下折为单列；原有移动端导读条、长线阅读进度、多事件索引、误会回收台、未解线索、时间线和证据区全部保留。
+  - 扩展 `check:longline-reading-ux`，锁定回收台位置、四类语义、真实字段引用和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:longline-reading-ux`，确认缺少跨章回收台时失败。
+  - Focused helper：`pnpm.cmd run check:longline-reading-ux` -> `longline reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API、不改变 `longline-reading` 契约、不改 artifact。

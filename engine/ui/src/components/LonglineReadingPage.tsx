@@ -53,6 +53,10 @@ export function LonglineReadingPage({
   const activeEvent = report?.event_index.items.find((item) =>
     activeEntry ? item.entry_ids.includes(activeEntry.id) : false,
   );
+  const primaryMisbelief =
+    report?.misbelief_recovery.items.find((item) => item.status === "unresolved") ||
+    report?.misbelief_recovery.items[0];
+  const primaryOpenThread = report?.open_threads[0];
 
   function focusEntry(entryId: string) {
     setActiveEntryId(entryId);
@@ -176,6 +180,72 @@ export function LonglineReadingPage({
               },
             ]}
           />
+
+          <section className="longline-recovery-orchestrator" aria-label="跨章回收台">
+            <div className="longline-recovery-orchestrator__lead">
+              <p className="muted tiny">跨章回收台</p>
+              <h2>先决定这条长线要回收到哪里</h2>
+              <p>
+                把当前张力、首要误会、活跃线索和下一章钩子并排放好，避免读完长线后不知道该回沙盘、卷宗还是作者台。
+              </p>
+            </div>
+            <article>
+              <span>当前张力</span>
+              <strong>{report.current_tension.summary}</strong>
+              <p>{report.current_tension.primary_misbelief || "当前没有显式误会，但世界仍会沿事件后果继续发酵。"}</p>
+              <button className="btn btn--ghost tiny" onClick={() => scrollToPageItem(".longline-current")}>
+                看当前节点
+              </button>
+            </article>
+            <article>
+              <span>首要误会</span>
+              <strong>{primaryMisbelief?.misunderstanding || "暂无待回收误会"}</strong>
+              <p>
+                {primaryMisbelief?.author_prompt ||
+                  report.misbelief_recovery.fallback_action.reason ||
+                  "先继续阅读长线，再决定是否送入作者台。"}
+              </p>
+              <button
+                className="btn btn--ghost tiny"
+                onClick={() =>
+                  primaryMisbelief
+                    ? openRoute(primaryMisbelief.next_route)
+                    : openRoute(report.misbelief_recovery.fallback_action.route)
+                }
+              >
+                回收误会
+              </button>
+            </article>
+            <article>
+              <span>活跃线索</span>
+              <strong>
+                {primaryOpenThread?.label ||
+                  `${report.reading_progress.active_thread_count} 条线正在发酵`}
+              </strong>
+              <p>
+                {primaryOpenThread?.reason ||
+                  `${report.reading_progress.unresolved_thread_count} 条未解线索等待跨事件承接。`}
+              </p>
+              <button
+                className="btn btn--ghost tiny"
+                onClick={() =>
+                  primaryOpenThread
+                    ? openRoute(primaryOpenThread.next_route)
+                    : scrollToPageItem(".longline-open-threads")
+                }
+              >
+                追线索
+              </button>
+            </article>
+            <article>
+              <span>下一章钩子</span>
+              <strong>{report.current_tension.next_chapter_hook || "送到作者台承接"}</strong>
+              <p>把这条长线整理成下一章材料，保留误会、记忆和势力压力的余波。</p>
+              <button className="btn btn--primary tiny" onClick={() => navigate({ name: "author", slug })}>
+                送到作者台
+              </button>
+            </article>
+          </section>
 
           <section className="longline-briefing" aria-label="长线阅读状态">
             <article className="longline-progress">
