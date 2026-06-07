@@ -40,6 +40,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [queuedPossibilityTitle, setQueuedPossibilityTitle] = useState("");
   const [queuedStrategyTitle, setQueuedStrategyTitle] = useState("");
   const [queuedActionFocusTitle, setQueuedActionFocusTitle] = useState("");
+  const [queuedActionTrailTitle, setQueuedActionTrailTitle] = useState("");
   const [queuedEventSeedTitle, setQueuedEventSeedTitle] = useState("");
   const [memoryReport, setMemoryReport] = useState<SubjectiveMemoryReport | null>(null);
   const [memoryLoading, setMemoryLoading] = useState(false);
@@ -379,6 +380,49 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       };
     });
   }, [round]);
+  const actionTrailDeck = useMemo(() => {
+    if (!round) return [];
+    const nextRoundHint =
+      worldlineState?.continuation_inputs?.major_event_hint ||
+      consequenceNextRoundHint ||
+      round.next_story_possibilities[0]?.brief ||
+      "下一轮继续观察这名角色怎样消化本轮后果";
+    return round.character_actions.slice(0, 3).map((item, index) => {
+      const actionLine = item.visible_action ?? item.action;
+      const previousMemory =
+        item.previous_subjective_memory ||
+        (typeof item.decision_inputs?.previous_memory_belief === "string"
+          ? item.decision_inputs.previous_memory_belief
+          : "") ||
+        item.memory_influence ||
+        "上一轮没有明确记忆，本轮先按事件压力行动";
+      const resultPressure =
+        item.action_outcome?.reason ||
+        item.expected_outcome ||
+        item.llm_decision_advisory?.expected_outcome ||
+        item.risk ||
+        "结果还没有定型，会继续压到世界线与角色关系";
+      const nextPressure =
+        round.next_story_possibilities[index]?.brief ||
+        nextRoundHint ||
+        "下一轮继续观察这条角色弧线";
+      return {
+        id: `${item.character_id}-trail-${index}`,
+        characterId: item.character_id,
+        title: item.character_name,
+        role: item.narrative_role,
+        previousMemory,
+        action: actionLine,
+        resultPressure,
+        nextPressure,
+        event: `${item.character_name}被上一轮记忆推动：${previousMemory}。本轮行动：${actionLine}。结果压力：${resultPressure}。下一轮推力：${nextPressure}。`,
+      };
+    });
+  }, [
+    consequenceNextRoundHint,
+    round,
+    worldlineState?.continuation_inputs?.major_event_hint,
+  ]);
   const eventSeedDeck = useMemo<
     Array<{ id: string; label: string; title: string; detail: string; event: string }>
   >(() => {
@@ -452,6 +496,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedPossibilityTitle("");
     setQueuedStrategyTitle("");
     setQueuedActionFocusTitle("");
+    setQueuedActionTrailTitle("");
     setQueuedEventSeedTitle("");
     try {
       const next = await api.runSandboxRound(slug, {
@@ -577,6 +622,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedPossibilityTitle(title);
     setQueuedStrategyTitle("");
     setQueuedActionFocusTitle("");
+    setQueuedActionTrailTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -591,6 +637,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedStrategyTitle(title);
     setQueuedPossibilityTitle("");
     setQueuedActionFocusTitle("");
+    setQueuedActionTrailTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -600,6 +647,20 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setInterventionContent("");
     setInterventionTarget("");
     setQueuedActionFocusTitle(card.title);
+    setQueuedPossibilityTitle("");
+    setQueuedStrategyTitle("");
+    setQueuedActionTrailTitle("");
+    setQueuedEventSeedTitle("");
+    focusControl();
+  }
+
+  function queueActionTrailSeed(card: (typeof actionTrailDeck)[number]) {
+    setMajorEvent(card.event);
+    setInterventionContent("");
+    setInterventionTarget("");
+    setSelectedCharacterId(card.characterId);
+    setQueuedActionTrailTitle(card.title);
+    setQueuedActionFocusTitle("");
     setQueuedPossibilityTitle("");
     setQueuedStrategyTitle("");
     setQueuedEventSeedTitle("");
@@ -612,6 +673,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedPossibilityTitle("");
     setQueuedStrategyTitle("");
     setQueuedActionFocusTitle("");
+    setQueuedActionTrailTitle("");
     focusEventDraft();
   }
 
@@ -1742,6 +1804,94 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                             onClick={() => queueActionFocusSeed(card)}
                           >
                             回填为下一轮事件
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {actionTrailDeck.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-action-trail"
+                  aria-label="角色跨轮追踪"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">角色跨轮追踪</p>
+                      <h2>把角色弧线接到下一轮</h2>
+                    </div>
+                    {queuedActionTrailTitle ? (
+                      <span className="badge badge--jade">已带入下一轮</span>
+                    ) : (
+                      <span className="badge">跨轮弧线</span>
+                    )}
+                  </div>
+                  <p className="muted">
+                    每条弧线按上一轮记忆、本轮行动、结果压力和下一轮推力串起来，先看清角色为什么这样动，再决定要追证据、读角色卷，还是继续推演。
+                  </p>
+                  {queuedActionTrailTitle && (
+                    <p className="muted tiny">已带入下一轮：{queuedActionTrailTitle}</p>
+                  )}
+                  <div className="sandbox-action-trail__grid">
+                    {actionTrailDeck.map((card) => (
+                      <article
+                        className={`sandbox-action-trail-card ${
+                          selectedCharacterId === card.characterId ? "is-active" : ""
+                        }`}
+                        key={card.id}
+                      >
+                        <div className="sandbox-action-trail-card__head">
+                          <span>角色弧线</span>
+                          <strong>{card.title}</strong>
+                          <small>{card.role}</small>
+                        </div>
+                        <ol className="sandbox-action-trail-card__steps">
+                          <li>
+                            <span>上一轮记忆</span>
+                            <p>{card.previousMemory}</p>
+                          </li>
+                          <li>
+                            <span>本轮行动</span>
+                            <p>{card.action}</p>
+                          </li>
+                          <li>
+                            <span>结果压力</span>
+                            <p>{card.resultPressure}</p>
+                          </li>
+                          <li>
+                            <span>下一轮推力</span>
+                            <p>{card.nextPressure}</p>
+                          </li>
+                        </ol>
+                        <div className="sandbox-action-trail-card__actions">
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={() => {
+                              setSelectedCharacterId(card.characterId);
+                              focusActionChain();
+                            }}
+                          >
+                            追这条弧线
+                          </button>
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={() =>
+                              navigate({
+                                name: "characterVolume",
+                                slug,
+                                worldlineId: round.worldline_id,
+                                characterId: card.characterId,
+                              })
+                            }
+                          >
+                            读角色卷
+                          </button>
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={() => queueActionTrailSeed(card)}
+                          >
+                            带入下一轮
                           </button>
                         </div>
                       </article>

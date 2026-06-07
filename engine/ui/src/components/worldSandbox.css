@@ -1157,6 +1157,112 @@
   min-width: 96px;
 }
 
+.sandbox-action-trail {
+  border-color: rgba(104, 72, 145, 0.22);
+  background:
+    linear-gradient(135deg, rgba(241, 235, 252, 0.5), transparent 42%),
+    var(--paper-raised);
+}
+
+.sandbox-action-trail .sandbox-section__title > div {
+  min-width: 0;
+}
+
+.sandbox-action-trail .sandbox-section__title p {
+  margin: 0 0 3px;
+}
+
+.sandbox-action-trail > p {
+  max-width: 860px;
+  line-height: 1.7;
+}
+
+.sandbox-action-trail__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.sandbox-action-trail-card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(104, 72, 145, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 252, 244, 0.78);
+}
+
+.sandbox-action-trail-card.is-active {
+  border-color: rgba(141, 50, 37, 0.45);
+  box-shadow: 0 0 0 2px rgba(141, 50, 37, 0.08);
+}
+
+.sandbox-action-trail-card__head {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.sandbox-action-trail-card__head span {
+  color: var(--cinnabar-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sandbox-action-trail-card__head strong {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-action-trail-card__head small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.sandbox-action-trail-card__steps {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sandbox-action-trail-card__steps li {
+  display: grid;
+  gap: 4px;
+  border-top: 1px dashed rgba(104, 72, 145, 0.24);
+  padding-top: var(--space-2);
+}
+
+.sandbox-action-trail-card__steps span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sandbox-action-trail-card__steps p {
+  margin: 0;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-action-trail-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-self: end;
+}
+
+.sandbox-action-trail-card__actions .btn {
+  min-width: 96px;
+}
+
 .sandbox-strategy-board {
   border-color: rgba(151, 109, 44, 0.32);
   background:
@@ -1757,6 +1863,7 @@
   .sandbox-preflight-map__grid,
   .sandbox-result-reading-guide__grid,
   .sandbox-action-focus__grid,
+  .sandbox-action-trail__grid,
   .sandbox-event-seeds__grid,
   .sandbox-event-preview__grid,
   .sandbox-intervention-preview__grid {
@@ -1876,6 +1983,8 @@
   .sandbox-result-reading-guide__actions,
   .sandbox-action-focus__grid,
   .sandbox-action-focus-card__actions,
+  .sandbox-action-trail__grid,
+  .sandbox-action-trail-card__actions,
   .sandbox-event-seeds__grid,
   .sandbox-event-seeds__actions,
   .sandbox-event-preview__grid,
@@ -1888,6 +1997,7 @@
   .sandbox-preflight-map__actions,
   .sandbox-result-reading-guide__actions,
   .sandbox-action-focus-card__actions,
+  .sandbox-action-trail-card__actions,
   .sandbox-event-seeds__head,
   .sandbox-event-seeds__actions,
   .sandbox-event-preview__head,
@@ -1906,6 +2016,7 @@
   .sandbox-preflight-map__actions .btn,
   .sandbox-result-reading-guide__actions .btn,
   .sandbox-action-focus-card__actions .btn,
+  .sandbox-action-trail-card__actions .btn,
   .sandbox-event-seeds__actions .btn,
   .sandbox-event-preview__actions .btn,
   .sandbox-intervention-preview__actions .btn {

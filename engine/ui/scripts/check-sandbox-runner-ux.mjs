@@ -75,6 +75,17 @@ const requiredPageMarkers = [
   ["setMajorEvent(card.event)", "action focus should update the major event draft"],
   ["定位行动链", "action focus should let users jump to detailed action evidence"],
   ["追角色卷", "action focus should route users to the character volume"],
+  ["sandbox-action-trail", "completed round should expose a cross-round character trail before dense action chains"],
+  ["角色跨轮追踪", "action trail should name the cross-round character reading surface"],
+  ["上一轮记忆", "action trail should start from the character's previous memory"],
+  ["本轮行动", "action trail should show the current round action"],
+  ["结果压力", "action trail should explain how the action pressures the world"],
+  ["下一轮推力", "action trail should hand the character arc into the next round"],
+  ["actionTrailDeck", "action trail should derive a readable deck from character actions"],
+  ["queueActionTrailSeed", "action trail should have a dedicated next-round queue helper"],
+  ["追这条弧线", "action trail should let users jump to detailed action evidence"],
+  ["带入下一轮", "action trail should let users reuse the character arc as the next event"],
+  ["读角色卷", "action trail should route users to the character volume"],
   ["sandbox-strategy-board", "strategy board should surface character tactics after a round"],
   ["谁在算计谁", "strategy board should explain the relationship between actors and targets"],
   ["私下目的", "strategy board should explain each actor's private goal"],
@@ -126,6 +137,7 @@ const advancedInterventionIndex = page.indexOf("sandbox-runner__advanced");
 const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
 const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
 const actionFocusIndex = page.indexOf("sandbox-action-focus");
+const actionTrailIndex = page.indexOf("sandbox-action-trail");
 const actionChainIndex = page.indexOf("<h2>角色行动链</h2>");
 const possibilitiesIndex = page.indexOf("后续剧情可能性");
 const queuePossibilityIndex = page.indexOf("queueNextPossibility");
@@ -175,6 +187,15 @@ if (
   actionFocusIndex > actionChainIndex
 ) {
   failures.push("action focus should bridge from reading order to detailed character action chains");
+}
+if (
+  actionFocusIndex === -1 ||
+  actionTrailIndex === -1 ||
+  actionChainIndex === -1 ||
+  actionTrailIndex < actionFocusIndex ||
+  actionTrailIndex > actionChainIndex
+) {
+  failures.push("action trail should sit after action focus and before detailed character action chains");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -255,6 +276,11 @@ const requiredCssMarkers = [
   [".sandbox-action-focus-card__meta", "action focus metadata styling is missing"],
   [".sandbox-action-focus-card__signals", "action focus signal styling is missing"],
   [".sandbox-action-focus-card__actions", "action focus action styling is missing"],
+  [".sandbox-action-trail", "action trail styling is missing"],
+  [".sandbox-action-trail__grid", "action trail grid styling is missing"],
+  [".sandbox-action-trail-card", "action trail card styling is missing"],
+  [".sandbox-action-trail-card__steps", "action trail step styling is missing"],
+  [".sandbox-action-trail-card__actions", "action trail action styling is missing"],
   [".sandbox-strategy-board", "strategy board styling is missing"],
   [".sandbox-strategy-board__grid", "strategy board grid styling is missing"],
   [".sandbox-strategy-card__route", "strategy card route styling is missing"],
@@ -294,6 +320,11 @@ const mobileActionFocusActionsIndex = css.indexOf(
   ".sandbox-action-focus-card__actions",
   mobileMediaIndex,
 );
+const mobileActionTrailGridIndex = css.indexOf(".sandbox-action-trail__grid", mobileMediaIndex);
+const mobileActionTrailActionsIndex = css.indexOf(
+  ".sandbox-action-trail-card__actions",
+  mobileMediaIndex,
+);
 const mobilePreflightGridIndex = css.indexOf(".sandbox-preflight-map__grid", mobileMediaIndex);
 const mobilePreflightActionsIndex = css.indexOf(
   ".sandbox-preflight-map__actions",
@@ -322,6 +353,12 @@ if (mobileMediaIndex === -1 || mobileActionFocusGridIndex === -1) {
 }
 if (mobileMediaIndex === -1 || mobileActionFocusActionsIndex === -1) {
   failures.push("action focus actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileActionTrailGridIndex === -1) {
+  failures.push("action trail grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileActionTrailActionsIndex === -1) {
+  failures.push("action trail actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobilePreflightGridIndex === -1) {
   failures.push("pre-run product map grid should collapse in the mobile media query");
