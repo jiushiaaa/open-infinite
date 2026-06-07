@@ -70,6 +70,21 @@ const requiredPageMarkers = [
   ["手写事件", "round origin should handle a manually typed event"],
   ["干预边界", "round origin should explain whether intervention was included"],
   ["读结果顺序", "round origin should route users to the result reading guide"],
+  ["sandbox-causal-receipt", "result bridge should explain causal accounting after a round"],
+  ["本轮因果回执", "causal receipt should name the causal accounting surface"],
+  ["causalReceiptDeck", "causal receipt should derive a readable causal deck"],
+  ["round.world_state_delta.causal_debt", "causal receipt should read the round causal debt"],
+  [
+    "round.world_state_delta.compensation_effects",
+    "causal receipt should read concrete world compensation effects",
+  ],
+  ["consequenceNextRoundHint", "causal receipt should explain what the next round will consume"],
+  ["latestConsequence", "causal receipt should reuse the worldline consequence ledger"],
+  ["因果债", "causal receipt should label the causal debt"],
+  ["代偿落点", "causal receipt should label where compensation landed"],
+  ["下一轮代价", "causal receipt should label the next-round cost"],
+  ["看代偿账", "causal receipt should route users to the worldline ledger"],
+  ["追长线卷", "causal receipt should route users to longline reading"],
   ["读成正文", "result bridge should route the user to readable output"],
   ["看世界线", "result bridge should route the user to worldline consequences"],
   ["生成多视角", "result bridge should route the user to multi-perspective reading"],
@@ -149,6 +164,7 @@ if (runnerIndex === -1 || runwayIndex === -1 || runnerIndex > runwayIndex) {
 
 const resultBridgeIndex = page.indexOf("sandbox-result-bridge");
 const roundOriginIndex = page.indexOf("sandbox-round-origin");
+const causalReceiptIndex = page.indexOf("sandbox-causal-receipt");
 const resultBridgeStatsIndex = page.indexOf("sandbox-result-bridge__stats");
 const runnerStepsIndex = page.indexOf("sandbox-runner__steps");
 const eventSeedsIndex = page.indexOf("sandbox-event-seeds");
@@ -209,6 +225,16 @@ if (
   roundOriginIndex > resultBridgeStatsIndex
 ) {
   failures.push("round origin should sit inside the result bridge before result stats");
+}
+if (
+  resultBridgeIndex === -1 ||
+  roundOriginIndex === -1 ||
+  causalReceiptIndex === -1 ||
+  resultBridgeStatsIndex === -1 ||
+  causalReceiptIndex < roundOriginIndex ||
+  causalReceiptIndex > resultBridgeStatsIndex
+) {
+  failures.push("causal receipt should sit after the launch origin and before result stats");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -310,6 +336,10 @@ const requiredCssMarkers = [
   [".sandbox-round-origin", "round origin styling is missing"],
   [".sandbox-round-origin__meta", "round origin metadata styling is missing"],
   [".sandbox-round-origin__actions", "round origin action styling is missing"],
+  [".sandbox-causal-receipt", "causal receipt styling is missing"],
+  [".sandbox-causal-receipt__head", "causal receipt header styling is missing"],
+  [".sandbox-causal-receipt__grid", "causal receipt grid styling is missing"],
+  [".sandbox-causal-receipt__actions", "causal receipt action styling is missing"],
   [".sandbox-result-bridge__signals", "result bridge signal styling is missing"],
   [".sandbox-result-bridge__actions", "result bridge action styling is missing"],
   [".sandbox-result-bridge__actions .btn", "result bridge action buttons should have stable sizing"],
@@ -357,6 +387,14 @@ const mobileRoundOriginActionsIndex = css.indexOf(
   ".sandbox-round-origin__actions",
   mobileMediaIndex,
 );
+const mobileCausalReceiptGridIndex = css.indexOf(
+  ".sandbox-causal-receipt__grid",
+  mobileMediaIndex,
+);
+const mobileCausalReceiptActionsIndex = css.indexOf(
+  ".sandbox-causal-receipt__actions",
+  mobileMediaIndex,
+);
 const mobileReadingGuideGridIndex = css.indexOf(
   ".sandbox-result-reading-guide__grid",
   mobileMediaIndex,
@@ -398,6 +436,12 @@ if (mobileMediaIndex === -1 || mobileActionsIndex === -1) {
 }
 if (mobileMediaIndex === -1 || mobileRoundOriginActionsIndex === -1) {
   failures.push("round origin actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileCausalReceiptGridIndex === -1) {
+  failures.push("causal receipt grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileCausalReceiptActionsIndex === -1) {
+  failures.push("causal receipt actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobileReadingGuideGridIndex === -1) {
   failures.push("result reading guide grid should collapse in the mobile media query");

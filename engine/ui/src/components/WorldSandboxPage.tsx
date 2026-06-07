@@ -283,6 +283,56 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       ]
     : [];
   const resultBridgeSignals = deltaItems.slice(0, 4);
+  const causalReceiptDeck = useMemo(() => {
+    if (!round) return [];
+    const compensationLanding =
+      round.world_state_delta.compensation_effects?.[0] ||
+      latestConsequence?.impacts?.[0]?.pressure ||
+      consequenceDomains[0]?.[1]?.pressure ||
+      consequenceDomains[0]?.[1]?.current ||
+      "代偿尚未具象，但因果债已经进入世界账。";
+    const nextRoundCost =
+      consequenceNextRoundHint ||
+      worldlineState?.continuation_inputs?.major_event_hint ||
+      firstPossibility?.brief ||
+      "下一轮会继续消费本轮行动、记忆和因果债。";
+
+    return [
+      {
+        label: "事件入账",
+        title:
+          round.world_state_delta.trigger ||
+          round.major_event ||
+          "本轮事件已经进入世界状态",
+        detail: "角色行动、主观记忆和世界线会从这里继续分叉。",
+      },
+      {
+        label: "因果债",
+        title: round.world_state_delta.causal_debt || "因果债待观察",
+        detail: round.world_state_delta.anchor_pressure || "锚点压力尚未显形。",
+      },
+      {
+        label: "代偿落点",
+        title: compensationLanding,
+        detail:
+          round.world_state_delta.resource_changes[0] ||
+          round.world_state_delta.secret_changes[0] ||
+          "资源、秘密或关系会在后续轮次继续转移。",
+      },
+      {
+        label: "下一轮代价",
+        title: nextRoundCost,
+        detail: "继续推演时，优先观察谁会承担这笔账。",
+      },
+    ];
+  }, [
+    consequenceDomains,
+    consequenceNextRoundHint,
+    firstPossibility?.brief,
+    latestConsequence,
+    round,
+    worldlineState?.continuation_inputs?.major_event_hint,
+  ]);
   const strategyInteractions = useMemo(() => {
     if (!round) return [];
     const characterNameById = new Map(
@@ -1511,6 +1561,50 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                     </div>
                   </section>
                 )}
+                <section className="sandbox-causal-receipt" aria-label="本轮因果回执">
+                  <div className="sandbox-causal-receipt__head">
+                    <div>
+                      <p className="tiny muted">本轮因果回执</p>
+                      <h3>这轮结果已经写进世界账本</h3>
+                    </div>
+                    <span className="badge badge--gold">因果账</span>
+                  </div>
+                  <div className="sandbox-causal-receipt__grid">
+                    {causalReceiptDeck.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="sandbox-causal-receipt__actions">
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() =>
+                        navigate({
+                          name: "worldline",
+                          slug,
+                          worldlineId: round.worldline_id || "main",
+                        })
+                      }
+                    >
+                      看代偿账
+                    </button>
+                    <button
+                      className="btn btn--ghost tiny"
+                      onClick={() =>
+                        navigate({
+                          name: "longlineReading",
+                          slug,
+                          worldlineId: round.worldline_id || "main",
+                        })
+                      }
+                    >
+                      追长线卷
+                    </button>
+                  </div>
+                </section>
                 <dl className="sandbox-result-bridge__stats">
                   {resultBridgeStats.map(([label, value]) => (
                     <div key={label}>
