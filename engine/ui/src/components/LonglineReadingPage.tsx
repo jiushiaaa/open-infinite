@@ -13,6 +13,72 @@ const PHASE_LABELS: Record<string, string> = {
   checkpoint: "检查点",
 };
 
+interface LonglineEntityLane {
+  id: string;
+  kind: "character" | "faction";
+  label: string;
+  name: string;
+  summary: string;
+  entryCount: number;
+  evidenceCount: number;
+  primaryEntryId: string;
+  primaryEntryTitle: string;
+  unresolvedCount: number;
+}
+
+function buildLonglineEntityLanes(report: LonglineReadingReport): LonglineEntityLane[] {
+  const lanes = new Map<string, LonglineEntityLane>();
+
+  const addLane = (kind: LonglineEntityLane["kind"], name: string, entry: LonglineTimelineEntry) => {
+    const normalizedName = name.trim();
+    if (!normalizedName) return;
+    const id = `${kind}:${normalizedName}`;
+    const existing = lanes.get(id);
+    if (existing) {
+      existing.entryCount += 1;
+      existing.evidenceCount += entry.evidence_refs.length;
+      if (!existing.summary && entry.consequence_hint) existing.summary = entry.consequence_hint;
+      return;
+    }
+    lanes.set(id, {
+      id,
+      kind,
+      label: kind === "character" ? "按角色追" : "按势力追",
+      name: normalizedName,
+      summary: entry.consequence_hint || entry.body,
+      entryCount: 1,
+      evidenceCount: entry.evidence_refs.length,
+      primaryEntryId: entry.id,
+      primaryEntryTitle: entry.title,
+      unresolvedCount: 0,
+    });
+  };
+
+  for (const entry of report.timeline_entries) {
+    for (const character of entry.affected_characters) addLane("character", character, entry);
+    for (const faction of entry.affected_factions) addLane("faction", faction, entry);
+  }
+
+  for (const item of report.misbelief_recovery.items) {
+    for (const character of item.affected_characters) {
+      const id = `character:${character.trim()}`;
+      const lane = lanes.get(id);
+      if (lane) {
+        lane.unresolvedCount += item.status === "unresolved" ? 1 : 0;
+        lane.summary = item.author_prompt || item.misunderstanding || lane.summary;
+      }
+    }
+  }
+
+  return [...lanes.values()]
+    .sort((a, b) => {
+      if (b.unresolvedCount !== a.unresolvedCount) return b.unresolvedCount - a.unresolvedCount;
+      if (b.entryCount !== a.entryCount) return b.entryCount - a.entryCount;
+      return b.evidenceCount - a.evidenceCount;
+    })
+    .slice(0, 4);
+}
+
 export function LonglineReadingPage({
   slug,
   worldlineId,
@@ -58,6 +124,10 @@ export function LonglineReadingPage({
     report?.misbelief_recovery.items[0];
   const primaryOpenThread = report?.open_threads[0];
   const nextPrimaryAction = report?.next_actions[0];
+  const longlineEntityLanes = useMemo(
+    () => (report ? buildLonglineEntityLanes(report) : []),
+    [report],
+  );
 
   function focusEntry(entryId: string) {
     setActiveEntryId(entryId);
@@ -319,6 +389,45 @@ export function LonglineReadingPage({
               </small>
             </button>
           </section>
+
+          {longlineEntityLanes.length > 0 && (
+            <section className="longline-entity-lanes" aria-label="角色与势力追踪带">
+              <div className="longline-entity-lanes__head">
+                <p className="muted tiny">角色与势力追踪带</p>
+                <h2>谁还带着后果往前走</h2>
+                <p>
+                  长线不只按事件发生，也会沿角色记忆和势力压力继续发酵。这里先把最该追的角色与势力挑出来。
+                </p>
+              </div>
+              <div className="longline-entity-lanes__grid">
+                {longlineEntityLanes.map((lane) => (
+                  <article className="longline-entity-lane" key={lane.id}>
+                    <span>{lane.label}</span>
+                    <strong>{lane.name}</strong>
+                    <p>{lane.summary}</p>
+                    <dl>
+                      <div>
+                        <dt>节点</dt>
+                        <dd>{lane.entryCount} 个</dd>
+                      </div>
+                      <div>
+                        <dt>证据</dt>
+                        <dd>{lane.evidenceCount} 条</dd>
+                      </div>
+                      <div>
+                        <dt>误会</dt>
+                        <dd>{lane.unresolvedCount} 条</dd>
+                      </div>
+                    </dl>
+                    <button className="btn btn--ghost tiny" onClick={() => focusEntry(lane.primaryEntryId)}>
+                      看这条长线
+                    </button>
+                    <small>{lane.primaryEntryTitle}</small>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="longline-briefing" aria-label="长线阅读状态">
             <article className="longline-progress">

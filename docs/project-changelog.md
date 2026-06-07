@@ -3842,3 +3842,19 @@
   - In-app Browser smoke：`http://127.0.0.1:5185/#/world/my-story/worldlines/main/chronicle` 桌面下渲染 4 步承接弧线且无控制台 error；`/anchors` 桌面下承接弧线可见，“去长线卷回收”能跳到 `#/world/my-story/worldlines/main/longline`；390px 下承接弧线单列且无水平溢出。
 - **边界**：
   - 本轮只改前端世界卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `dossier-reading` 响应契约，不改 artifact。
+
+### 2026-06-07 — Longline Entity Lanes
+
+- **做了什么**：
+  - `LonglineReadingPage` 在“跨章承接地图”和长线阅读状态区之间新增“角色与势力追踪带”。
+  - 追踪带从既有 `timeline_entries.affected_characters`、`timeline_entries.affected_factions`、`misbelief_recovery.items` 和 `evidence_refs` 派生最多四张可点击追踪卡。
+  - 用户读长线卷时可以按角色记忆或势力压力继续追“谁还带着后果往前走”，并一键把当前长线阅读焦点切到对应节点。
+  - 扩展 `check:longline-reading-ux`，锁定追踪带语义、位置、真实字段引用、桌面四列和移动端单列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:longline-reading-ux`，确认缺少 `buildLonglineEntityLanes` 时失败。
+  - Focused helper：`pnpm.cmd run check:longline-reading-ux` -> `longline reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+  - In-app Browser smoke：`http://127.0.0.1:5186/#/world/my-story/worldlines/main/longline` 真实数据下渲染 2 张角色追踪卡，桌面四列网格、点击追踪焦点和无水平溢出均正常；390px 下追踪带单列、移动导览显示且无水平溢出；浏览器日志无应用错误。
+- **边界**：
+  - 本轮只改前端长线卷 JSX/CSS、结构检查脚本和文档，不新增后端 API，不改变 `longline-reading` 响应契约，不改 artifact。

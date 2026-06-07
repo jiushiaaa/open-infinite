@@ -244,6 +244,102 @@
   font-size: 0.95rem;
 }
 
+.longline-entity-lanes {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(120, 91, 54, 0.16);
+  background:
+    linear-gradient(135deg, rgba(250, 245, 233, 0.9), rgba(236, 244, 235, 0.68)),
+    rgba(255, 253, 246, 0.9);
+}
+
+.longline-entity-lanes__head {
+  display: grid;
+  gap: 7px;
+  max-width: 780px;
+}
+
+.longline-entity-lanes__head p,
+.longline-entity-lanes__head h2 {
+  margin: 0;
+}
+
+.longline-entity-lanes__head h2 {
+  font-family: var(--font-serif);
+  font-size: 1.16rem;
+  line-height: 1.35;
+}
+
+.longline-entity-lanes__head p:not(.tiny) {
+  color: var(--ink-soft);
+  line-height: 1.65;
+}
+
+.longline-entity-lanes__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.longline-entity-lane {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto auto;
+  gap: 9px;
+  min-width: 0;
+  min-height: 226px;
+  padding: 14px;
+  border: 1px solid rgba(120, 91, 54, 0.14);
+  background: rgba(255, 253, 246, 0.78);
+}
+
+.longline-entity-lane > span,
+.longline-entity-lane small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.longline-entity-lane strong {
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.longline-entity-lane p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+}
+
+.longline-entity-lane dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.longline-entity-lane dl div {
+  padding: 7px 8px;
+  border: 1px solid rgba(120, 91, 54, 0.12);
+  background: rgba(250, 245, 233, 0.62);
+}
+
+.longline-entity-lane dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.longline-entity-lane dd {
+  margin: 3px 0 0;
+  font-size: 0.84rem;
+}
+
+.longline-entity-lane .btn {
+  justify-content: center;
+  width: 100%;
+}
+
 .longline-timeline,
 .longline-reader,
 .longline-aside {
@@ -718,6 +814,7 @@
   .longline-briefing,
   .longline-recovery-orchestrator,
   .longline-continuation-map,
+  .longline-entity-lanes__grid,
   .longline-aside,
   .longline-thread-grid,
   .longline-recovery__grid,
@@ -752,6 +849,14 @@
     height: 10px;
     border-top: 0;
     border-left: 1px solid rgba(74, 124, 99, 0.28);
+  }
+
+  .longline-entity-lanes {
+    padding: 14px;
+  }
+
+  .longline-entity-lane {
+    min-height: 0;
   }
 
   .longline-open-threads {
