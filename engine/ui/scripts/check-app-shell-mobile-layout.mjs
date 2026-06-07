@@ -133,6 +133,46 @@ if (
   failures.push("mobile world navigation summary should expose a visible keyboard focus state");
 }
 
+const focusChipFocusRule = findRule(".world-workspace-shell__focus-chip:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(141,\s*50,\s*37,\s*0\.42\)/.test(focusChipFocusRule) ||
+  !/outline-offset:\s*2px/.test(focusChipFocusRule) ||
+  !/border-color:\s*rgba\(141,\s*50,\s*37,\s*0\.28\)/.test(focusChipFocusRule) ||
+  !/background:\s*rgba\(255,\s*252,\s*244,\s*0\.86\)/.test(focusChipFocusRule)
+) {
+  failures.push("focused scan band chips should match the paper hover affordance on keyboard focus");
+}
+
+const workspaceCardFocusRule = findRule(".shell-context__workspace-card:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(141,\s*50,\s*37,\s*0\.48\)/.test(workspaceCardFocusRule) ||
+  !/outline-offset:\s*2px/.test(workspaceCardFocusRule) ||
+  !/border-color:\s*rgba\(141,\s*50,\s*37,\s*0\.28\)/.test(workspaceCardFocusRule) ||
+  !/background:[\s\S]*rgba\(255,\s*252,\s*244,\s*0\.88\)/.test(workspaceCardFocusRule)
+) {
+  failures.push("workspace pointer cards should keep the paper hover affordance on keyboard focus");
+}
+
+const handoffCardFocusRule = findRule(".shell-context__handoff-card:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(181,\s*131,\s*58,\s*0\.42\)/.test(handoffCardFocusRule) ||
+  !/outline-offset:\s*2px/.test(handoffCardFocusRule) ||
+  !/border-color:\s*rgba\(141,\s*50,\s*37,\s*0\.24\)/.test(handoffCardFocusRule) ||
+  !/background:[\s\S]*rgba\(255,\s*252,\s*244,\s*0\.86\)/.test(handoffCardFocusRule)
+) {
+  failures.push("state handoff cards should keep the paper hover affordance on keyboard focus");
+}
+
+const pulseFocusRule = findRule(".shell-context__pulse:focus-visible");
+if (
+  !/outline:\s*2px solid rgba\(74,\s*124,\s*99,\s*0\.44\)/.test(pulseFocusRule) ||
+  !/outline-offset:\s*2px/.test(pulseFocusRule) ||
+  !/border-color:\s*rgba\(74,\s*124,\s*99,\s*0\.34\)/.test(pulseFocusRule) ||
+  !/background:\s*var\(--jade-wash\)/.test(pulseFocusRule)
+) {
+  failures.push("world pulse cards should keep the jade hover affordance on keyboard focus");
+}
+
 for (const activeKey of [
   "anchor",
   "tianming",

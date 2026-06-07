@@ -4225,3 +4225,20 @@
   - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
 - **边界**：
   - 本轮只改移动端共享壳层焦点样式、结构检查脚本和文档；不新增后端 API，不改变常态布局、桌面导航、hash 路由、route chunk 预取、移动端折叠结构、阅读进度、沙盘请求字段或 artifact。
+
+### 2026-06-08 — WorldWorkspaceShell Card Focus Parity
+
+- **做了什么**：
+  - `WorldWorkspaceShell` 的世界扫读带 chip 在键盘聚焦时复用 hover 的纸面背景和朱砂边框。
+  - 轻量工作区指针卡、状态预告卡和世界脉搏卡在 `:focus-visible` 时补齐与 hover 等价的背景和边框反馈。
+  - 扩展 `check:app-shell-mobile-layout`，锁定这些共享壳层卡片不能只保留细描边，必须在键盘焦点下有可扫读的纸面激活态。
+  - 同步 `memory.md`、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认扫读带 chip、工作区指针、状态预告卡和世界脉搏卡缺少等价焦点反馈时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS 约 `235.77 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed`。
+  - 仓库：`git diff --check` 通过；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改共享世界壳层卡片焦点样式、结构检查脚本和文档；不新增后端 API，不改变常态布局、桌面/移动导航结构、hash 路由、route chunk 预取、阅读进度、沙盘请求字段或 artifact。

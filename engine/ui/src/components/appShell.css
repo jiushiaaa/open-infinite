@@ -425,6 +425,8 @@
 .world-workspace-shell__focus-chip:focus-visible {
   outline: 2px solid rgba(141, 50, 37, 0.42);
   outline-offset: 2px;
+  border-color: rgba(141, 50, 37, 0.28);
+  background: rgba(255, 252, 244, 0.86);
 }
 
 .world-workspace-shell__focus-chip small {
@@ -511,6 +513,10 @@
 .shell-context__handoff-card:focus-visible {
   outline: 2px solid rgba(181, 131, 58, 0.42);
   outline-offset: 2px;
+  border-color: rgba(141, 50, 37, 0.24);
+  background:
+    linear-gradient(90deg, rgba(181, 131, 58, 0.09), transparent 74%),
+    rgba(255, 252, 244, 0.86);
 }
 
 .shell-context__handoff-card.is-source {
@@ -582,6 +588,10 @@
 .shell-context__workspace-card:focus-visible {
   outline: 2px solid rgba(141, 50, 37, 0.48);
   outline-offset: 2px;
+  border-color: rgba(141, 50, 37, 0.28);
+  background:
+    linear-gradient(90deg, rgba(141, 50, 37, 0.08), transparent 70%),
+    rgba(255, 252, 244, 0.88);
 }
 
 .shell-context__workspace-card--next {
@@ -647,6 +657,8 @@
 .shell-context__pulse:focus-visible {
   outline: 2px solid rgba(74, 124, 99, 0.44);
   outline-offset: 2px;
+  border-color: rgba(74, 124, 99, 0.34);
+  background: var(--jade-wash);
 }
 
 .shell-context__pulse.is-memory {
