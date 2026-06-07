@@ -3329,3 +3329,20 @@
   - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
 - **边界**：
   - 本轮只改前端共享壳层 JSX/CSS、壳层检查脚本和文档，不新增后端 API、不改变路由契约、不改 artifact、不删任何世界入口。
+
+### 2026-06-07 — WorldWorkspaceShell Journey Bus
+
+- **做了什么**：
+  - 新增共享 `WorldWorkspaceShell` 组件，`AppShell` 不再直接承载世界位置区 JSX，而是把 `worldRouteContext`、本机最近阅读和下一步动作交给统一世界工作区壳渲染。
+  - 在原有当前位置、世界工作区总览、当前任务条、世界脉搏、体验轨道和卷宗速览盘之外，新增“世界旅程总线”。
+  - 旅程总线把“定界 / 运行 / 阅读 / 采纳”四段变成稳定可点击扫读行，当前阶段标出“当前所在”，其它阶段标出“可随时进入”。
+  - 保留原有顶栏世界导航、全局继续阅读、主次动作、世界脉搏、体验轨道和八个卷宗速览入口；移动端旅程总线压成两列，不挤掉既有功能。
+  - 扩展 `check:app-shell-mobile-layout`，锁定 AppShell 必须委托 `WorldWorkspaceShell`、共享壳必须保留阶段和卷宗导航、旅程总线必须桌面四列/移动端两列。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:app-shell-mobile-layout`，确认缺少 `WorldWorkspaceShell` 与旅程总线时失败。
+  - Focused helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - Route helper：`pnpm.cmd run check:world-route-context` -> `world route context helper ok`。
+  - 前端：`pnpm.cmd run build` 通过；保留既有 Vite 大 chunk 提醒。
+- **边界**：
+  - 本轮只改前端共享壳层组件、样式、壳层检查脚本和文档，不新增后端 API、不改变路由契约、不改 artifact、不删任何世界入口；完整 `WorldWorkspaceShell` 仍需继续承接跨页面视觉 QA 和更深世界状态提示。

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const cssPath = resolve("src/components/appShell.css");
@@ -50,54 +50,74 @@ if (!/grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/.test(mobileSta
 
 const appShellPath = resolve("src/components/AppShell.tsx");
 const appShell = readFileSync(appShellPath, "utf8");
+const workspaceShellPath = resolve("src/components/WorldWorkspaceShell.tsx");
+const workspaceShell = existsSync(workspaceShellPath)
+  ? readFileSync(workspaceShellPath, "utf8")
+  : "";
 
-if (!appShell.includes("shell-context__workspace")) {
+if (!appShell.includes("WorldWorkspaceShell")) {
+  failures.push("AppShell should delegate world context to a shared WorldWorkspaceShell component");
+}
+
+if (!workspaceShell) {
+  failures.push("WorldWorkspaceShell component should exist as the shared world workspace shell");
+}
+
+if (!workspaceShell.includes("世界工作区壳") || !workspaceShell.includes("世界旅程总线")) {
+  failures.push("WorldWorkspaceShell should name the shared shell and expose a clear journey bus");
+}
+
+if (!workspaceShell.includes("routeContext.stages.map") || !workspaceShell.includes("routeContext.dossiers.map")) {
+  failures.push("WorldWorkspaceShell should keep stage and dossier navigation in the shared shell");
+}
+
+if (!workspaceShell.includes("shell-context__workspace")) {
   failures.push("AppShell should render the world workspace summary inside the shared context bar");
 }
 
-if (!appShell.includes("shell-context__workspace-card")) {
+if (!workspaceShell.includes("shell-context__workspace-card")) {
   failures.push("world workspace summary cards should be clickable journey pointers");
 }
 
-if (!appShell.includes("shell-context__continuity")) {
+if (!workspaceShell.includes("shell-context__continuity")) {
   failures.push("AppShell should render the world pulse continuity row");
 }
 
-if (!appShell.includes("shell-context__taskbar")) {
+if (!workspaceShell.includes("shell-context__taskbar")) {
   failures.push("AppShell should render a dedicated current-task handoff row");
 }
 
-if (!appShell.includes("当前任务") || !appShell.includes("建议先做")) {
+if (!workspaceShell.includes("当前任务") || !workspaceShell.includes("建议先做")) {
   failures.push("current-task row should use clear Chinese next-step copy");
 }
 
 if (
-  !appShell.includes("routeContext.workspaceSummary.why") ||
-  !appShell.includes("routeContext.primaryActionLabel")
+  !workspaceShell.includes("routeContext.workspaceSummary.why") ||
+  !workspaceShell.includes("routeContext.primaryActionLabel")
 ) {
   failures.push("current-task row should pair the primary action with its rationale");
 }
 
 if (
-  !appShell.includes("routeContext.continuitySignals.map") ||
-  !appShell.includes("navigate(signal.route)")
+  !workspaceShell.includes("routeContext.continuitySignals.map") ||
+  !workspaceShell.includes("navigate(signal.route)")
 ) {
   failures.push("world pulse signals should be clickable and use semantic routes");
 }
 
 if (
-  !appShell.includes("当前环节") ||
-  !appShell.includes("承接世界线") ||
-  !appShell.includes("下一步为什么做")
+  !workspaceShell.includes("当前环节") ||
+  !workspaceShell.includes("承接世界线") ||
+  !workspaceShell.includes("下一步为什么做")
 ) {
   failures.push("world workspace summary should explain stage, worldline and next-step rationale");
 }
 
-if (!appShell.includes("navigate(routeContext.primaryRoute)")) {
+if (!workspaceShell.includes("navigate(routeContext.primaryRoute)")) {
   failures.push("next-step summary card should execute the primary route");
 }
 
-if (!appShell.includes("worldlineDossierRoute")) {
+if (!workspaceShell.includes("worldlineDossierRoute")) {
   failures.push("worldline summary card should link to the worldline dossier");
 }
 
@@ -136,6 +156,22 @@ if (
   failures.push("desktop current-task row should keep explanation and actions in one scan row");
 }
 
+const journeyBusRule = findRule(".world-workspace-shell__journey");
+if (
+  !/display:\s*grid/.test(journeyBusRule) ||
+  !/grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/.test(journeyBusRule)
+) {
+  failures.push("desktop journey bus should present the four world scenes as one stable scan row");
+}
+
+const journeyItemRule = findRule(".world-workspace-shell__journey-item");
+if (
+  !/display:\s*grid/.test(journeyItemRule) ||
+  !/text-align:\s*left/.test(journeyItemRule)
+) {
+  failures.push("journey bus items should keep the compact information-sign layout");
+}
+
 const workspaceCardRule = findRule(".shell-context__workspace-card");
 if (
   !/display:\s*grid/.test(workspaceCardRule) ||
@@ -157,6 +193,11 @@ if (!/min-height:\s*0/.test(mobileWorkspaceCardRule)) {
 const mobileTaskbarRule = findRule(".shell-context__taskbar", mobileIndex);
 if (!/grid-template-columns:\s*1fr/.test(mobileTaskbarRule)) {
   failures.push("mobile current-task row should stack explanation above actions");
+}
+
+const mobileJourneyRule = findRule(".world-workspace-shell__journey", mobileIndex);
+if (!/grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/.test(mobileJourneyRule)) {
+  failures.push("mobile journey bus should collapse into two readable columns");
 }
 
 const mobileActionsRule = findRule(".shell-context__actions", mobileIndex);

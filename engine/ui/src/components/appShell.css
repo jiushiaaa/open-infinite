@@ -96,6 +96,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
     "copy stages"
+    "journey journey"
     "workspace workspace"
     "taskbar taskbar"
     "continuity continuity"
@@ -141,6 +142,72 @@
   font-weight: 700;
   letter-spacing: 0;
   white-space: nowrap;
+}
+
+.world-workspace-shell__journey {
+  grid-area: journey;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+  padding: 3px;
+  border: 1px solid rgba(196, 184, 156, 0.68);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(74, 124, 99, 0.07), transparent 68%),
+    rgba(250, 246, 236, 0.58);
+}
+
+.world-workspace-shell__journey-item {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  min-width: 0;
+  min-height: 54px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 7px 9px;
+  text-align: left;
+}
+
+.world-workspace-shell__journey-item:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
+.world-workspace-shell__journey-item.is-active {
+  background:
+    linear-gradient(90deg, rgba(141, 50, 37, 0.12), transparent 78%),
+    rgba(255, 252, 244, 0.86);
+  box-shadow: inset 0 0 0 1px rgba(141, 50, 37, 0.28);
+  color: var(--ink);
+}
+
+.world-workspace-shell__journey-item small {
+  color: var(--cinnabar-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.world-workspace-shell__journey-item strong {
+  min-width: 0;
+  color: inherit;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.world-workspace-shell__journey-item span {
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  line-height: 1.3;
 }
 
 .shell-context__actions {
@@ -523,6 +590,7 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "copy"
+      "journey"
       "workspace"
       "taskbar"
       "continuity"
@@ -545,6 +613,10 @@
   .shell-context__stages {
     width: 100%;
     min-width: 0;
+  }
+
+  .world-workspace-shell__journey {
+    width: 100%;
   }
 
   .shell-context__workspace {
@@ -649,6 +721,19 @@
 
   .shell-context__workspace {
     grid-template-columns: 1fr;
+  }
+
+  .world-workspace-shell__journey {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .world-workspace-shell__journey-item {
+    min-height: 0;
+    padding: 6px 8px;
+  }
+
+  .world-workspace-shell__journey-item strong {
+    white-space: normal;
   }
 
   .shell-context__workspace-card {
