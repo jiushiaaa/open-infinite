@@ -174,6 +174,14 @@ const requiredPageMarkers = [
   ["世界记到哪里", "strategy settlement should connect settlement to world records"],
   ["跑完先验哪里", "strategy settlement should route users to post-run evidence"],
   ["验收首步", "strategy settlement should let users queue the first settlement check"],
+  ["strategyFactionCounterDeck", "strategy faction counter should derive faction counterplay checks"],
+  ["sandbox-strategy-faction-counter", "strategy faction counter should sit before continuation choices"],
+  ["势力反制账", "strategy faction counter should name the faction counterplay ledger"],
+  ["谁会借势", "strategy faction counter should explain who can exploit the tactic"],
+  ["资源卡在哪里", "strategy faction counter should expose resource pressure"],
+  ["秘密流向哪里", "strategy faction counter should expose secret flow"],
+  ["下一轮怎么投", "strategy faction counter should route the counterplay into next round"],
+  ["带入势力索债", "strategy faction counter should let users queue faction pressure"],
   ["sandbox-strategy-continuation", "strategy board should hand tactics into the next round"],
   ["下一轮暗线承接", "strategy continuation should name the next-round handoff"],
   ["作为下一轮暗线", "strategy continuation should let users queue a tactic as the next event"],
@@ -227,6 +235,7 @@ const strategyDecisionIndex = page.indexOf("sandbox-strategy-decision");
 const strategyFermentationIndex = page.indexOf("sandbox-strategy-fermentation");
 const strategyLongPlanIndex = page.indexOf("sandbox-strategy-long-plan");
 const strategySettlementIndex = page.indexOf("sandbox-strategy-settlement");
+const strategyFactionCounterIndex = page.indexOf("sandbox-strategy-faction-counter");
 const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
 const actionFocusIndex = page.indexOf("sandbox-action-focus");
 const actionTrailIndex = page.indexOf("sandbox-action-trail");
@@ -315,6 +324,15 @@ if (
   strategySettlementIndex > strategyContinuationIndex
 ) {
   failures.push("strategy settlement should sit after long plan and before continuation choices");
+}
+if (
+  strategySettlementIndex === -1 ||
+  strategyFactionCounterIndex === -1 ||
+  strategyContinuationIndex === -1 ||
+  strategyFactionCounterIndex < strategySettlementIndex ||
+  strategyFactionCounterIndex > strategyContinuationIndex
+) {
+  failures.push("strategy faction counter should sit after settlement and before continuation choices");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -477,6 +495,9 @@ const requiredCssMarkers = [
   [".sandbox-strategy-settlement", "strategy settlement styling is missing"],
   [".sandbox-strategy-settlement__grid", "strategy settlement grid styling is missing"],
   [".sandbox-strategy-settlement__actions", "strategy settlement action styling is missing"],
+  [".sandbox-strategy-faction-counter", "strategy faction counter styling is missing"],
+  [".sandbox-strategy-faction-counter__grid", "strategy faction counter grid styling is missing"],
+  [".sandbox-strategy-faction-counter__actions", "strategy faction counter action styling is missing"],
   [".sandbox-strategy-continuation", "strategy continuation styling is missing"],
   [".sandbox-strategy-continuation__grid", "strategy continuation grid styling is missing"],
   [".sandbox-strategy-continuation__event", "strategy continuation event styling is missing"],

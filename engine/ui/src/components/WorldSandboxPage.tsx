@@ -44,6 +44,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [queuedActionTrailTitle, setQueuedActionTrailTitle] = useState("");
   const [queuedCausalReceiptTitle, setQueuedCausalReceiptTitle] = useState("");
   const [queuedEventSeedTitle, setQueuedEventSeedTitle] = useState("");
+  const [queuedFactionCounterTitle, setQueuedFactionCounterTitle] = useState("");
   const [lastRoundLaunchReceipt, setLastRoundLaunchReceipt] = useState<{
     source: string;
     title: string;
@@ -651,6 +652,98 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         },
       ]
     : [];
+  const strategyFactionCounterDeck = useMemo(() => {
+    if (!round || !leadStrategyInteraction) return [];
+    const relationshipChange = round.world_state_delta.relationship_changes[0];
+    const factionPressure =
+      consequenceDomains.find(([key, item]) => {
+        const label = item.label || key;
+        return /势力|资源|盟约|阵营|秩序|朝堂|宗族|商会/.test(label);
+      })?.[1] ||
+      consequenceDomains[0]?.[1] ||
+      null;
+    const counterActor =
+      relationshipChange?.source ||
+      riskStrategyInteraction?.targetName ||
+      leadStrategyInteraction.targetName;
+    const resourcePressure =
+      round.world_state_delta.resource_changes[0] ||
+      factionPressure?.pressure ||
+      factionPressure?.current ||
+      "资源账还没有显形，下一轮先看谁被迫交出筹码。";
+    const secretFlow =
+      round.world_state_delta.secret_changes[0] ||
+      latestConsequence?.impacts?.find((item) =>
+        /密|谣|情报|隐瞒|真相/.test(item.pressure || ""),
+      )?.pressure ||
+      "秘密流向尚未显形，下一轮先看误会、传言和隐瞒会落到谁手里。";
+    const factionLedger =
+      factionPressure?.label ||
+      latestConsequence?.major_event ||
+      "势力账会接住这条反制";
+    const nextHint =
+      consequenceNextRoundHint ||
+      firstPossibility?.brief ||
+      `让${counterActor}把资源或秘密压力转成一次公开索债。`;
+
+    return [
+      {
+        label: "谁会借势",
+        title: `${counterActor}会借势改写局面`,
+        detail:
+          relationshipChange?.change ||
+          riskStrategyInteraction?.risk ||
+          `${leadStrategyInteraction.targetName}不会只被动承受，会把${leadStrategyInteraction.actorName}的试探转成自己的筹码。`,
+        action: "追角色行动",
+        event: `${counterActor}借势反制：${nextHint}`,
+        onClick: focusActionChain,
+      },
+      {
+        label: "资源卡在哪里",
+        title: resourcePressure,
+        detail: `这条暗线下一轮不只看话术，还要看资源、盟约或债务是否逼迫角色改判。账本落点：${factionLedger}。`,
+        action: "看代偿账",
+        event: `资源卡点爆发：${resourcePressure}。${nextHint}`,
+        onClick: () =>
+          navigate({
+            name: "worldline",
+            slug,
+            worldlineId: round.worldline_id || "main",
+          }),
+      },
+      {
+        label: "秘密流向哪里",
+        title: secretFlow,
+        detail: "秘密一旦换手，角色的判断就会被重新污染；下一轮要看谁掌握情报、谁误读沉默。",
+        action: "追长线卷",
+        event: `秘密换手：${secretFlow}。${nextHint}`,
+        onClick: () =>
+          navigate({
+            name: "longlineReading",
+            slug,
+            worldlineId: round.worldline_id || "main",
+          }),
+      },
+      {
+        label: "下一轮怎么投",
+        title: `把${counterActor}的索债写成事件`,
+        detail: nextHint,
+        action: "带入势力索债",
+        event: `${counterActor}公开索债：${nextHint} 资源卡点：${resourcePressure}。秘密流向：${secretFlow}`,
+        onClick: null,
+      },
+    ];
+  }, [
+    consequenceDomains,
+    consequenceNextRoundHint,
+    firstPossibility?.brief,
+    focusActionChain,
+    latestConsequence,
+    leadStrategyInteraction,
+    riskStrategyInteraction,
+    round,
+    slug,
+  ]);
   const resultReadingGuide = round
     ? [
         {
@@ -838,6 +931,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       queuedActionTrailTitle ||
       queuedCausalReceiptTitle ||
       queuedEventSeedTitle ||
+      queuedFactionCounterTitle ||
       "";
     if (!title) return null;
     const source = queuedPossibilityTitle
@@ -850,13 +944,16 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
             ? "角色弧线"
             : queuedCausalReceiptTitle
               ? "因果回执"
-              : "事件种子";
+              : queuedFactionCounterTitle
+                ? "势力反制"
+                : "事件种子";
     const staleInterventionCleared = Boolean(
       queuedPossibilityTitle ||
         queuedStrategyTitle ||
         queuedActionFocusTitle ||
         queuedActionTrailTitle ||
-        queuedCausalReceiptTitle,
+        queuedCausalReceiptTitle ||
+        queuedFactionCounterTitle,
     );
     return {
       title,
@@ -875,6 +972,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     queuedActionTrailTitle,
     queuedCausalReceiptTitle,
     queuedEventSeedTitle,
+    queuedFactionCounterTitle,
     queuedPossibilityTitle,
     queuedStrategyTitle,
   ]);
@@ -975,6 +1073,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionTrailTitle("");
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
+    setQueuedFactionCounterTitle("");
     try {
       const next = await api.runSandboxRound(slug, {
         major_event: majorEvent.trim(),
@@ -1103,6 +1202,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionTrailTitle("");
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
+    setQueuedFactionCounterTitle("");
     focusControl();
   }
 
@@ -1119,6 +1219,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionTrailTitle("");
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
+    setQueuedFactionCounterTitle("");
     focusControl();
   }
 
@@ -1132,6 +1233,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionTrailTitle("");
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
+    setQueuedFactionCounterTitle("");
     focusControl();
   }
 
@@ -1146,6 +1248,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedStrategyTitle("");
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
+    setQueuedFactionCounterTitle("");
     focusControl();
   }
 
@@ -1157,6 +1260,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionFocusTitle("");
     setQueuedActionTrailTitle("");
     setQueuedCausalReceiptTitle("");
+    setQueuedFactionCounterTitle("");
     focusEventDraft();
   }
 
@@ -1187,6 +1291,21 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedStrategyTitle("");
     setQueuedActionFocusTitle("");
     setQueuedActionTrailTitle("");
+    setQueuedEventSeedTitle("");
+    setQueuedFactionCounterTitle("");
+    focusControl();
+  }
+
+  function queueFactionCounterSeed(card: (typeof strategyFactionCounterDeck)[number]) {
+    setMajorEvent(card.event);
+    setInterventionContent("");
+    setInterventionTarget("");
+    setQueuedFactionCounterTitle(card.title);
+    setQueuedPossibilityTitle("");
+    setQueuedStrategyTitle("");
+    setQueuedActionFocusTitle("");
+    setQueuedActionTrailTitle("");
+    setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     focusControl();
   }
@@ -2297,6 +2416,46 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                       </article>
                     ))}
                   </div>
+                </section>
+              )}
+              {strategyFactionCounterDeck.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-faction-counter"
+                  aria-label="势力反制账"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">势力反制账</p>
+                      <h2>看清这条暗线会被谁借走</h2>
+                    </div>
+                    {queuedFactionCounterTitle ? (
+                      <span className="badge badge--jade">已放入运行台</span>
+                    ) : (
+                      <span className="badge badge--gold">势力索债</span>
+                    )}
+                  </div>
+                  <div className="sandbox-strategy-faction-counter__grid">
+                    {strategyFactionCounterDeck.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <div className="sandbox-strategy-faction-counter__actions">
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={() =>
+                              item.onClick ? item.onClick() : queueFactionCounterSeed(item)
+                            }
+                          >
+                            {item.action}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                  {queuedFactionCounterTitle && (
+                    <p className="muted tiny">已放入运行台：{queuedFactionCounterTitle}</p>
+                  )}
                 </section>
               )}
               {strategyInteractions.length > 0 && (
