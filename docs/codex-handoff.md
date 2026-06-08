@@ -1,7 +1,7 @@
 # Codex Handoff — 未终章
 
 > 用途：新开 Codex 窗口时的最小接力包。本文件只给启动摘要，不替代 `../memory.md`、`index.md` 或世界沙盘 PRD。
-> 完整历史见 `project-changelog.md`；旧长接力稿见 `completed/codex-handoff-legacy-2026-06-01.md`。
+> 完整历史见 `history/project-changelog.md`；旧长接力稿见 `completed/codex-handoff-legacy-2026-06-01.md`。
 
 ## 新窗口第一条消息建议
 
@@ -13,6 +13,7 @@
 - docs/unfinale-world-sandbox-remodel-prd.md
 - docs/unfinale-ai-development-alignment-checklist.md
 - docs/living-novel-engine-iteration-plan.md
+- docs/unfinale-current-optimization-backlog.md
 - engine/README.md
 
 需要愿景判断时再读：
@@ -37,7 +38,7 @@
 | 已完成第一版 | S1-S9 世界沙盘链路、世界书架、世界锚定房间、天命书、世界沙盘、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、跨事件长线卷、世界线、检查点回放、卷宗阅读、作者采纳台、Reviewer 局部重写、编辑后定稿、确认入卷和下一轮入口 |
 | 最近产品化 | 沙盘策略博弈结果可读化、卷宗正文内证据跳转、世界入口重组、跑后下一步行动台、作者采纳确认后回沙盘、卷宗阅读下一章接力台等已完成第一版 |
 | 当前验证基线 | 最近完整后端记录：`cd engine && python -m pytest -q` -> `951 passed`；前端 `cd engine/ui && pnpm run build` 通过 |
-| 文档分层 | 入口事实看 `memory.md`；文档地图看 `docs/index.md`；路线看 `docs/living-novel-engine-iteration-plan.md`；完整历史看 `docs/project-changelog.md` |
+| 文档分层 | 入口事实看 `memory.md`；文档地图看 `docs/index.md`；路线看 `docs/living-novel-engine-iteration-plan.md`；当前优化看 `docs/unfinale-current-optimization-backlog.md`；完整历史看 `docs/history/project-changelog.md` |
 | 支撑层 | v0.7-v1.0-local、真实 retrieval provider、Vector Retrieval Pipeline、Graph/长期记忆 mock 复核链等已收口为支撑层 |
 
 ## 当前真实未做项
@@ -66,7 +67,7 @@
 - 不破坏 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json`。
 - 用户级能力优先 Web UI + API；CLI 只做开发者/自动化外壳。
 - 不泄漏 API key；真实模型 smoke 不打印明文 key、不大规模消耗、不进入默认全量 pytest。
-- 每个独立切片完成后同步 `memory.md`、相关 PRD/README/本文件和 `project-changelog.md`。
+- 每个独立切片完成后同步 `memory.md`、相关 PRD/README/本文件和 `history/project-changelog.md`。
 - 验证通过后默认提交并推送当前分支；不要提交 `.local-run/` 或 `engine/.local-run/`。
 
 ## 常用验证

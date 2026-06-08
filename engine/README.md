@@ -1,98 +1,12 @@
 # 未终章
 
-未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。本文只负责 `engine/` 的运行、API 和 artifact 说明；当前事实、文档分层和历史收口请分别看 [`../memory.md`](../memory.md)、[`../docs/index.md`](../docs/index.md) 与 [`../docs/project-changelog.md`](../docs/project-changelog.md)。
+未终章（Unfinale）是 `open-infinite` 的叙事引擎与本地产品工作台。本文只负责 `engine/` 的运行、API 和 artifact 说明；当前事实、文档分层、当前优化和历史收口请分别看 [`../memory.md`](../memory.md)、[`../docs/index.md`](../docs/index.md)、[`../docs/unfinale-current-optimization-backlog.md`](../docs/unfinale-current-optimization-backlog.md) 与 [`../docs/history/project-changelog.md`](../docs/history/project-changelog.md)。
 
-当前主线是 **World Sandbox Loop / 世界沙盘改造**，不是继续扩 provider、Graph、检索评测、发行或商业化面板。S1-S9 已形成第一版产品链路：世界沙盘、主观记忆、《天命书》、干预投放、L5 觉醒/模因传播、因果债具象化、世界自演、多视角正文、作者采纳、连续阅读、确认入卷、Reviewer 局部重写采纳和编辑后定稿都已有 additive service/API/UI/artifact/tests；世界沙盘页未运行空态已有“开跑前路标”，把去写事件、添加/调整干预、跑完先看“本轮已发生”和就地启动推演串成第一轮路径；运行台已重组为“写事件 / 可选干预 / 启动推演”控制台并前置到首屏，运行台步骤后已有“事件种子台”，可从锚点压力、下一轮提示、代偿域、最近 ledger、后续可能性或策略暗线派生可一键放入的事件草稿；回填下一轮草稿后会先显示“下一轮影响预演”，解释谁会先承压、世界会怎样记账、旧干预边界和跑完先看哪里；运行前已有“干预后果预演台”解释投放对象、投放方式、世界吸收路径和后果观察点，出结果后已有“本轮已发生”承接台，把行动、记忆、因果债和后续阅读/世界线/多视角/继续运行串起来；结果承接台内已有“本轮承接来源”和“本轮因果回执”，分别保留这一轮从哪里来，以及事件入账、因果债、代偿落点和下一轮代价会去哪里，因果回执也可直接带入下一轮草稿；结果总览后已有“结果阅读顺序”，把跑后路径组织成先读总览、再看暗线、然后追角色行动、最后选择出口；真实模型 advisory 写出策略互动时，沙盘页会先显示“策略博弈读法”，再进入策略棋盘，按施压、误判、反制风险和是否续推帮助用户读懂谁在算计谁、为什么和会怎样影响世界；策略棋盘后会显示“暗线续推判断”，按优先承接、风险最高和影响最深推荐下一轮要续推哪条线；随后“关系势力发酵”会提示关系变化、势力索债、记忆承载和长线追读入口，“多轮策略规划”会把同一条暗线拆成下一轮试探、中段反制和后段入账三步，“策略结算预告”会说明成败看什么、谁会反噬、世界记到哪里和跑完先验哪里，再用“下一轮暗线承接”把某条算计回填为下一轮事件种子；策略棋盘或模型建议之后、完整角色行动链之前已有“角色行动焦点”，把关键角色、真实意图、风险与结果和记忆种子压成可扫读卡，并可定位行动链、追角色卷或回填为下一轮事件；角色行动焦点之后已有“角色跨轮追踪”，把上一轮记忆、本轮行动、结果压力和下一轮推力串成可继续追的角色弧线，并可追弧线、读角色卷或带入下一轮事件；后续剧情可能性也可一键回填为下一轮事件，并清空上轮临时干预；世界自演结果页已有“昨夜世界醒来台”，把 overnight report 先整理成昨夜发生、角色记忆、世界变化和继续阅读入口。
-
-> 2026-06-08 补充：沙盘报告新增 additive `strategy_game_readout`。`run_sandbox_round` 与 `GET /api/sandbox-runs/<run_id>` 都会从现有 `agent_decision_advisory`、角色行动、主观记忆 delta、传播、代偿和章节钩子派生“策略博弈结果总览”数据，说明谁在隐瞒、试探、误判、欺骗、反抗或临场改判，为什么会这样，以及这一步改变了哪些事件、记忆、传播、代偿和章节素材；不新增持久 artifact，不改变 `run_scene` 默认行为。
-
-> 2026-06-08 补充：沙盘页跑后策略区已新增“势力反制账”。它位于“策略结算预告”和“下一轮暗线承接”之间，把谁会借势、资源卡在哪里、秘密流向哪里和下一轮怎么投整理成四张卡，并可把势力索债作为“势力反制”来源放入运行台；不新增后端 API 或 artifact。
-
-> 2026-06-08 补充：沙盘页跑后策略区已新增“策略误判回收台”。它位于“势力反制账”和“下一轮暗线承接”之间，把误判从哪里来、谁被误导、证据在哪里和下一轮怎么回收整理成四张卡，并可把误判回收作为“误判回收”来源放入运行台；不新增后端 API 或 artifact。
-
-> 2026-06-08 补充：沙盘页跑后结果区已新增“本轮之后先做什么”。它位于“本轮因果回执”和“结果阅读顺序”之间，把下一步收束为先读懂结果、带着因果续推或进入作者采纳台；不新增后端 API 或 artifact。
-
-> 2026-06-08 补充：前端默认入口已重组为“世界书架 -> 某个世界 -> 卷宗/场景页”。故事卡和推荐世界主动作先进入世界锚定房间；故事卡默认出口转为卷宗阅读、世界正史卷、主锚点卷、长线卷和世界沙盘；世界锚定页的卷宗总览新增正史、锚点、角色、势力、事件多视角和长线入口，机制档案降为追溯链接。不新增后端 API，不改变既有 artifact 契约。
-
-> 2026-06-08 补充：`dossier_reading` 只读聚合已新增正文内证据跳转。API 会给 `continuous_reading.reading_sections` 派生 `inline_evidence_anchors`，让前端在关键段落内直接跳角色记忆、世界状态/因果债、事件多视角或作者采纳证据；旧折叠证据列表仍保留。该层不新增持久 artifact，不改变 `continuous_reading_chapter` 原始产物或既有 API 字段。
-
-沙盘运行台新增三层运行前理解：大事件输入之前的“事件种子台”降低空白输入成本，可把世界压力转成 `major_event` 草稿；大事件输入之后的“下一轮草稿提示”会在用户从事件种子、后续可能性、策略暗线、角色行动焦点、角色跨轮追踪或因果回执回填材料后显示来源、事件草稿和干预状态，并用“下一轮影响预演”解释“谁会先承压 / 世界会怎样记账 / 旧干预边界 / 跑完先看哪里”，同时提供继续编辑事件或直接启动下一轮；随后“事件入局预演台”用“谁会先动 / 世界怎样记账 / 干预怎样入局 / 跑完先看哪里”解释当前事件如何进入角色行动、主观记忆、因果债和世界线状态。三层都只读前端状态，不新增 API，不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段。
-
-沙盘结果承接台新增“本轮承接来源”和“本轮因果回执”：启动一轮时会把回填来源或手写事件、事件草稿和干预边界保存为前端 `lastRoundLaunchReceipt`，跑后在“本轮已发生”内继续显示；因果回执会用既有 `world_state_delta` 与 `consequence_state` 提示事件入账、因果债、代偿落点和下一轮代价，并提供“看代偿账”“追长线卷”和“带入下一轮”出口。带入下一轮会把这笔因果债合成为运行台大事件草稿，并清空上轮临时干预。该层只保留前端上下文，不新增 API，不改变 sandbox run artifact。
-
-世界线档案页在状态接力台之后新增“代偿罗盘”，用既有 `consequence_state` 摘要、ledger、承压领域和下一轮提示解释“世界为什么会继续变”；罗盘之后还有“世界发酵账”，把最近写入、承压域和下一轮会消费的材料组织成去长线卷或详细代偿账的行动路径。两层都只读 `worldline_dossier` / `worldline_state` 现有字段，不新增 API，不改变 artifact。
-
-跨事件长线卷在跨章承接地图之后新增“角色与势力追踪带”和选中后的“角色/势力追踪上下文台”，从既有时间线、角色/势力影响、误会回收和证据引用派生可点击追踪卡、沿线节点、牵连误会和证据读数，让用户能按角色记忆或势力压力继续追读；长线阅读状态区之后还新增“跨章误会网络图”，把误会来源、牵动角色、证据数量和回收步骤连到可切换误会节点，让用户理解误会怎样拖到下一章。两层只改前端展示，不新增 API 或 artifact。
-
-作者采纳台在“下一章可写方案”之后新增“跨章回收清单”，从既有 `next_chapter_brief` 和 `feed_forward` 派生冲突回收、下一轮事件、回读材料、人工复核和正文落点五类行动卡。用户写入采纳记录后可直接回 brief、长线卷、世界沙盘、草稿或 Reviewer 质检门，先判断下一章必须回收什么，再生成/修订正文。确认入卷后还会显示“下一轮沙盘启动台”，用确认报告里的下一轮事件、世界线状态和确认稿 artifact 解释确认稿怎样喂回沙盘，并提供带确认稿回沙盘、先读确认正文和追长线余波三个动作。该层只改前端展示和交互，不新增 API 或 artifact。
-
-`WorldWorkspaceShell` 移动端已把完整世界导航收进“展开世界导航”折叠区，桌面仍完整展开旅程总线、工作区总览、状态预告、世界脉搏、体验轨道和卷宗速览。390px 下默认先显示当前位置、当前任务、主动作和页面正文；展开后仍保留 4 个旅程入口、4 个体验阶段、4 个世界脉搏和 8 个卷宗入口，不新增 API 或 artifact。
-
-`WorldWorkspaceShell` 当前任务区已升级为“世界扫读带”：先把当前环节、承接世界线、建议先做、下一步理由、继续阅读、主动作和次动作放进同一条高优先级纸面层；旅程总线、工作区指针、状态预告、世界脉搏和卷宗速览保留在其后作为辅助导航。该层只改前端壳层视觉节奏和信息密度，不新增 API 或 artifact。
-
-前端入口已做路由级拆包：`App.tsx` 只保留壳层、路由状态和当前页面的懒加载边界，具体页面通过 `React.lazy`/`Suspense` 按路由加载。`RouteLoading` 会按目标路由显示“正在展开世界沙盘 / 卷宗阅读 / 作者采纳台 / 天命书”等中文纸面加载反馈；`RouteChunkBoundary` 失败态也会按目标路由显示“世界沙盘没有展开 / 卷宗阅读没有展开 / 作者采纳台没有展开 / 天命书没有展开”等恢复提示。当前 `pnpm.cmd run build` 输出入口 JS 约 235.79 kB，页面拆成独立 chunks，已消除原 711.66 kB 单大包警告。
-
-路由懒加载已补失败兜底：`RouteChunkBoundary` 会捕获动态页面 chunk 加载失败，显示“世界卷宗没有展开”的中文纸面错误态，并提供“重新展开”和“回世界书架”两个恢复动作；切换 hash 路由会自动重置错误态。该层只改前端入口和样式，不新增 API 或 artifact。
-
-高频世界导航已补 route chunk 预取：`routePagePreload.ts` 作为页面动态 import 的共享注册表，`App.tsx` 和导航预取共用同一份 `routePageLoaders`；`AppShell` 的品牌入口和世界内高频入口会在 hover、键盘 focus 或 pointer down 时提前加载目标页面 chunk。`WorldWorkspaceShell` 的世界扫读带、旅程总线、状态预告、世界脉搏、体验轨道、卷宗速览和主/次动作也会复用同一套预取。当前 `pnpm.cmd run build` 输出入口 JS 约 233.81 kB，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。该层只改前端入口和壳层交互，不新增 API 或 artifact。
-
-世界内当前位置已补语义状态：`AppShell` 顶栏世界内导航会在当前卷宗入口上输出 `aria-current="page"`；角色卷、势力卷和事件卷这些当前路由 chip 也会标记为当前页。`WorldWorkspaceShell` 的旅程总线与体验轨道会用 `aria-current="step"` 标记当前阶段，卷宗速览会用 `aria-current="page"` 标记当前卷宗。该层只改共享壳层语义和检查脚本，不改变外观、路由、预取或 artifact。
-
-共享壳层已补主内容跳转入口：`AppShell` 在顶栏和世界工作区导航之前提供“跳到当前页面内容”的键盘可聚焦链接，聚焦时以纸面浮层显示；`main.shell__body` 暴露稳定 `#main-content`，让用户可绕过密集世界导航直接进入当前页面正文。该层只改前端壳层结构、样式和检查脚本，不新增 API，不改变路由、预取、阅读进度或 artifact。
-
-共享壳层主内容跳转目标已补可编程焦点：`main#main-content` 现在带 `tabIndex={-1}`，让“跳到当前页面内容”可以把焦点带到主内容区，而不只是滚动到锚点。该层只改前端壳层结构和检查脚本，不新增 API，不改变路由、预取或 artifact。
-
-共享壳层主内容区已补中文可读名称：`main#main-content` 现在带 `aria-label="当前页面内容"`，让 skip link 落点既可聚焦，也能被辅助技术读成当前页面正文区域。该层只改前端壳层语义和检查脚本，不新增 API，不改变路由、预取或 artifact。
-
-共享壳层主内容区名称已随路由变化：`AppShell` 会用 `routeContext.title` 生成 `当前页面内容：<当前页面>`，例如世界沙盘、卷宗阅读或作者采纳台；非世界页回退到现有路由标签或“世界书架”。该层只改前端壳层语义和检查脚本，不新增 API，不改变路由、预取或 artifact。
-
-共享壳层跳转入口文案已随路由变化：`AppShell` 会复用同一个 `currentPageTitle` 生成 `跳到<当前页面>内容`，让键盘用户进入密集导航前先听到“跳到世界沙盘内容 / 跳到卷宗阅读内容”等具名入口。该层只改前端壳层语义和检查脚本，不新增 API，不改变路由、预取或 artifact。
-
-共享壳层浏览器标题已随路由变化：`AppShell` 会复用同一个 `currentPageTitle` 写入 `<当前页面> · 未终章`，让浏览器标签和窗口标题也能区分世界沙盘、卷宗阅读、作者采纳台等当前页面。该层只改前端壳层语义和检查脚本，不新增 API，不改变路由、预取或 artifact。
-
-世界壳层导航区已补具名地标：`WorldWorkspaceShell` 的世界旅程总线、世界工作区总览、状态预告、世界脉搏、体验轨道和卷宗速览都以中文 `aria-label` 的 `nav` 暴露，移动端折叠区带“移动端世界导航”标签。该层只改语义结构，不新增 API，不改变路由、预取或 artifact。
-
-共享顶栏已补键盘焦点反馈：`AppShell` 的品牌入口、世界卷宗导航按钮和顶栏右侧动效/设置按钮都有显式 `:focus-visible` 描边；世界卷宗按钮聚焦时复用纸面 hover 背景，避免键盘用户在密集顶栏里丢失当前位置。该层只改前端壳层样式和检查脚本，不新增 API，不改变路由、预取、移动端折叠导航或 artifact。
-
-`WorldWorkspaceShell` 已补密集导航焦点反馈：世界旅程总线按钮和卷宗速览按钮都有显式 `:focus-visible` 描边；旅程按钮聚焦时复用纸面 hover 背景，卷宗按钮聚焦时复用青绿 `jade-wash` 背景，让键盘用户在展开世界导航或桌面密集导航中不丢失焦点。该层只改共享壳层样式和检查脚本，不新增 API，不改变路由、预取、移动端折叠导航或 artifact。
-
-`WorldWorkspaceShell` 移动端“展开世界导航”折叠入口已补键盘焦点反馈：summary 聚焦时显示朱砂描边和纸面背景，让键盘用户在打开完整世界导航前也能看见焦点位置。该层只改移动端壳层样式和检查脚本，不新增 API，不改变桌面导航、路由、预取、移动端折叠结构或 artifact。
-
-`WorldWorkspaceShell` 共享卡片焦点反馈已补齐：世界扫读带 chip、轻量工作区指针、状态预告卡和世界脉搏卡在键盘聚焦时会复用 hover 的纸面背景和边框反馈，让用户扫过密集壳层卡片时能稳定辨认当前可执行入口。该层只改共享壳层样式和检查脚本，不新增 API，不改变桌面/移动导航结构、路由、预取或 artifact。
-
-`WorldWorkspaceShell` 世界体验轨道已补键盘焦点反馈：“定界 / 运行 / 阅读 / 采纳”按钮聚焦时显示朱砂描边和纸面背景，让用户用键盘切换世界阶段入口时能看清当前焦点。该层只改共享壳层样式和检查脚本，不新增 API，不改变桌面/移动导航结构、路由、预取或 artifact。
-
-`WorldWorkspaceShell` 在沙盘路由下的当前任务已改为“启动一轮推演”，主动作会留在 `#/world/<slug>/sandbox` 并滚到 `WorldSandboxPage` 的 `#sandbox-runner` 运行台；“进入卷宗阅读”改为次动作保留。该交互只改前端路线语义和内部滚动，不新增 API、不改变沙盘请求字段或 artifact。
-
-最近产品化入口：
-
-| 能力 | 当前状态 | 继续深入 |
-| --- | --- | --- |
-| 世界书架入口 | `StoryEntryPage` 已用三张入口卡把开卷路径讲清：内置样例适合先确认产品手感，导入小说适合已有章节，主题创世适合只有题材和冲突；每张卡都展示四段后续路径，帮助用户先选样例、导入或创世，再接到天命书、世界锚定、世界沙盘和卷宗阅读。`storyShelfFocus` 会按故事来源和运行次数推导“待确认天命 / 已有沙盘结果”、推荐下一步、来源和世界线运行数；首屏推荐世界面板会按导入优先、已有沙盘结果次之、原顺序兜底选择最该进入的世界，并展示推荐理由、状态、主动作和指标；推荐卡新增“世界魅力前厅”，用“世界会运行 / 角色会记得 / 干预有后果 / 章节来自演化”四枚活性信号解释这个世界为什么值得继续；推荐卡和每张最近故事卡都有“天命 / 沙盘 / 阅读 / 采纳”四段可点击旅程脉冲，新世界先确认边界，已运行世界先进入阅读，也可直达沙盘或作者台；故事卡主按钮会进入天命书或卷宗阅读，同时保留世界沙盘、天命书、卷宗阅读、作者采纳台和机制档案入口 | 更完整 `WorldWorkspaceShell`、跨页面视觉 QA |
-| 导入/创世入口 | `ImportNovelPage` 和 `GenesisPage` 已在开卷中枢后新增开卷/创世旅程接力条，把素材状态或主题念头接到世界锚定、天命书、世界沙盘和卷宗阅读；两页保留原有文件上传、可恢复分片、章节粘贴、主题创世、mock/真实模型、允许覆盖和 job polling | 真实导入质量、创世初始世界质量 |
-| 世界内导航语境 | `AppShell` 已把世界位置区委托给共享 `WorldWorkspaceShell`，在所有世界内路由下方显示“当前位置”纸面条，按锚定、天命书、沙盘、阅读、长线卷、角色卷、势力卷、事件卷、世界线、检查点、多视角、作者台和机制档案说明页面职责；壳层新增“世界旅程总线”，把“定界 / 运行 / 阅读 / 采纳”四段变成稳定的可点击扫读行；同时提供“世界扫读带”，把当前环节、承接世界线、当前任务、建议先做、下一步理由、全局“继续阅读”、主动作和次动作合并成同一条高优先级纸面层；原工作区总览降级为“旅程入口 / 世界线档案 / 为什么建议这步”的轻量旅程指针，状态预告、世界脉搏、体验轨道和“正文 / 正史 / 锚点 / 角色 / 势力 / 事件 / 长线 / 世界线”卷宗速览盘保留在其后；旅程、工作区、状态、脉搏、体验轨道和卷宗速览均以具名 `nav` 暴露，移动端折叠区带“移动端世界导航”标签；沙盘页当前任务会直接“启动一轮推演”并滚到运行台，阅读入口保留为次动作；四枚世界脉搏信号可分别回到卷宗阅读、世界线档案、长线卷和作者采纳台；移动端默认先露出当前位置和当前任务，完整世界导航收进“展开世界导航”，展开后 9 个顶栏入口、4 个脉搏、4 个阶段和 8 个卷宗入口均保留且无水平溢出 | 跨页面视觉 QA、真实世界状态长期化 |
-| 世界锚定页 | `WorldAnchorPage` 已把世界启动、世界苏醒台、世界续行台、最近阅读续航、世界状态条、世界卷宗总览、世界脉搏、当前旅程状态、锚定轻编辑、视觉资产、基线回放、实体别名和角色探针组织成进入某世界后的第一房间；桌面左栏先露出紧凑“世界续行台”，中栏用“世界醒着吗 / 谁会行动 / 哪条伏笔牵引 / 从哪里继续”解释世界是否已活起来，再用完整续行台把此刻世界、被推到台前、牵引伏笔和建议先做接到推荐动作、沙盘和世界线，最后展示世界内地图、当前正文/角色/伏笔/运行脉搏和下一步状态；移动端在品牌后前置“当前阶段 / 下一步 / 世界脉搏”状态条、紧凑苏醒台和紧凑续行台，并在启动卡后保留紧凑总览，势力标签可进入势力卷 | 完整 `WorldWorkspaceShell`、账号级阅读进度 |
-| 天命书页 | `TianmingPage` 已把生成草案、确认根天命、干预预编译和进入沙盘组织成首屏宪法封面；移动端 hero 后新增“生成/确认/沙盘 / 看锚点 / 投干预 / 去沙盘”宪法速断条，可在首屏直接执行当前主动作、查看锚点或进入干预预编译；确认后新增“天命生效接力台”，把世界宪法已生效、锚点承压、干预边界和沙盘就绪串到沙盘/干预/锚点/世界锚定入口；其后“下一轮启动简报”会把下一轮会消费的锚点、压力档、叙事吸引子和候选承载者翻译成可扫读卡，并可直接启动沙盘、先投放干预或看锚点压力 | 动态天命书、锚点变化审计 |
-| 世界沙盘页 | `WorldSandboxPage` 已把运行台前置为“写事件 / 可选干预 / 启动推演”首屏控制台；运行台内新增“事件种子台”和“干预后果预演台”，前者从锚点压力、下一轮提示、代偿域、最近 ledger、后续可能性或策略暗线派生可一键放入的事件草稿，后者按干预文本、投放对象和投放方式解释世界吸收路径，并提示从角色主观记忆、世界线代偿和多视角正文观察后果；单轮结果后新增“本轮已发生”承接台，先展示本轮事件、行动数、主观记忆、因果债、关键世界状态变化和被推到台前的角色，再提供“读成正文 / 看世界线 / 生成多视角 / 再推一轮”四个出口；承接台内会继续显示“本轮承接来源”，并用“本轮因果回执”把事件入账、因果债、代偿落点和下一轮代价组织成四张扫读卡，可直接看世界线代偿账、追长线卷或带入下一轮草稿；随后“结果阅读顺序”提示先读总览、再看暗线、然后追角色行动、最后选择出口；真实模型 advisory 写出 `strategic_interaction` 时，会在策略棋盘前先显示“策略博弈读法”，按“先看谁在施压 / 再看谁误判 / 然后看反制风险 / 最后决定是否续推”解释读棋盘的顺序，并可跳到策略棋盘或承接首条暗线；“角色行动焦点”会在完整行动链前把最值得追的角色、真实意图、风险与结果和记忆种子组织成扫读卡，并提供定位行动链、追角色卷和回填下一轮事件；“角色跨轮追踪”会把上一轮记忆、本轮行动、结果压力和下一轮推力串成角色弧线，并提供追弧线、读角色卷和带入下一轮动作；真实模型 advisory 写出的策略棋盘会说明角色算计路线、私下目的、误判、风险和世界影响，棋盘后“暗线续推判断”会用优先承接、风险最高和影响最深三张卡帮助用户选择下一轮要续哪条线，“关系势力发酵”会把关系变化、势力索债、记忆承载和长线追读入口前置，“多轮策略规划”会把暗线拆成下一轮试探、中段反制和后段入账三步，“策略结算预告”会把成败判据、反噬对象、世界账本落点和跑后验收入口整理成四张卡，再用“下一轮暗线承接”把某条算计回填为下一轮事件种子；后续剧情可能性也可作为下一轮事件回填到运行台，并避免沿用上轮临时干预；世界自演结果页已有“昨夜世界醒来台”，把 overnight report 先整理成昨夜发生、角色记忆、世界变化和继续阅读入口 | 长期关系/势力博弈、结果页视觉 QA |
-| 世界内导览层 | `WorldRunway` 已接入世界沙盘、卷宗阅读、角色个人卷、势力卷、事件多视角、长线卷、世界线档案、检查点回放和作者采纳台；共享组件会把页面 primary 动作提炼为“建议先做”承接卡，其余动作继续作为次出口，帮助用户先理解当前最该做什么，再选择其它世界路径 | 更完整 `WorldWorkspaceShell`、跨页面视觉 QA |
-| 世界正史卷/主锚点卷页 | `WorldVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/chronicle` / `#/world/<slug>/worldlines/<worldline_id>/anchors` 已复用 `dossier-reading` 只读聚合数据，把世界正史卷和主锚点卷拆成独立阅读入口；AppShell 卷宗速览“正史 / 锚点”和卷宗阅读 tab 都能进入，两页都有移动端导读条、正史/锚点接力台、世界卷承接弧线、卷内证据、世界承接状态以及回卷宗阅读、切换另一卷、查证据、去长线卷、继续沙盘、送作者台动作；承接弧线会把卷内事实、相邻卷牵引、ledger 代偿和下一步回收串起来 | 更深跨章证据联动、真实世界状态长期化 |
-| 角色个人卷页 | `CharacterVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/characters/<character_id>` 已复用 `dossier-reading` 与 `subjective-memory`，把单个角色的个人卷正文、主观记忆链、误会、未知正史、秘密可见性和证据锚点组织成可读页面；移动端首屏已有“读立场 / 查记忆 / 换角色 / 作者台”导读条；导览后已有“记忆接力台”，把当前立场、最新记忆、首要误会和下一轮行动整理成可点击承接卡；接力台之后还有“角色记忆弧线”，把最近主观记忆的信念变化、信任变化、异常感和下一次预期串成可回沙盘验证的连续角色弧；锚定页、沙盘页、多视角页和卷宗阅读页都有入口 | 跨章角色长线阅读、跨卷证据联动 |
-| 势力卷页 | `FactionVolumePage` / `#/world/<slug>/worldlines/<worldline_id>/factions/<faction_id>` 已复用世界锚定、`dossier-reading` 与 `worldline_state`，把势力卷正文、势力目录、因果压力域、最近 ledger 和证据锚点组织成可读页面；移动端首屏已有“看站位 / 查代偿 / 换势力 / 作者台”导读条；导览后已有“势力压力接力台”，把当前站位、代偿压力、最近记录和下一轮秩序整理成可点击承接卡；接力台之后还有“势力代偿弧线”，把最近 ledger 的来源事件、债务分数、承压领域、资源/秘密压力和下一轮提示串成可回沙盘验证的连续势力弧；锚定页、多视角页和卷宗阅读页都有入口 | 跨章势力长线阅读、跨卷证据联动 |
-| 事件多视角详情页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 与 `EventPerspectivePage` / `#/world/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives` 已复用 `dossier-reading` 与 `character_lens_volumes`，把同一事件的节拍、正文、信息差、误读列表、证据链和去卷宗阅读/角色卷/世界线/长线卷/作者台动作组织成独立页面；移动端首屏已有“读事件 / 看信息差 / 查证据 / 作者台”导读条；导览后已有“事件信息差接力台”，把事件现场、信息差、首要误读和下一章承接整理成可点击承接卡；接力台之后还有“事件误读弧线”，把 `perspective_biases`、`information_gap` 和 `next_actions` 翻译成谁看错了、正史裂缝、偏差发酵和下一步回收的连续路径 | 跨章节回收、跨卷证据联动 |
-| 多视角生成页 | `POST /api/stories/<slug>/character-lens/generate` 与 `CharacterLensPage` 已把同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角；移动端首屏已有“生成 / 改事件 / 读卷宗 / 作者台”分镜导读条 | 更自然长正文、多视角证据质量 |
-| 跨事件长线卷 | `GET /api/stories/<slug>/worldlines/<worldline_id>/longline-reading` 与 `LonglineReadingPage` / `#/world/<slug>/worldlines/<worldline_id>/longline` 已复用 `dossier-reading`、`worldline_dossier`、连续阅读场景、卷宗、确认入卷和证据链，把事件、误会、角色记忆、势力压力和作者承接组织成可点击长线时间线，并已新增阅读进度、多事件索引、误会回收台、跨章回收台、跨章承接地图、角色/势力追踪上下文台、跨章误会网络图、未解线索跳转和移动端“读长线 / 按事件追 / 回收误会 / 作者台”首屏导读条 | 跨章节回收、跨章伏笔回收 |
-| 卷宗阅读页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading` 与 `DossierReadingPage` 已让用户默认以“读小说”模式读连续正文，正文居中并隐藏卷宗侧栏；顶部可切到“查卷宗”模式，恢复卷宗目录、阅读进度、误会图谱和世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、确认稿 tab。连续正文已按场景展示阅读进度、认知偏差、冲突转折、段内证据锚点、正文内“本卷场景”横向阅读轨道、当前场景导读条、续读签、本章读感罗盘、下一章接力台和可点击误会图谱；续读签把当前场景、下一场、本场误会和承接线放在正文前，本章读感罗盘再把开场钩子、转折压力、误会燃料和下一章悬念翻译成进入正文前的读法，正文后的下一章接力台会把本章留下什么、下一章要追什么、误会怎样发酵和从哪里续写整理成可去长线卷、沙盘或作者台的行动卡；移动端首屏已有“开始读正文 / 查卷宗 / 作者台”导读条；正文和关联卷宗之后新增“读完之后”余波承接台，可回看误会图谱、追长线卷、继续沙盘或送作者台；阅读类路由会写入前端本机最近阅读续航，锚定页和 AppShell 都能一键回到最近阅读位置 | 账号级用户阅读进度持久化、跨章节回收 |
-| 世界线档案页 | `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier` 与 `WorldlineDossierPage` 已让用户首屏理解分支状态、因果债、检查点、自演任务、代偿域和下一步动作，并可进入长线卷；工作流总览之后新增“状态接力台”，把角色记忆、因果代偿、最近检查点和下一轮入口组织成可点击承接卡；状态接力台之后新增“代偿罗盘”，用最近代价、承压领域、下一轮提示和继续阅读/回放入口解释世界为什么会继续变；罗盘之后新增“世界发酵账”，把最近写入、承压域和下一轮会消费的材料组织成去长线卷或详细代偿账的行动路径；移动端 hero 后新增“回放 / 看代偿 / 看任务 / 长线卷”承接导读条 | 醒来报告文学化、跨章节回收 |
-| 检查点回放页 | `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>` 与 `CheckpointReplayPage` 已让用户首屏理解本轮大事件、角色记忆、因果代偿和连续阅读出口；顶部新增“读报告 / 查证据”模式切换，默认聚焦继续阅读和下一步可写方向，查证据模式恢复回放摘要、角色记忆和具象代偿；移动端 hero 后新增“继续读 / 看记忆 / 看代偿 / 作者台”醒来导读条；`WorldRunway` 后新增“检查点醒来接力台”，把醒来大事、谁记住了、代偿压力和接回正文整理成四枚可点击承接卡，可直接进入醒来报告、角色记忆、具象代偿或作者采纳台 | 醒来报告文学化、长线阅读进度 |
-| 自演结果可读入口 | `autopilot_report.readable_entry` 与 `GET /api/world-autopilot-runs/<run_id>/readable-entry` 已把最近检查点、角色个人卷、事件多视角和连续阅读串起来；沙盘页自演结果报告内有“昨夜世界醒来台”，先展示昨夜发生、角色记忆、世界变化原因和继续阅读入口，再进入 `WakeReadingEntry`、时间线和检查点列表 | 更强醒来报告文学节奏和长线阅读进度 |
-| Reviewer 局部重写采纳 | `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites` 已写 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json`，确认入卷可自动采用编辑后定稿并携带已采纳改写 ids；前端作者台在局部改写列表前已有 Reviewer 质检门，汇总阻断风险、已选改写、自动定稿和入卷判断；确认前还有整章修订路线、章节质感雷达和定稿对照台，修订路线把先看风险、再收改写、然后磨正文、最后入卷串成可点击四步，雷达汇总读感节奏、角色动机、世界入文和入卷准备，对照台对照原始草稿、当前定稿和 `edited_final_chapter.quality_gate` | 更强真实语义 Reviewer、整章风格润色 |
-| 作者采纳台 | `AuthorAdoptionPage` 首屏四步中枢已前置写入采纳台、生成草稿、采纳局部改写、确认入卷和回世界沙盘动作；顶部新增“写作台 / 审稿台”模式切换，写作台保留采纳材料，审稿台聚焦采纳结果、草稿、Reviewer 局部重写、编辑后定稿和确认入卷；下一章 brief 后会先显示“跨章回收清单”，把冲突回收、下一轮事件、回读材料、人工复核和正文落点组织成可点击行动；局部修订包摘要后会先显示“Reviewer 质检门”，把阻断/高优先级审稿项、已选改写、自动定稿和入卷判断组织成四枚可扫读卡；作者修订稿后会显示“整章修订路线”“章节质感雷达”和“定稿对照台”，修订路线可直达 Reviewer 质检门、采纳已选改写、正文编辑或确认入卷，雷达汇总读感节奏、角色动机、世界入文和入卷准备，对照台并排原始草稿、当前定稿、入卷质量门和恢复/采用动作；确认入卷后会先显示“确认入卷接力台”和“下一轮沙盘启动台”，把已成正史、反哺下一轮、Reviewer 定稿、下一轮事件、世界线状态和回流材料组织成可行动承接；移动端中枢压缩后保留“写入采纳台 / 调整材料 / 回世界沙盘”，并可直接滚到采纳材料表单 | 更完整可回滚对照、真实模型编辑器、作者定稿质量门 |
-| 机制档案页 | `WorkspacePage` 作为“世界正史与机制档案”保留旧正史、旧分支、导入检查、检索/Graph 支撑层、审计和运行证据；移动端首屏新增“天命书 / 沙盘 / 读卷宗 / 查证据”导读条，把用户先接回主旅程或证据指标区，不再伪装成主线工作区 | 机制档案分区、继续收纳旧工程面板 |
-| 真实 LLM 策略建议 | `llm_decision_mode=advisory` 会写 `agent_decision_advisory.json`，展示采信、欺骗、传播、反抗、临场判断、策略博弈读法、暗线续推判断、关系势力发酵、多轮策略规划、策略结算预告和策略棋盘 | 长期关系/势力博弈 |
+当前主线是 **World Sandbox Loop / 世界沙盘体验深化**，不是继续扩 provider、Graph、检索评测、发行或商业化面板。S1-S9、世界入口、卷宗阅读、世界自演结果页、作者采纳、Reviewer 局部重写、编辑后定稿、确认入卷和下一轮入口已有第一版；下一步优化集中在多轮策略博弈、长正文质量、跨章节误会/伏笔回收、Reviewer 整章润色和世界状态长期化。
 
 命名边界：面向用户和文档的产品名为“未终章 / Unfinale”；Python 包、CLI、artifact 路径和环境变量前缀仍沿用 LNE / `living_novel_engine`。
 
-本 README 不承担当前下一刀来源。判断下一步时先读 `memory.md` 与世界沙盘 PRD。
+本 README 不承担当前下一刀来源。判断下一步时先读 `../memory.md`、`../docs/unfinale-world-sandbox-remodel-prd.md` 和 `../docs/unfinale-current-optimization-backlog.md`。
 
 ## 当前状态
 
@@ -101,114 +15,33 @@
 | 后端 | Python package + `lne` CLI + 本地 HTTP API |
 | 前端 | `engine/ui` React + Vite 产品工作台 |
 | 入口边界 | 前端是产品入口，API 是能力层，CLI 是工程外壳；用户级功能优先走 Web UI + API |
-| 当前收口 | v1.0-local 与后续增强四十五刀已作为支撑层收口；World Sandbox Loop S1-S9 与世界入口旅程状态、沙盘运行台、沙盘开跑前路标、沙盘结果阅读顺序导读台、沙盘策略博弈读法、沙盘暗线续推判断、沙盘关系势力发酵预告、沙盘多轮策略规划预告、沙盘策略结算预告、沙盘角色行动焦点台、沙盘角色跨轮追踪台、沙盘下一轮草稿提示、沙盘下一轮影响预演、沙盘本轮承接来源回执、最近阅读/自演/检查点/Reviewer 产品化入口已完成第一版；前端路由级拆包、路由感知加载态、路由感知失败恢复态、高频导航预取、共享壳层动作预取、当前位置语义导航、世界壳层导航地标语义、主内容跳转入口/焦点目标/中文可读名称/随路由命名/跳转文案、顶栏焦点反馈、世界壳层导航焦点反馈、移动世界导航 summary 焦点反馈、共享壳层卡片焦点等价反馈和世界体验轨道焦点反馈已完成第一版 |
-| 后端验证基线 | `python -m pytest -q` -> `951 passed` |
-| 前端验证基线 | `cd engine/ui && pnpm run build` 通过；入口 JS 约 235.79 kB，页面拆成独立 chunks，无 Vite 大 chunk 警告 |
-| 当前迭代点 | 世界沙盘闭环体验打磨；多轮策略规划、长正文质量、跨章节误会回收、更强 Reviewer 和整章风格润色是主线，真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
+| 当前收口 | v1.0-local 与支撑层增强已归档；World Sandbox Loop S1-S9 和最近产品化入口已有第一版 |
+| 后端验证基线 | 最近完整记录：`python -m pytest -q` -> `951 passed` |
+| 前端验证基线 | `cd engine/ui && pnpm run build` 通过；页面拆成独立 chunks，无 Vite 大 chunk 警告 |
+| 当前迭代点 | 世界沙盘闭环体验打磨；真实检索 provider 和向量检索 Pipeline 只作为支撑层 |
 
-仍然后置：云端多用户持久队列、真实对象存储 adapter、真实认证、硬配额执行、商业计费系统、webhook、GraphRAG/Zep、高级 runner 默认替换，以及 hybrid vector 是否默认替换 BM25。
+仍然后置：云端多用户、真实对象存储、真实认证、硬配额执行、商业计费系统、webhook、GraphRAG/Zep、高级 runner 默认替换，以及 hybrid vector 是否默认替换 BM25。
 
 ## 当前纠偏主线
 
-后续开发不要继续默认扩 Graph/provider/检索评测/工程看板，也不要继续往 `WorkspacePage.tsx` 堆只读面板。下一批代码应把现有导入、世界锚定、干预编译、多 Agent、记忆、世界线和章节渲染能力重新组织成“世界书架 -> 世界内部卷宗”：
+后续开发不要默认扩 Graph/provider/检索评测/工程看板，也不要继续往 `WorkspacePage.tsx` 堆只读面板。新增能力优先进入某个世界内部的天命书、世界沙盘、卷宗、世界线、检查点或作者采纳台。
 
 ```text
 世界书架
-  -> 导入故事世界 / 新建世界
-  -> 天命书
-  -> 世界沙盘
-  -> 世界正史卷
-  -> 主锚点卷
-  -> 角色个人卷
-  -> 势力卷
-  -> 事件多视角
-  -> 世界线 / 检查点
-  -> 作者采纳台
+  -> 某个故事世界
+      -> 天命书
+      -> 世界沙盘
+      -> 世界正史卷
+      -> 主锚点卷
+      -> 角色个人卷
+      -> 势力卷
+      -> 事件多视角
+      -> 世界线
+      -> 检查点
+      -> 作者采纳台
 ```
 
-首批目标 artifact 以 additive 方式加入，不破坏既有 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 契约：
-
-- `projects/<slug>/tianming.json`
-- `projects/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective_memory.jsonl`
-- `outputs/<run_id>/sandbox_rounds.jsonl`
-- `outputs/<run_id>/agent_decision_advisory.json`
-- `outputs/<run_id>/subjective_memory_delta.json`
-- `outputs/<run_id>/autopilot_report.json`
-- `outputs/<run_id>/checkpoints/checkpoint_*.json`
-- `outputs/<run_id>/character_lens_briefs.json`
-- `outputs/<run_id>/character_lens_volumes.json`
-- `projects/<slug>/author_adoption_ledger.jsonl`
-- `outputs/<run_id>/author_adoption_record.json`
-- `outputs/<run_id>/author_adoption_brief.md`
-- `outputs/<run_id>/next_chapter_brief.json`
-- `outputs/<run_id>/next_chapter_draft.json`
-- `outputs/<run_id>/next_chapter_draft.md`
-- `outputs/<run_id>/accepted_local_rewrites.json`
-- `outputs/<run_id>/next_chapter_draft_revised.md`
-- `outputs/<run_id>/draft_revision_pack.json`
-- `outputs/<run_id>/continuous_reading_chapter.json`
-- `outputs/<run_id>/continuous_reading_chapter.md`
-- `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`
-
-已实现第一版：
-
-- `POST /api/stories/<slug>/sandbox/run`：输入 `major_event` 与可选 `worldline_id`，生成本地单轮沙盘；可选 `intervention_content` / `intervention_target` / `intervention_projection_mode` 会先读取《天命书》编译为本轮干预约束；显式传 `llm_decision_mode=advisory` 时会调用真实 LLM 生成逐角色决策建议并写 `agent_decision_advisory.json`，默认仍不调用外部模型；返回报告会附带只读 `strategy_game_readout`，用于前端展示策略博弈结果总览。
-- `GET /api/sandbox-runs/<run_id>`：读取沙盘轮次结果，并从既有 artifacts 重新派生同一份 `strategy_game_readout`。
-- `GET /api/stories/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective-memory`：读取某角色在某世界线上的主观记忆链。
-- `POST /api/stories/<slug>/tianming/generate`：从本地设定派生 `tianming.json` 草案。
-- `GET /api/stories/<slug>/tianming`：读取天命书。
-- `POST /api/stories/<slug>/tianming/confirm`：用 `confirm=true` 轻量确认天命书。
-- `POST /api/stories/<slug>/tianming/intervention-compile`：读取天命书并预编译自由干预，支持可选 `projection_mode=immersive|wild_au`，输出类型、层级、兼容性、转译策略、Divergent/AU、分支轴和因果债。
-- L4/L5/AU 干预预编译会写 `projects/<slug>/worldlines/<worldline_id>/tianming_snapshot.json`，返回 `worldline_tianming_snapshot`，根 `tianming.json` 不被覆盖。
-- 旧版已确认 `tianming.json` 会在生成或读取时补齐 S3 宪法字段，同时保留既有吸引子。
-- `POST /api/stories/<slug>/narrative-compensation/run`：生成世界线代偿 delta，解释锚点转移、候选承载者、因果债扩散和世界内压力。
-- `POST /api/stories/<slug>/world-autopilot/run`：连续运行沙盘轮次，支持轮数、事件、时间、锚点变化、因果债爆发或角色觉醒目标，生成世界自演报告与检查点；可传 `resume_from_run_id` / `resume_from_checkpoint` 从检查点接续。
-- `GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`：读取可持续世界线状态。
-- `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`：聚合世界线状态、天命审计、自演任务和检查点，供世界线档案页展示。
-- `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`：聚合连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier，供世界内部卷宗阅读页展示；只读派生正文内证据跳转；不新增持久 artifact。
-- `GET /api/stories/<slug>/worldlines/<worldline_id>/longline-reading`：聚合连续阅读场景、卷宗、检查点、确认入卷和证据链，供跨事件长线卷展示阅读进度、多事件索引、误会回收台、跨章回收台、跨章承接地图、角色与势力追踪带、跨章误会网络图、未解线索和下一步动作；不新增持久 artifact。
-- `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives`：聚合事件多视角正文、场景节拍、信息差、误读列表和证据链，供事件详情页展示；不新增持久 artifact。
-- `GET /api/world-autopilot-runs/<run_id>/readable-entry`：读取或复算自演报告的可读世界线入口，返回最近检查点、角色个人卷、事件多视角、连续阅读路由以及状态变化/记忆/因果债摘要。
-- `GET /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>`：读取自演任务进度。
-- `POST /api/stories/<slug>/worldlines/<worldline_id>/world-autopilot/tasks/<task_id>/pause|resume`：暂停或恢复本地自演任务状态。
-- `GET /api/world-autopilot-runs/<run_id>/checkpoints/<checkpoint_id>`：回放自演检查点。
-- `POST /api/stories/<slug>/character-lens/generate`：从同一事件生成世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角 brief。
-- `POST /api/stories/<slug>/author-adoption`：作者采纳、部分采纳、另开分支或导出 brief，写入本地采纳账本，并生成 `next_chapter_brief.writing_plan` / `feed_forward` 作为下一章生成和后续沙盘入口；另开分支会创建作者分支世界线状态。
-- `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-draft`：把作者采纳后的下一章 brief、世界线状态和具象代偿生成可读下一章草稿，并同步生成连续阅读稿与 S8 卷宗引用；`mock=true` deterministic，`mock=false` 显式走真实 LLM smoke。
-- `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-rewrites`：把作者选中的 Reviewer 局部重写建议写入 `accepted_local_rewrites.json` / `next_chapter_draft_revised.md` / `edited_final_chapter.json` / `edited_final_chapter.md`，并 additive 反哺 `next_chapter_draft.json`、确认入卷和下一轮沙盘入口。
-- `POST /api/stories/<slug>/author-adoption/<adoption_run_id>/chapter-confirmation`：把作者编辑后的草稿确认入卷，写入确认记录、Markdown 正文和跨卷宗阅读链，并回写世界线状态与下一轮沙盘入口。
-- `projects/<slug>/tianming.json`：叙事吸引子、题材约束、锚点状态、合约压力和候选天命承载者。
-- `outputs/<run_id>/tianming_delta.json`：世界线代偿报告。
-- `outputs/<run_id>/autopilot_report.json`：世界自演报告，包含目标、状态、停止原因、停止证据、沙盘运行、最终阶段、醒来时间线、`narrative_timeline`、失败恢复信息、检查点索引和 `readable_entry` 可读世界线入口；每个 checkpoint 额外带 `scene_beats` 与 `chapter_seed`。
-- `outputs/<run_id>/checkpoints/checkpoint_*.json`：每轮自演检查点，记录大事件、锚点压力、因果债、角色记忆变化和后续剧情可能性，可作为失败恢复入口。
-- `worldline_dossier`：只读 API 聚合，不新增持久 artifact；读取世界线状态、自演任务和检查点，驱动世界线页与检查点回放页。
-- `outputs/<run_id>/character_lens_briefs.json`：多视角活体小说 brief，记录世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角。
-- `outputs/<run_id>/character_lens_volumes.json`：多视角正文，记录世界正史卷、主锚点卷、角色个人卷、势力卷和事件多视角的可读正文、`novel_scene_plan` 和证据链。
-- `projects/<slug>/author_adoption_ledger.jsonl`：作者采纳账本，记录采纳、部分采纳、另开分支或导出 brief。
-- `outputs/<run_id>/author_adoption_record.json`：单次作者采纳记录和原大纲 vs 沙盘涌现剧情对照。
-- `outputs/<run_id>/author_adoption_brief.md`：可交给后续章节 brief 或人工整理的采纳说明。
-- `outputs/<run_id>/next_chapter_brief.json`：作者采纳后的下一章 brief、伏笔保留项、原大纲差异、Reviewer 建议和后续沙盘入口；`writing_plan` 面向作者阅读，`feed_forward.chapter_generation_inputs` 面向章节生成，`feed_forward.sandbox_continuation_inputs` 面向后续世界沙盘运行。
-- `outputs/<run_id>/next_chapter_draft.json`：作者采纳后的下一章正文草稿、证据链、Reviewer 检查和局部修订包引用。
-- `outputs/<run_id>/next_chapter_draft.md`：可阅读的下一章正文导出，不覆盖正史 `chapter.md`。
-- `outputs/<run_id>/draft_revision_pack.json`：下一章草稿的局部修订包，包含确认前 gate、语义 Reviewer、局部改写建议、编辑应用预览 `editorial_revision_draft` 和证据引用。
-- `outputs/<run_id>/accepted_local_rewrites.json`：作者勾选采纳的 Reviewer 局部重写，包含原问题、修改意图、建议改写、影响角色/世界状态、证据链、编辑后定稿摘要和 feeds。
-- `outputs/<run_id>/next_chapter_draft_revised.md`：带已采纳局部重写清单的兼容修订稿，不覆盖原草稿 Markdown 或正史。
-- `outputs/<run_id>/edited_final_chapter.json` / `edited_final_chapter.md`：把已采纳局部重写应用成可确认正文；确认入卷未传手动正文时会自动采用它，并记录 `edit_source=auto_reviewer_final`。
-- `outputs/<run_id>/continuous_reading_chapter.json`：连续阅读稿结构，包含阅读场景、阅读流、下一章钩子、来源 S8 场景计划 `story_beat_source`、卷宗和证据 refs。
-- `outputs/<run_id>/continuous_reading_chapter.md`：按场景连续阅读的章节稿，正文先读、证据后查，不覆盖正史 `chapter.md`。
-- `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。
-- `outputs/<run_id>/confirmed_chapter.md`：作者确认后的可读正文导出，不覆盖正史 `chapter.md`。
-- `outputs/<run_id>/confirmed_chapter_reading_trail.json`：确认稿跨卷宗阅读链，引用世界线状态、来源采纳记录、世界正史卷、角色个人卷和事件多视角证据。
-- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页“读小说 / 查卷宗”模式切换、默认正文阅读、卷宗切换、续读签、本章读感罗盘、下一章接力台、正文内证据跳转、误会图谱、读完后的余波承接台、世界正史卷/主锚点卷独立页、世界卷承接弧线和折叠证据链。
-- `longline_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读场景、卷宗、检查点、确认入卷和证据链，驱动长线卷的跨事件时间线、阅读进度、多事件索引、误会回收台、跨章回收台、跨章承接地图、角色与势力追踪带、跨章误会网络图、五条发酵线、未解线索和下一步动作。
-- `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`：干预、快照审计、因果债、锚点状态、候选承载者、模因污染传播、具象代偿和作者采纳结果的后续沙盘输入；另开作者分支时会写入新分支状态和来源世界线，不覆盖根正史。
-- `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、决策输入、外在行动、真实意图、风险、行动结果、冲突、信息传播和世界状态 delta。
-- `outputs/<run_id>/agent_decision_advisory.json`：显式启用 `llm_decision_mode=advisory` 时写入，记录真实 LLM 对逐角色采信、欺骗、传播、反抗、临场判断、信任移动和记忆种子的建议；失败时沙盘保留 deterministic 行动。
-- `outputs/<run_id>/intervention_constraint.json`：当本轮沙盘带干预文本时写入，记录天命书编译出的投放方式、异物入侵标记、法则吸收、分支轴、因果债、世界线快照和普通干预不覆盖根天命书边界。
-- `outputs/<run_id>/sandbox_summary.json`：聚合本轮摘要、边界和下一步故事可能性。
-- `outputs/<run_id>/subjective_memory_delta.json`：聚合本轮写入的角色主观记忆，包含主观感知、内心想法、推测动机、误会、未知正史、秘密可见性、L5 高维真相、命痕和模因传播采信证据。
-- `projects/<slug>/worldlines/<worldline_id>/characters/<character_id>/subjective_memory.jsonl`：角色自己的连续主观记忆链，下一轮行动和冲突会读取上一轮记忆/误会。
-
+真实未完成优化见 `../docs/unfinale-current-optimization-backlog.md`。
 ## 快速开始
 
 推荐从仓库根目录使用本地启动脚本：
@@ -538,11 +371,11 @@ git diff --check
 | [`../memory.md`](../memory.md) | 当前状态、测试基线、暂停点、真实未做项 |
 | [`../docs/index.md`](../docs/index.md) | docs 总导航 |
 | [`../docs/living-novel-engine-iteration-plan.md`](../docs/living-novel-engine-iteration-plan.md) | 当前路线图 |
-| [`../docs/productization-phase-map.md`](../docs/productization-phase-map.md) | 产品化阶段归类 |
+| [`../docs/unfinale-current-optimization-backlog.md`](../docs/unfinale-current-optimization-backlog.md) | 当前后续优化清单 |
 | [`../docs/living-novel-engine-prd.md`](../docs/living-novel-engine-prd.md) | 主 PRD |
 | [`../docs/completed/README.md`](../docs/completed/README.md) | 已收口专项文档索引 |
-| [`../docs/project-changelog.md`](../docs/project-changelog.md) | 从 `memory.md` 迁出的完整历史变更日志 |
-| [`../docs/distribution-phase-plan.md`](../docs/distribution-phase-plan.md) | 后续发行路径：本地 clone、GitHub Release、服务器在线体验 |
+| [`../docs/history/project-changelog.md`](../docs/history/project-changelog.md) | 从 `memory.md` 迁出的完整历史变更日志 |
+| [`../docs/postponed/distribution-phase-plan.md`](../docs/postponed/distribution-phase-plan.md) | 后续发行路径：本地 clone、GitHub Release、服务器在线体验 |
 
 ## 当前后置项
 

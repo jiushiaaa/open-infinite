@@ -63,10 +63,11 @@ bash scripts/start-local.sh --check-only --no-browser
 | [`docs/unfinale-world-sandbox-remodel-prd.md`](./docs/unfinale-world-sandbox-remodel-prd.md) | 当前世界沙盘主线 PRD |
 | [`docs/unfinale-ai-development-alignment-checklist.md`](./docs/unfinale-ai-development-alignment-checklist.md) | 后续 AI 开工前自检 |
 | [`docs/living-novel-engine-iteration-plan.md`](./docs/living-novel-engine-iteration-plan.md) | 当前路线和下一刀候选 |
+| [`docs/unfinale-current-optimization-backlog.md`](./docs/unfinale-current-optimization-backlog.md) | 已有第一版但还要继续深化的主线优化项 |
 | [`engine/README.md`](./engine/README.md) | 后端运行、API、artifact 和验证命令 |
 | [`engine/ui/README.md`](./engine/ui/README.md) | 前端结构、路由和 UI 边界 |
 
-完整历史见 [`docs/project-changelog.md`](./docs/project-changelog.md)，已收口专项见 [`docs/completed/`](./docs/completed/)。不要从旧 changelog 或 `completed/` 文档里直接派生当前待办。
+完整历史见 [`docs/history/project-changelog.md`](./docs/history/project-changelog.md)，已收口专项见 [`docs/completed/`](./docs/completed/)，后置路径见 [`docs/postponed/`](./docs/postponed/)。不要从旧 changelog、`completed/` 或 `postponed/` 文档里直接派生当前待办。
 
 ## 产品结构
 

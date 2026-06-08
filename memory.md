@@ -1,8 +1,8 @@
 # 未终章 - 项目记忆（跨会话）
 
 > **用途**：给 Codex / Cursor / 其他 Agent 快速恢复当前事实，避免把历史待办误判成当前路线。
-> **维护约定**：本文件只保留当前事实、路线、边界、缺口和入口索引；完整历史变更日志见 `docs/project-changelog.md`，已收口专项见 `docs/completed/`。
-> **最后更新**：2026-06-08（入口文档瘦身与职责整理）。
+> **维护约定**：本文件只保留当前事实、路线、边界、缺口和入口索引；完整历史变更日志见 `docs/history/project-changelog.md`，已收口专项见 `docs/completed/`，当前后续优化见 `docs/unfinale-current-optimization-backlog.md`。
+> **最后更新**：2026-06-08（docs 根目录分流与当前优化清单整理）。
 
 ## 1. 当前一句话
 
@@ -76,9 +76,10 @@
 5. `docs/unfinale-ai-development-alignment-checklist.md`：开工前自检。
 6. `docs/living-novel-engine-iteration-plan.md`：当前路线和下一刀候选。
 7. `engine/README.md`：后端运行、API、artifact 和验证命令。
-8. 需要愿景判断时读 `docs/unfinale-product-vision-correction-draft.md` 与 `docs/living-novel-engine-prd.md`。
-9. 需要 UI 风格时读 `docs/completed/v0.7-product-web-app-ui-spec.md`。
-10. 接力任务再读 `docs/codex-handoff.md`。
+8. 需要判断真实未完成优化时读 `docs/unfinale-current-optimization-backlog.md`。
+9. 需要愿景判断时读 `docs/unfinale-product-vision-correction-draft.md` 与 `docs/living-novel-engine-prd.md`。
+10. 需要 UI 风格时读 `docs/completed/v0.7-product-web-app-ui-spec.md`。
+11. 接力任务再读 `docs/codex-handoff.md`。
 
 事实优先级：
 
@@ -93,7 +94,7 @@ memory.md
   -> 聊天摘要
 ```
 
-`docs/project-changelog.md` 是追加式历史日志，只用于追溯或补历史记录；不要从旧 changelog 条目里直接派生下一刀。
+`docs/history/project-changelog.md` 是追加式历史日志，只用于追溯或补历史记录；不要从旧 changelog 条目里直接派生下一刀。
 
 ## 7. 关键硬约束
 
@@ -171,9 +172,10 @@ docs-only 任务至少运行 `git diff --check`，并搜索旧基线、旧下一
 
 ## 10. 文档维护规则
 
-- `memory.md` 只写当前事实，不再追加流水账；历史进展写到 `docs/project-changelog.md` 末尾。
+- `memory.md` 只写当前事实，不再追加流水账；历史进展写到 `docs/history/project-changelog.md` 末尾。
 - `docs/index.md` 负责解释每类文档能不能当待办来源。
+- `docs/unfinale-current-optimization-backlog.md` 集中承接当前还要继续优化的主线事项。
 - `docs/completed/` 是已收口专项归档；旧“下一步”必须回到本文复核。
-- `docs/后续增强清单.md` 是支撑层索引，不是当前默认路线。
-- `docs/distribution-phase-plan.md` 是后置发行路径，不抢世界沙盘主线。
+- `docs/completed/support-layer-enhancement-index.md` 是支撑层索引，不是当前默认路线。
+- `docs/postponed/distribution-phase-plan.md` 是后置发行路径，不抢世界沙盘主线。
 - 做完有意义的开发/设计/验收任务后，同步当前事实、相关 PRD/路线/README/handoff，并追加 changelog。

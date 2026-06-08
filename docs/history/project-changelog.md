@@ -4835,3 +4835,18 @@
   - 搜索入口文档中旧下一刀、支撑层误导口径、旧 MVP/Roadmap 草案和过长流水回流。
 - **边界**：
   - 本轮只整理文档入口，不改代码、不移动 `docs/` 物理目录、不改历史 changelog 旧条目。
+
+### 2026-06-08 — Docs Root Reclassification and Current Backlog
+
+- **做了什么**：
+  - 将 `docs/project-changelog.md` 移入 `docs/history/project-changelog.md`，并新增 `docs/history/README.md`，明确历史日志不承担当前待办来源。
+  - 将 `docs/后续增强清单.md` 移入 `docs/completed/support-layer-enhancement-index.md`，将 `docs/codex-migration-guide.md` 和 `docs/productization-phase-map.md` 移入 `docs/completed/`，并同步 `completed/README.md`。
+  - 将 `docs/distribution-phase-plan.md` 移入 `docs/postponed/distribution-phase-plan.md`，并新增 `docs/postponed/README.md`。
+  - 新增 `docs/unfinale-current-optimization-backlog.md`，把真实未完成优化集中为多轮策略博弈、长正文质量、跨章节误会/伏笔回收、Reviewer 整章润色和世界状态长期化。
+  - 重写 `docs/index.md`、路线图、产品 PRD、世界沙盘 PRD、愿景稿、开工自检、handoff、根 README、`memory.md`、`AGENTS.md` 和 `engine/README.md` 的路径与职责说明，避免已完成项继续在根入口里显示为待办。
+- **验证**：
+  - docs-only 任务，运行 `git diff --check`。
+  - 搜索活文档旧路径：`docs/project-changelog.md`、`docs/后续增强清单.md`、`docs/distribution-phase-plan.md`、`docs/codex-migration-guide.md`、`docs/productization-phase-map.md`。
+  - 检查 `docs/` 根层只保留当前活文档。
+- **边界**：
+  - 本轮只整理文档和路径，不改代码、不改 artifact 契约、不改历史 changelog 旧条目内容。

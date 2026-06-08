@@ -18,7 +18,7 @@
 - 核心代码：`engine/`。
 - 技术缩写、Python 包、CLI、环境变量前缀继续沿用 LNE / `living_novel_engine`，不要在代码层面机械改名。
 - 默认中文沟通；前端用户可见文案也默认中文。
-- 用户偏好：先读项目事实和现有代码，再判断；不要靠聊天摘要臆测；实现要闭环到测试、文档同步和 `docs/project-changelog.md` 记录。
+- 用户偏好：先读项目事实和现有代码，再判断；不要靠聊天摘要臆测；实现要闭环到测试、文档同步和 `docs/history/project-changelog.md` 记录。
 
 ## 2. 会话开始必读
 
@@ -30,9 +30,10 @@
 4. `docs/unfinale-ai-development-alignment-checklist.md`：开工前自检，防止回到支撑层扩张。
 5. `docs/living-novel-engine-iteration-plan.md`：当前路线和下一刀。
 6. `engine/README.md`：API、artifact、运行和验证命令。
-7. 如涉及愿景或产品定位，再读 `docs/unfinale-product-vision-correction-draft.md` 与 `docs/living-novel-engine-prd.md`。
-8. 如涉及 UI 风格，再读 `docs/completed/v0.7-product-web-app-ui-spec.md`。
-9. 如是接力任务，再读 `docs/codex-handoff.md`。
+7. 如需要拆真实未完成优化，再读 `docs/unfinale-current-optimization-backlog.md`。
+8. 如涉及愿景或产品定位，再读 `docs/unfinale-product-vision-correction-draft.md` 与 `docs/living-novel-engine-prd.md`。
+9. 如涉及 UI 风格，再读 `docs/completed/v0.7-product-web-app-ui-spec.md`。
+10. 如是接力任务，再读 `docs/codex-handoff.md`。
 
 事实优先级：
 
@@ -47,7 +48,7 @@ memory.md
   -> 聊天摘要
 ```
 
-`docs/project-changelog.md` 是追加式历史日志，入口时只在追溯版本或补历史记录时读取；不要把旧 changelog 条目当下一刀。
+`docs/history/project-changelog.md` 是追加式历史日志，入口时只在追溯版本或补历史记录时读取；不要把旧 changelog 条目当下一刀。
 
 ## 3. 当前最高主线
 
@@ -142,7 +143,7 @@ OpenAPI / typed client 面板
 2. 明确成功标准；复杂任务先写简短计划。
 3. 先补 focused failing test，再实现，再验证。
 4. 保持 additive，改动局部，匹配现有风格。
-5. 同步 `memory.md`、相关 PRD/路线/README/handoff，并把历史记录追加到 `docs/project-changelog.md` 末尾。
+5. 同步 `memory.md`、相关 PRD/路线/README/handoff，并把历史记录追加到 `docs/history/project-changelog.md` 末尾。
 6. 独立切片完成且验证通过后，默认提交并推送到当前分支，除非用户明确要求暂不提交/暂不推送。
 
 常用验证：
@@ -167,12 +168,13 @@ git diff --check
 - `memory.md`：当前事实收口，不再塞完整历史。
 - 根 `README.md`：面向人类读者的产品定位、快速开始和文档入口，不承载逐刀流水。
 - `docs/index.md`：文档地图与分层口径。
-- `docs/project-changelog.md`：完整历史变更日志，追加式维护。
+- `docs/history/project-changelog.md`：完整历史变更日志，追加式维护。
 - `docs/completed/`：已收口专项归档，供追溯，不承担当前下一步来源。
+- `docs/unfinale-current-optimization-backlog.md`：当前未完成优化清单，承接根文档不再展开的下一步。
 - `docs/article/`：论文原文与研读报告。
 - `docs/brand/`、`docs/image/`：品牌资产和 UI 原型参考，不承担当前待办来源。
-- `docs/后续增强清单.md`：支撑层/后置增强索引，不是当前默认路线。
-- `docs/distribution-phase-plan.md`：后置发行路径，不抢世界沙盘主线。
+- `docs/completed/support-layer-enhancement-index.md`：支撑层/后置增强索引，不是当前默认路线。
+- `docs/postponed/distribution-phase-plan.md`：后置发行路径，不抢世界沙盘主线。
 - `engine/README.md`：后端运行、API、artifact 和验证入口。
 - `engine/ui/README.md`：前端结构、路由和 UI 边界入口。
 
@@ -196,4 +198,4 @@ git diff --check
 
 ## 9. Cursor 迁移说明
 
-`.cursor/rules/project-memory.mdc` 的核心规则已迁移到本文件和 `docs/codex-handoff.md`。`.cursor/skills/` 多数是通用 Claude/Cursor 技能包；在 Codex 中优先使用已安装的 Codex skills/plugins。需要某个具体工作流时，再按 `docs/codex-migration-guide.md` 选择性迁移。
+`.cursor/rules/project-memory.mdc` 的核心规则已迁移到本文件和 `docs/codex-handoff.md`。`.cursor/skills/` 多数是通用 Claude/Cursor 技能包；在 Codex 中优先使用已安装的 Codex skills/plugins。需要某个具体工作流时，再按 `docs/completed/codex-migration-guide.md` 选择性迁移。
