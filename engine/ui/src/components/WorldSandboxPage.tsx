@@ -855,6 +855,31 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         },
       ]
     : [];
+  const resultNextActions = round
+    ? [
+        {
+          label: "先读懂结果",
+          title: "按顺序读总览、暗线和角色行动",
+          detail: "适合刚跑完一轮时先稳住理解：从本轮已发生进入证据，再决定要不要续推。",
+          action: "读结果顺序",
+          onClick: focusResultReadingGuide,
+        },
+        {
+          label: "带着因果续推",
+          title: round.world_state_delta.causal_debt || "把本轮因果债放回下一轮",
+          detail: "适合已经知道要继续沙盘时，把代偿、压力和下一轮代价直接回填到运行台。",
+          action: "带入下一轮",
+          onClick: queueCausalReceiptSeed,
+        },
+        {
+          label: "交给作者采纳",
+          title: "把沙盘结果变成下一章材料",
+          detail: "适合准备写正文或做审稿时，进入作者台继续处理 brief、改写和入卷判断。",
+          action: "进入作者台",
+          onClick: () => navigate({ name: "author", slug }),
+        },
+      ]
+    : [];
   const actionFocusDeck = useMemo(() => {
     if (!round) return [];
     return round.character_actions.slice(0, 3).map((item, index) => {
@@ -2234,6 +2259,29 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                       已放入运行台：{queuedCausalReceiptTitle}
                     </p>
                   )}
+                </section>
+                <section className="sandbox-result-next-actions" aria-label="本轮之后先做什么">
+                  <div className="sandbox-result-next-actions__head">
+                    <div>
+                      <p className="tiny muted">本轮之后先做什么</p>
+                      <h3>先选一条路，别在结果页里迷路</h3>
+                    </div>
+                    <span className="badge badge--jade">下一步</span>
+                  </div>
+                  <div className="sandbox-result-next-actions__grid">
+                    {resultNextActions.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <div className="sandbox-result-next-actions__actions">
+                          <button className="btn btn--ghost tiny" onClick={item.onClick}>
+                            {item.action}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                 </section>
                 <dl className="sandbox-result-bridge__stats">
                   {resultBridgeStats.map(([label, value]) => (

@@ -1173,6 +1173,87 @@
   line-height: 1.5;
 }
 
+.sandbox-result-next-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid rgba(72, 114, 92, 0.26);
+  border-radius: 8px;
+  padding: var(--space-3);
+  background:
+    linear-gradient(135deg, rgba(221, 233, 224, 0.32), transparent 42%),
+    rgba(255, 252, 244, 0.78);
+}
+
+.sandbox-result-next-actions__head {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.sandbox-result-next-actions__head > div {
+  min-width: 0;
+}
+
+.sandbox-result-next-actions p,
+.sandbox-result-next-actions h3 {
+  margin: 0;
+}
+
+.sandbox-result-next-actions h3 {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.sandbox-result-next-actions__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.sandbox-result-next-actions__grid article {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  border: 1px solid rgba(72, 114, 92, 0.2);
+  border-radius: 8px;
+  padding: var(--space-3);
+  background: rgba(255, 252, 244, 0.72);
+}
+
+.sandbox-result-next-actions__grid span {
+  color: var(--jade);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sandbox-result-next-actions__grid strong {
+  color: var(--ink);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-result-next-actions__grid p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.sandbox-result-next-actions__actions {
+  display: flex;
+  gap: var(--space-2);
+  align-self: end;
+  justify-content: flex-end;
+}
+
+.sandbox-result-next-actions__actions .btn {
+  min-width: 116px;
+}
+
 .sandbox-result-bridge__stats,
 .sandbox-result-bridge__signals {
   display: grid;
@@ -2589,6 +2670,8 @@
   .sandbox-round-origin__actions,
   .sandbox-causal-receipt__grid,
   .sandbox-causal-receipt__actions,
+  .sandbox-result-next-actions__grid,
+  .sandbox-result-next-actions__actions,
   .sandbox-preflight-map__grid,
   .sandbox-preflight-map__actions,
   .sandbox-result-reading-guide__grid,
@@ -2612,6 +2695,8 @@
   .sandbox-round-origin__actions,
   .sandbox-causal-receipt__head,
   .sandbox-causal-receipt__actions,
+  .sandbox-result-next-actions__head,
+  .sandbox-result-next-actions__actions,
   .sandbox-result-reading-guide__actions,
   .sandbox-action-focus-card__actions,
   .sandbox-action-trail-card__actions,
@@ -2634,6 +2719,7 @@
   .sandbox-preflight-map__actions .btn,
   .sandbox-round-origin__actions .btn,
   .sandbox-causal-receipt__actions .btn,
+  .sandbox-result-next-actions__actions .btn,
   .sandbox-result-reading-guide__actions .btn,
   .sandbox-action-focus-card__actions .btn,
   .sandbox-action-trail-card__actions .btn,

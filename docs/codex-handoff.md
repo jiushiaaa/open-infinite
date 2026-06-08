@@ -40,6 +40,8 @@
 | 当前文档分层 | 入口事实看 `memory.md`；文档地图看 `docs/index.md`；路线看 `docs/living-novel-engine-iteration-plan.md` |
 | 支撑层 | v0.7-v1.0-local、后续增强四十五刀、真实 retrieval provider、Vector Retrieval Pipeline 都已收口为支撑层 |
 
+> 2026-06-08 补充：沙盘跑后结果区已有“本轮之后先做什么”第一版。`WorldSandboxPage` 在“本轮因果回执”和“结果阅读顺序”之间，把下一步收束成“先读懂结果 / 带着因果续推 / 交给作者采纳”，分别跳结果阅读顺序、回填因果债到下一轮运行台，或进入作者采纳台；不新增后端 API 或 artifact。
+
 > 2026-06-07 补充：世界正史卷和主锚点卷已有独立 `WorldVolumePage` 第一版，`#/world/<slug>/worldlines/<worldline_id>/chronicle` 与 `#/world/<slug>/worldlines/<worldline_id>/anchors` 复用卷宗阅读 API，把正史和锚点从 tab 提升为世界内部可读房间；接力台后新增“世界卷承接弧线”，把卷内事实、相邻卷牵引、ledger 代偿和下一步回收连到长线卷。
 
 > 2026-06-07 补充：长线卷已有“角色/势力追踪上下文台”第一版，`LonglineReadingPage` 在跨章承接地图后用既有时间线、角色/势力影响、误会回收和证据引用派生可点击追踪卡；用户选择某张卡后能看到沿线节点、牵连误会和证据读数，并可继续聚焦任一长线节点，不新增后端 API 或 artifact。

@@ -4694,3 +4694,24 @@
 - **边界**：
   - 本轮只改前端沙盘页跑后误判回收理解层、回填状态、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Result Next Actions Hub
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“本轮因果回执”和“结果阅读顺序”之间新增“本轮之后先做什么”。
+  - 行动台把跑后出口收束成“先读懂结果 / 带着因果续推 / 交给作者采纳”三条主路径，减少用户跑完一轮后在结果页里迷路。
+  - 三条路径分别跳到结果阅读顺序、调用既有 `queueCausalReceiptSeed` 把因果债带入下一轮运行台，或进入作者采纳台处理下一章材料。
+  - 扩展 `check:sandbox-runner-ux`，锁定行动台中文标记、派生模型、位置顺序、样式结构和移动端折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少跑后行动台时失败，错误包括 `completed round should expose a post-run action hub`、`post-run action hub should name the next-step decision`、`post-run action hub should derive action choices`、`post-run action hub should prioritize result comprehension`、`post-run action hub should offer a continuation path`、`post-run action hub should route to author adoption`、`post-run action hub should make author adoption actionable`、`post-run action hub should sit after causal receipt and before reading order`、`post-run action hub styling is missing`、`post-run action hub grid styling is missing`、`post-run action hub action styling is missing`、`post-run action hub grid should collapse in the mobile media query` 和 `post-run action hub actions should collapse in the mobile media query`。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`WorldSandboxPage-CFQg3CLg.js` `77.54 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 201.87s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）。
+  - HTTP smoke：当前实际 Vite dev server 在 `http://localhost:5174/#/`，`Invoke-WebRequest` 返回 HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页跑后行动中枢、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

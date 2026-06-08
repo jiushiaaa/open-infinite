@@ -98,6 +98,13 @@ const requiredPageMarkers = [
   ["queuedCausalReceiptTitle ||", "next-round draft should read causal receipt continuation state"],
   ["setQueuedCausalReceiptTitle", "causal receipt should mark its queued draft source"],
   ['? "因果回执"', "next-round draft should identify causal receipt as the source"],
+  ["sandbox-result-next-actions", "completed round should expose a post-run action hub"],
+  ["本轮之后先做什么", "post-run action hub should name the next-step decision"],
+  ["resultNextActions", "post-run action hub should derive action choices"],
+  ["先读懂结果", "post-run action hub should prioritize result comprehension"],
+  ["带着因果续推", "post-run action hub should offer a continuation path"],
+  ["交给作者采纳", "post-run action hub should route to author adoption"],
+  ["进入作者台", "post-run action hub should make author adoption actionable"],
   ["读成正文", "result bridge should route the user to readable output"],
   ["看世界线", "result bridge should route the user to worldline consequences"],
   ["生成多视角", "result bridge should route the user to multi-perspective reading"],
@@ -230,6 +237,7 @@ if (runnerIndex === -1 || runwayIndex === -1 || runnerIndex > runwayIndex) {
 const resultBridgeIndex = page.indexOf("sandbox-result-bridge");
 const roundOriginIndex = page.indexOf("sandbox-round-origin");
 const causalReceiptIndex = page.indexOf("sandbox-causal-receipt");
+const resultNextActionsIndex = page.indexOf("sandbox-result-next-actions");
 const resultBridgeStatsIndex = page.indexOf("sandbox-result-bridge__stats");
 const runnerStepsIndex = page.indexOf("sandbox-runner__steps");
 const eventSeedsIndex = page.indexOf("sandbox-event-seeds");
@@ -372,6 +380,15 @@ if (
   failures.push("causal receipt should sit after the launch origin and before result stats");
 }
 if (
+  causalReceiptIndex === -1 ||
+  resultNextActionsIndex === -1 ||
+  resultReadingGuideIndex === -1 ||
+  resultNextActionsIndex < causalReceiptIndex ||
+  resultNextActionsIndex > resultReadingGuideIndex
+) {
+  failures.push("post-run action hub should sit after causal receipt and before reading order");
+}
+if (
   resultBridgeIndex === -1 ||
   resultReadingGuideIndex === -1 ||
   actionChainIndex === -1 ||
@@ -477,6 +494,9 @@ const requiredCssMarkers = [
   [".sandbox-causal-receipt__grid", "causal receipt grid styling is missing"],
   [".sandbox-causal-receipt__actions", "causal receipt action styling is missing"],
   [".sandbox-causal-receipt__feedback", "causal receipt queued feedback styling is missing"],
+  [".sandbox-result-next-actions", "post-run action hub styling is missing"],
+  [".sandbox-result-next-actions__grid", "post-run action hub grid styling is missing"],
+  [".sandbox-result-next-actions__actions", "post-run action hub action styling is missing"],
   [".sandbox-result-bridge__signals", "result bridge signal styling is missing"],
   [".sandbox-result-bridge__actions", "result bridge action styling is missing"],
   [".sandbox-result-bridge__actions .btn", "result bridge action buttons should have stable sizing"],
@@ -552,6 +572,14 @@ const mobileCausalReceiptActionsIndex = css.indexOf(
   ".sandbox-causal-receipt__actions",
   mobileMediaIndex,
 );
+const mobileResultNextActionsGridIndex = css.indexOf(
+  ".sandbox-result-next-actions__grid",
+  mobileMediaIndex,
+);
+const mobileResultNextActionsActionIndex = css.indexOf(
+  ".sandbox-result-next-actions__actions",
+  mobileMediaIndex,
+);
 const mobileReadingGuideGridIndex = css.indexOf(
   ".sandbox-result-reading-guide__grid",
   mobileMediaIndex,
@@ -599,6 +627,12 @@ if (mobileMediaIndex === -1 || mobileCausalReceiptGridIndex === -1) {
 }
 if (mobileMediaIndex === -1 || mobileCausalReceiptActionsIndex === -1) {
   failures.push("causal receipt actions should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileResultNextActionsGridIndex === -1) {
+  failures.push("post-run action hub grid should collapse in the mobile media query");
+}
+if (mobileMediaIndex === -1 || mobileResultNextActionsActionIndex === -1) {
+  failures.push("post-run action hub actions should collapse in the mobile media query");
 }
 if (mobileMediaIndex === -1 || mobileReadingGuideGridIndex === -1) {
   failures.push("result reading guide grid should collapse in the mobile media query");
