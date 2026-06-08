@@ -369,6 +369,39 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       })
       .slice(0, 4);
   }, [round]);
+  const leadStrategyInteraction = strategyInteractions[0] ?? null;
+  const strategyReadingGuide = leadStrategyInteraction
+    ? [
+        {
+          label: "先看谁在施压",
+          title: `${leadStrategyInteraction.actorName}逼近${leadStrategyInteraction.targetName}`,
+          detail: leadStrategyInteraction.tactic,
+          action: "看策略棋盘",
+          onClick: focusStrategyBoard,
+        },
+        {
+          label: "再看谁误判",
+          title: leadStrategyInteraction.misread,
+          detail: "误判会决定这条算计是成功、反噬，还是把世界推向新的分支。",
+          action: "看完整误判",
+          onClick: focusStrategyBoard,
+        },
+        {
+          label: "然后看反制风险",
+          title: leadStrategyInteraction.risk,
+          detail: `${leadStrategyInteraction.targetName}未必按${leadStrategyInteraction.actorName}预期反应，角色可能反抗或借势转向。`,
+          action: "看风险证据",
+          onClick: focusStrategyBoard,
+        },
+        {
+          label: "最后决定是否续推",
+          title: leadStrategyInteraction.hook,
+          detail: "如果这条暗线值得发酵，就把它变成下一轮事件，继续观察筹码、误判和世界影响。",
+          action: "承接首条暗线",
+          onClick: () => queueStrategySeed(leadStrategyInteraction),
+        },
+      ]
+    : [];
   const resultReadingGuide = round
     ? [
         {
@@ -1824,6 +1857,32 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   ))}
                 </div>
               </section>
+              {strategyInteractions.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-reading-guide"
+                  aria-label="策略博弈读法"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">策略博弈读法</p>
+                      <h2>先按施压、误判、反制和续推读这盘棋</h2>
+                    </div>
+                    <span className="badge badge--gold">读法</span>
+                  </div>
+                  <div className="sandbox-strategy-reading-guide__grid">
+                    {strategyReadingGuide.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <button className="btn btn--ghost tiny" onClick={item.onClick}>
+                          {item.action}
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
               {strategyInteractions.length > 0 && (
                 <section
                   ref={strategyBoardRef}

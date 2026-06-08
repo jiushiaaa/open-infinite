@@ -133,6 +133,13 @@ const requiredPageMarkers = [
   ["追这条弧线", "action trail should let users jump to detailed action evidence"],
   ["带入下一轮", "action trail should let users reuse the character arc as the next event"],
   ["读角色卷", "action trail should route users to the character volume"],
+  ["strategyReadingGuide", "strategy reading guide should derive a compact reading order"],
+  ["sandbox-strategy-reading-guide", "strategy reading guide should sit before the dense strategy board"],
+  ["策略博弈读法", "strategy reading guide should name the tactic reading surface"],
+  ["先看谁在施压", "strategy reading guide should start with pressure"],
+  ["再看谁误判", "strategy reading guide should explain misread pressure"],
+  ["然后看反制风险", "strategy reading guide should explain resistance risk"],
+  ["最后决定是否续推", "strategy reading guide should connect strategy to next-round continuation"],
   ["sandbox-strategy-board", "strategy board should surface character tactics after a round"],
   ["谁在算计谁", "strategy board should explain the relationship between actors and targets"],
   ["私下目的", "strategy board should explain each actor's private goal"],
@@ -186,6 +193,7 @@ const nextRoundDraftIndex = page.indexOf("sandbox-next-round-draft");
 const eventFieldIndex = page.indexOf("sandbox-runner__field--event");
 const advancedInterventionIndex = page.indexOf("sandbox-runner__advanced");
 const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
+const strategyReadingGuideIndex = page.indexOf("sandbox-strategy-reading-guide");
 const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
 const actionFocusIndex = page.indexOf("sandbox-action-focus");
 const actionTrailIndex = page.indexOf("sandbox-action-trail");
@@ -229,6 +237,15 @@ if (
 }
 if (resultBridgeIndex === -1 || actionChainIndex === -1 || resultBridgeIndex > actionChainIndex) {
   failures.push("completed round result bridge should appear before detailed action chains");
+}
+if (
+  resultReadingGuideIndex === -1 ||
+  strategyReadingGuideIndex === -1 ||
+  strategyBoardIndex === -1 ||
+  strategyReadingGuideIndex < resultReadingGuideIndex ||
+  strategyReadingGuideIndex > strategyBoardIndex
+) {
+  failures.push("strategy reading guide should sit after result reading order and before strategy board");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -372,6 +389,8 @@ const requiredCssMarkers = [
   [".sandbox-action-trail-card", "action trail card styling is missing"],
   [".sandbox-action-trail-card__steps", "action trail step styling is missing"],
   [".sandbox-action-trail-card__actions", "action trail action styling is missing"],
+  [".sandbox-strategy-reading-guide", "strategy reading guide styling is missing"],
+  [".sandbox-strategy-reading-guide__grid", "strategy reading guide grid styling is missing"],
   [".sandbox-strategy-board", "strategy board styling is missing"],
   [".sandbox-strategy-board__grid", "strategy board grid styling is missing"],
   [".sandbox-strategy-card__route", "strategy card route styling is missing"],

@@ -4544,3 +4544,23 @@
 - **边界**：
   - 本轮只改前端沙盘页下一轮草稿解释层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Strategy Reading Guide
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“结果阅读顺序”和“策略棋盘”之间新增“策略博弈读法”。
+  - 读法复用真实模型 advisory 写出的首条 `strategic_interaction`，把密集策略棋盘前的理解路径压成“先看谁在施压 / 再看谁误判 / 然后看反制风险 / 最后决定是否续推”四枚扫读卡。
+  - 前三步可直接跳到策略棋盘，最后一步可把首条暗线回填成下一轮事件草稿，继续观察筹码、误判和世界影响。
+  - 扩展 `check:sandbox-runner-ux`，锁定策略读法的派生 deck、中文标记、位置顺序、样式结构和移动端按钮折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少策略博弈读法时失败，错误包括 `strategy reading guide should derive a compact reading order`、`strategy reading guide should sit before the dense strategy board`、`strategy reading guide should name the tactic reading surface`、`strategy reading guide should start with pressure`、`strategy reading guide should explain misread pressure`、`strategy reading guide should explain resistance risk` 和 `strategy reading guide should connect strategy to next-round continuation`。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`WorldSandboxPage-D_DizsIA.js` `64.92 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 171.86s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页策略理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
