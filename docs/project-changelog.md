@@ -4821,3 +4821,17 @@
 - **边界**：
   - 本轮只新增 sandbox run 报告的 additive 只读字段、前端沙盘结果页展示、类型、样式、测试和文档。
   - 不新增持久 artifact，不改变 `agent_decision_advisory.json`、`sandbox_rounds.jsonl`、`subjective_memory_delta.json`、`chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 或 `run_scene` 默认行为。
+
+### 2026-06-08 — Entry Docs Cleanup
+
+- **做了什么**：
+  - 将根 `memory.md` 从长流水压回当前事实入口，只保留当前一句话、完成度、最高主线、优先深入、默认不做、必读顺序、硬约束、产物/API 索引、验证和维护规则。
+  - 将根 `README.md` 从早期概念草案式长文整理为产品定位、快速开始、文档入口、产品结构、核心体验、设计原则和版权边界。
+  - 将 `docs/index.md` 同步为“短入口 + 历史归档”结构，明确 `project-changelog.md`、`completed/`、`后续增强清单.md` 与 `distribution-phase-plan.md` 不承担当前默认待办来源。
+  - 将 `docs/codex-handoff.md` 瘦身为新窗口最小接力包，避免复制世界沙盘多日流水。
+  - 在 `AGENTS.md` 的文档治理规则里补充根 README 职责和入口瘦身原则。
+- **验证**：
+  - docs-only 任务，运行 `git diff --check`。
+  - 搜索入口文档中旧下一刀、支撑层误导口径、旧 MVP/Roadmap 草案和过长流水回流。
+- **边界**：
+  - 本轮只整理文档入口，不改代码、不移动 `docs/` 物理目录、不改历史 changelog 旧条目。

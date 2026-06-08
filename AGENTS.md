@@ -165,6 +165,7 @@ git diff --check
 ## 7. 文档治理
 
 - `memory.md`：当前事实收口，不再塞完整历史。
+- 根 `README.md`：面向人类读者的产品定位、快速开始和文档入口，不承载逐刀流水。
 - `docs/index.md`：文档地图与分层口径。
 - `docs/project-changelog.md`：完整历史变更日志，追加式维护。
 - `docs/completed/`：已收口专项归档，供追溯，不承担当前下一步来源。
@@ -175,7 +176,7 @@ git diff --check
 - `engine/README.md`：后端运行、API、artifact 和验证入口。
 - `engine/ui/README.md`：前端结构、路由和 UI 边界入口。
 
-如果发现某个文档和 `memory.md` 冲突，优先修正文档入口或加状态说明；不要在多个文件继续复制同一段巨大状态表。
+如果发现某个文档和 `memory.md` 冲突，优先修正文档入口或加状态说明；不要在多个文件继续复制同一段巨大状态表。整理文档时优先“入口瘦身 + 链接指路 + 历史归档”，不要把 changelog 式流水搬回 `memory.md`、README 或 handoff。
 
 文档状态标签统一按以下口径理解：
 
