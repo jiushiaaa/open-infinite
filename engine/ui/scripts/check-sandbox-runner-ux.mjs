@@ -182,6 +182,14 @@ const requiredPageMarkers = [
   ["秘密流向哪里", "strategy faction counter should expose secret flow"],
   ["下一轮怎么投", "strategy faction counter should route the counterplay into next round"],
   ["带入势力索债", "strategy faction counter should let users queue faction pressure"],
+  ["strategyMisreadRecoveryDeck", "strategy misread recovery should derive misread recovery checks"],
+  ["sandbox-strategy-misread-recovery", "strategy misread recovery should sit before continuation choices"],
+  ["策略误判回收台", "strategy misread recovery should name the misread recovery surface"],
+  ["误判从哪里来", "strategy misread recovery should explain where the misread starts"],
+  ["谁被误导", "strategy misread recovery should identify the misled actor"],
+  ["证据在哪里", "strategy misread recovery should route users to evidence"],
+  ["下一轮怎么回收", "strategy misread recovery should turn misread into next-round recovery"],
+  ["带入误判回收", "strategy misread recovery should let users queue misread recovery"],
   ["sandbox-strategy-continuation", "strategy board should hand tactics into the next round"],
   ["下一轮暗线承接", "strategy continuation should name the next-round handoff"],
   ["作为下一轮暗线", "strategy continuation should let users queue a tactic as the next event"],
@@ -236,6 +244,7 @@ const strategyFermentationIndex = page.indexOf("sandbox-strategy-fermentation");
 const strategyLongPlanIndex = page.indexOf("sandbox-strategy-long-plan");
 const strategySettlementIndex = page.indexOf("sandbox-strategy-settlement");
 const strategyFactionCounterIndex = page.indexOf("sandbox-strategy-faction-counter");
+const strategyMisreadRecoveryIndex = page.indexOf("sandbox-strategy-misread-recovery");
 const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
 const actionFocusIndex = page.indexOf("sandbox-action-focus");
 const actionTrailIndex = page.indexOf("sandbox-action-trail");
@@ -333,6 +342,15 @@ if (
   strategyFactionCounterIndex > strategyContinuationIndex
 ) {
   failures.push("strategy faction counter should sit after settlement and before continuation choices");
+}
+if (
+  strategyFactionCounterIndex === -1 ||
+  strategyMisreadRecoveryIndex === -1 ||
+  strategyContinuationIndex === -1 ||
+  strategyMisreadRecoveryIndex < strategyFactionCounterIndex ||
+  strategyMisreadRecoveryIndex > strategyContinuationIndex
+) {
+  failures.push("strategy misread recovery should sit after faction counter and before continuation choices");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -498,6 +516,9 @@ const requiredCssMarkers = [
   [".sandbox-strategy-faction-counter", "strategy faction counter styling is missing"],
   [".sandbox-strategy-faction-counter__grid", "strategy faction counter grid styling is missing"],
   [".sandbox-strategy-faction-counter__actions", "strategy faction counter action styling is missing"],
+  [".sandbox-strategy-misread-recovery", "strategy misread recovery styling is missing"],
+  [".sandbox-strategy-misread-recovery__grid", "strategy misread recovery grid styling is missing"],
+  [".sandbox-strategy-misread-recovery__actions", "strategy misread recovery action styling is missing"],
   [".sandbox-strategy-continuation", "strategy continuation styling is missing"],
   [".sandbox-strategy-continuation__grid", "strategy continuation grid styling is missing"],
   [".sandbox-strategy-continuation__event", "strategy continuation event styling is missing"],

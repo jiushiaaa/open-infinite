@@ -45,6 +45,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
   const [queuedCausalReceiptTitle, setQueuedCausalReceiptTitle] = useState("");
   const [queuedEventSeedTitle, setQueuedEventSeedTitle] = useState("");
   const [queuedFactionCounterTitle, setQueuedFactionCounterTitle] = useState("");
+  const [queuedMisreadRecoveryTitle, setQueuedMisreadRecoveryTitle] = useState("");
   const [lastRoundLaunchReceipt, setLastRoundLaunchReceipt] = useState<{
     source: string;
     title: string;
@@ -744,6 +745,75 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     round,
     slug,
   ]);
+  const strategyMisreadRecoveryDeck = useMemo(() => {
+    if (!round || !leadStrategyInteraction) return [];
+    const misreadSource =
+      leadStrategyInteraction.misread ||
+      riskStrategyInteraction?.misread ||
+      "误判还没有显形，先把这条暗线放回下一轮观察。";
+    const misledActor =
+      riskStrategyInteraction?.targetName ||
+      leadStrategyInteraction.targetName ||
+      leadStrategyInteraction.actorName;
+    const evidencePlace =
+      firstPossibility?.brief ||
+      consequenceNextRoundHint ||
+      latestConsequence?.major_event ||
+      "证据会落在角色行动链、主观记忆和长线卷误会回收里。";
+    const recoveryEvent = `${misledActor}误判回收：围绕「${misreadSource}」重新核对证据。下一轮观察：${evidencePlace}`;
+
+    return [
+      {
+        label: "误判从哪里来",
+        title: misreadSource,
+        detail: `${leadStrategyInteraction.actorName}的试探会被${misledActor}读偏；这不是旁枝，而是下一轮行动的燃料。`,
+        action: "看完整误判",
+        event: recoveryEvent,
+        onClick: focusStrategyBoard,
+      },
+      {
+        label: "谁被误导",
+        title: misledActor,
+        detail:
+          riskStrategyInteraction?.risk ||
+          `${misledActor}会按错误前提行动，可能把沉默、秘密或资源卡点误认成敌意。`,
+        action: "追角色行动",
+        event: recoveryEvent,
+        onClick: focusActionChain,
+      },
+      {
+        label: "证据在哪里",
+        title: "先追长线卷和本轮证据",
+        detail: evidencePlace,
+        action: "追长线卷",
+        event: recoveryEvent,
+        onClick: () =>
+          navigate({
+            name: "longlineReading",
+            slug,
+            worldlineId: round.worldline_id || "main",
+          }),
+      },
+      {
+        label: "下一轮怎么回收",
+        title: "把误判写成下一轮事件",
+        detail: `让${misledActor}带着这条误判行动，再看证据、秘密和关系是否被世界纠偏。`,
+        action: "带入误判回收",
+        event: recoveryEvent,
+        onClick: null,
+      },
+    ];
+  }, [
+    consequenceNextRoundHint,
+    firstPossibility?.brief,
+    focusActionChain,
+    focusStrategyBoard,
+    latestConsequence?.major_event,
+    leadStrategyInteraction,
+    riskStrategyInteraction,
+    round,
+    slug,
+  ]);
   const resultReadingGuide = round
     ? [
         {
@@ -932,6 +1002,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
       queuedCausalReceiptTitle ||
       queuedEventSeedTitle ||
       queuedFactionCounterTitle ||
+      queuedMisreadRecoveryTitle ||
       "";
     if (!title) return null;
     const source = queuedPossibilityTitle
@@ -946,14 +1017,17 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
               ? "因果回执"
               : queuedFactionCounterTitle
                 ? "势力反制"
-                : "事件种子";
+                : queuedMisreadRecoveryTitle
+                  ? "误判回收"
+                  : "事件种子";
     const staleInterventionCleared = Boolean(
       queuedPossibilityTitle ||
         queuedStrategyTitle ||
         queuedActionFocusTitle ||
         queuedActionTrailTitle ||
         queuedCausalReceiptTitle ||
-        queuedFactionCounterTitle,
+        queuedFactionCounterTitle ||
+        queuedMisreadRecoveryTitle,
     );
     return {
       title,
@@ -973,6 +1047,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     queuedCausalReceiptTitle,
     queuedEventSeedTitle,
     queuedFactionCounterTitle,
+    queuedMisreadRecoveryTitle,
     queuedPossibilityTitle,
     queuedStrategyTitle,
   ]);
@@ -1074,6 +1149,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     setQueuedFactionCounterTitle("");
+    setQueuedMisreadRecoveryTitle("");
     try {
       const next = await api.runSandboxRound(slug, {
         major_event: majorEvent.trim(),
@@ -1203,6 +1279,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     setQueuedFactionCounterTitle("");
+    setQueuedMisreadRecoveryTitle("");
     focusControl();
   }
 
@@ -1220,6 +1297,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     setQueuedFactionCounterTitle("");
+    setQueuedMisreadRecoveryTitle("");
     focusControl();
   }
 
@@ -1234,6 +1312,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     setQueuedFactionCounterTitle("");
+    setQueuedMisreadRecoveryTitle("");
     focusControl();
   }
 
@@ -1249,6 +1328,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
     setQueuedFactionCounterTitle("");
+    setQueuedMisreadRecoveryTitle("");
     focusControl();
   }
 
@@ -1261,6 +1341,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionTrailTitle("");
     setQueuedCausalReceiptTitle("");
     setQueuedFactionCounterTitle("");
+    setQueuedMisreadRecoveryTitle("");
     focusEventDraft();
   }
 
@@ -1293,6 +1374,7 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionTrailTitle("");
     setQueuedEventSeedTitle("");
     setQueuedFactionCounterTitle("");
+    setQueuedMisreadRecoveryTitle("");
     focusControl();
   }
 
@@ -1307,6 +1389,22 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     setQueuedActionTrailTitle("");
     setQueuedCausalReceiptTitle("");
     setQueuedEventSeedTitle("");
+    setQueuedMisreadRecoveryTitle("");
+    focusControl();
+  }
+
+  function queueMisreadRecoverySeed(card: (typeof strategyMisreadRecoveryDeck)[number]) {
+    setMajorEvent(card.event);
+    setInterventionContent("");
+    setInterventionTarget("");
+    setQueuedMisreadRecoveryTitle(card.title);
+    setQueuedPossibilityTitle("");
+    setQueuedStrategyTitle("");
+    setQueuedActionFocusTitle("");
+    setQueuedActionTrailTitle("");
+    setQueuedCausalReceiptTitle("");
+    setQueuedEventSeedTitle("");
+    setQueuedFactionCounterTitle("");
     focusControl();
   }
 
@@ -2455,6 +2553,46 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                   </div>
                   {queuedFactionCounterTitle && (
                     <p className="muted tiny">已放入运行台：{queuedFactionCounterTitle}</p>
+                  )}
+                </section>
+              )}
+              {strategyMisreadRecoveryDeck.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-misread-recovery"
+                  aria-label="策略误判回收台"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">策略误判回收台</p>
+                      <h2>把误判、隐瞒和证据接回下一轮</h2>
+                    </div>
+                    {queuedMisreadRecoveryTitle ? (
+                      <span className="badge badge--jade">已放入运行台</span>
+                    ) : (
+                      <span className="badge badge--gold">误判回收</span>
+                    )}
+                  </div>
+                  <div className="sandbox-strategy-misread-recovery__grid">
+                    {strategyMisreadRecoveryDeck.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <div className="sandbox-strategy-misread-recovery__actions">
+                          <button
+                            className="btn btn--ghost tiny"
+                            onClick={() =>
+                              item.onClick ? item.onClick() : queueMisreadRecoverySeed(item)
+                            }
+                          >
+                            {item.action}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                  {queuedMisreadRecoveryTitle && (
+                    <p className="muted tiny">已放入运行台：{queuedMisreadRecoveryTitle}</p>
                   )}
                 </section>
               )}
