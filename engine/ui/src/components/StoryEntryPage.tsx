@@ -102,9 +102,10 @@ export function StoryEntryPage() {
               });
               const openRecommended = () =>
                 navigateStoryRecommendation(s.slug, focus.recommendedKey);
+              const openWorldRoom = () => navigateStoryWorldRoom(s.slug);
               return (
                 <div key={s.slug} className="story-card">
-                  <button className="story-card__open" onClick={openRecommended}>
+                  <button className="story-card__open" onClick={openWorldRoom}>
                     <StoryCoverThumb
                       slug={s.slug}
                       seal={s.display_name.slice(0, 1) || "书"}
@@ -159,22 +160,13 @@ export function StoryEntryPage() {
                       </button>
                     ))}
                   </div>
-                  <button className="story-card__primary" onClick={openRecommended}>
+                  <button className="story-card__primary" onClick={openWorldRoom}>
+                    进入世界
+                  </button>
+                  <button className="story-card__secondary" onClick={openRecommended}>
                     {focus.recommendedAction}
                   </button>
                   <div className="story-card__foot">
-                    <button
-                      className="story-card__link"
-                      onClick={() => navigate({ name: "sandbox", slug: s.slug })}
-                    >
-                      世界沙盘
-                    </button>
-                    <button
-                      className="story-card__link"
-                      onClick={() => navigate({ name: "tianming", slug: s.slug })}
-                    >
-                      天命书
-                    </button>
                     <button
                       className="story-card__link"
                       onClick={() =>
@@ -189,15 +181,45 @@ export function StoryEntryPage() {
                     </button>
                     <button
                       className="story-card__link"
-                      onClick={() => navigate({ name: "author", slug: s.slug })}
+                      onClick={() =>
+                        navigate({
+                          name: "worldChronicle",
+                          slug: s.slug,
+                          worldlineId: "main",
+                        })
+                      }
                     >
-                      作者采纳台
+                      世界正史卷
                     </button>
                     <button
                       className="story-card__link"
-                      onClick={() => navigate({ name: "workspace", slug: s.slug })}
+                      onClick={() =>
+                        navigate({
+                          name: "anchorVolume",
+                          slug: s.slug,
+                          worldlineId: "main",
+                        })
+                      }
                     >
-                      机制档案
+                      主锚点卷
+                    </button>
+                    <button
+                      className="story-card__link"
+                      onClick={() =>
+                        navigate({
+                          name: "longlineReading",
+                          slug: s.slug,
+                          worldlineId: "main",
+                        })
+                      }
+                    >
+                      长线卷
+                    </button>
+                    <button
+                      className="story-card__link"
+                      onClick={() => navigate({ name: "sandbox", slug: s.slug })}
+                    >
+                      世界沙盘
                     </button>
                   </div>
                 </div>
@@ -216,6 +238,10 @@ function navigateStoryRecommendation(slug: string, key: StoryShelfActionKey) {
     return;
   }
   navigate({ name: "tianming", slug });
+}
+
+function navigateStoryWorldRoom(slug: string) {
+  navigate({ name: "anchor", slug });
 }
 
 function navigateStoryJourney(slug: string, key: StoryShelfJourneyKey) {
@@ -241,6 +267,7 @@ function StorySpotlightCard({
 }) {
   const openRecommended = () =>
     navigateStoryRecommendation(spotlight.slug, spotlight.focus.recommendedKey);
+  const openWorldRoom = () => navigateStoryWorldRoom(spotlight.slug);
 
   return (
     <aside className="entry__spotlight" aria-label="推荐进入的故事世界">
@@ -301,26 +328,46 @@ function StorySpotlightCard({
             </span>
           ))}
         </div>
-        <button className="entry__spotlight-primary" onClick={openRecommended}>
-          {spotlight.focus.recommendedAction}
+        <button className="entry__spotlight-primary" onClick={openWorldRoom}>
+          进入世界
         </button>
         <div className="entry__spotlight-links">
+          <button onClick={openRecommended}>{spotlight.focus.recommendedAction}</button>
           <button onClick={() => navigate({ name: "sandbox", slug: spotlight.slug })}>
             世界沙盘
           </button>
           <button
             onClick={() =>
               navigate({
-                name: "dossierReading",
+                name: "worldChronicle",
                 slug: spotlight.slug,
                 worldlineId: "main",
               })
             }
           >
-            卷宗阅读
+            世界正史卷
           </button>
-          <button onClick={() => navigate({ name: "workspace", slug: spotlight.slug })}>
-            机制档案
+          <button
+            onClick={() =>
+              navigate({
+                name: "anchorVolume",
+                slug: spotlight.slug,
+                worldlineId: "main",
+              })
+            }
+          >
+            主锚点卷
+          </button>
+          <button
+            onClick={() =>
+              navigate({
+                name: "longlineReading",
+                slug: spotlight.slug,
+                worldlineId: "main",
+              })
+            }
+          >
+            长线卷
           </button>
         </div>
       </div>

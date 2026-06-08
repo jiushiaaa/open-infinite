@@ -545,6 +545,21 @@
   max-width: 560px;
 }
 
+.anchor__archive-link {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 252, 244, 0.66);
+  color: var(--ink-soft);
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.anchor__archive-link:hover {
+  border-color: var(--jade-soft);
+  background: rgba(241, 247, 239, 0.72);
+  color: var(--jade);
+}
+
 .anchor__pulse {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -712,7 +727,7 @@
 
 .anchor__portal-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-3);
 }
 

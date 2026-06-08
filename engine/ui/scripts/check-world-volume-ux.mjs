@@ -22,8 +22,9 @@ assert(
   "routing should navigate to independent world volume URLs",
 );
 assert(
-  app.includes('import { WorldVolumePage } from "./components/WorldVolumePage"'),
-  "App should import the shared world volume page",
+  app.includes('const WorldVolumePage = lazy(()') &&
+    app.includes('loadPage(routePageLoaders.worldChronicle, "WorldVolumePage")'),
+  "App should lazy-load the shared world volume page through the route loader",
 );
 assert(
   app.includes('route.name === "worldChronicle"') &&

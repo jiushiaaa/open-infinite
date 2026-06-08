@@ -41,6 +41,8 @@ function worldSlug(route: Route): string | null {
     route.name === "author" ||
     route.name === "worldline" ||
     route.name === "dossierReading" ||
+    route.name === "worldChronicle" ||
+    route.name === "anchorVolume" ||
     route.name === "longlineReading" ||
     route.name === "characterVolume" ||
     route.name === "factionVolume" ||
@@ -57,6 +59,8 @@ function worldlineId(route: Route): string {
   if (
     route.name === "worldline" ||
     route.name === "dossierReading" ||
+    route.name === "worldChronicle" ||
+    route.name === "anchorVolume" ||
     route.name === "longlineReading" ||
     route.name === "characterVolume" ||
     route.name === "factionVolume" ||
@@ -70,6 +74,8 @@ function worldlineId(route: Route): string {
 
 function activeSection(route: Route): string {
   if (route.name === "checkpoint") return "worldline";
+  if (route.name === "worldChronicle") return "worldChronicle";
+  if (route.name === "anchorVolume") return "anchorVolume";
   if (route.name === "characterVolume") return "character";
   if (route.name === "factionVolume") return "faction";
   if (route.name === "eventPerspective") return "event";
@@ -184,6 +190,44 @@ export function AppShell({
                 title="按小说正文和卷宗视角阅读世界结果"
               >
                 阅读
+              </button>
+              <button
+                className={active === "worldChronicle" ? "is-active" : ""}
+                aria-current={active === "worldChronicle" ? "page" : undefined}
+                {...routeIntent({
+                  name: "worldChronicle",
+                  slug,
+                  worldlineId: currentWorldline,
+                })}
+                onClick={() =>
+                  navigate({
+                    name: "worldChronicle",
+                    slug,
+                    worldlineId: currentWorldline,
+                  })
+                }
+                title="阅读世界承认的事实、证据来源和正史承接"
+              >
+                正史卷
+              </button>
+              <button
+                className={active === "anchorVolume" ? "is-active" : ""}
+                aria-current={active === "anchorVolume" ? "page" : undefined}
+                {...routeIntent({
+                  name: "anchorVolume",
+                  slug,
+                  worldlineId: currentWorldline,
+                })}
+                onClick={() =>
+                  navigate({
+                    name: "anchorVolume",
+                    slug,
+                    worldlineId: currentWorldline,
+                  })
+                }
+                title="阅读主锚点压力、边界触碰和世界代偿"
+              >
+                锚点卷
               </button>
               <button
                 className={active === "longline" ? "is-active" : ""}

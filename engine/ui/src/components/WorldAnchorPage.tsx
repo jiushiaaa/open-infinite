@@ -900,6 +900,8 @@ function WorldDossierGateway({
     }
     else if (key === "author") navigate({ name: "author", slug: data.slug });
   };
+  const firstCharacterId = data.characters[0]?.id;
+  const firstFactionId = data.world.factions[0];
   const portals = [
     {
       key: "tianming",
@@ -932,6 +934,98 @@ function WorldDossierGateway({
       action: "开始阅读",
       onClick: () =>
         navigate({ name: "dossierReading", slug: data.slug, worldlineId }),
+    },
+    {
+      key: "chronicle",
+      label: "世界正史卷",
+      title: "世界承认了什么",
+      desc: "先读世界层面的已发生事实、证据来源和它怎样压回角色与下一章。",
+      meta: "正史房间",
+      action: "读正史",
+      onClick: () =>
+        navigate({ name: "worldChronicle", slug: data.slug, worldlineId }),
+    },
+    {
+      key: "anchors",
+      label: "主锚点卷",
+      title: "锚点怎样承压",
+      desc: "查看命运边界、锚点压力和世界代偿怎样限制下一轮运行。",
+      meta: `${data.open_threads.length} 条伏笔`,
+      action: "读锚点",
+      onClick: () =>
+        navigate({ name: "anchorVolume", slug: data.slug, worldlineId }),
+    },
+    {
+      key: "character",
+      label: "角色个人卷",
+      title: "谁带着记忆行动",
+      desc: firstCharacterId
+        ? "进入首个角色的主观记忆、误会和秘密可见性，理解下一轮行动理由。"
+        : "暂未识别角色时，先回卷宗阅读的角色卷入口等待生成正文。",
+      meta: `${data.characters.length} 个角色`,
+      action: firstCharacterId ? "读角色" : "查角色卷",
+      onClick: () =>
+        firstCharacterId
+          ? navigate({
+              name: "characterVolume",
+              slug: data.slug,
+              worldlineId,
+              characterId: firstCharacterId,
+            })
+          : navigate({
+              name: "dossierReading",
+              slug: data.slug,
+              worldlineId,
+              tab: "character_volume",
+            }),
+    },
+    {
+      key: "faction",
+      label: "势力卷",
+      title: "哪股力量在索债",
+      desc: firstFactionId
+        ? "进入首个势力的立场、资源压力和代偿账，看世界怎样被群体牵动。"
+        : "暂未识别势力时，先回卷宗阅读的势力卷入口等待生成正文。",
+      meta: `${data.world.factions.length} 个势力`,
+      action: firstFactionId ? "读势力" : "查势力卷",
+      onClick: () =>
+        firstFactionId
+          ? navigate({
+              name: "factionVolume",
+              slug: data.slug,
+              worldlineId,
+              factionId: firstFactionId,
+            })
+          : navigate({
+              name: "dossierReading",
+              slug: data.slug,
+              worldlineId,
+              tab: "faction_volume",
+            }),
+    },
+    {
+      key: "event",
+      label: "事件多视角",
+      title: "同一事件谁看错了",
+      desc: "先进入事件卷入口，核对正史、角色视角、信息差和证据链。",
+      meta: "信息差",
+      action: "查事件",
+      onClick: () =>
+        navigate({
+          name: "dossierReading",
+          slug: data.slug,
+          worldlineId,
+          tab: "event_multi_perspective",
+        }),
+    },
+    {
+      key: "longline",
+      label: "跨事件长线卷",
+      title: "误会怎样拖到下一章",
+      desc: "把事件、角色记忆、势力压力和未解线索串成可回收的后续线。",
+      meta: "长线追读",
+      action: "追长线",
+      onClick: () => navigate({ name: "longlineReading", slug: data.slug, worldlineId }),
     },
     {
       key: "worldline",
@@ -977,8 +1071,9 @@ function WorldDossierGateway({
           <h2>从这里选择你要如何理解这个世界</h2>
         </div>
         <button
-          className="btn btn--ghost tiny"
+          className="anchor__archive-link"
           onClick={() => navigate({ name: "workspace", slug: data.slug })}
+          type="button"
         >
           机制档案
         </button>

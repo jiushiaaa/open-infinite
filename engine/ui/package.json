@@ -30,6 +30,7 @@
     "check:world-runway-ux": "node scripts/check-world-runway-ux.mjs",
     "check:world-volume-ux": "node scripts/check-world-volume-ux.mjs",
     "check:route-code-splitting": "node scripts/check-route-code-splitting.mjs",
+    "check:world-entry-navigation": "node scripts/check-world-entry-navigation.mjs",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview"
   },

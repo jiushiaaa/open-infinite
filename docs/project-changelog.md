@@ -4673,6 +4673,31 @@
   - 本轮只改前端沙盘页跑后势力反制理解层、回填状态、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
 
+### 2026-06-08 — World Entry Dossier Navigation
+
+- **做了什么**：
+  - `StoryEntryPage` 的故事卡和推荐世界主动作改为先进入 `#/anchor/<slug>` 世界房间，推荐的天命/阅读/采纳动作保留为次动作。
+  - 故事卡默认出口改为卷宗阅读、世界正史卷、主锚点卷、长线卷和世界沙盘，不再把机制档案作为默认入口。
+  - `WorldAnchorPage` 的“世界卷宗总览”新增世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角和跨事件长线卷入口；角色/势力缺失时降级到卷宗 tab。
+  - `AppShell` 顶栏常驻“正史卷 / 锚点卷”，并修复 `worldChronicle` 与 `anchorVolume` 两类独立卷页的 slug/worldline 识别，让它们继续处在同一个世界上下文里。
+  - 机制档案保留为世界锚定页里的追溯链接，继续承载旧正史、审计和支撑层证据，但不再作为世界书架默认出口。
+  - 新增 `check:world-entry-navigation`，锁定世界书架、锚定页、顶栏和路由语境的入口组织。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:world-entry-navigation`，确认缺少世界卷页上下文识别、故事卡世界房间主入口和锚定页卷宗入口时失败。
+  - Focused helper：`pnpm.cmd run check:world-entry-navigation` -> `world entry navigation structure ok`。
+  - 入口卡 helper：`pnpm.cmd run check:story-shelf-focus` -> `Story shelf focus helpers keep the world shelf journey coherent.`。
+  - 路由语境：`pnpm.cmd run check:world-route-context` -> `World route context keeps the shared shell focused on world state.`。
+  - 锚定页 helper：`pnpm.cmd run check:world-anchor-status-ribbon` -> `World anchor status ribbon and gateway remain connected.`。
+  - 世界卷 helper：`pnpm.cmd run check:world-volume-ux` -> `World volume pages keep chronicle and anchor reading focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `236.63 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 199.16s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）。
+  - HTTP smoke：Vite dev server 在 `http://127.0.0.1:5173/#/`；`#/` 与 `#/anchor/sample` 均返回 HTTP 200。
+- **边界**：
+  - 本轮只改前端入口、共享壳层、锚定页卷宗地图、样式、结构检查脚本和文档；不新增后端 API，不改变阅读进度、世界自演、作者采纳、沙盘 run 或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用浏览器截图，保留结构、构建、测试和 HTTP smoke 验证。
+
 ### 2026-06-08 — Sandbox Strategy Misread Recovery Deck
 
 - **做了什么**：

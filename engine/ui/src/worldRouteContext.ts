@@ -536,7 +536,7 @@ export function getWorldRouteContext(route: Route): WorldRouteContext | null {
     return {
       sectionLabel: "入口",
       title: "世界锚定",
-      description: "校准角色、规则和卷宗地图，决定先确认天命还是继续上次阅读。",
+      description: "校准角色、规则和世界内部卷宗地图，再进入天命书、沙盘、阅读或作者台这些主场景页。",
       workspaceSummary: buildWorkspaceSummary(route, stages, currentWorldline, primaryActionLabel),
       stateHandoffs: buildStateHandoffs(
         route,
