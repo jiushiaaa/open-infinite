@@ -3,8 +3,11 @@
   overflow: auto;
   padding: var(--space-5);
   background:
+    radial-gradient(circle at 92% 3%, rgba(159, 51, 40, 0.08), transparent 24%),
     linear-gradient(180deg, rgba(244, 238, 225, 0.72), rgba(250, 247, 239, 0.96)),
+    url("../assets/unfinale-paper-texture.svg"),
     var(--paper);
+  background-size: auto, auto, 360px 360px, auto;
 }
 
 .sandbox-hero {
@@ -45,6 +48,8 @@
 
 .sandbox-hero__eyebrow {
   margin: 0;
+  color: var(--cinnabar-dark);
+  font-weight: 700;
 }
 
 .sandbox-hero__actions {
@@ -74,8 +79,12 @@
 
 .sandbox-panel,
 .sandbox-section {
-  background: var(--paper-raised);
-  border: 1px solid var(--line);
+  background:
+    url("../assets/unfinale-paper-texture.svg"),
+    linear-gradient(180deg, rgba(255, 252, 244, 0.86), rgba(241, 232, 213, 0.72)),
+    var(--paper-raised);
+  background-size: 320px 320px, auto, auto;
+  border: 1px solid rgba(126, 110, 82, 0.32);
   border-radius: 8px;
   box-shadow: var(--shadow-card);
 }
@@ -129,8 +138,10 @@
 }
 
 .sandbox-runner__steps span.is-active {
-  background: var(--ink);
-  color: var(--paper-raised);
+  background:
+    linear-gradient(180deg, rgba(186, 69, 54, 0.94), rgba(116, 34, 26, 0.96)),
+    var(--cinnabar);
+  color: #fff4e3;
 }
 
 .sandbox-runner__steps em {
@@ -764,8 +775,9 @@
   width: 34px;
   height: 34px;
   border-radius: 6px;
-  background: var(--jade-soft);
-  color: var(--jade);
+  border: 1px solid rgba(159, 51, 40, 0.28);
+  background: rgba(255, 248, 226, 0.78);
+  color: var(--cinnabar-dark);
   font-family: var(--font-serif);
   font-weight: 700;
 }

@@ -4,6 +4,8 @@
 
 > 2026-06-08 补充：前端入口已重组为“世界书架 -> 某个世界 -> 卷宗/场景页”默认导航。`StoryEntryPage` 的故事卡和推荐世界主动作先进入 `#/anchor/<slug>` 世界房间，推荐动作保留为次动作；故事卡默认出口改为卷宗阅读、世界正史卷、主锚点卷、长线卷和世界沙盘，不再把机制档案作为默认故事卡出口。`WorldAnchorPage` 的世界卷宗总览扩展为天命书、沙盘、卷宗阅读、世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、长线卷、世界线、多视角和作者台；角色/势力缺失时降级到卷宗 tab，机制档案降为追溯链接。`AppShell` 顶栏常驻正史卷和锚点卷，并修复独立卷页的 slug/worldline 壳层识别。
 
+> 2026-06-08 补充：前端按 `../../docs/image` 的 10 张 UI 基准完成第一轮视觉基座优化。`theme.css` / `global.css` 接入宣纸纹理、墨色侧栏色、朱砂主动作、玉青状态、卷宗边框和统一焦点态；`AppShell` 在桌面端改为左侧墨色世界导航，移动端保留折叠世界导航且 390px/360px 无水平溢出。`StoryEntryPage`、`WorldAnchorPage`、`TianmingPage`、`WorldSandboxPage`、`DossierReadingPage` 和 `AuthorAdoptionPage` 已统一纸面卡片、卷宗质感和朱砂行动按钮；`VisualAssetPanel` 新增稳定水墨山水、纸纹和人物剪影占位资产，真实视觉素材缺失时不再退回普通灰色占位。
+
 > 2026-06-08 补充：`DossierReadingPage` 连续阅读段落内已新增“正文内证据锚点”。页面读取 `dossier-reading` 的 `inline_evidence_anchors`，在关键段落里直接给出角色记忆、世界状态、因果债、事件视角和作者证据按钮，分别跳到角色卷、世界线、事件多视角或作者采纳台；旧折叠证据链仍保留为后查层。
 
 > 2026-06-08 补充：`WorldSandboxPage` 跑后策略区已新增“策略博弈结果总览”。页面读取 sandbox run 报告的 `strategy_game_readout`，在策略博弈读法之后、策略棋盘之前展示谁在隐瞒、试探、误判、欺骗、反抗或临场改判，为什么会这样，以及这一手改变了哪些事件、记忆、传播、代偿和章节素材。该层消费新增 additive API 字段，不新增前端私有 artifact。

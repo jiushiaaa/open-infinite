@@ -3,9 +3,13 @@
 .vasset {
   display: block;
   overflow: hidden;
-  background: var(--paper-sunken);
-  border: 1px solid var(--line);
+  background:
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper-sunken);
+  background-size: 260px 260px, auto;
+  border: 1px solid rgba(126, 110, 82, 0.36);
   border-radius: var(--radius);
+  box-shadow: var(--inner-paper-edge);
 }
 
 .vasset--img {
@@ -16,20 +20,43 @@
 }
 
 .vasset--placeholder {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 30% 25%, var(--paper-raised), transparent 60%),
+    linear-gradient(180deg, rgba(255, 252, 244, 0.16), rgba(23, 23, 20, 0.12)),
+    url("../assets/ink-mountains.svg"),
+    url("../assets/unfinale-paper-texture.svg"),
     var(--paper-sunken);
-  border-style: dashed;
-  border-color: var(--line-strong);
+  background-position: center, center bottom, center;
+  background-size: auto, 125% auto, 260px 260px;
+  border-style: solid;
+  border-color: rgba(126, 110, 82, 0.42);
+}
+
+.vasset--placeholder::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(255, 250, 238, 0.34);
+  border-radius: calc(var(--radius) - 1px);
+  pointer-events: none;
 }
 
 .vasset__seal {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  min-width: 48px;
+  min-height: 48px;
+  border: 1px solid rgba(151, 51, 38, 0.5);
+  background: rgba(255, 248, 226, 0.62);
   font-family: var(--font-serif);
-  color: var(--ink-faint);
-  letter-spacing: 0.04em;
+  color: var(--cinnabar-dark);
+  letter-spacing: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 244, 220, 0.42);
 }
 
 /* 封面：固定宽高比，列表与锚定页都稳定。 */
@@ -39,6 +66,7 @@
 }
 .vasset--cover .vasset__seal {
   font-size: 2.4rem;
+  border-radius: 9px;
 }
 
 /* 头像：方形小图。 */
@@ -48,8 +76,27 @@
   flex: 0 0 44px;
   border-radius: var(--radius);
 }
+.vasset--avatar.vasset--placeholder {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.1), rgba(23, 23, 20, 0.08)),
+    url("../assets/ink-character-silhouette.svg");
+  background-position: center, center;
+  background-size: auto, cover;
+}
+.vasset--avatar.vasset--placeholder::after {
+  inset: 4px;
+  border-radius: 5px;
+}
 .vasset--avatar .vasset__seal {
-  font-size: 1.2rem;
+  min-width: 22px;
+  min-height: 22px;
+  align-self: end;
+  justify-self: end;
+  margin: 0 4px 4px 0;
+  border-radius: 5px;
+  background: rgba(251, 246, 235, 0.76);
+  color: var(--cinnabar-dark);
+  font-size: 0.82rem;
 }
 
 /* 场景：宽幅横图。 */

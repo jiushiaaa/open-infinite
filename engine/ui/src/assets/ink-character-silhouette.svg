@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <defs>
+    <filter id="wash">
+      <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="9"/>
+      <feDisplacementMap in="SourceGraphic" scale="4"/>
+    </filter>
+    <radialGradient id="paper" cx="44%" cy="34%" r="70%">
+      <stop offset="0" stop-color="#f9f3e7"/>
+      <stop offset="1" stop-color="#e5d8bd"/>
+    </radialGradient>
+  </defs>
+  <rect width="160" height="160" rx="16" fill="url(#paper)"/>
+  <circle cx="78" cy="80" r="62" fill="none" stroke="#7f6e52" stroke-width="2" opacity="0.24"/>
+  <g filter="url(#wash)" fill="#171714">
+    <path d="M78 23c14 0 23 8 25 21 9 6 13 17 9 28-3 7-11 12-15 18-2 4-1 12 6 22 13 8 25 18 36 31H24c13-18 28-29 43-35 5-9 6-16 2-22-6-8-15-14-16-26-2-19 9-37 25-37z" opacity="0.78"/>
+    <path d="M56 39c-17 11-25 27-24 49 9-10 19-13 30-9-9-15-11-29-6-40z" opacity="0.42"/>
+    <path d="M103 44c15 10 22 23 20 39-7-7-16-10-28-8 8-12 10-22 8-31z" opacity="0.36"/>
+  </g>
+  <path d="M36 123c33-9 63-8 90 3" fill="none" stroke="#f8f0df" stroke-width="5" stroke-linecap="round" opacity="0.18"/>
+</svg>

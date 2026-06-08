@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="360" viewBox="0 0 520 360">
+  <defs>
+    <linearGradient id="fade" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#f4ead8" stop-opacity="0"/>
+      <stop offset="0.38" stop-color="#d8c5a4" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#1d1b17" stop-opacity="0.72"/>
+    </linearGradient>
+    <filter id="softInk">
+      <feGaussianBlur stdDeviation="0.8"/>
+    </filter>
+  </defs>
+  <rect width="520" height="360" fill="none"/>
+  <path d="M0 254c45-30 86-43 121-39 24 3 37 15 57 27 34 20 69 12 104-16 31-25 58-60 91-62 37-2 67 40 147 65v131H0z" fill="url(#fade)"/>
+  <path d="M18 270c58-54 91-66 126-43 29 19 49 33 80 6 38-33 55-76 91-76 30 0 45 36 77 49 36 15 71 6 128 49v105H18z" fill="#191814" opacity="0.22" filter="url(#softInk)"/>
+  <path d="M40 298c55-28 103-36 151-24 38 10 69 30 111 19 45-11 83-47 139-21 28 13 55 34 79 41v47H40z" fill="#0f100e" opacity="0.24"/>
+  <path d="M70 244c13-16 30-22 49-19m149-18c24-31 49-43 74-36m-8 42c18-11 38-11 61 0" fill="none" stroke="#f2eadb" stroke-width="2" stroke-linecap="round" opacity="0.12"/>
+  <path d="M78 304h96m72 20h154" fill="none" stroke="#f4ead8" stroke-width="1" opacity="0.14"/>
+</svg>

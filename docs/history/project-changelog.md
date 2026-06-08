@@ -4850,3 +4850,20 @@
   - 检查 `docs/` 根层只保留当前活文档。
 - **边界**：
   - 本轮只整理文档和路径，不改代码、不改 artifact 契约、不改历史 changelog 旧条目内容。
+
+### 2026-06-08 — UI Visual Baseline Pass from docs/image
+
+- **做了什么**：
+  - 按 `docs/image` 的 10 张 UI 基准完成前端视觉第一轮系统优化，优先贴近古风纸面、墨色侧栏、朱砂主动作、玉青状态、卷宗卡片和克制系统感。
+  - `theme.css` / `global.css` 新增宣纸纹理、墨色侧栏色、朱砂按钮、纸面阴影、统一按钮收缩和 `focus-visible` 基座。
+  - `AppShell` 桌面端改成左侧墨色世界导航；移动端保持折叠世界导航，并收紧按钮、阶段导航和卷宗导航，避免 390px/360px 横向溢出。
+  - `StoryEntryPage`、`WorldAnchorPage`、`TianmingPage`、`WorldSandboxPage`、`DossierReadingPage` 和 `AuthorAdoptionPage` 统一纸面背景、卷宗边框、朱砂主动作和玉青状态表达。
+  - 新增稳定前端 SVG 资产：宣纸纹理、水墨山水和人物剪影占位；`VisualAssetPanel` 在缺少真实人物/山水图像时使用水墨占位和印章感装饰，不再退回普通灰色占位。
+  - 同步 `memory.md` 和 `engine/ui/README.md`。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 通过。
+  - 本地服务：启动 `lne browse --host 127.0.0.1 --port 8765 --no-open` 与 `pnpm exec vite --host 127.0.0.1 --port 5173`。
+  - 浏览器截图：使用 Chrome headless 检查 `#/`、`#/anchor/my-story`、`#/world/my-story/tianming`、`#/world/my-story/sandbox`、`#/world/my-story/worldlines/main/reading`、`#/world/my-story/author`，并额外抓取 390px/360px 移动端截图。
+  - 移动端溢出：用 Chrome DevTools device metrics 强制 360px，确认 `window.innerWidth=360` 且 `document.documentElement.scrollWidth=360`。
+- **边界**：
+  - 本轮只改前端视觉、静态 SVG 资产和文档记录；不改后端逻辑、不扩 provider / GraphRAG / 检索评测 / 发行 / 商业化。
