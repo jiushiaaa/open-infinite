@@ -51,9 +51,20 @@ assert(
   "confirmed chapter result should include a handoff rail before detailed artifacts",
 );
 assert(
+  page.includes("adoption-sandbox-return"),
+  "confirmed chapter result should include a sandbox return launch rail",
+);
+assert(
   page.includes("确认入卷接力台"),
   "confirmation handoff should name the handoff moment in product language",
 );
+assert(page.includes("下一轮沙盘启动台"), "sandbox return rail should name the next-round launch moment");
+assert(page.includes("带确认稿回沙盘"), "sandbox return rail should expose the sandbox return action");
+assert(page.includes("确认稿会怎样喂回世界"), "sandbox return rail should explain how the final chapter feeds the world");
+assert(page.includes("adoptionSandboxReturnCards"), "sandbox return rail should derive return cards from confirmation state");
+assert(page.includes("下一轮事件"), "sandbox return rail should surface the next sandbox event");
+assert(page.includes("世界线状态"), "sandbox return rail should surface the worldline state artifact");
+assert(page.includes("回流材料"), "sandbox return rail should surface the confirmed chapter material");
 assert(page.includes("已成正史"), "confirmation handoff should explain the chapter is canon");
 assert(page.includes("反哺下一轮"), "confirmation handoff should explain the next sandbox feed");
 assert(page.includes("Reviewer 定稿"), "confirmation handoff should summarize reviewer finalization");
@@ -77,6 +88,11 @@ assert(
 assert(
   page.indexOf("确认入卷接力台") < page.indexOf("<dt>正文</dt>"),
   "confirmation handoff should appear before artifact detail fields",
+);
+assert(
+  page.indexOf("确认入卷接力台") < page.indexOf("下一轮沙盘启动台") &&
+    page.indexOf("下一轮沙盘启动台") < page.indexOf("<dt>正文</dt>"),
+  "sandbox return rail should appear after confirmation handoff and before artifact detail fields",
 );
 assert(
   page.includes("adoption-review-gate"),
@@ -256,6 +272,7 @@ assert(
   "chapter recovery queue should appear after the next chapter brief and before draft output",
 );
 assert(css.includes(".adoption-confirmation-handoff"), "confirmation handoff should have styles");
+assert(css.includes(".adoption-sandbox-return"), "sandbox return rail should have styles");
 assert(
   /\.adoption-confirmation-handoff__grid[\s\S]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/.test(
     css,
@@ -267,6 +284,18 @@ assert(
     css,
   ),
   "confirmation handoff should collapse to one column on narrow mobile",
+);
+assert(
+  /\.adoption-sandbox-return__grid[\s\S]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/.test(
+    css,
+  ),
+  "sandbox return rail should use a three-column desktop grid",
+);
+assert(
+  /@media \(max-width: 620px\)[\s\S]*\.adoption-sandbox-return__grid[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "sandbox return rail should collapse to one column on narrow mobile",
 );
 assert(css.includes(".adoption-review-gate"), "reviewer quality gate should have styles");
 assert(

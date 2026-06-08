@@ -373,6 +373,25 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
         },
       ].filter((item) => item.detail.trim())
     : [];
+  const adoptionSandboxReturnCards = confirmation
+    ? [
+        {
+          label: "下一轮事件",
+          title: confirmation.continuation_effect.next_sandbox_entry.major_event,
+          detail: "确认正文会作为下一轮沙盘的事件种子，继续消费本章余波。",
+        },
+        {
+          label: "世界线状态",
+          title: confirmation.continuation_effect.worldline_state_artifact,
+          detail: "世界状态已经更新，下一轮会带着确认稿、采纳记录和因果余波继续运行。",
+        },
+        {
+          label: "回流材料",
+          title: confirmation.artifacts.confirmed_chapter_markdown,
+          detail: "确认稿、阅读链和 Reviewer 记录会一起成为下一章与下一轮推演的材料。",
+        },
+      ]
+    : [];
 
   async function submitAdoption() {
     setLoading(true);
@@ -1584,6 +1603,51 @@ export function AuthorAdoptionPage({ slug }: { slug: string }) {
                             onClick={() => navigate({ name: "sandbox", slug })}
                           >
                             继续沙盘
+                          </button>
+                        </div>
+                      </section>
+                      <section
+                        className="adoption-sandbox-return"
+                        aria-label="下一轮沙盘启动台"
+                      >
+                        <div className="adoption-sandbox-return__head">
+                          <div>
+                            <span className="muted tiny">确认稿会怎样喂回世界</span>
+                            <h4>下一轮沙盘启动台</h4>
+                          </div>
+                          <span className="badge badge--jade">可继续运行</span>
+                        </div>
+                        <div className="adoption-sandbox-return__grid">
+                          {adoptionSandboxReturnCards.map((item) => (
+                            <article key={item.label}>
+                              <span className="muted tiny">{item.label}</span>
+                              <strong>{item.title}</strong>
+                              <p>{item.detail}</p>
+                            </article>
+                          ))}
+                        </div>
+                        <div className="adoption-sandbox-return__actions">
+                          <button
+                            className="btn btn--primary"
+                            onClick={() => navigate({ name: "sandbox", slug })}
+                          >
+                            带确认稿回沙盘
+                          </button>
+                          <button
+                            className="btn btn--ghost"
+                            onClick={() =>
+                              navigate({ name: "dossierReading", slug, worldlineId: "main" })
+                            }
+                          >
+                            先读确认正文
+                          </button>
+                          <button
+                            className="btn btn--ghost"
+                            onClick={() =>
+                              navigate({ name: "longlineReading", slug, worldlineId: "main" })
+                            }
+                          >
+                            追长线余波
                           </button>
                         </div>
                       </section>
