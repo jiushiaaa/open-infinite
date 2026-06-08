@@ -4524,3 +4524,23 @@
   - 其余验证见本轮最终提交记录。
 - **边界**：
   - 本轮只改前端沙盘页跑后因果回填交互、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+
+### 2026-06-08 — Sandbox Next-Round Impact Preview
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“下一轮草稿已准备”内部新增“下一轮影响预演”。
+  - 当用户从事件种子、后续可能性、策略暗线、角色行动焦点、角色跨轮追踪或因果回执回填材料后，启动前会先看到“谁会先承压 / 世界会怎样记账 / 旧干预边界 / 跑完先看哪里”四枚扫读卡。
+  - 影响预演复用当前草稿来源、事件草稿、干预状态、首个/选中角色行动、`consequence_state`、`consequenceNextRoundHint` 和本轮因果债，不新增 API 或 artifact。
+  - 扩展 `check:sandbox-runner-ux`，锁定下一轮影响预演的派生 deck、中文标记、结构样式和移动端单列折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少下一轮影响预演时失败，错误包括 `next-round draft should derive an impact preview before launch`、`next-round draft should show a pre-launch impact preview`、`next-round draft should name the impact preview`、`next-round draft should explain who will be pressured first`、`next-round draft should explain how the world will account for it` 和 `next-round draft should explain the intervention boundary`。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`WorldSandboxPage-gYlKTKOm.js` `63.79 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 171.06s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页下一轮草稿解释层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

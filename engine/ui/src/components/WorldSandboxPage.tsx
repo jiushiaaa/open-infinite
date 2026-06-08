@@ -596,6 +596,74 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     queuedPossibilityTitle,
     queuedStrategyTitle,
   ]);
+  const queuedRoundPreviewDeck = useMemo(() => {
+    if (!queuedRoundDraft) return [];
+    const selectedAction =
+      round?.character_actions.find((item) => item.character_id === selectedCharacterId) ??
+      leadAction ??
+      null;
+    const pressureName =
+      selectedAction?.character_name ||
+      (queuedRoundDraft.source === "角色行动" || queuedRoundDraft.source === "角色弧线"
+        ? queuedRoundDraft.title
+        : "事件中心角色");
+    const pressureDetail =
+      selectedAction?.true_intent ||
+      selectedAction?.intent ||
+      selectedAction?.risk ||
+      "靠近事件、利益受损或掌握秘密的人会先被推到台前。";
+    const accountingTitle =
+      queuedRoundDraft.source === "因果回执"
+        ? round?.world_state_delta.causal_debt || "本轮因果债会被继续消费"
+        : consequenceNextRoundHint ||
+          worldlineState?.continuation_inputs?.major_event_hint ||
+          round?.world_state_delta.causal_debt ||
+          "事件会写入角色行动、主观记忆和世界线状态";
+    const accountingDetail =
+      latestConsequence?.impacts?.[0]?.pressure ||
+      consequenceDomains[0]?.[1]?.pressure ||
+      consequenceDomains[0]?.[1]?.current ||
+      "下一轮会把这条草稿变成行动、代偿和新的阅读材料。";
+    const boundaryDetail = hasInterventionDraft
+      ? "启动前仍可调整干预；跑完后先核对干预怎样被世界吸收。"
+      : "这次先让事件本身进入世界，避免把上一轮临时干预重复投放。";
+    const resultExit = round
+      ? "先看本轮已发生，再追因果回执、角色行动焦点和卷宗阅读。"
+      : "跑完后先看本轮已发生，再读卷宗正文、世界线代偿和角色记忆。";
+
+    return [
+      {
+        label: "谁会先承压",
+        title: pressureName,
+        detail: pressureDetail,
+      },
+      {
+        label: "世界会怎样记账",
+        title: accountingTitle,
+        detail: accountingDetail,
+      },
+      {
+        label: "旧干预边界",
+        title: queuedRoundDraft.interventionNote,
+        detail: boundaryDetail,
+      },
+      {
+        label: "跑完先看哪里",
+        title: "从结果总览进入证据链",
+        detail: resultExit,
+      },
+    ];
+  }, [
+    consequenceDomains,
+    consequenceNextRoundHint,
+    hasInterventionDraft,
+    latestConsequence,
+    leadAction,
+    queuedRoundDraft,
+    round,
+    selectedCharacterId,
+    worldlineState?.continuation_inputs?.major_event_hint,
+  ]);
 
   async function runRound() {
     if (!majorEvent.trim()) return;
@@ -920,6 +988,18 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
               <dd>{queuedRoundDraft.interventionNote}</dd>
             </div>
           </dl>
+          <div className="sandbox-next-round-draft__preview" aria-label="下一轮影响预演">
+            <p className="tiny muted">下一轮影响预演</p>
+            <div className="sandbox-next-round-draft__preview-grid">
+              {queuedRoundPreviewDeck.map((item) => (
+                <article key={item.label} className="sandbox-next-round-draft__preview-card">
+                  <span>{item.label}</span>
+                  <strong>{item.title}</strong>
+                  <p>{item.detail}</p>
+                </article>
+              ))}
+            </div>
+          </div>
           <div className="sandbox-next-round-draft__actions">
             <button className="btn btn--ghost tiny" onClick={focusEventDraft}>
               继续编辑事件
