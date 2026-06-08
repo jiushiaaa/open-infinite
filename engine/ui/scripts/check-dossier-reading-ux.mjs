@@ -28,6 +28,39 @@ assert(
   page.indexOf('className="dossier-carry"') < page.indexOf('className="dossier-evidence"'),
   "reading carry section should appear before the evidence appendix",
 );
+assert(
+  page.includes('className="dossier-next-chapter-bridge"'),
+  "continuous reading should include a next-chapter bridge after the prose",
+);
+assert(
+  page.indexOf('className="dossier-section-stack"') <
+    page.indexOf('className="dossier-next-chapter-bridge"') &&
+    page.indexOf('className="dossier-next-chapter-bridge"') <
+      page.indexOf('className="dossier-carry"'),
+  "next-chapter bridge should sit after the prose and before the carry actions",
+);
+for (const label of [
+  "下一章接力台",
+  "本章留下什么",
+  "下一章要追什么",
+  "误会怎样发酵",
+  "从这里续写",
+]) {
+  assert(page.includes(label), `next-chapter bridge should include ${label}`);
+}
+assert(
+  page.includes("nextChapterBridgeItems") &&
+    page.includes("continuity_threads") &&
+    page.includes("reading_flow") &&
+    page.includes("misbeliefNodes.length"),
+  "next-chapter bridge should derive from reading flow, continuity and misbelief state",
+);
+assert(
+  page.includes("navigate({ name: \"author\", slug })") &&
+    page.includes("navigate({ name: \"sandbox\", slug })") &&
+    page.includes("navigate({ name: \"longlineReading\", slug, worldlineId })"),
+  "next-chapter bridge should route users to author, sandbox and longline continuations",
+);
 for (const label of ["回看误会图谱", "追踪跨事件余波", "继续一轮沙盘", "写成下一章材料"]) {
   assert(page.includes(label), `reading carry section should include ${label}`);
 }
@@ -115,6 +148,16 @@ assert(
 assert(css.includes(".dossier-chapter-rail"), "chapter scene rail should have styles");
 assert(css.includes(".dossier-continuity-rail"), "continuity rail should have styles");
 assert(css.includes(".dossier-reading-compass"), "pre-reading compass should have styles");
+assert(css.includes(".dossier-next-chapter-bridge"), "next-chapter bridge should have styles");
+assert(
+  css.includes(".dossier-next-chapter-bridge__grid") &&
+    css.includes("grid-template-columns: repeat(4, minmax(0, 1fr))"),
+  "next-chapter bridge should use a stable four-card desktop grid",
+);
+assert(
+  css.includes(".dossier-next-chapter-bridge__actions"),
+  "next-chapter bridge should style continuation actions",
+);
 assert(
   /@media \(max-width: 960px\)[\s\S]*\.dossier-continuity-rail__grid[\s\S]*grid-template-columns: 1fr/.test(
     css,
@@ -132,6 +175,18 @@ assert(
     css,
   ),
   "chapter scene rail should scroll horizontally on narrow mobile",
+);
+assert(
+  /@media \(max-width: 640px\)[\s\S]*\.dossier-next-chapter-bridge__grid[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "next-chapter bridge should collapse on narrow mobile",
+);
+assert(
+  /@media \(max-width: 640px\)[\s\S]*\.dossier-next-chapter-bridge__actions[\s\S]*grid-template-columns: 1fr/.test(
+    css,
+  ),
+  "next-chapter bridge actions should collapse on narrow mobile",
 );
 assert(css.includes(".dossier-carry"), "reading carry section should have styles");
 assert(

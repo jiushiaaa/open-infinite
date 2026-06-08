@@ -927,6 +927,90 @@
   overflow-wrap: anywhere;
 }
 
+.dossier-next-chapter-bridge {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  border: 1px solid rgba(45, 104, 92, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(221, 233, 224, 0.48), rgba(255, 252, 244, 0.9)),
+    var(--paper-raised);
+}
+
+.dossier-next-chapter-bridge__head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.dossier-next-chapter-bridge__head p,
+.dossier-next-chapter-bridge__head h2 {
+  margin: 0;
+}
+
+.dossier-next-chapter-bridge__head h2 {
+  margin-top: 2px;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1.35;
+}
+
+.dossier-next-chapter-bridge__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.dossier-next-chapter-bridge__grid article {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(45, 104, 92, 0.16);
+  border-radius: 7px;
+  background: rgba(250, 247, 239, 0.72);
+}
+
+.dossier-next-chapter-bridge__grid span,
+.dossier-next-chapter-bridge__grid strong,
+.dossier-next-chapter-bridge__grid small {
+  display: block;
+  min-width: 0;
+}
+
+.dossier-next-chapter-bridge__grid span {
+  color: var(--jade);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dossier-next-chapter-bridge__grid strong {
+  margin-top: 5px;
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.dossier-next-chapter-bridge__grid small {
+  margin-top: var(--space-2);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dossier-next-chapter-bridge__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
 .dossier-flow {
   margin-top: var(--space-6);
   padding-top: var(--space-4);
@@ -1207,7 +1291,15 @@
     grid-template-columns: 1fr;
   }
 
+  .dossier-next-chapter-bridge__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .dossier-continuity-rail__actions {
+    justify-content: flex-start;
+  }
+
+  .dossier-next-chapter-bridge__actions {
     justify-content: flex-start;
   }
 
@@ -1353,6 +1445,29 @@
     border: 0;
     border-radius: 0;
     background: transparent;
+  }
+
+  .dossier-next-chapter-bridge {
+    padding: var(--space-3);
+  }
+
+  .dossier-next-chapter-bridge__head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dossier-next-chapter-bridge__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dossier-next-chapter-bridge__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .dossier-next-chapter-bridge__actions .btn {
+    width: 100%;
   }
 
   .dossier-cross-refs > div {

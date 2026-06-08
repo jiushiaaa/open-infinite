@@ -166,6 +166,39 @@ export function DossierReadingPage({
   ].filter((item): item is { label: string; value: string } =>
     Boolean(item.value?.trim()),
   );
+  const nextChapterBridgeItems = [
+    {
+      label: "本章留下什么",
+      value:
+        report?.continuous_reading?.chapter_cliffhanger ||
+        readingFlow?.next_chapter_hook ||
+        currentReadingSection?.conflict_turn ||
+        "这一卷已经把角色行动、证据和世界状态留下给下一章。",
+      detail: "读者先知道这一章的尾钩，不必从证据列表里反推。",
+    },
+    {
+      label: "下一章要追什么",
+      value:
+        report?.continuous_reading?.continuity_threads?.foreshadowing ||
+        readingFlow?.turning_point ||
+        "继续追角色下一次行动、锚点压力和世界代偿会落在哪里。",
+      detail: "把悬念接成可以写、可以跑、可以追的下一步。",
+    },
+    {
+      label: "误会怎样发酵",
+      value:
+        report?.continuous_reading?.continuity_threads?.misunderstanding ||
+        currentReadingMisbelief,
+      detail: `${misbeliefNodes.length} 条偏差可回到误会图谱或长线卷继续核对。`,
+    },
+    {
+      label: "从这里续写",
+      value:
+        report?.continuous_reading?.continuity_threads?.payoff ||
+        "把本卷余波交给作者台，或带着这条线回沙盘继续运行。",
+      detail: "让正文不止被读完，而是回流到下一轮世界演化。",
+    },
+  ];
   const focusReader = () =>
     readerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const startNovelMode = () => {
@@ -837,6 +870,50 @@ export function DossierReadingPage({
                 <div className="prose dossier-prose">{renderProse(activeBody)}</div>
               ) : (
                 <EmptyState title="这一卷还没有正文" hint="生成多视角卷或作者确认后会在这里出现。" />
+              )}
+
+              {activeTab === "continuous_reading" && (
+                <section className="dossier-next-chapter-bridge" aria-label="下一章接力台">
+                  <div className="dossier-next-chapter-bridge__head">
+                    <div>
+                      <p className="tiny muted">下一章接力台</p>
+                      <h2>读完这一卷，先决定世界怎样继续</h2>
+                    </div>
+                    <span className="tiny muted">{readingProgress}%</span>
+                  </div>
+                  <div className="dossier-next-chapter-bridge__grid">
+                    {nextChapterBridgeItems.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.value}</strong>
+                        <small>{item.detail}</small>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="dossier-next-chapter-bridge__actions">
+                    <button
+                      type="button"
+                      className="btn btn--ghost tiny"
+                      onClick={() => navigate({ name: "longlineReading", slug, worldlineId })}
+                    >
+                      追长线余波
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--ghost tiny"
+                      onClick={() => navigate({ name: "sandbox", slug })}
+                    >
+                      带回沙盘
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--primary tiny"
+                      onClick={() => navigate({ name: "author", slug })}
+                    >
+                      送到作者台
+                    </button>
+                  </div>
+                </section>
               )}
 
               {report.continuous_reading?.reading_flow && activeTab === "continuous_reading" && (

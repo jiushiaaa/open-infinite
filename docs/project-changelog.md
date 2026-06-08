@@ -4736,3 +4736,20 @@
 - **边界**：
   - 本轮只改前端作者采纳台确认后回流层、样式、结构检查脚本和文档；不新增后端 API，不改变作者采纳、确认入卷、沙盘 run、阅读进度或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Dossier Reading Next Chapter Bridge
+
+- **做了什么**：
+  - `DossierReadingPage` 在连续阅读分场景正文之后、阅读节奏/关联卷宗和“读完之后”出口之前新增“下一章接力台”。
+  - 接力台复用既有 `reading_flow`、`continuity_threads`、当前场景误会和误会图谱数量，不新增 API 或 artifact。
+  - 四张接力卡分别解释“本章留下什么 / 下一章要追什么 / 误会怎样发酵 / 从这里续写”，让用户读完正文后先理解本卷怎样接到下一章、长线卷、沙盘或作者采纳台。
+  - 接力台提供“追长线余波 / 带回沙盘 / 送到作者台”三个动作，把连续阅读从“读完”接回世界运行和下一章写作。
+  - 扩展 `check:dossier-reading-ux`，锁定接力台中文标记、派生字段、位置顺序、样式结构和移动端折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:dossier-reading-ux`，确认缺少下一章接力台时失败，错误为 `continuous reading should include a next-chapter bridge after the prose`。
+  - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`DossierReadingPage-CVnwvteO.js` `25.48 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+- **边界**：
+  - 本轮只改前端卷宗阅读连续正文后的下一章接力层、样式、结构检查脚本和文档；不新增后端 API，不改变 `dossier-reading` API、阅读进度、长线卷、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构和构建验证。
