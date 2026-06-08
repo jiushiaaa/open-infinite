@@ -4800,3 +4800,24 @@
 - **边界**：
   - 本轮只新增 `dossier-reading` API additive 字段、前端阅读页段落跳转、类型、样式、测试和文档。
   - 不新增持久 artifact，不改变 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 或 `continuous_reading_chapter` 原始产物。
+
+### 2026-06-08 — Sandbox Strategy Game Readout
+
+- **做了什么**：
+  - `run_sandbox_round` / `get_sandbox_run` 的报告新增 additive `strategy_game_readout`。
+  - 该 readout 从现有 `agent_decision_advisory`、角色行动、主观记忆 delta、传播选择、代偿和章节钩子派生“谁在隐瞒 / 试探 / 误判 / 欺骗 / 反抗 / 临场改判”、为什么会这样，以及这一步改变了哪些事件、记忆、传播、代偿和章节素材。
+  - `WorldSandboxPage` 在“策略博弈读法”和“策略棋盘”之间新增“策略博弈结果总览”，先展示可读结果账，再进入密集策略棋盘。
+  - 扩展前端类型、沙盘 UX 结构检查和 focused backend test，覆盖 run report 与 persisted detail report 都能读到同一份策略结果账。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `python -X utf8 -m pytest tests/test_world_sandbox.py::test_llm_decision_advisory_builds_strategy_board_and_world_effects -q`，确认缺少 `strategy_game_readout` 时失败，错误为 `KeyError: 'strategy_game_readout'`。
+  - RED：先运行 `pnpm.cmd exec node scripts/check-sandbox-runner-ux.mjs`，确认前端缺少策略博弈结果总览时失败，错误包括 `strategy game readout should derive a readable result ledger from the API`、`strategy game readout should sit before the dense strategy board`、`strategy game readout should name the readable result surface` 和相关样式缺失。
+  - Focused backend：`python -X utf8 -m pytest tests/test_world_sandbox.py::test_llm_decision_advisory_builds_strategy_board_and_world_effects -q` -> `1 passed in 1.47s`。
+  - Focused frontend：`pnpm.cmd exec node scripts/check-sandbox-runner-ux.mjs` -> `sandbox runner ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `236.63 kB`，`WorldSandboxPage-eOMGJmJw.js` `79.70 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `952 passed in 201.87s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）。
+  - HTTP smoke：`vite preview` 后请求 `http://127.0.0.1:4173/#/world/demo/sandbox` 返回 `HTTP 200 OK`。
+- **边界**：
+  - 本轮只新增 sandbox run 报告的 additive 只读字段、前端沙盘结果页展示、类型、样式、测试和文档。
+  - 不新增持久 artifact，不改变 `agent_decision_advisory.json`、`sandbox_rounds.jsonl`、`subjective_memory_delta.json`、`chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 或 `run_scene` 默认行为。

@@ -513,6 +513,47 @@ export interface WorldSandboxLLMDecisionAdvisory {
   };
 }
 
+export interface WorldSandboxStrategyGameReadoutCard {
+  id: string;
+  round_index?: number;
+  actor_character_id?: string;
+  actor_name: string;
+  target_character_id?: string;
+  target_name: string;
+  moves: string[];
+  tactic: string;
+  why: string;
+  private_goal?: string;
+  misread?: string;
+  deception?: string;
+  pivot?: string;
+  resistance?: string;
+  changed: {
+    events: string[];
+    memories: string[];
+    propagation: string[];
+    compensation: string[];
+    chapter_materials: string[];
+  };
+  evidence?: Array<{ label: string; value: string }>;
+}
+
+export interface WorldSandboxStrategyGameReadout {
+  status: "ready" | "empty" | string;
+  summary: string;
+  card_count: number;
+  cards: WorldSandboxStrategyGameReadoutCard[];
+  change_ledger: {
+    events: string[];
+    memories: string[];
+    propagation: string[];
+    compensation: string[];
+    chapter_materials: string[];
+  };
+  evidence_artifacts: string[];
+  empty_state?: string;
+}
+
 export interface WorldSandboxCharacterAction {
   character_id: string;
   character_name: string;
@@ -693,6 +734,7 @@ export interface WorldSandboxRunReport {
   };
   intervention_constraint?: WorldSandboxInterventionConstraint;
   worldline_state?: WorldlineState;
+  strategy_game_readout?: WorldSandboxStrategyGameReadout;
   rounds: WorldSandboxRound[];
   subjective_memory_delta: {
     entry_count?: number;

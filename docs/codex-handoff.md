@@ -40,6 +40,8 @@
 | 当前文档分层 | 入口事实看 `memory.md`；文档地图看 `docs/index.md`；路线看 `docs/living-novel-engine-iteration-plan.md` |
 | 支撑层 | v0.7-v1.0-local、后续增强四十五刀、真实 retrieval provider、Vector Retrieval Pipeline 都已收口为支撑层 |
 
+> 2026-06-08 补充：沙盘策略博弈结果可读化已有第一版。`run_sandbox_round` 和 `get_sandbox_run` 的报告新增 additive `strategy_game_readout`，从现有 `agent_decision_advisory`、角色行动、主观记忆 delta、传播选择、代偿和章节钩子派生谁在隐瞒、试探、误判、欺骗、反抗或临场改判，为什么会这样，以及这一手改变了哪些事件、记忆、传播、代偿和章节素材；`WorldSandboxPage` 在“策略博弈读法”和“策略棋盘”之间渲染“策略博弈结果总览”。不新增持久 artifact，不改变 `run_scene` 默认行为。
+
 > 2026-06-08 补充：卷宗阅读连续正文已有“下一章接力台”第一版。`DossierReadingPage` 在分场景正文之后、阅读节奏/关联卷宗和“读完之后”出口之前，用 `reading_flow`、`continuity_threads`、当前误会和误会图谱派生“本章留下什么 / 下一章要追什么 / 误会怎样发酵 / 从这里续写”四张卡，并提供追长线余波、带回沙盘和送到作者台动作；不新增后端 API 或 artifact。
 
 > 2026-06-08 补充：卷宗阅读正文内证据跳转已有第一版。`dossier-reading` 只读聚合会给 `continuous_reading.reading_sections` 派生 `inline_evidence_anchors`，`DossierReadingPage` 在段落内展示“角色记忆 / 世界状态 / 因果债 / 事件视角 / 作者证据”按钮，可跳角色卷、世界线、事件多视角或作者采纳台；旧折叠证据链保留，不新增持久 artifact，不改变 `continuous_reading_chapter` 原始产物。

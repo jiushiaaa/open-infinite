@@ -404,6 +404,16 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         },
       ]
     : [];
+  const strategyGameReadout = report?.strategy_game_readout;
+  const strategyGameReadoutCards =
+    strategyGameReadout?.status === "ready" ? strategyGameReadout.cards.slice(0, 4) : [];
+  const strategyGameReadoutPrompts = [
+    "谁在隐瞒",
+    "谁在试探",
+    "谁在误判",
+    "谁在欺骗",
+    "谁在临场改判",
+  ];
   const riskStrategyInteraction =
     strategyInteractions.find(
       (item) => item !== leadStrategyInteraction && item.risk !== "风险待观察",
@@ -2392,6 +2402,87 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                         <button className="btn btn--ghost tiny" onClick={item.onClick}>
                           {item.action}
                         </button>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {strategyGameReadoutCards.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-readout"
+                  aria-label="策略博弈结果总览"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">策略博弈结果总览</p>
+                      <h2>先看谁在暗处改写这一轮</h2>
+                    </div>
+                    <span className="badge badge--gold">
+                      {strategyGameReadout?.card_count ?? strategyGameReadoutCards.length} 条结果
+                    </span>
+                  </div>
+                  <p className="muted">
+                    {strategyGameReadout?.summary ||
+                      "本轮策略博弈已经从行动、记忆、传播和代偿中归拢成可读结果。"}
+                  </p>
+                  <div className="sandbox-strategy-readout__questions">
+                    {strategyGameReadoutPrompts.map((prompt) => (
+                      <span key={prompt}>{prompt}</span>
+                    ))}
+                  </div>
+                  <div className="sandbox-strategy-readout__grid">
+                    {strategyGameReadoutCards.map((card) => (
+                      <article className="sandbox-strategy-readout-card" key={card.id}>
+                        <div className="sandbox-strategy-card__route">
+                          <strong>{card.actor_name}</strong>
+                          <span aria-hidden>→</span>
+                          <strong>{card.target_name}</strong>
+                        </div>
+                        <div className="sandbox-strategy-readout-card__moves">
+                          {card.moves.map((move) => (
+                            <span key={`${card.id}-${move}`}>{move}</span>
+                          ))}
+                        </div>
+                        <dl>
+                          <div>
+                            <dt>为什么会这样</dt>
+                            <dd>{card.why}</dd>
+                          </div>
+                          <div>
+                            <dt>私下目的</dt>
+                            <dd>{card.private_goal || card.tactic}</dd>
+                          </div>
+                          <div>
+                            <dt>误判与欺骗</dt>
+                            <dd>
+                              {[card.misread, card.deception].filter(Boolean).join("；") ||
+                                "暗线尚未完全显形"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>临场改判</dt>
+                            <dd>{card.pivot || card.resistance || "本轮未记录临场改判"}</dd>
+                          </div>
+                        </dl>
+                        <div className="sandbox-strategy-readout-card__changed">
+                          <span>这一步改变了什么</span>
+                          {[
+                            ["事件", card.changed.events],
+                            ["记忆", card.changed.memories],
+                            ["传播", card.changed.propagation],
+                            ["代偿", card.changed.compensation],
+                            ["章节素材", card.changed.chapter_materials],
+                          ].map(([label, values]) => (
+                            <div key={`${card.id}-${label}`}>
+                              <strong>{label as string}</strong>
+                              <p>
+                                {Array.isArray(values) && values.length
+                                  ? values.join("；")
+                                  : "本轮未形成明确条目"}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </article>
                     ))}
                   </div>

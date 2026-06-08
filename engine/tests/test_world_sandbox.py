@@ -378,6 +378,39 @@ def test_llm_decision_advisory_builds_strategy_board_and_world_effects(tmp_path)
     persisted_memory = json.loads(memory_path.read_text(encoding="utf-8").splitlines()[0])
 
     assert report["summary"]["strategy_interaction_count"] == 2
+    readout = report["strategy_game_readout"]
+    assert readout["status"] == "ready"
+    assert readout["summary"] == "赵轩和沈冰月都把密信当成可利用的半真变量，双方各自试探而不摊牌。"
+    assert readout["cards"][0]["actor_name"] == first_action["character_name"]
+    assert readout["cards"][0]["target_name"] == round_record["character_actions"][1]["character_name"]
+    assert readout["cards"][0]["moves"] == ["隐瞒", "试探", "误判", "欺骗", "反抗", "临场改判"]
+    assert readout["cards"][0]["why"] == "先试信源，再决定是否撕破关系。"
+    assert readout["cards"][0]["changed"]["events"] == [
+        "赵轩只把密信折角给沈冰月看，故意漏掉落款。"
+    ]
+    assert readout["cards"][0]["changed"]["memories"] == [
+        "赵轩记住沈冰月看见缺页时先看向账房。"
+    ]
+    assert readout["cards"][0]["changed"]["propagation"] == [
+        "只向沈冰月半公开，不让流言进入归云斋。"
+    ]
+    assert readout["cards"][0]["changed"]["compensation"] == [
+        "密信暂不扩散，但归云斋账册线索进入下一轮沙盘。"
+    ]
+    assert readout["cards"][0]["changed"]["chapter_materials"][0] == (
+        "沈冰月若沉默，赵轩下一轮会转向账房查证。"
+    )
+    assert "逼沈冰月先暴露她和归云斋旧账册的关系。" in readout["cards"][0]["changed"][
+        "chapter_materials"
+    ]
+    assert readout["change_ledger"]["events"][0] == (
+        "赵轩：赵轩只把密信折角给沈冰月看，故意漏掉落款。"
+    )
+    assert "agent_decision_advisory.json" in readout["evidence_artifacts"]
+    persisted_report = get_sandbox_run(report["run_id"], outputs_dir=outputs_dir)
+    assert persisted_report["strategy_game_readout"]["cards"][0]["target_name"] == (
+        round_record["character_actions"][1]["character_name"]
+    )
     assert advisory_artifact["strategy_board"]["interaction_count"] == 2
     assert (
         advisory_artifact["strategy_board"]["interactions"][0]["actor_character_id"]

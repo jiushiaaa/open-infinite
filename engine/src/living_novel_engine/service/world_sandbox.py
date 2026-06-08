@@ -1953,6 +1953,234 @@ def _next_story_possibilities(
     ]
 
 
+def _strategy_game_readout(
+    *,
+    rounds: list[dict[str, Any]],
+    subjective_memory_delta: dict[str, Any] | None,
+    decision_advisory: dict[str, Any],
+    artifacts: dict[str, str],
+) -> dict[str, Any]:
+    cards: list[dict[str, Any]] = []
+    memory_entries = (
+        (subjective_memory_delta or {}).get("entries")
+        if isinstance((subjective_memory_delta or {}).get("entries"), list)
+        else []
+    )
+    memory_by_character = {
+        _text(entry.get("character_id")): entry
+        for entry in memory_entries
+        if isinstance(entry, dict) and _text(entry.get("character_id"))
+    }
+    character_names: dict[str, str] = {}
+    for round_record in rounds:
+        if not isinstance(round_record, dict):
+            continue
+        for action in round_record.get("character_actions", []):
+            if not isinstance(action, dict):
+                continue
+            character_id = _text(action.get("character_id"))
+            if character_id:
+                character_names[character_id] = _text(action.get("character_name")) or character_id
+    for round_record in rounds:
+        if not isinstance(round_record, dict):
+            continue
+        world_delta = (
+            round_record.get("world_state_delta")
+            if isinstance(round_record.get("world_state_delta"), dict)
+            else {}
+        )
+        for action in round_record.get("character_actions", []):
+            if not isinstance(action, dict):
+                continue
+            strategic = (
+                action.get("strategic_interaction")
+                if isinstance(action.get("strategic_interaction"), dict)
+                else (
+                    action.get("llm_decision_advisory", {}).get("strategic_interaction")
+                    if isinstance(action.get("llm_decision_advisory"), dict)
+                    and isinstance(
+                        action.get("llm_decision_advisory", {}).get("strategic_interaction"),
+                        dict,
+                    )
+                    else {}
+                )
+            )
+            if not strategic.get("target_character_id"):
+                continue
+            character_id = _text(action.get("character_id"))
+            actor_name = _text(action.get("character_name")) or character_id or "某角色"
+            target_id = _text(strategic.get("target_character_id"))
+            target_name = character_names.get(target_id) or target_id or "目标角色"
+            advisory = (
+                action.get("llm_decision_advisory")
+                if isinstance(action.get("llm_decision_advisory"), dict)
+                else {}
+            )
+            memory_entry = memory_by_character.get(character_id, {})
+            changed = _strategy_readout_changes(
+                action=action,
+                advisory=advisory,
+                strategic=strategic,
+                memory_entry=memory_entry,
+                world_delta=world_delta,
+            )
+            cards.append(
+                {
+                    "id": f"{character_id or 'actor'}-to-{target_id or 'target'}",
+                    "round_index": round_record.get("round_index"),
+                    "actor_character_id": character_id,
+                    "actor_name": actor_name,
+                    "target_character_id": target_id,
+                    "target_name": target_name,
+                    "moves": _strategy_move_labels(advisory, strategic),
+                    "tactic": _text(strategic.get("tactic")) or "暗中试探",
+                    "why": _text(advisory.get("situational_judgement"))
+                    or _text(strategic.get("private_goal"))
+                    or _text(action.get("reason"))
+                    or "本轮动机仍需从行动链追证。",
+                    "private_goal": _text(strategic.get("private_goal"))
+                    or _text(action.get("true_intent")),
+                    "misread": _text(strategic.get("assumed_misread")) or "误判尚未显形",
+                    "deception": _text(advisory.get("deception_strategy"))
+                    or _text(strategic.get("tactic")),
+                    "pivot": _text(advisory.get("situational_judgement"))
+                    or _text(action.get("memory_influence")),
+                    "resistance": _text(advisory.get("resistance_choice"))
+                    or _text(action.get("resistance_behavior", {}).get("description"))
+                    if isinstance(action.get("resistance_behavior"), dict)
+                    else _text(advisory.get("resistance_choice")),
+                    "changed": changed,
+                    "evidence": [
+                        {"label": "行动链", "value": _text(action.get("visible_action"))},
+                        {
+                            "label": "主观记忆",
+                            "value": _text(memory_entry.get("new_belief"))
+                            or _first_text(changed["memories"], "记忆种子待写入"),
+                        },
+                        {
+                            "label": "世界影响",
+                            "value": _text(strategic.get("expected_world_effect"))
+                            or _first_text(changed["compensation"], "世界影响待观察"),
+                        },
+                    ],
+                }
+            )
+    return {
+        "status": "ready" if cards else "empty",
+        "summary": _text(decision_advisory.get("summary"))
+        or ("本轮没有可读化的多 Agent 策略博弈。" if not cards else "本轮策略博弈已归纳为可读结果。"),
+        "card_count": len(cards),
+        "cards": cards,
+        "change_ledger": _strategy_change_ledger(cards),
+        "evidence_artifacts": [
+            artifact
+            for key, artifact in artifacts.items()
+            if key
+            in {
+                "agent_decision_advisory",
+                "sandbox_rounds",
+                "subjective_memory_delta",
+            }
+        ],
+        "empty_state": (
+            "本轮未启用 LLM advisory 或没有角色策略互动；先运行 advisory 轮次再查看策略博弈结果。"
+            if not cards
+            else ""
+        ),
+    }
+
+
+def _strategy_move_labels(
+    advisory: dict[str, Any],
+    strategic: dict[str, Any],
+) -> list[str]:
+    labels: list[str] = []
+    if _text(advisory.get("propagation_choice")):
+        labels.append("隐瞒")
+    if _text(strategic.get("tactic")):
+        labels.append("试探")
+    if _text(strategic.get("assumed_misread")):
+        labels.append("误判")
+    if _text(advisory.get("deception_strategy")):
+        labels.append("欺骗")
+    if _text(advisory.get("resistance_choice")):
+        labels.append("反抗")
+    if _text(advisory.get("situational_judgement")):
+        labels.append("临场改判")
+    return labels[:6]
+
+
+def _strategy_readout_changes(
+    *,
+    action: dict[str, Any],
+    advisory: dict[str, Any],
+    strategic: dict[str, Any],
+    memory_entry: dict[str, Any],
+    world_delta: dict[str, Any],
+) -> dict[str, list[str]]:
+    memory_seed = action.get("memory_seed") if isinstance(action.get("memory_seed"), dict) else {}
+    return {
+        "events": _dedupe_text(
+            [
+                action.get("visible_action"),
+                action.get("action"),
+            ]
+        )[:1],
+        "memories": _dedupe_text(
+            _list_text(memory_seed.get("inferred"))
+            + _list_text(advisory.get("memory_seed"))
+        )[:2],
+        "propagation": _dedupe_text(
+            [
+                advisory.get("propagation_choice"),
+                action.get("meme_propagation_readout", {}).get("readable_summary")
+                if isinstance(action.get("meme_propagation_readout"), dict)
+                else "",
+            ]
+        )[:2],
+        "compensation": _dedupe_text(
+            [strategic.get("expected_world_effect")]
+        )[:1],
+        "chapter_materials": _dedupe_text(
+            [
+                strategic.get("outcome_hook"),
+                action.get("expected_outcome"),
+                action.get("risk"),
+            ]
+        )[:3],
+    }
+
+
+def _strategy_change_ledger(cards: list[dict[str, Any]]) -> dict[str, list[str]]:
+    ledger = {
+        "events": [],
+        "memories": [],
+        "propagation": [],
+        "compensation": [],
+        "chapter_materials": [],
+    }
+    for card in cards:
+        actor = _text(card.get("actor_name")) or "某角色"
+        changed = card.get("changed") if isinstance(card.get("changed"), dict) else {}
+        for key in ledger:
+            ledger[key].extend(
+                f"{actor}：{item}" for item in _list_text(changed.get(key))
+            )
+    return ledger
+
+
+def _dedupe_text(values: list[object]) -> list[str]:
+    seen: set[str] = set()
+    result: list[str] = []
+    for value in values:
+        text = _text(value)
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        result.append(text)
+    return result
+
+
 def _build_report(
     *,
     run_id: str,
@@ -1982,6 +2210,12 @@ def _build_report(
         artifacts["intervention_constraint"] = _INTERVENTION_CONSTRAINT_ARTIFACT
     if decision_advisory.get("status") != "skipped":
         artifacts["agent_decision_advisory"] = _AGENT_DECISION_ADVISORY_ARTIFACT
+    strategy_game_readout = _strategy_game_readout(
+        rounds=rounds,
+        subjective_memory_delta=subjective_memory_delta,
+        decision_advisory=decision_advisory,
+        artifacts=artifacts,
+    )
     return {
         "version": VERSION,
         "mode": (
@@ -2028,6 +2262,7 @@ def _build_report(
         "artifacts": artifacts,
         "intervention_constraint": active_constraint,
         "worldline_state": worldline_state or {},
+        "strategy_game_readout": strategy_game_readout,
         "rounds": rounds,
         "subjective_memory_delta": subjective_memory_delta or {},
         "next_steps": [
