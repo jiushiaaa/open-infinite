@@ -4778,3 +4778,25 @@
 - **边界**：
   - 本轮只改前端卷宗阅读连续正文后的下一章接力层、样式、结构检查脚本和文档；不新增后端 API，不改变 `dossier-reading` API、阅读进度、长线卷、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构和构建验证。
+
+### 2026-06-08 — Dossier Reading Inline Evidence Anchors
+
+- **做了什么**：
+  - `dossier_reading` 只读聚合层为 `continuous_reading.reading_sections` 新增 additive `inline_evidence_anchors`。
+  - 锚点从段落证据引用、视角标签和现有卷宗 tabs 派生，覆盖角色记忆、世界状态、因果债、事件视角和作者采纳证据。
+  - `DossierReadingPage` 在连续阅读正文段落内渲染“正文内证据锚点”，用户读到关键段落时可直接跳角色卷、世界线、事件多视角或作者采纳台。
+  - 旧 `evidence_refs` / 折叠证据列表继续保留为后查层，`continuous_reading_chapter.json` / `.md` 原始 artifact 不变。
+  - 扩展 `check:dossier-reading-ux` 和后端 focused test，锁定 API 字段、前端中文标签、跳转目标和样式结构。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `python -X utf8 -m pytest tests/test_dossier_reading.py::test_dossier_reading_adds_inline_evidence_anchors_to_reading_sections -q`，确认缺少段落内证据锚点时失败，错误为 `assert anchors`。
+  - RED：先运行 `pnpm.cmd run check:dossier-reading-ux`，确认前端未消费 `inline_evidence_anchors` 时失败，错误为 `continuous reading should consume inline evidence anchors from the dossier packet`。
+  - Focused backend：`python -X utf8 -m pytest tests/test_dossier_reading.py -q` -> `3 passed in 3.41s`。
+  - Focused helper：`pnpm.cmd run check:dossier-reading-ux` -> `dossier reading ux structure ok`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `236.63 kB`，`DossierReadingPage-BUCHlDzc.js` `26.57 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `952 passed in 202.30s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）。
+  - HTTP smoke：当前实际 Vite dev server 在 `http://127.0.0.1:5173/#/world/demo/worldlines/main/reading` 返回 HTTP 200；`127.0.0.1:5174` 未运行。
+- **边界**：
+  - 本轮只新增 `dossier-reading` API additive 字段、前端阅读页段落跳转、类型、样式、测试和文档。
+  - 不新增持久 artifact，不改变 `chapter.md`、`events.json`、`state_snapshot.json`、`multi_agent_trace.json`、`causal_diff.json` 或 `continuous_reading_chapter` 原始产物。

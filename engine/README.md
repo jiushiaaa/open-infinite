@@ -12,6 +12,8 @@
 
 > 2026-06-08 补充：前端默认入口已重组为“世界书架 -> 某个世界 -> 卷宗/场景页”。故事卡和推荐世界主动作先进入世界锚定房间；故事卡默认出口转为卷宗阅读、世界正史卷、主锚点卷、长线卷和世界沙盘；世界锚定页的卷宗总览新增正史、锚点、角色、势力、事件多视角和长线入口，机制档案降为追溯链接。不新增后端 API，不改变既有 artifact 契约。
 
+> 2026-06-08 补充：`dossier_reading` 只读聚合已新增正文内证据跳转。API 会给 `continuous_reading.reading_sections` 派生 `inline_evidence_anchors`，让前端在关键段落内直接跳角色记忆、世界状态/因果债、事件多视角或作者采纳证据；旧折叠证据列表仍保留。该层不新增持久 artifact，不改变 `continuous_reading_chapter` 原始产物或既有 API 字段。
+
 沙盘运行台新增三层运行前理解：大事件输入之前的“事件种子台”降低空白输入成本，可把世界压力转成 `major_event` 草稿；大事件输入之后的“下一轮草稿提示”会在用户从事件种子、后续可能性、策略暗线、角色行动焦点、角色跨轮追踪或因果回执回填材料后显示来源、事件草稿和干预状态，并用“下一轮影响预演”解释“谁会先承压 / 世界会怎样记账 / 旧干预边界 / 跑完先看哪里”，同时提供继续编辑事件或直接启动下一轮；随后“事件入局预演台”用“谁会先动 / 世界怎样记账 / 干预怎样入局 / 跑完先看哪里”解释当前事件如何进入角色行动、主观记忆、因果债和世界线状态。三层都只读前端状态，不新增 API，不改变 `POST /api/stories/<slug>/sandbox/run` 请求字段。
 
 沙盘结果承接台新增“本轮承接来源”和“本轮因果回执”：启动一轮时会把回填来源或手写事件、事件草稿和干预边界保存为前端 `lastRoundLaunchReceipt`，跑后在“本轮已发生”内继续显示；因果回执会用既有 `world_state_delta` 与 `consequence_state` 提示事件入账、因果债、代偿落点和下一轮代价，并提供“看代偿账”“追长线卷”和“带入下一轮”出口。带入下一轮会把这笔因果债合成为运行台大事件草稿，并清空上轮临时干预。该层只保留前端上下文，不新增 API，不改变 sandbox run artifact。
@@ -161,7 +163,7 @@
 - `POST /api/stories/<slug>/world-autopilot/run`：连续运行沙盘轮次，支持轮数、事件、时间、锚点变化、因果债爆发或角色觉醒目标，生成世界自演报告与检查点；可传 `resume_from_run_id` / `resume_from_checkpoint` 从检查点接续。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/worldline-state`：读取可持续世界线状态。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier`：聚合世界线状态、天命审计、自演任务和检查点，供世界线档案页展示。
-- `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`：聚合连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier，供世界内部卷宗阅读页展示；不新增持久 artifact。
+- `GET /api/stories/<slug>/worldlines/<worldline_id>/dossier-reading`：聚合连续阅读稿、确认稿、跨卷宗 trail、多视角卷宗和世界线 dossier，供世界内部卷宗阅读页展示；只读派生正文内证据跳转；不新增持久 artifact。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/longline-reading`：聚合连续阅读场景、卷宗、检查点、确认入卷和证据链，供跨事件长线卷展示阅读进度、多事件索引、误会回收台、跨章回收台、跨章承接地图、角色与势力追踪带、跨章误会网络图、未解线索和下一步动作；不新增持久 artifact。
 - `GET /api/stories/<slug>/worldlines/<worldline_id>/events/<event_id>/perspectives`：聚合事件多视角正文、场景节拍、信息差、误读列表和证据链，供事件详情页展示；不新增持久 artifact。
 - `GET /api/world-autopilot-runs/<run_id>/readable-entry`：读取或复算自演报告的可读世界线入口，返回最近检查点、角色个人卷、事件多视角、连续阅读路由以及状态变化/记忆/因果债摘要。
@@ -195,7 +197,7 @@
 - `outputs/<run_id>/confirmed_chapter_entry.json`：作者确认入卷后的章节记录、证据链、Reviewer 检查和后续沙盘入口。
 - `outputs/<run_id>/confirmed_chapter.md`：作者确认后的可读正文导出，不覆盖正史 `chapter.md`。
 - `outputs/<run_id>/confirmed_chapter_reading_trail.json`：确认稿跨卷宗阅读链，引用世界线状态、来源采纳记录、世界正史卷、角色个人卷和事件多视角证据。
-- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页“读小说 / 查卷宗”模式切换、默认正文阅读、卷宗切换、续读签、本章读感罗盘、下一章接力台、误会图谱、读完后的余波承接台、世界正史卷/主锚点卷独立页、世界卷承接弧线和折叠证据链。
+- `dossier_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读稿、确认稿、阅读链、多视角卷宗和世界线 dossier，驱动卷宗阅读页“读小说 / 查卷宗”模式切换、默认正文阅读、卷宗切换、续读签、本章读感罗盘、下一章接力台、正文内证据跳转、误会图谱、读完后的余波承接台、世界正史卷/主锚点卷独立页、世界卷承接弧线和折叠证据链。
 - `longline_reading`：只读 API 聚合，不新增持久 artifact；读取连续阅读场景、卷宗、检查点、确认入卷和证据链，驱动长线卷的跨事件时间线、阅读进度、多事件索引、误会回收台、跨章回收台、跨章承接地图、角色与势力追踪带、跨章误会网络图、五条发酵线、未解线索和下一步动作。
 - `projects/<slug>/worldlines/<worldline_id>/worldline_state.json`：干预、快照审计、因果债、锚点状态、候选承载者、模因污染传播、具象代偿和作者采纳结果的后续沙盘输入；另开作者分支时会写入新分支状态和来源世界线，不覆盖根正史。
 - `outputs/<run_id>/sandbox_rounds.jsonl`：逐行记录本轮角色意图、决策输入、外在行动、真实意图、风险、行动结果、冲突、信息传播和世界状态 delta。

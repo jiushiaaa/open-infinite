@@ -119,6 +119,40 @@ def test_dossier_reading_prefers_novel_mode_and_keeps_evidence_folded(tmp_path):
     assert any(item["cognitive_bias"] for item in packet["perspective_biases"])
 
 
+def test_dossier_reading_adds_inline_evidence_anchors_to_reading_sections(tmp_path):
+    _make_reading_chain(tmp_path)
+
+    packet = get_dossier_reading(
+        "reading-story",
+        worldline_id="branch_from_sandbox",
+        projects_dir=tmp_path,
+        outputs_dir=tmp_path / "_outputs",
+    )
+
+    sections = packet["continuous_reading"]["reading_sections"]
+    anchors = [
+        anchor
+        for section in sections
+        for anchor in section.get("inline_evidence_anchors", [])
+    ]
+
+    assert anchors
+    assert {anchor["kind"] for anchor in anchors} >= {
+        "character_memory",
+        "world_state",
+        "causal_debt",
+        "event_perspective",
+        "author_adoption",
+    }
+    assert all(anchor["label"] for anchor in anchors)
+    assert all(anchor["target"]["type"] for anchor in anchors)
+    assert any(anchor["target"]["type"] == "tab" and anchor["target"]["tab"] == "character_volume" for anchor in anchors)
+    assert any(anchor["target"]["type"] == "worldline" for anchor in anchors)
+    assert any(anchor["target"]["type"] == "author" for anchor in anchors)
+    assert packet["inline_evidence_anchor_panel"]["label"] == "正文内证据锚点"
+    assert packet["inline_evidence_anchor_panel"]["anchor_count"] == len(anchors)
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))

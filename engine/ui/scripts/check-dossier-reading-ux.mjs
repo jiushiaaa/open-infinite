@@ -61,6 +61,28 @@ assert(
     page.includes("navigate({ name: \"longlineReading\", slug, worldlineId })"),
   "next-chapter bridge should route users to author, sandbox and longline continuations",
 );
+assert(
+  page.includes("inline_evidence_anchors") &&
+    page.includes("inlineEvidenceAnchorsForSection") &&
+    page.includes("openInlineEvidenceAnchor"),
+  "continuous reading should consume inline evidence anchors from the dossier packet",
+);
+assert(
+  page.includes('className="dossier-inline-anchors"') &&
+    page.includes('className="dossier-inline-anchor"'),
+  "continuous prose should render clickable inline evidence anchors inside each section",
+);
+for (const label of ["角色记忆", "世界状态", "因果债", "事件视角", "作者证据"]) {
+  assert(page.includes(label), `inline evidence anchors should include ${label}`);
+}
+assert(
+  page.includes("setActiveTab(anchor.target.tab)") &&
+    page.includes("navigate({ name: \"worldline\", slug, worldlineId })") &&
+    page.includes('name: "eventPerspective"') &&
+    page.includes("eventId: anchor.target.event_id || \"main\"") &&
+    page.includes("navigate({ name: \"author\", slug })"),
+  "inline evidence anchors should jump to tabs, worldline, event perspective, or author evidence",
+);
 for (const label of ["回看误会图谱", "追踪跨事件余波", "继续一轮沙盘", "写成下一章材料"]) {
   assert(page.includes(label), `reading carry section should include ${label}`);
 }
@@ -149,6 +171,8 @@ assert(css.includes(".dossier-chapter-rail"), "chapter scene rail should have st
 assert(css.includes(".dossier-continuity-rail"), "continuity rail should have styles");
 assert(css.includes(".dossier-reading-compass"), "pre-reading compass should have styles");
 assert(css.includes(".dossier-next-chapter-bridge"), "next-chapter bridge should have styles");
+assert(css.includes(".dossier-inline-anchors"), "inline evidence anchors should have styles");
+assert(css.includes(".dossier-inline-anchor"), "inline evidence anchor buttons should have styles");
 assert(
   css.includes(".dossier-next-chapter-bridge__grid") &&
     css.includes("grid-template-columns: repeat(4, minmax(0, 1fr))"),

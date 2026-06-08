@@ -1381,6 +1381,12 @@ export interface DossierReadingReport {
     ref_count: number;
     refs: string[];
   };
+  inline_evidence_anchor_panel?: {
+    label: string;
+    description: string;
+    anchor_count: number;
+    kinds: string[];
+  };
   worldline_dossier?: Partial<WorldlineDossierReport>;
   boundaries: string[];
 }
@@ -1962,6 +1968,30 @@ export interface ContinuousReadingSection {
   evidence_mode?: {
     default_visible: boolean;
     refs: string[];
+  };
+  inline_evidence_anchors?: InlineEvidenceAnchor[];
+}
+
+export interface InlineEvidenceAnchor {
+  id: string;
+  kind:
+    | "character_memory"
+    | "world_state"
+    | "causal_debt"
+    | "event_perspective"
+    | "author_adoption"
+    | string;
+  label: string;
+  title: string;
+  detail: string;
+  source_section_id: string;
+  source_section_title: string;
+  evidence_ref: string;
+  target: {
+    type: "tab" | "worldline" | "event_perspective" | "author" | string;
+    tab?: string;
+    section?: string;
+    event_id?: string;
   };
 }
 

@@ -47,12 +47,13 @@ def get_dossier_reading(
     adoption_run_id = confirmation_run_id or draft_run_id
     run_dir = root / adoption_run_id if adoption_run_id else None
 
-    continuous = _continuous_reading(run_dir, draft)
     confirmed = _confirmed_chapter(run_dir, confirmation)
     reading_trail = _read_named_json(run_dir, "confirmed_chapter_reading_trail.json")
+    continuous = _continuous_reading(run_dir, draft)
     lens_run_id = _source_lens_run_id(continuous, reading_trail)
     lens_payload = _read_named_json(root / lens_run_id if lens_run_id else None, "character_lens_volumes.json")
     volume_tabs = _volume_tabs(lens_payload, lens_run_id)
+    continuous = _continuous_with_inline_evidence(continuous, volume_tabs)
     evidence_refs = _evidence_refs(
         continuous=continuous,
         confirmed=confirmed,
@@ -90,6 +91,7 @@ def get_dossier_reading(
             "ref_count": len(evidence_refs),
             "refs": evidence_refs,
         },
+        "inline_evidence_anchor_panel": _inline_evidence_anchor_panel(continuous),
         "worldline_dossier": _safe_worldline_dossier(
             sid,
             wid,
@@ -167,6 +169,172 @@ def _confirmed_chapter(
         "continuation_effect": confirmation.get("continuation_effect") or {},
         "evidence_chain": confirmation.get("evidence_chain") or {},
     }
+
+
+def _continuous_with_inline_evidence(
+    continuous: dict[str, Any],
+    volume_tabs: list[dict[str, Any]],
+) -> dict[str, Any]:
+    sections = (
+        continuous.get("reading_sections")
+        if isinstance(continuous.get("reading_sections"), list)
+        else []
+    )
+    if not continuous or not sections:
+        return continuous
+    next_continuous = dict(continuous)
+    next_sections: list[dict[str, Any]] = []
+    available_tabs = {str(tab.get("id") or "") for tab in volume_tabs}
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        next_section = dict(section)
+        refs = _section_evidence_refs(next_section)
+        next_section["inline_evidence_anchors"] = _inline_evidence_anchors_for_section(
+            section=next_section,
+            refs=refs,
+            available_tabs=available_tabs,
+        )
+        next_sections.append(next_section)
+    next_continuous["reading_sections"] = next_sections
+    return next_continuous
+
+
+def _inline_evidence_anchors_for_section(
+    *,
+    section: dict[str, Any],
+    refs: list[str],
+    available_tabs: set[str],
+) -> list[dict[str, Any]]:
+    anchors: list[dict[str, Any]] = []
+    section_id = str(section.get("id") or "")
+    title = str(section.get("title") or "当前段落")
+    ref_text = " ".join(refs)
+    viewpoint = str(section.get("viewpoint") or "")
+
+    def add(
+        *,
+        kind: str,
+        label: str,
+        heading: str,
+        detail: str,
+        target: dict[str, str],
+        evidence_ref: str,
+    ) -> None:
+        if any(item.get("kind") == kind for item in anchors):
+            return
+        anchors.append(
+            {
+                "id": f"{section_id}-{kind}" if section_id else kind,
+                "kind": kind,
+                "label": label,
+                "title": heading,
+                "detail": detail,
+                "source_section_id": section_id,
+                "source_section_title": title,
+                "evidence_ref": evidence_ref,
+                "target": target,
+            }
+        )
+
+    if (
+        "character_volume" in ref_text
+        or "subjective_memory" in ref_text
+        or "角色" in viewpoint
+    ) and "character_volume" in available_tabs:
+        add(
+            kind="character_memory",
+            label="角色记忆",
+            heading="跳到角色个人卷",
+            detail="看这一段被谁记住、误读或隐瞒。",
+            target={"type": "tab", "tab": "character_volume"},
+            evidence_ref=_first_ref(refs, ("character_volume", "subjective_memory")),
+        )
+    if "world_chronicle" in ref_text or "worldline_state" in ref_text or "世界" in viewpoint:
+        add(
+            kind="world_state",
+            label="世界状态",
+            heading="查看世界线变化",
+            detail="核对世界承认了什么，以及状态怎样继续发酵。",
+            target={"type": "worldline", "section": "world_state"},
+            evidence_ref=_first_ref(refs, ("worldline_state", "world_chronicle")),
+        )
+    if "consequence_state" in ref_text or "materialized_consequences" in ref_text:
+        add(
+            kind="causal_debt",
+            label="因果债",
+            heading="追因果代偿",
+            detail="看这段正文背后的债务、代偿和下一轮压力。",
+            target={"type": "worldline", "section": "consequence_state"},
+            evidence_ref=_first_ref(refs, ("consequence_state", "materialized_consequences")),
+        )
+    if "event_multi_perspective" in ref_text or "事件" in viewpoint:
+        add(
+            kind="event_perspective",
+            label="事件视角",
+            heading="打开事件多视角",
+            detail="从同一事件的不同误读里核对这段冲突。",
+            target={"type": "event_perspective", "event_id": "main"},
+            evidence_ref=_first_ref(refs, ("event_multi_perspective",)),
+        )
+    if (
+        "author_adoption" in ref_text
+        or "next_chapter_brief" in ref_text
+        or "draft_revision_pack" in ref_text
+    ):
+        add(
+            kind="author_adoption",
+            label="作者证据",
+            heading="送到作者采纳台",
+            detail="查看这段如何变成下一章 brief、Reviewer 或确认入卷材料。",
+            target={"type": "author", "section": "adoption_evidence"},
+            evidence_ref=_first_ref(
+                refs,
+                ("author_adoption", "next_chapter_brief", "draft_revision_pack"),
+            ),
+        )
+    return anchors
+
+
+def _inline_evidence_anchor_panel(continuous: dict[str, Any]) -> dict[str, Any]:
+    sections = (
+        continuous.get("reading_sections")
+        if isinstance(continuous.get("reading_sections"), list)
+        else []
+    )
+    anchors = [
+        anchor
+        for section in sections
+        if isinstance(section, dict)
+        for anchor in section.get("inline_evidence_anchors", [])
+        if isinstance(anchor, dict)
+    ]
+    return {
+        "label": "正文内证据锚点",
+        "description": (
+            "读到关键段落时，可跳到角色记忆、世界状态、因果债、"
+            "事件视角或作者采纳证据；默认仍先读正文。"
+        ),
+        "anchor_count": len(anchors),
+        "kinds": sorted({str(anchor.get("kind") or "") for anchor in anchors if anchor.get("kind")}),
+    }
+
+
+def _section_evidence_refs(section: dict[str, Any]) -> list[str]:
+    mode = section.get("evidence_mode") if isinstance(section.get("evidence_mode"), dict) else {}
+    refs = (
+        mode.get("refs")
+        if isinstance(mode.get("refs"), list) and mode.get("refs")
+        else section.get("evidence_refs")
+    )
+    return [str(ref) for ref in refs or [] if str(ref)]
+
+
+def _first_ref(refs: list[str], needles: tuple[str, ...]) -> str:
+    for ref in refs:
+        if any(needle in ref for needle in needles):
+            return ref
+    return refs[0] if refs else ""
 
 
 def _volume_tabs(payload: dict[str, Any], lens_run_id: str) -> list[dict[str, Any]]:

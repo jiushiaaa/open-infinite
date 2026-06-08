@@ -4,6 +4,7 @@ import type {
   ContinuousReadingSection,
   DossierReadingReport,
   DossierReadingVolumeTab,
+  InlineEvidenceAnchor,
 } from "../api/types";
 import { deriveDossierReadingFocus } from "../dossierReadingFocus";
 import { renderProse } from "../markdown";
@@ -217,6 +218,32 @@ export function DossierReadingPage({
   };
   const scrollToPageItem = (selector: string) => {
     document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const openInlineEvidenceAnchor = (anchor: InlineEvidenceAnchor) => {
+    setReadingMode("dossier");
+    if (anchor.target.type === "tab" && anchor.target.tab) {
+      setActiveTab(anchor.target.tab);
+      window.setTimeout(() => scrollToPageItem(".dossier-reader__cover"), 80);
+      return;
+    }
+    if (anchor.target.type === "worldline") {
+      navigate({ name: "worldline", slug, worldlineId });
+      return;
+    }
+    if (anchor.target.type === "event_perspective") {
+      navigate({
+        name: "eventPerspective",
+        slug,
+        worldlineId,
+        eventId: anchor.target.event_id || "main",
+      });
+      return;
+    }
+    if (anchor.target.type === "author") {
+      navigate({ name: "author", slug });
+      return;
+    }
+    scrollToPageItem(".dossier-evidence");
   };
   const activeMisbeliefId =
     activeTab === "continuous_reading" && activeSectionId
@@ -815,6 +842,7 @@ export function DossierReadingPage({
                 <div className="dossier-section-stack">
                   {continuousSections.map((section, index) => {
                     const evidenceRefs = sectionEvidenceRefs(section);
+                    const inlineAnchors = inlineEvidenceAnchorsForSection(section);
                     return (
                       <section
                         className={`dossier-section ${
@@ -851,6 +879,26 @@ export function DossierReadingPage({
                         <div className="prose dossier-prose dossier-section__body">
                           {renderProse(section.body)}
                         </div>
+
+                        {inlineAnchors.length > 0 && (
+                          <div className="dossier-inline-anchors" aria-label="正文内证据锚点">
+                            <span>正文内证据锚点</span>
+                            <div>
+                              {inlineAnchors.map((anchor) => (
+                                <button
+                                  type="button"
+                                  key={anchor.id}
+                                  className="dossier-inline-anchor"
+                                  onClick={() => openInlineEvidenceAnchor(anchor)}
+                                >
+                                  <span>{anchorKindLabel(anchor)}</span>
+                                  <strong>{anchor.title}</strong>
+                                  <small>{anchor.detail}</small>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                         {evidenceRefs.length > 0 && (
                           <aside className="dossier-section__evidence">
@@ -1112,6 +1160,24 @@ function sectionEvidenceRefs(section: ContinuousReadingSection): string[] {
     ? section.evidence_mode.refs
     : section.evidence_refs;
   return refs.filter((ref) => ref.trim().length > 0);
+}
+
+function inlineEvidenceAnchorsForSection(section: ContinuousReadingSection): InlineEvidenceAnchor[] {
+  return (section.inline_evidence_anchors || []).filter(
+    (anchor) => anchor.id && anchor.label && anchor.target?.type,
+  );
+}
+
+function anchorKindLabel(anchor: InlineEvidenceAnchor): string {
+  return (
+    {
+      character_memory: "角色记忆",
+      world_state: "世界状态",
+      causal_debt: "因果债",
+      event_perspective: "事件视角",
+      author_adoption: "作者证据",
+    }[anchor.kind] || anchor.label
+  );
 }
 
 function bodyForTab(
