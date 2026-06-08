@@ -145,6 +145,13 @@ const requiredPageMarkers = [
   ["私下目的", "strategy board should explain each actor's private goal"],
   ["可能误判", "strategy board should show the misread that can move the world"],
   ["世界影响", "strategy board should connect tactics to world consequences"],
+  ["strategyDecisionDeck", "strategy decision deck should derive next-round priorities"],
+  ["sandbox-strategy-decision", "strategy decision guide should sit between the board and continuation"],
+  ["暗线续推判断", "strategy decision guide should name the decision surface"],
+  ["优先承接", "strategy decision guide should recommend which line to continue first"],
+  ["风险最高", "strategy decision guide should expose resistance risk before continuing"],
+  ["影响最深", "strategy decision guide should connect strategy to world impact"],
+  ["立即续推这条线", "strategy decision guide should make the recommended continuation actionable"],
   ["sandbox-strategy-continuation", "strategy board should hand tactics into the next round"],
   ["下一轮暗线承接", "strategy continuation should name the next-round handoff"],
   ["作为下一轮暗线", "strategy continuation should let users queue a tactic as the next event"],
@@ -194,6 +201,7 @@ const eventFieldIndex = page.indexOf("sandbox-runner__field--event");
 const advancedInterventionIndex = page.indexOf("sandbox-runner__advanced");
 const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
 const strategyReadingGuideIndex = page.indexOf("sandbox-strategy-reading-guide");
+const strategyDecisionIndex = page.indexOf("sandbox-strategy-decision");
 const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
 const actionFocusIndex = page.indexOf("sandbox-action-focus");
 const actionTrailIndex = page.indexOf("sandbox-action-trail");
@@ -246,6 +254,15 @@ if (
   strategyReadingGuideIndex > strategyBoardIndex
 ) {
   failures.push("strategy reading guide should sit after result reading order and before strategy board");
+}
+if (
+  strategyBoardIndex === -1 ||
+  strategyDecisionIndex === -1 ||
+  strategyContinuationIndex === -1 ||
+  strategyDecisionIndex < strategyBoardIndex ||
+  strategyDecisionIndex > strategyContinuationIndex
+) {
+  failures.push("strategy decision guide should sit after strategy board and before continuation choices");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -396,6 +413,9 @@ const requiredCssMarkers = [
   [".sandbox-strategy-card__route", "strategy card route styling is missing"],
   [".sandbox-strategy-card dl", "strategy card detail grid styling is missing"],
   [".sandbox-strategy-card__effect", "strategy card consequence styling is missing"],
+  [".sandbox-strategy-decision", "strategy decision guide styling is missing"],
+  [".sandbox-strategy-decision__grid", "strategy decision guide grid styling is missing"],
+  [".sandbox-strategy-decision__actions", "strategy decision guide action styling is missing"],
   [".sandbox-strategy-continuation", "strategy continuation styling is missing"],
   [".sandbox-strategy-continuation__grid", "strategy continuation grid styling is missing"],
   [".sandbox-strategy-continuation__event", "strategy continuation event styling is missing"],

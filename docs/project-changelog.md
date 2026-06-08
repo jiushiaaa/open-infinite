@@ -4564,3 +4564,23 @@
 - **边界**：
   - 本轮只改前端沙盘页策略理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Strategy Decision Guide
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“策略棋盘”和“下一轮暗线承接”之间新增“暗线续推判断”。
+  - 决策台复用既有 `strategyInteractions`，把多条策略互动压成“优先承接 / 风险最高 / 影响最深”三张扫读卡。
+  - 每张卡都可直接把对应暗线回填成下一轮事件草稿，帮助用户从读懂棋局进入下一轮行动。
+  - 扩展 `check:sandbox-runner-ux`，锁定策略决策 deck、中文标记、位置顺序、样式结构和移动端按钮折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少暗线续推判断时失败，错误包括 `strategy decision deck should derive next-round priorities`、`strategy decision guide should sit between the board and continuation`、`strategy decision guide should recommend which line to continue first`、`strategy decision guide should expose resistance risk before continuing`、`strategy decision guide should connect strategy to world impact` 和 `strategy decision guide should make the recommended continuation actionable`。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`WorldSandboxPage-CKjentvx.js` `66.25 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 180.48s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）；`Invoke-WebRequest http://localhost:5183/#/` -> HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页策略决策层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

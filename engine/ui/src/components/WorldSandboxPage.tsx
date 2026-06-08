@@ -402,6 +402,58 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         },
       ]
     : [];
+  const riskStrategyInteraction =
+    strategyInteractions.find(
+      (item) => item !== leadStrategyInteraction && item.risk !== "风险待观察",
+    ) ?? leadStrategyInteraction;
+  const impactStrategyInteraction =
+    strategyInteractions.find(
+      (item) =>
+        item !== leadStrategyInteraction &&
+        item !== riskStrategyInteraction &&
+        item.effect !== "世界影响待观察",
+    ) ??
+    riskStrategyInteraction ??
+    leadStrategyInteraction;
+  const strategyDecisionDeck = leadStrategyInteraction
+    ? [
+        {
+          label: "优先承接",
+          title: `${leadStrategyInteraction.actorName}继续试探${leadStrategyInteraction.targetName}`,
+          detail: `${leadStrategyInteraction.hook} 先把这条线变成下一轮事件，最容易看见筹码怎样继续发酵。`,
+          action: "立即续推这条线",
+          onClick: () => queueStrategySeed(leadStrategyInteraction),
+        },
+        {
+          label: "风险最高",
+          title: riskStrategyInteraction
+            ? `${riskStrategyInteraction.targetName}可能反制`
+            : "反制风险待观察",
+          detail:
+            riskStrategyInteraction?.risk ||
+            "先回策略棋盘核对风险，再决定是否把这条暗线推进下一轮。",
+          action: riskStrategyInteraction ? "承接风险线" : "看策略棋盘",
+          onClick: () =>
+            riskStrategyInteraction
+              ? queueStrategySeed(riskStrategyInteraction)
+              : focusStrategyBoard(),
+        },
+        {
+          label: "影响最深",
+          title: impactStrategyInteraction
+            ? impactStrategyInteraction.effect
+            : "世界影响待观察",
+          detail: impactStrategyInteraction
+            ? `${impactStrategyInteraction.actorName}和${impactStrategyInteraction.targetName}的算计会改变下一轮世界状态。`
+            : "如果没有明确世界影响，就先从优先承接线继续观察。",
+          action: impactStrategyInteraction ? "带影响续推" : "回看棋盘",
+          onClick: () =>
+            impactStrategyInteraction
+              ? queueStrategySeed(impactStrategyInteraction)
+              : focusStrategyBoard(),
+        },
+      ]
+    : [];
   const resultReadingGuide = round
     ? [
         {
@@ -1932,6 +1984,34 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                           <span>世界影响</span>
                           <strong>{item.effect}</strong>
                           <p>{item.hook}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {strategyDecisionDeck.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-decision"
+                  aria-label="暗线续推判断"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">暗线续推判断</p>
+                      <h2>先选哪条暗线进入下一轮</h2>
+                    </div>
+                    <span className="badge badge--jade">决策</span>
+                  </div>
+                  <div className="sandbox-strategy-decision__grid">
+                    {strategyDecisionDeck.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <div className="sandbox-strategy-decision__actions">
+                          <button className="btn btn--ghost tiny" onClick={item.onClick}>
+                            {item.action}
+                          </button>
                         </div>
                       </article>
                     ))}
