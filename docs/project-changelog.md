@@ -4606,3 +4606,25 @@
 - **边界**：
   - 本轮只改前端沙盘页跑后长期压力理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Strategy Long Plan Preview
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“关系势力发酵”和“下一轮暗线承接”之间新增“多轮策略规划”。
+  - 多轮策略规划复用既有 `strategyInteractions`、`latestConsequence`、`firstPossibility` 和 `consequenceNextRoundHint`，不新增 API 或 artifact。
+  - 三张跨轮计划卡分别解释“下一轮先试什么 / 中段谁会反制 / 后段写进哪里”，让用户在承接暗线前先看懂这条策略会怎样继续发酵。
+  - 卡片动作可直接“承接首步”、承接风险线或回到策略棋盘，也可“追长线卷”，把读懂策略接到下一轮运行和跨章追读。
+  - 扩展 `check:sandbox-runner-ux`，锁定多轮策略规划 deck、中文标记、位置顺序、样式结构和移动端按钮折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少多轮策略规划时失败，错误包括 `strategy long plan should derive a multi-round plan`、`strategy long plan should sit before continuation choices`、`strategy long plan should name the multi-round surface`、`strategy long plan should identify the immediate probe`、`strategy long plan should identify the counter-move`、`strategy long plan should connect the plan to world records`、`strategy long plan should let users queue the first planned move`、`strategy long plan should sit after fermentation and before continuation choices`、`strategy long plan styling is missing`、`strategy long plan grid styling is missing` 和 `strategy long plan action styling is missing`。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`WorldSandboxPage-C7TvMb7L.js` `69.96 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 186.61s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）。
+  - HTTP smoke：当前实际 Vite dev server 在 `http://localhost:5174/#/`，`Invoke-WebRequest` 返回 HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页跑后跨轮策略理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

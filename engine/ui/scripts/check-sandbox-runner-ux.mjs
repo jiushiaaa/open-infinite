@@ -159,6 +159,13 @@ const requiredPageMarkers = [
   ["势力会怎样索债", "strategy fermentation guide should explain faction pressure"],
   ["谁会带着记忆", "strategy fermentation guide should connect pressure to character memory"],
   ["下一轮看哪里", "strategy fermentation guide should route users to follow-up evidence"],
+  ["strategyLongPlanDeck", "strategy long plan should derive a multi-round plan"],
+  ["sandbox-strategy-long-plan", "strategy long plan should sit before continuation choices"],
+  ["多轮策略规划", "strategy long plan should name the multi-round surface"],
+  ["下一轮先试什么", "strategy long plan should identify the immediate probe"],
+  ["中段谁会反制", "strategy long plan should identify the counter-move"],
+  ["后段写进哪里", "strategy long plan should connect the plan to world records"],
+  ["承接首步", "strategy long plan should let users queue the first planned move"],
   ["sandbox-strategy-continuation", "strategy board should hand tactics into the next round"],
   ["下一轮暗线承接", "strategy continuation should name the next-round handoff"],
   ["作为下一轮暗线", "strategy continuation should let users queue a tactic as the next event"],
@@ -210,6 +217,7 @@ const strategyBoardIndex = page.indexOf("sandbox-strategy-board");
 const strategyReadingGuideIndex = page.indexOf("sandbox-strategy-reading-guide");
 const strategyDecisionIndex = page.indexOf("sandbox-strategy-decision");
 const strategyFermentationIndex = page.indexOf("sandbox-strategy-fermentation");
+const strategyLongPlanIndex = page.indexOf("sandbox-strategy-long-plan");
 const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
 const actionFocusIndex = page.indexOf("sandbox-action-focus");
 const actionTrailIndex = page.indexOf("sandbox-action-trail");
@@ -280,6 +288,15 @@ if (
   strategyFermentationIndex > strategyContinuationIndex
 ) {
   failures.push("strategy fermentation guide should sit after strategy decision and before continuation choices");
+}
+if (
+  strategyFermentationIndex === -1 ||
+  strategyLongPlanIndex === -1 ||
+  strategyContinuationIndex === -1 ||
+  strategyLongPlanIndex < strategyFermentationIndex ||
+  strategyLongPlanIndex > strategyContinuationIndex
+) {
+  failures.push("strategy long plan should sit after fermentation and before continuation choices");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -436,6 +453,9 @@ const requiredCssMarkers = [
   [".sandbox-strategy-fermentation", "strategy fermentation guide styling is missing"],
   [".sandbox-strategy-fermentation__grid", "strategy fermentation guide grid styling is missing"],
   [".sandbox-strategy-fermentation__actions", "strategy fermentation guide action styling is missing"],
+  [".sandbox-strategy-long-plan", "strategy long plan styling is missing"],
+  [".sandbox-strategy-long-plan__grid", "strategy long plan grid styling is missing"],
+  [".sandbox-strategy-long-plan__actions", "strategy long plan action styling is missing"],
   [".sandbox-strategy-continuation", "strategy continuation styling is missing"],
   [".sandbox-strategy-continuation__grid", "strategy continuation grid styling is missing"],
   [".sandbox-strategy-continuation__event", "strategy continuation event styling is missing"],

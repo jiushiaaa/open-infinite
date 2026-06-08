@@ -548,6 +548,49 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
     slug,
     worldlineState?.continuation_inputs?.major_event_hint,
   ]);
+  const strategyLongPlanDeck = leadStrategyInteraction
+    ? [
+        {
+          label: "下一轮先试什么",
+          title: `${leadStrategyInteraction.actorName}继续逼近${leadStrategyInteraction.targetName}`,
+          detail: `${leadStrategyInteraction.tactic}。先把这一步放进下一轮，观察筹码是否真的能撬动对方。`,
+          action: "承接首步",
+          onClick: () => queueStrategySeed(leadStrategyInteraction),
+        },
+        {
+          label: "中段谁会反制",
+          title: riskStrategyInteraction
+            ? `${riskStrategyInteraction.targetName}可能改判`
+            : "反制对象待观察",
+          detail:
+            riskStrategyInteraction?.risk ||
+            "如果对方没有按预期行动，就回到策略棋盘确认谁会反制。",
+          action: riskStrategyInteraction ? "承接反制线" : "看策略棋盘",
+          onClick: () =>
+            riskStrategyInteraction
+              ? queueStrategySeed(riskStrategyInteraction)
+              : focusStrategyBoard(),
+        },
+        {
+          label: "后段写进哪里",
+          title:
+            latestConsequence?.major_event ||
+            impactStrategyInteraction?.effect ||
+            "写入世界线、角色记忆和长线卷",
+          detail:
+            consequenceNextRoundHint ||
+            firstPossibility?.brief ||
+            "这条计划跑完后，优先回世界线看代偿，再进长线卷确认误会和伏笔是否继续发酵。",
+          action: "追长线卷",
+          onClick: () =>
+            navigate({
+              name: "longlineReading",
+              slug,
+              worldlineId: round?.worldline_id || "main",
+            }),
+        },
+      ]
+    : [];
   const resultReadingGuide = round
     ? [
         {
@@ -2131,6 +2174,34 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                         <strong>{item.title}</strong>
                         <p>{item.detail}</p>
                         <div className="sandbox-strategy-fermentation__actions">
+                          <button className="btn btn--ghost tiny" onClick={item.onClick}>
+                            {item.action}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {strategyLongPlanDeck.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-long-plan"
+                  aria-label="多轮策略规划"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">多轮策略规划</p>
+                      <h2>把这条暗线拆成三步继续跑</h2>
+                    </div>
+                    <span className="badge badge--jade">跨轮计划</span>
+                  </div>
+                  <div className="sandbox-strategy-long-plan__grid">
+                    {strategyLongPlanDeck.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <div className="sandbox-strategy-long-plan__actions">
                           <button className="btn btn--ghost tiny" onClick={item.onClick}>
                             {item.action}
                           </button>
