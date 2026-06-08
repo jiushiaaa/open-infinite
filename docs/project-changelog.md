@@ -4584,3 +4584,25 @@
 - **边界**：
   - 本轮只改前端沙盘页策略决策层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Strategy Fermentation Preview
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“暗线续推判断”和“下一轮暗线承接”之间新增“关系势力发酵”。
+  - 发酵预告复用既有 `strategyInteractions`、`world_state_delta.relationship_changes`、`consequence_state`、角色行动和下一轮提示，不新增 API 或 artifact。
+  - 四张长期压力卡分别解释“关系会怎样变 / 势力会怎样索债 / 谁会带着记忆 / 下一轮看哪里”。
+  - 卡片动作可直接追角色行动、看世界线代偿账、读角色个人卷或进入长线卷，让用户在续推前先知道这条暗线会怎样变成长期压力。
+  - 扩展 `check:sandbox-runner-ux`，锁定关系势力发酵 deck、中文标记、位置顺序、样式结构和移动端按钮折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少关系势力发酵时失败，错误包括 `strategy fermentation deck should derive long-term pressure signals`、`strategy fermentation guide should sit before continuation choices`、`strategy fermentation guide should name the long-term pressure surface`、`strategy fermentation guide should explain relationship drift`、`strategy fermentation guide should explain faction pressure`、`strategy fermentation guide should connect pressure to character memory`、`strategy fermentation guide should route users to follow-up evidence` 和 `strategy fermentation guide should sit after strategy decision and before continuation choices`。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`WorldSandboxPage-X9k0nlMH.js` `68.62 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 172.47s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）。
+  - HTTP smoke：`http://localhost:5183/#/` 当前无服务；实际已运行的 Vite dev server 在 `http://localhost:5173/#/` 和 `http://localhost:5174/#/`，两者 `Invoke-WebRequest` 均返回 HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页跑后长期压力理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

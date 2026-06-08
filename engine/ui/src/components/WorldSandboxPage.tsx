@@ -454,6 +454,100 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         },
       ]
     : [];
+  const strategyFermentationDeck = useMemo(() => {
+    if (!round || !leadStrategyInteraction) return [];
+    const relationshipChange = round.world_state_delta.relationship_changes[0];
+    const factionPressure =
+      consequenceDomains.find(([key, item]) => {
+        const label = item.label || key;
+        return /势力|资源|盟约|阵营|秩序/.test(label);
+      })?.[1] ||
+      consequenceDomains[0]?.[1] ||
+      null;
+    const memoryCarrier =
+      round.character_actions.find(
+        (item) =>
+          item.character_name === leadStrategyInteraction.actorName ||
+          item.character_name === leadStrategyInteraction.targetName,
+      ) ??
+      leadAction ??
+      null;
+    const memoryLine =
+      memoryCarrier?.memory_seed?.inferred?.[0] ||
+      memoryCarrier?.memory_influence ||
+      memoryCarrier?.previous_subjective_memory ||
+      "角色会把这轮试探记成下一轮行动的偏见。";
+    const nextWhere =
+      consequenceNextRoundHint ||
+      firstPossibility?.brief ||
+      worldlineState?.continuation_inputs?.major_event_hint ||
+      "下一轮继续观察关系、势力和因果债怎样互相推高。";
+
+    return [
+      {
+        label: "关系会怎样变",
+        title: relationshipChange
+          ? `${relationshipChange.source}关系改写`
+          : `${leadStrategyInteraction.actorName}和${leadStrategyInteraction.targetName}的信任被改写`,
+        detail:
+          relationshipChange?.change ||
+          `${leadStrategyInteraction.misread} 会让双方重新判断彼此的意图。`,
+        action: "追角色行动",
+        onClick: focusActionChain,
+      },
+      {
+        label: "势力会怎样索债",
+        title: factionPressure?.label || "势力压力开始找出口",
+        detail:
+          factionPressure?.pressure ||
+          factionPressure?.current ||
+          round.world_state_delta.resource_changes[0] ||
+          "资源、秘密或盟约会把这条暗线推给更大的势力结构。",
+        action: "看代偿账",
+        onClick: () =>
+          navigate({
+            name: "worldline",
+            slug,
+            worldlineId: round.worldline_id || "main",
+          }),
+      },
+      {
+        label: "谁会带着记忆",
+        title: memoryCarrier?.character_name || leadStrategyInteraction.actorName,
+        detail: memoryLine,
+        action: "读角色卷",
+        onClick: () =>
+          navigate({
+            name: "characterVolume",
+            slug,
+            worldlineId: round.worldline_id || "main",
+            characterId: memoryCarrier?.character_id || leadStrategyInteraction.actorId,
+          }),
+      },
+      {
+        label: "下一轮看哪里",
+        title: "长线卷会继续回收这条压力",
+        detail: nextWhere,
+        action: "追长线卷",
+        onClick: () =>
+          navigate({
+            name: "longlineReading",
+            slug,
+            worldlineId: round.worldline_id || "main",
+          }),
+      },
+    ];
+  }, [
+    consequenceDomains,
+    consequenceNextRoundHint,
+    firstPossibility?.brief,
+    focusActionChain,
+    leadAction,
+    leadStrategyInteraction,
+    round,
+    slug,
+    worldlineState?.continuation_inputs?.major_event_hint,
+  ]);
   const resultReadingGuide = round
     ? [
         {
@@ -2009,6 +2103,34 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                         <strong>{item.title}</strong>
                         <p>{item.detail}</p>
                         <div className="sandbox-strategy-decision__actions">
+                          <button className="btn btn--ghost tiny" onClick={item.onClick}>
+                            {item.action}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {strategyFermentationDeck.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-fermentation"
+                  aria-label="关系势力发酵"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">关系势力发酵</p>
+                      <h2>这条暗线会怎样发酵到下一轮</h2>
+                    </div>
+                    <span className="badge badge--gold">长期压力</span>
+                  </div>
+                  <div className="sandbox-strategy-fermentation__grid">
+                    {strategyFermentationDeck.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <div className="sandbox-strategy-fermentation__actions">
                           <button className="btn btn--ghost tiny" onClick={item.onClick}>
                             {item.action}
                           </button>
