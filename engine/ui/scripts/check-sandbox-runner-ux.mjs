@@ -166,6 +166,14 @@ const requiredPageMarkers = [
   ["中段谁会反制", "strategy long plan should identify the counter-move"],
   ["后段写进哪里", "strategy long plan should connect the plan to world records"],
   ["承接首步", "strategy long plan should let users queue the first planned move"],
+  ["strategySettlementDeck", "strategy settlement should derive cross-round settlement checks"],
+  ["sandbox-strategy-settlement", "strategy settlement should sit before continuation choices"],
+  ["策略结算预告", "strategy settlement should name the settlement surface"],
+  ["成败看什么", "strategy settlement should explain how the next round will be judged"],
+  ["谁会反噬", "strategy settlement should explain who may retaliate"],
+  ["世界记到哪里", "strategy settlement should connect settlement to world records"],
+  ["跑完先验哪里", "strategy settlement should route users to post-run evidence"],
+  ["验收首步", "strategy settlement should let users queue the first settlement check"],
   ["sandbox-strategy-continuation", "strategy board should hand tactics into the next round"],
   ["下一轮暗线承接", "strategy continuation should name the next-round handoff"],
   ["作为下一轮暗线", "strategy continuation should let users queue a tactic as the next event"],
@@ -218,6 +226,7 @@ const strategyReadingGuideIndex = page.indexOf("sandbox-strategy-reading-guide")
 const strategyDecisionIndex = page.indexOf("sandbox-strategy-decision");
 const strategyFermentationIndex = page.indexOf("sandbox-strategy-fermentation");
 const strategyLongPlanIndex = page.indexOf("sandbox-strategy-long-plan");
+const strategySettlementIndex = page.indexOf("sandbox-strategy-settlement");
 const resultReadingGuideIndex = page.indexOf("sandbox-result-reading-guide");
 const actionFocusIndex = page.indexOf("sandbox-action-focus");
 const actionTrailIndex = page.indexOf("sandbox-action-trail");
@@ -297,6 +306,15 @@ if (
   strategyLongPlanIndex > strategyContinuationIndex
 ) {
   failures.push("strategy long plan should sit after fermentation and before continuation choices");
+}
+if (
+  strategyLongPlanIndex === -1 ||
+  strategySettlementIndex === -1 ||
+  strategyContinuationIndex === -1 ||
+  strategySettlementIndex < strategyLongPlanIndex ||
+  strategySettlementIndex > strategyContinuationIndex
+) {
+  failures.push("strategy settlement should sit after long plan and before continuation choices");
 }
 if (
   resultBridgeIndex === -1 ||
@@ -456,6 +474,9 @@ const requiredCssMarkers = [
   [".sandbox-strategy-long-plan", "strategy long plan styling is missing"],
   [".sandbox-strategy-long-plan__grid", "strategy long plan grid styling is missing"],
   [".sandbox-strategy-long-plan__actions", "strategy long plan action styling is missing"],
+  [".sandbox-strategy-settlement", "strategy settlement styling is missing"],
+  [".sandbox-strategy-settlement__grid", "strategy settlement grid styling is missing"],
+  [".sandbox-strategy-settlement__actions", "strategy settlement action styling is missing"],
   [".sandbox-strategy-continuation", "strategy continuation styling is missing"],
   [".sandbox-strategy-continuation__grid", "strategy continuation grid styling is missing"],
   [".sandbox-strategy-continuation__event", "strategy continuation event styling is missing"],

@@ -4628,3 +4628,25 @@
 - **边界**：
   - 本轮只改前端沙盘页跑后跨轮策略理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
   - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。
+
+### 2026-06-08 — Sandbox Strategy Settlement Preview
+
+- **做了什么**：
+  - `WorldSandboxPage` 在“多轮策略规划”和“下一轮暗线承接”之间新增“策略结算预告”。
+  - 结算预告复用既有 `strategyInteractions`、`latestConsequence`、`consequenceDomains`、`consequenceNextRoundHint` 和 `firstPossibility`，不新增 API 或 artifact。
+  - 四张跨轮验收卡分别解释“成败看什么 / 谁会反噬 / 世界记到哪里 / 跑完先验哪里”，让用户在启动下一轮前先知道跑后怎么判断这条暗线是否成立。
+  - 卡片动作可直接“验收首步”、承接反噬线、看世界线或追长线卷，把策略规划接到跑后证据入口。
+  - 扩展 `check:sandbox-runner-ux`，锁定策略结算 deck、中文标记、位置顺序、样式结构和移动端按钮折叠。
+  - 同步 `memory.md`、世界沙盘 PRD、路线图、`engine/README.md`、`engine/ui/README.md` 和 handoff。
+- **验证**：
+  - RED：先运行 `pnpm.cmd run check:sandbox-runner-ux`，确认缺少策略结算预告时失败，错误包括 `strategy settlement should derive cross-round settlement checks`、`strategy settlement should sit before continuation choices`、`strategy settlement should name the settlement surface`、`strategy settlement should explain how the next round will be judged`、`strategy settlement should explain who may retaliate`、`strategy settlement should connect settlement to world records`、`strategy settlement should route users to post-run evidence`、`strategy settlement should let users queue the first settlement check`、`strategy settlement should sit after long plan and before continuation choices`、`strategy settlement styling is missing`、`strategy settlement grid styling is missing` 和 `strategy settlement action styling is missing`。
+  - Focused helper：`pnpm.cmd run check:sandbox-runner-ux` -> `sandbox runner ux structure ok`。
+  - AppShell helper：`pnpm.cmd run check:app-shell-mobile-layout` -> `AppShell mobile layout keeps world navigation compact and complete.`。
+  - 路由拆包：`pnpm.cmd run check:route-code-splitting` -> `Route code splitting keeps the first bundle focused.`。
+  - 前端：`pnpm.cmd run build` 通过，入口 JS `235.95 kB`，`WorldSandboxPage-DEcM5OAM.js` `71.82 kB`，页面仍拆成独立 chunks，且无 Vite 大 chunk 警告。
+  - 后端：`python -X utf8 -m pytest -q` -> `951 passed in 177.04s`。
+  - 仓库：`git diff --check` 通过（仅 Git LF/CRLF 工作区提示）。
+  - HTTP smoke：当前实际 Vite dev server 在 `http://localhost:5174/#/`，`Invoke-WebRequest` 返回 HTTP 200。
+- **边界**：
+  - 本轮只改前端沙盘页跑后跨轮策略结算理解层、样式、结构检查脚本和文档；不新增后端 API，不改变 `POST /api/stories/<slug>/sandbox/run` 字段、路由、阅读进度、世界自演、作者采纳或 artifact 契约。
+  - 当前工具面未暴露 in-app Browser 控制能力；本轮未使用 Playwright 直接截图，保留结构、构建、测试和 HTTP smoke 验证。

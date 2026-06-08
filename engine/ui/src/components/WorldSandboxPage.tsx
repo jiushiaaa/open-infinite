@@ -591,6 +591,66 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
         },
       ]
     : [];
+  const strategySettlementDeck = leadStrategyInteraction
+    ? [
+        {
+          label: "成败看什么",
+          title: leadStrategyInteraction.hook,
+          detail: `下一轮先看${leadStrategyInteraction.targetName}是否被「${leadStrategyInteraction.tactic}」撬动；如果没有，就把它判成误判或反制开端。`,
+          action: "验收首步",
+          onClick: () => queueStrategySeed(leadStrategyInteraction),
+        },
+        {
+          label: "谁会反噬",
+          title: riskStrategyInteraction
+            ? `${riskStrategyInteraction.targetName}可能反噬${riskStrategyInteraction.actorName}`
+            : `${leadStrategyInteraction.targetName}可能反噬${leadStrategyInteraction.actorName}`,
+          detail:
+            riskStrategyInteraction?.risk ||
+            `${leadStrategyInteraction.risk}。跑完后先核对目标角色是否改判、隐瞒或借势反压。`,
+          action: riskStrategyInteraction ? "承接反噬线" : "看反制风险",
+          onClick: () =>
+            riskStrategyInteraction
+              ? queueStrategySeed(riskStrategyInteraction)
+              : focusStrategyBoard(),
+        },
+        {
+          label: "世界记到哪里",
+          title:
+            latestConsequence?.major_event ||
+            consequenceDomains[0]?.[1]?.label ||
+            "写入世界线、关系账和角色记忆",
+          detail:
+            latestConsequence?.impacts?.[0]?.pressure ||
+            consequenceDomains[0]?.[1]?.pressure ||
+            consequenceDomains[0]?.[1]?.current ||
+            impactStrategyInteraction?.effect ||
+            "下一轮跑完后，优先看世界线代偿、关系变化和角色主观记忆是否真的改写。",
+          action: "看世界线",
+          onClick: () =>
+            navigate({
+              name: "worldline",
+              slug,
+              worldlineId: round?.worldline_id || "main",
+            }),
+        },
+        {
+          label: "跑完先验哪里",
+          title: "先验结果总览，再追长线卷",
+          detail:
+            consequenceNextRoundHint ||
+            firstPossibility?.brief ||
+            "下一轮跑完后，先看本轮已发生，再进长线卷核对误会、伏笔和势力压力有没有继续发酵。",
+          action: "追长线卷",
+          onClick: () =>
+            navigate({
+              name: "longlineReading",
+              slug,
+              worldlineId: round?.worldline_id || "main",
+            }),
+        },
+      ]
+    : [];
   const resultReadingGuide = round
     ? [
         {
@@ -2202,6 +2262,34 @@ export function WorldSandboxPage({ slug }: { slug: string }) {
                         <strong>{item.title}</strong>
                         <p>{item.detail}</p>
                         <div className="sandbox-strategy-long-plan__actions">
+                          <button className="btn btn--ghost tiny" onClick={item.onClick}>
+                            {item.action}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {strategySettlementDeck.length > 0 && (
+                <section
+                  className="sandbox-section sandbox-strategy-settlement"
+                  aria-label="策略结算预告"
+                >
+                  <div className="sandbox-section__title">
+                    <div>
+                      <p className="tiny muted">策略结算预告</p>
+                      <h2>下一轮跑完按这些口径验收</h2>
+                    </div>
+                    <span className="badge badge--gold">跨轮结算</span>
+                  </div>
+                  <div className="sandbox-strategy-settlement__grid">
+                    {strategySettlementDeck.map((item) => (
+                      <article key={item.label}>
+                        <span>{item.label}</span>
+                        <strong>{item.title}</strong>
+                        <p>{item.detail}</p>
+                        <div className="sandbox-strategy-settlement__actions">
                           <button className="btn btn--ghost tiny" onClick={item.onClick}>
                             {item.action}
                           </button>
