@@ -182,3 +182,392 @@ summary:focus-visible {
   border: none;
   margin: var(--space-4) 0;
 }
+
+/* ── docs/image 第二轮视觉覆盖：剩余卷宗页与边缘入口 ───────────── */
+
+body .world-volume-page,
+body .character-volume-page,
+body .faction-volume-page,
+body .worldline-page,
+body .lens-page,
+body .event-perspective-page,
+body .longline-page,
+body .workspace,
+body .import,
+body .gen,
+body .project-workspace {
+  background:
+    radial-gradient(circle at 18% 8%, rgba(159, 51, 40, 0.06), transparent 22%),
+    radial-gradient(circle at 82% 14%, rgba(74, 124, 99, 0.07), transparent 24%),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper);
+  background-size: auto, auto, 360px 360px, auto;
+}
+
+body .workspace {
+  grid-template-columns:
+    minmax(210px, 0.66fr)
+    minmax(520px, 1.45fr)
+    minmax(250px, 0.78fr);
+}
+
+body .workspace__left,
+body .workspace__right {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.84), rgba(246, 236, 214, 0.58)),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper);
+  background-size: auto, 300px 300px, auto;
+  border-color: rgba(126, 110, 82, 0.3);
+}
+
+body .workspace__center {
+  background: transparent;
+}
+
+body .world-volume-hero,
+body .character-volume-hero,
+body .faction-volume-hero,
+body .worldline-hero,
+body .lens-hero,
+body .event-perspective-hero,
+body .longline-hero,
+body .import__head,
+body .gen__head,
+body .project-workspace__header {
+  max-width: 1320px;
+  border: 1px solid rgba(126, 110, 82, 0.26);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(90deg, rgba(159, 51, 40, 0.06), transparent 42%),
+    url("../assets/ink-mountains.svg"),
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.76);
+  background-position: center, right bottom, center;
+  background-size: auto, 34% auto, 360px 360px, auto;
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-5);
+}
+
+body .world-volume-hero__eyebrow,
+body .character-volume-hero__eyebrow,
+body .faction-volume-hero__eyebrow,
+body .worldline-hero__eyebrow,
+body .lens-hero__eyebrow,
+body .event-perspective-hero__eyebrow,
+body .longline-hero__eyebrow,
+body .import__eyebrow,
+body .gen__eyebrow {
+  color: var(--cinnabar-dark);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+body .world-volume-hero h1,
+body .character-volume-hero h1,
+body .faction-volume-hero h1,
+body .worldline-hero h1,
+body .lens-hero h1,
+body .event-perspective-hero h1,
+body .longline-hero h1,
+body .import__title,
+body .gen__title,
+body .project-workspace__header h1 {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.18;
+}
+
+body .world-volume-hero p:not(.world-volume-hero__eyebrow),
+body .character-volume-hero p:not(.character-volume-hero__eyebrow),
+body .faction-volume-hero p:not(.faction-volume-hero__eyebrow),
+body .worldline-hero p:not(.worldline-hero__eyebrow),
+body .lens-hero p:not(.lens-hero__eyebrow),
+body .event-perspective-hero p:not(.event-perspective-hero__eyebrow),
+body .longline-hero p:not(.longline-hero__eyebrow),
+body .import__lede,
+body .gen__lede {
+  display: inline-block;
+  max-width: min(680px, 100%);
+  margin-top: var(--space-2);
+  padding: 6px 10px 6px 12px;
+  border-left: 3px solid rgba(159, 51, 40, 0.72);
+  border-radius: 0 8px 8px 0;
+  background:
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.78);
+  background-size: 300px 300px, auto;
+  color: rgba(37, 32, 24, 0.78);
+  line-height: 1.78;
+  text-shadow: 0 1px 0 rgba(255, 252, 244, 0.58);
+}
+
+body .world-volume-handoff,
+body .world-volume-continuity,
+body .character-memory-handoff,
+body .character-memory-arc,
+body .faction-pressure-handoff__lead,
+body .faction-pressure-handoff article,
+body .faction-pressure-arc,
+body .worldline-command,
+body .worldline-continuity-rail,
+body .checkpoint-wake-handoff,
+body .lens-command,
+body .event-gap-handoff,
+body .event-misread-arc,
+body .longline-recovery-orchestrator,
+body .longline-continuation-map,
+body .import__command,
+body .import__handoff,
+body .gen__command,
+body .gen__handoff,
+body .project-workspace__command,
+body .settings {
+  border-color: rgba(126, 110, 82, 0.24);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(255, 252, 244, 0.88), rgba(239, 230, 210, 0.58)),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper-raised);
+  background-size: auto, 320px 320px, auto;
+  box-shadow: var(--shadow-card), var(--inner-paper-edge);
+}
+
+body .project-workspace__command {
+  grid-template-columns: minmax(260px, 0.56fr) minmax(360px, 1fr);
+}
+
+body .workspace .project-workspace__command {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body .project-workspace__command-steps {
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+}
+
+body .project-workspace__command-step {
+  align-content: start;
+  min-width: 0;
+  background:
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.76);
+  background-size: 280px 280px, auto;
+}
+
+body .project-workspace__command-step strong,
+body .project-workspace__command-step small {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+body .world-volume-handoff article,
+body .world-volume-continuity__step,
+body .character-memory-handoff article,
+body .character-memory-arc__step,
+body .faction-pressure-arc__step,
+body .event-gap-handoff article,
+body .event-misread-arc__step,
+body .longline-recovery-orchestrator article,
+body .longline-continuation-map__node,
+body .worldline-command__step,
+body .worldline-command__proof > div,
+body .worldline-command__proof > p,
+body .lens-command__step,
+body .lens-command__proof > div,
+body .lens-command__proof > p,
+body .import__step,
+body .gen__step {
+  border-color: rgba(126, 110, 82, 0.22);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.78), rgba(250, 246, 236, 0.66)),
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.72);
+  background-size: auto, 300px 300px, auto;
+  box-shadow: var(--inner-paper-edge);
+}
+
+body .worldline-command__step.is-active,
+body .lens-command__step.is-active,
+body .import__step.is-active,
+body .gen__step.is-active,
+body .event-misread-arc__step.is-primary {
+  border-color: rgba(159, 51, 40, 0.38);
+  background:
+    linear-gradient(180deg, rgba(159, 51, 40, 0.11), transparent 74%),
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.82);
+}
+
+body .worldline-command__step.is-done,
+body .lens-command__step.is-done,
+body .import__step.is-done,
+body .gen__step.is-done {
+  border-color: rgba(74, 124, 99, 0.36);
+  background:
+    linear-gradient(180deg, rgba(74, 124, 99, 0.1), transparent 74%),
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.82);
+}
+
+body .world-volume-mobile-guide button,
+body .character-volume-mobile-guide button,
+body .faction-volume-mobile-guide button,
+body .event-perspective-mobile-guide button,
+body .longline-mobile-guide button,
+body .checkpoint-mobile-guide,
+body .workspace-btn {
+  border-color: rgba(126, 110, 82, 0.24);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.82), rgba(239, 230, 210, 0.58)),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper-raised);
+  background-size: auto, 280px 280px, auto;
+}
+
+body .workspace-btn--primary {
+  border-color: rgba(108, 32, 24, 0.86);
+  background:
+    linear-gradient(180deg, rgba(186, 69, 54, 0.94), rgba(116, 34, 26, 0.96)),
+    var(--cinnabar);
+  color: #fff4e3;
+}
+
+body .settings-scrim {
+  background:
+    linear-gradient(90deg, rgba(15, 15, 13, 0.46), rgba(44, 33, 23, 0.18)),
+    rgba(40, 33, 22, 0.28);
+}
+
+body .settings__group {
+  border-bottom-color: rgba(126, 110, 82, 0.24);
+}
+
+body .settings__input {
+  background:
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper);
+  background-size: 240px 240px, auto;
+}
+
+body .event-gap-handoff button,
+body .faction-pressure-handoff button,
+body .world-volume-handoff article button {
+  border-color: rgba(74, 124, 99, 0.24);
+  background: var(--jade-wash);
+  color: var(--jade);
+}
+
+body .world-volume-hero__actions .btn--primary,
+body .character-volume-hero__actions .btn--primary,
+body .faction-volume-hero__actions .btn--primary,
+body .worldline-hero__actions .btn--primary,
+body .lens-hero__actions .btn--primary,
+body .event-perspective-hero__actions .btn--primary,
+body .longline-hero__actions .btn--primary,
+body .import__quick-actions .btn--primary,
+body .gen__quick-actions .btn--primary {
+  min-width: 132px;
+}
+
+body .world-volume-hero__actions .btn:focus-visible,
+body .character-volume-hero__actions .btn:focus-visible,
+body .faction-volume-hero__actions .btn:focus-visible,
+body .worldline-hero__actions .btn:focus-visible,
+body .lens-hero__actions .btn:focus-visible,
+body .event-perspective-hero__actions .btn:focus-visible,
+body .longline-hero__actions .btn:focus-visible,
+body .workspace-btn:focus-visible,
+body .settings__close:focus-visible,
+body .event-gap-handoff button:focus-visible,
+body .faction-pressure-handoff button:focus-visible,
+body .longline-continuation-map__node:focus-visible {
+  outline: 2px solid rgba(159, 51, 40, 0.5);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1180px) {
+  body .workspace {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+
+  body .workspace__right {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  body .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body .workspace__left {
+    display: none;
+  }
+
+  body .project-workspace__command {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body .project-workspace__command-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  body .world-volume-page,
+  body .character-volume-page,
+  body .faction-volume-page,
+  body .worldline-page,
+  body .lens-page,
+  body .event-perspective-page,
+  body .longline-page,
+  body .import,
+  body .gen,
+  body .project-workspace {
+    padding: var(--space-3);
+  }
+
+  body .world-volume-hero,
+  body .character-volume-hero,
+  body .faction-volume-hero,
+  body .worldline-hero,
+  body .lens-hero,
+  body .event-perspective-hero,
+  body .longline-hero,
+  body .import__head,
+  body .gen__head,
+  body .project-workspace__header {
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background-size: auto, 70% auto, 320px 320px, auto;
+  }
+
+  body .world-volume-hero__actions,
+  body .character-volume-hero__actions,
+  body .faction-volume-hero__actions,
+  body .worldline-hero__actions,
+  body .lens-hero__actions,
+  body .event-perspective-hero__actions,
+  body .longline-hero__actions,
+  body .project-workspace__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  body .world-volume-hero__actions .btn,
+  body .character-volume-hero__actions .btn,
+  body .faction-volume-hero__actions .btn,
+  body .worldline-hero__actions .btn,
+  body .lens-hero__actions .btn,
+  body .event-perspective-hero__actions .btn,
+  body .longline-hero__actions .btn,
+  body .project-workspace__actions .btn,
+  body .workspace-btn {
+    width: 100%;
+  }
+}

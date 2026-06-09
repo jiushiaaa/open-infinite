@@ -4867,3 +4867,18 @@
   - 移动端溢出：用 Chrome DevTools device metrics 强制 360px，确认 `window.innerWidth=360` 且 `document.documentElement.scrollWidth=360`。
 - **边界**：
   - 本轮只改前端视觉、静态 SVG 资产和文档记录；不改后端逻辑、不扩 provider / GraphRAG / 检索评测 / 发行 / 商业化。
+
+### 2026-06-09 — UI Visual Baseline Pass for Remaining Pages
+
+- **做了什么**：
+  - 在 2026-06-08 第一轮核心页视觉基座上，继续按 `docs/image` 的古风纸面、墨色侧栏、朱砂主动作、玉青状态、卷宗卡片和山水题签基准覆盖剩余前端页面。
+  - `global.css` 新增第二轮共享覆盖层，统一世界正史卷、主锚点卷、角色个人卷、势力卷、事件多视角、跨事件长线卷、世界线档案、检查点回放、多视角入口、导入小说、主题创世、机制档案和设置抽屉的纸面背景、山水题签、卷宗边框、行动按钮、状态卡和焦点态。
+  - 旧 `#/workspace/<slug>` 机制档案页从旧三栏压缩观感收束为窄卷轴 + 中央主卷宗布局，避免世界卡和工作流步骤被挤成竖排。
+  - 同步 `memory.md` 和 `engine/ui/README.md`。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 多轮通过。
+  - 本地服务：启动 `lne browse --host 127.0.0.1 --port 8765 --no-open` 与 `pnpm exec vite --host 127.0.0.1 --port 5173`。
+  - 浏览器截图：使用 Chrome headless 检查 `#/world/my-story/worldlines/main`、`#/world/my-story/worldlines/main/chronicle`、`#/world/my-story/worldlines/main/characters/zhao_xuan`、`#/world/my-story/worldlines/main/factions/苍澜派`、`#/world/my-story/worldlines/main/events/main/perspectives`、`#/world/my-story/worldlines/main/longline`、`#/world/my-story/worldlines/main/checkpoints/autopilot_20260606_210329_1a8810/checkpoint_001`、`#/world/my-story/lens`、`#/workspace/my-story`、`#/import` 和 `#/genesis`。
+  - 移动端溢出：用 Chrome DevTools device metrics 强制 360px，检查世界线、角色卷、事件卷、长线卷、导入和创世页面，`document.documentElement.scrollWidth=360`。
+- **边界**：
+  - 本轮只改前端视觉和文档记录；不改后端逻辑、不改 API contract、不新增 provider / GraphRAG / 检索评测 / 发行 / 商业化能力。
