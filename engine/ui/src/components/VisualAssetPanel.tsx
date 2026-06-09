@@ -1,12 +1,25 @@
-import { useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import type { AssetEntry, VisualAssets } from "../api/types";
 import { ApiError, api, assetUrl } from "../api/client";
+import fallbackCover from "../assets/generated/ink-landscape-desk.webp";
+import fallbackArchivist from "../assets/generated/ink-portrait-archivist.png";
+import fallbackGeneral from "../assets/generated/ink-portrait-general.png";
+import fallbackScholar from "../assets/generated/ink-portrait-scholar.png";
+import fallbackSwordwoman from "../assets/generated/ink-portrait-swordwoman.png";
 import "./visualAssets.css";
 
 function toMessage(e: unknown): string {
   if (e instanceof ApiError) return e.message;
   if (e instanceof Error) return e.message;
   return String(e);
+}
+
+const avatarFallbacks = [fallbackScholar, fallbackSwordwoman, fallbackGeneral, fallbackArchivist];
+
+function fallbackIndex(seed: string): number {
+  let hash = 0;
+  for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return hash % avatarFallbacks.length;
 }
 
 /** 资产图：ready 且有图则显示，否则显示古风占位；加载失败回退占位。 */
@@ -16,12 +29,14 @@ export function AssetImage({
   seal,
   variant,
   alt,
+  fallbackSrc,
 }: {
   slug: string;
   entry?: AssetEntry | null;
   seal: string;
   variant: "cover" | "avatar" | "scene";
   alt: string;
+  fallbackSrc?: string;
 }) {
   const [broken, setBroken] = useState(false);
   const ready = entry?.status === "ready" && Boolean(entry.path) && !broken;
@@ -36,11 +51,15 @@ export function AssetImage({
       />
     );
   }
+  const style = fallbackSrc
+    ? ({ "--vasset-fallback": `url("${fallbackSrc}")` } as CSSProperties)
+    : undefined;
   return (
     <div
       className={`vasset vasset--${variant} vasset--placeholder`}
       role="img"
       aria-label={`${alt}（暂无图像）`}
+      style={style}
     >
       <span className="vasset__seal">{seal}</span>
     </div>
@@ -60,6 +79,7 @@ export function CharacterAvatar({
   visual?: VisualAssets | null;
 }) {
   const entry = visual?.characters?.[charId] ?? null;
+  const fallbackSrc = avatarFallbacks[fallbackIndex(`${charId}:${name}`)];
   return (
     <AssetImage
       slug={slug}
@@ -67,6 +87,7 @@ export function CharacterAvatar({
       seal={name.slice(0, 1) || "角"}
       variant="avatar"
       alt={`${name} 头像`}
+      fallbackSrc={fallbackSrc}
     />
   );
 }
@@ -127,6 +148,7 @@ export function VisualAssetsControls({
         seal={slug.slice(0, 1).toUpperCase() || "封"}
         variant="cover"
         alt="故事封面"
+        fallbackSrc={fallbackCover}
       />
       <p className="muted tiny vassets-panel__hint">
         {loading ? "正在读取视觉资产…" : visual ? summarize(visual) : "暂无视觉资产。"}
@@ -177,6 +199,7 @@ export function StoryCoverThumb({ slug, seal }: { slug: string; seal: string }) 
       seal={seal}
       variant="cover"
       alt="故事封面"
+      fallbackSrc={fallbackCover}
     />
   );
 }

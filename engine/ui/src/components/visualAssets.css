@@ -26,11 +26,11 @@
   justify-content: center;
   background:
     linear-gradient(180deg, rgba(255, 252, 244, 0.16), rgba(23, 23, 20, 0.12)),
-    url("../assets/ink-mountains.svg"),
+    var(--vasset-fallback, url("../assets/generated/ink-landscape-desk.webp")),
     url("../assets/unfinale-paper-texture.svg"),
     var(--paper-sunken);
   background-position: center, center bottom, center;
-  background-size: auto, 125% auto, 260px 260px;
+  background-size: auto, cover, 260px 260px;
   border-style: solid;
   border-color: rgba(126, 110, 82, 0.42);
 }
@@ -78,8 +78,8 @@
 }
 .vasset--avatar.vasset--placeholder {
   background:
-    linear-gradient(180deg, rgba(255, 252, 244, 0.1), rgba(23, 23, 20, 0.08)),
-    url("../assets/ink-character-silhouette.svg");
+    linear-gradient(180deg, rgba(255, 252, 244, 0.04), rgba(23, 23, 20, 0.1)),
+    var(--vasset-fallback, url("../assets/ink-character-silhouette.svg"));
   background-position: center, center;
   background-size: auto, cover;
 }

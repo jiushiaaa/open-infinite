@@ -240,11 +240,11 @@ body .project-workspace__header {
   border-radius: var(--radius);
   background:
     linear-gradient(90deg, rgba(159, 51, 40, 0.06), transparent 42%),
-    url("../assets/ink-mountains.svg"),
+    url("../assets/generated/ink-landscape-desk.webp"),
     url("../assets/unfinale-paper-texture.svg"),
     rgba(255, 252, 244, 0.76);
   background-position: center, right bottom, center;
-  background-size: auto, 34% auto, 360px 360px, auto;
+  background-size: auto, cover, 360px 360px, auto;
   box-shadow: var(--shadow-soft);
   padding: var(--space-5);
 }
@@ -486,6 +486,322 @@ body .faction-pressure-handoff button:focus-visible,
 body .longline-continuation-map__node:focus-visible {
   outline: 2px solid rgba(159, 51, 40, 0.5);
   outline-offset: 2px;
+}
+
+/* ── docs/image 第三轮视觉覆盖：深层系统件、状态态与设置抽屉 ───────────── */
+
+body .state {
+  width: min(680px, calc(100% - var(--space-5)));
+  min-height: 180px;
+  margin: var(--space-5) auto;
+  border: 1px solid rgba(126, 110, 82, 0.24);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(255, 252, 244, 0.9), rgba(239, 230, 210, 0.58)),
+    url("../assets/generated/ink-landscape-desk.webp"),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper-raised);
+  background-position: center, right bottom, center;
+  background-size: auto, cover, 320px 320px, auto;
+  box-shadow: var(--shadow-card), var(--inner-paper-edge);
+}
+
+body .state__title {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+body .state--error {
+  border-color: rgba(159, 51, 40, 0.38);
+  background:
+    linear-gradient(135deg, rgba(159, 51, 40, 0.1), rgba(255, 252, 244, 0.86) 52%),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper-raised);
+  background-size: auto, 320px 320px, auto;
+}
+
+body .state--empty .state__title {
+  color: var(--ink-soft);
+}
+
+body .state__brush {
+  width: 32px;
+  height: 32px;
+  border-color: rgba(126, 110, 82, 0.42);
+  border-top-color: var(--cinnabar);
+  box-shadow: inset 0 0 0 4px rgba(255, 252, 244, 0.76);
+}
+
+body .settings__inner {
+  padding: var(--space-5);
+}
+
+body .settings__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: calc(var(--space-5) * -1) calc(var(--space-5) * -1) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid rgba(126, 110, 82, 0.24);
+  background:
+    linear-gradient(180deg, rgba(26, 25, 21, 0.96), rgba(38, 31, 24, 0.9)),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--ink);
+  background-size: auto, 280px 280px, auto;
+  box-shadow: 0 14px 32px rgba(32, 24, 17, 0.18);
+}
+
+body .settings__title {
+  color: #fff4e3;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
+body .settings__close {
+  border: 1px solid rgba(255, 244, 227, 0.28);
+  border-radius: var(--radius-sm);
+  color: #fff4e3;
+  background: rgba(255, 252, 244, 0.06);
+}
+
+body .settings__close:hover {
+  border-color: rgba(198, 76, 58, 0.72);
+  color: #fff4e3;
+  background: rgba(198, 76, 58, 0.22);
+}
+
+body .settings__group {
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid rgba(126, 110, 82, 0.2);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.82), rgba(246, 236, 214, 0.52)),
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.74);
+  background-size: auto, 260px 260px, auto;
+  box-shadow: var(--inner-paper-edge);
+}
+
+body .settings__group-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  color: var(--cinnabar-dark);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+body .settings__group-title::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 4px;
+  background: url("../assets/generated/cinnabar-seal-square.png") center / cover no-repeat;
+  box-shadow: 0 1px 0 rgba(255, 252, 244, 0.32);
+}
+
+body .settings__field {
+  gap: 7px;
+}
+
+body .settings__label {
+  color: var(--ink);
+}
+
+body .settings__input,
+body .composer__input,
+body .composer__select,
+body .master-setting__field input,
+body .master-setting__field textarea {
+  border-color: rgba(126, 110, 82, 0.28);
+  border-radius: var(--radius-sm);
+  background:
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.86);
+  background-size: 240px 240px, auto;
+  box-shadow: inset 0 1px 0 rgba(255, 252, 244, 0.8);
+}
+
+body .settings__input:focus,
+body .composer__input:focus,
+body .composer__select:focus,
+body .master-setting__field input:focus,
+body .master-setting__field textarea:focus {
+  border-color: rgba(74, 124, 99, 0.58);
+  box-shadow: 0 0 0 3px rgba(74, 124, 99, 0.14);
+}
+
+body .settings__status-row,
+body .settings__route-row,
+body .settings__metric-row > div,
+body .project-side__line,
+body .asset-list li,
+body .sample-list li {
+  border: 1px solid rgba(126, 110, 82, 0.18);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.72), rgba(250, 246, 236, 0.56)),
+    url("../assets/unfinale-paper-texture.svg");
+  background-size: auto, 240px 240px;
+}
+
+body .settings__status-row,
+body .settings__route-row,
+body .settings__metric-row > div {
+  padding: 9px 10px;
+}
+
+body .settings__route-list,
+body .settings__status-list {
+  gap: 8px;
+}
+
+body .settings__inline-error,
+body .settings__err,
+body .composer__error,
+body .cdiff__error,
+body .master-setting__error,
+body .error-text {
+  border: 1px solid rgba(159, 51, 40, 0.24);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  background: rgba(159, 51, 40, 0.08);
+  color: var(--cinnabar-dark);
+}
+
+body .settings__foot {
+  position: sticky;
+  bottom: 0;
+  margin: var(--space-4) calc(var(--space-5) * -1) calc(var(--space-5) * -1);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid rgba(126, 110, 82, 0.24);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.86), rgba(239, 230, 210, 0.92)),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper-raised);
+  background-size: auto, 260px 260px, auto;
+}
+
+body .project-workspace__section,
+body .expl-section,
+body .bcanon__panel,
+body .cdiff,
+body .composer__body,
+body .master-setting__block,
+body .audit-log__toolbar,
+body .audit-log__rights,
+body .artifact-block,
+body .worldline-section {
+  border: 1px solid rgba(126, 110, 82, 0.22);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(255, 252, 244, 0.84), rgba(246, 236, 214, 0.5)),
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.72);
+  background-size: auto, 300px 300px, auto;
+  box-shadow: var(--inner-paper-edge);
+}
+
+body .project-workspace__section,
+body .artifact-block {
+  padding: var(--space-4);
+}
+
+body .project-workspace__section {
+  border-top: 1px solid rgba(126, 110, 82, 0.22);
+}
+
+body .project-workspace__section-title,
+body .worldline-section__title,
+body .longline-section-title,
+body .expl-section__title {
+  border-bottom: 1px dashed rgba(126, 110, 82, 0.24);
+  padding-bottom: var(--space-2);
+}
+
+body .project-workspace__section-title h2,
+body .worldline-section h2,
+body .longline-section-title h2,
+body .expl-section__title {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  letter-spacing: 0;
+}
+
+body .risk-strip span,
+body .project-workspace__steps span,
+body .master-setting__steps span,
+body .audit-log__steps span,
+body .bcanon__dimension-list span,
+body .cdiff__tags span {
+  border-color: rgba(126, 110, 82, 0.22);
+  border-radius: 999px;
+  background:
+    url("../assets/unfinale-paper-texture.svg"),
+    rgba(255, 252, 244, 0.76);
+  background-size: 220px 220px, auto;
+}
+
+body .risk-strip span {
+  border-color: rgba(159, 51, 40, 0.32);
+  background: rgba(159, 51, 40, 0.08);
+  color: var(--cinnabar-dark);
+}
+
+body .master-setting__metric,
+body .bcanon__metric,
+body .bcanon__risk,
+body .state-card,
+body .audit-log__list li,
+body .master-setting__list li,
+body .bcanon__list li {
+  border-color: rgba(126, 110, 82, 0.2);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.74), rgba(250, 246, 236, 0.56)),
+    url("../assets/unfinale-paper-texture.svg");
+  background-size: auto, 240px 240px;
+}
+
+body .rpanel {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.78), rgba(246, 236, 214, 0.5)),
+    url("../assets/unfinale-paper-texture.svg"),
+    var(--paper-raised);
+  background-size: auto, 300px 300px, auto;
+}
+
+body .rpanel__tabs {
+  border-bottom-color: rgba(126, 110, 82, 0.22);
+  background:
+    linear-gradient(180deg, rgba(31, 29, 24, 0.96), rgba(44, 36, 28, 0.9)),
+    var(--ink);
+}
+
+body .rpanel__tab {
+  color: rgba(255, 244, 227, 0.72);
+}
+
+body .rpanel__tab.is-active {
+  color: #fff4e3;
+  background: rgba(159, 51, 40, 0.28);
+}
+
+body .composer__body {
+  box-shadow: var(--shadow-card), var(--inner-paper-edge);
+}
+
+body .composer__handle {
+  border-color: rgba(108, 32, 24, 0.86);
+  background:
+    linear-gradient(180deg, rgba(186, 69, 54, 0.94), rgba(116, 34, 26, 0.96)),
+    var(--cinnabar);
+  color: #fff4e3;
 }
 
 @media (max-width: 1180px) {

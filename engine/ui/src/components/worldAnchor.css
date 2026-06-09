@@ -24,11 +24,11 @@
   border-right: 1px solid var(--line-strong);
   background:
     linear-gradient(180deg, rgba(255, 252, 244, 0.9), rgba(238, 227, 207, 0.78) 54%, rgba(28, 27, 24, 0.08)),
-    url("../assets/ink-mountains.svg"),
+    url("../assets/generated/ink-landscape-desk.webp"),
     url("../assets/unfinale-paper-texture.svg"),
     var(--paper-raised);
   background-position: center, center bottom, center;
-  background-size: auto, 120% auto, 340px 340px, auto;
+  background-size: auto, cover, 340px 340px, auto;
 }
 .anchor__right {
   border-left: 1px solid var(--line-strong);
@@ -1364,13 +1364,21 @@
   }
 
   .anchor__status-pulse {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .anchor__status-pulse span {
     padding: var(--space-2) 0 0;
     border-top: 1px solid rgba(45, 104, 92, 0.16);
     border-left: none;
+  }
+
+  .anchor__status-pulse small,
+  .anchor__status-pulse strong {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .anchor__gateway-flow,

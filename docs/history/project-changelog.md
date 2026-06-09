@@ -4882,3 +4882,18 @@
   - 移动端溢出：用 Chrome DevTools device metrics 强制 360px，检查世界线、角色卷、事件卷、长线卷、导入和创世页面，`document.documentElement.scrollWidth=360`。
 - **边界**：
   - 本轮只改前端视觉和文档记录；不改后端逻辑、不改 API contract、不新增 provider / GraphRAG / 检索评测 / 发行 / 商业化能力。
+
+### 2026-06-09 — UI Image2 Ink Asset Integration
+
+- **做了什么**：
+  - 调用 image2 生成统一古风水墨人物头像表、山水书案背景和朱砂印/玉青/卷宗角标装饰表，并将稳定资产落地到 `engine/ui/src/assets/generated/`。
+  - `VisualAssetPanel` 新增本地水墨兜底：后端视觉资产缺失或加载失败时，故事封面使用山水书案图，角色头像按角色 seed 选择四张水墨人物头像。
+  - `AppShell` 墨色侧栏、`WorldAnchorPage` 左栏、深层卷宗 hero、通用空态和设置组标题接入生成的山水/朱砂印资产，让实际工作台更接近 `docs/image` 的纸面、墨色、印章和卷宗质感。
+  - 修正 360px 移动端下世界书架标题、顶部动作区、WorldWorkspaceShell 世界扫读带和世界锚定状态指标的裁切/横向溢出。
+  - 同步 `memory.md` 和 `engine/ui/README.md`。
+- **验证**：
+  - 前端：`cd engine/ui && pnpm run build` 多轮通过。
+  - 本地服务：复用正在运行的 `http://127.0.0.1:5173` 与 `http://127.0.0.1:8765`。
+  - 浏览器截图：使用 Chrome headless 检查 `#/`、`#/anchor/my-story` 的 1440px 与 360px 截图；最终 360px 入口标题、世界扫读带和锚定阶段指标均不再裁切。
+- **边界**：
+  - 本轮只改前端视觉、静态资产和文档记录；不改后端逻辑、不改 API contract、不新增 provider / GraphRAG / 检索评测 / 发行 / 商业化能力。

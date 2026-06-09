@@ -130,6 +130,12 @@ pnpm run build
 
 文档-only 任务通常不需要跑前端 build；改 TS/TSX、路由、类型或样式时必须至少跑 `pnpm run build`。
 
+## 视觉资产
+
+- `src/assets/generated/` 保存 image2 生成后落地的稳定美术资产，包括水墨人物头像、山水书案背景、朱砂印、玉青状态盘和卷宗角标。
+- `VisualAssetPanel` 在后端视觉资产缺失或加载失败时，会用本地水墨封面和四张人物头像作为兜底，不再退回普通灰色占位。
+- `AppShell`、`WorldAnchorPage`、深层卷宗 hero、状态空态和设置组标题会复用 `ink-landscape-desk.webp` 与 `cinnabar-seal-square.png`，保持 `docs/image` 的古风纸面、墨色侧栏和朱砂印语言。
+
 ## 当前主要页面
 
 | 页面/组件 | 当前职责 |
